@@ -1,6 +1,6 @@
 # LLM Reservoir Agent
 
-[Saved results and figures](results/README.md) · [Three-reservoir offline results](results/three_reservoir_offline/RESULTS.md) · [Pre-live acceptance plan](docs/offline_pre_live_acceptance.md)
+[Saved results and figures](results/README.md) · [Seven-day offline results](results/three_reservoir_offline/RESULTS.md) · [Monthly offline results](results/three_reservoir_month_2016_01/RESULTS.md) · [Pre-live acceptance plan](docs/offline_pre_live_acceptance.md)
 
 This private research repository publishes the accepted generic integration and
 curated FE Walter outputs. Verify the published result bytes without running a

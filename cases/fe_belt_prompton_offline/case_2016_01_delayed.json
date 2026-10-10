@@ -1,0 +1,134 @@
+{
+  "schema_version": "llm-reservoir-network-case.v1",
+  "data_kind": "simulated_local_inflow",
+  "network": {
+    "schema_version": "llm-reservoir-network.v1",
+    "case_id": "fe-belt-prompton-offline-2016-01-31d-artificial-delay",
+    "start_date": "2016-01-01",
+    "reservoirs": {
+      "FEWalter": {
+        "inflow_node": "FEWalter_Inflow",
+        "physical": {
+          "reservoir_id": "fe_walter",
+          "capacity_m3": 135199473.1344,
+          "dead_storage_m3": 11101.3362,
+          "initial_storage_m3": 2764865.304170752,
+          "minimum_release_cms": 1.4158423296,
+          "maximum_release_cms": 283.16846592,
+          "dt_seconds": 86400.0
+        },
+        "context": {
+          "upstream_subbasin_count": 7
+        },
+        "operation_mode": "controlled"
+      },
+      "Beltzville": {
+        "inflow_node": "Beltzville_Inflow",
+        "physical": {
+          "reservoir_id": "beltzville",
+          "capacity_m3": 132624929.28894264,
+          "dead_storage_m3": 0.0,
+          "initial_storage_m3": 53194480.78883532,
+          "minimum_release_cms": 0.0,
+          "maximum_release_cms": 28.316846592,
+          "dt_seconds": 86400.0
+        },
+        "context": {
+          "upstream_subbasin_count": 5
+        },
+        "operation_mode": "controlled"
+      },
+      "Prompton": {
+        "inflow_node": "Prompton_Inflow",
+        "physical": {
+          "reservoir_id": "prompton",
+          "capacity_m3": 67438140.16941717,
+          "dead_storage_m3": 0.0,
+          "initial_storage_m3": 4698742.694035934,
+          "minimum_release_cms": 0.0,
+          "maximum_release_cms": 99.10896307200001,
+          "dt_seconds": 86400.0
+        },
+        "context": {
+          "upstream_subbasin_count": 3
+        },
+        "operation_mode": "passive_outlet",
+        "passive_outlet_source": {
+          "path": "prompton_storage_discharge.json",
+          "sha256": "26a0e3e5ecb503bfedf7454f612e8aa48e185671c5224563d536040ab07e2b33"
+        }
+      }
+    },
+    "junctions": [
+      "LehighContribution",
+      "LackawaxenContribution"
+    ],
+    "outlet": "ManagedContributionOutlet",
+    "connections": [
+      {
+        "source": "FEWalter",
+        "target": "LehighContribution",
+        "unit_hydrograph": [
+          1.0
+        ]
+      },
+      {
+        "source": "Beltzville",
+        "target": "LehighContribution",
+        "unit_hydrograph": [
+          1.0
+        ]
+      },
+      {
+        "source": "Prompton",
+        "target": "LackawaxenContribution",
+        "unit_hydrograph": [
+          1.0
+        ]
+      },
+      {
+        "source": "LehighContribution",
+        "target": "ManagedContributionOutlet",
+        "unit_hydrograph": [
+          0.0,
+          1.0
+        ]
+      },
+      {
+        "source": "LackawaxenContribution",
+        "target": "ManagedContributionOutlet",
+        "unit_hydrograph": [
+          0.0,
+          1.0
+        ]
+      }
+    ],
+    "assumptions": {
+      "flow_scope": "three managed-reservoir contributions only; not complete river or gauged discharge",
+      "routing": "Artificial one-day delay at two confluence-to-outlet edges; sensitivity fixture, not calibrated routing",
+      "initial_channel_storage": "zero; no pre-start routing history or warmup",
+      "local_inflow": "frozen 7/5/3 aggregate upstream-routed reservoir inflow applied once; downstream laterals excluded",
+      "losses": "evaporation, seepage, direct lake precipitation and diversions zero prototype",
+      "initial_storage": "2015-12-31 USACE UTC daily mean proxy, not midnight state",
+      "controlled_actions": "synthetic response fixtures, not LLM or accepted operating policy",
+      "physical_bounds": "FE bounds reused from accepted preparation fixture; Belt upper curve storage at 672ft and 1000cfs numerical test ceiling are provisional; Prompton capacity at 1205ft, rating only1125..1200; no extrapolation",
+      "audit": "absent operating audit remains UNKNOWN; file/physics acceptance separate"
+    },
+    "live_readiness": {
+      "ready": false,
+      "blockers": [
+        "verified downstream reaches and lateral forcings",
+        "current complete Prompton outlet rating",
+        "Beltzville approved operating bounds",
+        "case-specific prompts, DKP, targets and audit rules",
+        "causal operational inflow/forecast and storage initialization",
+        "explicit live budget/provider configuration"
+      ]
+    }
+  },
+  "inflow_source": {
+    "path": "inflows_2016_01.csv",
+    "sha256": "bc85b58f11c09ad8d7fc0a013a2e8e24eea2a2b0bdaebfca20b7b092627570c4",
+    "format": "daily-node-local-cms.v1"
+  }
+}

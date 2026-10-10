@@ -76,3 +76,5 @@ FE 在 2016-01-04 的給定 release 增加 5 cms，該日出口增加約 5 cms�
 6. 短 pilot 前固定策略指標與門檻：季節 target、最低 release 缺口、越界 request、spill、下游洪峰、audit 狀態；分開判定 execution、物理與策略驗收。上述 `live_readiness` 目前明列 false，沒有自動啟動機制。
 
 完整數據與驗收參見 [離線結果](../results/three_reservoir_offline/RESULTS.md)。原 FE 五年 audit 711 FAIL 的診斷結論保持不變。
+
+另已完成 [2016 年 1 月 31 天 daily 延伸測試](../results/three_reservoir_month_2016_01/RESULTS.md)：baseline、FE pulse、Belt pulse、人工一日 delay，各 93 reservoir-days。沿用同一物理與資料來源，前三個對應情境的前 7 天 transitions 與既有結果完全一致。FE／Belt 單獨放流改變共同下游，不改另外兩庫入流；完整 trace、routing 與水庫／河道水量均驗證。所有策略 audit 仍 UNKNOWN，前述真實 LLM 條件並未因此自動具備。

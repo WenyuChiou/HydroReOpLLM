@@ -50,17 +50,19 @@ def main():
             ax.plot(x, [q for _, q in pulse[name]], ":", label="Pulse scenario outflow", color="#cb7433", linewidth=2)
         ax.set_title(name + (" — passive outlet" if spec.get("operation_mode") == "passive_outlet" else " — offline actions"))
         ax.legend(fontsize=9)
+    dates = [day for day, _ in base[outlet]]
     for ax in axes[:count]:
         ax.set_ylabel("Daily flow (m³/s)")
-        ax.xaxis.set_major_locator(mdates.DayLocator())
+        ax.xaxis.set_major_locator(mdates.AutoDateLocator(minticks=4, maxticks=7))
         ax.xaxis.set_major_formatter(mdates.DateFormatter("%b %d"))
         ax.tick_params(axis="x", labelsize=9)
+        if len(dates) > 1:
+            ax.set_xlim(dates[0], dates[-1])
         ax.grid(axis="y", color="#d9dfe4", linewidth=.7)
         ax.spines[["top", "right"]].set_visible(False)
         ax.set_ylim(bottom=0)
     for ax in axes[count:]:
         ax.set_visible(False)
-    dates = [day for day, _ in base[outlet]]
     fig.suptitle(f"{len(dates)}-day offline network · {dates[0]} to {dates[-1]}", fontsize=17)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     for suffix in (".png", ".pdf", ".svg"):

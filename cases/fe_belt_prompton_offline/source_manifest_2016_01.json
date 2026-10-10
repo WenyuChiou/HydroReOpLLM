@@ -1,0 +1,745 @@
+{
+  "schema_version": "offline-case-source-manifest.v1",
+  "date_range": [
+    "2016-01-01",
+    "2016-01-31"
+  ],
+  "days": 31,
+  "hydrology_recomputed": false,
+  "original_sources": {
+    "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\_worktrees\\drb-raster-layout\\results\\current\\four_reservoir_hydrocnhs_native\\tables\\daily_simulated_reservoir_inflow_1991_2025.csv.gz": "3b7fe10f96c6148248f9f0ddc221e66a0d7b39faaab81c302e2881642c7b00b8",
+    "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\_worktrees\\drb-raster-layout\\results\\current\\four_reservoir_hydrocnhs_native\\sources\\usace_storage_daily.csv.gz": "4bc50a9fe0e5105982b5db6b1c19d38c28a46494ce2ffaac74692b2b9cc763ab",
+    "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\outputs\\reservoir_seasonal_elevation\\fe_walter_storage_elevation_curve.csv": "baa89b33023c23002b94ac48e68c69278c384d15a64a72d2587a1e6ad458999d",
+    "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\outputs\\reservoir_seasonal_elevation\\beltzville_storage_elevation_curve.csv": "1aff740932b2635c34c7bbbe823ad5d4b5b019fb4887e0f119067d8cf664268e",
+    "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\outputs\\reservoir_seasonal_elevation\\prompton_storage_elevation_curve.csv": "73f68ebcd5428da4dfbe9b97c7ee1be7985f443df2f339489489f65497108e1a"
+  },
+  "initial_state_records": {
+    "beltzville": {
+      "date": "2015-12-31",
+      "reservoir": "Beltzville Lake",
+      "storage_acft": "43125.46741231283",
+      "valid_15min_values": "96",
+      "series_id": "Beltzville.Stor.Inst.15Minutes.0.Rev-DCP",
+      "preliminary": "True"
+    },
+    "fe_walter": {
+      "date": "2015-12-31",
+      "reservoir": "F. E. Walter Reservoir",
+      "storage_acft": "2241.5127811431885",
+      "valid_15min_values": "96",
+      "series_id": "FEWalter.Stor.Inst.15Minutes.0.Rev-DCP",
+      "preliminary": "True"
+    },
+    "prompton": {
+      "date": "2015-12-31",
+      "reservoir": "Prompton Lake",
+      "storage_acft": "3809.33269627889",
+      "valid_15min_values": "96",
+      "series_id": "Prompton.Stor.Inst.15Minutes.0.Rev-DCP",
+      "preliminary": "True"
+    }
+  },
+  "source_model": "Accepted frozen formal Demo 7/5/3 GWLF/Lohmann reservoir-inlet simulations; no recalibration",
+  "selected_inflow_source_records": {
+    "fe_walter": [
+      {
+        "date": "2016-01-01",
+        "reservoir": "fe_walter",
+        "simulated_inflow_cfs": "1134.494923447602",
+        "upstream_subbasin_count": "7",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-02",
+        "reservoir": "fe_walter",
+        "simulated_inflow_cfs": "789.3904126442794",
+        "upstream_subbasin_count": "7",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-03",
+        "reservoir": "fe_walter",
+        "simulated_inflow_cfs": "501.25395745443126",
+        "upstream_subbasin_count": "7",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-04",
+        "reservoir": "fe_walter",
+        "simulated_inflow_cfs": "342.1097031436995",
+        "upstream_subbasin_count": "7",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-05",
+        "reservoir": "fe_walter",
+        "simulated_inflow_cfs": "260.7527715670673",
+        "upstream_subbasin_count": "7",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-06",
+        "reservoir": "fe_walter",
+        "simulated_inflow_cfs": "219.9063117826473",
+        "upstream_subbasin_count": "7",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-07",
+        "reservoir": "fe_walter",
+        "simulated_inflow_cfs": "199.25424491409223",
+        "upstream_subbasin_count": "7",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-08",
+        "reservoir": "fe_walter",
+        "simulated_inflow_cfs": "188.4942293623675",
+        "upstream_subbasin_count": "7",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-09",
+        "reservoir": "fe_walter",
+        "simulated_inflow_cfs": "182.54219699951292",
+        "upstream_subbasin_count": "7",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-10",
+        "reservoir": "fe_walter",
+        "simulated_inflow_cfs": "1244.163972961167",
+        "upstream_subbasin_count": "7",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-11",
+        "reservoir": "fe_walter",
+        "simulated_inflow_cfs": "2936.008515060507",
+        "upstream_subbasin_count": "7",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-12",
+        "reservoir": "fe_walter",
+        "simulated_inflow_cfs": "2671.13316369012",
+        "upstream_subbasin_count": "7",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-13",
+        "reservoir": "fe_walter",
+        "simulated_inflow_cfs": "1558.0360836432174",
+        "upstream_subbasin_count": "7",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-14",
+        "reservoir": "fe_walter",
+        "simulated_inflow_cfs": "892.633039324495",
+        "upstream_subbasin_count": "7",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-15",
+        "reservoir": "fe_walter",
+        "simulated_inflow_cfs": "547.3496582817285",
+        "upstream_subbasin_count": "7",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-16",
+        "reservoir": "fe_walter",
+        "simulated_inflow_cfs": "374.93280091667225",
+        "upstream_subbasin_count": "7",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-17",
+        "reservoir": "fe_walter",
+        "simulated_inflow_cfs": "293.8624074910125",
+        "upstream_subbasin_count": "7",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-18",
+        "reservoir": "fe_walter",
+        "simulated_inflow_cfs": "258.3398248679113",
+        "upstream_subbasin_count": "7",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-19",
+        "reservoir": "fe_walter",
+        "simulated_inflow_cfs": "233.71033326911356",
+        "upstream_subbasin_count": "7",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-20",
+        "reservoir": "fe_walter",
+        "simulated_inflow_cfs": "219.29523804201693",
+        "upstream_subbasin_count": "7",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-21",
+        "reservoir": "fe_walter",
+        "simulated_inflow_cfs": "211.13351557948175",
+        "upstream_subbasin_count": "7",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-22",
+        "reservoir": "fe_walter",
+        "simulated_inflow_cfs": "206.25737410960673",
+        "upstream_subbasin_count": "7",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-23",
+        "reservoir": "fe_walter",
+        "simulated_inflow_cfs": "203.03025165871995",
+        "upstream_subbasin_count": "7",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-24",
+        "reservoir": "fe_walter",
+        "simulated_inflow_cfs": "200.61843403989874",
+        "upstream_subbasin_count": "7",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-25",
+        "reservoir": "fe_walter",
+        "simulated_inflow_cfs": "198.60961568054415",
+        "upstream_subbasin_count": "7",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-26",
+        "reservoir": "fe_walter",
+        "simulated_inflow_cfs": "196.80257675559776",
+        "upstream_subbasin_count": "7",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-27",
+        "reservoir": "fe_walter",
+        "simulated_inflow_cfs": "195.09974247344493",
+        "upstream_subbasin_count": "7",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-28",
+        "reservoir": "fe_walter",
+        "simulated_inflow_cfs": "193.4539386127442",
+        "upstream_subbasin_count": "7",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-29",
+        "reservoir": "fe_walter",
+        "simulated_inflow_cfs": "191.8423754945125",
+        "upstream_subbasin_count": "7",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-30",
+        "reservoir": "fe_walter",
+        "simulated_inflow_cfs": "190.25402790991038",
+        "upstream_subbasin_count": "7",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-31",
+        "reservoir": "fe_walter",
+        "simulated_inflow_cfs": "188.6835374261846",
+        "upstream_subbasin_count": "7",
+        "model": "hydrocnhs_native_regionalized"
+      }
+    ],
+    "beltzville": [
+      {
+        "date": "2016-01-01",
+        "reservoir": "beltzville",
+        "simulated_inflow_cfs": "274.37385668136164",
+        "upstream_subbasin_count": "5",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-02",
+        "reservoir": "beltzville",
+        "simulated_inflow_cfs": "232.8762660469758",
+        "upstream_subbasin_count": "5",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-03",
+        "reservoir": "beltzville",
+        "simulated_inflow_cfs": "210.63016632367894",
+        "upstream_subbasin_count": "5",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-04",
+        "reservoir": "beltzville",
+        "simulated_inflow_cfs": "197.16635154543172",
+        "upstream_subbasin_count": "5",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-05",
+        "reservoir": "beltzville",
+        "simulated_inflow_cfs": "187.76834436827897",
+        "upstream_subbasin_count": "5",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-06",
+        "reservoir": "beltzville",
+        "simulated_inflow_cfs": "180.30936699618198",
+        "upstream_subbasin_count": "5",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-07",
+        "reservoir": "beltzville",
+        "simulated_inflow_cfs": "173.82850778417753",
+        "upstream_subbasin_count": "5",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-08",
+        "reservoir": "beltzville",
+        "simulated_inflow_cfs": "167.88978241388946",
+        "upstream_subbasin_count": "5",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-09",
+        "reservoir": "beltzville",
+        "simulated_inflow_cfs": "162.29361316531552",
+        "upstream_subbasin_count": "5",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-10",
+        "reservoir": "beltzville",
+        "simulated_inflow_cfs": "667.5524409573871",
+        "upstream_subbasin_count": "5",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-11",
+        "reservoir": "beltzville",
+        "simulated_inflow_cfs": "813.2165390925308",
+        "upstream_subbasin_count": "5",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-12",
+        "reservoir": "beltzville",
+        "simulated_inflow_cfs": "521.9308067017822",
+        "upstream_subbasin_count": "5",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-13",
+        "reservoir": "beltzville",
+        "simulated_inflow_cfs": "370.44320011437395",
+        "upstream_subbasin_count": "5",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-14",
+        "reservoir": "beltzville",
+        "simulated_inflow_cfs": "297.8333837292168",
+        "upstream_subbasin_count": "5",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-15",
+        "reservoir": "beltzville",
+        "simulated_inflow_cfs": "260.87425723461837",
+        "upstream_subbasin_count": "5",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-16",
+        "reservoir": "beltzville",
+        "simulated_inflow_cfs": "240.10255596373764",
+        "upstream_subbasin_count": "5",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-17",
+        "reservoir": "beltzville",
+        "simulated_inflow_cfs": "344.89864349085406",
+        "upstream_subbasin_count": "5",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-18",
+        "reservoir": "beltzville",
+        "simulated_inflow_cfs": "283.43203017493005",
+        "upstream_subbasin_count": "5",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-19",
+        "reservoir": "beltzville",
+        "simulated_inflow_cfs": "246.75231640987758",
+        "upstream_subbasin_count": "5",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-20",
+        "reservoir": "beltzville",
+        "simulated_inflow_cfs": "226.3554779891428",
+        "upstream_subbasin_count": "5",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-21",
+        "reservoir": "beltzville",
+        "simulated_inflow_cfs": "213.4150273704606",
+        "upstream_subbasin_count": "5",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-22",
+        "reservoir": "beltzville",
+        "simulated_inflow_cfs": "203.95361298926838",
+        "upstream_subbasin_count": "5",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-23",
+        "reservoir": "beltzville",
+        "simulated_inflow_cfs": "196.17684401002037",
+        "upstream_subbasin_count": "5",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-24",
+        "reservoir": "beltzville",
+        "simulated_inflow_cfs": "189.27311403412992",
+        "upstream_subbasin_count": "5",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-25",
+        "reservoir": "beltzville",
+        "simulated_inflow_cfs": "182.8733405940232",
+        "upstream_subbasin_count": "5",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-26",
+        "reservoir": "beltzville",
+        "simulated_inflow_cfs": "176.8077641719498",
+        "upstream_subbasin_count": "5",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-27",
+        "reservoir": "beltzville",
+        "simulated_inflow_cfs": "170.99646793042518",
+        "upstream_subbasin_count": "5",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-28",
+        "reservoir": "beltzville",
+        "simulated_inflow_cfs": "165.40009160519426",
+        "upstream_subbasin_count": "5",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-29",
+        "reservoir": "beltzville",
+        "simulated_inflow_cfs": "159.9976417703636",
+        "upstream_subbasin_count": "5",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-30",
+        "reservoir": "beltzville",
+        "simulated_inflow_cfs": "154.77649958679206",
+        "upstream_subbasin_count": "5",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-31",
+        "reservoir": "beltzville",
+        "simulated_inflow_cfs": "149.72791933343495",
+        "upstream_subbasin_count": "5",
+        "model": "hydrocnhs_native_regionalized"
+      }
+    ],
+    "prompton": [
+      {
+        "date": "2016-01-01",
+        "reservoir": "prompton",
+        "simulated_inflow_cfs": "207.49060035584384",
+        "upstream_subbasin_count": "3",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-02",
+        "reservoir": "prompton",
+        "simulated_inflow_cfs": "89.97931546740703",
+        "upstream_subbasin_count": "3",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-03",
+        "reservoir": "prompton",
+        "simulated_inflow_cfs": "55.78208653707436",
+        "upstream_subbasin_count": "3",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-04",
+        "reservoir": "prompton",
+        "simulated_inflow_cfs": "47.12615257789181",
+        "upstream_subbasin_count": "3",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-05",
+        "reservoir": "prompton",
+        "simulated_inflow_cfs": "43.90890971043292",
+        "upstream_subbasin_count": "3",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-06",
+        "reservoir": "prompton",
+        "simulated_inflow_cfs": "41.86272876303684",
+        "upstream_subbasin_count": "3",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-07",
+        "reservoir": "prompton",
+        "simulated_inflow_cfs": "40.11224990737256",
+        "upstream_subbasin_count": "3",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-08",
+        "reservoir": "prompton",
+        "simulated_inflow_cfs": "38.47619695119283",
+        "upstream_subbasin_count": "3",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-09",
+        "reservoir": "prompton",
+        "simulated_inflow_cfs": "36.91531589084443",
+        "upstream_subbasin_count": "3",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-10",
+        "reservoir": "prompton",
+        "simulated_inflow_cfs": "35.419482638192",
+        "upstream_subbasin_count": "3",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-11",
+        "reservoir": "prompton",
+        "simulated_inflow_cfs": "813.587356786051",
+        "upstream_subbasin_count": "3",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-12",
+        "reservoir": "prompton",
+        "simulated_inflow_cfs": "264.7408334303862",
+        "upstream_subbasin_count": "3",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-13",
+        "reservoir": "prompton",
+        "simulated_inflow_cfs": "95.81417662841561",
+        "upstream_subbasin_count": "3",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-14",
+        "reservoir": "prompton",
+        "simulated_inflow_cfs": "58.61245822113519",
+        "upstream_subbasin_count": "3",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-15",
+        "reservoir": "prompton",
+        "simulated_inflow_cfs": "49.42264308967172",
+        "upstream_subbasin_count": "3",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-16",
+        "reservoir": "prompton",
+        "simulated_inflow_cfs": "46.026953947024474",
+        "upstream_subbasin_count": "3",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-17",
+        "reservoir": "prompton",
+        "simulated_inflow_cfs": "43.87750853701661",
+        "upstream_subbasin_count": "3",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-18",
+        "reservoir": "prompton",
+        "simulated_inflow_cfs": "42.04184330731179",
+        "upstream_subbasin_count": "3",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-19",
+        "reservoir": "prompton",
+        "simulated_inflow_cfs": "40.32689603256492",
+        "upstream_subbasin_count": "3",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-20",
+        "reservoir": "prompton",
+        "simulated_inflow_cfs": "38.69089751238096",
+        "upstream_subbasin_count": "3",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-21",
+        "reservoir": "prompton",
+        "simulated_inflow_cfs": "37.12310846501737",
+        "upstream_subbasin_count": "3",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-22",
+        "reservoir": "prompton",
+        "simulated_inflow_cfs": "35.61922379556603",
+        "upstream_subbasin_count": "3",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-23",
+        "reservoir": "prompton",
+        "simulated_inflow_cfs": "34.17633953670392",
+        "upstream_subbasin_count": "3",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-24",
+        "reservoir": "prompton",
+        "simulated_inflow_cfs": "32.7919202039936",
+        "upstream_subbasin_count": "3",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-25",
+        "reservoir": "prompton",
+        "simulated_inflow_cfs": "31.46358431518949",
+        "upstream_subbasin_count": "3",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-26",
+        "reservoir": "prompton",
+        "simulated_inflow_cfs": "30.189057346126514",
+        "upstream_subbasin_count": "3",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-27",
+        "reservoir": "prompton",
+        "simulated_inflow_cfs": "28.96615905389998",
+        "upstream_subbasin_count": "3",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-28",
+        "reservoir": "prompton",
+        "simulated_inflow_cfs": "27.792797951466454",
+        "upstream_subbasin_count": "3",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-29",
+        "reservoir": "prompton",
+        "simulated_inflow_cfs": "26.666967363418618",
+        "upstream_subbasin_count": "3",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-30",
+        "reservoir": "prompton",
+        "simulated_inflow_cfs": "25.586741919090375",
+        "upstream_subbasin_count": "3",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-31",
+        "reservoir": "prompton",
+        "simulated_inflow_cfs": "24.55027424447561",
+        "upstream_subbasin_count": "3",
+        "model": "hydrocnhs_native_regionalized"
+      }
+    ]
+  },
+  "rating_provenance": {
+    "data_kind": "manual_visual_digitization_provisional",
+    "source": "USACE Prompton WCM 2018, Plate 7-2 (1997), physical PDF page 187",
+    "source_pdf_sha256": "76ddd1c447f0d4388270d1c62bd5f3645384123d3859d6c5825a142b3fc3b928",
+    "render_sha256": "87d5a508db79adea2f4f2a48d692f409ab08edac3ccdce8988f50c40443396a8",
+    "stage_storage_table": "WCM Table 7-2 corrected 2014",
+    "stage_storage_sha256": "73f68ebcd5428da4dfbe9b97c7ee1be7985f443df2f339489489f65497108e1a",
+    "method": "parent visual rounded Q(h) estimates; linear stage-to-storage conversion, then piecewise-linear Q(S)",
+    "uncertainty": "not quantified; not a verified current outlet rating; below 1125 or above 1200 prohibited",
+    "operationally_validated": false
+  },
+  "bundle_files": {
+    "prompton_storage_discharge.json": "26a0e3e5ecb503bfedf7454f612e8aa48e185671c5224563d536040ab07e2b33",
+    "prompton_storage_elevation.csv": "73f68ebcd5428da4dfbe9b97c7ee1be7985f443df2f339489489f65497108e1a",
+    "fe_walter_storage_elevation.csv": "baa89b33023c23002b94ac48e68c69278c384d15a64a72d2587a1e6ad458999d",
+    "beltzville_storage_elevation.csv": "1aff740932b2635c34c7bbbe823ad5d4b5b019fb4887e0f119067d8cf664268e",
+    "initial_storage.csv": "bf58e32a8dc9a40ba88c3efb2d028c4778da163983109331dd01d97f65d80f9d",
+    "prompton_outlet_plate_7_2.png": "87d5a508db79adea2f4f2a48d692f409ab08edac3ccdce8988f50c40443396a8",
+    "prompton_digitized_rating.csv": "7987a4ac15dd90956cd8566ba3b129d841cd72ca1e37caec298d5e0eba9565d6",
+    "case_2016_01.json": "933dddcfa877d8b656d52f9163444bfe2d3d15355489695b95f03444841653be",
+    "case_2016_01_delayed.json": "12782f1eb63c4e05626b099474fba4d340cf9309f940d3e2154570cbff380f34",
+    "inflows_2016_01.csv": "bc85b58f11c09ad8d7fc0a013a2e8e24eea2a2b0bdaebfca20b7b092627570c4",
+    "responses_2016_01_baseline.json": "852df65a66b67587788512f60bd8ac75c26c67ad3b9192386e87e0ffd3b5c8d7",
+    "responses_2016_01_fe_pulse.json": "5a5e4e754f8f1d79217b9dfbfc7db0148fad8e6aba14e2b15329e0b5e9d2646c",
+    "responses_2016_01_belt_pulse.json": "77a921271b773d09f371849713904681e3d2ff4dc7166539f42166f07ddedb07"
+  },
+  "prior_7_day_input_prefix_byte_exact": true,
+  "physical_routing_settings_equal_prior_case": true,
+  "scenarios": {
+    "baseline": "given pass-through requests for two controlled reservoirs; passive Prompton",
+    "fe_pulse": {
+      "reservoir": "FEWalter",
+      "date": "2016-01-04",
+      "additional_requested_cms": 5.0
+    },
+    "belt_pulse": {
+      "reservoir": "Beltzville",
+      "date": "2016-01-15",
+      "additional_requested_cms": 2.0
+    },
+    "delayed": "baseline plus artificial one-day UH at two confluence-to-outlet edges"
+  },
+  "real_LLM_calls": 0
+}

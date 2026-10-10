@@ -1,0 +1,70 @@
+{
+  "baseline": {
+    "status": "PASS",
+    "days": 31,
+    "reservoir_count": 3,
+    "reservoir_days": 93,
+    "date_start": "2016-01-01",
+    "date_end": "2016-01-31",
+    "audit_counts": {
+      "UNKNOWN": 93
+    },
+    "max_reservoir_balance_residual_m3": 9.313225746154785e-10,
+    "max_system_balance_residual_m3": 1.862645149230957e-09,
+    "max_routing_difference_cms": 0.0,
+    "final_channel_storage_m3": 0.0,
+    "observed_network_calls": 0,
+    "operating_strategy_accepted": null
+  },
+  "fe_pulse": {
+    "status": "PASS",
+    "days": 31,
+    "reservoir_count": 3,
+    "reservoir_days": 93,
+    "date_start": "2016-01-01",
+    "date_end": "2016-01-31",
+    "audit_counts": {
+      "UNKNOWN": 93
+    },
+    "max_reservoir_balance_residual_m3": 9.313225746154785e-10,
+    "max_system_balance_residual_m3": 1.862645149230957e-09,
+    "max_routing_difference_cms": 0.0,
+    "final_channel_storage_m3": 0.0,
+    "observed_network_calls": 0,
+    "operating_strategy_accepted": null
+  },
+  "belt_pulse": {
+    "status": "PASS",
+    "days": 31,
+    "reservoir_count": 3,
+    "reservoir_days": 93,
+    "date_start": "2016-01-01",
+    "date_end": "2016-01-31",
+    "audit_counts": {
+      "UNKNOWN": 93
+    },
+    "max_reservoir_balance_residual_m3": 9.313225746154785e-10,
+    "max_system_balance_residual_m3": 1.862645149230957e-09,
+    "max_routing_difference_cms": 0.0,
+    "final_channel_storage_m3": 0.0,
+    "observed_network_calls": 0,
+    "operating_strategy_accepted": null
+  },
+  "delayed": {
+    "status": "PASS",
+    "days": 31,
+    "reservoir_count": 3,
+    "reservoir_days": 93,
+    "date_start": "2016-01-01",
+    "date_end": "2016-01-31",
+    "audit_counts": {
+      "UNKNOWN": 93
+    },
+    "max_reservoir_balance_residual_m3": 9.313225746154785e-10,
+    "max_system_balance_residual_m3": 5.471520125865936e-09,
+    "max_routing_difference_cms": 0.0,
+    "final_channel_storage_m3": 891255.2611773526,
+    "observed_network_calls": 0,
+    "operating_strategy_accepted": null
+  }
+}
