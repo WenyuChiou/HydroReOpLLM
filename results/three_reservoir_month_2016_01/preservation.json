@@ -1,0 +1,15 @@
+{
+  "status": "PASS",
+  "original_tracked_files_unchanged": 287,
+  "intentional_existing_path_changes": [
+    "README.md",
+    "docs/offline_pre_live_acceptance.md",
+    "scripts/plot_offline_network.py"
+  ],
+  "original_7_day_inputs_outputs_and_raw_trace_unchanged": true,
+  "original_five_year_results_unchanged": true,
+  "science_source_hashes_verified": 5,
+  "calibration_or_full_hydrology_rerun": false,
+  "previous_94_test_package_modules_unchanged": true,
+  "previous_94_test_acceptance_sha256": "6dfc3db486348e571c7c50305512613a8d4cd7d4608ae09b09ee8f2311cdedfc"
+}

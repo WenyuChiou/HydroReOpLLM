@@ -15,7 +15,8 @@ import platform
 
 from .audit import json_snapshot
 from .contracts import parse_action
-from .network import PROJECT_ROOT, run_network, validate_inflows
+from .network import PROJECT_ROOT, _run_network, validate_inflows
+from .passive import complete_backends
 from .policy_adapter import LLMPolicyAdapter, validate_isolated_backends
 from .trace import TraceJournal
 
@@ -124,8 +125,7 @@ def run_experiment(config, rows, backends, *, output, run_id, project_root=PROJE
     Original audit FAIL remains diagnostic FAIL; completion is execution status.
     """
     topology, local = validate_inflows(config, rows)
-    if not isinstance(backends, Mapping) or set(backends) != set(topology["reservoirs"]):
-        raise ValueError("one backend is required for every reservoir")
+    backends = complete_backends(config, backends)
     if not all(callable(getattr(backend, "decide", None)) for backend in backends.values()):
         raise TypeError("each backend must provide decide(observation)")
     validate_isolated_backends(backends)
@@ -152,8 +152,12 @@ def run_experiment(config, rows, backends, *, output, run_id, project_root=PROJE
             "abm_module_sha256": hashlib.sha256((root / "examples/llm_reservoir_abm.py").read_bytes()).hexdigest(),
             "automatic_retry": False,
         })
-        records, engine = run_network(config, rows, policies, project_root=root)
+        records, engine = _run_network(config, rows, policies, project_root=root)
         flows = engine.pop("routed_flows_cms")
+        ledger = engine.pop("network_balance")
+        reaches = engine.pop("reach_volume_trace")
+        _csv(journal.output / "network_balance.csv", list(ledger[0]), ledger)
+        write_json(journal.output / "reach_volume_trace.json", {"schema_version": "reach-volume-trace.v1", "reaches": reaches})
         flattened = [dict(date=r["observation"]["timestamp"],
                           reservoir_id=config["reservoirs"][name]["physical"]["reservoir_id"],
                           **r["transition"]) for name, series in records.items() for r in series]
@@ -173,7 +177,8 @@ def run_experiment(config, rows, backends, *, output, run_id, project_root=PROJE
             observed_network_calls=None if any(value is None for value in calls.values()) else sum(calls.values()),
             operating_strategy_accepted=None,
             output_files={name: hashlib.sha256((journal.output / name).read_bytes()).hexdigest()
-                          for name in ("experiment.json", "reservoir_trajectory.csv", "network_flows.csv")})
+                          for name in ("experiment.json", "reservoir_trajectory.csv", "network_flows.csv",
+                                       "network_balance.csv", "reach_volume_trace.json")})
         return records, journal.finalize(summary)
     except Exception as exc:
         failure = {"completed_reservoir_days": committed, "automatic_retry": False}

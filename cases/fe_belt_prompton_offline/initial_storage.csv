@@ -1,0 +1,4 @@
+reservoir_id,source_date,storage_acft,storage_m3,valid_15min_values,interpretation
+beltzville,2015-12-31,43125.46741231283,53194480.78883532,96,prior UTC daily mean used as initial-state proxy; not midnight observation
+fe_walter,2015-12-31,2241.5127811431885,2764865.304170752,96,prior UTC daily mean used as initial-state proxy; not midnight observation
+prompton,2015-12-31,3809.33269627889,4698742.694035934,96,prior UTC daily mean used as initial-state proxy; not midnight observation

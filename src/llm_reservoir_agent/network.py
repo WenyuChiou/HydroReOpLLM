@@ -15,6 +15,8 @@ from pathlib import Path
 from .contracts import finite_nonnegative, _json_mapping_copy
 from .physics import PhysicalConfig
 from .policy_adapter import validate_isolated_backends
+from .passive import PassiveOutlet, complete_backends
+from .balance import network_balance
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
@@ -42,6 +44,15 @@ def validate_network(config):
         if physical.dt_seconds != 86400:
             raise ValueError("only daily timesteps are supported")
         physical_ids.append(physical.reservoir_id)
+        mode = settings.get("operation_mode", "controlled")
+        if mode not in ("controlled", "passive_outlet"):
+            raise ValueError("operation_mode must be controlled or passive_outlet")
+        if mode == "passive_outlet":
+            if "policy_spec" in settings:
+                raise ValueError("a passive reservoir cannot have a policy specification")
+            PassiveOutlet(settings["physical"], settings["passive_outlet"])
+        elif "passive_outlet" in settings:
+            raise ValueError("controlled reservoirs cannot carry passive outlet physics")
         for field in ("location", "context", "policy_spec"):
             if field in settings:
                 _json_mapping_copy(settings[field], field)
@@ -169,6 +180,12 @@ def build_network_model(config, days, *, project_root=PROJECT_ROOT):
 
 
 def run_network(config, rows, policies, *, project_root=PROJECT_ROOT):
+    """Supply policies for controlled nodes only; passive outlets are physics."""
+    validate_inflows(config, rows)
+    return _run_network(config, rows, complete_backends(config, policies), project_root=project_root)
+
+
+def _run_network(config, rows, policies, *, project_root=PROJECT_ROOT):
     """Execute native Dam loops and independently verify every routed node."""
     topology, local = validate_inflows(config, rows)
     if not isinstance(policies, Mapping) or set(policies) != set(topology["reservoirs"]):
@@ -270,6 +287,7 @@ def run_network(config, rows, policies, *, project_root=PROJECT_ROOT):
                     expected[node] += np.convolve(expected[edge["source"]], edge["unit_hydrograph"])[:len(rows)] * edge["fraction"]
         if not np.allclose(native[node], expected[node], rtol=0, atol=1e-10):
             raise RuntimeError("native outflow was lost or duplicated at " + node)
+    ledger, reaches = network_balance(topology, local, expected, records, [r["date"] for r in rows])
     return records, {"engine": "hydrocnhs_reservoir_network", "days": len(rows),
         "reservoir_count": len(records), "reservoirs": list(records), "simulation_sequence": sequence,
         "verified_hydrocnhs_commit": core["hydrocnhs_commit"], "hydrology_recomputed": False,
@@ -277,4 +295,8 @@ def run_network(config, rows, policies, *, project_root=PROJECT_ROOT):
         "local_inflows_unchanged": True, "native_node_aliases": aliases, "native_routing_relays": relays,
         "native_sequence_normalized": original_native_sequence != native_sequence,
         "original_native_sequence": original_native_sequence,
+        "network_balance": ledger, "reach_volume_trace": reaches,
+        "max_system_balance_residual_m3": max(abs(r["system_residual_m3"]) for r in ledger),
+        "initial_channel_storage_m3": 0.0, "final_channel_storage_m3": ledger[-1]["channel_storage_end_m3"],
+        "operation_modes": {name: s.get("operation_mode", "controlled") for name, s in config["reservoirs"].items()},
         "routed_flows_cms": {node: q.tolist() for node, q in expected.items()}}

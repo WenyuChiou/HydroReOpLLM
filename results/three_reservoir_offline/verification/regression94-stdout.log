@@ -1,0 +1,23 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{"python": "3.12.14", "modules": ["test_llm_neutral_core", "test_llm_trace", "test_llm_network", "test_case_and_hydrocnhs", "test_passive_and_balance", "test_verification_corruption"], "tests": 94, "failures": 0, "errors": 0, "skipped": 0, "network_calls_permitted": false}

@@ -1,0 +1,87 @@
+{
+  "schema_version": "reservoir-network-responses.v1",
+  "reservoirs": {
+    "FEWalter": {
+      "schema_version": "recorded-llm-responses.v1",
+      "data_kind": "synthetic_fixture",
+      "records": [
+        {
+          "date": "2016-01-01",
+          "release_cms": 32.12531870666853,
+          "rationale": "Offline pass-through fixture"
+        },
+        {
+          "date": "2016-01-02",
+          "release_cms": 22.353047216043638,
+          "rationale": "Offline pass-through fixture"
+        },
+        {
+          "date": "2016-01-03",
+          "release_cms": 14.193931416870026,
+          "rationale": "Offline pass-through fixture"
+        },
+        {
+          "date": "2016-01-04",
+          "release_cms": 9.6874679815548,
+          "rationale": "Offline pass-through fixture"
+        },
+        {
+          "date": "2016-01-05",
+          "release_cms": 7.383696230903465,
+          "rationale": "Offline pass-through fixture"
+        },
+        {
+          "date": "2016-01-06",
+          "release_cms": 6.2270532953617455,
+          "rationale": "Offline pass-through fixture"
+        },
+        {
+          "date": "2016-01-07",
+          "release_cms": 5.642251886037146,
+          "rationale": "Offline pass-through fixture"
+        }
+      ]
+    },
+    "Beltzville": {
+      "schema_version": "recorded-llm-responses.v1",
+      "data_kind": "synthetic_fixture",
+      "records": [
+        {
+          "date": "2016-01-01",
+          "release_cms": 7.769402408501512,
+          "rationale": "Offline pass-through fixture"
+        },
+        {
+          "date": "2016-01-02",
+          "release_cms": 6.594321500569992,
+          "rationale": "Offline pass-through fixture"
+        },
+        {
+          "date": "2016-01-03",
+          "release_cms": 5.964382107435061,
+          "rationale": "Offline pass-through fixture"
+        },
+        {
+          "date": "2016-01-04",
+          "release_cms": 5.583129329816332,
+          "rationale": "Offline pass-through fixture"
+        },
+        {
+          "date": "2016-01-05",
+          "release_cms": 5.317007402310383,
+          "rationale": "Offline pass-through fixture"
+        },
+        {
+          "date": "2016-01-06",
+          "release_cms": 5.105792684331513,
+          "rationale": "Offline pass-through fixture"
+        },
+        {
+          "date": "2016-01-07",
+          "release_cms": 4.9222751882408335,
+          "rationale": "Offline pass-through fixture"
+        }
+      ]
+    }
+  }
+}

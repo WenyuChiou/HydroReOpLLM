@@ -1,0 +1,10 @@
+{
+  "completed_reservoir_days": {
+    "fe_walter": 7,
+    "beltzville": 7,
+    "prompton": 7
+  },
+  "completed_network_days": 7,
+  "last_committed_reservoir": "prompton",
+  "last_committed_date": "2016-01-07T00:00:00"
+}

@@ -1,0 +1,46 @@
+{
+  "schema_version": "geographic-source-evidence.v1",
+  "retrieved_at_utc": "2026-10-10",
+  "evidence_semantics": "Agency search-index excerpts corroborate existing local branch topology; full-page opens returned HTTP403. No scientific asset downloaded or routing parameter inferred.",
+  "sources": [
+    {
+      "url": "https://www.nap.usace.army.mil/Missions/Civil-Works/Francis-E-Walter-Dam/",
+      "claim": "FE Walter is on the Lehigh River at Bear Creek, and works with Beltzville for downstream Lehigh flood management.",
+      "evidence": "USACE search results turn6search0, turn6search1 and turn6search12; full-page open403."
+    },
+    {
+      "url": "https://www.nap.usace.army.mil/Missions/Civil-Works/Beltzville-Dam/",
+      "claim": "Beltzville is on Pohopoco Creek, which joins the Lehigh downstream.",
+      "evidence": "USACE search-index excerpt turn5search1; full-page open403."
+    },
+    {
+      "url": "https://www.nap.usace.army.mil/Missions/Civil-Works/Prompton-Jadwin-Dam/index.html",
+      "claim": "Prompton is on the West Branch Lackawaxen River, a tributary of the Lackawaxen.",
+      "evidence": "USACE search-index excerpt turn5search2; full-page open403."
+    },
+    {
+      "url": "https://www.hec.usace.army.mil/sustainablerivers/publications/docs/North%20Atlantic%20-%20Environmental%20opportunities%20at%20USACE%20reservoirs.pdf",
+      "claim": "Lackawaxen reaches the Delaware; Prompton is upstream of that confluence.",
+      "evidence": "USACE primary search-index excerpt turn5search16; not downloaded."
+    },
+    {
+      "url": "https://www.nap.usace.army.mil/Portals/39/docs/Civil/Walter/FEW-Reevaluation-Factsheet-For-Public-Meeting.pdf?ver=2020-01-07-125941-453",
+      "claim": "FE Walter is upstream along the Lehigh from its confluence with the Delaware.",
+      "evidence": "USACE primary search-index excerpt turn6search12; not downloaded."
+    }
+  ],
+  "failed_full_page_fetches": [
+    {
+      "url": "https://www.nap.usace.army.mil/Missions/Civil-Works/Francis-E-Walter-Dam/",
+      "status": 403
+    },
+    {
+      "url": "https://www.nap.usace.army.mil/Missions/Civil-Works/Beltzville-Dam/",
+      "status": 403
+    },
+    {
+      "url": "https://www.nap.usace.army.mil/Missions/Civil-Works/Prompton-Jadwin-Dam/index.html",
+      "status": 403
+    }
+  ]
+}
