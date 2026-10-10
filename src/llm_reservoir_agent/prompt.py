@@ -13,6 +13,7 @@ from dataclasses import dataclass, field
 from typing import Any, Mapping, Protocol, Sequence
 
 from .contracts import ReservoirAction, _json_mapping_copy
+from .audit import validate_audit_provenance
 
 
 def _text(value: Any, label: str) -> str:
@@ -53,6 +54,7 @@ def validate_provenance(value: Mapping[str, Any]) -> dict[str, Any]:
             raise ValueError("knowledge package IDs and hash keys must match without duplicates")
         for identifier, digest in hashes.items():
             _sha256(digest, f"knowledge_package_sha256.{identifier}")
+    validate_audit_provenance(result)
     return result
 
 

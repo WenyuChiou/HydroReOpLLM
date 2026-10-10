@@ -11,7 +11,7 @@ from datetime import date, timedelta
 from pathlib import Path
 from typing import Any
 
-from .audit import json_snapshot, normalize_audit
+from .audit import audit_binding, json_snapshot, normalize_audit, validate_audit_provenance
 
 
 TRACE_SCHEMA_VERSION = "reservoir-trace.v1"
@@ -67,6 +67,7 @@ def _provenance(value: Mapping[str, Any] | None) -> dict[str, Any]:
         values = list(hashes.values()) if isinstance(hashes, dict) else hashes
         if not isinstance(values, list) or not all(isinstance(h, str) and _HASH.fullmatch(h) for h in values):
             raise ValueError("provenance.knowledge_package_sha256 must contain SHA256 hex digests")
+    validate_audit_provenance(result)
     return result
 
 
@@ -197,6 +198,19 @@ class TraceJournal:
                 raise TypeError("provenance must be a mapping")
             metadata.update(provenance)
         metadata = _provenance(metadata)
+        binding = {}
+        if "audit_contract" in normalized:
+            contract = normalized["audit_contract"]
+            if (metadata.get("audit_suite_sha256") != contract["suite_sha256"] or
+                    metadata.get("auditor_specs") != contract["auditors"]):
+                raise ValueError("audit configuration does not match declared provenance")
+            original_input = normalized["original_payload"]["input"]
+            if original_input["observation"] != observation_copy or original_input["action"] != action_copy:
+                raise ValueError("audit input does not match this decision")
+            binding = {"audit_contract": contract,
+                       "audit_binding_sha256": audit_binding(scope["decision_id"], normalized)}
+        elif "audit_suite_sha256" in metadata or "auditor_specs" in metadata:
+            raise ValueError("versioned audit provenance requires a bound suite payload")
         if raw is not None and not isinstance(raw, Mapping):
             raise TypeError("raw must be a mapping or None")
         raw_copy = json_snapshot(raw, label="raw")
@@ -209,13 +223,13 @@ class TraceJournal:
             refs["raw_policy_ref"] = self._raw("policy", scope["decision_id"], raw_copy)
         decision = {
             **scope, "event_type": "decision", "status": "RECORDED",
-            "observation": observation_copy, "action": action_copy, "provenance": metadata,
+            "observation": observation_copy, "action": action_copy, "provenance": metadata, **binding,
         }
         if "raw_policy_ref" in refs:
             decision["raw_policy_ref"] = refs["raw_policy_ref"]
         audit_event = {
             **scope, "event_type": "audit", "audit_schema_version": audit_schema,
-            **normalized, "provenance": metadata,
+            **normalized, "provenance": metadata, **binding,
         }
         if "original_payload_ref" in refs:
             audit_event["original_payload_ref"] = refs["original_payload_ref"]
@@ -250,6 +264,7 @@ class TraceJournal:
     def record_backend_event(
         self, reservoir_id: str, event: str, *, timestep: int, timestamp: str,
         request_id: str | None = None, details: Mapping[str, Any] | None = None, status: str = "UNKNOWN",
+        raw: Mapping[str, Any] | None = None,
     ) -> None:
         self._open()
         _text(event, "event")
@@ -263,7 +278,14 @@ class TraceJournal:
             raise ValueError("duplicate backend event for reservoir/timestep")
         if (reservoir_id, scope["timestep"]) not in self._decisions:
             self._next(reservoir_id, scope["timestep"], scope["timestamp"])
-        self._append("backend_events", {**scope, "event_type": event, "status": status, "details": details_copy})
+        refs = {}
+        if raw is not None:
+            if not isinstance(raw, Mapping):
+                raise TypeError("raw backend event must be a mapping")
+            kind = "backend_" + hashlib.sha256(event.encode("utf-8")).hexdigest()[:12]
+            refs["raw_backend_ref"] = self._raw(kind, scope["decision_id"], json_snapshot(raw))
+        self._append("backend_events", {**scope, "event_type": event, "status": status,
+                                        "details": details_copy, **refs})
         self._backend.add(key)
         self._backend_scopes[(reservoir_id, scope["timestep"])] = scope
 

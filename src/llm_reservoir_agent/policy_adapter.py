@@ -48,14 +48,17 @@ def _same(actual: float, expected: float, label: str) -> None:
 def validate_isolated_backends(backends: Mapping[str, Any]) -> None:
     """Reject shared state before execution, including nested adapter ownership.
 
-    Wrappers expose their immediate ``state_owner``. The frozen bridge's public
-    ``policy`` remains supported. Every object in each ownership chain must be
+    Wrappers expose ``state_owner`` and optionally multiple ``state_owners``.
+    The frozen bridge's public ``policy`` remains supported. Every owned object must be
     exclusive to that reservoir; backend equality is deliberately irrelevant.
     """
     claimed: dict[int, str] = {}
     for name, backend in backends.items():
-        current, visited = backend, set()
-        while current is not None and id(current) not in visited:
+        pending, visited = [backend], set()
+        while pending:
+            current = pending.pop()
+            if current is None or id(current) in visited:
+                continue
             identity = id(current)
             if identity in claimed:
                 raise ValueError("reservoirs must not share the same stateful backend or "
@@ -63,7 +66,11 @@ def validate_isolated_backends(backends: Mapping[str, Any]) -> None:
             claimed[identity] = name
             visited.add(identity)
             owner = getattr(current, "state_owner", None)
-            current = owner if owner is not None else getattr(current, "policy", None)
+            pending.append(owner if owner is not None else getattr(current, "policy", None))
+            owners = getattr(current, "state_owners", ())
+            if not isinstance(owners, (list, tuple)):
+                raise TypeError("state_owners must be a list or tuple of owned instances")
+            pending.extend(owners)
 
 
 class LLMPolicyAdapter:

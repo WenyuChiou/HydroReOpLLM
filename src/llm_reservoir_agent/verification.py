@@ -8,7 +8,7 @@ import math
 from pathlib import Path
 
 from .case import inside, read_json
-from .audit import normalize_audit
+from .audit import audit_binding, normalize_audit, validate_audit_provenance
 from .contracts import ReservoirObservation, finite_nonnegative, parse_action
 from .network import validate_inflows
 from .passive import PassiveOutlet
@@ -71,7 +71,7 @@ def _event_key(event, *, result, ids, days, expected_type=None):
     return reservoir_id, timestep
 
 
-def verify_run(output, *, require_offline=False):
+def verify_run(output, *, require_offline=False, expected_audit_suites=None):
     """Verify hashes, durable causality, exported physics and routed volumes.
 
     Existing audit FAIL/WARN/UNKNOWN values remain unchanged. Passing these file
@@ -113,6 +113,12 @@ def verify_run(output, *, require_offline=False):
     _check(result.get("durable_event_counts") == actual_counts, "non-durable event counts")
 
     ids = {settings["physical"]["reservoir_id"]: name for name, settings in config["reservoirs"].items()}
+    expected_audit_suites = {} if expected_audit_suites is None else expected_audit_suites
+    _check(isinstance(expected_audit_suites, Mapping) and set(expected_audit_suites) <= set(ids),
+           "external audit pins must use known reservoir IDs")
+    _check(all(isinstance(h, str) and len(h) == 64 and all(c in "0123456789abcdef" for c in h)
+               for h in expected_audit_suites.values()), "invalid external audit suite hash")
+    audit_bindings = {"versioned_suite": 0, "legacy_unbound": 0}
     indexed = {}
     decision_order = []
     for stream, event_type in (("decisions", "decision"), ("physics", "physics"), ("audit", "audit")):
@@ -182,6 +188,44 @@ def verify_run(output, *, require_offline=False):
             _check(audit.get("audit_schema_version") == retained["schema_version"], "retained audit schema mismatch")
             for field in ("status", "reasons", "warnings", "citations", "hits"):
                 _check(audit.get(field) == retained[field], "retained audit payload mismatch: " + field)
+            if "audit_contract" in retained:
+                audit_bindings["versioned_suite"] += 1
+                contract = retained["audit_contract"]
+                _check(decision.get("audit_contract") == audit.get("audit_contract") == contract,
+                       "audit contract mismatch")
+                binding = audit_binding(decision["decision_id"], retained)
+                _check(decision.get("audit_binding_sha256") == audit.get("audit_binding_sha256") == binding,
+                       "audit binding mismatch")
+                _check(original["input"]["observation"] == decision["observation"] and
+                       original["input"]["action"] == decision["action"], "audit input/decision mismatch")
+                metadata = decision.get("provenance")
+                _check(isinstance(metadata, Mapping) and metadata == audit.get("provenance"),
+                       "audit provenance mismatch")
+                validate_audit_provenance(metadata)
+                _check(metadata.get("audit_suite_sha256") == contract["suite_sha256"] and
+                       metadata.get("auditor_specs") == contract["auditors"], "audit provenance binding mismatch")
+                declared = experiment.get("backend_provenance", {}).get(name)
+                expected = dict(original["config"]["backend_provenance"] or {})
+                expected.update({"backend_auditor_id": expected.get("auditor_id"),
+                                 "auditor_id": "reservoir_audit_suite", "auditor_version": "1",
+                                 "audit_suite_sha256": contract["suite_sha256"],
+                                 "auditor_specs": contract["auditors"]})
+                _check(declared == expected, "experiment auditor identity mismatch")
+                _check(all(metadata.get(field) == value for field, value in expected.items()),
+                       "decision/backend provenance mismatch")
+                if reservoir_id in expected_audit_suites:
+                    _check(contract["suite_sha256"] == expected_audit_suites[reservoir_id], "external audit pin mismatch")
+            else:
+                audit_bindings["legacy_unbound"] += 1
+                _check("audit_contract" not in decision and "audit_contract" not in audit and
+                       "audit_binding_sha256" not in decision and "audit_binding_sha256" not in audit,
+                       "unbound legacy audit cannot claim a versioned binding")
+                for metadata in (decision.get("provenance"), audit.get("provenance"),
+                                 experiment.get("backend_provenance", {}).get(name)):
+                    _check(not isinstance(metadata, Mapping) or not (
+                        "audit_suite_sha256" in metadata or "auditor_specs" in metadata),
+                        "versioned audit cannot be downgraded to unbound legacy")
+                _check(reservoir_id not in expected_audit_suites, "external audit pin requires a versioned suite")
             record = physical["record"]
             _check(record["observation"] == decision["observation"] and record["action"] == decision["action"],
                    "mutated decision/physics trace")
@@ -387,4 +431,6 @@ def verify_run(output, *, require_offline=False):
         "final_channel_storage_m3": stocks[-1],
         "observed_network_calls": summary["observed_network_calls"],
         "operating_strategy_accepted": None,
+        "audit_binding_counts": audit_bindings,
+        "external_audit_pins_checked": sorted(expected_audit_suites),
     }
