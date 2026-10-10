@@ -29,6 +29,7 @@ It supports one or many reservoirs in a directed river network:
 | `passive.py` | Solve a configured ungated storage-discharge outlet within its known rating domain. |
 | `balance.py`, `verification.py` | Account for water in reservoirs and routing channels; independently verify saved traces and exports. |
 | `prompt.py` | Separate versioned prompt, knowledge-package, response-parser and auditor interfaces. |
+| `auditor.py` / `AuditedBackend` | Compose replaceable versioned strategy checks around any injected backend; preserve original audits and bind findings to each decision. |
 | `audit.py`, `trace.py` | Keep compact causal streams and hashed raw audit/reply records. |
 
 ```python
@@ -67,6 +68,8 @@ Outputs separate `decisions.jsonl`, `physics.jsonl`, `audit.jsonl` and
 `backend_events.jsonl`; full raw payloads have hash references under `raw/`.
 Missing audit is `UNKNOWN`, original FAIL remains FAIL, and execution completion
 does not imply operating-strategy acceptance. See [policy and network design](docs/policy_design.md).
+Use [auditor plugins](docs/auditor_plugins.md) to supply case-specific rubrics
+without changing release physics, routing or frozen experiment results.
 The seven-day FE Walter/Beltzville/Prompton case includes a provisional passive
 Prompton outlet and managed-reservoir contribution routing. Calibrated downstream
 reaches, a certified complete outlet rating and a joint LLM controller still

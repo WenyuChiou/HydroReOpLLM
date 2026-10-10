@@ -88,7 +88,8 @@ class _ObservedBackend:
         except Exception as exc:
             try:
                 self.journal.record_backend_event(self.reservoir_id, "decision_failed", **clock,
-                    details={"error_type": type(exc).__name__, "message": str(exc)}, status="FAIL")
+                    details={"error_type": type(exc).__name__, "message": str(exc)}, status="FAIL",
+                    raw=getattr(self.backend, "latest_trace", None))
             except Exception as logging_error:
                 _note(exc, logging_error)
             raise
