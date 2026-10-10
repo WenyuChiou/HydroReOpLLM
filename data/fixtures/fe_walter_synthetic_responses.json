@@ -1,0 +1,13 @@
+{
+  "schema_version": "recorded-llm-responses.v1",
+  "data_kind": "synthetic_fixture",
+  "records": [
+    {"date": "2015-10-01", "response": {"release_cfs": 100, "reasoning": "Synthetic test: retain some inflow."}},
+    {"date": "2015-10-02", "response": {"release_cfs": 150, "reasoning": "Synthetic test: release stored water."}},
+    {"date": "2015-10-03", "response": {"release_cfs": 200}},
+    {"date": "2015-10-04", "response": {"release_cfs": 100}},
+    {"date": "2015-10-05", "response": {"release_cfs": 50}},
+    {"date": "2015-10-06", "response": {"release_cfs": 20000, "reasoning": "Synthetic stress test: enforce operating and available-water limits."}},
+    {"date": "2015-10-07", "response": {"release_cfs": 100, "reasoning": "Synthetic test: recover storage after the constrained day."}}
+  ]
+}

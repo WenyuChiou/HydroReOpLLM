@@ -1,0 +1,85 @@
+{
+  "schema_version": "fe-walter-historical.v1",
+  "accepted_demo_commit": "8d59dcac2f9d06fe16030f68826b425d492c9529",
+  "hydrocnhs_commit": "fdd5097a3fcabb312c6c3739efc71da2d67c47da",
+  "simulation_period": [
+    "1989-01-01",
+    "2025-12-31"
+  ],
+  "reporting_period": [
+    "1996-01-01",
+    "2025-12-31"
+  ],
+  "unit_ids": [
+    "FEW-D-01",
+    "FEW-D-02",
+    "FEW-R-01",
+    "FEW-R-02",
+    "FEW-X-01",
+    "FEW-X-02",
+    "FEW-X-03"
+  ],
+  "aggregate_outlet": "__AGGREGATION_OUTLET__",
+  "units": {
+    "precipitation_mm": "mm/day",
+    "temperature_c": "degree C",
+    "pet_cm": "cm/day",
+    "reference_inflow": "cfs"
+  },
+  "initialization": "Original accepted1989 initial states; continuous1989-1995 antecedent hydrology retained; report1996-2025 without state reset. No recalibration or new C&V.",
+  "files": [
+    {
+      "path": "data/accepted/fe_walter_hydrology.yaml",
+      "sha256": "1f4878ee4ff49e09b0b6f7bbf5e1d005620c4e380906671dd93ae12fa9400377"
+    },
+    {
+      "path": "data/accepted/fe_walter_forcing_1989_2025.csv.gz",
+      "sha256": "2d030c5e53b15ba5ef7dcb0979dd223889870e6f9a41396bb3b1e2adb4e6a826"
+    },
+    {
+      "path": "data/accepted/fe_walter_inflow_reference_1996_2025.csv.gz",
+      "sha256": "91759fdfbaa3e85b0257a5708391f53d264eb0ef898f94c4e580a391e131b64f"
+    },
+    {
+      "path": "environment/hydrocnhs-hydrology-core.json",
+      "sha256": "78885cbef9d3ae5d811c3f7b8174f1f34dbb885e6caa6266e41ff8c2190c9686"
+    },
+    {
+      "path": "environment/hydrocnhs-core.json",
+      "sha256": "859076b340741ff2d599767597c439a15b7a1b23f6c6ef8648964522b21650a4"
+    }
+  ],
+  "sources": [
+    {
+      "path": "tutorials/data/fe_walter_forcing_1989_2025.csv.gz",
+      "sha256": "2d030c5e53b15ba5ef7dcb0979dd223889870e6f9a41396bb3b1e2adb4e6a826",
+      "selection": "byte-identical fullseven-unit forcing"
+    },
+    {
+      "path": "results/current/four_reservoir_hydrocnhs_native/tables/daily_simulated_reservoir_inflow_1991_2025.csv.gz",
+      "sha256": "3b7fe10f96c6148248f9f0ddc221e66a0d7b39faaab81c302e2881642c7b00b8",
+      "selection": "FEWalter1996-2025 rows10958; numericCSVtext unchanged; deterministic gzip"
+    },
+    {
+      "path": "tutorials/data/fe_walter_data_provenance.json",
+      "sha256": "609162055909ff9dfda1335f3570cbe81374acdb9d5a0b2bda2073103da2cd44"
+    },
+    {
+      "path": "tutorials/data/fe_walter_source_inventory.csv",
+      "sha256": "2dc081fab2951c2e1848dd0085478b798c886b734a74e62b80bb5daedfa90301"
+    }
+  ],
+  "source_forcing_label_counts": {
+    "Daymet V4 R1": 81760,
+    "NOAA nClimGrid-Daily; source label 1993-01-01": 7,
+    "NOAA nClimGrid-Daily; source label 1997-01-01": 7,
+    "NOAA nClimGrid-Daily; source label 2001-01-01": 7,
+    "NOAA nClimGrid-Daily; source label 2005-01-01": 7,
+    "NOAA nClimGrid-Daily; source label 2009-01-01": 7,
+    "NOAA nClimGrid-Daily; source label 2013-01-01": 7,
+    "NOAA nClimGrid-Daily; source label 2017-01-01": 7,
+    "NOAA nClimGrid-Daily; source label 2021-01-01": 7,
+    "Daymet V4 R1 single-pixel grid cells": 12775,
+    "NOAA nClimGrid-Daily; source label 2025-01-01": 7
+  }
+}

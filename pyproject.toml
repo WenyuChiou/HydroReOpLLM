@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llm-reservoir-agent"
+version = "0.1.0"
+description = "Generic LLM reservoir policy and HydroCNHS Dam interface"
+requires-python = ">=3.10"
+dependencies = []
+
+[project.optional-dependencies]
+hydrocnhs = ["hydrocnhs @ git+https://github.com/cylin928/HydroCNHS.git@fdd5097a3fcabb312c6c3739efc71da2d67c47da"]
+
+[project.scripts]
+fe-walter-demo = "delaware_operations.cli:main"
+llm-reservoir-daily = "llm_reservoir_agent.experiment:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]

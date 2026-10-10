@@ -1,0 +1,10 @@
+test_backend_mutation_cannot_change_trace_or_physics (test_llm_network.SingleReservoirAcceptance.test_backend_mutation_cannot_change_trace_or_physics) ... ok
+test_fe_walter_native_output (test_llm_network.SingleReservoirAcceptance.test_fe_walter_native_output) ... ok
+test_feedback_failure_preserves_physics (test_llm_network.SingleReservoirAcceptance.test_feedback_failure_preserves_physics) ... ok
+test_offline_response_loader_and_raw_provenance (test_llm_network.SingleReservoirAcceptance.test_offline_response_loader_and_raw_provenance) ... ok
+test_original_audit_fail_retained (test_llm_network.SingleReservoirAcceptance.test_original_audit_fail_retained) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 2.039s
+
+OK

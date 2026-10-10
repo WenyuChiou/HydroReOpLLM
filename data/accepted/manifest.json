@@ -1,0 +1,36 @@
+{
+  "schema_version": "delaware-operations-sources.v1",
+  "accepted_demo_commit": "8d59dcac2f9d06fe16030f68826b425d492c9529",
+  "hydrocnhs_commit": "fdd5097a3fcabb312c6c3739efc71da2d67c47da",
+  "sources": [
+    {
+      "path": "results/current/four_reservoir_hydrocnhs_native/tables/daily_simulated_reservoir_inflow_1991_2025.csv.gz",
+      "sha256": "3b7fe10f96c6148248f9f0ddc221e66a0d7b39faaab81c302e2881642c7b00b8",
+      "selection": "fe_walter,2015-10-01 through 2015-10-07; numeric text unchanged"
+    },
+    {
+      "path": "results/current/four_reservoir_hydrocnhs_native/models/fe_walter.yaml",
+      "sha256": "1f4878ee4ff49e09b0b6f7bbf5e1d005620c4e380906671dd93ae12fa9400377",
+      "selection": "byte-identical reference, not used to rerun hydrology"
+    },
+    {
+      "path": "llm/preparation.json",
+      "sha256": "d9111590fd51892b0a7789efe654ebacda79ba4b190b2340b9e55cd9466db7cc",
+      "selection": "FE Walter physical-case assumptions only; prior execution gate remains unchanged"
+    }
+  ],
+  "files": [
+    {
+      "path": "data/accepted/fe_walter_inflow_sample.csv",
+      "sha256": "05cab70f1ad6fc7747d6590f4fed11e230f40fdddf238e32d82edd29339cc9ae"
+    },
+    {
+      "path": "data/accepted/fe_walter_hydrology.yaml",
+      "sha256": "1f4878ee4ff49e09b0b6f7bbf5e1d005620c4e380906671dd93ae12fa9400377"
+    },
+    {
+      "path": "cases/fe_walter.json",
+      "sha256": "1565905238e08c48c9dde77ea657893a6178a21125f25359add025f6a3dde57d"
+    }
+  ]
+}

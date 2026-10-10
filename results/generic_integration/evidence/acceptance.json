@@ -1,0 +1,509 @@
+{
+  "schema_version": 2,
+  "run_id": "llm-reservoir-multi-audit-20261010",
+  "timestamp": "2026-10-10T19:50:09.056030+00:00",
+  "technical_verdict": "PASS",
+  "scope": "Neutral package and case bundles; single reservoir then synthetic connected multi-reservoir offline native validation",
+  "plan_ref": "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\HydroCNHS-Delaware-Operations\\runs\\llm-reservoir-multi-audit-20261010\\.coord\\plan.yml",
+  "plan_sha256": "ded6d1797a115ae245ce9b29e06ed5a8de991418a5354638d142a1d6be9ae37b",
+  "checkpoint_ref": "C:\\Users\\wenyu\\.codex\\portable-harness\\checkpoints\\hydrocnhs-clean-repo-readonly-20261009.v2.json",
+  "checkpoint_snapshot_sha256": "d1a3f53266def77fc49653f599e01408e9f1775af06739fa9377bd78f21ba4dd",
+  "goal_id": "hydrology-final-tutorial-audit-20261005",
+  "policy_ref": "C:\\Users\\wenyu\\.codex\\portable-harness\\policies\\agent-budget.yaml",
+  "policy_sha256": "a7b8ed7535b7938940847cf9777942cce4da8d9f95a56a4a5f4502e80b48e6cd",
+  "policy_decision": {
+    "auto_continue": false,
+    "checkpoint_required": false,
+    "decision": "continue",
+    "effective_limits": {
+      "checkpoint_transcript_bytes": 26214400,
+      "max_child_result_words": 250,
+      "max_children_per_parent": 4,
+      "max_concurrency": 4,
+      "max_cycles": 3,
+      "max_elapsed_seconds": 1800,
+      "max_memory_digest_tokens": 1200,
+      "max_no_evidence_cycles": 2,
+      "max_parent_summary_tokens": 3000,
+      "max_same_failure_retries": 2,
+      "max_task_packet_tokens": 6000,
+      "max_tool_calls": 75,
+      "max_transcript_bytes": 52428800
+    },
+    "observed_metrics": {
+      "cached_input_tokens": null,
+      "children_spawned": 28,
+      "cost_microusd": null,
+      "cycle": 56,
+      "elapsed_seconds": 44189.5399013,
+      "input_tokens": null,
+      "output_tokens": null,
+      "tool_calls": 1398
+    },
+    "policy_hash": "3e104f29d6f3fd95e0077a0dd25047b1568ede725a89d98625beb4a429fd00cf",
+    "policy_id": "portable-harness-autonomous-v2",
+    "reasons": [],
+    "schema_version": 2,
+    "scope": "action",
+    "spawn_allowed": true
+  },
+  "action_hash": "44e123ba7311544228fa506586aded13ea9b79dfffe142890255ae99270dcd1d",
+  "candidate": {
+    "baseline_tree": "d565ebd1cd865541e095bcb99c1d419dc549774f",
+    "candidate_tree": "7c824c41261df299bb66fa0f21abff29bcbf7a91",
+    "diff_sha256": "44e123ba7311544228fa506586aded13ea9b79dfffe142890255ae99270dcd1d",
+    "changed_files": [
+      "README.md",
+      "cases/reservoir_network_fixture.json",
+      "data/fixtures/reservoir_network_responses.json",
+      "docs/policy_design.md",
+      "examples/llm_reservoir_abm.py",
+      "pyproject.toml",
+      "run_llm_daily.py",
+      "src/llm_reservoir_agent/__init__.py",
+      "src/llm_reservoir_agent/agent.py",
+      "src/llm_reservoir_agent/audit.py",
+      "src/llm_reservoir_agent/case.py",
+      "src/llm_reservoir_agent/contracts.py",
+      "src/llm_reservoir_agent/dkp_adapter.py",
+      "src/llm_reservoir_agent/experiment.py",
+      "src/llm_reservoir_agent/network.py",
+      "src/llm_reservoir_agent/physics.py",
+      "src/llm_reservoir_agent/policies.py",
+      "src/llm_reservoir_agent/policy_adapter.py",
+      "src/llm_reservoir_agent/prompt.py",
+      "src/llm_reservoir_agent/trace.py",
+      "tests/test_llm_network.py",
+      "tests/test_llm_neutral_core.py",
+      "tests/test_llm_trace.py"
+    ],
+    "staged_count": 90,
+    "source_hashes": {
+      "README.md": "e94182f5d70d35f72ba8828b51c533d5356fee33a23ecfe3c3a1c629cb66fdb9",
+      "cases/reservoir_network_fixture.json": "ac4b1c9d19356e519ce3882a3da1d31b0ec9e433a4054c601c2f8748b4ea918c",
+      "data/fixtures/reservoir_network_responses.json": "1ae966df386e46813affd85729e2098c563eaa0fce2fb062926529e2d9736934",
+      "docs/policy_design.md": "5172f1692200408f9f28aa18df3a00ed7b0e312575566ec890448dec81c07613",
+      "examples/llm_reservoir_abm.py": "dc457b976c8aea750212c27683d75c325484be0d7c947bb3fb8c240fe0ae7185",
+      "pyproject.toml": "9b6d7e53dd4335092a4da7eabe6cc63895679b91949c7a038af5f8c815ec15fd",
+      "run_llm_daily.py": "7490920d3c1d70aa8e467fa6f892ca24806d3ee21b9e222d5172745b55a4b8c8",
+      "src/llm_reservoir_agent/__init__.py": "551c29f4378484aff7f03b4eb8f1e1ebafc089ceb241ef677a4d5b95ef61e801",
+      "src/llm_reservoir_agent/agent.py": "2606d5e937e7c6df92d2fb2c295ff54b656a1e2e2d1e5be5a73a84bf114f49a5",
+      "src/llm_reservoir_agent/audit.py": "85d85479d3153305d4fa25f4e9258717fc8e0cb84b1235b56342f1084c0c1df1",
+      "src/llm_reservoir_agent/case.py": "4b956af463b8f63c948dcbdd7b471b787bc2c81fdeb118bf723866aa0b25c29f",
+      "src/llm_reservoir_agent/contracts.py": "cfeb44ac59c9c63c6ba2f548b078fa9ded3cd43a277a79806946429dbb6a10ed",
+      "src/llm_reservoir_agent/dkp_adapter.py": "aa6412e98b148cab0e6bab08f32e7713b32cc3f765a6880ba354c7286fae09d8",
+      "src/llm_reservoir_agent/experiment.py": "c53a86388e9dd2814ad6d7c9e581c1d34e40988128e946a89c10ff84b16a0135",
+      "src/llm_reservoir_agent/network.py": "d0dea044333cd3d5e7e748973846d3264f52f8c3cc01810a5d85d096331eaa56",
+      "src/llm_reservoir_agent/physics.py": "cd1e2133698ca15f0d7be6c3396b7ba4770c8b802f43dae028e3244e7305afcf",
+      "src/llm_reservoir_agent/policies.py": "db76ae4c3a4f5cfc70ae54cd8bd7ea53f76965e74aaf5b17f75aa7a5d67420a6",
+      "src/llm_reservoir_agent/policy_adapter.py": "3e316c93a009648b9a97b7c77c43bd31e74aab8c8b001419311f6fb67ac96d5f",
+      "src/llm_reservoir_agent/prompt.py": "7a5a77042a915611ecfc44fac7639bd1dfd6880b1eec6233d2ba51122ddac0f5",
+      "src/llm_reservoir_agent/trace.py": "0348156fc646ceb08de8966c26983c9ab49465247fc650de104f6f328bfc3c76",
+      "tests/test_llm_network.py": "161976af417ea8c700994c33d3df537130b6acf76cc7473ef41300b55995119c",
+      "tests/test_llm_neutral_core.py": "49f57e1251bc50af7348d18910a239757eb6d978b08a93c89e77231ee9258cf2",
+      "tests/test_llm_trace.py": "e5bb663bc3e69e3f21ffeb1e2e6916f26254387c28b9de77209e87f1ff34df44"
+    },
+    "correction_of": "b9c3c41f5d105ede2a999cbd40e74c495e48e7cd32ae89dd8dfb822276df3e61",
+    "corrected_paths": [
+      "docs/policy_design.md",
+      "src/llm_reservoir_agent/dkp_adapter.py",
+      "src/llm_reservoir_agent/experiment.py",
+      "src/llm_reservoir_agent/network.py",
+      "src/llm_reservoir_agent/policy_adapter.py",
+      "tests/test_llm_network.py"
+    ]
+  },
+  "per_task": {
+    "T1": {
+      "status": "success",
+      "verification": "verified"
+    },
+    "T2": {
+      "status": "success",
+      "verification": "verified"
+    },
+    "T3": {
+      "status": "success",
+      "verification": "verified"
+    },
+    "T4": {
+      "status": "success",
+      "verification": "verified"
+    },
+    "T5": {
+      "status": "success",
+      "verification": "verified"
+    },
+    "T6": {
+      "status": "success",
+      "verification": "verified"
+    },
+    "T7": {
+      "status": "success",
+      "verification": "verified"
+    }
+  },
+  "criteria": {
+    "neutral_import_and_semantic_physics_parity": "PASS: 144 boundary transitions, invalid-input and frozen-agent state parity in current 29 core tests",
+    "single_output_before_connected_run": "PASS: dated immutable 5-test receipt precedes current 11-test multi run",
+    "downstream_causality_and_total_outflow_once": "PASS: independent native/convolution comparison, spill, lag, split/rejoin, 3 and10 reservoirs",
+    "case_locations_external_inputs_prompt_knowledge": "PASS: distinct case context, external bundle, input/knowledge hashes and per-reservoir prompt identities",
+    "original_audit_and_durable_clean_trace": "PASS: exact raw hash references; original FAIL retained; intentional feedback failure keeps one durable physics day",
+    "state_isolation_and_mutation_boundary": "PASS: both entrypoints reject shared underlying owners; detached original journal survives backend mutation",
+    "science_and_old_staging_preserved": "PASS: 58 source pins,5 completed-run pins,67 unchanged prior staged paths"
+  },
+  "tests": [
+    {
+      "group": "units",
+      "tests": 47,
+      "exit_code": 0,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "command_argv": [
+        "C:/Users/wenyu/Documents/LLM Rervoir/HydroCNHS/llm_integration_review/.venv/Scripts/python.exe",
+        "-m",
+        "unittest",
+        "-v",
+        "test_llm_neutral_core",
+        "test_llm_trace"
+      ],
+      "python": "3.12.14",
+      "stdout": {
+        "path": "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\HydroCNHS-Delaware-Operations\\runs\\fe-anik-dkp-daily-2016-2020-temp0.7-20261010\\figures\\widget-logs\\20261010T194524587415Z-stdout.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "path": "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\HydroCNHS-Delaware-Operations\\runs\\fe-anik-dkp-daily-2016-2020-temp0.7-20261010\\figures\\widget-logs\\20261010T194524587415Z-stderr.log",
+        "sha256": "0b30cae42def23270886b8074a35b5c4ae81cbf72a35727f6452496cef4cbb65",
+        "bytes": 7822
+      },
+      "unread_ranges": [],
+      "excerpt": [
+        "----------------------------------------------------------------------",
+        "Ran 47 tests in 0.889s",
+        "",
+        "OK"
+      ]
+    },
+    {
+      "group": "single",
+      "tests": 5,
+      "exit_code": 0,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "command_argv": [
+        "C:/Users/wenyu/Documents/LLM Rervoir/HydroCNHS/llm_integration_review/.venv/Scripts/python.exe",
+        "-m",
+        "unittest",
+        "-v",
+        "test_llm_network.SingleReservoirAcceptance"
+      ],
+      "python": "3.12.14",
+      "stdout": {
+        "path": "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\HydroCNHS-Delaware-Operations\\runs\\fe-anik-dkp-daily-2016-2020-temp0.7-20261010\\figures\\widget-logs\\20261010T194525883115Z-stdout.log",
+        "sha256": "e6c767aaabb678ed4d3fb4f5c9193c55abf9739f641095705e94f198f08010f9"
+      },
+      "stderr": {
+        "path": "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\HydroCNHS-Delaware-Operations\\runs\\fe-anik-dkp-daily-2016-2020-temp0.7-20261010\\figures\\widget-logs\\20261010T194525883115Z-stderr.log",
+        "sha256": "c037e64d36fee0fa64b9d2bf6ccc9ad6a3f420f7a9f0593de662e809cd241e14",
+        "bytes": 776
+      },
+      "unread_ranges": [],
+      "excerpt": [
+        "----------------------------------------------------------------------",
+        "Ran 5 tests in 2.039s",
+        "",
+        "OK"
+      ]
+    },
+    {
+      "group": "multi",
+      "tests": 11,
+      "exit_code": 0,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "command_argv": [
+        "C:/Users/wenyu/Documents/LLM Rervoir/HydroCNHS/llm_integration_review/.venv/Scripts/python.exe",
+        "-m",
+        "unittest",
+        "-v",
+        "test_llm_network.MultiReservoirAcceptance"
+      ],
+      "python": "3.12.14",
+      "stdout": {
+        "path": "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\HydroCNHS-Delaware-Operations\\runs\\fe-anik-dkp-daily-2016-2020-temp0.7-20261010\\figures\\widget-logs\\20261010T194552894247Z-stdout.log",
+        "sha256": "2441ab53ba42405bf33990cd03799fe967666cb0d78de821577c7c876a9e4919"
+      },
+      "stderr": {
+        "path": "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\HydroCNHS-Delaware-Operations\\runs\\fe-anik-dkp-daily-2016-2020-temp0.7-20261010\\figures\\widget-logs\\20261010T194552894247Z-stderr.log",
+        "sha256": "14f7da0c4c57ade011dd7de5718a6c26849eea8ee0480ad7394894c1764a1b8d",
+        "bytes": 1484
+      },
+      "unread_ranges": [],
+      "excerpt": [
+        "----------------------------------------------------------------------",
+        "Ran 11 tests in 3.846s",
+        "",
+        "OK"
+      ]
+    }
+  ],
+  "test_totals": {
+    "tests": 63,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "single_gate": "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\HydroCNHS-Delaware-Operations\\runs\\llm-reservoir-multi-audit-20261010\\single_acceptance_corrected_final.json",
+  "summary_pins": {
+    "native-corrected-single/test_backend_mutation_cannot_change_trace_or_physics/run": {
+      "summary_sha256": "da6b43a033e62bcf60f9d9124d81282c9924ff21116155e80fabbd2fbb4c040a",
+      "status": "COMPLETED",
+      "event_counts": {
+        "audit": 2,
+        "backend_events": 6,
+        "decisions": 2,
+        "physics": 2
+      }
+    },
+    "native-corrected-single/test_feedback_failure_preserves_physics/run": {
+      "summary_sha256": "1ccd13a5dba20c78e702fd9e1fdc86874f1706c380744c895f9af88212997748",
+      "status": "FAILED",
+      "event_counts": {
+        "audit": 1,
+        "backend_events": 3,
+        "decisions": 1,
+        "physics": 1
+      }
+    },
+    "native-corrected-single/test_fe_walter_native_output/run": {
+      "summary_sha256": "9674a0852e8cd5a219650c2c11a535120ca34deaf235d3039985a5552fb4c2c7",
+      "status": "COMPLETED",
+      "event_counts": {
+        "audit": 7,
+        "backend_events": 21,
+        "decisions": 7,
+        "physics": 7
+      }
+    },
+    "native-corrected-single/test_offline_response_loader_and_raw_provenance/run": {
+      "summary_sha256": "0c6182a7d0c97b120a91ffddcff07624fef53c35fd25693d73bf075891eed98c",
+      "status": "COMPLETED",
+      "event_counts": {
+        "audit": 7,
+        "backend_events": 21,
+        "decisions": 7,
+        "physics": 7
+      }
+    },
+    "native-corrected-single/test_original_audit_fail_retained/run": {
+      "summary_sha256": "60767a0ca2b876266cc64e6fbcfaceb38455367ddad1a19a10eccf829266ef25",
+      "status": "COMPLETED",
+      "event_counts": {
+        "audit": 2,
+        "backend_events": 6,
+        "decisions": 2,
+        "physics": 2
+      }
+    },
+    "native-corrected-multi/test_external_case_bundle_locations_and_knowledge/run": {
+      "summary_sha256": "863e6880013933d0a1a5e946c29628f8f2c98b1a15b01e1de04d417e677421f3",
+      "status": "COMPLETED",
+      "event_counts": {
+        "audit": 6,
+        "backend_events": 18,
+        "decisions": 6,
+        "physics": 6
+      }
+    },
+    "native-corrected-multi/test_prompt_provenance_isolated/run": {
+      "summary_sha256": "464aee09060ca4b8b5ec7e771b3de78459a5e7979c488fa9249c36ea73811d3e",
+      "status": "COMPLETED",
+      "event_counts": {
+        "audit": 3,
+        "backend_events": 9,
+        "decisions": 3,
+        "physics": 3
+      }
+    },
+    "native-corrected-multi/test_routing_one_day_lag/run": {
+      "summary_sha256": "3d6893c47ed6f7bbf027170dd3a1cee35e69137577769e2ea018bb845b4018e1",
+      "status": "COMPLETED",
+      "event_counts": {
+        "audit": 12,
+        "backend_events": 36,
+        "decisions": 12,
+        "physics": 12
+      }
+    },
+    "native-corrected-multi/test_spill_is_injected_once/run": {
+      "summary_sha256": "0dcb77d76b0c2ee476205ab8fd137a225e5fd43950e6e838db98eed080a4eafd",
+      "status": "COMPLETED",
+      "event_counts": {
+        "audit": 6,
+        "backend_events": 18,
+        "decisions": 6,
+        "physics": 6
+      }
+    },
+    "native-corrected-multi/test_split_merge_and_incremental_junction_flow/run": {
+      "summary_sha256": "0cc6bca48d05741f731176e6308a09f000fc9209130792d840434e791db1c45b",
+      "status": "COMPLETED",
+      "event_counts": {
+        "audit": 12,
+        "backend_events": 36,
+        "decisions": 12,
+        "physics": 12
+      }
+    },
+    "native-corrected-multi/test_ten_reservoirs/run": {
+      "summary_sha256": "83fabdc1f7162e776a5af4ac7a9684397377668dbcd4ea720104b6eab01bf6b0",
+      "status": "COMPLETED",
+      "event_counts": {
+        "audit": 30,
+        "backend_events": 90,
+        "decisions": 30,
+        "physics": 30
+      }
+    },
+    "native-corrected-multi/test_three_branches_confluence/run": {
+      "summary_sha256": "d96a5f0e8627ee5a6530fa389cb144ddf51e599819883d2f2e55e81c67c06ba1",
+      "status": "COMPLETED",
+      "event_counts": {
+        "audit": 12,
+        "backend_events": 36,
+        "decisions": 12,
+        "physics": 12
+      }
+    },
+    "native-corrected-multi/test_three_cascade_upstream_release_changes_downstream/high": {
+      "summary_sha256": "5576f5860724f44140d17b260a5cebd132a2ca97e1ce9933e919b2c22648d047",
+      "status": "COMPLETED",
+      "event_counts": {
+        "audit": 12,
+        "backend_events": 36,
+        "decisions": 12,
+        "physics": 12
+      }
+    },
+    "native-corrected-multi/test_three_cascade_upstream_release_changes_downstream/low": {
+      "summary_sha256": "2d9a9dc04eae1f849d50f0084820283e98a7dbbcfd67030cfde4e1649bc74fb0",
+      "status": "COMPLETED",
+      "event_counts": {
+        "audit": 12,
+        "backend_events": 36,
+        "decisions": 12,
+        "physics": 12
+      }
+    },
+    "cli-three-corrected": {
+      "summary_sha256": "e5a143fa1c15279820dfb9be9dd6346d646bc6fd289581f1641a2ff9f164b7b8",
+      "status": "COMPLETED",
+      "event_counts": {
+        "audit": 12,
+        "backend_events": 36,
+        "decisions": 12,
+        "physics": 12
+      }
+    }
+  },
+  "validated_physics_records": 136,
+  "max_recomputed_reservoir_balance_residual_m3": 4.656612873077393e-10,
+  "max_independent_routing_error_cms": 0,
+  "cascade_comparison": {
+    "R1": {
+      "inflow_low_cms": 10.0,
+      "inflow_high_cms": 10.0,
+      "release_low_cms": 2.0,
+      "release_high_cms": 5.0,
+      "final_storage_low_m3": 12764800.0,
+      "final_storage_high_m3": 11728000.0
+    },
+    "R2": {
+      "inflow_low_cms": 3.0,
+      "inflow_high_cms": 6.0,
+      "release_low_cms": 1.5,
+      "release_high_cms": 3.0,
+      "final_storage_low_m3": 10518400.0,
+      "final_storage_high_m3": 11036800.0
+    },
+    "R3": {
+      "inflow_low_cms": 2.0,
+      "inflow_high_cms": 3.5,
+      "release_low_cms": 1.0,
+      "release_high_cms": 1.75,
+      "final_storage_low_m3": 10345600.0,
+      "final_storage_high_m3": 10604800.0
+    }
+  },
+  "scientific_preservation": {
+    "sources": 58,
+    "completed_run_files": 5,
+    "prior_staged_paths": 67,
+    "details_ref": "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\HydroCNHS-Delaware-Operations\\runs\\llm-reservoir-multi-audit-20261010\\preservation.json"
+  },
+  "reviews_ref": "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\HydroCNHS-Delaware-Operations\\runs\\llm-reservoir-multi-audit-20261010\\reviews.json",
+  "review_sha256": "5d79913cc82b8419414a5582ee8d529915d4bcf8f0816e6561b53cf12ec29a6b",
+  "reconciliation_ref": "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\HydroCNHS-Delaware-Operations\\runs\\llm-reservoir-multi-audit-20261010\\reconciliation.final.json",
+  "presets": {
+    "status": "NOT_APPLICABLE",
+    "reason": "No locale mirrors, catalog entries or frontier-model benchmark claims."
+  },
+  "scope_verification": {
+    "incremental_paths": 23,
+    "total_staged_paths": 90,
+    "unexplained_paths": [],
+    "unstaged_diff": false
+  },
+  "observed_network_calls": 0,
+  "operating_strategy_accepted": null,
+  "original_five_year_strategy_verdict": "FAIL",
+  "original_five_year_audit": {
+    "PASS": 946,
+    "WARN": 170,
+    "FAIL": 711
+  },
+  "original_attempt1289_outcome": "UNKNOWN",
+  "unknown_costs_remain_unknown": true,
+  "cli": {
+    "exit_code": 0,
+    "days": 4,
+    "reservoirs": 3,
+    "durable_decisions": 12,
+    "durable_physics": 12,
+    "durable_audits": 12,
+    "durable_backend_events": 36,
+    "stdout": "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\HydroCNHS-Delaware-Operations\\runs\\fe-anik-dkp-daily-2016-2020-temp0.7-20261010\\figures\\widget-logs\\20261010T194609486320Z-stdout.log",
+    "stdout_sha256": "89074d07c035f625b084efcecdb4045d795a95fbbbba4fcac0f9e471d8200fa7"
+  },
+  "risks": [
+    "Offline synthetic network validation only; no real three-reservoir performance claim",
+    "Joint LLM controller is a proposed extension",
+    "Caller-supplied UHs, zero-loss bucket, no channel storage export; strategy acceptance remains unknown or original FAIL"
+  ],
+  "degraded_checks": [],
+  "blockers": [],
+  "human_decision": {
+    "reference": "Current user authorization for generic module, per-case setup and short offline single/multiple reservoir tests",
+    "pending": false,
+    "commit_push_authorized": false,
+    "real_llm_or_real_three_reservoir_experiment_authorized": false
+  },
+  "cumulative_snapshot": {
+    "totals": {
+      "cached_input_tokens": null,
+      "children_spawned": 28,
+      "cost_microusd": null,
+      "cycle": 56,
+      "elapsed_seconds": 44189.5399013,
+      "input_tokens": null,
+      "output_tokens": null,
+      "tool_calls": 1398
+    },
+    "failure_history_count": 71,
+    "costs_tokens": "UNKNOWN"
+  }
+}

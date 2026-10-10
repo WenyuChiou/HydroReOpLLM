@@ -1,0 +1,705 @@
+{
+  "schema_version": "fe-walter-completion-acceptance.v1",
+  "goal_id": "hydrology-final-tutorial-audit-20261005",
+  "task_id": "hydrology-tutorial-final-readonly-audit-20261005",
+  "status": "COMPLETED_DIAGNOSTIC_TRAJECTORY",
+  "file_and_physical_acceptance": "PASS",
+  "suffix_native_Dam_integration_acceptance": "PASS_WITH_LIMITED_ROUTING_SCOPE",
+  "operating_strategy_acceptance": "FAIL",
+  "verification": {
+    "schema_version": "fe-file-verification.v1",
+    "verified_at_utc": "2026-10-10T17:04:54.208752+00:00",
+    "status": "PASS",
+    "check_count": 1906,
+    "checks": {
+      "completed_process_and_progress": {
+        "passed": true,
+        "detail": {
+          "status": "completed",
+          "pid": 3800,
+          "ended_at_utc": "2026-10-10T16:27:24.315008+00:00",
+          "days": 1827
+        }
+      },
+      "hash:original_experiment": {
+        "passed": true,
+        "detail": null
+      },
+      "hash:case": {
+        "passed": true,
+        "detail": null
+      },
+      "hash:frozen_inflow": {
+        "passed": true,
+        "detail": null
+      },
+      "hash:DKP": {
+        "passed": true,
+        "detail": null
+      },
+      "hash:accepted_hydrology_parameters": {
+        "passed": true,
+        "detail": null
+      },
+      "hash:src/delaware_operations/anik_adapter.py": {
+        "passed": true,
+        "detail": null
+      },
+      "hash:src/delaware_operations/anik_experiment.py": {
+        "passed": true,
+        "detail": null
+      },
+      "hash:src/delaware_operations/anik_recovery.py": {
+        "passed": true,
+        "detail": null
+      },
+      "hash:src/delaware_operations/case.py": {
+        "passed": true,
+        "detail": null
+      },
+      "hash:src/delaware_operations/cli.py": {
+        "passed": true,
+        "detail": null
+      },
+      "hash:src/delaware_operations/contracts.py": {
+        "passed": true,
+        "detail": null
+      },
+      "hash:src/delaware_operations/dam_agent.py": {
+        "passed": true,
+        "detail": null
+      },
+      "hash:src/delaware_operations/historical.py": {
+        "passed": true,
+        "detail": null
+      },
+      "hash:src/delaware_operations/hydrocnhs_bridge.py": {
+        "passed": true,
+        "detail": null
+      },
+      "hash:src/delaware_operations/hydrology.py": {
+        "passed": true,
+        "detail": null
+      },
+      "hash:src/delaware_operations/llm_adapter.py": {
+        "passed": true,
+        "detail": null
+      },
+      "hash:src/delaware_operations/operations.py": {
+        "passed": true,
+        "detail": null
+      },
+      "hash:src/delaware_operations/physics.py": {
+        "passed": true,
+        "detail": null
+      },
+      "hash:src/delaware_operations/policies.py": {
+        "passed": true,
+        "detail": null
+      },
+      "hash:src/delaware_operations/replay.py": {
+        "passed": true,
+        "detail": null
+      },
+      "hash:src/delaware_operations/__init__.py": {
+        "passed": true,
+        "detail": null
+      },
+      "hash:recovery_entrypoint": {
+        "passed": true,
+        "detail": null
+      },
+      "original_implementation_preserved_except_approved_runner": {
+        "passed": true,
+        "detail": null
+      },
+      "hash:vendor:benchmark_release.py": {
+        "passed": true,
+        "detail": null
+      },
+      "hash:vendor:dkp_llm_release.py": {
+        "passed": true,
+        "detail": null
+      },
+      "hash:vendor:README.txt": {
+        "passed": true,
+        "detail": null
+      },
+      "hash:vendor:reservoir_model.py": {
+        "passed": true,
+        "detail": null
+      },
+      "hash:vendor:zeroshot_llm_release.py": {
+        "passed": true,
+        "detail": null
+      },
+      "hash:original_Anik_ZIP": {
+        "passed": true,
+        "detail": null
+      },
+      "hash:original_DKP_attachment": {
+        "passed": true,
+        "detail": null
+      },
+      "native_core:hydrocnhs.py": {
+        "passed": true,
+        "detail": "cad2ff1c33424716b1a72d315b38d12946a8c494e68b18f2f41838cb9814e2d7"
+      },
+      "native_core:routing.py": {
+        "passed": true,
+        "detail": "088e0b1f928030bc38a991cb369b7109e753350cc399e8b646197bdb0d97d1db"
+      },
+      "native_core:util.py": {
+        "passed": true,
+        "detail": "26a150cff2733496f9bc5205696f4e80c2bea7bd9e47e5a34fd41393c1b5a05a"
+      },
+      "native_core:abm.py": {
+        "passed": true,
+        "detail": "b348391cc14ea4feb12de6d88be3a7647c34c27ddce66556661fa97898128275"
+      },
+      "native_core:data_collector.py": {
+        "passed": true,
+        "detail": "cccd72962d75a60880125e380623e6094a14abd2f696c35b5ef280c416569f9f"
+      },
+      "native_commit_provenance": {
+        "passed": true,
+        "detail": null
+      },
+      "preserved_prefix:operations.jsonl": {
+        "passed": true,
+        "detail": null
+      },
+      "preserved_prefix:backend_decisions.jsonl": {
+        "passed": true,
+        "detail": null
+      },
+      "preserved_prefix:api_attempts.jsonl": {
+        "passed": true,
+        "detail": null
+      },
+      "preserved_prefix:anik_logs/F.E._Walter_Dam_dkp_gemma4_daily_2016_2020_temp0.7_decisions.txt": {
+        "passed": true,
+        "detail": null
+      },
+      "original_Anik_file_full_bytes:anik_logs/F.E._Walter_Dam_dkp_gemma4_daily_2016_2020_temp0.7_decisions.txt": {
+        "passed": true,
+        "detail": null
+      },
+      "preserved_prefix:anik_logs/F.E._Walter_Dam_dkp_gemma4_daily_2016_2020_temp0.7_trace.jsonl": {
+        "passed": true,
+        "detail": null
+      },
+      "original_Anik_file_full_bytes:anik_logs/F.E._Walter_Dam_dkp_gemma4_daily_2016_2020_temp0.7_trace.jsonl": {
+        "passed": true,
+        "detail": null
+      },
+      "hash:output:api_attempts.jsonl": {
+        "passed": true,
+        "detail": null
+      },
+      "hash:output:backend_decisions.jsonl": {
+        "passed": true,
+        "detail": null
+      },
+      "hash:output:operations.jsonl": {
+        "passed": true,
+        "detail": null
+      },
+      "hash:output:trajectory.csv": {
+        "passed": true,
+        "detail": null
+      },
+      "recovery_plan_canonical_JSON_digest": {
+        "passed": true,
+        "detail": {
+          "canonical_json_sha256": "38d85a1ba8ebdf8db89da180f828550c582befda52b8c3b7d32c6d73e56723b6",
+          "raw_file_sha256": "73738b8005ef8bc8932681762658fd49255a2f176426cbf49bc21c87991b000d"
+        }
+      },
+      "hash:recovery_trace": {
+        "passed": true,
+        "detail": null
+      },
+      "1827_dates_and_timesteps_continuous": {
+        "passed": true,
+        "detail": null
+      },
+      "only551_new_operations": {
+        "passed": true,
+        "detail": null
+      },
+      "exact_recovery_boundary": {
+        "passed": true,
+        "detail": null
+      },
+      "all_daily_inflows_exactly_frozen_values": {
+        "passed": true,
+        "detail": null
+      },
+      "storage_causal_continuity": {
+        "passed": true,
+        "detail": 0
+      },
+      "independent_daily_mass_balance": {
+        "passed": true,
+        "detail": 0
+      },
+      "controlled_plus_spill_once_in_ledger": {
+        "passed": true,
+        "detail": 0
+      },
+      "physical_clamps_and_storage_bounds": {
+        "passed": true,
+        "detail": {
+          "max_clamp_error_cms": 0,
+          "bound_violations": []
+        }
+      },
+      "recorded_balance_zero": {
+        "passed": true,
+        "detail": null
+      },
+      "CSV_exact_ledger_values": {
+        "passed": true,
+        "detail": null
+      },
+      "API_attempt_totals": {
+        "passed": true,
+        "detail": {
+          "attempt_started": 1841,
+          "attempt_failed": 13,
+          "attempt_returned": 1827,
+          "attempt_interrupted": 1
+        }
+      },
+      "all_request_temperatures_0_7": {
+        "passed": true,
+        "detail": null
+      },
+      "attempt_ids_and_terminals": {
+        "passed": true,
+        "detail": null
+      },
+      "daily_valid_replies_no_replay": {
+        "passed": true,
+        "detail": null
+      },
+      "unknown_attempt1289_preserved": {
+        "passed": true,
+        "detail": [
+          {
+            "attempt_id": 1289,
+            "date": "2019-06-30",
+            "prompt_sha256": "e45a8e00328e1a7c6737061fcdff1bdd086a504d3b1d2bc0c9119c315f6fe24d",
+            "request_options": {
+              "temperature": 0.7,
+              "num_ctx": 16384,
+              "num_predict": 2048
+            },
+            "event": "attempt_interrupted",
+            "unknown_outcome": true
+          }
+        ]
+      },
+      "original12failures_preserved": {
+        "passed": true,
+        "detail": null
+      },
+      "suffix551days_only552attempts": {
+        "passed": true,
+        "detail": null
+      },
+      "exact_pending_June30_prompt_options": {
+        "passed": true,
+        "detail": null
+      },
+      "observed_returned:prompt_tokens": {
+        "passed": true,
+        "detail": 5528560
+      },
+      "observed_returned:response_tokens": {
+        "passed": true,
+        "detail": 663042
+      },
+      "unknown_cost_preserved": {
+        "passed": true,
+        "detail": null
+      },
+      "backend_daily_decisions": {
+        "passed": true,
+        "detail": null
+      },
+      "first_recovery_signature": {
+        "passed": true,
+        "detail": null
+      },
+      "trace1276plus551": {
+        "passed": true,
+        "detail": null
+      },
+      "system_prompt_unchanged": {
+        "passed": true,
+        "detail": null
+      },
+      "trace_content_equals_saved_reply_and_action": {
+        "passed": true,
+        "detail": null
+      },
+      "audit_counts_match": {
+        "passed": true,
+        "detail": {
+          "PASS": 946,
+          "FAIL": 711,
+          "WARN": 170
+        }
+      },
+      "approved_tree_unchanged": {
+        "passed": true,
+        "detail": {
+          "tree": "c5f9595aaac9d976f5e02a99a8241cf0f9a60b73",
+          "staged": 60,
+          "unstaged": []
+        }
+      },
+      "hash:immutable_original_checkpoint": {
+        "passed": true,
+        "detail": null
+      }
+    },
+    "daily_state_source_checks": 1827,
+    "date_range": [
+      "2016-01-01",
+      "2020-12-31"
+    ],
+    "days": 1827,
+    "preserved_days": 1276,
+    "new_days": 551,
+    "temperature": 0.7,
+    "model": "gemma4:12b",
+    "staged_tree": "c5f9595aaac9d976f5e02a99a8241cf0f9a60b73",
+    "preserved_prefix": {
+      "operations.jsonl": {
+        "bytes": 1206796,
+        "actual_sha256": "b843236d1fad513b20e88f257ba7e248b72c6eb18c4c4d6be648964c67d9c797",
+        "expected_sha256": "b843236d1fad513b20e88f257ba7e248b72c6eb18c4c4d6be648964c67d9c797",
+        "current_bytes": 1728509
+      },
+      "backend_decisions.jsonl": {
+        "bytes": 3632211,
+        "actual_sha256": "2847b264fee0bd05706367171802dbc425af8d97ee8f47e13146a1648927e01b",
+        "expected_sha256": "2847b264fee0bd05706367171802dbc425af8d97ee8f47e13146a1648927e01b",
+        "current_bytes": 5188286
+      },
+      "api_attempts.jsonl": {
+        "bytes": 861095,
+        "actual_sha256": "a30321a28cadaf7d2374abf2185dbddeca0695e1852b030bf7ec47a54ae372ba",
+        "expected_sha256": "a30321a28cadaf7d2374abf2185dbddeca0695e1852b030bf7ec47a54ae372ba",
+        "current_bytes": 1230127
+      },
+      "anik_logs/F.E._Walter_Dam_dkp_gemma4_daily_2016_2020_temp0.7_decisions.txt": {
+        "bytes": 3526035,
+        "actual_sha256": "c80ab6676a9a3651ff902ca2ffbd837dfc5f6887a577e6fc61e096eb0ae827b5",
+        "expected_sha256": "c80ab6676a9a3651ff902ca2ffbd837dfc5f6887a577e6fc61e096eb0ae827b5",
+        "current_bytes": 3526035
+      },
+      "anik_logs/F.E._Walter_Dam_dkp_gemma4_daily_2016_2020_temp0.7_trace.jsonl": {
+        "bytes": 14099132,
+        "actual_sha256": "a9a722f520452298f3d2a67396be825b536b390ccf080b855dd9eaa95bb3dd9e",
+        "expected_sha256": "a9a722f520452298f3d2a67396be825b536b390ccf080b855dd9eaa95bb3dd9e",
+        "current_bytes": 14099132
+      }
+    },
+    "pins": {
+      "original_experiment": {
+        "expected_sha256": "bd66d43d4bb56d2248288782a2ade9ec739ad6886b03f2dfc7bb9221dd3565e4",
+        "actual_sha256": "bd66d43d4bb56d2248288782a2ade9ec739ad6886b03f2dfc7bb9221dd3565e4"
+      },
+      "case": {
+        "expected_sha256": "996b9b8df7434054cde37cbcbbedfe6658fa953ab2aebbd4a1bd191a6ef327f1",
+        "actual_sha256": "996b9b8df7434054cde37cbcbbedfe6658fa953ab2aebbd4a1bd191a6ef327f1"
+      },
+      "frozen_inflow": {
+        "expected_sha256": "91759fdfbaa3e85b0257a5708391f53d264eb0ef898f94c4e580a391e131b64f",
+        "actual_sha256": "91759fdfbaa3e85b0257a5708391f53d264eb0ef898f94c4e580a391e131b64f"
+      },
+      "DKP": {
+        "expected_sha256": "7fb3b9e75c1d6a52168049afa80c527a49e606f1c0889e5d14b31f874502b206",
+        "actual_sha256": "7fb3b9e75c1d6a52168049afa80c527a49e606f1c0889e5d14b31f874502b206"
+      },
+      "accepted_hydrology_parameters": {
+        "expected_sha256": "1f4878ee4ff49e09b0b6f7bbf5e1d005620c4e380906671dd93ae12fa9400377",
+        "actual_sha256": "1f4878ee4ff49e09b0b6f7bbf5e1d005620c4e380906671dd93ae12fa9400377"
+      },
+      "src/delaware_operations/anik_adapter.py": {
+        "expected_sha256": "04279764276508bd2ce0e6fb9cc44d4367f8e82722f36e7f0faf0fbc0c6524be",
+        "actual_sha256": "04279764276508bd2ce0e6fb9cc44d4367f8e82722f36e7f0faf0fbc0c6524be"
+      },
+      "src/delaware_operations/anik_experiment.py": {
+        "expected_sha256": "dca75da99a8b1ce4b7f839422289a518c5cfa2de9a224e3430dc1e262591499a",
+        "actual_sha256": "dca75da99a8b1ce4b7f839422289a518c5cfa2de9a224e3430dc1e262591499a"
+      },
+      "src/delaware_operations/anik_recovery.py": {
+        "expected_sha256": "7d030fad179428a0a068eae00e7d3c05f87bcee863d7829b31c8a70cd2b48bb4",
+        "actual_sha256": "7d030fad179428a0a068eae00e7d3c05f87bcee863d7829b31c8a70cd2b48bb4"
+      },
+      "src/delaware_operations/case.py": {
+        "expected_sha256": "95428cc5904d26b0cd68bc349ce08a7883d08f969bbf841e114d847294e5d6ef",
+        "actual_sha256": "95428cc5904d26b0cd68bc349ce08a7883d08f969bbf841e114d847294e5d6ef"
+      },
+      "src/delaware_operations/cli.py": {
+        "expected_sha256": "d895e809f792b695512a5adecc95fe56042839ac526bb4278b085db31c437b40",
+        "actual_sha256": "d895e809f792b695512a5adecc95fe56042839ac526bb4278b085db31c437b40"
+      },
+      "src/delaware_operations/contracts.py": {
+        "expected_sha256": "ac030ca335dc84cbd2b5900eddd98cd164c7ba4f95baf77abd5bebfce0e15f4f",
+        "actual_sha256": "ac030ca335dc84cbd2b5900eddd98cd164c7ba4f95baf77abd5bebfce0e15f4f"
+      },
+      "src/delaware_operations/dam_agent.py": {
+        "expected_sha256": "17d6e8fea42000ad79f8a25467f9885a37cca1a49184822494f2979c4141870c",
+        "actual_sha256": "17d6e8fea42000ad79f8a25467f9885a37cca1a49184822494f2979c4141870c"
+      },
+      "src/delaware_operations/historical.py": {
+        "expected_sha256": "cd03b3d53518c0eb02f78af0f5563ed0c4e7c935bab61f1d9bf4a2bace68edc5",
+        "actual_sha256": "cd03b3d53518c0eb02f78af0f5563ed0c4e7c935bab61f1d9bf4a2bace68edc5"
+      },
+      "src/delaware_operations/hydrocnhs_bridge.py": {
+        "expected_sha256": "d09354dfaf60a5b87b7378d3a941ffec8eb31d9e0eb932a031dda51f50807cff",
+        "actual_sha256": "d09354dfaf60a5b87b7378d3a941ffec8eb31d9e0eb932a031dda51f50807cff"
+      },
+      "src/delaware_operations/hydrology.py": {
+        "expected_sha256": "ed509211097add405a93fa30566f8de2264557a09ef6d4e5eb0c61eaf8f6ba37",
+        "actual_sha256": "ed509211097add405a93fa30566f8de2264557a09ef6d4e5eb0c61eaf8f6ba37"
+      },
+      "src/delaware_operations/llm_adapter.py": {
+        "expected_sha256": "1a53a40a45b4beb641ca3adf7012bf4f3924b0f8f32c432bcf7b6a1f9832140f",
+        "actual_sha256": "1a53a40a45b4beb641ca3adf7012bf4f3924b0f8f32c432bcf7b6a1f9832140f"
+      },
+      "src/delaware_operations/operations.py": {
+        "expected_sha256": "fe9f9cddef73d29526dea36f45f0de8a27b3349453fcd24b243d1ab11d94b4f8",
+        "actual_sha256": "fe9f9cddef73d29526dea36f45f0de8a27b3349453fcd24b243d1ab11d94b4f8"
+      },
+      "src/delaware_operations/physics.py": {
+        "expected_sha256": "d545f2a3d64b1027526ca20f5b517a67c8d6f9c430ae2204c9099e69ef9f8db5",
+        "actual_sha256": "d545f2a3d64b1027526ca20f5b517a67c8d6f9c430ae2204c9099e69ef9f8db5"
+      },
+      "src/delaware_operations/policies.py": {
+        "expected_sha256": "32f6e417ca8dc4906050d072dc955a83ab4012cb2352684502676751cacabd3d",
+        "actual_sha256": "32f6e417ca8dc4906050d072dc955a83ab4012cb2352684502676751cacabd3d"
+      },
+      "src/delaware_operations/replay.py": {
+        "expected_sha256": "29b8045ef915c2119270dd21715170eabcf6e98f6a54682ac403b20428cb24f8",
+        "actual_sha256": "29b8045ef915c2119270dd21715170eabcf6e98f6a54682ac403b20428cb24f8"
+      },
+      "src/delaware_operations/__init__.py": {
+        "expected_sha256": "04ece3e4334294e2316b619c091797326d0e69266d49b94eac2a6755d1907c95",
+        "actual_sha256": "04ece3e4334294e2316b619c091797326d0e69266d49b94eac2a6755d1907c95"
+      },
+      "recovery_entrypoint": {
+        "expected_sha256": "916d64e9e918a00bd2e7f29cfd880ec91bb724b877584c5fc93a13b8125d0763",
+        "actual_sha256": "916d64e9e918a00bd2e7f29cfd880ec91bb724b877584c5fc93a13b8125d0763"
+      },
+      "vendor:benchmark_release.py": {
+        "expected_sha256": "f47500e3ccad55929d4069a6800ee24cb50e7605641c9ec8f03c4767d2cafc0a",
+        "actual_sha256": "f47500e3ccad55929d4069a6800ee24cb50e7605641c9ec8f03c4767d2cafc0a"
+      },
+      "vendor:dkp_llm_release.py": {
+        "expected_sha256": "0045f524f55cc39551ae4eec26b69d64d8758fcbe470016ad36e6e7ed8a54203",
+        "actual_sha256": "0045f524f55cc39551ae4eec26b69d64d8758fcbe470016ad36e6e7ed8a54203"
+      },
+      "vendor:README.txt": {
+        "expected_sha256": "3b8914fca36281b7fdd0da44605f92d826e610a5cebf30e53be0e8941f6f407b",
+        "actual_sha256": "3b8914fca36281b7fdd0da44605f92d826e610a5cebf30e53be0e8941f6f407b"
+      },
+      "vendor:reservoir_model.py": {
+        "expected_sha256": "eb159daa1437bdad5d093873fa97eedfc7daa7e482f023b6a5070c1d67ea01c8",
+        "actual_sha256": "eb159daa1437bdad5d093873fa97eedfc7daa7e482f023b6a5070c1d67ea01c8"
+      },
+      "vendor:zeroshot_llm_release.py": {
+        "expected_sha256": "e17ce6310b20902c0f6f4e11bce877e90a1ddd9bf128a7ecc0e50b5d18481dff",
+        "actual_sha256": "e17ce6310b20902c0f6f4e11bce877e90a1ddd9bf128a7ecc0e50b5d18481dff"
+      },
+      "original_Anik_ZIP": {
+        "expected_sha256": "a4e1aa628c8e2282e70f68080ba10aa7ade79367fb5ad4aa2d9d9f9ac8673174",
+        "actual_sha256": "a4e1aa628c8e2282e70f68080ba10aa7ade79367fb5ad4aa2d9d9f9ac8673174"
+      },
+      "original_DKP_attachment": {
+        "expected_sha256": "7fb3b9e75c1d6a52168049afa80c527a49e606f1c0889e5d14b31f874502b206",
+        "actual_sha256": "7fb3b9e75c1d6a52168049afa80c527a49e606f1c0889e5d14b31f874502b206"
+      },
+      "output:api_attempts.jsonl": {
+        "expected_sha256": "d2b7ed2be82bf1e004ce8ac126c6d6c8abdebb30ce4464cb935428ab2f85b473",
+        "actual_sha256": "d2b7ed2be82bf1e004ce8ac126c6d6c8abdebb30ce4464cb935428ab2f85b473"
+      },
+      "output:backend_decisions.jsonl": {
+        "expected_sha256": "df8ad00d40734162a596697d7675abb6a2ea5d5650b4be3b6c75c6126091810c",
+        "actual_sha256": "df8ad00d40734162a596697d7675abb6a2ea5d5650b4be3b6c75c6126091810c"
+      },
+      "output:operations.jsonl": {
+        "expected_sha256": "4cf4a4b259cd57d904787c3d046565ea9c45b1cf235a379fc51571aa348a3ab4",
+        "actual_sha256": "4cf4a4b259cd57d904787c3d046565ea9c45b1cf235a379fc51571aa348a3ab4"
+      },
+      "output:trajectory.csv": {
+        "expected_sha256": "83c2e8c3f82a708485ca58ab3207a0aef2e88cf37f5061de9b57cfb3ded885b7",
+        "actual_sha256": "83c2e8c3f82a708485ca58ab3207a0aef2e88cf37f5061de9b57cfb3ded885b7"
+      },
+      "recovery_trace": {
+        "expected_sha256": "7f7da568203a775dc9156598053c751cf272d82e475c7dc22d54f5d506f0714d",
+        "actual_sha256": "7f7da568203a775dc9156598053c751cf272d82e475c7dc22d54f5d506f0714d"
+      },
+      "immutable_original_checkpoint": {
+        "expected_sha256": "5787052b0649b3d986b983d0270f8adfd6875230376104140ef7cddae876d969",
+        "actual_sha256": "5787052b0649b3d986b983d0270f8adfd6875230376104140ef7cddae876d969"
+      }
+    },
+    "mass_balance": {
+      "recorded_daily_max_m3": 0,
+      "recorded_cumulative_m3": 0,
+      "independently_recomputed_daily_max_m3": 0,
+      "sum_independent_daily_residual_m3": 0,
+      "aggregate_volume_float_roundoff_m3": 1.0943040251731873e-7,
+      "max_storage_continuity_error_m3": 0,
+      "max_controlled_plus_spill_error_cms": 0,
+      "spill_days": 0,
+      "final_storage_m3": 2426260.491603742
+    },
+    "API": {
+      "started": 1841,
+      "returned": 1827,
+      "failed": 13,
+      "original_failed": 12,
+      "suffix_started": 552,
+      "suffix_returned": 551,
+      "suffix_failed": [
+        {
+          "attempt_id": 1627,
+          "date": "2020-06-01",
+          "prompt_sha256": "3d0117c9e638f737fedaef30688f230050dabae9fcbf3885b1a94e31212bdc9b",
+          "request_options": {
+            "temperature": 0.7,
+            "num_ctx": 16384,
+            "num_predict": 2048
+          },
+          "event": "attempt_failed",
+          "error_class": "ValueError",
+          "error": "Ollama returned invalid JSON in message.content: '{\\n  \"applicable_target_ft\": 1370.0,\\n  \"pool_position\": \"above_target\",\\n  \"intended_storage_direction\": \"decrease\",\\n  \"release_relation_to_inflow\": \"above_inflow\",\\n  \"operating_mode\": \"draw_toward_targ'",
+          "stats": {
+            "wall_seconds": 34.35454120000941,
+            "ollama_total_seconds": 32.3080543,
+            "prompt_tokens": 3111,
+            "response_tokens": 2048,
+            "done_reason": "length",
+            "content_chars": 6261,
+            "thinking_chars": 0
+          }
+        }
+      ],
+      "unknown_interrupted": [
+        {
+          "attempt_id": 1289,
+          "date": "2019-06-30",
+          "prompt_sha256": "e45a8e00328e1a7c6737061fcdff1bdd086a504d3b1d2bc0c9119c315f6fe24d",
+          "request_options": {
+            "temperature": 0.7,
+            "num_ctx": 16384,
+            "num_predict": 2048
+          },
+          "event": "attempt_interrupted",
+          "unknown_outcome": true
+        }
+      ],
+      "unknown_cost": true,
+      "observed_returned_prompt_tokens": 5528560,
+      "observed_returned_response_tokens": 663042
+    },
+    "audit": {
+      "PASS": 946,
+      "FAIL": 711,
+      "WARN": 170
+    },
+    "process_completion": {
+      "status": "completed",
+      "pid": 3800,
+      "ended_at_utc": "2026-10-10T16:27:24.315008+00:00",
+      "days": 1827
+    },
+    "hydrology_recomputed": false,
+    "routing": "identity unit hydrograph contract fixture",
+    "strategy_validation_passed": false,
+    "root_cause": "external process/session termination inferred; exact triggering event unconfirmed",
+    "validator_sha256": "7aaece0861af430ee5bf1ff65addd3148bfdb1a5753e0b56cb08497cd9406efb"
+  },
+  "runtime_verification": {
+    "python": "3.12.14",
+    "packages": {
+      "hydrocnhs": "1.2.1",
+      "numpy": "2.5.1",
+      "pandas": "3.0.5",
+      "scipy": "1.18.0",
+      "joblib": "1.5.3",
+      "ruamel.yaml": "0.19.1",
+      "tqdm": "4.70.0",
+      "deap": "1.4.4",
+      "PyYAML": "6.0.3",
+      "scikit-learn": "1.9.0",
+      "matplotlib": "3.11.1"
+    },
+    "source": "Fresh importlib.metadata read using original experiment Python venv; no simulation/provider imports."
+  },
+  "process_check": {
+    "checked_at_utc": "2026-10-10T17:06:00Z",
+    "method": "Win32_Process PID and Python command-line query",
+    "launcher_pid": 68684,
+    "runtime_pid": 3800,
+    "matching_processes_found": 0
+  },
+  "coupling_evidence": {
+    "ledger_total_outflow_is_controlled_plus_spill": "PASS_ALL_1827_DAYS",
+    "suffix_native_postcondition": "Completed 551-day suffix reached pinned bridge postcondition: both FEWalter and Downstream equal ledger total_outflow with rtol=0, atol=1e-12.",
+    "source_assertion": {
+      "file": "src/delaware_operations/hydrocnhs_bridge.py",
+      "line": 72,
+      "quote": "Dam outflow was lost or duplicated"
+    },
+    "full_1827_native_outlet_arrays": "NOT_SAVED",
+    "prefix_native_final_postcondition": "NOT_REACHED_BEFORE_INTERRUPTION; no independent full-prefix routing acceptance claim.",
+    "spill_days_this_experiment": 0,
+    "nonzero_spill_evidence": "Prior accepted offline fixture tests retained; no new nonzero-spill experiment/test performed.",
+    "hydrological_role": "Accepted seven-unit semi-distributed GWLF/Lohmann routed reservoir inflow reused unchanged; no hydrology recomputation.",
+    "LLM_role": "Anik V3.7 DKP daily target controlled release from current storage/inflow/previous actual release.",
+    "program_role": "Physical kernel enforces storage and release bounds, updates mass balance once, sends total controlled+spill to Dam host.",
+    "downstream_routing": "Identity-unit-hydrograph contract fixture; no calibrated river travel times, multi-reservoir coordination, urban hydrology or catchment feedback."
+  },
+  "independent_readonly_check": {
+    "agent": "/root/fe_completed_ledger_readonly",
+    "status": "LEDGER_PASS_ROUTING_CLAIM_LIMITED",
+    "observed_tool_calls": 10,
+    "cost": null,
+    "finding": "1,827 ledger records: continuity, independent mass residual and total-control-spill difference all 0; bound and nonfinite violations 0; storage 1,287,926.638–29,776,935.143 m3. Dam agent commits storage once and returns total; bridge compares both outlet arrays after model.run. Prefix interruption prevented final postcondition; only suffix has completed native routing postcondition."
+  },
+  "limitations": [
+    "711 audit FAIL days (946 PASS, 170 WARN). The completed run is a diagnostic trajectory, not a validated operating strategy.",
+    "Hard physical failure count 0; policy failure count 705 is distinct from the 711 aggregate audit FAIL days.",
+    "Initial storage 1992.61 acre-feet is Anik conservation-pool assumption, not observed 2016-01-01 storage.",
+    "Reservoir precipitation, evaporation, seepage and withdrawals are zero.",
+    "Temperature 0.7 with backend seed omitted does not promise regenerated decisions are deterministic. Reproducibility here uses saved raw replies plus byte/source/input/runtime pins.",
+    "13 failed attempts = original 12 plus suffix attempt1627 truncated JSON, recovered by1628. Attempt1289 remains unknown; its outcome and costs are not imputed.",
+    "Aggregate large-volume subtraction differs by 1.0943040251731873e-7 m3 from rounding; independent daily residuals and their sum are exactly0.",
+    "Original interruption: external process/session termination inferred; exact event unconfirmed. No fixed TTL claim."
+  ],
+  "execution_during_acceptance": {
+    "new_LLM_calls": 0,
+    "new_simulations": 0,
+    "downloads": 0,
+    "recalibration": 0,
+    "replayed_days": 0,
+    "source_or_input_edits": 0
+  },
+  "recovery_review_preserved": {
+    "tree": "c5f9595aaac9d976f5e02a99a8241cf0f9a60b73",
+    "delta_sha256": "1238f40dd77c454aaac8dc068fd762d8b0bf0d35f4bbe1fa9c78201cddc4ec51",
+    "reviewer": "fe_suffix_final_review",
+    "verdict": "APPROVED",
+    "targeted_tests_previously_passed": 9
+  },
+  "harness_checkpoint": "C:/Users/wenyu/.codex/portable-harness/checkpoints/hydrocnhs-clean-repo-readonly-20261009.v2.json"
+}

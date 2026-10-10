@@ -1,0 +1,26 @@
+{
+  "hydrocnhs_commit": "fdd5097a3fcabb312c6c3739efc71da2d67c47da",
+  "normalization": "CRLF to LF only",
+  "files": [
+    {
+      "path": "hydrocnhs.py",
+      "normalized_sha256": "cad2ff1c33424716b1a72d315b38d12946a8c494e68b18f2f41838cb9814e2d7"
+    },
+    {
+      "path": "routing.py",
+      "normalized_sha256": "088e0b1f928030bc38a991cb369b7109e753350cc399e8b646197bdb0d97d1db"
+    },
+    {
+      "path": "util.py",
+      "normalized_sha256": "26a150cff2733496f9bc5205696f4e80c2bea7bd9e47e5a34fd41393c1b5a05a"
+    },
+    {
+      "path": "abm.py",
+      "normalized_sha256": "b348391cc14ea4feb12de6d88be3a7647c34c27ddce66556661fa97898128275"
+    },
+    {
+      "path": "data_collector.py",
+      "normalized_sha256": "cccd72962d75a60880125e380623e6094a14abd2f696c35b5ef280c416569f9f"
+    }
+  ]
+}

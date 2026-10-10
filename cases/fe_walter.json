@@ -1,0 +1,44 @@
+{
+  "schema_version": "delaware-operations-case.v1",
+  "hydrocnhs_commit": "fdd5097a3fcabb312c6c3739efc71da2d67c47da",
+  "offline_only": true,
+  "start_date": "2015-10-01",
+  "inflow_csv": "data/accepted/fe_walter_inflow_sample.csv",
+  "source_manifest": "data/accepted/manifest.json",
+  "agent_name": "FEWalter",
+  "agent_config": {
+    "Attributes": {
+      "Physical": {
+        "reservoir_id": "fe_walter",
+        "capacity_m3": 135199473.1344,
+        "dead_storage_m3": 11101.3362,
+        "initial_storage_m3": 2211632.8674,
+        "minimum_release_cms": 1.4158423296,
+        "maximum_release_cms": 283.16846592,
+        "dt_seconds": 86400.0
+      },
+      "Policy": {
+        "provider": "pass_through"
+      }
+    },
+    "Inputs": {
+      "Priority": 0,
+      "Links": {
+        "FEW_INFLOW": -1,
+        "FEWalter": 1
+      },
+      "DMClass": null
+    },
+    "Pars": {}
+  },
+  "assumptions": {
+    "initial_storage": "1793 acre-feet is the existing preparation-case assumption, not observed storage for this sample date.",
+    "reservoir_precipitation_evaporation_seepage": "Explicitly zero in this daily bucket interface prototype.",
+    "spill": "Excess above storage capacity leaves in the same day; rating curves are not modeled.",
+    "inflow_timing": "Offline replay supplies the known daily mean inflow; no operational forecast claim."
+  },
+  "units": {
+    "cfs_to_cms": 0.028316846592,
+    "acreft_to_m3": 1233.4818
+  }
+}

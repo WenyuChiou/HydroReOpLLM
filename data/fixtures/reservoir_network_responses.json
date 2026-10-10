@@ -1,0 +1,83 @@
+{
+  "schema_version": "reservoir-network-responses.v1",
+  "reservoirs": {
+    "R1": {
+      "schema_version": "recorded-llm-responses.v1",
+      "data_kind": "synthetic_fixture",
+      "records": [
+        {
+          "date": "2020-01-01",
+          "release_cms": 2.0,
+          "rationale": "Fixed synthetic action sequence; no model called."
+        },
+        {
+          "date": "2020-01-02",
+          "release_cms": 2.0,
+          "rationale": "Fixed synthetic action sequence; no model called."
+        },
+        {
+          "date": "2020-01-03",
+          "release_cms": 2.0,
+          "rationale": "Fixed synthetic action sequence; no model called."
+        },
+        {
+          "date": "2020-01-04",
+          "release_cms": 2.0,
+          "rationale": "Fixed synthetic action sequence; no model called."
+        }
+      ]
+    },
+    "R2": {
+      "schema_version": "recorded-llm-responses.v1",
+      "data_kind": "synthetic_fixture",
+      "records": [
+        {
+          "date": "2020-01-01",
+          "release_cms": 1.5,
+          "rationale": "Fixed synthetic action sequence; no model called."
+        },
+        {
+          "date": "2020-01-02",
+          "release_cms": 1.5,
+          "rationale": "Fixed synthetic action sequence; no model called."
+        },
+        {
+          "date": "2020-01-03",
+          "release_cms": 1.5,
+          "rationale": "Fixed synthetic action sequence; no model called."
+        },
+        {
+          "date": "2020-01-04",
+          "release_cms": 1.5,
+          "rationale": "Fixed synthetic action sequence; no model called."
+        }
+      ]
+    },
+    "R3": {
+      "schema_version": "recorded-llm-responses.v1",
+      "data_kind": "synthetic_fixture",
+      "records": [
+        {
+          "date": "2020-01-01",
+          "release_cms": 1.0,
+          "rationale": "Fixed synthetic action sequence; no model called."
+        },
+        {
+          "date": "2020-01-02",
+          "release_cms": 1.0,
+          "rationale": "Fixed synthetic action sequence; no model called."
+        },
+        {
+          "date": "2020-01-03",
+          "release_cms": 1.0,
+          "rationale": "Fixed synthetic action sequence; no model called."
+        },
+        {
+          "date": "2020-01-04",
+          "release_cms": 1.0,
+          "rationale": "Fixed synthetic action sequence; no model called."
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,12 @@
+# Optional native Dam fixture dependencies observed locally; not installed by this task.
+hydrocnhs @ git+https://github.com/cylin928/HydroCNHS.git@fdd5097a3fcabb312c6c3739efc71da2d67c47da
+numpy==2.5.1
+pandas==3.0.5
+scipy==1.18.0
+joblib==1.5.3
+ruamel.yaml==0.19.1
+tqdm==4.70.0
+deap==1.4.4
+PyYAML==6.0.3
+scikit-learn==1.9.0
+matplotlib==3.11.1

@@ -1,0 +1,143 @@
+{
+  "schema_version": "fe-result-figures.v1",
+  "created_at_utc": "2026-10-10T17:21:49.265406+00:00",
+  "sources": {
+    "trajectory.csv": "83c2e8c3f82a708485ca58ab3207a0aef2e88cf37f5061de9b57cfb3ded885b7",
+    "operations.jsonl": "4cf4a4b259cd57d904787c3d046565ea9c45b1cf235a379fc51571aa348a3ab4",
+    "experiment.json": "bd66d43d4bb56d2248288782a2ade9ec739ad6886b03f2dfc7bb9221dd3565e4",
+    "summary.json": "413294cd8b2579426fb3e32b5d62463b9b48bac5d8b25db32779c40a215b477a",
+    "acceptance.json": "6204d144ebbfccd5cdfc7ed52eba3d71b903f19ef4421a32f07c18ef3c7976c3",
+    "anik_logs/F.E._Walter_Dam_dkp_gemma4_daily_2016_2020_temp0.7_trace.jsonl": "a9a722f520452298f3d2a67396be825b536b390ccf080b855dd9eaa95bb3dd9e",
+    "recovery_20190630/anik_logs/F.E._Walter_Dam_dkp_gemma4_daily_suffix_20190630_20201231_trace.jsonl": "7f7da568203a775dc9156598053c751cf272d82e475c7dc22d54f5d506f0714d"
+  },
+  "source_bytes_preserved": true,
+  "plotted_values_verified": true,
+  "new_LLM_calls": 0,
+  "new_simulations": 0,
+  "plot_smoothing": "none; all daily samples",
+  "pool_time_basis": "start of day from saved Anik selection_inputs; storage end of day from physical ledger",
+  "target_basis": "Saved Anik seasonal target; not independently reconstructed official annual plan",
+  "routing_scope": "identityUH fixture; native suffix551 final assertion complete; prefix1276 final assertion unavailable",
+  "statistics": {
+    "days": 1827,
+    "date_range": [
+      "2016-01-01",
+      "2020-12-31"
+    ],
+    "audit": {
+      "PASS": 946,
+      "FAIL": 711,
+      "WARN": 170
+    },
+    "audit_fail_fraction": 0.3891625615763547,
+    "max_daily_mass_balance_residual_m3": 0.0,
+    "max_storage_m3": 29776935.143007178,
+    "min_storage_m3": 1287926.638265125,
+    "final_storage_m3": 2426260.491603742,
+    "min_pool_elevation_start_ft": 1288.9201236781394,
+    "max_pool_elevation_start_ft": 1375.8782042263326,
+    "mean_inflow_cms": 19.525181893888124,
+    "mean_outflow_cms": 19.52538200302857,
+    "inflow_outflow_max_abs_cms": 114.04906882181416,
+    "no_spill_days": 1827,
+    "annual_summary": [
+      {
+        "year": 2016,
+        "days": 366,
+        "PASS": 146,
+        "WARN": 21,
+        "FAIL": 199,
+        "mean_inflow_cms": 12.027237216303902,
+        "mean_actual_outflow_cms": 12.027209394764753,
+        "storage_end_m3": 2458728.063568747
+      },
+      {
+        "year": 2017,
+        "days": 365,
+        "PASS": 203,
+        "WARN": 45,
+        "FAIL": 117,
+        "mean_inflow_cms": 14.998826237846659,
+        "mean_actual_outflow_cms": 14.999100260168218,
+        "storage_end_m3": 2450086.4956360245
+      },
+      {
+        "year": 2018,
+        "days": 365,
+        "PASS": 218,
+        "WARN": 46,
+        "FAIL": 101,
+        "mean_inflow_cms": 31.57848247794175,
+        "mean_actual_outflow_cms": 31.57900983872219,
+        "storage_end_m3": 2433455.646064058
+      },
+      {
+        "year": 2019,
+        "days": 365,
+        "PASS": 244,
+        "WARN": 48,
+        "FAIL": 73,
+        "mean_inflow_cms": 23.60087460025459,
+        "mean_actual_outflow_cms": 23.59991196518301,
+        "storage_end_m3": 2463813.305681311
+      },
+      {
+        "year": 2020,
+        "days": 366,
+        "PASS": 135,
+        "WARN": 10,
+        "FAIL": 221,
+        "mean_inflow_cms": 15.452190132816055,
+        "mean_actual_outflow_cms": 15.453377671209017,
+        "storage_end_m3": 2426260.491603742
+      }
+    ],
+    "audit_causes_nonexclusive": [
+      [
+        "pool below target but release does not retain inflow, so storage cannot move toward the target",
+        369
+      ],
+      [
+        "draw_toward_target mode does not release more than inflow",
+        132
+      ],
+      [
+        "below-target pass_inflow cannot raise storage toward the target",
+        123
+      ],
+      [
+        "intended_storage_direction 'decrease' contradicts the water balance (storage will hold)",
+        80
+      ],
+      [
+        "stated applicable_target_ft 1300.0 differs from the operation target 1370.0 for this date",
+        77
+      ],
+      [
+        "intended_storage_direction 'decrease' contradicts the water balance (storage will increase)",
+        54
+      ]
+    ]
+  },
+  "runtime": {
+    "python": "3.12.14",
+    "matplotlib": "3.11.1",
+    "numpy": "2.5.1"
+  },
+  "outputs": {
+    "annual_summary.csv": "f3e7f3e1175585814f4cd435931dbdf6199a575e5cd8e09855a0b79349a48c6f",
+    "fe_walter_2016_2020_daily.pdf": "fc4a4121676e14474d2b229abd72afff80366a310de3957efb278ddd9e7bd54f",
+    "fe_walter_2016_2020_daily.png": "46794859b534f17fa4a7534fff9af53bbe96c5aad1b0ed15d38f938f03aeb2c9",
+    "fe_walter_2016_2020_daily.svg": "3d4f8d69202671f9d1b6be2a4041e880ff11a89333814c08a470ba99cf07ab49",
+    "fe_walter_2020_detail.pdf": "9d08dac73a0d876a0636521cea9b7d2a743d63c19996557d449819f890e58449",
+    "fe_walter_2020_detail.png": "fbbb96c23ea5ae1e794828e4ab6681ccdf05c9e8c6a2dcddd837519ab15210f2",
+    "fe_walter_2020_detail.svg": "f4cc772ae68ea1263557c4cccece78f679fdfe164189710bea5ec6755efab261",
+    "fe_walter_audit_by_year.pdf": "6d3cc2742532288085dcd21fbf67fbec39f2ab7650ac963561732e8f242be9a6",
+    "fe_walter_audit_by_year.png": "060a16b4e4fb99bb414f959e6337c6dd62b06a0ccb7936f4a676ea1ccef790b1",
+    "fe_walter_audit_by_year.svg": "d17b7a633cbc543d2b7ba809e8c56e3227e1ec275ad25431f7b79085d89fdcc5",
+    "plotted_daily.csv": "bb160b638cba382854e4091da08cbdf8056375b3fec6fdd97bff494e3357fe81",
+    "plot_results.py": "8ec20e2211347174e1725ad089cd3599e3cc3eac930da941b4601bd5b567b441",
+    "comparison.md": "47cbe398726b9193fb5587b6f7dcdcd71358df96dc0a494c5a5355f465612af2"
+  },
+  "visual_inspection": "All three PNGs inspected: readable axes/legends/labels, no clipping; all daily data and FAIL retained."
+}

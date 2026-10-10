@@ -1,0 +1,8 @@
+date,reservoir,simulated_inflow_cfs,upstream_subbasin_count,model
+2015-10-01,fe_walter,116.28049497790234,7,hydrocnhs_native_regionalized
+2015-10-02,fe_walter,124.98242056825278,7,hydrocnhs_native_regionalized
+2015-10-03,fe_walter,204.98889370318255,7,hydrocnhs_native_regionalized
+2015-10-04,fe_walter,641.6486924528193,7,hydrocnhs_native_regionalized
+2015-10-05,fe_walter,674.2568773323281,7,hydrocnhs_native_regionalized
+2015-10-06,fe_walter,431.7724847412227,7,hydrocnhs_native_regionalized
+2015-10-07,fe_walter,278.334355406018,7,hydrocnhs_native_regionalized
