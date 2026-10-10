@@ -71,6 +71,18 @@ def load_case(path, *, project_root=PROJECT_ROOT):
                 raise ValueError("knowledge package checksum mismatch: " + identifier)
             knowledge[identifier] = {"path": str(source), "sha256": spec["sha256"]}
         config["knowledge_packages"] = knowledge
+        for settings in config["reservoirs"].values():
+            if "passive_outlet_source" in settings:
+                if "passive_outlet" in settings:
+                    raise ValueError("only one passive rating source is permitted")
+                spec = settings.pop("passive_outlet_source")
+                if set(spec) != {"path", "sha256"}:
+                    raise ValueError("passive rating source requires path and sha256")
+                source = inside(project_root, path.parent / spec["path"])
+                if hashlib.sha256(source.read_bytes()).hexdigest() != spec["sha256"]:
+                    raise ValueError("passive outlet checksum mismatch")
+                settings["passive_outlet"] = read_json(source)
+                config.setdefault("source_files", {})[str(source)] = spec["sha256"]
         config.setdefault("source_files", {})[str(path)] = hashlib.sha256(path.read_bytes()).hexdigest()
         config["data_kind"] = case["data_kind"]
     elif case.get("schema_version") == "llm-reservoir-case.v1":
@@ -153,14 +165,16 @@ class RecordedResponseBackend:
 def load_responses(path, config, rows, *, project_root=PROJECT_ROOT):
     path = inside(project_root, path)
     value = read_json(path)
-    if value.get("schema_version") == "recorded-llm-responses.v1" and len(config["reservoirs"]) == 1:
-        supplied = {next(iter(config["reservoirs"])): value}
+    controlled = {name for name, spec in config["reservoirs"].items()
+                  if spec.get("operation_mode", "controlled") == "controlled"}
+    if value.get("schema_version") == "recorded-llm-responses.v1" and len(controlled) == 1:
+        supplied = {next(iter(controlled)): value}
     elif value.get("schema_version") == "reservoir-network-responses.v1":
         supplied = value["reservoirs"]
     else:
         raise ValueError("unsupported recorded response file")
-    if not isinstance(supplied, Mapping) or set(supplied) != set(config["reservoirs"]):
-        raise ValueError("recorded responses must cover every reservoir")
+    if not isinstance(supplied, Mapping) or set(supplied) != controlled:
+        raise ValueError("recorded responses must cover controlled reservoirs only")
     result = {}
     source_sha = hashlib.sha256(path.read_bytes()).hexdigest()
     for name, item in supplied.items():

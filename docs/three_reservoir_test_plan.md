@@ -1,6 +1,6 @@
 # FE Walter／Beltzville／Prompton daily 聯測計畫
 
-本次只發布計畫。單庫及合成多庫的技術驗收已通過；真實三庫實驗、共同 LLM controller 與 urban 水文尚未執行。既有水文參數、C&V、凍結入流與五年 FE Walter 結果保留不變。
+已完成三庫 2016-01-01–01-07 離線接線、被動出口及水量驗收；使用凍結入流與合成 actions。下游只表示三庫放流貢獻；現有來源未提供校正的共同測站 reaches／側向入流。完整實作、限制與真實 LLM 前的測試條件見 [離線驗收與後續規劃](offline_pre_live_acceptance.md)。共同 LLM controller 與 urban 水文尚未執行。既有參數、C&V、凍結入流與五年 FE Walter 結果保留不變。
 
 ## 河網與決策範圍
 
@@ -53,7 +53,7 @@ cases/<case_id>/
   source_manifest.json      # 原始來源、日期、單位、處理方式與假設
 ```
 
-`case.json` 用現有 network case schema；具體欄位以 [case loader](../src/llm_reservoir_agent/case.py) 與 [合成三庫範例](../cases/reservoir_network_fixture.json) 為準。以上是規劃結構，尚未建立真實三庫資料包。被動出口所需的 rating curve schema／kernel extension 需在下一次實作定案。
+`case.json` 用現有 network case schema；具體欄位以 [case loader](../src/llm_reservoir_agent/case.py)、[三庫離線資料包](../cases/fe_belt_prompton_offline/case.json) 為準。被動出口 schema 與來源／適用範圍見 [離線驗收](offline_pre_live_acceptance.md)。
 
 每庫設定 reservoir ID、inflow／outlet node、location／CRS、初始 storage、physical limits、backend identity、prompt template/version、DKP hashes 與 audit version。不同 prompt／DKP 各自在啟動時固定；現有介面支援不同實驗／水庫的策略，run 中途動態換 prompt 尚未支援。
 
@@ -68,7 +68,7 @@ cases/<case_id>/
 | 水庫物理程式 | 可用水量與容量／出口限制、被動放流、spill、storage 更新、水量平衡；實施放流可能與 LLM request 不同 |
 | Host／trace | 每日每庫只注入一次 controlled release＋spill，保存來源與程式 hashes、causal IDs 及執行狀態 |
 
-現在的通用物理核為 daily、零蒸發／滲漏 bucket；它不是完整 stage-dependent outlet model，亦未保存全河道蓄水。真實聯測所需物理與 routing 蓄水記錄先實作與驗收，不能用目前近似值冒充已驗證水壩操作。
+通用物理核仍為 daily、零蒸發／滲漏 bucket；新增 monotone storage-discharge 的被動 outlet solver、逐 reach 在途水量與全系統 balance。Prompton 圖面 rating 近似及人工 transfer UH 只用於離線技術驗收，不能冒充已驗證水壩操作或校正河道 hydraulics。
 
 沿用 `decisions.jsonl`、`physics.jsonl`、`audit.jsonl`、`backend_events.jsonl`，每筆包含 case／run／reservoir／date／timestep／causal reference。Raw reply／audit payload 用 hash 引用放在 `raw/`，便於查閱且保留完整稽核。保存 requested、controlled、spill、total、S_start／S_end、限制、residual、routed inflow／outlet；FAIL 保留 FAIL，缺少 auditor 為 UNKNOWN。Backend 或 feedback 錯誤保留已完成的物理紀錄後停止，不暗中降級、補零或重試。
 
@@ -86,4 +86,4 @@ Routing 檢查使用配置 UH 的獨立卷積，逐節點比對 native routed fl
 
 策略另評估季節目標偏差與達成日數、最低放流缺口、越界 request／實施量、spill、共同下游洪峰與限制違反、各庫水量分配，以及 audit PASS／WARN／FAIL／UNKNOWN。先固定目標與門檻，再比較結果；技術 PASS 不改寫策略 FAIL。原五年實驗僅作有明確初始狀態、prompt 與 routing 差異的診斷參照。
 
-下一步為 step 1：整理現有下游 GIS／流量來源、Prompton 被動出口及兩座可控水庫的操作設定。完成可查閱的 case manifest 與離線驗收後，再確認真實 LLM pilot 的執行範圍與請求額度。
+離線 steps 1–3 已完成限定範圍測試；尚缺校正下游與完整操作物理資料，詳見 [真實 LLM 前的條件](offline_pre_live_acceptance.md)。Pilot 尚未啟動。

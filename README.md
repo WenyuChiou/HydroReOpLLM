@@ -1,6 +1,6 @@
 # LLM Reservoir Agent
 
-[Saved results and figures](results/README.md) · [Real three-reservoir test plan](docs/three_reservoir_test_plan.md)
+[Saved results and figures](results/README.md) · [Three-reservoir offline results](results/three_reservoir_offline/RESULTS.md) · [Pre-live acceptance plan](docs/offline_pre_live_acceptance.md)
 
 This private research repository publishes the accepted generic integration and
 curated FE Walter outputs. Verify the published result bytes without running a
@@ -26,6 +26,8 @@ It supports one or many reservoirs in a directed river network:
 | `experiment.py` / `run_experiment` | Run isolated backends for all reservoirs and save durable daily traces and CSV outputs. |
 | `dkp_adapter.py` / `DKPPolicyAdapter` | Adapt an already constructed DKP V3.7 policy, preserving its original emitted audit. |
 | `physics.py` / `apply_transition` | Enforce physical bounds, update storage and calculate spill. |
+| `passive.py` | Solve a configured ungated storage-discharge outlet within its known rating domain. |
+| `balance.py`, `verification.py` | Account for water in reservoirs and routing channels; independently verify saved traces and exports. |
 | `prompt.py` | Separate versioned prompt, knowledge-package, response-parser and auditor interfaces. |
 | `audit.py`, `trace.py` | Keep compact causal streams and hashed raw audit/reply records. |
 
@@ -65,8 +67,10 @@ Outputs separate `decisions.jsonl`, `physics.jsonl`, `audit.jsonl` and
 `backend_events.jsonl`; full raw payloads have hash references under `raw/`.
 Missing audit is `UNKNOWN`, original FAIL remains FAIL, and execution completion
 does not imply operating-strategy acceptance. See [policy and network design](docs/policy_design.md).
-Calibrated channel travel times, passive ungated outlet hydraulics and a joint
-LLM controller require their own evidence and implementation.
+The seven-day FE Walter/Beltzville/Prompton case includes a provisional passive
+Prompton outlet and managed-reservoir contribution routing. Calibrated downstream
+reaches, a certified complete outlet rating and a joint LLM controller still
+require their own evidence and implementation. See the [offline acceptance plan](docs/offline_pre_live_acceptance.md).
 
 The neutral agent reuses the accepted physical implementation. Author-specific
 files and vendor attribution remain as frozen reproduction dependencies; public

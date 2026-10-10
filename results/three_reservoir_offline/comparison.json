@@ -1,0 +1,26 @@
+{
+  "FE_release_pulse_cms": 5,
+  "pulse_date": "2016-01-04",
+  "outlet_difference_cms": [
+    0.0,
+    0.0,
+    0.0,
+    5.0000000000000036,
+    0.0,
+    0.0,
+    0.0
+  ],
+  "FE_storage_difference_m3": 432000,
+  "sibling_natural_inflows_and_transitions_unchanged": true,
+  "routing_calibrated": false,
+  "outlet_represents_full_river": false,
+  "baseline_outlet_cms": [
+    44.06459578510763,
+    32.51954365117694,
+    22.900659980696368,
+    17.375703279862876,
+    14.415764078842702,
+    12.808178993572277,
+    11.88620324070405
+  ]
+}

@@ -1,0 +1,107 @@
+{
+  "schema_version": "offline-network-acceptance.v1",
+  "created_at_utc": "2026-10-10T20:54:41.988452+00:00",
+  "scope": "7-day managed-reservoir contribution network, not full river or operating-strategy validation",
+  "period": [
+    "2016-01-01",
+    "2016-01-07"
+  ],
+  "reservoirs": [
+    "FEWalter",
+    "Beltzville",
+    "Prompton"
+  ],
+  "controlled_reservoirs": [
+    "FEWalter",
+    "Beltzville"
+  ],
+  "passive_reservoirs": [
+    "Prompton"
+  ],
+  "execution_and_physics_verdict": "PASS",
+  "operating_strategy_accepted": null,
+  "live_readiness": false,
+  "real_LLM_calls": 0,
+  "independent_file_verification": {
+    "baseline": {
+      "status": "PASS",
+      "days": 7,
+      "reservoir_count": 3,
+      "reservoir_days": 21,
+      "date_start": "2016-01-01",
+      "date_end": "2016-01-07",
+      "audit_counts": {
+        "UNKNOWN": 21
+      },
+      "max_reservoir_balance_residual_m3": 7.566995918750763e-10,
+      "max_system_balance_residual_m3": 9.313225746154785e-10,
+      "max_routing_difference_cms": 0.0,
+      "final_channel_storage_m3": 0.0,
+      "observed_network_calls": 0,
+      "operating_strategy_accepted": null
+    },
+    "fe_pulse": {
+      "status": "PASS",
+      "days": 7,
+      "reservoir_count": 3,
+      "reservoir_days": 21,
+      "date_start": "2016-01-01",
+      "date_end": "2016-01-07",
+      "audit_counts": {
+        "UNKNOWN": 21
+      },
+      "max_reservoir_balance_residual_m3": 7.566995918750763e-10,
+      "max_system_balance_residual_m3": 9.313225746154785e-10,
+      "max_routing_difference_cms": 0.0,
+      "final_channel_storage_m3": 0.0,
+      "observed_network_calls": 0,
+      "operating_strategy_accepted": null
+    },
+    "delayed": {
+      "status": "PASS",
+      "days": 7,
+      "reservoir_count": 3,
+      "reservoir_days": 21,
+      "date_start": "2016-01-01",
+      "date_end": "2016-01-07",
+      "audit_counts": {
+        "UNKNOWN": 21
+      },
+      "max_reservoir_balance_residual_m3": 7.566995918750763e-10,
+      "max_system_balance_residual_m3": 1.6298145055770874e-09,
+      "max_routing_difference_cms": 0.0,
+      "final_channel_storage_m3": 1026967.9599968295,
+      "observed_network_calls": 0,
+      "operating_strategy_accepted": null
+    }
+  },
+  "test_execution": {
+    "runtime": "Python 3.12.14",
+    "tests": 89,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "exit_code": 0,
+    "network_connect_disabled": true,
+    "stdout": "verification/regression89-stdout.log",
+    "stderr": "verification/regression89-stderr.log"
+  },
+  "failure_preservation": {
+    "earlier_89_test_run_errors": 1,
+    "cause": "Windows progress.json replace PermissionError; specific external cause unproven",
+    "changed_condition": "task-local persistent test output directory",
+    "production_writer_retry_added": false,
+    "earlier_failure_log": "verification/earlier-regression89-windows-failure-stderr.log",
+    "original_FE_failed_attempts": 13,
+    "original_FE_unknown_attempt": 1289,
+    "unknown_cost": "unknown",
+    "original_FE_audit_FAIL": 711
+  },
+  "limitations": [
+    "Downstream UHs are explicit uncalibrated fixtures; managed contributions only; no complete lateral inflows or historical channel stock.",
+    "Prompton Plate 7-2 visually digitized approximate rating, 1125-1200 ft NGVD29 only; leaving known domain is terminal.",
+    "Initial storage is 2015-12-31 UTC daily mean proxy; Beltzville test bounds are not certified operation limits.",
+    "Missing operating auditor is UNKNOWN for all 21 reservoir-days per scenario; physical PASS is not strategy acceptance.",
+    "No joint LLM controller, provider call, download, calibration or multiyear replay performed."
+  ]
+}

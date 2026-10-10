@@ -1,0 +1,46 @@
+{
+  "schema_version": "passive-storage-discharge.v1",
+  "storage_m3": [
+    4370608.529800503,
+    4710864.494687986,
+    5276859.970665041,
+    6310369.732709357,
+    7437759.797409414,
+    7670813.855795643,
+    8638048.63870853,
+    11242816.90469438,
+    17172287.445969064,
+    24130765.540581014,
+    32074733.949301556,
+    41012691.36199139,
+    50886503.7796469,
+    61679334.175185576
+  ],
+  "discharge_cms": [
+    0.0,
+    3.25643735808,
+    7.079211648,
+    26.9010042624,
+    49.554481536000004,
+    55.2178508544,
+    56.633693184,
+    59.74854630912,
+    65.1287471616,
+    70.79211648,
+    76.4554857984,
+    80.98618125312001,
+    85.51687670784,
+    90.33074062848
+  ],
+  "provenance": {
+    "data_kind": "manual_visual_digitization_provisional",
+    "source": "USACE Prompton WCM 2018, Plate 7-2 (1997), physical PDF page 187",
+    "source_pdf_sha256": "76ddd1c447f0d4388270d1c62bd5f3645384123d3859d6c5825a142b3fc3b928",
+    "render_sha256": "87d5a508db79adea2f4f2a48d692f409ab08edac3ccdce8988f50c40443396a8",
+    "stage_storage_table": "WCM Table 7-2 corrected 2014",
+    "stage_storage_sha256": "73f68ebcd5428da4dfbe9b97c7ee1be7985f443df2f339489489f65497108e1a",
+    "method": "parent visual rounded Q(h) estimates; linear stage-to-storage conversion, then piecewise-linear Q(S)",
+    "uncertainty": "not quantified; not a verified current outlet rating; below 1125 or above 1200 prohibited",
+    "operationally_validated": false
+  }
+}

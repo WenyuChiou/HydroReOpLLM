@@ -1,0 +1,221 @@
+{
+  "schema_version": "offline-case-source-manifest.v1",
+  "date_range": [
+    "2016-01-01",
+    "2016-01-07"
+  ],
+  "hydrology_recomputed": false,
+  "original_sources": {
+    "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\_worktrees\\drb-raster-layout\\results\\current\\four_reservoir_hydrocnhs_native\\tables\\daily_simulated_reservoir_inflow_1991_2025.csv.gz": "3b7fe10f96c6148248f9f0ddc221e66a0d7b39faaab81c302e2881642c7b00b8",
+    "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\_worktrees\\drb-raster-layout\\results\\current\\four_reservoir_hydrocnhs_native\\sources\\usace_storage_daily.csv.gz": "4bc50a9fe0e5105982b5db6b1c19d38c28a46494ce2ffaac74692b2b9cc763ab",
+    "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\outputs\\reservoir_seasonal_elevation\\fe_walter_storage_elevation_curve.csv": "baa89b33023c23002b94ac48e68c69278c384d15a64a72d2587a1e6ad458999d",
+    "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\outputs\\reservoir_seasonal_elevation\\beltzville_storage_elevation_curve.csv": "1aff740932b2635c34c7bbbe823ad5d4b5b019fb4887e0f119067d8cf664268e",
+    "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\outputs\\reservoir_seasonal_elevation\\prompton_storage_elevation_curve.csv": "73f68ebcd5428da4dfbe9b97c7ee1be7985f443df2f339489489f65497108e1a"
+  },
+  "initial_state_records": {
+    "beltzville": {
+      "date": "2015-12-31",
+      "reservoir": "Beltzville Lake",
+      "storage_acft": "43125.46741231283",
+      "valid_15min_values": "96",
+      "series_id": "Beltzville.Stor.Inst.15Minutes.0.Rev-DCP",
+      "preliminary": "True"
+    },
+    "fe_walter": {
+      "date": "2015-12-31",
+      "reservoir": "F. E. Walter Reservoir",
+      "storage_acft": "2241.5127811431885",
+      "valid_15min_values": "96",
+      "series_id": "FEWalter.Stor.Inst.15Minutes.0.Rev-DCP",
+      "preliminary": "True"
+    },
+    "prompton": {
+      "date": "2015-12-31",
+      "reservoir": "Prompton Lake",
+      "storage_acft": "3809.33269627889",
+      "valid_15min_values": "96",
+      "series_id": "Prompton.Stor.Inst.15Minutes.0.Rev-DCP",
+      "preliminary": "True"
+    }
+  },
+  "source_model": "accepted formal Demo native GWLF/Lohmann regionalized 7/5/3 upstream models; C&V unchanged",
+  "selected_inflow_source_records": {
+    "beltzville": [
+      {
+        "date": "2016-01-01",
+        "reservoir": "beltzville",
+        "simulated_inflow_cfs": "274.37385668136164",
+        "upstream_subbasin_count": "5",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-02",
+        "reservoir": "beltzville",
+        "simulated_inflow_cfs": "232.8762660469758",
+        "upstream_subbasin_count": "5",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-03",
+        "reservoir": "beltzville",
+        "simulated_inflow_cfs": "210.63016632367894",
+        "upstream_subbasin_count": "5",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-04",
+        "reservoir": "beltzville",
+        "simulated_inflow_cfs": "197.16635154543172",
+        "upstream_subbasin_count": "5",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-05",
+        "reservoir": "beltzville",
+        "simulated_inflow_cfs": "187.76834436827897",
+        "upstream_subbasin_count": "5",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-06",
+        "reservoir": "beltzville",
+        "simulated_inflow_cfs": "180.30936699618198",
+        "upstream_subbasin_count": "5",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-07",
+        "reservoir": "beltzville",
+        "simulated_inflow_cfs": "173.82850778417753",
+        "upstream_subbasin_count": "5",
+        "model": "hydrocnhs_native_regionalized"
+      }
+    ],
+    "fe_walter": [
+      {
+        "date": "2016-01-01",
+        "reservoir": "fe_walter",
+        "simulated_inflow_cfs": "1134.494923447602",
+        "upstream_subbasin_count": "7",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-02",
+        "reservoir": "fe_walter",
+        "simulated_inflow_cfs": "789.3904126442794",
+        "upstream_subbasin_count": "7",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-03",
+        "reservoir": "fe_walter",
+        "simulated_inflow_cfs": "501.25395745443126",
+        "upstream_subbasin_count": "7",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-04",
+        "reservoir": "fe_walter",
+        "simulated_inflow_cfs": "342.1097031436995",
+        "upstream_subbasin_count": "7",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-05",
+        "reservoir": "fe_walter",
+        "simulated_inflow_cfs": "260.7527715670673",
+        "upstream_subbasin_count": "7",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-06",
+        "reservoir": "fe_walter",
+        "simulated_inflow_cfs": "219.9063117826473",
+        "upstream_subbasin_count": "7",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-07",
+        "reservoir": "fe_walter",
+        "simulated_inflow_cfs": "199.25424491409223",
+        "upstream_subbasin_count": "7",
+        "model": "hydrocnhs_native_regionalized"
+      }
+    ],
+    "prompton": [
+      {
+        "date": "2016-01-01",
+        "reservoir": "prompton",
+        "simulated_inflow_cfs": "207.49060035584384",
+        "upstream_subbasin_count": "3",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-02",
+        "reservoir": "prompton",
+        "simulated_inflow_cfs": "89.97931546740703",
+        "upstream_subbasin_count": "3",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-03",
+        "reservoir": "prompton",
+        "simulated_inflow_cfs": "55.78208653707436",
+        "upstream_subbasin_count": "3",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-04",
+        "reservoir": "prompton",
+        "simulated_inflow_cfs": "47.12615257789181",
+        "upstream_subbasin_count": "3",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-05",
+        "reservoir": "prompton",
+        "simulated_inflow_cfs": "43.90890971043292",
+        "upstream_subbasin_count": "3",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-06",
+        "reservoir": "prompton",
+        "simulated_inflow_cfs": "41.86272876303684",
+        "upstream_subbasin_count": "3",
+        "model": "hydrocnhs_native_regionalized"
+      },
+      {
+        "date": "2016-01-07",
+        "reservoir": "prompton",
+        "simulated_inflow_cfs": "40.11224990737256",
+        "upstream_subbasin_count": "3",
+        "model": "hydrocnhs_native_regionalized"
+      }
+    ]
+  },
+  "rating_provenance": {
+    "data_kind": "manual_visual_digitization_provisional",
+    "source": "USACE Prompton WCM 2018, Plate 7-2 (1997), physical PDF page 187",
+    "source_pdf_sha256": "76ddd1c447f0d4388270d1c62bd5f3645384123d3859d6c5825a142b3fc3b928",
+    "render_sha256": "87d5a508db79adea2f4f2a48d692f409ab08edac3ccdce8988f50c40443396a8",
+    "stage_storage_table": "WCM Table 7-2 corrected 2014",
+    "stage_storage_sha256": "73f68ebcd5428da4dfbe9b97c7ee1be7985f443df2f339489489f65497108e1a",
+    "method": "parent visual rounded Q(h) estimates; linear stage-to-storage conversion, then piecewise-linear Q(S)",
+    "uncertainty": "not quantified; not a verified current outlet rating; below 1125 or above 1200 prohibited",
+    "operationally_validated": false
+  },
+  "bundle_files": {
+    "beltzville_storage_elevation.csv": "1aff740932b2635c34c7bbbe823ad5d4b5b019fb4887e0f119067d8cf664268e",
+    "case.json": "ad7d31dd8159409fc13ee0a49599c3a5932a303ea325874bd5e35037a96f8f54",
+    "fe_walter_storage_elevation.csv": "baa89b33023c23002b94ac48e68c69278c384d15a64a72d2587a1e6ad458999d",
+    "inflows.csv": "6da3961067d879356b0ae17f7b447136348f8629af68fc998050411a673c523c",
+    "initial_storage.csv": "bf58e32a8dc9a40ba88c3efb2d028c4778da163983109331dd01d97f65d80f9d",
+    "prompton_digitized_rating.csv": "7987a4ac15dd90956cd8566ba3b129d841cd72ca1e37caec298d5e0eba9565d6",
+    "prompton_outlet_plate_7_2.png": "87d5a508db79adea2f4f2a48d692f409ab08edac3ccdce8988f50c40443396a8",
+    "prompton_storage_discharge.json": "26a0e3e5ecb503bfedf7454f612e8aa48e185671c5224563d536040ab07e2b33",
+    "prompton_storage_elevation.csv": "73f68ebcd5428da4dfbe9b97c7ee1be7985f443df2f339489489f65497108e1a",
+    "responses_baseline.json": "fc5c1f3cf9d02e3d64c24278817541b0c63399c55989e60532936f043295cf1c",
+    "responses_fe_pulse.json": "1428b40b2393bf87b7b5cf3d9fba20c2a6e33d50bca8120a3331ca04e336be2a"
+  }
+}
