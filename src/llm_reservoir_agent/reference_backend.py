@@ -1,4 +1,4 @@
-"""Offline reference strategies using unmodified, pinned V3.7 policy builders.
+"""Reference strategies using unmodified, pinned V3.7 policy builders.
 
 The reference implementation is an optional example plugin. Generic hydrology,
 physics, routing and audit interfaces remain independent of this vendor.
@@ -13,13 +13,15 @@ from .case import read_json
 from .dkp_adapter import DKPPolicyAdapter
 
 
-def validate_reference(spec, base, runtime_root):
+def validate_reference(spec, base, runtime_root, *, mode="offline"):
     """Pin artifacts without imports, provider construction or file writes."""
     allowed = {"method", "profile", "responses", "prompt_storage", "hide_availability_line",
                "dkp_no_missing_inputs", "zeroshot_knowledge", "dkp", "system_prompt", "system_prompt_mode"}
     if not isinstance(spec, dict) or set(spec) - allowed:
         raise ValueError("reference requires known reference strategy settings")
     result = dict(spec)
+    if mode == "llm" and "responses" in result:
+        raise ValueError("LLM reference cannot have fixture responses or a fallback")
     if result.get("method") not in ("zeroshot", "dkp") or result.get("profile") != "fe_walter":
         raise ValueError("V3.7 reference example supports FE Walter zeroshot or dkp")
     for key, default in (("prompt_storage", False), ("hide_availability_line", True),
@@ -61,6 +63,8 @@ def validate_reference(spec, base, runtime_root):
             raise ValueError("reference vendor checksum mismatch: " + name)
         pins[str(p)] = actual
     for key in ("responses", "dkp"):
+        if key == "responses" and mode == "llm":
+            continue
         if key == "dkp" and result["method"] == "zeroshot":
             if key in result:
                 raise ValueError("zero-shot reference must not receive DKP")
@@ -70,6 +74,8 @@ def validate_reference(spec, base, runtime_root):
         p = (base / result[key]).resolve()
         result[key] = str(p)
         pins[str(p)] = hashlib.sha256(p.read_bytes()).hexdigest()
+    if mode == "llm":
+        return result, pins, None
     fixture = read_json(result["responses"])
     if set(fixture) != {"data_kind", "responses"} or fixture["data_kind"] != "synthetic_fixture":
         raise ValueError("reference responses must declare synthetic_fixture")
@@ -104,10 +110,84 @@ class _FixtureTransport:
         return reply
 
 
-class ReferenceBackend(DKPPolicyAdapter):
-    """Reference zero-shot/DKP policies with explicit offline reply fixtures."""
+def _validate_native_shape(value, schema):
+    """Validate the pinned native schema's types/fields, without judging strategy."""
+    kind = schema["type"]
+    valid = {"object": lambda: isinstance(value, dict), "array": lambda: isinstance(value, list),
+             "string": lambda: isinstance(value, str),
+             "number": lambda: isinstance(value, (int, float)) and not isinstance(value, bool)}
+    if kind not in valid or not valid[kind]():
+        raise ValueError("native response field has an invalid type")
+    if "enum" in schema and value not in schema["enum"]:
+        raise ValueError("native response field has an invalid enum value")
+    if kind == "object":
+        properties = schema["properties"]
+        if not set(schema.get("required", ())).issubset(value) or (
+                schema.get("additionalProperties") is False and set(value) - set(properties)):
+            raise ValueError("native response fields do not match schema")
+        for key in value:
+            _validate_native_shape(value[key], properties[key])
+    elif kind == "array":
+        for item in value:
+            _validate_native_shape(item, schema["items"])
 
-    def __init__(self, settings, physical, *, runtime_root):
+
+class _ReferenceChatTransport:
+    """Native policy transport with shared provider wire format and no retries."""
+
+    def __init__(self, model, transport):
+        from .configured_backend import validate_model_settings
+        self.model = validate_model_settings(model)
+        if not callable(transport):
+            raise ValueError("LLM reference requires an explicitly bounded transport")
+        self._transport = transport
+        self.name = "reference-chat:" + self.model["provider"]
+        self.network_calls = 0
+        self.latest_trace = None
+
+    def provenance(self):
+        return {"backend": self.name, "model": json_snapshot(self.model), "model_used": True}
+
+    def decide(self, system, prompt, schema=None):
+        from .configured_backend import chat_request, chat_headers, chat_reply, _strict_json
+        from .audit import canonical_sha256
+        schema = schema if schema is not None else sys.modules["zeroshot_llm_release"].DECISION_SCHEMA
+        messages = [{"role": "system", "content": system}, {"role": "user", "content": prompt}]
+        url, payload = chat_request(self.model, messages, schema=schema)
+        self.latest_trace = dict(model_used=True, system=system, prompt=prompt, schema=json_snapshot(schema),
+                                 model=json_snapshot(self.model), request=json_snapshot(payload),
+                                 request_sha256=canonical_sha256({"url": url, "payload": payload}),
+                                 raw_reply=None, provider_reply=None, usage=None, request_id=None)
+        headers = chat_headers(self.model)
+        self.network_calls += 1
+        try:
+            raw = json_snapshot(self._transport(url, payload, headers, self.model["timeout_seconds"]))
+            if not isinstance(raw, dict):
+                raise ValueError("provider response must be a JSON object")
+            self.latest_trace["provider_reply"] = raw
+            self.latest_trace["request_id"] = raw.get("id")
+            content, usage = chat_reply(raw, self.model["provider"])
+            self.latest_trace["usage"] = usage
+            reply = _strict_json(content)
+            if not isinstance(reply, dict):
+                raise ValueError("reference decision must be a JSON object")
+            self.latest_trace["raw_reply"] = reply
+            _validate_native_shape(reply, schema)
+            return reply
+        except Exception as exc:
+            # Do not persist provider exception text: it may contain credentials.
+            self.latest_trace["error_class"] = type(exc).__name__
+            raise RuntimeError("reference provider request or response failed") from None
+
+
+class ReferenceBackend(DKPPolicyAdapter):
+    """Reference policies using fixture replies or an explicitly bounded provider."""
+
+    def __init__(self, settings, physical, *, runtime_root, mode="offline", model=None, transport=None):
+        if mode not in ("offline", "llm"):
+            raise ValueError("reference mode must be offline or llm")
+        self._mode = mode
+        provider_model = model
         from delaware_operations.anik_adapter import load_anik
         model = load_anik(runtime_root)
         cfg = next(c for c in model.RESERVOIRS if c.inflow_reservoir_key == settings["profile"])
@@ -133,7 +213,8 @@ class ReferenceBackend(DKPPolicyAdapter):
             target_storage_equivalents=({float(el): model.elevation_to_storage_af(cfg, float(el))
                 for el in sorted({e for _, e in cfg.seasonal_target_curve})}
                 if cfg.seasonal_target_curve and cfg.elevation_storage_curve else None))
-        self._fixture = _FixtureTransport(read_json(settings["responses"])["responses"])
+        self._fixture = (_FixtureTransport(read_json(settings["responses"])["responses"]) if mode == "offline"
+                         else _ReferenceChatTransport(provider_model, transport))
         common = dict(info=info, backend=self._fixture, audit_action="record", max_audit_revisions=0)
         if settings["method"] == "zeroshot":
             policy = zero.ZeroShotLLMPolicy(**common)
@@ -171,7 +252,8 @@ class ReferenceBackend(DKPPolicyAdapter):
 
     def describe(self):
         return {"backend": "reference_v3_7", "method": self._settings["method"],
-                "data_kind": "synthetic_fixture", "model_used": False,
+                "mode": self._mode, "model_used": self._mode == "llm",
+                **({"data_kind": "synthetic_fixture"} if self._mode == "offline" else {"model": self._fixture.model}),
                 "prompt_strategy_id": self.policy_id,
                 "prompt_version": "3.7+custom-system" if self._settings.get("system_prompt_mode") == "custom" else "3.7",
                 "prompt_sha256": self._policy._system_prompt_sha256,

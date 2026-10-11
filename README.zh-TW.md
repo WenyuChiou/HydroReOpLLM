@@ -20,7 +20,7 @@ YAML 執行器使用給定的 daily 入流，不重新執行 GWLF／ABCD，也�
 | Anik V3.7 — FE Walter zero-shot 原版 | [YAML](examples/fe_walter/zero_shot/experiment.yaml) · [操作教學](examples/fe_walter/zero_shot/README.zh-TW.md) | [執行用 system prompt](prompts/fe_walter_reference/zeroshot_system.txt) · [完整原版 prompt 快照](examples/fe_walter/zero_shot/prompt_preview.txt) | 原版公開資訊與季節目標，不使用 DKP |
 | Anik V3.7 — FE Walter DKP 原版 | [YAML](examples/fe_walter/dkp/experiment.yaml) · [操作教學](examples/fe_walter/dkp/README.zh-TW.md) | [執行用 system prompt](prompts/fe_walter_reference/dkp_system.txt) · [完整原版 prompt 快照](examples/fe_walter/dkp/prompt_preview.txt) | 原版 [DKP v1.2](data/anik_v3_7/DKP_FEWalter_Dam_v1.2.md) 與依情境檢索 |
 
-`prompts/daily_*.txt` 是通用 template；`prompts/fe_walter_reference/` 放的是原版 FE Walter system 指令。兩個原版快照均包含完整 system prompt、第一天狀態 prompt 與回覆 schema；YAML 讀取獨立 system 檔，每日狀態與 DKP 摘錄仍由原版 builder 動態產生。修改快照不影響執行；修改 system 指令須明確選 `custom` 模式，詳見 [prompt 檔設定](prompts/fe_walter_reference/README.md)。兩個原版範例保留原始 audit，目前**僅使用合成離線回覆**。原版 prompt 保留英文，操作教學提供獨立中英文頁面。
+`prompts/daily_*.txt` 是通用 template；`prompts/fe_walter_reference/` 放的是原版 FE Walter system 指令。兩個原版快照均包含完整 system prompt、第一天狀態 prompt 與回覆 schema；YAML 讀取獨立 system 檔，每日狀態與 DKP 摘錄仍由原版 builder 動態產生。修改快照不影響執行；修改 system 指令須明確選 `custom` 模式，詳見 [prompt 檔設定](prompts/fe_walter_reference/README.md)。兩個原版教學保留原始 audit，使用**合成離線回覆**。另有保留相同策略、temperature 0.7 的真實 LLM YAML，見 [真實執行準備](docs/reference_live.zh-TW.md)；現有原版 case 仍阻擋真實執行。原版 prompt 保留英文，操作教學提供獨立中英文頁面。
 
 ## 1. 安裝
 

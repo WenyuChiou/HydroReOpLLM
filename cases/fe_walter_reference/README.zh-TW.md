@@ -40,7 +40,7 @@
 | `auditors: [release_limits]` | 保留原版 audit，另加通用放流界限檢查 |
 
 這些旗標是明確的實驗選擇，不表示所有原版範例都如此設定；提供的原版 README 也有顯示蓄水的變體。
-原版 agent 不接受通用 `prompt`、`context`、`model` 或 `response_schema` 覆寫，避免改變原始條件。自訂設計請使用 `configured`。原始 builder 位於 `third_party/anik_v3_7/`，程式驗證原始碼 bytes，未改寫其內容。
+原版 agent 不接受通用 `prompt`、`context` 或 `response_schema` 覆寫，避免改變原始條件。自訂設計請使用 `configured`。原始 builder 位於 `third_party/anik_v3_7/`，程式驗證原始碼 bytes，未改寫其內容。
 
 ## 3. 檢查、執行、驗證
 
@@ -63,4 +63,4 @@ python run_experiment.py verify runs/fe-walter-reference-dkp
 查看 `summary.json`、`reservoir_trajectory.csv`、`network_flows.csv`。精簡的 `audit.jsonl`、`decisions.jsonl`、`backend_events.jsonl` 指向 `raw/` 中的完整 payload，包含原版 system／state prompt、回覆 schema、測試回覆與原始 audit。
 Adapter 把原版 cfs 放流轉成通用 m³/s action；物理程式實施可行放流、溢流與蓄水，下一次決策接收真正實施後的狀態。放流加溢流只注入下游 routing 一次。DKP 檢索選取規則摘錄，不會每天貼上整份 DKP。
 
-原版 YAML 入口目前**僅支援離線**，測試回覆不套用 temperature；真實原版 transport 留待後續整合。通用真實實驗使用 `configured` 與既有 network／readiness／budget 限制。已驗收五年結果完全保留；離線 audit PASS 不代表真實策略通過，也不取代先前的 FAIL 證據。
+預設原版 YAML 使用離線測試回覆，不套用 temperature；另有 [真實 LLM YAML](../../docs/reference_live.zh-TW.md)，使用 `mode: llm`、`model` profile 與 temperature 0.7，不使用測試回覆檔。原版與通用真實策略都須符合既有 network／readiness／budget 限制；現有原版 case 仍未就緒。已驗收五年結果完全保留；離線 audit PASS 不代表真實策略通過，也不取代先前的 FAIL 證據。
