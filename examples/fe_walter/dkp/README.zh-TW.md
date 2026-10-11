@@ -1,0 +1,27 @@
+# FE Walter — Anik V3.7 DKP 原版範例
+
+[English](README.md) | [繁體中文](README.zh-TW.md) · [完整原版設定](../../../cases/fe_walter_reference/README.zh-TW.md)
+
+這是通用 HydroCNHS 水庫 agent 框架的一個具體案例。
+使用原版 DKP 策略與**合成離線回覆**，尚未呼叫真實 LLM。
+
+1. Input：共用的 [case JSON](../../../cases/fe_walter_reference/case.json)、[daily 入流 CSV](../../../cases/fe_walter_reference/inflows.csv) 與 [測試回覆](../../../cases/fe_walter_reference/dkp_responses.json)。
+2. 設定：有註解的 [experiment.yaml](experiment.yaml)，1 個 FE Walter agent，daily 2016-01-01 至 2016-01-03，`mode: offline`、`max_calls: 0`。
+3. Prompt：[prompt_preview.txt](prompt_preview.txt) 包含完整原版英文 system prompt、第一天狀態 prompt 與回覆 schema。它是**閱讀快照**，不是執行用 template。原版 builder 每天產生當日狀態與歷史，並檢索相關 DKP 摘錄。
+4. 知識：原版 [DKP v1.2](../../../data/anik_v3_7/DKP_FEWalter_Dam_v1.2.md) 與依情境選取的規則摘錄。
+5. Audit：保留原版策略 audit，另外使用通用放流界限 auditor。兩者均不改寫模型的放流要求；共用物理程式負責實施可行放流。
+6. 在已安裝的 repo 根目錄執行：
+
+```powershell
+python run_experiment.py check examples/fe_walter/dkp/experiment.yaml
+python run_experiment.py run examples/fe_walter/dkp/experiment.yaml
+python run_experiment.py verify runs/fe-walter-example-dkp
+```
+
+7. 結果：查看 `summary.json`、`reservoir_trajectory.csv`、`network_flows.csv`、`audit.jsonl` 與 `raw/`。這組放流等於入流的測試回覆，預期為 3 天、0 次模型呼叫、3 次 audit PASS、水庫水量平衡殘差 0 m³。這是依據已保存離線診斷的預期檢查值，並非新生成的模型決策。
+
+**假設與限制：**初始蓄水採原版假設 1,992.61 acre-ft，損失設為零，下游河段 `[1.0]` 為不延遲的測試 routing；真實實驗就緒狀態為 false。新一輪執行須更改 `run_id` 與 `output`。修改閱讀快照不會改變執行；自訂 prompt 請使用通用 `configured` 策略。原版入口目前僅支援離線。
+
+`prompts/` 下的通用 template 屬於另一個策略。本案例保留原版英文 prompt，不翻譯執行時的指令文字。測試回覆的 audit PASS 不代表真實操作策略已通過。
+
+System prompt SHA256：`c018043ce34a6e47024024ce63622d837dffa686a15523eb97d4bdd4ae678352`。共用資料與原始 vendor 程式 bytes 維持不變。
