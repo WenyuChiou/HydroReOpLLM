@@ -115,7 +115,7 @@ def load_settings(path, *, runtime_root=PROJECT_ROOT):
     for identifier, spec in configured.items():
         _text(identifier, "agent ID")
         _mapping(spec, {"reservoir", "mode", "model", "prompt", "prompt_version", "knowledge", "context",
-                        "context_file", "release_cms", "auditors", "response_schema"}, "agent " + identifier)
+                        "context_file", "release_cms", "auditors", "response_schema", "strategy", "reference"}, "agent " + identifier)
         name = spec.get("reservoir")
         if name not in controlled or name in assigned:
             raise ValueError("each controlled reservoir needs exactly one unique agent; passive nodes cannot have agents")
@@ -123,6 +123,27 @@ def load_settings(path, *, runtime_root=PROJECT_ROOT):
         mode = spec.get("mode")
         if mode not in ("offline", "llm"):
             raise ValueError("agent mode must explicitly be offline or llm")
+        strategy = spec.get("strategy", "configured")
+        if strategy not in ("configured", "reference_v3_7"):
+            raise ValueError("unknown agent strategy")
+        if strategy == "reference_v3_7":
+            from .reference_backend import validate_reference
+            if mode != "offline" or set(spec) - {"reservoir", "mode", "strategy", "reference", "auditors"}:
+                raise ValueError("reference_v3_7 examples require offline mode and native reference settings; no generic prompt/model override")
+            reference, pins, count = validate_reference(spec.get("reference"), path.parent, runtime_root)
+            if count != len(rows):
+                raise ValueError("reference fixture requires exactly one response for each selected day")
+            files.update(pins)
+            checks = spec.get("auditors", [])
+            if not isinstance(checks, list) or not all(isinstance(a, str) and a in auditors for a in checks) or len(checks) != len(set(checks)):
+                raise ValueError("reference auditors must be unique configured IDs")
+            if any(auditors[a].get("type") == "dkp_strategy" for a in checks):
+                raise ValueError("reference preserves its native audit; generic DKP audit context must not modify its prompt")
+            agents[identifier] = dict(reservoir=name, mode=mode, strategy=strategy, reference=reference,
+                                     audit_plugins=[ConfiguredAudit(a, auditors[a]) for a in checks])
+            continue
+        if "reference" in spec:
+            raise ValueError("reference settings require reference_v3_7 strategy")
         model_id = spec.get("model")
         if model_id is not None and model_id not in models or mode == "llm" and model_id is None:
             raise ValueError("agent references an unknown or missing model profile")
@@ -197,6 +218,7 @@ def load_settings(path, *, runtime_root=PROJECT_ROOT):
                   agent_count=len(agents), llm_agent_count=llm_count, model_profile_count=len(models),
                   passive_reservoir_count=len(network["reservoirs"]) - len(controlled),
                   agent_reservoirs={i:a["reservoir"] for i,a in agents.items()},
+                  agent_strategies={i:a.get("strategy", "configured") for i,a in agents.items()},
                   planned_llm_calls=planned, max_calls=maximum, network_calls=0,
                   live_ready=network["data_kind"] == "synthetic_fixture" or readiness.get("ready") is True,
                   live_readiness=readiness, data_kind=network["data_kind"],
@@ -225,6 +247,12 @@ def run_settings(settings, *, allow_network=False, runtime_root=PROJECT_ROOT, tr
         return (transport or http_json_transport)(url, payload, headers, timeout)
     backends = {}
     for identifier, agent in current.agents.items():
+        if agent.get("strategy") == "reference_v3_7":
+            from .reference_backend import ReferenceBackend
+            physical = current.network["reservoirs"][agent["reservoir"]]["physical"]
+            backend = ReferenceBackend(agent["reference"], physical, runtime_root=runtime_root)
+            backends[agent["reservoir"]] = AuditedBackend(backend, agent["audit_plugins"])
+            continue
         backend = ConfiguredBackend(agent_id=identifier, mode=agent["mode"], prompt_spec=agent["prompt"],
                                     knowledge_texts=agent["knowledge"], model=agent["model"],
                                      release_cms=agent["release_cms"], context=agent["context"], transport=bounded_transport,

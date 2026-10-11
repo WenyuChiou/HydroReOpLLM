@@ -1,0 +1,29 @@
+{
+  "data_kind": "synthetic_fixture",
+  "responses": [
+    {
+      "applicable_target_ft": 1300.0,
+      "pool_position": "at_target",
+      "intended_storage_direction": "hold",
+      "release_relation_to_inflow": "equal_to_inflow",
+      "reasoning": "Synthetic offline reply: request pass-through inflow to test the original policy interface.",
+      "release_cfs": 1134.4949071013637
+    },
+    {
+      "applicable_target_ft": 1300.0,
+      "pool_position": "at_target",
+      "intended_storage_direction": "hold",
+      "release_relation_to_inflow": "equal_to_inflow",
+      "reasoning": "Synthetic offline reply: request pass-through inflow to test the original policy interface.",
+      "release_cfs": 789.3904012704394
+    },
+    {
+      "applicable_target_ft": 1300.0,
+      "pool_position": "at_target",
+      "intended_storage_direction": "hold",
+      "release_relation_to_inflow": "equal_to_inflow",
+      "reasoning": "Synthetic offline reply: request pass-through inflow to test the original policy interface.",
+      "release_cfs": 501.2539502321719
+    }
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "schema_version": "llm-reservoir-network-case.v1",
+  "data_kind": "simulated_local_inflow",
+  "network": {
+    "schema_version": "llm-reservoir-network.v1",
+    "data_kind": "simulated_local_inflow",
+    "start_date": "2016-01-01",
+    "reservoirs": {
+      "FEWalter": {
+        "inflow_node": "FEW_INFLOW",
+        "physical": {
+          "reservoir_id": "fe_walter",
+          "capacity_m3": 135532852.33895192,
+          "dead_storage_m3": 49.3392742128,
+          "initial_storage_m3": 2457848.279729185,
+          "minimum_release_cms": 1.41584235,
+          "maximum_release_cms": 283.16847,
+          "dt_seconds": 86400.0
+        }
+      }
+    },
+    "connections": [
+      {
+        "source": "FEWalter",
+        "target": "Downstream",
+        "unit_hydrograph": [
+          1.0
+        ]
+      }
+    ],
+    "outlet": "Downstream"
+  },
+  "inflow_source": {
+    "path": "inflows.csv",
+    "sha256": "f707927eb8b7894eaba61fe3b1ae484afe59d68b94941cc056addcc356326c5e",
+    "format": "daily-node-local-cms.v1"
+  },
+  "live_readiness": {
+    "ready": false,
+    "blockers": [
+      "Offline reference prompt/adapter diagnostic only. Initial storage is a V3.7 assumption; identity downstream routing is not a calibrated reach."
+    ]
+  }
+}

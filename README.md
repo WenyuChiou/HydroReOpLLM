@@ -30,6 +30,8 @@ python run_experiment.py verify runs/synthetic-cascade
 
 This is a four-day, three-reservoir example with fixed test releases and no LLM calls. An existing output folder is never overwritten; change `run_id` and `output` for a new run.
 
+Choose a strategy: [generic configurable agents](experiments/fe_walter.yaml), [Anik V3.7 zero-shot](experiments/fe_walter_reference_zeroshot.yaml), or [Anik V3.7 DKP](experiments/fe_walter_reference_dkp.yaml). The two reference examples preserve the original prompt builders and audits and currently run **offline only**, with synthetic replies. Follow the [reference walkthrough](cases/fe_walter_reference/README.md).
+
 ## 3. Set up your case
 
 1. Prepare the reservoir network, physical parameters and initial storage in a case JSON.
@@ -50,7 +52,7 @@ The prompt file supplies user instructions; the backend fixes the system JSON re
 
 ## 4. Use an LLM
 
-Choose a `models` profile, set `mode: llm`, remove the offline `release_cms`, and set `max_calls`. Run `check` first. Actual requests additionally require `--allow-network` and a live-ready case; the runner does not download models.
+For the generic `configured` strategy, choose a `models` profile, set `mode: llm`, remove the offline `release_cms`, and set `max_calls`. Run `check` first. Actual requests additionally require `--allow-network` and a live-ready case; the runner does not download models.
 
 [Single reservoir](experiments/fe_walter.yaml) · [FE Walter / Beltzville / passive Prompton](experiments/fe_belt_prompton.yaml) · [LLM configuration example](experiments/synthetic_llm.yaml)
 
