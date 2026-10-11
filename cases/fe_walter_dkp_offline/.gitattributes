@@ -1,0 +1,2 @@
+# Keep checksum-pinned daily input bytes identical across checkouts.
+inflows.csv -text

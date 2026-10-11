@@ -13,6 +13,7 @@ from .audit import canonical_sha256, json_snapshot
 from .auditor import AuditedBackend
 from .case import load_case
 from .configured_audit import ConfiguredAudit
+from .dkp_audit import DKPStrategyAudit, DKP_RESPONSE_SCHEMA
 from .contracts import finite_nonnegative
 from .network import PROJECT_ROOT, validate_inflows
 from .prompt import PromptSpec
@@ -98,7 +99,11 @@ def load_settings(path, *, runtime_root=PROJECT_ROOT):
     if not isinstance(auditors, dict):
         raise ValueError("auditors must be a mapping")
     for identifier, settings in auditors.items():
-        ConfiguredAudit(_text(identifier, "auditor ID"), settings)
+        _text(identifier, "auditor ID")
+        if isinstance(settings, dict) and settings.get("type") == "dkp_strategy":
+            DKPStrategyAudit.validate_settings(settings)
+        else:
+            ConfiguredAudit(identifier, settings)
     files = {str(path): hashlib.sha256(raw).hexdigest()}
     files.update({str((case_root / p).resolve()): h for p, h in network.get("source_files", {}).items()})
     files[str(case)] = hashlib.sha256(case.read_bytes()).hexdigest()
@@ -110,7 +115,7 @@ def load_settings(path, *, runtime_root=PROJECT_ROOT):
     for identifier, spec in configured.items():
         _text(identifier, "agent ID")
         _mapping(spec, {"reservoir", "mode", "model", "prompt", "prompt_version", "knowledge", "context",
-                        "context_file", "release_cms", "auditors"}, "agent " + identifier)
+                        "context_file", "release_cms", "auditors", "response_schema"}, "agent " + identifier)
         name = spec.get("reservoir")
         if name not in controlled or name in assigned:
             raise ValueError("each controlled reservoir needs exactly one unique agent; passive nodes cannot have agents")
@@ -133,11 +138,12 @@ def load_settings(path, *, runtime_root=PROJECT_ROOT):
         knowledge = spec.get("knowledge", {})
         if not isinstance(knowledge, dict):
             raise ValueError("knowledge must map stable package IDs to text file paths")
-        texts, pins = {}, {}
+        texts, pins, knowledge_paths = {}, {}, {}
         for kid, source in knowledge.items():
             _text(kid, "knowledge ID")
             kp = _path(path.parent, source, "knowledge path")
             blob = kp.read_bytes()
+            knowledge_paths[kid] = kp
             texts[kid] = blob.decode("utf-8")
             pins[kid] = files[str(kp)] = hashlib.sha256(blob).hexdigest()
         context = spec.get("context", {})
@@ -156,9 +162,28 @@ def load_settings(path, *, runtime_root=PROJECT_ROOT):
             raise ValueError("agent auditors must be unique configured IDs")
         prompt = PromptSpec(identifier, _text(spec.get("prompt_version", "1"), "prompt_version"), template,
                             tuple(texts), pins)
+        plugins = []
+        for audit_id in checks:
+            rule = auditors[audit_id]
+            if rule.get("type") == "dkp_strategy":
+                plugin = DKPStrategyAudit(audit_id, rule, base_path=path.parent,
+                                          knowledge_paths=knowledge_paths, project_root=runtime_root)
+                files.update(plugin.file_pins)
+            else:
+                plugin = ConfiguredAudit(audit_id, rule)
+            plugins.append(plugin)
+        response_schema = spec.get("response_schema", "reservoir-action.v1")
+        if response_schema not in ("reservoir-action.v1", DKP_RESPONSE_SCHEMA):
+            raise ValueError("unsupported response_schema")
+        if response_schema == DKP_RESPONSE_SCHEMA:
+            if not any(isinstance(p, DKPStrategyAudit) for p in plugins):
+                raise ValueError("DKP response_schema requires a configured DKP strategy auditor")
+            if not {"observation", "knowledge"}.issubset(Template(template).get_identifiers()):
+                raise ValueError("DKP prompt must include observation and knowledge placeholders")
         agents[identifier] = dict(reservoir=name, mode=mode, prompt=prompt, knowledge=texts, context=context,
                                  model=models.get(model_id), release_cms=release,
-                                 auditors={a: auditors[a] for a in checks})
+                                  auditors={a: auditors[a] for a in checks}, audit_plugins=plugins,
+                                  response_schema=response_schema)
     if assigned != controlled:
         raise ValueError("agents do not cover every controlled reservoir")
     llm_count = sum(a["mode"] == "llm" for a in agents.values())
@@ -202,8 +227,10 @@ def run_settings(settings, *, allow_network=False, runtime_root=PROJECT_ROOT, tr
     for identifier, agent in current.agents.items():
         backend = ConfiguredBackend(agent_id=identifier, mode=agent["mode"], prompt_spec=agent["prompt"],
                                     knowledge_texts=agent["knowledge"], model=agent["model"],
-                                    release_cms=agent["release_cms"], context=agent["context"], transport=bounded_transport)
-        backends[agent["reservoir"]] = AuditedBackend(backend, [ConfiguredAudit(i,s) for i,s in agent["auditors"].items()])
+                                     release_cms=agent["release_cms"], context=agent["context"], transport=bounded_transport,
+                                     response_schema=agent["response_schema"],
+                                     audit_context_builders={p.identifier: p.prepare_context for p in agent["audit_plugins"] if isinstance(p, DKPStrategyAudit)})
+        backends[agent["reservoir"]] = AuditedBackend(backend, agent["audit_plugins"])
     provenance = {"schema_version": "yaml-experiment-provenance.v1", "plan": plan,
                   "settings": current.data, "source_files": current.files, "automatic_retry": False}
     return run_experiment(current.network, current.rows, backends, output=plan["output"],

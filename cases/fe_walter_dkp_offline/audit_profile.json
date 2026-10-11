@@ -1,0 +1,18 @@
+{
+  "schema_version": "dkp-audit-profile.v1",
+  "semantics": "frozen-v3.7-diagnostic",
+  "purpose": "FE Walter offline audit integration; flood control and recreation diagnostic",
+  "target_tolerance_ft": 0.5,
+  "curve_source": {
+    "path": "../fe_belt_prompton_offline/fe_walter_storage_elevation.csv",
+    "sha256": "baa89b33023c23002b94ac48e68c69278c384d15a64a72d2587a1e6ad458999d"
+  },
+  "targets_by_date": {},
+  "required_inputs": [
+    "annual_operating_plan_and_recreation_calendar",
+    "causal_inflow_forecast",
+    "downstream_stage_and_release_constraints",
+    "gate_and_outlet_availability",
+    "multi_reservoir_coordination_instructions"
+  ]
+}

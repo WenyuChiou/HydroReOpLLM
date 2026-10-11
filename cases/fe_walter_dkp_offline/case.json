@@ -1,0 +1,53 @@
+{
+  "schema_version": "llm-reservoir-network-case.v1",
+  "data_kind": "simulated_local_inflow",
+  "network": {
+    "schema_version": "llm-reservoir-network.v1",
+    "data_kind": "simulated_local_inflow",
+    "start_date": "2015-10-01",
+    "reservoirs": {
+      "FEWalter": {
+        "inflow_node": "FEW_INFLOW",
+        "physical": {
+          "reservoir_id": "fe_walter",
+          "capacity_m3": 135199473.1344,
+          "dead_storage_m3": 11101.3362,
+          "initial_storage_m3": 2211632.8674,
+          "minimum_release_cms": 1.4158423296,
+          "maximum_release_cms": 283.16846592,
+          "dt_seconds": 86400.0
+        }
+      }
+    },
+    "connections": [
+      {
+        "source": "FEWalter",
+        "target": "Downstream",
+        "unit_hydrograph": [
+          1.0
+        ]
+      }
+    ],
+    "outlet": "Downstream"
+  },
+  "inflow_source": {
+    "path": "inflows.csv",
+    "sha256": "31761bc4ccfed4488eac07718b5ff546fbdbaa9b8b7318039b1c73e84e9464b8",
+    "format": "daily-node-local-cms.v1"
+  },
+  "live_readiness": {
+    "ready": false,
+    "blockers": [
+      "Teaching fixture only; initial storage is a preparation assumption, not observed 2015 storage.",
+      "Identity downstream transfer is an interface fixture, not calibrated river travel time.",
+      "DKP audit connected; annual target, forecast, gate/coordination inputs and real reach routing remain unavailable."
+    ]
+  },
+  "purpose": "Seven-day offline DKP audit integration diagnostic, preserving the teaching-case physical assumptions.",
+  "assumptions": {
+    "initial_storage": "1793 acre-feet is the existing preparation-case assumption, not observed storage for this sample date.",
+    "reservoir_precipitation_evaporation_seepage": "Explicitly zero in this daily bucket interface prototype.",
+    "spill": "Excess above storage capacity leaves in the same day; rating curves are not modeled.",
+    "inflow_timing": "Offline replay supplies the known daily mean inflow; no operational forecast claim."
+  }
+}

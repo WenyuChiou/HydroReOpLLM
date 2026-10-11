@@ -130,6 +130,7 @@ agents:
 | `context` | 預設 `{}` | 靜態有限 JSON 資料，例如實驗目的／補充規則 |
 | `context_file` | 選填、與 context 擇一 | 靜態 JSON 物件檔 |
 | `auditors` | 預設 `[]` | 此 agent 啟用的 checker IDs；空組合為 UNKNOWN |
+| `response_schema` | 預設 `reservoir-action.v1` | 選用 `reservoir-dkp-decision.v1` 時須啟用 DKP auditor，保留模型自己填寫的十個欄位 |
 
 靜態 context 僅放在 prompt 的 `static_context` namespace，不取代模型觀測的 storage／inflow，也不會自行進入物理 solver。時變 inflow 由 case 提供。本版沒有自動天氣／入流預報、任意 CSV 作為動態 prompt 資料、RAG 或多 agent 聊天；若需要，使用公開 backend API 增加有時間戳與可用時點的資料介面，再驗證因果性。
 
@@ -153,19 +154,21 @@ API 介面依 [Ollama chat](https://docs.ollama.com/api/chat) 與 [OpenAI chat r
 | placeholder | 實際填入 |
 |---|---|
 | `$agent_id` | JSON 編碼 agent ID |
-| `$observation` | `observed_hydrology`（當日入流、初始 state、可行放流上限、時間／context）和 `static_context` |
+| `$observation` | `observed_hydrology`（當日入流、初始 state、可行放流上限、時間／context）和 `static_context`；啟用 DKP 時另含相同的 `audit_contexts` |
 | `$knowledge` | 該 agent 選定的 package ID → 完整知識文字 |
 | `$previous_transition` | 上一天已保存的觀測／動作／實施物理結果，第一天 null |
 
 模板用 Python `string.Template`；正文要寫美元符號使用 `$$`。不允許其他 placeholder、不執行模板中的程式。模型依 prompt＋DKP＋當日觀測提出 release；此接口未提供最佳化演算法，也不能保證目標達成。offline mode 直接回傳 YAML 固定數字，模型未參與選擇。
 
-唯一接受的輸出形式是：
+預設輸出形式是：
 
 ```json
 {"schema_version":"reservoir-action.v1","release_cms":5.0}
 ```
 
 數字必須非負有限值；額外欄位、Markdown、NaN、負值或錯誤 JSON 停止 run，沒有自動修補或 fallback。完整原回覆及解析結果保存在 raw trace（可解析的 provider reply）；transport 無回覆時保留例外與未完成 request 證據。
+
+選用 DKP schema 時還必須填 `operating_mode`、`rules_applied`、`missing_inputs`、`reasoning`、`applicable_target_ft`、`pool_position`、`intended_storage_direction`、`release_relation_to_inflow`。模型自行陳述這些欄位，程式不推導或補寫。沒有給定 target 時填 null／unknown，並揭露缺失。嚴格 parser 保留原始十欄回覆，只將 `release_cms` 正規化為物理 action。完整例子與欄位值見 [daily_dkp_release.txt](../prompts/daily_dkp_release.txt)。
 
 ```mermaid
 flowchart TD
@@ -212,6 +215,8 @@ auditors:
 例如任意 case 要評估自己提供的 target，可以定義 observation.state 下的規則；必須確認該欄位確實由當日 host 提供。static_context 並不自動變成 observation 欄位。未提供目標時不捏造 PASS；季節 DKP 解析、下游目標、post-physics target 或 joint-network checker 應由公開 `AuditSpec`／`AuditPlugin`／`AuditedBackend` Python API 延伸，YAML 不載入任意 Python。
 
 每個 checker 保存 ID、版本、完整 rubric、rubric hash、實作 hash，並綁定同日 input/action。所有啟用 checker 必須回報，合併順序 `FAIL > UNKNOWN > WARN > PASS`；原 backend audit 保留。無 checker 時 UNKNOWN。decision auditor PASS 只表示 **配置的那幾條規則** 通過，不代表已核准真實操作策略，也不等於物理／routing 驗收。物理與 network 的驗證另外由 `verify` 執行。
+
+FE Walter 可選 `type: dkp_strategy`，指定 `version`、`knowledge_id`（同 agent 的知識包 ID）與 `profile`（相對 YAML 的 JSON 路徑）。[離線範例](../experiments/fe_walter_dkp_offline.yaml) 已接上 frozen v3.7 的完整原 auditor；年度 target、曲線與缺失資料由 [profile](../cases/fe_walter_dkp_offline/audit_profile.json) 明列，prompt 與 auditor 使用相同 facts／可引用 headings。profile 欄位的意義、S0／routing 依據與真實 LLM 前缺口見 [FE walkthrough](../cases/fe_walter_dkp_offline/README.md)。這是 FE 特定診斷插件；其他地區可使用自己的 `AuditPlugin`，不必改 agent/network 核心。
 
 ## 6. 單庫、三庫與其他地區
 
@@ -295,4 +300,4 @@ python scripts/verify_results.py
 
 mock provider 的 transport 不是實際服務驗收；離線 fixture PASS 不是操作策略已核准。改 YAML 後先 check，改核心後做相關 regression，已有科學結果用既有 hash 證據核對。
 
-本 YAML backend 以完整文字 prompt／知識包形成一次 chat request；它不自動複製原 DKP V3.7 的檢索、工具選擇或內建 auditor 演算法。原 `DKPPolicyAdapter`、vendor 來源與已驗收軌跡持續保留；若研究要求同一原策略，使用既有 Python adapter 接入 `run_experiment`，並保留其原始 audit，不以通用範例取代原實驗。
+本 YAML backend 以完整文字 prompt／知識包形成一次 chat request；選用 `dkp_strategy` 時重用 frozen v3.7 的 heading 檢索與完整原 auditor，仍不複製原策略的完整 prompt、工具選擇或自動修訂流程。原 `DKPPolicyAdapter`、vendor 來源與已驗收軌跡持續保留；若研究要求同一原策略，使用既有 Python adapter 接入 `run_experiment`，並保留其原始 audit，不以通用範例取代原實驗。

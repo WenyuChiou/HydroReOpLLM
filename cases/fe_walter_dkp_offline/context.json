@@ -1,0 +1,9 @@
+{
+  "experiment_purpose": "offline DKP integration diagnostic",
+  "initial_storage_basis": "1793 acre-feet preparation assumption; not observed 2015 initial storage",
+  "inflow_basis": "Frozen, already routed upstream daily reservoir-boundary inflow; offline hindsight data, not a forecast",
+  "routing_basis": "FEWalter to Downstream uses identity UH [1.0], an interface fixture without real river travel time",
+  "release_source": "Fixed offline request; no model-generated operating_mode, rules or reasoning",
+  "target_basis": "No verified annual numeric target schedule is supplied; do not substitute 1370 ft",
+  "losses_and_spill_basis": "Reservoir losses set to zero; excess capacity spills within the day without a gate/rating model"
+}
