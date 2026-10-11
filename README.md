@@ -10,6 +10,18 @@ Native HydroCNHS supports catchment area, hydrological/routing parameters and ca
 
 ![HydroCNHS with the LLM reservoir decision extension](docs/figures/hydrocnhs-llm-concept-en.png)
 
+## Examples and prompts
+
+Choose a general-purpose example for your own design, or an Anik V3.7 reference example to inspect the original strategy.
+
+| Example | Settings / walkthrough | Prompt to read | What it uses |
+|---|---|---|---|
+| General-purpose reservoir agent | [YAML](experiments/fe_walter.yaml) · [User guide](docs/USER_GUIDE.md) | [Editable template](prompts/daily_release.txt) · [Optional DKP template](prompts/daily_dkp_release.txt) | Your own prompt/knowledge; the supplied YAML uses fixed offline release |
+| Anik V3.7 — FE Walter zero-shot | [YAML](examples/fe_walter/zero_shot/experiment.yaml) · [Walkthrough](examples/fe_walter/zero_shot/README.md) | [Complete original prompt snapshot](examples/fe_walter/zero_shot/prompt_preview.txt) | Original public facts and seasonal target; no DKP |
+| Anik V3.7 — FE Walter DKP | [YAML](examples/fe_walter/dkp/experiment.yaml) · [Walkthrough](examples/fe_walter/dkp/README.md) | [Complete original prompt snapshot](examples/fe_walter/dkp/prompt_preview.txt) | Original [DKP v1.2](data/anik_v3_7/DKP_FEWalter_Dam_v1.2.md) and conditional retrieval |
+
+Files under `prompts/` are generic templates, not Anik's original prompts. Each reference snapshot includes the full system prompt, first-day state prompt and response schema; runtime uses the original dynamic builders, so editing the snapshot does not change execution. Both reference examples retain the original audits and currently use **synthetic offline replies only**. The original prompts remain in English; the walkthroughs have separate English and Traditional Chinese pages.
+
 ## 1. Install
 
 Use Python 3.12 and a full checkout of this repository. From the repo folder:
@@ -30,7 +42,7 @@ python run_experiment.py verify runs/synthetic-cascade
 
 This is a four-day, three-reservoir example with fixed test releases and no LLM calls. An existing output folder is never overwritten; change `run_id` and `output` for a new run.
 
-Choose a strategy: [generic configurable agents](experiments/fe_walter.yaml), [complete Anik V3.7 zero-shot case](examples/fe_walter/zero_shot/README.md), or [complete Anik V3.7 DKP case](examples/fe_walter/dkp/README.md). The two reference examples preserve the original prompt builders and audits and currently run **offline only**, with synthetic replies. Follow the [reference walkthrough](cases/fe_walter_reference/README.md).
+Use the examples table above to choose a strategy. Shared original-policy options are explained in the [reference settings guide](cases/fe_walter_reference/README.md).
 
 ## 3. Set up your case
 

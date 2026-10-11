@@ -10,6 +10,18 @@ YAML 執行器使用給定的 daily 入流，不重新執行 GWLF／ABCD，也�
 
 ![HydroCNHS 加上 LLM 水庫決策層](docs/figures/hydrocnhs-llm-concept-zh-TW.png)
 
+## 範例與 prompt 入口
+
+設計自己的實驗請選通用範例；查看原版策略請選 Anik V3.7 範例。
+
+| 範例 | 設定／操作教學 | 可直接閱讀的 prompt | 使用內容 |
+|---|---|---|---|
+| 通用水庫 agent | [YAML](experiments/fe_walter.yaml) · [操作手冊](docs/USER_GUIDE.md) | [可修改的 template](prompts/daily_release.txt) · [選用 DKP template](prompts/daily_dkp_release.txt) | 自訂 prompt／知識檔；提供的 YAML 採固定離線放流 |
+| Anik V3.7 — FE Walter zero-shot 原版 | [YAML](examples/fe_walter/zero_shot/experiment.yaml) · [操作教學](examples/fe_walter/zero_shot/README.zh-TW.md) | [完整原版 prompt 快照](examples/fe_walter/zero_shot/prompt_preview.txt) | 原版公開資訊與季節目標，不使用 DKP |
+| Anik V3.7 — FE Walter DKP 原版 | [YAML](examples/fe_walter/dkp/experiment.yaml) · [操作教學](examples/fe_walter/dkp/README.zh-TW.md) | [完整原版 prompt 快照](examples/fe_walter/dkp/prompt_preview.txt) | 原版 [DKP v1.2](data/anik_v3_7/DKP_FEWalter_Dam_v1.2.md) 與依情境檢索 |
+
+`prompts/` 放的是通用 template，並非 Anik 原版 prompt。兩個原版快照均包含完整 system prompt、第一天狀態 prompt 與回覆 schema；執行時使用原版動態 builder，修改快照不會改變實驗。兩個原版範例保留原始 audit，目前**僅使用合成離線回覆**。原版 prompt 保留英文，操作教學提供獨立中英文頁面。
+
 ## 1. 安裝
 
 使用 Python 3.12，完整取得此 repo，然後在 repo 目錄執行：
@@ -30,7 +42,7 @@ python run_experiment.py verify runs/synthetic-cascade
 
 此範例為四天、三個水庫，使用固定測試放流，不呼叫 LLM。程式不覆寫已存在的輸出目錄；新實驗請修改 `run_id` 與 `output`。
 
-選擇策略：[通用可設定 agents](experiments/fe_walter.yaml)、[Anik V3.7 zero-shot 完整案例](examples/fe_walter/zero_shot/README.md)，或 [Anik V3.7 DKP 完整案例](examples/fe_walter/dkp/README.md)。兩個原版範例保留原始 prompt builder 與 audit，目前**僅支援離線**，使用合成回覆。操作步驟見 [原版範例教學](cases/fe_walter_reference/README.zh-TW.md)。
+從上方範例表選擇策略；共用的原版選項見 [原版設定教學](cases/fe_walter_reference/README.zh-TW.md)。
 
 ## 3. 設定自己的案例
 
