@@ -1,7 +1,7 @@
 """Configuration-driven offline or single-attempt chat backend.
 
 Provider configuration is validated without performing discovery or network I/O.
-Model replies must contain one strict ``reservoir-action.v1`` JSON object.
+Model replies must contain one strict JSON object in the selected response schema.
 """
 
 from __future__ import annotations
@@ -177,6 +177,8 @@ class ConfiguredBackend:
         release_cms: float = 0,
         context: Mapping[str, Any] | None = None,
         transport: Transport | None = None,
+        response_schema: str = ACTION_SCHEMA_VERSION,
+        audit_context_builders: Mapping[str, Callable] | None = None,
     ) -> None:
         self.agent_id = _nonempty_text(agent_id, "agent_id")
         if mode not in {"offline", "llm"}:
@@ -192,6 +194,13 @@ class ConfiguredBackend:
             raise ValueError("llm mode requires model settings")
         self._offline_action = ReservoirAction(release_cms=release_cms)
         self._context = json_snapshot({} if context is None else context, label="context")
+        from .dkp_audit import DKP_RESPONSE_SCHEMA
+        if response_schema not in {ACTION_SCHEMA_VERSION, DKP_RESPONSE_SCHEMA}:
+            raise ValueError("unsupported response_schema")
+        self.response_schema = response_schema
+        self._audit_context_builders = dict(audit_context_builders or {})
+        if any(not isinstance(k, str) or not callable(v) for k, v in self._audit_context_builders.items()):
+            raise ValueError("audit context builders must map IDs to callables")
         if not isinstance(self._context, dict):
             raise TypeError("context must be a mapping")
         self._transport = http_json_transport if transport is None else transport
@@ -233,11 +242,13 @@ class ConfiguredBackend:
             raise TypeError("observation must be a mapping or ReservoirObservation")
         return ReservoirObservation(**dict(value))
 
-    def _messages(self, observation: ReservoirObservation) -> list[dict[str, str]]:
+    def _messages(self, observation: ReservoirObservation, audit_contexts=None) -> list[dict[str, str]]:
         namespace = {
             "observed_hydrology": observation.to_dict(),
             "static_context": json_snapshot(self._context, label="context"),
         }
+        if self._audit_context_builders:
+            namespace["audit_contexts"] = audit_contexts if audit_contexts is not None else self._audit_contexts(observation)
         previous = json_snapshot(self._previous_transition, label="previous_transition")
         content = Template(self.prompt_spec.template).substitute(
             observation=_canonical_json(namespace),
@@ -245,16 +256,25 @@ class ConfiguredBackend:
             agent_id=_canonical_json(self.agent_id),
             previous_transition=_canonical_json(previous),
         )
+        if self.response_schema != ACTION_SCHEMA_VERSION:
+            contract = ("Return exactly one JSON object with schema_version, release_cms, operating_mode, "
+                        "rules_applied, missing_inputs, reasoning, applicable_target_ft, pool_position, "
+                        "intended_storage_direction, release_relation_to_inflow. schema_version must be " + self.response_schema +
+                        ". release_cms is m3/s; rules_applied and missing_inputs are JSON lists. No Markdown.")
+        else:
+            contract = ("Return exactly one JSON object with only schema_version and release_cms. "
+                        f"schema_version must be {ACTION_SCHEMA_VERSION}. Do not use Markdown.")
         return [
             {
                 "role": "system",
-                "content": (
-                    "Return exactly one JSON object with only schema_version and release_cms. "
-                    f"schema_version must be {ACTION_SCHEMA_VERSION}. Do not use Markdown."
-                ),
+                "content": contract,
             },
             {"role": "user", "content": content},
         ]
+
+    def _audit_contexts(self, observation):
+        return {identifier: json_snapshot(builder(observation.to_dict()), label="audit context")
+                for identifier, builder in self._audit_context_builders.items()}
 
     def _request(self, messages: list[dict[str, str]]) -> tuple[str, dict[str, Any]]:
         assert self.model is not None
@@ -283,11 +303,14 @@ class ConfiguredBackend:
         self.latest_trace = None
         self.last_request_id = None
         observed = self._observation(observation)
+        audit_contexts = self._audit_contexts(observed)
         if self.mode == "offline":
+            if audit_contexts:
+                self.latest_trace = {"audit_contexts": audit_contexts, "model_used": False}
             return self._offline_action
 
         assert self.model is not None
-        messages = self._messages(observed)
+        messages = self._messages(observed, audit_contexts)
         url, payload = self._request(messages)
         headers = {"Content-Type": "application/json", "Accept": "application/json"}
         env_name = self.model["api_key_env"]
@@ -299,6 +322,7 @@ class ConfiguredBackend:
 
         request_record = {"url": url, "payload": payload, "provider": self.model["provider"]}
         trace: dict[str, Any] = {
+            "audit_contexts": audit_contexts,
             "messages": json_snapshot(messages, label="messages"),
             "request_sha256": _canonical_sha256(request_record),
             "provider": self.model["provider"],
@@ -336,6 +360,11 @@ class ConfiguredBackend:
             usage = raw.get("usage")
         trace["usage"] = json_snapshot(usage, label="usage")
         candidate = _strict_json(content)
+        if self.response_schema != ACTION_SCHEMA_VERSION:
+            from .dkp_audit import validate_dkp_decision
+            decision = validate_dkp_decision(candidate)
+            trace["dkp_decision"] = decision
+            candidate = {"schema_version": ACTION_SCHEMA_VERSION, "release_cms": decision["release_cms"]}
         if not isinstance(candidate, dict) or set(candidate) != {"schema_version", "release_cms"}:
             raise ValueError("model action must explicitly contain only schema_version and release_cms")
         action = parse_action(candidate)
@@ -365,7 +394,8 @@ class ConfiguredBackend:
                 "package_ids": list(self.prompt_spec.knowledge_package_ids),
                 "sha256": {k: hashlib.sha256(v.encode("utf-8")).hexdigest() for k, v in self._knowledge.items()},
             },
-            "parser": {"id": "strict-json", "schema_version": ACTION_SCHEMA_VERSION},
+            "parser": {"id": "strict-json", "schema_version": self.response_schema},
+            "audit_context_ids": list(self._audit_context_builders),
             "model_used": self.mode == "llm",
         }
         if self.mode == "offline":
@@ -376,5 +406,5 @@ class ConfiguredBackend:
                       prompt_sha256=self.prompt_spec.template_sha256,
                       knowledge_package_ids=list(self.prompt_spec.knowledge_package_ids),
                       knowledge_package_sha256=result["knowledge"]["sha256"],
-                      response_parser_id="strict-reservoir-action-json.v1")
+                       response_parser_id="strict-reservoir-action-json.v1" if self.response_schema == ACTION_SCHEMA_VERSION else "strict-dkp-decision-json.v1")
         return json_snapshot(result, label="backend description")

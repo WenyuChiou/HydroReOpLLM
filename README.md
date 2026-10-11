@@ -55,4 +55,6 @@ Open `summary.json` for status, audit counts and balance errors; `reservoir_traj
 Full step-by-step setup and every option: [User guide / 完整操作手冊](docs/USER_GUIDE.md).
 Research results: [Saved results](results/README.md). Advanced APIs and historical reproduction: [Advanced workflows](docs/ADVANCED_WORKFLOWS.md). Fixed HydroCNHS source and license: [Source manifest](third_party/hydrocnhs/SOURCE.json).
 
+FE Walter with DKP strategy audit: [seven-day offline walkthrough and live-readiness gaps](cases/fe_walter_dkp_offline/README.md). It makes zero LLM calls; missing strategy inputs remain UNKNOWN.
+
 The real three-reservoir case still has live-readiness blockers. This repository preserves its existing scientific results and original audit verdicts.
