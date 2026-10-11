@@ -2,6 +2,8 @@
 
 [English](README.md) | [繁體中文](README.zh-TW.md)
 
+Start with a complete case: [Zero-shot](../../examples/fe_walter/zero_shot/README.md) or [DKP](../../examples/fe_walter/dkp/README.md). Each folder includes its runnable YAML and a readable full prompt snapshot; inputs and the physical engine are shared.
+
 One generic reservoir engine, with two optional Anik V3.7 reference strategies.
 Both use the pinned original Python prompt builders, response formats and strategy audits. They share the common physical solver, daily feedback, HydroCNHS routing and durable trace with generic agents.
 

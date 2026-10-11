@@ -30,7 +30,7 @@ python run_experiment.py verify runs/synthetic-cascade
 
 This is a four-day, three-reservoir example with fixed test releases and no LLM calls. An existing output folder is never overwritten; change `run_id` and `output` for a new run.
 
-Choose a strategy: [generic configurable agents](experiments/fe_walter.yaml), [Anik V3.7 zero-shot](experiments/fe_walter_reference_zeroshot.yaml), or [Anik V3.7 DKP](experiments/fe_walter_reference_dkp.yaml). The two reference examples preserve the original prompt builders and audits and currently run **offline only**, with synthetic replies. Follow the [reference walkthrough](cases/fe_walter_reference/README.md).
+Choose a strategy: [generic configurable agents](experiments/fe_walter.yaml), [complete Anik V3.7 zero-shot case](examples/fe_walter/zero_shot/README.md), or [complete Anik V3.7 DKP case](examples/fe_walter/dkp/README.md). The two reference examples preserve the original prompt builders and audits and currently run **offline only**, with synthetic replies. Follow the [reference walkthrough](cases/fe_walter_reference/README.md).
 
 ## 3. Set up your case
 
