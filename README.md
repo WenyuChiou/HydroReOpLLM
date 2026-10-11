@@ -1,8 +1,14 @@
 # LLM Reservoir Agent
 
+[English](README.md) | [繁體中文](README.zh-TW.md)
+
 Complete HydroCNHS + configurable LLM reservoir agents for daily experiments.
 HydroCNHS provides hydrology and routing. Each agent requests a release; the physical solver updates storage, limits release and calculates spill.
 The YAML runner uses supplied daily inflows. It does not rerun GWLF/ABCD or change calibrated parameters.
+
+Native HydroCNHS supports catchment area, hydrological/routing parameters and calibration tools. These use the native model configuration and Python API; the reservoir YAML runner is not a one-command calibration/validation workflow. See [Hydrology setup and C&V](docs/HYDROLOGY_SETUP.md).
+
+![HydroCNHS with the LLM reservoir decision extension](docs/figures/hydrocnhs-llm-concept-en.png)
 
 ## 1. Install
 
