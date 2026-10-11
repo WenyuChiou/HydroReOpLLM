@@ -20,7 +20,7 @@ python run_experiment.py verify runs/fe-walter-example-zeroshot
 
 7. 結果：查看 `summary.json`、`reservoir_trajectory.csv`、`network_flows.csv`、`audit.jsonl` 與 `raw/`。這組放流等於入流的測試回覆，預期為 3 天、0 次模型呼叫、3 次 audit PASS、水庫水量平衡殘差 0 m³。這是依據已保存離線診斷的預期檢查值，並非新生成的模型決策。
 
-**假設與限制：**初始蓄水採原版假設 1,992.61 acre-ft，損失設為零，下游河段 `[1.0]` 為不延遲的測試 routing；真實實驗就緒狀態為 false。新一輪執行須更改 `run_id` 與 `output`。修改閱讀快照不會改變執行；若要更廣泛地自訂 prompt／狀態格式，請使用通用 `configured` 策略。原版入口目前僅支援離線。修改 system 指令時，複製檔案並設 `reference.system_prompt_mode: custom`，trace 會標記為變體；`original` 模式核對文字是否與原版 builder 一致。
+**假設與限制：**初始蓄水採原版假設 1,992.61 acre-ft，損失設為零，下游河段 `[1.0]` 為不延遲的測試 routing；真實實驗就緒狀態為 false。新一輪執行須更改 `run_id` 與 `output`。修改閱讀快照不會改變執行；若要更廣泛地自訂 prompt／狀態格式，請使用通用 `configured` 策略。另有保留相同原版策略的 [真實 LLM YAML](experiment.llm.yaml)，見 [準備教學](../../../docs/reference_live.zh-TW.md)；現有 case 仍阻擋真實執行。修改 system 指令時，複製檔案並設 `reference.system_prompt_mode: custom`，trace 會標記為變體；`original` 模式核對文字是否與原版 builder 一致。
 
 `prompts/` 下的通用 template 屬於另一個策略。本案例保留原版英文 prompt，不翻譯執行時的指令文字。測試回覆的 audit PASS 不代表真實操作策略已通過。
 

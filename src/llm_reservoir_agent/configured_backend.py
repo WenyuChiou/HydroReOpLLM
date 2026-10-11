@@ -145,7 +145,8 @@ def http_json_transport(
 
     request = Request(
         url,
-        data=_canonical_json(dict(payload)).encode("utf-8"),
+        # Preserve native schema field order (self-check/reasoning before release).
+        data=json.dumps(dict(payload), allow_nan=False, ensure_ascii=False).encode("utf-8"),
         headers=dict(headers),
         method="POST",
     )
@@ -161,6 +162,65 @@ def http_json_transport(
     if not isinstance(parsed, dict):
         raise TypeError("provider response must be a JSON object")
     return parsed
+
+
+def chat_request(settings, messages, *, schema=None):
+    """Build a provider request without changing strategy messages or doing I/O."""
+    if settings["provider"] == "ollama":
+        options = {"temperature": settings["temperature"], "num_predict": settings["max_tokens"]}
+        if settings["seed"] is not None:
+            options["seed"] = settings["seed"]
+        payload = dict(model=settings["model"], messages=messages, stream=False, options=options)
+        if schema is not None:
+            payload["format"] = json_snapshot(schema)
+        return settings["base_url"] + "/api/chat", payload
+    payload = dict(model=settings["model"], messages=messages, temperature=settings["temperature"],
+                   max_tokens=settings["max_tokens"])
+    if settings["seed"] is not None:
+        payload["seed"] = settings["seed"]
+    if schema is not None:
+        payload["response_format"] = {"type": "json_schema", "json_schema": {
+            "name": "reservoir_decision", "strict": True, "schema": json_snapshot(schema)}}
+    return settings["base_url"] + "/chat/completions", payload
+
+
+def chat_headers(settings):
+    """Resolve credentials at execution; callers must never persist headers."""
+    headers = {"Content-Type": "application/json", "Accept": "application/json"}
+    env_name = settings["api_key_env"]
+    if env_name is not None:
+        secret = os.environ.get(env_name)
+        if not secret:
+            raise RuntimeError(f"required API key environment variable is unset: {env_name}")
+        headers["Authorization"] = f"Bearer {secret}"
+    return headers
+
+
+def chat_reply(raw, provider, *, require_complete=False):
+    """Extract content and usage; the strategy owns its decision parser."""
+    if provider == "ollama":
+        if "done" in raw and raw["done"] is not True:
+            raise ValueError("provider reports incomplete generation")
+        if "done_reason" in raw and raw["done_reason"] != "stop":
+            raise ValueError("provider reports incomplete generation")
+        if require_complete and raw.get("done") is not True:
+            raise ValueError("provider completion status is missing")
+        message = raw.get("message")
+        usage = {key: raw[key] for key in ("prompt_eval_count", "eval_count") if key in raw}
+    else:
+        choices = raw.get("choices")
+        if not isinstance(choices, list) or len(choices) != 1:
+            raise ValueError("OpenAI-compatible response requires exactly one choice")
+        choice = choices[0]
+        if not isinstance(choice, Mapping):
+            raise ValueError("provider choice must be a mapping")
+        if ("finish_reason" in choice or require_complete) and choice.get("finish_reason") != "stop":
+            raise ValueError("provider generation must finish with stop")
+        message = choice.get("message") if isinstance(choice, Mapping) else None
+        usage = raw.get("usage")
+    if not isinstance(message, Mapping) or not isinstance(message.get("content"), str):
+        raise ValueError("provider response requires message.content text")
+    return message["content"], json_snapshot(usage, label="usage")
 
 
 class ConfiguredBackend:
@@ -278,26 +338,7 @@ class ConfiguredBackend:
 
     def _request(self, messages: list[dict[str, str]]) -> tuple[str, dict[str, Any]]:
         assert self.model is not None
-        settings = self.model
-        if settings["provider"] == "ollama":
-            options: dict[str, Any] = {
-                "temperature": settings["temperature"],
-                "num_predict": settings["max_tokens"],
-            }
-            if settings["seed"] is not None:
-                options["seed"] = settings["seed"]
-            return settings["base_url"] + "/api/chat", {
-                "model": settings["model"], "messages": messages, "stream": False, "options": options,
-            }
-        payload: dict[str, Any] = {
-            "model": settings["model"],
-            "messages": messages,
-            "temperature": settings["temperature"],
-            "max_tokens": settings["max_tokens"],
-        }
-        if settings["seed"] is not None:
-            payload["seed"] = settings["seed"]
-        return settings["base_url"] + "/chat/completions", payload
+        return chat_request(self.model, messages)
 
     def decide(self, observation: Mapping[str, Any] | ReservoirObservation) -> ReservoirAction:
         self.latest_trace = None
@@ -312,13 +353,7 @@ class ConfiguredBackend:
         assert self.model is not None
         messages = self._messages(observed, audit_contexts)
         url, payload = self._request(messages)
-        headers = {"Content-Type": "application/json", "Accept": "application/json"}
-        env_name = self.model["api_key_env"]
-        if env_name is not None:
-            secret = os.environ.get(env_name)
-            if secret is None or not secret:
-                raise RuntimeError(f"required API key environment variable is unset: {env_name}")
-            headers["Authorization"] = f"Bearer {secret}"
+        headers = chat_headers(self.model)
 
         request_record = {"url": url, "payload": payload, "provider": self.model["provider"]}
         trace: dict[str, Any] = {
@@ -340,25 +375,7 @@ class ConfiguredBackend:
         trace["raw_reply"] = raw
         self.last_request_id = raw.get("id")
 
-        if self.model["provider"] == "ollama":
-            message = raw.get("message")
-            if not isinstance(message, Mapping) or not isinstance(message.get("content"), str):
-                raise ValueError("Ollama response requires message.content text")
-            content = message["content"]
-            usage = {
-                key: raw[key] for key in ("prompt_eval_count", "eval_count") if key in raw
-            }
-        else:
-            choices = raw.get("choices")
-            if not isinstance(choices, list) or len(choices) != 1:
-                raise ValueError("OpenAI-compatible response requires exactly one choice")
-            choice = choices[0]
-            message = choice.get("message") if isinstance(choice, Mapping) else None
-            if not isinstance(message, Mapping) or not isinstance(message.get("content"), str):
-                raise ValueError("OpenAI-compatible response requires message.content text")
-            content = message["content"]
-            usage = raw.get("usage")
-        trace["usage"] = json_snapshot(usage, label="usage")
+        content, trace["usage"] = chat_reply(raw, self.model["provider"])
         candidate = _strict_json(content)
         if self.response_schema != ACTION_SCHEMA_VERSION:
             from .dkp_audit import validate_dkp_decision

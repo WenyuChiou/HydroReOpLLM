@@ -1,0 +1,37 @@
+# Live interface template. check is offline; this case remains live_ready=false.
+schema_version: llm-reservoir-experiment.v1
+case: ../../../cases/fe_walter_reference/case.json
+run_id: fe-walter-zeroshot-llm
+output: ../../../runs/fe-walter-zeroshot-llm # Use a new output for each experiment.
+max_calls: 3 # One request per controlled agent per day; no automatic retry.
+models:
+  reservoir_model:
+    provider: ollama # Also supported: openai_compatible.
+    model: REPLACE_WITH_INSTALLED_MODEL # No automatic model download.
+    base_url: http://localhost:11434 # OpenAI-compatible URL includes /v1.
+    temperature: 0.7
+    max_tokens: 2048 # Maximum reply tokens; not a measured token count.
+    seed: null # Optional provider seed; not a determinism guarantee.
+    timeout_seconds: 120
+    api_key_env: null # For hosted providers, name an environment variable; never paste a key.
+auditors:
+  release_limits:
+    type: release_bounds
+    version: "1"
+agents:
+  fe_operator:
+    reservoir: FEWalter
+    mode: llm # Requires explicit --allow-network AND a live-ready case.
+    model: reservoir_model
+    strategy: reference_v3_7
+    reference:
+      profile: fe_walter # This optional original-policy example is FE Walter-specific.
+      method: zeroshot
+      system_prompt: ../../../prompts/fe_walter_reference/zeroshot_system.txt
+      system_prompt_mode: original # Preserve original text, daily builder and native schema.
+      prompt_storage: false
+      hide_availability_line: true
+      dkp_no_missing_inputs: true
+      zeroshot_knowledge: target
+      # No responses file in llm mode; transport failure stops before physics.
+    auditors: [release_limits] # Original native audit is retained automatically.

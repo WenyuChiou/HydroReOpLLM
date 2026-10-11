@@ -40,7 +40,7 @@ Use `experiments/fe_walter_reference_zeroshot.yaml` or `experiments/fe_walter_re
 | `auditors: [release_limits]` | Keep the native audit and add the generic bounds check |
 
 These flags are explicit experiment choices, not a claim that every original example used them. The supplied original README also shows storage-visible variants.
-Do not attach generic `prompt`, `context`, `model` or `response_schema` overrides to a reference agent: the validator rejects them to preserve the original condition. Use `configured` for your own design. Native builders live under `third_party/anik_v3_7/`; their bytes are verified and unmodified.
+Do not attach generic `prompt`, `context` or `response_schema` overrides to a reference agent: the validator rejects them to preserve the original condition. Use `configured` for your own design. Native builders live under `third_party/anik_v3_7/`; their bytes are verified and unmodified.
 
 ## 3. Check, run, verify
 
@@ -63,4 +63,4 @@ python run_experiment.py verify runs/fe-walter-reference-dkp
 Read `summary.json`, `reservoir_trajectory.csv` and `network_flows.csv`. Compact `audit.jsonl`, `decisions.jsonl` and `backend_events.jsonl` refer to full payloads in `raw/`, including the native system/state prompts, response schema, fixture reply and original audit.
 The adapter converts native cfs release into the common m³/s action. The solver commits feasible release, spill and storage; the next policy call receives that actual state. Release + spill enters downstream routing once. DKP retrieval selects rule excerpts; it does not paste the full DKP into every prompt.
 
-The reference YAML selector currently supports **offline only**. Temperature is not applied to fixtures. Live reference transport remains a separate future integration; generic live experiments use `configured` and its existing network/readiness/budget gates. Original accepted five-year results remain unchanged; an offline audit PASS does not approve a real strategy or replace prior FAIL evidence.
+The default reference YAML uses offline fixtures; temperature is not applied to them. Separate [live YAML templates](../../docs/reference_live.md) use `mode: llm`, a `model` profile and temperature 0.7, with no fixture responses. Both reference and generic live strategies require the existing network/readiness/budget gates; this reference case remains not ready. Original accepted five-year results remain unchanged; an offline audit PASS does not approve a real strategy or replace prior FAIL evidence.

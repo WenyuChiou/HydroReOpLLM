@@ -128,10 +128,16 @@ def load_settings(path, *, runtime_root=PROJECT_ROOT):
             raise ValueError("unknown agent strategy")
         if strategy == "reference_v3_7":
             from .reference_backend import validate_reference
-            if mode != "offline" or set(spec) - {"reservoir", "mode", "strategy", "reference", "auditors"}:
-                raise ValueError("reference_v3_7 examples require offline mode and native reference settings; no generic prompt/model override")
-            reference, pins, count = validate_reference(spec.get("reference"), path.parent, runtime_root)
-            if count != len(rows):
+            allowed = {"reservoir", "mode", "strategy", "reference", "auditors"}
+            if mode == "llm":
+                allowed.add("model")
+            if set(spec) - allowed:
+                raise ValueError("reference_v3_7 requires native reference settings; no generic prompt/context override")
+            model_id = spec.get("model")
+            if mode == "llm" and model_id not in models:
+                raise ValueError("LLM reference requires a known model profile")
+            reference, pins, count = validate_reference(spec.get("reference"), path.parent, runtime_root, mode=mode)
+            if mode == "offline" and count != len(rows):
                 raise ValueError("reference fixture requires exactly one response for each selected day")
             files.update(pins)
             checks = spec.get("auditors", [])
@@ -140,6 +146,7 @@ def load_settings(path, *, runtime_root=PROJECT_ROOT):
             if any(auditors[a].get("type") == "dkp_strategy" for a in checks):
                 raise ValueError("reference preserves its native audit; generic DKP audit context must not modify its prompt")
             agents[identifier] = dict(reservoir=name, mode=mode, strategy=strategy, reference=reference,
+                                      model=models.get(model_id),
                                      audit_plugins=[ConfiguredAudit(a, auditors[a]) for a in checks])
             continue
         if "reference" in spec:
@@ -250,7 +257,8 @@ def run_settings(settings, *, allow_network=False, runtime_root=PROJECT_ROOT, tr
         if agent.get("strategy") == "reference_v3_7":
             from .reference_backend import ReferenceBackend
             physical = current.network["reservoirs"][agent["reservoir"]]["physical"]
-            backend = ReferenceBackend(agent["reference"], physical, runtime_root=runtime_root)
+            backend = ReferenceBackend(agent["reference"], physical, runtime_root=runtime_root,
+                                       mode=agent["mode"], model=agent["model"], transport=bounded_transport)
             backends[agent["reservoir"]] = AuditedBackend(backend, agent["audit_plugins"])
             continue
         backend = ConfiguredBackend(agent_id=identifier, mode=agent["mode"], prompt_spec=agent["prompt"],
