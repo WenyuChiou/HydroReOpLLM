@@ -30,6 +30,8 @@ python run_experiment.py verify runs/synthetic-cascade
 
 此範例為四天、三個水庫，使用固定測試放流，不呼叫 LLM。程式不覆寫已存在的輸出目錄；新實驗請修改 `run_id` 與 `output`。
 
+選擇策略：[通用可設定 agents](experiments/fe_walter.yaml)、[Anik V3.7 zero-shot](experiments/fe_walter_reference_zeroshot.yaml)，或 [Anik V3.7 DKP](experiments/fe_walter_reference_dkp.yaml)。兩個原版範例保留原始 prompt builder 與 audit，目前**僅支援離線**，使用合成回覆。操作步驟見 [原版範例教學](cases/fe_walter_reference/README.zh-TW.md)。
+
 ## 3. 設定自己的案例
 
 1. 在 case JSON 準備水庫網路、物理參數與初始蓄水。
@@ -50,7 +52,7 @@ Prompt 檔提供 user 指令；backend 固定 system JSON 回覆契約。模型�
 
 ## 4. 使用 LLM
 
-選擇 `models` profile，設定 `mode: llm`，移除離線用的 `release_cms`，並設定 `max_calls`。先執行 `check`。真實請求還需要 `--allow-network` 與已具備實驗條件的 case；執行器不下載模型。
+使用通用 `configured` 策略時，選擇 `models` profile，設定 `mode: llm`，移除離線用的 `release_cms`，並設定 `max_calls`。先執行 `check`。真實請求還需要 `--allow-network` 與已具備實驗條件的 case；執行器不下載模型。
 
 [單水庫](experiments/fe_walter.yaml) · [FE Walter／Beltzville／被動 Prompton](experiments/fe_belt_prompton.yaml) · [LLM 設定範例](experiments/synthetic_llm.yaml)
 
