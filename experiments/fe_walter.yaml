@@ -1,0 +1,15 @@
+schema_version: llm-reservoir-experiment.v1
+case: ../cases/fe_walter_llm_fixture.json
+run_id: fe-walter-configured-offline
+output: ../runs/fe-walter-configured-offline
+# A separate short interface fixture, not the accepted five-year experiment.
+auditors:
+  release_limits: {type: release_bounds, version: "1"}
+agents:
+  fe_operator:
+    reservoir: FEWalter
+    mode: offline
+    release_cms: 5
+    prompt: ../prompts/daily_release.txt
+    prompt_version: "1"
+    auditors: [release_limits]

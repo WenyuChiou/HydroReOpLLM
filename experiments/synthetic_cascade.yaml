@@ -1,0 +1,29 @@
+schema_version: llm-reservoir-experiment.v1
+case: ../cases/reservoir_network_fixture.json
+run_id: synthetic-cascade
+output: ../runs/synthetic-cascade
+auditors:
+  release_limits:
+    type: release_bounds
+    version: "1"
+agents:
+  upstream_operator:
+    reservoir: R1
+    mode: offline
+    release_cms: 5
+    prompt: ../prompts/daily_release.txt
+    prompt_version: "1"
+    knowledge: {example_rules: ../knowledge/synthetic_rules.md}
+    auditors: [release_limits]
+  middle_operator:
+    reservoir: R2
+    mode: offline
+    release_cms: 6
+    prompt: ../prompts/daily_release.txt
+    auditors: [release_limits]
+  downstream_operator:
+    reservoir: R3
+    mode: offline
+    release_cms: 6.5
+    prompt: ../prompts/daily_release.txt
+    auditors: [release_limits]

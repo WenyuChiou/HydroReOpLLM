@@ -1,0 +1,117 @@
+{
+  "schema_version": "bundled-source.v1",
+  "repository": "https://github.com/cylin928/HydroCNHS",
+  "commit": "fdd5097a3fcabb312c6c3739efc71da2d67c47da",
+  "files": {
+    "src/hydrocnhs/Config_logging.yaml": {
+      "upstream_path": "src/hydrocnhs/Config_logging.yaml",
+      "sha256": "4de46c0e39f5cd012a6802de70b34ff9e0a4c5c6403ff0a80e3a8b23d3e8848e",
+      "bytes": 1373
+    },
+    "src/hydrocnhs/__init__.py": {
+      "upstream_path": "src/hydrocnhs/__init__.py",
+      "sha256": "5f68aef4434c66ef3d840b580cc7eb6fd09331398b541883ec65b1ea495bc75f",
+      "bytes": 682
+    },
+    "src/hydrocnhs/abm.py": {
+      "upstream_path": "src/hydrocnhs/abm.py",
+      "sha256": "b348391cc14ea4feb12de6d88be3a7647c34c27ddce66556661fa97898128275",
+      "bytes": 2095
+    },
+    "src/hydrocnhs/abm_script.py": {
+      "upstream_path": "src/hydrocnhs/abm_script.py",
+      "sha256": "54c6d25d9fcb56e04825b3fe50610ce4a0554bcaab7ab424dee3ab96ba74a99d",
+      "bytes": 3391
+    },
+    "src/hydrocnhs/calibration/__init__.py": {
+      "upstream_path": "src/hydrocnhs/calibration/__init__.py",
+      "sha256": "fbdf38b028f0096de78bc7447c4febeaa2f90c550f522f2e179517f01e44fcef",
+      "bytes": 1247
+    },
+    "src/hydrocnhs/calibration/convertor.py": {
+      "upstream_path": "src/hydrocnhs/calibration/convertor.py",
+      "sha256": "f82281ddcce17b77c7d29bbbdeeee9dfd234d6df16263fedca394ff61e7c1185",
+      "bytes": 11621
+    },
+    "src/hydrocnhs/calibration/ga_deap.py": {
+      "upstream_path": "src/hydrocnhs/calibration/ga_deap.py",
+      "sha256": "3a63063eb9c8c85f40b8a55d1aa6156502af266a87b03c6e7fc957b4ef9381c8",
+      "bytes": 21783
+    },
+    "src/hydrocnhs/data_collector.py": {
+      "upstream_path": "src/hydrocnhs/data_collector.py",
+      "sha256": "cccd72962d75a60880125e380623e6094a14abd2f696c35b5ef280c416569f9f",
+      "bytes": 4546
+    },
+    "src/hydrocnhs/hydrocnhs.py": {
+      "upstream_path": "src/hydrocnhs/hydrocnhs.py",
+      "sha256": "cad2ff1c33424716b1a72d315b38d12946a8c494e68b18f2f41838cb9814e2d7",
+      "bytes": 38626
+    },
+    "src/hydrocnhs/indicators.py": {
+      "upstream_path": "src/hydrocnhs/indicators.py",
+      "sha256": "d868a536756edff02c590c1fb6a5b423618292f4780a17001ab593204cbca971",
+      "bytes": 11476
+    },
+    "src/hydrocnhs/model_builder.py": {
+      "upstream_path": "src/hydrocnhs/model_builder.py",
+      "sha256": "48ceddcf9769db3c24ed1da472ab138bb58ff4e20260c32934b7484f2db59cc0",
+      "bytes": 17593
+    },
+    "src/hydrocnhs/rainfall_runoff_model/__init__.py": {
+      "upstream_path": "src/hydrocnhs/rainfall_runoff_model/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "src/hydrocnhs/rainfall_runoff_model/abcd.py": {
+      "upstream_path": "src/hydrocnhs/rainfall_runoff_model/abcd.py",
+      "sha256": "ea7b3c012f2c487db95b8e2fbc670c89661de8cdbad8acc21c22f014b130165f",
+      "bytes": 8205
+    },
+    "src/hydrocnhs/rainfall_runoff_model/gwlf.py": {
+      "upstream_path": "src/hydrocnhs/rainfall_runoff_model/gwlf.py",
+      "sha256": "dda966f80df3b7ac9c0f5be84c313907f1e54c13e09dbc54d606b28728530a30",
+      "bytes": 17933
+    },
+    "src/hydrocnhs/rainfall_runoff_model/pet_hamon.py": {
+      "upstream_path": "src/hydrocnhs/rainfall_runoff_model/pet_hamon.py",
+      "sha256": "1e48fc9434ae7fb296eb998cb97e38f27ecab217341cee262349eaeb7ab6f9bb",
+      "bytes": 2222
+    },
+    "src/hydrocnhs/routing.py": {
+      "upstream_path": "src/hydrocnhs/routing.py",
+      "sha256": "088e0b1f928030bc38a991cb369b7109e753350cc399e8b646197bdb0d97d1db",
+      "bytes": 10869
+    },
+    "src/hydrocnhs/util.py": {
+      "upstream_path": "src/hydrocnhs/util.py",
+      "sha256": "26a150cff2733496f9bc5205696f4e80c2bea7bd9e47e5a34fd41393c1b5a05a",
+      "bytes": 42819
+    },
+    "src/hydrocnhs/visual.py": {
+      "upstream_path": "src/hydrocnhs/visual.py",
+      "sha256": "6dcf127865e2dd2475254505c7488d90fdab96d0362884ecfb1fec6e5d2faaf3",
+      "bytes": 9657
+    },
+    "src/hydrocnhs/water_quality_model/__init__.py": {
+      "upstream_path": "src/hydrocnhs/water_quality_model/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "src/hydrocnhs/water_quality_model/sediment.py": {
+      "upstream_path": "src/hydrocnhs/water_quality_model/sediment.py",
+      "sha256": "8ac234b92c8debee008849bac3238b00abeaf101fd66b098c677c8c9f506e9ce",
+      "bytes": 15099
+    },
+    "third_party/hydrocnhs/LICENSE": {
+      "upstream_path": "LICENSE",
+      "sha256": "2dab56cd5fe9f65a2e88b7f321439971f450cf7950ee7c496069296613c7945d",
+      "bytes": 1499
+    },
+    "third_party/hydrocnhs/upstream-pyproject.toml": {
+      "upstream_path": "pyproject.toml",
+      "sha256": "c6335175901638f2c704874117e3fa892b5996abb41477cb4bb094476fdf9dd7",
+      "bytes": 718
+    }
+  }
+}
