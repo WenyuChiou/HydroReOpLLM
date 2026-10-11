@@ -30,7 +30,7 @@ python run_experiment.py verify runs/synthetic-cascade
 
 此範例為四天、三個水庫，使用固定測試放流，不呼叫 LLM。程式不覆寫已存在的輸出目錄；新實驗請修改 `run_id` 與 `output`。
 
-選擇策略：[通用可設定 agents](experiments/fe_walter.yaml)、[Anik V3.7 zero-shot](experiments/fe_walter_reference_zeroshot.yaml)，或 [Anik V3.7 DKP](experiments/fe_walter_reference_dkp.yaml)。兩個原版範例保留原始 prompt builder 與 audit，目前**僅支援離線**，使用合成回覆。操作步驟見 [原版範例教學](cases/fe_walter_reference/README.zh-TW.md)。
+選擇策略：[通用可設定 agents](experiments/fe_walter.yaml)、[Anik V3.7 zero-shot 完整案例](examples/fe_walter/zero_shot/README.md)，或 [Anik V3.7 DKP 完整案例](examples/fe_walter/dkp/README.md)。兩個原版範例保留原始 prompt builder 與 audit，目前**僅支援離線**，使用合成回覆。操作步驟見 [原版範例教學](cases/fe_walter_reference/README.zh-TW.md)。
 
 ## 3. 設定自己的案例
 

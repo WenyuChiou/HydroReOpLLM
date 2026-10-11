@@ -2,6 +2,8 @@
 
 [English](README.md) | [繁體中文](README.zh-TW.md)
 
+直接從完整案例開始：[Zero-shot](../../examples/fe_walter/zero_shot/README.md) 或 [DKP](../../examples/fe_walter/dkp/README.md)。每個目錄都有可執行的 YAML 與完整 prompt 閱讀快照，input 與物理引擎共用。
+
 一套通用水庫引擎，加上兩個可選的 Anik V3.7 原版策略。
 兩者使用固定版本的原始 Python prompt builder、回覆格式與策略 audit，並和通用 agents 共用物理計算、daily 狀態回饋、HydroCNHS routing 與完整 trace。
 
