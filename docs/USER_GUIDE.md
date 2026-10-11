@@ -40,6 +40,21 @@ results/                  既有驗收與發布結果
 
 實驗 YAML 決定「誰控制哪座水庫、用哪個 prompt／模型／知識／auditor」。case JSON 決定「在哪裡、連到誰、物理限制與哪份入流」。更換區域、名稱、水庫數量或 prompt 不需要改核心；新流域自己的參數與 routing 仍需獨立來源及驗證。
 
+### 先準備這些檔案
+
+| 檔案 | 放什麼／在哪裡指定 |
+|---|---|
+| 實驗 YAML | agents、水庫對應、模型選項、日期、輸出、auditor；`experiments/*.yaml` 已逐項加註解 |
+| case JSON | 水庫位置、上下游連線、物理參數、初始蓄水；YAML 的 `case` 指向它 |
+| 入流 CSV | 每日局部入流；case 的 `inflow_source.path` 與 `sha256` 指向並核對它 |
+| prompt TXT | 操作指示模板；每個 agent 的 `prompt` 指向它 |
+| DKP／規則文字 | 自己水庫的 UTF-8 `.md`／`.txt` 文件；每個 agent 的 `knowledge` 指定 package ID 與路徑 |
+| 靜態 JSON（選填） | 額外固定資料；`context_file` 指向它，或直接寫 `context` |
+
+**如果原始 input 是 Excel**：目前 runner 不直接讀 `.xlsx`。先在 Excel 整理成 `date,node,local_inflow_cms` 三欄，再匯出不含 BOM 的 UTF-8 CSV（Excel 若在開頭加 BOM，需先移除）；日期用 `YYYY-MM-DD`、流量用 m³/s，每天每個 routing node 一列。若原始流量是 cfs，先乘 `0.028316846592` 換成 m³/s。只有一座水庫時仍使用 case 的 node ID；多庫時不可把已含上游放流的總入流當局部入流。把 CSV 路徑與新 SHA256 寫到自己的 case JSON，再執行 `check`。不要改寫原本已驗收的 Excel、CSV 或 case。
+
+**system prompt 在哪裡**：backend 固定 system message 的 JSON 回覆契約；目前 YAML 沒有 `system_prompt` 欄位。你要修改的操作角色、目標與指示寫在 `prompt` 指向的檔案，作為 user message；DKP 另外透過 `knowledge` 加入。兩者可每個 agent 各自指定。offline 模式只是固定測試放流，不執行 prompt／DKP 的模型選擇。
+
 ## 3. YAML 完整範例
 
 ```yaml
