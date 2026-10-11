@@ -196,9 +196,15 @@ def chat_headers(settings):
     return headers
 
 
-def chat_reply(raw, provider):
+def chat_reply(raw, provider, *, require_complete=False):
     """Extract content and usage; the strategy owns its decision parser."""
     if provider == "ollama":
+        if "done" in raw and raw["done"] is not True:
+            raise ValueError("provider reports incomplete generation")
+        if "done_reason" in raw and raw["done_reason"] != "stop":
+            raise ValueError("provider reports incomplete generation")
+        if require_complete and raw.get("done") is not True:
+            raise ValueError("provider completion status is missing")
         message = raw.get("message")
         usage = {key: raw[key] for key in ("prompt_eval_count", "eval_count") if key in raw}
     else:
@@ -206,6 +212,10 @@ def chat_reply(raw, provider):
         if not isinstance(choices, list) or len(choices) != 1:
             raise ValueError("OpenAI-compatible response requires exactly one choice")
         choice = choices[0]
+        if not isinstance(choice, Mapping):
+            raise ValueError("provider choice must be a mapping")
+        if ("finish_reason" in choice or require_complete) and choice.get("finish_reason") != "stop":
+            raise ValueError("provider generation must finish with stop")
         message = choice.get("message") if isinstance(choice, Mapping) else None
         usage = raw.get("usage")
     if not isinstance(message, Mapping) or not isinstance(message.get("content"), str):

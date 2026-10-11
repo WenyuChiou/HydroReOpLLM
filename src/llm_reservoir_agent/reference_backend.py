@@ -166,7 +166,7 @@ class _ReferenceChatTransport:
                 raise ValueError("provider response must be a JSON object")
             self.latest_trace["provider_reply"] = raw
             self.latest_trace["request_id"] = raw.get("id")
-            content, usage = chat_reply(raw, self.model["provider"])
+            content, usage = chat_reply(raw, self.model["provider"], require_complete=True)
             self.latest_trace["usage"] = usage
             reply = _strict_json(content)
             if not isinstance(reply, dict):

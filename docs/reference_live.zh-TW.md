@@ -14,6 +14,6 @@ python run_experiment.py check examples/fe_walter/zero_shot/experiment.llm.yaml
 python run_experiment.py check examples/fe_walter/dkp/experiment.llm.yaml
 ```
 
-`check` 不建立 provider、不呼叫網路。每份 YAML 的計畫為三次呼叫、設定 temperature 0.7，固定 input／prompt／DKP／vendor hashes，readiness 為 false。檢查成功代表設定有效，不代表操作條件已就緒或模型可用。
+`check` 不建立 provider、不呼叫網路。每份 YAML 的計畫為三次呼叫、設定 temperature 0.7，固定 input／prompt／DKP／vendor hashes，readiness 為 false。檢查成功代表設定有效，不代表操作條件已就緒或模型可用。真實原版回覆還須提供生成完成狀態：Ollama `done: true`（有提供 `done_reason` 時須為 `stop`），或 OpenAI 相容的 `finish_reason: stop`。缺少狀態、未完成或 token 上限截斷都會被拒絕，即使 JSON 有效也不採用。
 
 日後經授權執行後，查看 `summary.json`、`reservoir_trajectory.csv`、`network_flows.csv`、`audit.jsonl`、`decisions.jsonl`、`backend_events.jsonl`。完整 `raw/` payload 保存實際 system／state prompt、原版 schema、request payload／hash、provider reply、服務有提供時的 request ID／usage、原版 audit 與版本化 audit 綁定，不保存金鑰。物理程式實施可行 controlled release、spill 與蓄水；放流加溢流只注入下游 routing 一次，下一次決策使用實施後的狀態。離線測試或替身回覆的 audit PASS 不證明真實操作策略通過。

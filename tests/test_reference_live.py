@@ -75,8 +75,8 @@ class ReferenceLiveTests(unittest.TestCase):
                         requests.append(deepcopy(payload))
                         reply = replies[len(requests)-1]
                         content = json.dumps(reply)
-                        return ({'message': {'content': content}, 'eval_count': 17} if provider == 'ollama'
-                                else {'id': 'mock-request', 'choices': [{'message': {'content': content}}],
+                        return ({'message': {'content': content}, 'eval_count': 17, 'done': True, 'done_reason': 'stop'} if provider == 'ollama'
+                                else {'id': 'mock-request', 'choices': [{'message': {'content': content}, 'finish_reason': 'stop'}],
                                       'usage': {'completion_tokens': 17}})
                     _, result = run_settings(settings, allow_network=True, transport=fake)
                     self.assertEqual(len(requests), 3)
@@ -121,7 +121,7 @@ class ReferenceLiveTests(unittest.TestCase):
             reply = deepcopy(replies[len(attempts)])
             reply['applicable_target_ft'] = 1420.0
             attempts.append(1)
-            return {'message': {'content': json.dumps(reply)}}
+            return {'message': {'content': json.dumps(reply)}, 'done': True, 'done_reason': 'stop'}
         _, result = run_settings(settings, allow_network=True, transport=fake)
         self.assertEqual(len(attempts), 3)
         self.assertEqual(result['summary']['audit_counts'], {'FAIL': 3})
@@ -164,7 +164,7 @@ class ReferenceLiveTests(unittest.TestCase):
                             elif failure == 'enum': reply['pool_position'] = 'invented'
                             else: reply['release_cfs'] = True
                             content = json.dumps(reply)
-                        return {'message': {'content': content}}
+                        return {'message': {'content': content}, 'done': True, 'done_reason': 'stop'}
                     with self.assertRaisesRegex(RuntimeError, 'physics was not applied'):
                         run_settings(settings, allow_network=True, transport=fake)
                     self.assertEqual(len(attempts), 1)
@@ -190,6 +190,33 @@ class ReferenceLiveTests(unittest.TestCase):
         with patch.dict('os.environ', {}, clear=True), self.assertRaisesRegex(RuntimeError, 'unset'):
             backend._fixture.decide('system', 'prompt')
         self.assertEqual(backend.network_calls, 0)
+
+    def test_incomplete_or_missing_completion_status_rejects_valid_native_json(self):
+        for method in ('zeroshot', 'dkp'):
+            for provider in ('ollama', 'openai_compatible'):
+                for status in ('length', 'missing', 'incomplete'):
+                    with self.subTest(method=method, provider=provider, status=status):
+                        settings = self.settings(method, provider)
+                        attempts = []
+                        def fake(*args):
+                            attempts.append(1)
+                            content = json.dumps(self.replies(method)[0]) # Complete, valid native JSON.
+                            if provider == 'ollama':
+                                raw = {'message': {'content': content}}
+                                if status == 'length': raw.update(done=True, done_reason='length')
+                                elif status == 'incomplete': raw.update(done=False)
+                                return raw
+                            choice = {'message': {'content': content}}
+                            if status != 'missing': choice['finish_reason'] = 'length' if status == 'length' else None
+                            return {'choices': [choice]}
+                        with self.assertRaisesRegex(RuntimeError, 'physics was not applied'):
+                            run_settings(settings, allow_network=True, transport=fake)
+                        self.assertEqual(len(attempts), 1)
+                        output = Path(settings.report['output'])
+                        if (output/'reservoir_trajectory.csv').exists():
+                            self.assertLessEqual(len((output/'reservoir_trajectory.csv').read_text().splitlines()), 1)
+                        self.root = self.root / method / provider / status
+                        self.root.mkdir(parents=True, exist_ok=True)
 
 
 if __name__ == '__main__':
