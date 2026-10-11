@@ -2,6 +2,7 @@
 from copy import deepcopy
 from dataclasses import replace
 import json
+import hashlib
 from pathlib import Path
 import sys
 import tempfile
@@ -177,6 +178,96 @@ class ReferenceTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'changed after configuration check'):
             run_settings(settings)
         self.assertFalse(Path(data['output']).exists())
+
+    def external_fixture(self, method, *, mode='original', suffix='', crlf=False):
+        data = self.fixture(method)
+        blob = (PROJECT_ROOT / f'prompts/fe_walter_reference/{method}_system.txt').read_bytes()
+        if crlf:
+            blob = blob.replace(b'\n', b'\r\n')
+        path = self.root / f'{method}-system.txt'
+        path.write_bytes(blob + suffix.encode('utf-8'))
+        data['agents']['fe_operator']['reference'].update(system_prompt=str(path), system_prompt_mode=mode)
+        return data
+
+    def test_external_system_text_matches_original_and_keeps_daily_builder(self):
+        for method in ('zeroshot', 'dkp'):
+            for crlf in (False, True):
+                with self.subTest(method=method, crlf=crlf):
+                    original = self.backend(method)
+                    settings = load_settings(self.save(self.external_fixture(method, crlf=crlf)))
+                    spec = settings.agents['fe_operator']['reference']
+                    backend = ReferenceBackend(spec, settings.network['reservoirs']['FEWalter']['physical'], runtime_root=PROJECT_ROOT)
+                    self.assertEqual(backend._policy._system_prompt, original._policy._system_prompt)
+                    args = (pd.Timestamp('2016-01-01'), 300.0, 1992.61, {'step_days': 1, 'water_level_ft': 1300.0})
+                    self.assertEqual(backend._policy._build_state_prompt(*args), original._policy._build_state_prompt(*args))
+                    self.assertEqual(backend.describe()['system_prompt_source'], 'file')
+                    self.assertTrue(backend.describe()['matches_original_system_prompt'])
+                    self.assertIn(spec['system_prompt'], settings.files)
+
+    def test_modified_prompt_needs_custom_mode_and_is_saved_with_actual_hash(self):
+        for method in ('zeroshot', 'dkp'):
+            with self.subTest(method=method):
+                data = self.external_fixture(method, suffix='\nAdditional experimental instruction.\n')
+                settings = load_settings(self.save(data))
+                spec = settings.agents['fe_operator']['reference']
+                physics = settings.network['reservoirs']['FEWalter']['physical']
+                with self.assertRaisesRegex(ValueError, 'differs from original builder'):
+                    ReferenceBackend(spec, physics, runtime_root=PROJECT_ROOT)
+                data['agents']['fe_operator']['reference']['system_prompt_mode'] = 'custom'
+                settings = load_settings(self.save(data))
+                spec = settings.agents['fe_operator']['reference']
+                backend = ReferenceBackend(spec, physics, runtime_root=PROJECT_ROOT)
+                described = backend.describe()
+                actual = hashlib.sha256(Path(spec['system_prompt']).read_bytes()).hexdigest()
+                self.assertEqual(described['prompt_sha256'], actual)
+                self.assertEqual(described['reference_source_sha256']['system_prompt'], actual)
+                self.assertFalse(described['matches_original_system_prompt'])
+                self.assertEqual(described['system_prompt_mode'], 'custom')
+                self.assertTrue(described['prompt_strategy_id'].endswith('_custom_system'))
+                _, result = run_settings(settings)
+                self.assertEqual(result['summary']['observed_network_calls'], 0)
+                output = Path(settings.report['output'])
+                verified = verify_run(output, require_offline=True)
+                self.assertEqual(verified['audit_binding_counts']['versioned_suite'], 3)
+                payloads = list((output/'raw').glob('policy_*.json'))
+                self.assertEqual(len(payloads), 3)
+                for p in payloads:
+                    text = p.read_text()
+                    self.assertIn('Additional experimental instruction.', text)
+                    system = json.loads(text)['backend_trace']['system']
+                    self.assertEqual(hashlib.sha256(system.encode('utf-8')).hexdigest(), actual)
+                decisions = [json.loads(line) for line in (output/'decisions.jsonl').read_text().splitlines()]
+                self.assertEqual(len(decisions), 3)
+                for record in decisions:
+                    provenance = record['provenance']
+                    self.assertEqual(provenance['prompt_sha256'], actual)
+                    self.assertEqual(provenance['system_prompt_mode'], 'custom')
+                    self.assertFalse(provenance['matches_original_system_prompt'])
+                    self.assertTrue(provenance['prompt_strategy_id'].endswith('_custom_system'))
+                self.assertIsNone(result['summary'].get('operational_strategy_accepted'))
+
+    def test_external_prompt_drift_is_rejected_before_output(self):
+        data = self.external_fixture('dkp')
+        settings = load_settings(self.save(data))
+        spec = settings.agents['fe_operator']['reference']
+        Path(spec['system_prompt']).write_text('Changed after check', encoding='utf-8')
+        with self.assertRaisesRegex(ValueError, 'changed after validation'):
+            ReferenceBackend(spec, settings.network['reservoirs']['FEWalter']['physical'], runtime_root=PROJECT_ROOT)
+        with self.assertRaisesRegex(ValueError, 'changed after configuration check'):
+            run_settings(settings)
+        self.assertFalse(Path(settings.report['output']).exists())
+
+    def test_external_prompt_invalid_settings_fail_closed(self):
+        for patch_spec in ({'system_prompt': ''}, {'system_prompt_mode': 'typo'}, {'system_prompt_mode': 'custom'}):
+            data = self.fixture('zeroshot')
+            data['agents']['fe_operator']['reference'].update(patch_spec)
+            with self.subTest(patch=patch_spec), self.assertRaises(ValueError):
+                load_settings(self.save(data))
+        for contents, exception in ((b'   ', ValueError), (b'\xff', UnicodeDecodeError)):
+            data = self.external_fixture('zeroshot')
+            Path(data['agents']['fe_operator']['reference']['system_prompt']).write_bytes(contents)
+            with self.subTest(contents=contents), self.assertRaises(exception):
+                load_settings(self.save(data))
 
 
 if __name__ == '__main__':

@@ -16,6 +16,8 @@ agents:
     reference:
       profile: fe_walter                 # This reference profile is FE-specific.
       method: dkp                   # Original zero-shot or DKP policy.
+      system_prompt: ../../../prompts/fe_walter_reference/dkp_system.txt # Actual system instructions, read at runtime.
+      system_prompt_mode: original       # Exact original text; use custom for an intentional variant.
       responses: ../../../cases/fe_walter_reference/dkp_responses.json
       prompt_storage: false             # Matches saved five-year prompt condition.
       hide_availability_line: true       # Keep numeric availability ceiling out of prompt.

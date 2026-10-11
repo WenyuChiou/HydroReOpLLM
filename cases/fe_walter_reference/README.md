@@ -30,6 +30,7 @@ Use `experiments/fe_walter_reference_zeroshot.yaml` or `experiments/fe_walter_re
 | `mode: offline`, `max_calls: 0` | Fixture transport; no provider, download or retry |
 | `reference.profile: fe_walter` | Preserve the original FE Walter physical/policy profile |
 | `reference.method` | `zeroshot` or `dkp` |
+| `reference.system_prompt` / `system_prompt_mode` | Optional UTF-8 system file; `original` checks parity, `custom` marks a variant. Daily state/schema/retrieval stay in the adapter. See [prompt files](../../prompts/fe_walter_reference/README.md). |
 | `reference.responses` | Native-format synthetic reply file; exactly one reply per selected day |
 | `reference.dkp` | DKP method only: pinned `data/anik_v3_7/DKP_FEWalter_Dam_v1.2.md` |
 | `prompt_storage: false` | Hide numeric storage; match the saved five-year prompt condition |
