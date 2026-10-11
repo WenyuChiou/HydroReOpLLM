@@ -1,5 +1,14 @@
 # LLM Reservoir Agent
 
+**Start here:** [完整操作與 YAML 設定手冊](docs/USER_GUIDE.md).
+The complete unchanged HydroCNHS v1.2.1 source is bundled in `src/hydrocnhs/`;
+its upstream commit, license and exact file hashes are in `third_party/hydrocnhs/`.
+Use `python run_experiment.py check experiments/synthetic_cascade.yaml`, then
+`run` and `verify` for a four-day offline example. YAML assigns each agent to a
+reservoir and selects its prompt, knowledge, model and versioned auditors.
+Real provider calls require explicit `mode: llm`, a request budget and
+`--allow-network`; the current real three-reservoir case remains not live-ready.
+
 [Saved results and figures](results/README.md) · [Seven-day offline results](results/three_reservoir_offline/RESULTS.md) · [Monthly offline results](results/three_reservoir_month_2016_01/RESULTS.md) · [Pre-live acceptance plan](docs/offline_pre_live_acceptance.md)
 
 This private research repository publishes the accepted generic integration and

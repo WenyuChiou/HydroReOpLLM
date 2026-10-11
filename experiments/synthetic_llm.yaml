@@ -1,0 +1,35 @@
+schema_version: llm-reservoir-experiment.v1
+case: ../cases/reservoir_network_fixture.json
+run_id: synthetic-llm-diagnostic
+output: ../runs/synthetic-llm-diagnostic
+max_calls: 12
+models:
+  local:
+    provider: ollama
+    base_url: http://localhost:11434
+    model: gemma4:12b
+    temperature: 0.7
+    max_tokens: 512
+    timeout_seconds: 60
+auditors:
+  release_limits: {type: release_bounds, version: "1"}
+agents:
+  upstream_operator:
+    reservoir: R1
+    mode: llm
+    model: local
+    prompt: ../prompts/daily_release.txt
+    knowledge: {example_rules: ../knowledge/synthetic_rules.md}
+    auditors: [release_limits]
+  middle_operator:
+    reservoir: R2
+    mode: llm
+    model: local
+    prompt: ../prompts/daily_release.txt
+    auditors: [release_limits]
+  downstream_operator:
+    reservoir: R3
+    mode: llm
+    model: local
+    prompt: ../prompts/daily_release.txt
+    auditors: [release_limits]

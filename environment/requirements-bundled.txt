@@ -1,0 +1,12 @@
+# Tested direct scientific dependency constraints, Python 3.12.14 on Windows.
+# Complete HydroCNHS source is bundled; historical Git requirement remains archived separately.
+numpy==2.5.1
+pandas==3.0.5
+scipy==1.18.0
+joblib==1.5.3
+ruamel.yaml==0.19.1
+tqdm==4.70.0
+deap==1.4.4
+PyYAML==6.0.3
+scikit-learn==1.9.0
+matplotlib==3.11.1

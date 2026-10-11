@@ -1,0 +1,21 @@
+schema_version: llm-reservoir-experiment.v1
+case: ../cases/fe_belt_prompton_offline/case.json
+run_id: fe-belt-prompton-configured-offline
+output: ../runs/fe-belt-prompton-configured-offline
+# The third reservoir, Prompton, has a passive outlet in case.json.
+# These constant releases test integration; they are not an operating policy.
+auditors:
+  release_limits: {type: release_bounds, version: "1"}
+agents:
+  fe_operator:
+    reservoir: FEWalter
+    mode: offline
+    release_cms: 5
+    prompt: ../prompts/daily_release.txt
+    auditors: [release_limits]
+  belt_operator:
+    reservoir: Beltzville
+    mode: offline
+    release_cms: 3
+    prompt: ../prompts/daily_release.txt
+    auditors: [release_limits]

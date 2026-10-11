@@ -6,3 +6,5 @@ data/anik_v3_7/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr
 cases/*.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 environment/hydrocnhs-hydrology-core.json -text
 environment/hydrocnhs-core.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+src/hydrocnhs/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+third_party/hydrocnhs/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol

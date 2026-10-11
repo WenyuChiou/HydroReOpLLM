@@ -7,14 +7,22 @@ name = "llm-reservoir-agent"
 version = "0.1.0"
 description = "Generic LLM reservoir policy and HydroCNHS Dam interface"
 requires-python = ">=3.10"
-dependencies = []
+dependencies = ["joblib", "matplotlib", "numpy", "pandas", "ruamel.yaml", "scipy", "scikit-learn", "tqdm", "PyYAML>=6", "deap"]
 
 [project.optional-dependencies]
-hydrocnhs = ["hydrocnhs @ git+https://github.com/cylin928/HydroCNHS.git@fdd5097a3fcabb312c6c3739efc71da2d67c47da"]
+hydrocnhs = [] # Compatibility extra: the complete pinned source is now bundled.
+test = ["pytest>=8", "pytest-subtests"]
 
 [project.scripts]
 fe-walter-demo = "delaware_operations.cli:main"
 llm-reservoir-daily = "llm_reservoir_agent.experiment:main"
+reservoir-experiment = "llm_reservoir_agent.workflow:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.package-data]
+hydrocnhs = ["Config_logging.yaml"]
+
+[tool.setuptools.data-files]
+"share/llm-reservoir-agent/hydrocnhs" = ["third_party/hydrocnhs/LICENSE", "third_party/hydrocnhs/SOURCE.json", "third_party/hydrocnhs/upstream-pyproject.toml"]
