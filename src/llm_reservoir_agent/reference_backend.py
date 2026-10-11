@@ -16,7 +16,7 @@ from .dkp_adapter import DKPPolicyAdapter
 def validate_reference(spec, base, runtime_root):
     """Pin artifacts without imports, provider construction or file writes."""
     allowed = {"method", "profile", "responses", "prompt_storage", "hide_availability_line",
-               "dkp_no_missing_inputs", "zeroshot_knowledge", "dkp"}
+               "dkp_no_missing_inputs", "zeroshot_knowledge", "dkp", "system_prompt", "system_prompt_mode"}
     if not isinstance(spec, dict) or set(spec) - allowed:
         raise ValueError("reference requires known reference strategy settings")
     result = dict(spec)
@@ -33,6 +33,21 @@ def validate_reference(spec, base, runtime_root):
     if result["method"] == "dkp" and result["zeroshot_knowledge"] != "target":
         raise ValueError("wiki is a zero-shot condition only")
     pins = {}
+    result.setdefault("system_prompt_mode", "original")
+    if result["system_prompt_mode"] not in ("original", "custom"):
+        raise ValueError("system_prompt_mode must be original or custom")
+    if "system_prompt" in result:
+        value = result["system_prompt"]
+        if not isinstance(value, str) or not value.strip():
+            raise ValueError("system_prompt must be a nonempty file path")
+        p = (base / value).resolve()
+        blob = p.read_bytes()
+        if not blob.decode("utf-8").strip():
+            raise ValueError("system_prompt file must contain nonempty UTF-8 text")
+        result["system_prompt"] = str(p)
+        result["system_prompt_sha256"] = pins[str(p)] = hashlib.sha256(blob).hexdigest()
+    elif result["system_prompt_mode"] == "custom":
+        raise ValueError("custom system_prompt_mode requires a system_prompt file")
     manifest = Path(runtime_root) / "third_party/anik_v3_7/source_manifest.json"
     metadata = read_json(manifest)
     from delaware_operations.anik_adapter import _ANIK_SHA256
@@ -125,10 +140,29 @@ class ReferenceBackend(DKPPolicyAdapter):
         else:
             policy = sys.modules["dkp_llm_release"].DKPLLMPolicy(
                 **common, dkp_path=settings["dkp"], include_missing_inputs=not settings["dkp_no_missing_inputs"])
+        original_prompt_sha256 = policy._system_prompt_sha256
+        prompt_source_sha256 = None
+        if "system_prompt" in settings:
+            blob = Path(settings["system_prompt"]).read_bytes()
+            prompt_source_sha256 = hashlib.sha256(blob).hexdigest()
+            if prompt_source_sha256 != settings["system_prompt_sha256"]:
+                raise ValueError("system_prompt file changed after validation")
+            # Normalize platform line endings; source-byte and effective-text hashes
+            # remain separate so a Windows checkout can preserve the original text.
+            text = blob.decode("utf-8").replace("\r\n", "\n").replace("\r", "\n")
+            if settings.get("system_prompt_mode", "original") == "original" and text != policy._system_prompt:
+                raise ValueError("system_prompt differs from original builder; use system_prompt_mode: custom for a variant")
+            policy._system_prompt = text
+            policy._system_prompt_sha256 = hashlib.sha256(text.encode("utf-8")).hexdigest()
+        self._original_prompt_sha256 = original_prompt_sha256
         self._settings = dict(settings)
         self._source_hashes = {key: hashlib.sha256(Path(settings[key]).read_bytes()).hexdigest()
                                for key in ("responses", "dkp") if key in settings}
+        if prompt_source_sha256 is not None:
+            self._source_hashes["system_prompt"] = prompt_source_sha256
         self.policy_id = "reference_v3_7_" + settings["method"]
+        if settings.get("system_prompt_mode", "original") == "custom":
+            self.policy_id += "_custom_system"
         super().__init__(cfg, policy, consult_every_day=True)
 
     @property
@@ -138,8 +172,13 @@ class ReferenceBackend(DKPPolicyAdapter):
     def describe(self):
         return {"backend": "reference_v3_7", "method": self._settings["method"],
                 "data_kind": "synthetic_fixture", "model_used": False,
-                "prompt_strategy_id": self.policy_id, "prompt_version": "3.7",
+                "prompt_strategy_id": self.policy_id,
+                "prompt_version": "3.7+custom-system" if self._settings.get("system_prompt_mode") == "custom" else "3.7",
                 "prompt_sha256": self._policy._system_prompt_sha256,
+                "system_prompt_mode": self._settings.get("system_prompt_mode", "original"),
+                "system_prompt_source": "file" if "system_prompt" in self._settings else "original_builder",
+                "original_prompt_sha256": self._original_prompt_sha256,
+                "matches_original_system_prompt": self._policy._system_prompt_sha256 == self._original_prompt_sha256,
                 "reference_options": json_snapshot(self._settings),
                 "reference_source_sha256": dict(self._source_hashes),
                 "response_parser_id": "original-v3.7-cfs",
