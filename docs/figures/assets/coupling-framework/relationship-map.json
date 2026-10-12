@@ -1,145 +1,163 @@
 {
-  "scope": "Generic coupled hydrology/reservoir-operation framework; no case examples.",
+  "scope": "Generic HydroCNHS coupling: rule-based and LLM policies; optional knowledge, no reservoir-specific case.",
   "canvas": [
     1800,
-    1120
+    1160
   ],
   "nodes": [
     {
-      "id": "settings",
+      "id": "observation",
       "bounds": [
-        100,
-        270,
-        205,
-        185
+        85,
+        215,
+        330,
+        255
       ]
     },
     {
-      "id": "observation",
+      "id": "knowledge",
       "bounds": [
-        390,
-        290,
+        480,
+        215,
         240,
-        145
+        255
       ]
     },
     {
       "id": "policy",
       "bounds": [
-        735,
-        245,
-        300,
-        205
+        790,
+        215,
+        240,
+        255
       ]
     },
     {
       "id": "validation",
       "bounds": [
-        1130,
-        310,
-        230,
-        105
+        1115,
+        265,
+        220,
+        125
       ]
     },
     {
       "id": "stop",
       "bounds": [
-        1165,
-        455,
-        160,
-        52
+        1150,
+        445,
+        150,
+        55
       ]
     },
     {
       "id": "audit",
       "bounds": [
-        1460,
-        270,
-        200,
-        185
+        1405,
+        215,
+        280,
+        255
       ]
     },
     {
       "id": "runoff",
       "bounds": [
-        95,
-        755,
-        225,
-        215
+        75,
+        800,
+        250,
+        270
       ]
     },
     {
       "id": "upstream",
       "bounds": [
-        390,
-        755,
-        230,
-        215
+        380,
+        800,
+        270,
+        270
+      ]
+    },
+    {
+      "id": "rule-mode",
+      "bounds": [
+        730,
+        745,
+        225,
+        65
+      ]
+    },
+    {
+      "id": "llm-mode",
+      "bounds": [
+        1010,
+        745,
+        185,
+        65
       ]
     },
     {
       "id": "physics",
       "bounds": [
-        735,
-        745,
-        300,
-        250
+        760,
+        850,
+        370,
+        225
       ]
     },
     {
       "id": "downstream",
       "bounds": [
-        1130,
-        755,
-        230,
-        215
+        1230,
+        800,
+        270,
+        270
       ]
     },
     {
       "id": "river-flow",
       "bounds": [
-        1460,
-        800,
-        200,
-        125
+        1575,
+        887,
+        140,
+        95
       ]
     }
   ],
   "edges": [
     {
-      "id": "settings-policy",
-      "source": "settings",
+      "id": "observation-policy",
+      "source": "observation",
       "target": "policy",
       "exit": [
         0.5,
         0
       ],
       "entry": [
-        0.12,
+        0.5,
         0
       ],
       "via": [
         [
-          203,
-          235
+          250,
+          200
         ],
         [
-          771,
-          235
+          910,
+          200
         ]
       ]
     },
     {
-      "id": "observation-policy",
-      "source": "observation",
+      "id": "knowledge-policy",
+      "source": "knowledge",
       "target": "policy",
       "exit": [
         1,
-        0.48
+        0.5
       ],
       "entry": [
         0,
-        0.57
+        0.5
       ],
       "via": []
     },
@@ -149,11 +167,11 @@
       "target": "validation",
       "exit": [
         1,
-        0.57
+        0.44
       ],
       "entry": [
         0,
-        0.48
+        0.5
       ],
       "via": []
     },
@@ -172,31 +190,59 @@
       "via": []
     },
     {
-      "id": "valid-physics",
+      "id": "valid-llm-mode",
       "source": "validation",
+      "target": "llm-mode",
+      "exit": [
+        1,
+        0.75
+      ],
+      "entry": [
+        0.5,
+        0
+      ],
+      "via": [
+        [
+          1370,
+          359
+        ],
+        [
+          1370,
+          600
+        ],
+        [
+          1102.5,
+          600
+        ]
+      ]
+    },
+    {
+      "id": "rule-physics",
+      "source": "rule-mode",
       "target": "physics",
       "exit": [
-        0,
-        0.85
+        0.5,
+        1
+      ],
+      "entry": [
+        0.22,
+        0
+      ],
+      "via": []
+    },
+    {
+      "id": "llm-physics",
+      "source": "llm-mode",
+      "target": "physics",
+      "exit": [
+        0.5,
+        1
       ],
       "entry": [
         0.8,
         0
       ],
-      "via": [
-        [
-          1090,
-          399
-        ],
-        [
-          1090,
-          560
-        ],
-        [
-          975,
-          560
-        ]
-      ]
+      "via": []
     },
     {
       "id": "runoff-upstream",
@@ -222,7 +268,7 @@
       ],
       "entry": [
         0,
-        0.47
+        0.38
       ],
       "via": []
     },
@@ -232,7 +278,7 @@
       "target": "downstream",
       "exit": [
         1,
-        0.47
+        0.38
       ],
       "entry": [
         0,
@@ -263,35 +309,44 @@
         0
       ],
       "entry": [
-        0.5,
+        0.3,
         1
       ],
-      "via": []
+      "via": [
+        [
+          515,
+          590
+        ],
+        [
+          184,
+          590
+        ]
+      ]
     },
     {
       "id": "state-feedback",
       "source": "physics",
       "target": "observation",
       "exit": [
-        0.3,
-        0
+        0,
+        0.12
       ],
       "entry": [
-        1,
-        0.85
+        0.8,
+        1
       ],
       "via": [
         [
-          825,
-          610
+          695,
+          877
         ],
         [
-          670,
-          610
+          695,
+          640
         ],
         [
-          670,
-          414
+          349,
+          640
         ]
       ]
     },
@@ -300,7 +355,7 @@
       "source": "policy",
       "target": "audit",
       "exit": [
-        0.85,
+        0.75,
         0
       ],
       "entry": [
@@ -309,12 +364,12 @@
       ],
       "via": [
         [
-          990,
-          225
+          970,
+          200
         ],
         [
-          1560,
-          225
+          1545,
+          200
         ]
       ]
     },
@@ -323,37 +378,34 @@
       "source": "physics",
       "target": "audit",
       "exit": [
-        0.95,
-        0
+        1,
+        0.08
       ],
       "entry": [
-        0.25,
+        0.5,
         1
       ],
       "via": [
         [
-          1020,
-          720
+          1210,
+          868
         ],
         [
-          1410,
-          720
+          1210,
+          655
         ],
         [
-          1410,
-          485
-        ],
-        [
-          1510,
-          485
+          1545,
+          655
         ]
       ]
     }
   ],
   "responsibilities": {
-    "HydroCNHS": "Climate/catchment inputs, rainfall-runoff and configured river routing.",
-    "operation extension": "Observation, configurable decision policy and action validation.",
-    "reservoir physics": "Deterministic feasible release, spill, storage and water balance via Dam API.",
+    "HydroCNHS": "Native GWLF/ABCD rainfall-runoff, Lohmann routing and Dam coupling API.",
+    "LLM modules": "Daily prompt, optional knowledge/retrieval, LLM proposal and format/value checking.",
+    "policy alternatives": "The native Dam API accepts a user-defined rule policy or an added LLM policy; choose one per controlled reservoir.",
+    "reservoir physics": "Added shared deterministic solver: feasible release, spill, storage and water balance. Not a built-in native HydroCNHS reservoir solver.",
     "audit / trace": "Record decision and physical execution; never infer strategy acceptance from rendering."
   },
   "notes": [

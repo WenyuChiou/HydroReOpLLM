@@ -22,9 +22,9 @@ GRAY = "#7D8990"
 def build():
     document = ET.Element("mxfile", host="app.diagrams.net", version="26.0.4")
     diagram = ET.SubElement(document, "diagram", id="coupling-framework", name="Framework")
-    model = ET.SubElement(diagram, "mxGraphModel", dx="1800", dy="1120", grid="1",
+    model = ET.SubElement(diagram, "mxGraphModel", dx="1800", dy="1160", grid="1",
                           gridSize="10", page="1", pageScale="1", pageWidth="1800",
-                          pageHeight="1120", background="#FFFFFF", math="0", shadow="0")
+                          pageHeight="1160", background="#FFFFFF", math="0", shadow="0")
     root = ET.SubElement(model, "root")
     ET.SubElement(root, "mxCell", id="0")
     ET.SubElement(root, "mxCell", id="1", parent="0")
@@ -77,105 +77,110 @@ def build():
                             "exit": list(exit_xy), "entry": list(entry_xy),
                             "via": list(points)})
 
-    # Boundaries describe responsibility, not a separate simulation runtime.
-    frame("operations-boundary", 65, 160, 1645, 370, "#D6CDD5", "#FAF8FB")
-    frame("hydrocnhs-boundary", 65, 675, 1645, 340, "#BDD0DB", "#F4F8FA")
-    text("title", "Coupled hydrology & reservoir operations", 80, 35, 1640, 60, 44, True, align="left")
-    text("subtitle", "HydroCNHS + configurable operation modules", 80, 105, 1640, 35, 28, align="left")
-    text("operations-heading", "Reservoir operation extension", 95, 180, 760, 40, 30, True, align="left")
-    text("core-heading", "HydroCNHS · rainfall–runoff & river routing", 95, 687, 880, 38, 30, True, align="left")
+    # Native HydroCNHS hosts both policies; the physical solver is an addition.
+    frame("operations-boundary", 50, 130, 1700, 400, "#D6CDD5", "#FAF8FB")
+    frame("hydrocnhs-boundary", 50, 670, 1700, 440, "#BDD0DB", "#F4F8FA")
+    text("title", "HydroCNHS + LLM Reservoir Agent", 65, 30, 1680, 65, 46, True, align="left")
+    text("operations-heading", "LLM modules", 75, 150, 700, 45, 36, True, align="left")
+    text("core-heading", "HydroCNHS", 75, 687, 580, 45, 36, True, align="left")
+    text("api-heading", "Dam API", 730, 687, 320, 45, 36, True, align="left")
 
-    card("settings", 100, 270, 205, 185)
-    icon("settings-icon", "knowledge", 52, 0, 100, "settings")
-    text("settings-name", "Settings", 10, 102, 185, 40, 29, True, "settings")
-    text("settings-detail", "Policy context", 5, 145, 195, 32, 23, parent="settings")
-    card("observation", 390, 290, 240, 145)
-    text("observation-name", "Observation", 8, 12, 224, 43, 29, True, "observation")
-    text("observation-detail", "Daily inflow\nState · history", 8, 68, 224, 64, 24, parent="observation")
-    card("policy", 735, 245, 300, 205, "#F1EBF2", "#BAA9BE")
-    icon("policy-icon", "decision", 100, 3, 100, "policy")
-    text("policy-name", "Operation policy", 10, 110, 280, 40, 30, True, "policy")
-    text("policy-detail", "LLM / custom controller", 5, 158, 290, 32, 24, parent="policy")
-    card("validation", 1130, 310, 230, 105)
-    text("validation-name", "Validate action", 8, 10, 214, 38, 29, True, "validation")
-    text("validation-detail", "Schema · values", 8, 59, 214, 34, 24, parent="validation")
-    card("stop", 1165, 455, 160, 52, "#F8EEE8", "#B58A70")
-    text("stop-name", "Stop", 5, 2, 150, 46, 27, True, "stop")
-    card("audit", 1460, 270, 200, 185, "#EFF5F0", "#ADC3B2")
-    icon("audit-icon", "audit", 50, 0, 100, "audit")
-    text("audit-name", "Audit / trace", 5, 108, 190, 45, 28, True, "audit")
+    card("observation", 85, 215, 330, 255)
+    text("observation-name", "Daily prompt", 10, 18, 310, 48, 34, True, "observation")
+    text("observation-detail", "Date · inflow\nStorage / water level\nPast executed releases", 12, 92, 306, 130, 30, parent="observation")
+    card("knowledge", 480, 215, 240, 255)
+    icon("knowledge-icon", "knowledge", 30, 0, 180, "knowledge")
+    text("knowledge-name", "Knowledge", 5, 177, 230, 40, 34, True, "knowledge")
+    text("knowledge-detail", "Optional · e.g. DKP", 5, 219, 230, 30, 26, parent="knowledge")
+    card("policy", 790, 215, 240, 255, "#F1EBF2", "#BAA9BE")
+    icon("policy-icon", "decision", 30, 0, 180, "policy")
+    text("policy-name", "LLM decision", 5, 188, 230, 48, 34, True, "policy")
+    card("validation", 1115, 265, 220, 125)
+    text("validation-name", "Checker", 5, 15, 210, 44, 34, True, "validation")
+    text("validation-detail", "Format · values", 5, 73, 210, 35, 28, parent="validation")
+    card("stop", 1150, 445, 150, 55, "#F8EEE8", "#B58A70")
+    text("stop-name", "Stop", 5, 3, 140, 46, 32, True, "stop")
+    card("audit", 1405, 215, 280, 255, "#EFF5F0", "#ADC3B2")
+    icon("audit-icon", "audit", 50, 0, 180, "audit")
+    text("audit-name", "Audit / trace", 5, 188, 270, 48, 34, True, "audit")
 
-    card("runoff", 95, 755, 225, 215)
-    icon("runoff-icon", "hydrology", 58, 0, 110, "runoff")
-    text("runoff-name", "Rainfall–runoff", 5, 113, 215, 45, 29, True, "runoff")
-    text("runoff-detail", "Climate · catchment", 5, 166, 215, 35, 23, parent="runoff")
-    card("upstream", 390, 755, 230, 215)
-    icon("upstream-icon", "routing", 60, 0, 110, "upstream")
-    text("upstream-name", "Upstream\nrouting", 5, 118, 220, 65, 29, True, "upstream")
-    card("physics", 735, 745, 300, 250, "#FAF3E7", "#C5AA78")
-    icon("physics-icon", "reservoir", 95, 0, 110, "physics")
-    text("physics-name", "Reservoir physics", 5, 105, 290, 43, 30, True, "physics")
-    text("physics-detail", "Limits · storage · spill\nWater balance", 5, 150, 290, 62, 24, parent="physics")
-    text("physics-api", "Added solver · Dam API", 5, 220, 290, 25, 22, parent="physics", color="#7D6C46")
-    card("downstream", 1130, 755, 230, 215)
-    icon("downstream-icon", "routing", 60, 0, 110, "downstream")
-    text("downstream-name", "Downstream\nrouting", 5, 118, 220, 65, 29, True, "downstream")
-    card("river-flow", 1460, 800, 200, 125)
-    text("river-flow-name", "River flow", 5, 30, 190, 60, 32, True, "river-flow")
-    text("network-label", "Configured river network", 1360, 687, 320, 38, 23, align="right", color=BLUE)
+    card("runoff", 75, 800, 250, 270)
+    icon("runoff-icon", "hydrology", 35, 0, 180, "runoff")
+    text("runoff-name", "Rainfall–runoff", 5, 178, 240, 45, 32, True, "runoff")
+    text("runoff-detail", "GWLF / ABCD", 5, 225, 240, 38, 32, parent="runoff")
+    card("upstream", 380, 800, 270, 270)
+    icon("upstream-icon", "routing", 45, 0, 180, "upstream")
+    text("upstream-name", "Upstream routing", 5, 178, 260, 45, 30, True, "upstream")
+    text("upstream-detail", "Lohmann", 5, 225, 260, 38, 32, parent="upstream")
+    card("rule-mode", 730, 745, 225, 65)
+    text("rule-mode-name", "Rule-based", 5, 8, 215, 48, 34, True, "rule-mode")
+    card("llm-mode", 1010, 745, 185, 65, "#F1EBF2", "#BAA9BE")
+    text("llm-mode-name", "LLM", 5, 8, 175, 48, 34, True, "llm-mode")
+    card("physics", 760, 850, 370, 225, "#FAF3E7", "#C5AA78")
+    icon("physics-icon", "reservoir", 2, 4, 180, "physics")
+    text("physics-name", "Reservoir", 184, 15, 178, 45, 34, True, "physics")
+    text("physics-detail", "Limits\nStorage · spill", 181, 82, 184, 80, 28, parent="physics")
+    text("physics-api", "Added solver · water balance", 5, 181, 360, 37, 27, parent="physics", color="#7D6C46")
+    card("downstream", 1230, 800, 270, 270)
+    icon("downstream-icon", "routing", 45, 0, 180, "downstream")
+    text("downstream-name", "Downstream\nrouting", 5, 176, 260, 60, 30, True, "downstream")
+    text("downstream-detail", "Lohmann", 5, 236, 260, 32, 32, parent="downstream")
+    card("river-flow", 1575, 887, 140, 95)
+    text("river-flow-name", "River\nflow", 5, 5, 130, 85, 34, True, "river-flow")
 
-    edge("settings-policy", "settings", "policy", PLUM, (0.5, 0), (0.12, 0),
-         [(203, 235), (771, 235)], dotted=True, width=2.5)
-    text("settings-policy-label", "Policy settings", 405, 240, 210, 30, 22, color=PLUM)
-    edge("observation-policy", "observation", "policy", PLUM, (1, 0.48), (0, 0.57), dashed=True)
-    edge("policy-validation", "policy", "validation", PLUM, (1, 0.57), (0, 0.48), dashed=True)
-    text("request-label", "Requested\nrelease", 1005, 263, 175, 55, 22, color=PLUM)
+    edge("observation-policy", "observation", "policy", PLUM, (0.5, 0), (0.5, 0),
+         [(250, 200), (910, 200)], dashed=True)
+    edge("knowledge-policy", "knowledge", "policy", GRAY, (1, 0.5), (0, 0.5), dotted=True)
+    edge("policy-validation", "policy", "validation", PLUM, (1, 0.44), (0, 0.5), dashed=True)
     edge("invalid-stop", "validation", "stop", "#A27C64", (0.5, 1), (0.5, 0), width=2.5)
-    text("invalid-label", "Invalid", 1255, 420, 110, 28, 22, color="#916D58")
-    edge("valid-physics", "validation", "physics", PLUM, (0, 0.85), (0.8, 0),
-         [(1090, 399), (1090, 560), (975, 560)], dashed=True)
-    text("valid-label", "Valid release", 1110, 549, 185, 32, 23, color=PLUM)
+    text("invalid-label", "Invalid", 1250, 402, 100, 35, 28, color="#916D58")
+    edge("valid-llm-mode", "validation", "llm-mode", PLUM, (1, 0.75), (0.5, 0),
+         [(1370, 359), (1370, 600), (1102.5, 600)], dashed=True)
+    text("valid-label", "Valid release", 1120, 552, 230, 42, 30, color=PLUM)
+    edge("rule-physics", "rule-mode", "physics", PLUM, (0.5, 1), (0.22, 0), dashed=True)
+    edge("llm-physics", "llm-mode", "physics", PLUM, (0.5, 1), (0.8, 0), dashed=True)
     edge("runoff-upstream", "runoff", "upstream", BLUE, (1, 0.5), (0, 0.5), width=4)
-    edge("upstream-physics", "upstream", "physics", BLUE, (1, 0.5), (0, 0.47), width=4)
-    edge("physics-downstream", "physics", "downstream", BLUE, (1, 0.47), (0, 0.5), width=4)
-    text("outflow-label", "Release\n+ spill", 1039, 888, 87, 65, 22, color=BLUE)
+    edge("upstream-physics", "upstream", "physics", BLUE, (1, 0.5), (0, 0.38), width=4)
+    edge("physics-downstream", "physics", "downstream", BLUE, (1, 0.38), (0, 0.5), width=4)
+    text("outflow-label", "Release\n+ spill", 1129, 990, 100, 72, 27, color=BLUE)
     edge("downstream-river", "downstream", "river-flow", BLUE, (1, 0.5), (0, 0.5), width=4)
-    edge("inflow-observation", "upstream", "observation", GRAY, (0.5, 0), (0.5, 1), dotted=True, width=2.5)
-    text("inflow-label", "Routed inflow", 350, 546, 190, 28, 23, color=GRAY)
-    edge("state-feedback", "physics", "observation", GREEN, (0.3, 0), (1, 0.85),
-         [(825, 610), (670, 610), (670, 414)], dashed=True, width=3)
-    text("state-label", "Next-day state\nExecuted history", 620, 615, 190, 48, 22, color=GREEN)
-    edge("decision-record", "policy", "audit", GRAY, (0.85, 0), (0.5, 0),
-         [(990, 225), (1560, 225)], dotted=True, width=2.5)
-    text("decision-record-label", "Decision record", 1170, 233, 220, 30, 22, color=GRAY)
-    edge("execution-record", "physics", "audit", GRAY, (0.95, 0), (0.25, 1),
-         [(1020, 720), (1410, 720), (1410, 485), (1510, 485)], dotted=True, width=2.5)
-    text("execution-record-label", "Execution record", 1160, 670, 235, 30, 22, color=GRAY)
+    edge("inflow-observation", "upstream", "observation", GRAY, (0.5, 0), (0.3, 1),
+         [(515, 590), (184, 590)], dotted=True, width=2.5)
+    text("inflow-label", "Daily inflow", 160, 540, 260, 42, 30, color=GRAY)
+    edge("state-feedback", "physics", "observation", GREEN, (0, 0.12), (0.8, 1),
+         [(695, 877), (695, 640), (349, 640)], dashed=True, width=3)
+    text("state-label", "State + executed history", 560, 592, 500, 42, 30, color=GREEN)
+    edge("decision-record", "policy", "audit", GRAY, (0.75, 0), (0.5, 0),
+         [(970, 200), (1545, 200)], dotted=True, width=2.5)
+    edge("execution-record", "physics", "audit", GRAY, (1, 0.08), (0.5, 1),
+         [(1210, 868), (1210, 655), (1545, 655)], dotted=True, width=2.5)
+    text("execution-record-label", "Execution\nrecord", 1580, 570, 150, 80, 28, color=GRAY)
 
     # Compact legend; colors also have names, line styles and endpoint labels.
     for index, (name, color, dash) in enumerate([
         ("Water flow", BLUE, ""), ("Decision", PLUM, "8 5"),
         ("State feedback", GREEN, "8 5"), ("Data / records", GRAY, "1 5")
     ]):
-        x = 190 + index * 370
+        x = 150 + index * 400
         cell = ET.SubElement(root, "mxCell", id=f"legend-{index}", style=
                              f"strokeColor={color};strokeWidth=3;endArrow=block;endFill=1;"
                              + (f"dashed=1;dashPattern={dash};" if dash else ""),
                              edge="1", parent="1")
         geo = ET.SubElement(cell, "mxGeometry", relative="1", **{"as": "geometry"})
-        ET.SubElement(geo, "mxPoint", x=str(x), y="1070", **{"as": "sourcePoint"})
-        ET.SubElement(geo, "mxPoint", x=str(x+75), y="1070", **{"as": "targetPoint"})
-        text(f"legend-label-{index}", name, x+88, 1048, 245, 44, 25, align="left")
+        ET.SubElement(geo, "mxPoint", x=str(x), y="1137", **{"as": "sourcePoint"})
+        ET.SubElement(geo, "mxPoint", x=str(x+65), y="1137", **{"as": "targetPoint"})
+        text(f"legend-label-{index}", name, x+78, 1117, 295, 40, 28, align="left")
 
     ET.indent(document)
     OUTPUT.write_bytes(ET.tostring(document, encoding="utf-8", xml_declaration=True))
     (ASSETS / "relationship-map.json").write_text(json.dumps({
-        "scope": "Generic coupled hydrology/reservoir-operation framework; no case examples.",
-        "canvas": [1800, 1120], "nodes": nodes, "edges": connections,
+        "scope": "Generic HydroCNHS coupling: rule-based and LLM policies; optional knowledge, no reservoir-specific case.",
+        "canvas": [1800, 1160], "nodes": nodes, "edges": connections,
         "responsibilities": {
-            "HydroCNHS": "Climate/catchment inputs, rainfall-runoff and configured river routing.",
-            "operation extension": "Observation, configurable decision policy and action validation.",
-            "reservoir physics": "Deterministic feasible release, spill, storage and water balance via Dam API.",
+            "HydroCNHS": "Native GWLF/ABCD rainfall-runoff, Lohmann routing and Dam coupling API.",
+            "LLM modules": "Daily prompt, optional knowledge/retrieval, LLM proposal and format/value checking.",
+            "policy alternatives": "The native Dam API accepts a user-defined rule policy or an added LLM policy; choose one per controlled reservoir.",
+            "reservoir physics": "Added shared deterministic solver: feasible release, spill, storage and water balance. Not a built-in native HydroCNHS reservoir solver.",
             "audit / trace": "Record decision and physical execution; never infer strategy acceptance from rendering."
         },
         "notes": ["Invalid actions stop before storage changes.",
