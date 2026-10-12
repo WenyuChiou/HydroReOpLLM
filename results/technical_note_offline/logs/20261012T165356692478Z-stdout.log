@@ -1,0 +1,75 @@
+{
+  "preset": "multi-locale-mirror-sync",
+  "pairs": [
+    {
+      "files": [
+        "README.md",
+        "README.zh-TW.md"
+      ],
+      "structural_checks": "PASS",
+      "sha256": [
+        "493a0d2fb5b39b6d2557f0cfc533a172da52e101888997db7a0828a913614484",
+        "116d85037afb5da9e88692ccba7c068c449fc93abb10f38b4ba30a2636676f6b"
+      ]
+    },
+    {
+      "files": [
+        "tutorials/README.md",
+        "tutorials/README.zh-TW.md"
+      ],
+      "structural_checks": "PASS",
+      "sha256": [
+        "d1cc284d787246dbbb746fc3dbfde8d9fb2a1a7322efd3f6f8394fbc6d0d2b2f",
+        "6da7904892ff7b51dcbac1de59c0943da7412e6b89e04d69a03695338ea7dffc"
+      ]
+    },
+    {
+      "files": [
+        "docs/USER_GUIDE.md",
+        "docs/USER_GUIDE.zh-TW.md"
+      ],
+      "structural_checks": "PASS",
+      "sha256": [
+        "0cdfb801e800d5da1f606d862dc7779dbc40bb3ea691ed41775993428b5544e3",
+        "1b1862e0fc2e68f5c94cf69ae81dc77a1e49da686e15b81815c697950970a34a"
+      ]
+    },
+    {
+      "files": [
+        "examples/fe_walter/benchmark/README.md",
+        "examples/fe_walter/benchmark/README.zh-TW.md"
+      ],
+      "structural_checks": "PASS",
+      "sha256": [
+        "955878abe8247850e4fd0a33b8c08fa21a331e6038b08a1c2bb3c71f1e9175e8",
+        "0596300fd48b2240095c2845d0724b89ff5ca446655ddc83378a7ef46819ac4e"
+      ]
+    },
+    {
+      "files": [
+        "examples/fe_walter/zero_shot/README.md",
+        "examples/fe_walter/zero_shot/README.zh-TW.md"
+      ],
+      "structural_checks": "PASS",
+      "sha256": [
+        "53eb3b108625ac9d2908edae7b3f2cabaffc175d255bfaadbbb037d70f1c6e75",
+        "f2ae035e53f4dc37c46e7ae62a5b5207c249adaf89eef81eac56af1dfb715014"
+      ]
+    },
+    {
+      "files": [
+        "examples/fe_walter/dkp/README.md",
+        "examples/fe_walter/dkp/README.zh-TW.md"
+      ],
+      "structural_checks": "PASS",
+      "sha256": [
+        "b95f4403121cd516efac717c1c755d365d5867bd3d09c028364980a602a85db2",
+        "ff2f64e30360d21b12625a0ac916577c718d27117c7e84d0113fe75cc80ea89a"
+      ]
+    }
+  ],
+  "relative_links_checked": 202,
+  "mermaid": "not applicable: no Mermaid diagrams in these mirrors",
+  "anchors": "not applicable: no local heading anchors in these mirrors",
+  "semantic_review": "Parent inspected responsibility/acceptance/network/profile claims in current mirrors; independent reviewer must inspect them too. Counts alone do not establish semantic parity."
+}

@@ -1,0 +1,29 @@
+4:Author names, affiliations, acknowledgments and submission formatting remain to be confirmed.
+14:share the same observation and action contracts: a Hanasaki-based flood-control
+19:of each method, and a 31-day network with two controlled reservoirs and a passive
+20:outlet. The network's maximum absolute daily system water-balance residual was
+39:operating knowledge. That proposal must be distinguished from a physical state
+41:Separating these responsibilities also makes a comparison with deterministic
+64:unit to each controlled reservoir; passive outlets use their rating relationships
+77:Implemented controlled release and spill are injected once into downstream
+86:starts with meteorological forcing first uses the native HydroCNHS model setup
+88:Already routed reservoir inflow must not be introduced again as additional local
+97:The benchmark is a daily adaptation of the non-irrigation, flood-control branch
+99:Abeshu et al. (2023, Eq. 4). It serves as a reproducible decision baseline, not as
+100:an official Francis E. Walter operating policy or a reservoir controller built
+117:requirement. The common solver still determines feasible release. Monthly
+118:historical means select the first wet-to-dry transition as the operating-year
+124:factor. This period precedes the 2016 demonstration and is a benchmark climatology,
+126:the reference program's separate simulation driver and physical model were not
+143:reservoir must supply its own profile, level–storage relationship, operating
+149:the demonstrations reported here.
+151:## FE Walter demonstration and verification
+156:model units comprise two donor, three spatial-transfer diagnostic and two residual
+160:for this software demonstration.
+166:controlled reservoirs and Prompton as a passive outlet. FE Walter and Beltzville
+178:original FE rendering and cross-reservoir isolation. Independent saved-output
+182:| Example | Duration | Maximum absolute reservoir residual (m³) | Maximum absolute system residual (m³) | Routing reconstruction difference (m³/s) | Model calls |
+187:| Two controlled reservoirs + passive Prompton | 31 days / 93 reservoir-days | 3.03 × 10⁻⁹ | 3.73 × 10⁻⁹ | 0 | 0 |
+195:62 PASS records for controlled decisions and 31 UNKNOWN records for passive
+213:Fixed upstream forcing limits the present demonstrations to operation and routing
+273:records rather than acting as a replacement controller.

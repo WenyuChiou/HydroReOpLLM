@@ -1,0 +1,38 @@
+{
+  "snapshot": "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\HydroCNHS-Delaware-Operations\\runs\\hydrocnhs-llm-concept-20261011\\clean-upgrade-99ea43e42a",
+  "python": "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\HydroCNHS-Delaware-Operations\\runs\\hydrocnhs-llm-concept-20261011\\clean-upgrade-99ea43e42a\\.venv\\Scripts\\python.exe",
+  "source_files": 908,
+  "environment": "new venv and fresh editable install; scientific and bundled build dependencies reused through .pth paths",
+  "network": "PIP_NO_INDEX=1; provider requests forbidden in tutorial",
+  "commands": [
+    [
+      "-m",
+      "pip",
+      "install",
+      "--no-deps",
+      "--no-build-isolation",
+      "--no-index",
+      "--no-cache-dir",
+      "-e",
+      "."
+    ],
+    [
+      "-c",
+      "import sys,hydrocnhs,llm_reservoir_agent,importlib.metadata as m; from pathlib import Path; root=Path.cwd(); assert root in Path(hydrocnhs.__file__).parents; assert root in Path(llm_reservoir_agent.__file__).parents; print('PYTHON',sys.version);print('IMPORTED_CORE',hydrocnhs.__file__);print('IMPORTED_AGENT',llm_reservoir_agent.__file__); print('DEPENDENCIES',{n:m.version(n) for n in ['numpy','pandas','scipy','matplotlib','PyYAML','deap','pytest']})"
+    ],
+    [
+      "tutorials/build_notebooks.py",
+      "--execute"
+    ]
+  ],
+  "notebooks": {
+    "00_overview.ipynb": "81b841407b011aadcb3a6df5f613a402807cc2ec9732d9eb340aba95908f48af",
+    "01_input_and_map.ipynb": "b26397e84843324d1958ebdad4c82e0f8b6dacc4897a728ac2cb39a0d67d951b",
+    "02_yaml.ipynb": "2819fefaf6289945b789b292da23e84a233e8418bad7831306c5744d394fd122",
+    "03_benchmark.ipynb": "cafc487be96a4508877d889a47006eba1685c0e6e7311707f29992f1af2aef20",
+    "04_zero_shot.ipynb": "f9e6a07fbff2f0801a8655cbb0a5321ec832ee87eed2e2dc12444edcf48a56e9",
+    "05_dkp.ipynb": "9617907dd81f0dedba1cc86a320e36f7cbddeeab0297634bdd1fbd7fc57d064b",
+    "06_audit_trace.ipynb": "d52750034e0c1da0bea7c32371da4c1cd01fc725d7e96679d3aec6848157016a",
+    "07_multi_and_custom.ipynb": "2fabc6f1386b6987619cce111dfebad46a26a1ffd9fec325b64d6d1b3218c722"
+  }
+}

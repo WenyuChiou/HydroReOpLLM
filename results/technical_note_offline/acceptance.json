@@ -1,0 +1,247 @@
+{
+  "schema_version": "hydrocnhs-upgrade-offline.v1",
+  "scope": "software verification; synthetic replies do not establish policy performance",
+  "runs": {
+    "fe-walter-benchmark-tutorial": {
+      "status": "PASS",
+      "days": 3,
+      "reservoir_count": 1,
+      "reservoir_days": 3,
+      "date_start": "2016-01-01",
+      "date_end": "2016-01-03",
+      "audit_counts": {
+        "PASS": 3
+      },
+      "max_reservoir_balance_residual_m3": 2.3283064365386963e-10,
+      "max_system_balance_residual_m3": 2.3283064365386963e-10,
+      "max_routing_difference_cms": 0.0,
+      "final_channel_storage_m3": 0.0,
+      "observed_network_calls": 0,
+      "operating_strategy_accepted": null,
+      "audit_binding_counts": {
+        "versioned_suite": 3,
+        "legacy_unbound": 0
+      },
+      "external_audit_pins_checked": []
+    },
+    "fe-walter-tutorial-zeroshot": {
+      "status": "PASS",
+      "days": 3,
+      "reservoir_count": 1,
+      "reservoir_days": 3,
+      "date_start": "2016-01-01",
+      "date_end": "2016-01-03",
+      "audit_counts": {
+        "PASS": 3
+      },
+      "max_reservoir_balance_residual_m3": 0.0,
+      "max_system_balance_residual_m3": 0.0,
+      "max_routing_difference_cms": 0.0,
+      "final_channel_storage_m3": 0.0,
+      "observed_network_calls": 0,
+      "operating_strategy_accepted": null,
+      "audit_binding_counts": {
+        "versioned_suite": 3,
+        "legacy_unbound": 0
+      },
+      "external_audit_pins_checked": []
+    },
+    "fe-walter-tutorial-dkp": {
+      "status": "PASS",
+      "days": 3,
+      "reservoir_count": 1,
+      "reservoir_days": 3,
+      "date_start": "2016-01-01",
+      "date_end": "2016-01-03",
+      "audit_counts": {
+        "PASS": 3
+      },
+      "max_reservoir_balance_residual_m3": 0.0,
+      "max_system_balance_residual_m3": 0.0,
+      "max_routing_difference_cms": 0.0,
+      "final_channel_storage_m3": 0.0,
+      "observed_network_calls": 0,
+      "operating_strategy_accepted": null,
+      "audit_binding_counts": {
+        "versioned_suite": 3,
+        "legacy_unbound": 0
+      },
+      "external_audit_pins_checked": []
+    },
+    "three-reservoir-tutorial-31d": {
+      "status": "PASS",
+      "days": 31,
+      "reservoir_count": 3,
+      "reservoir_days": 93,
+      "date_start": "2016-01-01",
+      "date_end": "2016-01-31",
+      "audit_counts": {
+        "PASS": 62,
+        "UNKNOWN": 31
+      },
+      "max_reservoir_balance_residual_m3": 3.026798367500305e-09,
+      "max_system_balance_residual_m3": 3.725290298461914e-09,
+      "max_routing_difference_cms": 0.0,
+      "final_channel_storage_m3": 0.0,
+      "observed_network_calls": 0,
+      "operating_strategy_accepted": null,
+      "audit_binding_counts": {
+        "versioned_suite": 62,
+        "legacy_unbound": 31
+      },
+      "external_audit_pins_checked": []
+    }
+  },
+  "preserved_existing_files": 691,
+  "model_calls": 0,
+  "operating_strategy_accepted": null,
+  "clean_environment": "new venv and fresh editable install; scientific and bundled build dependencies reused through .pth paths",
+  "notebook_execution": "23 pure-Python cells in eight notebooks; not a Jupyter-kernel test",
+  "run_bundle_sha256": "72db67d4941c1344d365d200b6dc31ae204a04f34d98a9220cb0eb03899d9f28",
+  "run_file_count": 221,
+  "validation_commands": [
+    {
+      "command_argv": [
+        "C:/Users/wenyu/Documents/LLM Rervoir/HydroCNHS/llm_integration_review/.venv/Scripts/python.exe",
+        "-m",
+        "pytest",
+        "tests",
+        "-q",
+        "--tb=short"
+      ],
+      "python_capture_runtime": "3.13.11",
+      "exit_code": 0,
+      "current_test_counts": null,
+      "stdout": {
+        "path": "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\HydroCNHS-Delaware-Operations\\runs\\hydrocnhs-llm-concept-20261011\\20261012T154424772751Z-stdout.log",
+        "bytes": 575,
+        "sha256": "3ec1efbb79579486d7c9afc37e4b469b1f7e588c90db941094015681a4e23446"
+      },
+      "stderr": {
+        "path": "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\HydroCNHS-Delaware-Operations\\runs\\hydrocnhs-llm-concept-20261011\\20261012T154424772751Z-stderr.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "created_at_utc": "2026-10-12T15:44:24.780223+00:00"
+    },
+    {
+      "command_argv": [
+        "C:/Users/wenyu/Documents/LLM Rervoir/HydroCNHS/llm_integration_review/.venv/Scripts/python.exe",
+        "-m",
+        "pytest",
+        "tests/test_daily_inputs.py",
+        "tests/test_reference_workflow.py",
+        "tests/test_reference_live.py",
+        "-q",
+        "--tb=short"
+      ],
+      "python_capture_runtime": "3.13.11",
+      "exit_code": 0,
+      "current_test_counts": null,
+      "stdout": {
+        "path": "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\HydroCNHS-Delaware-Operations\\runs\\hydrocnhs-llm-concept-20261011\\20261012T155702100890Z-stdout.log",
+        "bytes": 152,
+        "sha256": "f9db87bc16c8787b2d25e9512f87fede0650bf9af5e86f7fb2a76d0d576c66a5"
+      },
+      "stderr": {
+        "path": "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\HydroCNHS-Delaware-Operations\\runs\\hydrocnhs-llm-concept-20261011\\20261012T155702100890Z-stderr.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "created_at_utc": "2026-10-12T15:57:02.113534+00:00"
+    },
+    {
+      "command_argv": [
+        "C:/Users/wenyu/Documents/LLM Rervoir/HydroCNHS/llm_integration_review/.venv/Scripts/python.exe",
+        "C:/Users/wenyu/Documents/LLM Rervoir/HydroCNHS-Delaware-Operations/runs/hydrocnhs-llm-concept-20261011/clean_upgrade.py"
+      ],
+      "python_capture_runtime": "3.13.11",
+      "exit_code": 0,
+      "current_test_counts": null,
+      "stdout": {
+        "path": "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\HydroCNHS-Delaware-Operations\\runs\\hydrocnhs-llm-concept-20261011\\20261012T162123303933Z-stdout.log",
+        "bytes": 5941,
+        "sha256": "5a35eea79bbed617537a742738d5e9befe9d565650f7e354869d7b2ed58bb1b2"
+      },
+      "stderr": {
+        "path": "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\HydroCNHS-Delaware-Operations\\runs\\hydrocnhs-llm-concept-20261011\\20261012T162123303933Z-stderr.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "created_at_utc": "2026-10-12T16:21:23.314847+00:00"
+    },
+    {
+      "command_argv": [
+        "C:/Users/wenyu/Documents/LLM Rervoir/HydroCNHS-Delaware-Demo/.venv/Scripts/python.exe",
+        "-c",
+        "import json; from pathlib import Path; verifier=Path(\"runs/hydrocnhs-llm-concept-20261011/20261012T155433629623Z-command.json\"); record=json.loads(verifier.read_text(encoding=\"utf-8\")); exec(record[\"command_argv\"][-1]); assert data[\"subbasins\"]==data[\"layers\"][\"model_units\"]; assert data[\"generator_sha256\"]==hashlib.sha256((root/\"docs/figures/source/extract_fe_map.py\").read_bytes()).hexdigest(); print(\"SUBBASINS_INTERFACE\",len(data[\"subbasins\"]),\"GeneratorSHA256 matched; re-executed verifier\",str(verifier))"
+      ],
+      "python_capture_runtime": "3.13.11",
+      "exit_code": 0,
+      "current_test_counts": null,
+      "stdout": {
+        "path": "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\HydroCNHS-Delaware-Operations\\runs\\hydrocnhs-llm-concept-20261011\\20261012T155537846792Z-stdout.log",
+        "bytes": 1049,
+        "sha256": "f25cfc49067b09706b7d3a2068a9cb121eacfd91c456753cd7250d26f0eecd46"
+      },
+      "stderr": {
+        "path": "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\HydroCNHS-Delaware-Operations\\runs\\hydrocnhs-llm-concept-20261011\\20261012T155537846792Z-stderr.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "created_at_utc": "2026-10-12T15:55:37.861023+00:00"
+    },
+    {
+      "command_argv": [
+        "C:/Users/wenyu/.codex/portable-harness/.venv/Scripts/python.exe",
+        "C:/Users/wenyu/Documents/LLM Rervoir/HydroCNHS-Delaware-Operations/runs/fe-anik-dkp-daily-2016-2020-temp0.7-20261010/figures/widget-logs/read_file.py",
+        "C:/Users/wenyu/Documents/LLM Rervoir/HydroCNHS-Delaware-Operations/paper/technical_note.md",
+        "1",
+        "600"
+      ],
+      "python_capture_runtime": "3.13.11",
+      "exit_code": 0,
+      "current_test_counts": null,
+      "stdout": {
+        "path": "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\HydroCNHS-Delaware-Operations\\runs\\hydrocnhs-llm-concept-20261011\\20261012T162208616731Z-stdout.log",
+        "bytes": 18623,
+        "sha256": "3ef103ea965cc29a8fc9f386d54bf8a862b4c6fff494344a1575ff14fc0359b0"
+      },
+      "stderr": {
+        "path": "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\HydroCNHS-Delaware-Operations\\runs\\hydrocnhs-llm-concept-20261011\\20261012T162208616731Z-stderr.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "created_at_utc": "2026-10-12T16:22:08.625512+00:00"
+    },
+    {
+      "command_argv": [
+        "rg",
+        "-n",
+        "-i",
+        "\\b(delv\\w*|utiliz\\w*|leverag\\w*|harness\\w*|navigat\\w*|foster\\w*|showcas\\w*|underscor\\w*|bolster\\w*|garner\\w*|embark\\w*|unpack\\w*|endeavo\\w*|elucidat\\w*|substantiat\\w*|facilitat\\w*|exemplif\\w*|conflat\\w*|entail\\w*|attain\\w*|reproduc\\w*|misread\\w*|collaps\\w*|crucial\\w*|pivotal|intricate|meticulous\\w*|vibrant|robust\\w*|nuanced|multifaceted|comprehensive|paramount|imperative|indispensable|noteworthy|novel\\w*|innovative|holistic|seamless|substant\\w*|major|dramatic\\w*|significant\\w*|undeniably|remarkably|notably|importantly|ultimately|markedly|considerably|essentially|fundamentally|inherently|particularly|specifically|effectively|largely|broadly|generally|relatively|arguably|tapestry|landscape|beacon|realm|interplay|synergy|testament|paradigm|cornerstone|furthermore|moreover|additionally|together|confirm\\w*|prov(e|es|ed|ing)|demonstrat\\w*|determin\\w*|control\\w*|ensure\\w*|eliminat\\w*|driv\\w*|explain\\w*|preferentially|systematic\\w*|selectively|residual|isolat\\w*|hard-coded|must|necessarily|invariably|decays|governs|reverses|flips|first|tenure)\\b|filter tightens|removed from the denominator|absorbs the signal|at the forefront|moving forward|sheds light|in conclusion|in summary|to that end|in light of this|as discussed above|with that said|building on|this (ensures|enables|allows)",
+        "C:/Users/wenyu/Documents/LLM Rervoir/HydroCNHS-Delaware-Operations/paper/technical_note.md"
+      ],
+      "python_capture_runtime": "3.13.11",
+      "exit_code": 0,
+      "current_test_counts": null,
+      "stdout": {
+        "path": "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\HydroCNHS-Delaware-Operations\\runs\\hydrocnhs-llm-concept-20261011\\20261012T162247445539Z-stdout.log",
+        "bytes": 2405,
+        "sha256": "e3b1dd823963f4a780fe170c74f29fd06b58e13a802dfdbc5023823d01d104ad"
+      },
+      "stderr": {
+        "path": "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\HydroCNHS-Delaware-Operations\\runs\\hydrocnhs-llm-concept-20261011\\20261012T162247445539Z-stderr.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "created_at_utc": "2026-10-12T16:22:47.453396+00:00"
+    }
+  ],
+  "language_audit": {
+    "candidate_sha256": "51e6ec72b46a8ed03053ace4bd05de0627bb764ad53b7939ceae29b99ee12174",
+    "critical": 0,
+    "warning": 0,
+    "final_change": "Two line-wrap joins only; no vocabulary or claim changes."
+  }
+}

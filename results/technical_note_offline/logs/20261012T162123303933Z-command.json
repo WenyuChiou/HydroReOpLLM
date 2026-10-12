@@ -1,0 +1,20 @@
+{
+  "command_argv": [
+    "C:/Users/wenyu/Documents/LLM Rervoir/HydroCNHS/llm_integration_review/.venv/Scripts/python.exe",
+    "C:/Users/wenyu/Documents/LLM Rervoir/HydroCNHS-Delaware-Operations/runs/hydrocnhs-llm-concept-20261011/clean_upgrade.py"
+  ],
+  "python_capture_runtime": "3.13.11",
+  "exit_code": 0,
+  "current_test_counts": null,
+  "stdout": {
+    "path": "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\HydroCNHS-Delaware-Operations\\runs\\hydrocnhs-llm-concept-20261011\\20261012T162123303933Z-stdout.log",
+    "bytes": 5941,
+    "sha256": "5a35eea79bbed617537a742738d5e9befe9d565650f7e354869d7b2ed58bb1b2"
+  },
+  "stderr": {
+    "path": "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\HydroCNHS-Delaware-Operations\\runs\\hydrocnhs-llm-concept-20261011\\20261012T162123303933Z-stderr.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "created_at_utc": "2026-10-12T16:21:23.314847+00:00"
+}

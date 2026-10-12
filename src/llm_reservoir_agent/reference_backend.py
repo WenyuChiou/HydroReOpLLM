@@ -5,6 +5,7 @@ physics, routing and audit interfaces remain independent of this vendor.
 """
 from dataclasses import replace
 import hashlib
+import json
 from pathlib import Path
 import sys
 
@@ -16,14 +17,14 @@ from .dkp_adapter import DKPPolicyAdapter
 def validate_reference(spec, base, runtime_root, *, mode="offline"):
     """Pin artifacts without imports, provider construction or file writes."""
     allowed = {"method", "profile", "responses", "prompt_storage", "hide_availability_line",
-               "dkp_no_missing_inputs", "zeroshot_knowledge", "dkp", "system_prompt", "system_prompt_mode"}
+               "dkp_no_missing_inputs", "zeroshot_knowledge", "dkp", "system_prompt", "system_prompt_mode", "profile_file"}
     if not isinstance(spec, dict) or set(spec) - allowed:
         raise ValueError("reference requires known reference strategy settings")
     result = dict(spec)
     if mode == "llm" and "responses" in result:
         raise ValueError("LLM reference cannot have fixture responses or a fallback")
-    if result.get("method") not in ("zeroshot", "dkp") or result.get("profile") != "fe_walter":
-        raise ValueError("V3.7 reference example supports FE Walter zeroshot or dkp")
+    if result.get("method") not in ("zeroshot", "dkp") or not isinstance(result.get("profile"),str) or not result['profile'].strip():
+        raise ValueError("V3.7 reference requires zeroshot/dkp and an explicit reservoir profile")
     for key, default in (("prompt_storage", False), ("hide_availability_line", True),
                          ("dkp_no_missing_inputs", True)):
         result.setdefault(key, default)
@@ -35,6 +36,22 @@ def validate_reference(spec, base, runtime_root, *, mode="offline"):
     if result["method"] == "dkp" and result["zeroshot_knowledge"] != "target":
         raise ValueError("wiki is a zero-shot condition only")
     pins = {}
+    if 'profile_file' in result:
+        from .reservoir_profile import validate_profile_document
+        p=(base/result['profile_file']).resolve()
+        validate_profile_document(p,result['profile'])
+        result['profile_file']=str(p)
+        pins[str(p)]=hashlib.sha256(p.read_bytes()).hexdigest()
+        result['profile_file_sha256']=pins[str(p)]
+    else:
+        from .reservoir_profile import builtin_profile_ids
+        if result['profile'] not in builtin_profile_ids(runtime_root):
+            raise ValueError("unknown controlled reservoir profile; supply profile_file (Prompton uses a passive outlet)")
+    # The preserved V3.7 DKP builder and auditor contain FE Walter-specific
+    # elevations, recreation calendars and exceptions. A custom system message
+    # alone cannot make that auditor safe for a different reservoir.
+    if result['method'] == 'dkp' and result['profile'] != 'fe_walter':
+        raise ValueError("native DKP reference is FE Walter-specific; use strategy: configured with the reservoir's own prompt, knowledge and auditor")
     result.setdefault("system_prompt_mode", "original")
     if result["system_prompt_mode"] not in ("original", "custom"):
         raise ValueError("system_prompt_mode must be original or custom")
@@ -186,11 +203,16 @@ class ReferenceBackend(DKPPolicyAdapter):
     def __init__(self, settings, physical, *, runtime_root, mode="offline", model=None, transport=None):
         if mode not in ("offline", "llm"):
             raise ValueError("reference mode must be offline or llm")
+        if physical.get("reservoir_id") != settings.get("profile"):
+            raise ValueError("reference profile must match physical reservoir_id")
         self._mode = mode
         provider_model = model
         from delaware_operations.anik_adapter import load_anik
         model = load_anik(runtime_root)
-        cfg = next(c for c in model.RESERVOIRS if c.inflow_reservoir_key == settings["profile"])
+        from .reservoir_profile import load_profile_config
+        if 'profile_file' in settings and hashlib.sha256(Path(settings['profile_file']).read_bytes()).hexdigest()!=settings['profile_file_sha256']:
+            raise ValueError('reservoir profile changed after validation')
+        cfg,self._profile_metadata=load_profile_config(model,settings['profile'],settings.get('profile_file'))
         factor = model.CF_PER_ACREFT * model.M3_PER_CF
         expected = {"capacity_m3": cfg.capacity_af * factor,
                     "dead_storage_m3": cfg.dead_storage_af * factor,
@@ -201,6 +223,7 @@ class ReferenceBackend(DKPPolicyAdapter):
         if any(not math.isclose(physical[k], v, rel_tol=1e-12, abs_tol=1e-6) for k, v in expected.items()):
             raise ValueError("reference physical configuration does not match pinned V3.7 profile")
         cfg = replace(cfg, initial_storage_af=physical["initial_storage_m3"] / factor)
+        self._native_model, self._runtime_cfg = model, cfg
         zero = sys.modules["zeroshot_llm_release"]
         info = zero.ReservoirBasicInfo(
             name=cfg.name, purpose=cfg.purpose.replace("_", " "), capacity_af=cfg.capacity_af,
@@ -245,10 +268,28 @@ class ReferenceBackend(DKPPolicyAdapter):
         if settings.get("system_prompt_mode", "original") == "custom":
             self.policy_id += "_custom_system"
         super().__init__(cfg, policy, consult_every_day=True)
+        self._template_variables=None
+
+    def decide(self, observation):
+        from .daily_inputs import reference_variables
+        self._template_variables=reference_variables(observation,self._settings['profile'],self._policy._history)
+        factor = self._native_model.CF_PER_ACREFT * self._native_model.M3_PER_CF
+        self._template_variables['storage_start_af'] = self._template_variables['storage_start_m3'] / factor
+        self._template_variables['pool_elevation_start_ft'] = (
+            self._native_model.storage_to_elevation_ft(self._runtime_cfg, self._template_variables['storage_start_af'])
+            if self._runtime_cfg.elevation_storage_curve else None)
+        return super().decide(observation)
+
+    @property
+    def template_variables(self):
+        return json_snapshot(self._template_variables)
 
     @property
     def latest_trace(self):
-        return json_snapshot(self._fixture.latest_trace)
+        trace=json_snapshot(self._fixture.latest_trace)
+        if trace is not None:
+            trace['input_variables']=self.template_variables
+        return trace
 
     def describe(self):
         return {"backend": "reference_v3_7", "method": self._settings["method"],
@@ -263,5 +304,9 @@ class ReferenceBackend(DKPPolicyAdapter):
                 "matches_original_system_prompt": self._policy._system_prompt_sha256 == self._original_prompt_sha256,
                 "reference_options": json_snapshot(self._settings),
                 "reference_source_sha256": dict(self._source_hashes),
+                "reservoir_profile":json_snapshot({
+                    **{k:v for k,v in self._profile_metadata.items() if k != 'reservoir_config'},
+                    'configuration_sha256':hashlib.sha256(json.dumps(
+                        self._profile_metadata['reservoir_config'],sort_keys=True,allow_nan=False).encode('utf-8')).hexdigest()}),
                 "response_parser_id": "original-v3.7-cfs",
                 "auditor_id": "original-v3.7-" + self._settings["method"]}

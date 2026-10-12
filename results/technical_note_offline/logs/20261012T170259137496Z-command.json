@@ -1,0 +1,22 @@
+{
+  "command_argv": [
+    "C:/Users/wenyu/.codex/portable-harness/.venv/Scripts/python.exe",
+    "-c",
+    "from pathlib import Path;import subprocess,json,zipfile,hashlib,uuid,os,sys\nr=Path.cwd();t=r/'runs/hydrocnhs-llm-concept-20261011';pin=json.loads((t/'upgrade-review-pin.v2.json').read_text());snapshot=t/('git-lf-archive-'+uuid.uuid4().hex[:8]);snapshot.mkdir();zpath=t/(snapshot.name+'.zip');subprocess.run(['git','-c','core.autocrlf=false','archive','--format=zip','--output='+str(zpath),pin['tree']],check=True)\nwith zipfile.ZipFile(zpath) as z:\n assert all(not Path(n).is_absolute() and '..' not in Path(n).parts for n in z.namelist());z.extractall(snapshot)\nprotected=json.loads((r/'results/technical_note_offline/preserved_files.json').read_text())['files']\nfor n,p in protected.items():\n b=(snapshot/n).read_bytes();assert len(b)==p['bytes'] and hashlib.sha256(b).hexdigest()==p['sha256'],n\ncode=\"from pathlib import Path;import json;from llm_reservoir_agent.workflow import load_settings; paths=['examples/fe_walter/benchmark/experiment.yaml','examples/fe_walter/zero_shot/experiment.tutorial.yaml','examples/fe_walter/dkp/experiment.tutorial.yaml','tutorials/config/multi_reservoir.offline.yaml'];plans={p:load_settings(p).report for p in paths}; assert all(x['planned_llm_calls']==0 for x in plans.values()); print('LF_ARCHIVE_CHECKS',json.dumps({p:{k:v[k] for k in ['days','agent_count','planned_llm_calls']} for p,v in plans.items()}))\"\nsubprocess.run([sys.argv[1],'-c',code],cwd=snapshot,env=dict(os.environ,PYTHONPATH=str(snapshot/'src'),PYTHONUTF8='1'),check=True)\nreport=json.loads((t/'staged-archive-check.json').read_text());report['lf_checkout']={'core_autocrlf':False,'protected_files':691,'offline_configs_checked':4,'archive_sha256':hashlib.sha256(zpath.read_bytes()).hexdigest(),'simulation_replay':False};report['legacy_preservation']={'prior_git_newline_only_paths':json.loads((t/'legacy-git-byte-differences.json').read_text()),'working_bytes_unchanged':True};(r/'results/technical_note_offline/archive_validation.json').write_text(json.dumps(report,indent=2)+'\\n',encoding='utf-8',newline='\\n');print(json.dumps(report,indent=2))",
+    "C:/Users/wenyu/Documents/LLM Rervoir/HydroCNHS/llm_integration_review/.venv/Scripts/python.exe"
+  ],
+  "python_capture_runtime": "3.13.11",
+  "exit_code": 0,
+  "current_test_counts": null,
+  "stdout": {
+    "path": "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\HydroCNHS-Delaware-Operations\\runs\\hydrocnhs-llm-concept-20261011\\20261012T170259137496Z-stdout.log",
+    "bytes": 2838,
+    "sha256": "b989f45079c5a8dc7b020212663eb486485d0aebf59585eb771b74c96dda72fe"
+  },
+  "stderr": {
+    "path": "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\HydroCNHS-Delaware-Operations\\runs\\hydrocnhs-llm-concept-20261011\\20261012T170259137496Z-stderr.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "created_at_utc": "2026-10-12T17:02:59.144773+00:00"
+}

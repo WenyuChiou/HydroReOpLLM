@@ -419,7 +419,11 @@ def verify_run(output, *, require_offline=False, expected_audit_suites=None):
                "backend provenance coverage mismatch")
         for metadata in provenance.values():
             _check(isinstance(metadata, Mapping) and
-                   (metadata.get("provider") == "physical" or metadata.get("data_kind") == "synthetic_fixture"),
+                    (metadata.get("provider") == "physical" or metadata.get("data_kind") == "synthetic_fixture" or
+                     (metadata.get("backend") == "hanasaki_benchmark" and
+                      metadata.get("mode") == "benchmark" and metadata.get("model_used") is False and
+                      metadata.get("network_enabled") is False and
+                      metadata.get("algorithm_version") == "hanasaki-daily-flood-control.v1")),
                    "unverified offline backend")
 
     return {

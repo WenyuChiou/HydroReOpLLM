@@ -1,0 +1,31 @@
+{
+  "schema_version": "reservoir-benchmark-statistics.v1",
+  "reservoir_id": "fe_walter",
+  "reference_start": "1996-01-01",
+  "reference_end": "2015-12-31",
+  "source": {
+    "path": "../accepted/fe_walter_inflow_reference_1996_2025.csv.gz",
+    "sha256": "91759fdfbaa3e85b0257a5708391f53d264eb0ef898f94c4e580a391e131b64f",
+    "date_column": "date",
+    "flow_column": "simulated_inflow_cfs",
+    "flow_to_cms": 0.028316847,
+    "reservoir_column": "reservoir",
+    "reservoir_value": "fe_walter"
+  },
+  "mean_inflow_cms": 18.25446484681121,
+  "monthly_mean_inflow_cms": {
+    "1": 19.844036726972636,
+    "2": 18.688632899197067,
+    "3": 29.343656606431633,
+    "4": 22.07196682982202,
+    "5": 14.855617257811693,
+    "6": 15.095383741182898,
+    "7": 8.77337253984133,
+    "8": 10.62391006709885,
+    "9": 15.953716311979257,
+    "10": 21.59651815844306,
+    "11": 18.099254778453947,
+    "12": 24.088042064443815
+  },
+  "reference_day_count": 7305
+}

@@ -1,0 +1,26 @@
+# FE Walter V3.7 zeroshot: original prompt builders, synthetic replies, zero model calls.
+schema_version: llm-reservoir-experiment.v1
+case: ../../../cases/fe_walter_reference/case.json # Frozen hydrology sample; V3.7 physics.
+run_id: fe-walter-tutorial-zeroshot        # Change with output before a new run.
+output: ../../../runs/fe-walter-tutorial-zeroshot
+max_calls: 0                             # This example cannot call a provider.
+auditors:
+  release_limits:
+    type: release_bounds
+    version: "1"
+agents:
+  fe_operator:
+    reservoir: FEWalter                  # Reservoir ID in case.json.
+    mode: offline                        # Native prompt/audit run on fixture replies.
+    strategy: reference_v3_7             # Generic strategy selector; optional vendor plugin.
+    reference:
+      profile: fe_walter                 # This reference profile is FE-specific.
+      method: zeroshot                   # Original zero-shot or DKP policy.
+      system_prompt: ../../../prompts/fe_walter_reference/zeroshot_system.txt # Actual system instructions, read at runtime.
+      system_prompt_mode: original       # Exact original text; use custom for an intentional variant.
+      responses: ../../../tests/fixtures/zeroshot_responses.json
+      prompt_storage: false             # Matches saved five-year prompt condition.
+      hide_availability_line: true       # Keep numeric availability ceiling out of prompt.
+      dkp_no_missing_inputs: true        # Original V3.7 DKP condition.
+      zeroshot_knowledge: target         # Original public facts + seasonal target.
+    auditors: [release_limits]           # Preserve native audit plus generic bounds.
