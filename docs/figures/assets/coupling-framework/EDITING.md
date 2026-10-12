@@ -9,23 +9,35 @@ attached connectors. Icons are separate, movable PNG objects. Their pixels
 are raster artwork; they are not vector drawings. Use the separate PNG assets
 to replace an icon. `generation.json` preserves exact prompts and asset hashes.
 
-The lower blue frame identifies the native HydroCNHS host: GWLF/ABCD rainfall–runoff,
-Lohmann routing and the Dam API. Rule-based and LLM are alternative user-configured
-policies at that API. The yellow reservoir box is the shared **added** physical
-solver, not an original built-in HydroCNHS reservoir model. Both policies pass
-through it in the daily operations runner.
+The lower blue frame follows the HydroCNHS workflow: rainfall–runoff (GWLF/ABCD),
+upstream routing (Lohmann), reservoir operation via the Dam API, downstream
+routing (Lohmann), and river flow. One reservoir card contains the exclusive
+choice **Rule-based OR LLM**. The Dam API supports user-defined policies; the
+original HydroCNHS does not supply our rule policy or reservoir physics solver.
+The shared deterministic solver is an addition used by both policies in the
+daily operations runner. Its storage, spill and water-balance details belong
+in the tutorial, rather than this concept image.
 
-The upper frame contains the LLM modules: daily prompt, optional knowledge
-(DKP is one example), decision, format/value checker and audit/trace. Invalid
-actions stop before the physical transition. The LLM branch returns a checked
-release; actual storage and executed history feed the next day's observation.
-Solid blue arrows are water, dashed plum arrows are decisions, dashed green
-arrows are state feedback and dotted gray arrows are data/records.
+The independent upper frame follows Prompt → language model → response reader
+→ release decision → Checker. The Prompt card has an information icon; routed
+inflow and state/release history are named on its incoming connectors. Optional
+knowledge is a small secondary input, with no named example in the image.
+The concept does not prescribe prompt frequency; the shipped operations driver
+is daily. Reader and Checker are conceptual roles, not separate services.
+A malformed response may fail in the reader; all invalid actions stop before
+the physical transition. Checker **PASS** returns a checked proposal to the
+selected LLM controller. **FAIL** stops; no rule-policy fallback is implied.
+PASS is contract validation, not strategy-audit approval. Audit/trace records
+both the proposal and execution. Actual execution supplies later history.
+Solid blue arrows carry water; plum arrows carry decision data, with a dashed
+return to the Dam API. Dashed green arrows carry state/history, and dotted gray
+arrows carry context or records. Essential connections are labeled locally.
 
 River topology belongs to model configuration; the diagram does not prescribe
 reservoir locations or a fixed count. Repeat decision units where the network
 requires them. Passive outlets do not require LLM decisions. The six original
-generated assets are unchanged; icons now occupy 180 × 180 native drawing units.
+generated assets are unchanged; major icons occupy 200 × 200 native drawing
+units (Checker: 190 × 190). The book icon now represents the assembled Prompt.
 
 Rebuild native objects with Python:
 
@@ -43,7 +55,7 @@ draw.io --export --format pdf --border 30 --crop --output docs/figures/hydrocnhs
 
 Use the installed executable path if `draw.io` is not on PATH. Rendering was
 checked with draw.io Desktop 26.0.4. The revision diagnostic changes a native label,
-moved a module and its icon, and reconnected a record edge. It was saved,
+moves a module and its icon, and reconnects a record edge. It is saved,
 reopened through draw.io XML export, then rendered. GUI dragging and arbitrary
 layout changes were not tested. Keep the master unchanged when trying edits;
 the rebuild script recreates the saved layout and overwrites manual changes.

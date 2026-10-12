@@ -1,12 +1,15 @@
 {
   "status": "TECHNICAL_CHECKS_PASS_DESIGN_CANDIDATE",
-  "revision": 6,
+  "revision": 7,
   "drawio_version": "26.0.4",
   "native_cards": 13,
   "attached_edges": 15,
   "movable_raster_objects": 7,
   "distinct_generated_assets": 6,
-  "icon_size_native_units": 180,
+  "icon_size_native_units": [
+    190,
+    200
+  ],
   "new_image_generation_calls": 0,
   "simulation_or_reservoir_llm_calls": 0,
   "endpoint_and_connection_site_checks": "PASS",
@@ -25,10 +28,13 @@
     "user_design_acceptance": "PENDING"
   },
   "observations": [
-    "Named GWLF/ABCD and Lohmann match the pinned native implementation.",
-    "Both Dam policies join the shared added solver; only the LLM decision path uses the upper checker.",
-    "Water, checked decision, state feedback and record connectors remain distinguishable at 900 pixels.",
-    "Raster illustration objects grew from 100/110 to 180 native units; six PNG bytes unchanged."
+    "HydroCNHS reads left to right: GWLF/ABCD runoff, upstream Lohmann routing, a single reservoir Dam API, downstream Lohmann routing and river flow.",
+    "One reservoir contains the mutually exclusive Rule-based OR LLM choice; no second controller card implies a second reservoir.",
+    "Prompt, language model, response reader, release decision and Checker form an independent upper module. Optional knowledge and audit/trace are subordinate.",
+    "Routed inflow and state/release history are named only on their incoming information paths. No Daily label, named case or solver fine print appears in the image.",
+    "Checker PASS is separate from FAIL \u2192 Stop. The PASS connector does not intersect the Stop card or Dam API label. It is action validation, not strategy-audit approval.",
+    "Inspected full PNG, 900-pixel PNG, the prior revision at matching width and actual edited/reopened draw.io rendering.",
+    "Six original generated assets remain byte-identical; six placements are 200 units, Checker is 190. All source text and connectors are native editable objects."
   ],
   "unperformed": [
     "GUI drag interactions",
@@ -86,32 +92,44 @@
         "Shortened overlong diagnostic edit label after rendered inspection. Original diagnostic PNG retained."
       ],
       "baseline_allowlist_or_exclusion_changed": false
+    },
+    {
+      "version": 7,
+      "status": "USER_REQUESTED_REDESIGN",
+      "reason": "User rejected revision6: unclear HydroCNHS sequence, repeated prompt inputs, dominant optional knowledge, duplicated policy boxes and solver fine print.",
+      "prior_design_acceptance": "REJECTED_BY_USER",
+      "prior_quality_sha256": "a0a69db317f6c554191af76bdb2eeabdf7875b1f4547c7cda6a671036aab7502",
+      "originals": "runs/hydrocnhs-llm-concept-20261011/revision7-originals",
+      "corrections": [
+        "Preserved the first candidate: PASS vertical intersected Stop and Dam API text. Moved Stop outside PASS and left-aligned Dam API; inspected again."
+      ],
+      "baseline_allowlist_or_exclusion_changed": false
     }
   ],
   "artifacts": {
     "docs/figures/hydrocnhs-coupling-framework-en.drawio": {
-      "bytes": 8355929,
-      "sha256": "1d969b8482e7a52b37d4611c3c69241a866331246255a099aa081600c8376e33"
+      "bytes": 8351626,
+      "sha256": "87cde8ca4e33cf1f0605862765185342d2b80c7f70bb416355fec67435550adc"
     },
     "docs/figures/hydrocnhs-coupling-framework-en.png": {
-      "bytes": 593517,
-      "sha256": "f2b15600dcfb6a122d257de7810512a6835aa660def6663c8a400846e70208a1"
+      "bytes": 660804,
+      "sha256": "754818d774e67c50aff651a1bc5be0f9110d4b5ae852da75fd97fc6005909b09"
     },
     "docs/figures/hydrocnhs-coupling-framework-en.svg": {
-      "bytes": 8354951,
-      "sha256": "c1f22221a4ae1e086a9dc64200589787697ece58dce3d93804f830c68abba02c"
+      "bytes": 8350613,
+      "sha256": "a6e44f0d9e765f9fd5178f2fa0ad7afd30ff720f03b897ad97e470261b8ce26a"
     },
     "docs/figures/hydrocnhs-coupling-framework-en.pdf": {
-      "bytes": 5642119,
-      "sha256": "e485704997e12884a773c1f1dbb8e4f1a1ba6e93bb7af33325799e22bc742153"
+      "bytes": 5640486,
+      "sha256": "0a30ed62a6492ae1742d3b0ed1478e6b38b4d4be3bac5a0789e23fa3083cd2fc"
     },
     "docs/README_FRAMEWORK_PROPOSAL.md": {
       "bytes": 2980,
       "sha256": "2aebdfe39a3e3d1d03e404ce6cdb2e8e5bdd7b4388ad84da29cf677ab3e7bb52"
     },
     "docs/figures/source/build_coupling_drawio.py": {
-      "bytes": 12164,
-      "sha256": "3d9f6d7c7f0e06664c34aa2128c7325d3d32a07d0569ba07fe41b33a3e0595be"
+      "bytes": 11755,
+      "sha256": "97b3f7159172284eaaadc1867be887244845bc1feddd50f580a0350ffaea1fd2"
     },
     "docs/figures/assets/coupling-framework/audit.png": {
       "bytes": 656235,
@@ -122,8 +140,8 @@
       "sha256": "fcfca724a1e6dbc3257e650814d142b91329ff28532c3d28059470269f36e1f3"
     },
     "docs/figures/assets/coupling-framework/EDITING.md": {
-      "bytes": 3159,
-      "sha256": "f67317fe38d242bce2fd24088e107657a4647a77594955335a472eb00f83d2a5"
+      "bytes": 4090,
+      "sha256": "4fe9d323781aece9a961b0811c4aa37723beda546c9aff1d8e7c191234ab4442"
     },
     "docs/figures/assets/coupling-framework/generation.json": {
       "bytes": 10494,
@@ -138,8 +156,8 @@
       "sha256": "055e90e8b3d8d1a994f513b41f9125ccce10eea9dafbb7df2be67827e22079ab"
     },
     "docs/figures/assets/coupling-framework/relationship-map.json": {
-      "bytes": 6687,
-      "sha256": "91851b807d6e0071e90f29aee8b1a7c11582b431df8e353ca87c93a15ee0b560"
+      "bytes": 7313,
+      "sha256": "d3260000116ddc696f9258812d75ce58f4f163d86790ffcb7ca418986c571376"
     },
     "docs/figures/assets/coupling-framework/reservoir.png": {
       "bytes": 844104,
@@ -169,13 +187,27 @@
   "png_dimensions": {
     "hydrocnhs-coupling-framework-en.png": [
       2631,
-      1768
+      1729
     ]
   },
   "validation_log": {
-    "path": "runs/hydrocnhs-llm-concept-20261011/20261012T190103803871Z-stdout.log",
-    "sha256": "c528b64cb4fc6a7816104da91b53fedec70b20b1676b40264373801fd9b77598",
+    "path": "runs/hydrocnhs-llm-concept-20261011/20261012T192859676062Z-stdout.log",
+    "sha256": "be0b365e5ce979eaefe7806db225447cc2e7e9ce9866a6ea48f0b954309c0212",
     "exit_code": 0,
-    "scope": "Current geometry, deterministic isolated rebuild, 58 local links, bilingual commands and protected core. No simulation test rerun."
+    "scope": "Current concept graph, branch endpoints, PASS/Stop non-intersection, isolated identical rebuild, 58 local links and 22 pinned native files. No simulation rerun."
+  },
+  "edit_validation_log": {
+    "path": "runs/hydrocnhs-llm-concept-20261011/20261012T192802882066Z-stdout.log",
+    "sha256": "72386ea955c20e2a01ea0bcfb39a07d8eb1db174a85700faa5b7203f62cee972",
+    "exit_code": 0,
+    "scope": "Native edit/save/reopen/render, modified label/module/icon/edge site, one-page PDF with 17 required labels."
+  },
+  "export_diagnostics": {
+    "status": "ARTIFACT_CHECKS_PASS_WITH_CAPTURED_STDERR",
+    "notes": "Parallel SVG/PDF exports returned exit0 but emitted Chromium GPU cache access errors; complete stderr retained. Exported files passed subsequent native text/image/PDF checks.",
+    "receipts": [
+      "runs/hydrocnhs-llm-concept-20261011/20261012T192629786973Z-command.json",
+      "runs/hydrocnhs-llm-concept-20261011/20261012T192629830445Z-command.json"
+    ]
   }
 }
