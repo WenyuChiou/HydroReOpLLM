@@ -1,201 +1,225 @@
 {
-  "scope": "Generic HydroCNHS coupling: rule-based and LLM policies; optional knowledge, no reservoir-specific case.",
+  "scope": "Generic HydroCNHS flow plus an independent LLM decision extension; one policy choice per reservoir, optional context, no named case.",
   "canvas": [
     1800,
     1160
   ],
   "nodes": [
     {
-      "id": "observation",
+      "id": "prompt",
       "bounds": [
-        85,
-        215,
-        330,
-        255
+        75,
+        240,
+        240,
+        265
+      ]
+    },
+    {
+      "id": "language-model",
+      "bounds": [
+        430,
+        240,
+        280,
+        265
+      ]
+    },
+    {
+      "id": "reader",
+      "bounds": [
+        845,
+        315,
+        175,
+        115
+      ]
+    },
+    {
+      "id": "decision",
+      "bounds": [
+        1155,
+        315,
+        195,
+        115
+      ]
+    },
+    {
+      "id": "checker",
+      "bounds": [
+        1485,
+        240,
+        230,
+        265
       ]
     },
     {
       "id": "knowledge",
       "bounds": [
-        480,
-        215,
-        240,
-        255
-      ]
-    },
-    {
-      "id": "policy",
-      "bounds": [
-        790,
-        215,
-        240,
-        255
-      ]
-    },
-    {
-      "id": "validation",
-      "bounds": [
-        1115,
-        265,
-        220,
-        125
-      ]
-    },
-    {
-      "id": "stop",
-      "bounds": [
-        1150,
-        445,
-        150,
+        375,
+        550,
+        310,
         55
       ]
     },
     {
       "id": "audit",
       "bounds": [
-        1405,
-        215,
-        280,
-        255
+        1010,
+        550,
+        320,
+        55
+      ]
+    },
+    {
+      "id": "stop",
+      "bounds": [
+        1590,
+        550,
+        130,
+        55
       ]
     },
     {
       "id": "runoff",
       "bounds": [
         75,
-        800,
-        250,
-        270
+        830,
+        280,
+        285
       ]
     },
     {
       "id": "upstream",
       "bounds": [
-        380,
-        800,
-        270,
-        270
+        425,
+        830,
+        300,
+        285
       ]
     },
     {
-      "id": "rule-mode",
+      "id": "reservoir",
       "bounds": [
-        730,
-        745,
-        225,
-        65
-      ]
-    },
-    {
-      "id": "llm-mode",
-      "bounds": [
-        1010,
-        745,
-        185,
-        65
-      ]
-    },
-    {
-      "id": "physics",
-      "bounds": [
-        760,
-        850,
-        370,
-        225
+        795,
+        830,
+        300,
+        285
       ]
     },
     {
       "id": "downstream",
       "bounds": [
-        1230,
-        800,
-        270,
-        270
+        1165,
+        830,
+        330,
+        285
       ]
     },
     {
       "id": "river-flow",
       "bounds": [
-        1575,
-        887,
-        140,
+        1565,
+        925,
+        150,
         95
       ]
     }
   ],
   "edges": [
     {
-      "id": "observation-policy",
-      "source": "observation",
-      "target": "policy",
+      "id": "prompt-model",
+      "source": "prompt",
+      "target": "language-model",
       "exit": [
-        0.5,
-        0
+        1,
+        0.5
+      ],
+      "entry": [
+        0,
+        0.5
+      ],
+      "via": []
+    },
+    {
+      "id": "model-reader",
+      "source": "language-model",
+      "target": "reader",
+      "exit": [
+        1,
+        0.5
+      ],
+      "entry": [
+        0,
+        0.5
+      ],
+      "via": []
+    },
+    {
+      "id": "reader-decision",
+      "source": "reader",
+      "target": "decision",
+      "exit": [
+        1,
+        0.5
+      ],
+      "entry": [
+        0,
+        0.5
+      ],
+      "via": []
+    },
+    {
+      "id": "decision-checker",
+      "source": "decision",
+      "target": "checker",
+      "exit": [
+        1,
+        0.5
+      ],
+      "entry": [
+        0,
+        0.5
+      ],
+      "via": []
+    },
+    {
+      "id": "knowledge-prompt",
+      "source": "knowledge",
+      "target": "prompt",
+      "exit": [
+        0,
+        0.5
       ],
       "entry": [
         0.5,
-        0
+        1
       ],
       "via": [
         [
-          250,
-          200
-        ],
-        [
-          910,
-          200
+          195,
+          577.5
         ]
       ]
     },
     {
-      "id": "knowledge-policy",
-      "source": "knowledge",
-      "target": "policy",
-      "exit": [
-        1,
-        0.5
-      ],
-      "entry": [
-        0,
-        0.5
-      ],
-      "via": []
-    },
-    {
-      "id": "policy-validation",
-      "source": "policy",
-      "target": "validation",
-      "exit": [
-        1,
-        0.44
-      ],
-      "entry": [
-        0,
-        0.5
-      ],
-      "via": []
-    },
-    {
-      "id": "invalid-stop",
-      "source": "validation",
+      "id": "checker-stop",
+      "source": "checker",
       "target": "stop",
       "exit": [
-        0.5,
+        0.75,
         1
       ],
       "entry": [
-        0.5,
+        0.52,
         0
       ],
       "via": []
     },
     {
-      "id": "valid-llm-mode",
-      "source": "validation",
-      "target": "llm-mode",
+      "id": "checked-release",
+      "source": "checker",
+      "target": "reservoir",
       "exit": [
-        1,
-        0.75
+        0.2,
+        1
       ],
       "entry": [
         0.5,
@@ -203,46 +227,14 @@
       ],
       "via": [
         [
-          1370,
-          359
+          1531,
+          655
         ],
         [
-          1370,
-          600
-        ],
-        [
-          1102.5,
-          600
+          945,
+          655
         ]
       ]
-    },
-    {
-      "id": "rule-physics",
-      "source": "rule-mode",
-      "target": "physics",
-      "exit": [
-        0.5,
-        1
-      ],
-      "entry": [
-        0.22,
-        0
-      ],
-      "via": []
-    },
-    {
-      "id": "llm-physics",
-      "source": "llm-mode",
-      "target": "physics",
-      "exit": [
-        0.5,
-        1
-      ],
-      "entry": [
-        0.8,
-        0
-      ],
-      "via": []
     },
     {
       "id": "runoff-upstream",
@@ -259,26 +251,26 @@
       "via": []
     },
     {
-      "id": "upstream-physics",
+      "id": "upstream-reservoir",
       "source": "upstream",
-      "target": "physics",
+      "target": "reservoir",
       "exit": [
         1,
         0.5
       ],
       "entry": [
         0,
-        0.38
+        0.5
       ],
       "via": []
     },
     {
-      "id": "physics-downstream",
-      "source": "physics",
+      "id": "reservoir-downstream",
+      "source": "reservoir",
       "target": "downstream",
       "exit": [
         1,
-        0.38
+        0.5
       ],
       "entry": [
         0,
@@ -301,115 +293,113 @@
       "via": []
     },
     {
-      "id": "inflow-observation",
+      "id": "inflow-prompt",
       "source": "upstream",
-      "target": "observation",
+      "target": "prompt",
       "exit": [
         0.5,
         0
       ],
       "entry": [
-        0.3,
+        0.25,
         1
       ],
       "via": [
         [
-          515,
-          590
+          575,
+          675
         ],
         [
-          184,
-          590
+          135,
+          675
         ]
       ]
     },
     {
       "id": "state-feedback",
-      "source": "physics",
-      "target": "observation",
+      "source": "reservoir",
+      "target": "prompt",
       "exit": [
         0,
-        0.12
+        0.2
       ],
       "entry": [
-        0.8,
+        0.75,
         1
       ],
       "via": [
         [
-          695,
-          877
+          760,
+          887
         ],
         [
-          695,
-          640
+          760,
+          725
         ],
         [
-          349,
-          640
+          255,
+          725
         ]
       ]
     },
     {
       "id": "decision-record",
-      "source": "policy",
+      "source": "decision",
       "target": "audit",
       "exit": [
+        0.5,
+        1
+      ],
+      "entry": [
         0.75,
         0
       ],
-      "entry": [
-        0.5,
-        0
-      ],
-      "via": [
-        [
-          970,
-          200
-        ],
-        [
-          1545,
-          200
-        ]
-      ]
+      "via": []
     },
     {
       "id": "execution-record",
-      "source": "physics",
+      "source": "reservoir",
       "target": "audit",
       "exit": [
         1,
-        0.08
+        0.15
       ],
       "entry": [
-        0.5,
+        0.4,
         1
       ],
       "via": [
         [
-          1210,
-          868
+          1135,
+          872.75
         ],
         [
-          1210,
-          655
+          1135,
+          725
         ],
         [
-          1545,
-          655
+          1138,
+          725
         ]
       ]
     }
   ],
   "responsibilities": {
     "HydroCNHS": "Native GWLF/ABCD rainfall-runoff, Lohmann routing and Dam coupling API.",
-    "LLM modules": "Daily prompt, optional knowledge/retrieval, LLM proposal and format/value checking.",
+    "LLM modules": "Prompt assembled from available information, language model, response parsing, release proposal and strict action checking. The concept does not prescribe a timestep; the shipped operations driver is daily.",
     "policy alternatives": "The native Dam API accepts a user-defined rule policy or an added LLM policy; choose one per controlled reservoir.",
     "reservoir physics": "Added shared deterministic solver: feasible release, spill, storage and water balance. Not a built-in native HydroCNHS reservoir solver.",
     "audit / trace": "Record decision and physical execution; never infer strategy acceptance from rendering."
   },
+  "conditions": {
+    "checked-release": "Action contract PASS; only the selected LLM policy returns this proposal through the Dam API.",
+    "checker-stop": "Action contract FAIL; stop before physical transition, without a fallback policy.",
+    "knowledge-prompt": "Optional configured information, not a mandatory decision stage."
+  },
   "notes": [
-    "Invalid actions stop before storage changes.",
+    "The reader and checker are conceptual roles, not a claim of two separate runtime services. A malformed response may fail in the reader; Stop also represents that terminal decision-path failure.",
+    "Checker PASS means the action contract passed, not that a strategy audit accepted the policy.",
+    "Invalid actions stop before storage changes; no automatic rule-policy fallback is implied.",
     "Controlled release plus spill enters downstream routing once.",
     "Actual executed release and resulting state feed later observations.",
     "A configured river network determines coupling between reservoirs.",
