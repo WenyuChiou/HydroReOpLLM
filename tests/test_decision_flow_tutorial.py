@@ -1,5 +1,6 @@
 """Inspect fixture evidence without inventing an audit or a historical check."""
 
+import hashlib
 import json
 from pathlib import Path
 import sys
@@ -17,19 +18,29 @@ def output(tmp_path, monkeypatch):
                         lambda *args, **kwargs: {"kind": "unit_fixture"})
     action = {"schema_version": "reservoir-action.v1", "release_cms": 5.0}
     decision = {"decision_id": "one", "reservoir_id": "r", "timestep": 0,
-                "observation": {"state": {"storage_m3": 100}}, "action": action}
+                "timestamp": "2016-01-01",
+                "observation": {"inflow_cms": 1.0, "state": {"storage_m3": 100}},
+                "action": action}
     physics = {"decision_id": "one", "record": {
         "action": action, "transition": {"controlled_release_cms": 3.0}}}
     audit = {"decision_id": "one", "status": "WARN",
              "original_payload_ref": {"path": "raw/audit_one.json"}}
-    for name, row in [("decisions", decision), ("physics", physics), ("audit", audit)]:
-        (tmp_path / (name + ".jsonl")).write_text(json.dumps(row) + "\n", encoding="utf-8")
     (tmp_path / "raw").mkdir()
     trace = {"model_used": False, "data_kind": "synthetic_fixture",
              "system": "contract", "prompt": "available information",
-             "raw_reply": {"fixture": True}, "input_variables": {"timestep": 0}}
-    (tmp_path / "raw/policy_one.json").write_text(
-        json.dumps({"backend_trace": trace}), encoding="utf-8")
+             "raw_reply": {"fixture": True}, "input_variables": {
+                 "timestep": 0, "date": "2016-01-01", "reservoir_profile": "r",
+                 "inflow_cms": 1.0, "storage_start_m3": 100}}
+    raw_path = tmp_path / "raw/policy_one.json"
+    raw_path.write_text(json.dumps({"backend_trace": trace}), encoding="utf-8")
+    decision["raw_policy_ref"] = {"path": "raw/policy_one.json",
+                                  "sha256": hashlib.sha256(raw_path.read_bytes()).hexdigest()}
+    for name, row in [("decisions", decision), ("physics", physics), ("audit", audit)]:
+        (tmp_path / (name + ".jsonl")).write_text(json.dumps(row) + "\n", encoding="utf-8")
+    experiment = {
+        "network": {"reservoirs": {"R": {"physical": {"reservoir_id": "r"}}}},
+        "backend_provenance": {"R": {"backend": "reference_v3_7", "model_used": False}}}
+    (tmp_path / "experiment.json").write_text(json.dumps(experiment), encoding="utf-8")
     (tmp_path / "raw/audit_one.json").write_text(
         json.dumps({"status": "WARN", "reasons": ["original warning"]}), encoding="utf-8")
     return tmp_path
@@ -59,10 +70,10 @@ def test_mismatched_physics_action_is_rejected(output):
         inspector.load_decision_flow(output, reservoir_id="r")
 
 
-def test_live_trace_cannot_be_presented_as_synthetic(output):
+def test_fixture_cannot_be_relabelled_as_live_without_provider_evidence(output):
     path = output / "raw/policy_one.json"
     row = json.loads(path.read_text())
     row["backend_trace"]["model_used"] = True
     path.write_text(json.dumps(row), encoding="utf-8")
-    with pytest.raises(ValueError, match="synthetic"):
+    with pytest.raises(ValueError, match="model/provider evidence"):
         inspector.load_decision_flow(output, reservoir_id="r")

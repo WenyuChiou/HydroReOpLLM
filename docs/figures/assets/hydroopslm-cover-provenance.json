@@ -1,0 +1,8 @@
+{
+  "tool": "built-in image_gen",
+  "model": "not exposed",
+  "source_file": "exec-1f95c000-b362-425e-9392-c9a273c9fc2c.png",
+  "source_sha256": "76d3967c90ce8c8a0061abf1d1690853e525630f36bb2490cf03bb793bdc177c",
+  "role": "Text-free illustration; exact title is native draw.io text. Not a geographic or empirical map.",
+  "prompt": "Wide editorial illustration, white background, river catchment and reservoir with language-model brain and checklist; left third empty; blue/green/plum flat filled scientific artwork; no readable text or arrows."
+}

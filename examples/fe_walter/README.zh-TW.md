@@ -2,42 +2,51 @@
 
 [English](README.md) | [繁體中文](README.zh-TW.md) · [全部範例](../README.zh-TW.md)
 
-三種方法共用 FE Walter 入流、物理設定與河網。這些是**本框架的使用範例**；
-來源程式提供決策邏輯與 prompt 慣例，模擬由本 repo 執行。
+此示範將同一組三日 FE Walter 入流送入原生 HydroCNHS Dam 耦合與下游 routing，
+並使用 HydroOpsLM 新增的共同水庫物理計算與 audit／trace；只有決策方法不同。
 
-| 方法 | 完整步驟 | 離線 YAML | 決策來源 |
-|---|---|---|---|
-| Hanasaki-based benchmark | [操作](benchmark/README.zh-TW.md) | [YAML](benchmark/experiment.hydroopslm.offline.yaml) | 決定性的防洪放流規則 |
-| Zero-shot | [操作](zero_shot/README.zh-TW.md) | [YAML](zero_shot/experiment.hydroopslm.offline.yaml) | 保留 prompt／schema，使用合成回覆 |
-| DKP | [操作](dkp/README.zh-TW.md) | [YAML](dkp/experiment.hydroopslm.offline.yaml) | 保留 prompt、知識檢索，使用合成回覆 |
+| 方法 | 決策 context | 設定 |
+|---|---|---|
+| [規則式](benchmark/README.zh-TW.md) | 透過原生 Dam API 呼叫自訂 Hanasaki 類規則 | [離線 YAML](benchmark/experiment.hydroopslm.offline.yaml) |
+| [Zero-shot](zero_shot/README.zh-TW.md) | LLM 接收 prompt 與當前資訊 | [Ollama YAML](zero_shot/experiment.ollama.yaml) |
+| [DKP](dkp/README.zh-TW.md) | 同一個 LLM 介面，另依條件檢索決策知識 | [Ollama YAML](dkp/experiment.ollama.yaml) |
 
-1. 依[首頁](../../README.zh-TW.md)安裝。
-2. 查看共同 [case](../../cases/fe_walter_reference/case.json) 與
-   [入流 CSV](../../cases/fe_walter_reference/inflows.csv)：daily 2016-01-01–03、m³/s、
-   初始蓄水 1,992.61 acre-ft、零損失，下游 `UH=[1.0]`。
-3. 開啟上表中方法的操作頁，查看 YAML、prompt／知識或統計資料。
-4. 使用該 YAML 執行 `check → run → verify --require-offline`。
-5. 查看蓄水／放流、下游流量、audit 與 raw trace。再次執行請換 `run_id`／`output`；
-   已有結果不會覆寫。
+Hanasaki 類方法是範例自訂邏輯，不是 HydroCNHS 內建規則或水庫物理模型。
+「淺層」zero-shot 與「深層」DKP 只描述提供給模型的 context 設計，不代表準確度、
+安全性或操作績效高低。
 
-## 共用模擬路徑
+## 逐步操作
 
-`run_experiment.py → workflow → experiment → network → hydrocnhs.Model.run`
+1. **輸入：**查看凍結的 [入流 CSV](../../cases/fe_walter_reference/inflows.csv)、
+   [benchmark case](../../cases/fe_walter_reference/case.json) 與
+   [限定三日的 Ollama case](../../cases/fe_walter_ollama_demo/case.json)。
+2. **YAML：**從表中選擇設定。兩個 LLM 案例皆使用本機 Ollama `gemma3:4b`、
+   temperature `0.7`、daily 2016-01-01 至 2016-01-03、三次請求且不重試。
+3. **規則或 prompt：**閱讀所選方法頁。Zero-shot 使用 prompt 加當前資訊；
+   DKP 另加入依條件檢索的知識。
+4. **檢查：**對 YAML 執行 `check`；只做本機驗證，不執行 inference 或 provider request。
+5. **執行：**規則式案例保持離線。兩個本機 Ollama YAML 均需明確加入
+   `--allow-network`，允許設定中的本機 provider request。
+6. **驗證：**驗證設定的輸出；Ollama 輸出不加 `--require-offline`。
+7. **Audit trace：**用 `tutorials/inspect_decision_flow.py` 查看實際 run 的資訊、
+   prompts、回覆、proposal、物理結果及 audit 證據。
 
-HydroCNHS 將入流 routing 至 Dam agent；決策 backend 提出放流，共同物理程式執行放流、
-spill 及蓄水更新，將 total outflow 注入下游一次。實際結果回饋至隔日歷史。
-三種方法都走這條執行鏈，使用共同 audit／trace writer。
+執行任何命令前，請將初始蓄水 **1,992.61 acre-ft** 與下游 `UH=[1.0]`
+identity routing 視為範圍受限的整合假設；它們不是現地驗證，也不代表任何操作策略
+已通過驗收。新 Ollama case 是明示的診斷案例；原始 case readiness 仍為 `false`。
 
-本例使用**固定、已完成上游 routing 的模擬入流**，以 `assigned_Q` 傳給原生 HydroCNHS。
-實際執行 Dam 耦合與下游 routing，沒有重算降雨產流。完整產流設定見[水文手冊](../../docs/HYDROLOGY_SETUP.md)。
-初始蓄水與 identity routing 是診斷假設，尚未證明真實實驗 readiness。
+```powershell
+python run_experiment.py check examples/fe_walter/zero_shot/experiment.ollama.yaml
+python run_experiment.py run examples/fe_walter/zero_shot/experiment.ollama.yaml --allow-network
+python run_experiment.py verify runs/hydroopslm-fe-walter-zero-shot-ollama-gemma3-4b-20261012
+python tutorials/inspect_decision_flow.py runs/hydroopslm-fe-walter-zero-shot-ollama-gemma3-4b-20261012
+```
 
-## 策略來源
+Benchmark 與 DKP 命令見各方法頁。已有輸出不會覆寫；再次執行請使用新的
+`run_id` 與輸出路徑。保存的 trace 分別呈現 checker validity、策略 audit 與物理可行性。
 
-兩個 LLM 範例透過本 repo 的 `reference_v3_7` adapter，保留 Anik V3.7 system 文字、
-每日 prompt 格式、schema、檢索與策略 audit。這個 selector 指的是策略相容 adapter，
-模擬仍由本框架執行。Benchmark 只改編固定版本的放流函數。來源檔案及 hashes 保留供重現，
-各方法操作頁提供連結。離線合成回覆不能評估 LLM 策略品質；真實 YAML 維持 temperature
-**0.7**，執行前仍需[readiness 檢查](../../docs/LIVE_READINESS.md)。
+[Ollama notebook](../../tutorials/08_ollama_workflow.ipynb) ·
+[正式設定手冊](../../docs/USER_GUIDE.zh-TW.md) ·
+[原生水文設定](../../docs/HYDROLOGY_SETUP.md)
 
-[完整 LLM 決策流程](../../tutorials/README.zh-TW.md#查看完整決策) · [通用模組設定](../../docs/USER_GUIDE.zh-TW.md)
+[已保存的本機 Ollama 診斷與 audit 結果](../../results/fe_walter_ollama_2016_01/README.zh-TW.md)

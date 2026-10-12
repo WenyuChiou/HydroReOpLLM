@@ -2,124 +2,106 @@
   "scope": "Generic HydroCNHS flow plus an independent LLM decision extension; one policy choice per reservoir, optional context, no named case.",
   "canvas": [
     1800,
-    1160
+    1320
   ],
   "nodes": [
     {
       "id": "prompt",
       "bounds": [
-        75,
-        240,
-        240,
-        265
+        85,
+        230,
+        270,
+        270
       ]
     },
     {
       "id": "language-model",
       "bounds": [
-        430,
-        240,
-        280,
-        265
+        465,
+        230,
+        300,
+        270
       ]
     },
     {
-      "id": "reader",
+      "id": "rule-output",
       "bounds": [
-        845,
-        315,
-        175,
-        115
-      ]
-    },
-    {
-      "id": "decision",
-      "bounds": [
-        1155,
-        315,
-        195,
-        115
+        875,
+        290,
+        250,
+        150
       ]
     },
     {
       "id": "checker",
       "bounds": [
-        1485,
-        240,
+        1235,
         230,
-        265
+        270,
+        270
       ]
     },
     {
       "id": "knowledge",
       "bounds": [
-        375,
+        85,
         550,
-        310,
-        55
+        420,
+        70
       ]
     },
     {
       "id": "audit",
       "bounds": [
-        1010,
+        680,
         550,
-        320,
-        55
+        560,
+        115
       ]
     },
     {
       "id": "stop",
       "bounds": [
-        1590,
+        1360,
         550,
-        130,
-        55
+        350,
+        115
       ]
     },
     {
       "id": "runoff",
       "bounds": [
         75,
-        830,
-        280,
-        285
+        920,
+        275,
+        325
       ]
     },
     {
       "id": "upstream",
       "bounds": [
-        425,
-        830,
+        420,
+        920,
         300,
-        285
+        325
       ]
     },
     {
       "id": "reservoir",
       "bounds": [
-        795,
-        830,
-        300,
-        285
+        810,
+        915,
+        320,
+        335
       ]
     },
     {
       "id": "downstream",
       "bounds": [
-        1165,
-        830,
-        330,
-        285
-      ]
-    },
-    {
-      "id": "river-flow",
-      "bounds": [
-        1565,
-        925,
-        150,
-        95
+        1200,
+        920,
+        350,
+        325
       ]
     }
   ],
@@ -139,9 +121,9 @@
       "via": []
     },
     {
-      "id": "model-reader",
+      "id": "model-output",
       "source": "language-model",
-      "target": "reader",
+      "target": "rule-output",
       "exit": [
         1,
         0.5
@@ -153,22 +135,8 @@
       "via": []
     },
     {
-      "id": "reader-decision",
-      "source": "reader",
-      "target": "decision",
-      "exit": [
-        1,
-        0.5
-      ],
-      "entry": [
-        0,
-        0.5
-      ],
-      "via": []
-    },
-    {
-      "id": "decision-checker",
-      "source": "decision",
+      "id": "output-checker",
+      "source": "rule-output",
       "target": "checker",
       "exit": [
         1,
@@ -185,54 +153,76 @@
       "source": "knowledge",
       "target": "prompt",
       "exit": [
-        0,
-        0.5
+        0.25,
+        0
       ],
       "entry": [
-        0.5,
+        0.4,
         1
       ],
-      "via": [
-        [
-          195,
-          577.5
-        ]
-      ]
+      "via": []
     },
     {
       "id": "checker-stop",
       "source": "checker",
       "target": "stop",
       "exit": [
-        0.75,
+        0.85,
         1
       ],
       "entry": [
-        0.52,
+        0.6,
         0
       ],
       "via": []
+    },
+    {
+      "id": "checker-audit",
+      "source": "checker",
+      "target": "audit",
+      "exit": [
+        0.1,
+        1
+      ],
+      "entry": [
+        0.85,
+        0
+      ],
+      "via": [
+        [
+          1262,
+          525
+        ],
+        [
+          1156,
+          525
+        ]
+      ]
     },
     {
       "id": "checked-release",
       "source": "checker",
       "target": "reservoir",
       "exit": [
-        0.2,
-        1
+        1,
+        0.65
       ],
       "entry": [
-        0.5,
+        0.9,
         0
       ],
       "via": [
         [
-          1531,
-          655
+          1730,
+          405.5
         ],
         [
-          945,
-          655
+          1730,
+          730
+        ],
+        [
+          1098,
+          730
         ]
       ]
     },
@@ -279,9 +269,9 @@
       "via": []
     },
     {
-      "id": "downstream-river",
+      "id": "downstream-outlet",
       "source": "downstream",
-      "target": "river-flow",
+      "target": "outlet-anchor",
       "exit": [
         1,
         0.5
@@ -297,89 +287,79 @@
       "source": "upstream",
       "target": "prompt",
       "exit": [
-        0.5,
+        0.3,
         0
       ],
       "entry": [
-        0.25,
-        1
+        0,
+        0.5
       ],
       "via": [
         [
-          575,
-          675
+          510,
+          705
         ],
         [
-          135,
-          675
+          65,
+          705
+        ],
+        [
+          65,
+          365
         ]
       ]
     },
     {
-      "id": "state-feedback",
+      "id": "reservoir-feedback",
       "source": "reservoir",
       "target": "prompt",
       "exit": [
-        0,
-        0.2
+        0.1,
+        0
       ],
       "entry": [
-        0.75,
+        0.85,
         1
       ],
       "via": [
         [
-          760,
-          887
+          842,
+          795
         ],
         [
-          760,
-          725
+          555,
+          795
         ],
         [
-          255,
-          725
+          555,
+          520
+        ],
+        [
+          314.5,
+          520
         ]
       ]
-    },
-    {
-      "id": "decision-record",
-      "source": "decision",
-      "target": "audit",
-      "exit": [
-        0.5,
-        1
-      ],
-      "entry": [
-        0.75,
-        0
-      ],
-      "via": []
     },
     {
       "id": "execution-record",
       "source": "reservoir",
       "target": "audit",
       "exit": [
-        1,
-        0.15
+        0.65,
+        0
       ],
       "entry": [
-        0.4,
+        0.65,
         1
       ],
       "via": [
         [
-          1135,
-          872.75
+          1018,
+          860
         ],
         [
-          1135,
-          725
-        ],
-        [
-          1138,
-          725
+          1044,
+          860
         ]
       ]
     }
@@ -392,12 +372,12 @@
     "audit / trace": "Record decision and physical execution; never infer strategy acceptance from rendering."
   },
   "conditions": {
-    "checked-release": "Action contract PASS; only the selected LLM policy returns this proposal through the Dam API.",
-    "checker-stop": "Action contract FAIL; stop before physical transition, without a fallback policy.",
+    "checked-release": "Format and value checks valid; only the selected LLM policy returns this proposal through the Dam API.",
+    "checker-stop": "Malformed, incomplete or invalid action; stop before physical transition, without a fallback policy.",
     "knowledge-prompt": "Optional configured information, not a mandatory decision stage."
   },
   "notes": [
-    "The reader and checker are conceptual roles, not a claim of two separate runtime services. A malformed response may fail in the reader; Stop also represents that terminal decision-path failure.",
+    "Rule output is a requested release value, not executable code. Parsing and checking are combined conceptual roles; a malformed reply stops before reservoir execution.",
     "Checker PASS means the action contract passed, not that a strategy audit accepted the policy.",
     "Invalid actions stop before storage changes; no automatic rule-policy fallback is implied.",
     "Controlled release plus spill enters downstream routing once.",

@@ -1,11 +1,12 @@
-# HydroCNHS FE Walter — rule-based benchmark
+# HydroOpsLM FE Walter — rule-based benchmark
 
 [English](README.md) | [繁體中文](README.zh-TW.md)
 
-This upgraded HydroCNHS example uses a deterministic Hanasaki-based flood-control
-decision backend. It requests release; the framework runs its Dam API, common
-physics and routing and records audit/trace. All three methods share the same
-[execution path](../README.md). This added rule has no seasonal target controller.
+This example calls a custom deterministic Hanasaki-style flood-control rule through
+the native HydroCNHS Dam API. The rule requests release; the framework applies
+common reservoir physics and routing and records audit/trace. HydroCNHS does not
+provide this rule as a built-in policy or physical model. All three methods share
+the same [execution path](../README.md). This added rule has no seasonal target controller.
 
 1. Use the same [input and physical case](../../../cases/fe_walter_reference/case.json)
    as the zero-shot and DKP examples. Initial storage remains an assumption;

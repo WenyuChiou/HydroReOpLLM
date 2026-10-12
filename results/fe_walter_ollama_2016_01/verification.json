@@ -1,0 +1,228 @@
+{
+  "model_pin": {
+    "name": "gemma3:4b",
+    "model": "gemma3:4b",
+    "modified_at": "2026-10-09T02:02:31.2725069-04:00",
+    "size": 3349593375,
+    "digest": "c30276f7dffec93a536d283e15088990454b8d21cf180a3d6eea4959e4147291",
+    "details": {
+      "parent_model": "",
+      "format": "gguf",
+      "family": "gemma3",
+      "families": [
+        "gemma3",
+        "clip"
+      ],
+      "parameter_size": "4.3B",
+      "quantization_level": "Q4_K_M",
+      "context_length": 131072,
+      "embedding_length": 2560,
+      "runner": "llamacpp"
+    },
+    "capabilities": [
+      "completion",
+      "vision"
+    ]
+  },
+  "requests": 6,
+  "retries": 0,
+  "methods": {
+    "zero_shot": {
+      "source": "runs\\hydroopslm-fe-walter-zero-shot-ollama-gemma3-4b-20261012",
+      "files": {
+        "audit.jsonl": "177427d9c7fcdfe6fd6eeb79075c96190338a744b17692841d15e0bbd4f1ccb4",
+        "backend_events.jsonl": "d36d8c69e9a4ca4f12176d69ecf814bd21e500083de7ad6a6c680f9401740351",
+        "decisions.jsonl": "947b1f36f66901ae3f300650edeeb90b49057f54562bbb90ba65ad91ea939df0",
+        "experiment.json": "a901e101e7e3ba9c39260c252cff174cc2fc55cd9986ae41a46bf96ea87bb12e",
+        "index.json": "d3e0e4e58ced8d641cc9dd5a3b30b2bf469cf21dd0385da462a9fff3d55a5ad4",
+        "network_balance.csv": "d18b96ade1808bdfe28c2321c0821c2d007d5607259d9d298b478d4bdb2b47e1",
+        "network_flows.csv": "6a836ebff4c73139a2bcd304f6c8d002a3ff2e54f1866fea31ba0467d95e079e",
+        "physics.jsonl": "dff52d2836f99555ed7302dad92dde75b5ea4b49728b06503837953bcb33e605",
+        "progress.json": "8a93eb5a7a4838c1624785725421c9288a69c7ac39ef542722305fc834c110d5",
+        "reach_volume_trace.json": "684ffc1524159c7b69703b5e8b4c850501808ec5aae0da3579be86cf427a78eb",
+        "reservoir_trajectory.csv": "02587e39aad86eafcf1b9e10bb9a87391c7b0e1e53427cb7b128811f5728d539",
+        "summary.json": "d3e0e4e58ced8d641cc9dd5a3b30b2bf469cf21dd0385da462a9fff3d55a5ad4",
+        "raw/audit_4e2006ff9c730ed33c23b8f580d2e49e1d6d8a4a643806a24ef48fe689147292.json": "bdc629ca25b0d1e957081444cc87af4a87eed3c717f11e086dc301d910bea355",
+        "raw/audit_8b6b32b16eb12e9cd580ac748e04c6ab20981006c19e4ea2e55f32651f3636c2.json": "a792cb419aea0a8dee71beff2bca8369e7e4332a78543a58d127af4cd1869372",
+        "raw/audit_b32bc5738ff8f890b5950aab3f5203ab31c224527ff6be8b3f5daf50bdb3dcc5.json": "d6678a5d0d453b2a614aef215675d92cc6009e4c0072f664be62d884573877fc",
+        "raw/policy_4e2006ff9c730ed33c23b8f580d2e49e1d6d8a4a643806a24ef48fe689147292.json": "ea42262195306557eeacc492f40fe84753ca2e5857b7aa23f4b5283753d0c346",
+        "raw/policy_8b6b32b16eb12e9cd580ac748e04c6ab20981006c19e4ea2e55f32651f3636c2.json": "86628dd69e5b03906c52cb5b1d2f553c098f0ee487992a25253b507e4535d2f3",
+        "raw/policy_b32bc5738ff8f890b5950aab3f5203ab31c224527ff6be8b3f5daf50bdb3dcc5.json": "811146dc5c04e370dc33b04b4206fc20ab611e58725044a2c5dcdfa48c23ae34"
+      },
+      "verification": {
+        "status": "PASS",
+        "days": 3,
+        "reservoir_count": 1,
+        "reservoir_days": 3,
+        "date_start": "2016-01-01",
+        "date_end": "2016-01-03",
+        "audit_counts": {
+          "PASS": 2,
+          "FAIL": 1
+        },
+        "max_reservoir_balance_residual_m3": 0.0,
+        "max_system_balance_residual_m3": 0.0,
+        "max_routing_difference_cms": 0.0,
+        "final_channel_storage_m3": 0.0,
+        "observed_network_calls": 3,
+        "operating_strategy_accepted": null,
+        "audit_binding_counts": {
+          "versioned_suite": 3,
+          "legacy_unbound": 0
+        },
+        "external_audit_pins_checked": []
+      },
+      "days": [
+        {
+          "date": "2016-01-01",
+          "requested_release_cms": 32.1254629215,
+          "implemented_release_cms": 32.1254629215,
+          "spill_cms": 0.0,
+          "storage_end_m3": 2457835.819567746,
+          "audit_status": "PASS",
+          "completion": {
+            "done": true,
+            "done_reason": "stop"
+          }
+        },
+        {
+          "date": "2016-01-02",
+          "requested_release_cms": 22.353319021799997,
+          "implemented_release_cms": 22.353319021799997,
+          "spill_cms": 0.0,
+          "storage_end_m3": 2457812.3355503967,
+          "audit_status": "PASS",
+          "completion": {
+            "done": true,
+            "done_reason": "stop"
+          }
+        },
+        {
+          "date": "2016-01-03",
+          "requested_release_cms": 22.353319021799997,
+          "implemented_release_cms": 22.353319021799997,
+          "spill_cms": 0.0,
+          "storage_end_m3": 1752841.2464844473,
+          "audit_status": "FAIL",
+          "completion": {
+            "done": true,
+            "done_reason": "stop"
+          }
+        }
+      ],
+      "notebook_reuse": {
+        "status": "PASS",
+        "code_cells": 3,
+        "http_blocked": true,
+        "new_requests": 0
+      },
+      "snapshot": "results/fe_walter_ollama_2016_01/zero_shot"
+    },
+    "dkp": {
+      "source": "runs\\hydroopslm-fe-walter-dkp-ollama-gemma3-4b-20261012",
+      "files": {
+        "audit.jsonl": "5d6f4b0b0073db7053071566f9319b39b1d1fdf9a07ea51951142f0c335173df",
+        "backend_events.jsonl": "4d4764a6635302f7c377cf971723d9096da70522a84cb638cd190bd1ccb0891c",
+        "decisions.jsonl": "de4e801d929532aee66f636dcabfd7fdd4f3ff2e34934d18e93c9dc7a10e3ac7",
+        "experiment.json": "99501e1f90b159371e7a05c35c38b91bad4eadc3a116a249281c6eac78004e28",
+        "index.json": "dc5d63c90180fbef240b914279c8a5674bf1539aed2c027a904720f46b54df9a",
+        "network_balance.csv": "dc44f0476658a2fbe00a407be11af1af58ef1cee85c83e170782e525dbb343f1",
+        "network_flows.csv": "0876ad3500f65ac8ce40beba387324782d97547100225d2aa3ab50baf7a9d6db",
+        "physics.jsonl": "c730c63cdb6646ba6db3558bbfd7e63e2846938591a7de86e92835949a1989d3",
+        "progress.json": "8a93eb5a7a4838c1624785725421c9288a69c7ac39ef542722305fc834c110d5",
+        "reach_volume_trace.json": "fd700beab43e7301433f4f4bc5fee3615b61dac17daca73bc5644045ba2408e6",
+        "reservoir_trajectory.csv": "5c0c31e1fd8a567d9d9f5bb3117985d4c32a6a31679a662c16e812e198461c6f",
+        "summary.json": "dc5d63c90180fbef240b914279c8a5674bf1539aed2c027a904720f46b54df9a",
+        "raw/audit_24bad2561f92f1ff5ef9ba6c227da2c8753ec2f80a4426b281b9bd57be2589ee.json": "eff31007900a7c549dfaa14f73d464066883e9da7fedf582658813eda21d30b5",
+        "raw/audit_525a5e6130743db39c9b20a90a5974262ef848173b2f5c363b148eab56e0a7a0.json": "3a2adb41cc682031fd2577a1456206f995867f2061ddb94197a5ba9f520ab2f2",
+        "raw/audit_87d975aee46dea6d4818b1f090efec8cc79b1e29a0fc31132d62799f2f3741b6.json": "7274f33026aeb7a0b5034dea61c760aeb5be4065bde91f773ac978b84dc1ee89",
+        "raw/policy_24bad2561f92f1ff5ef9ba6c227da2c8753ec2f80a4426b281b9bd57be2589ee.json": "6789e36df21b7a01f0e06d2dcf9660a103ed0510d26aae4b3ebfeb1516148428",
+        "raw/policy_525a5e6130743db39c9b20a90a5974262ef848173b2f5c363b148eab56e0a7a0.json": "3ccc94fd5f0c9f7d380a81a3943c34817edc73aa32d8d789d5d2760d54f11475",
+        "raw/policy_87d975aee46dea6d4818b1f090efec8cc79b1e29a0fc31132d62799f2f3741b6.json": "0716544f4d3bb86bcee009fb479f4dc631ccfb78bc8c5649df73290569444565"
+      },
+      "verification": {
+        "status": "PASS",
+        "days": 3,
+        "reservoir_count": 1,
+        "reservoir_days": 3,
+        "date_start": "2016-01-01",
+        "date_end": "2016-01-03",
+        "audit_counts": {
+          "FAIL": 3
+        },
+        "max_reservoir_balance_residual_m3": 8.731149137020111e-10,
+        "max_system_balance_residual_m3": 8.731149137020111e-10,
+        "max_routing_difference_cms": 0.0,
+        "final_channel_storage_m3": 0.0,
+        "observed_network_calls": 3,
+        "operating_strategy_accepted": null,
+        "audit_binding_counts": {
+          "versioned_suite": 3,
+          "legacy_unbound": 0
+        },
+        "external_audit_pins_checked": []
+      },
+      "days": [
+        {
+          "date": "2016-01-01",
+          "requested_release_cms": 1.41584235,
+          "implemented_release_cms": 1.41584235,
+          "spill_cms": 0.0,
+          "storage_end_m3": 5111147.036945346,
+          "audit_status": "FAIL",
+          "completion": {
+            "done": true,
+            "done_reason": "stop"
+          }
+        },
+        {
+          "date": "2016-01-02",
+          "requested_release_cms": 1.41584235,
+          "implemented_release_cms": 1.41584235,
+          "spill_cms": 0.0,
+          "storage_end_m3": 6920121.537371515,
+          "audit_status": "FAIL",
+          "completion": {
+            "done": true,
+            "done_reason": "stop"
+          }
+        },
+        {
+          "date": "2016-01-03",
+          "requested_release_cms": 1.41584235,
+          "implemented_release_cms": 1.41584235,
+          "spill_cms": 0.0,
+          "storage_end_m3": 8024148.432749085,
+          "audit_status": "FAIL",
+          "completion": {
+            "done": true,
+            "done_reason": "stop"
+          }
+        }
+      ],
+      "notebook_reuse": {
+        "status": "PASS",
+        "code_cells": 3,
+        "http_blocked": true,
+        "new_requests": 0
+      },
+      "snapshot": "results/fe_walter_ollama_2016_01/dkp"
+    }
+  },
+  "operating_strategy_accepted": null,
+  "schema_version": "hydroopslm-local-demo.v1",
+  "observed_at_utc": "2026-10-12T21:56:06Z",
+  "scope": "Two bounded three-day local Ollama integration diagnostics; not policy-performance validation.",
+  "ollama_version": "0.40.3",
+  "source_base_commit": "1e6aff7433dc7c74802c2607f8fe41623f9b3be6",
+  "assumptions": {
+    "initial_storage_af": 1992.61,
+    "initial_storage_m3": 2457848.279729185,
+    "downstream_unit_hydrograph": [
+      1.0
+    ],
+    "evaporation_m3": 0,
+    "seepage_m3": 0,
+    "hydrology_recomputed": false
+  }
+}
