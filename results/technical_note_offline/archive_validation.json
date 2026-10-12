@@ -1,0 +1,52 @@
+{
+  "tree": "2bde9e623da0cd1cdb07d7064a4e94eeec703a3d",
+  "diff_sha256": "8ce543c5a7fb402662ed14890b7c4010d67165db443aa1cdd509f3a63c9d2a5b",
+  "critical_index_bytes_checked": 83,
+  "preserved_files_in_working_and_archive": 691,
+  "archive_sha256": "9acd44e748f664b76530d6269eb8d75b1e12c2b853dd6828b581fe372827e302",
+  "snapshot": "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\HydroCNHS-Delaware-Operations\\runs\\hydrocnhs-llm-concept-20261011\\staged-archive-2900a9a5",
+  "saved_runs_verified": 4,
+  "simulation_replay": false,
+  "lf_checkout": {
+    "core_autocrlf": false,
+    "protected_files": 691,
+    "offline_configs_checked": 4,
+    "archive_sha256": "7005441a7e7cfd0f81b7f507dd0d9d3eceea5de9ca6875c2766d37c1a9b96922",
+    "simulation_replay": false
+  },
+  "legacy_preservation": {
+    "prior_git_newline_only_paths": [
+      {
+        "path": "cases/fe_walter_reference/case.json",
+        "working_sha256": "d0c222547bf33c65841d85d81c08d092da25946ddd9fb31e89b4822b8b5f4711",
+        "prior_git_sha256": "22918e3b13fb685a7a02bb8f6d35c8248e5942d03077ffaa1b63cc7d761b8597",
+        "newline_only": true
+      },
+      {
+        "path": "cases/fe_walter_reference/dkp_responses.json",
+        "working_sha256": "4e088f228f068dc06e42ac20ef70a9dc42b7c5133f6feccbdc31f4a4ee272dc7",
+        "prior_git_sha256": "19307122bca5a7c2440862e7ab6a5dd72b8ca0da2712afa0a6b2e7e30d44bbc3",
+        "newline_only": true
+      },
+      {
+        "path": "cases/fe_walter_reference/inflows.csv",
+        "working_sha256": "f707927eb8b7894eaba61fe3b1ae484afe59d68b94941cc056addcc356326c5e",
+        "prior_git_sha256": "59306570bcb545b3e424b8eb24c819e5b915a4f1cb6ce7a364a2ec7cbbec51fa",
+        "newline_only": true
+      },
+      {
+        "path": "cases/fe_walter_reference/zeroshot_responses.json",
+        "working_sha256": "e2405a7edc5cae0bfe65d995125086e1a0ffb3d79bb0df784d356f194a948632",
+        "prior_git_sha256": "60c578d3b1b75d340d0b879775a5afe5f02d93c13ce5036c8480638bcfa98502",
+        "newline_only": true
+      },
+      {
+        "path": "results/manifest.json",
+        "working_sha256": "4b3da7416b489b1f3bef74a1ede9a7bc9cbe0a4888cea665f65c6484a4ee0029",
+        "prior_git_sha256": "982e70a69b2f9d465541e078f615a0040e7d0a7647a02c9880ba17dce914fff4",
+        "newline_only": true
+      }
+    ],
+    "working_bytes_unchanged": true
+  }
+}

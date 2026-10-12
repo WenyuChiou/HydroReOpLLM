@@ -1,0 +1,8 @@
+VERSIONS 2.1.2 3.7.2
+VERIFICATION {'source_geometry_and_property_records_exact': 313, 'coordinate_counts': {'model_units': 27285, 'upstream_basins': 1825, 'reservoirs': 156, 'usgs_gauges': 2, 'river_network': 3584, 'delaware_river_basin': 2991}, 'seven_units_and_dummy_aggregation': True, 'dam_projection_exact': True, 'inlet_on_lake_and_Lehigh': True, 'host_paths_absent': True}
+FILE docs\figures\source\extract_fe_map.py 13754 1b61788fd88b5eb3510394730e13e191060b01d2f2fe1dd547cf93f518766a86
+FILE data\figures\fe_walter_map.json 2579565 4716a579d0d22efdade8013c619fa7227d9e88f4f26d7e1b0423af307c7b8794
+FILE data\figures\SOURCES.md 3196 7a028d4f4c032b1ba12cb70a006c8cd1ce30120f0c5e0fbfe41da0fac17f1a12
+SOURCE_SHA256 6eeac6d43823b32d61c710c81740f9912e9e6b351198d6d6e4bf14357952d381
+GAUGES [('01447500', [1684031.7084466007, 2194805.016861078]), ('01447720', [1686745.5674112204, 2190176.1631288035])]
+SUBBASINS_INTERFACE 7 GeneratorSHA256 matched; re-executed verifier runs\hydrocnhs-llm-concept-20261011\20261012T155433629623Z-command.json

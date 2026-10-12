@@ -1,0 +1,22 @@
+{
+  "status": "PASS",
+  "days": 3,
+  "reservoir_count": 1,
+  "reservoir_days": 3,
+  "date_start": "2016-01-01",
+  "date_end": "2016-01-03",
+  "audit_counts": {
+    "PASS": 3
+  },
+  "max_reservoir_balance_residual_m3": 0.0,
+  "max_system_balance_residual_m3": 0.0,
+  "max_routing_difference_cms": 0.0,
+  "final_channel_storage_m3": 0.0,
+  "observed_network_calls": 0,
+  "operating_strategy_accepted": null,
+  "audit_binding_counts": {
+    "versioned_suite": 3,
+    "legacy_unbound": 0
+  },
+  "external_audit_pins_checked": []
+}

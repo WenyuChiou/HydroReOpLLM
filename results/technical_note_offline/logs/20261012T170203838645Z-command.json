@@ -1,0 +1,22 @@
+{
+  "command_argv": [
+    "C:/Users/wenyu/.codex/portable-harness/.venv/Scripts/python.exe",
+    "-c",
+    "from pathlib import Path;import json,hashlib,subprocess,zipfile,uuid,os,sys\nr=Path.cwd();t=r/'runs/hydrocnhs-llm-concept-20261011';paths=set((t/'upgrade-stage-paths.v2.nul').read_bytes().decode().strip('\\0').split('\\0'))\nsubprocess.run(['git','add','--','results/technical_note_offline/document_checks.json'],check=True)\nactual=subprocess.check_output(['git','diff','--cached','--name-only']).decode().splitlines();assert set(actual)==paths and len(actual)==len(paths)\nsubprocess.run(['git','diff','--cached','--check'],check=True)\ndiff=subprocess.check_output(['git','diff','--cached','--binary']);(t/'upgrade-staged.v2.diff').write_bytes(diff)\npin={'head':subprocess.check_output(['git','rev-parse','HEAD']).decode().strip(),'tree':subprocess.check_output(['git','write-tree']).decode().strip(),'diff_sha256':hashlib.sha256(diff).hexdigest(),'expected_file_count':len(paths),'paths':sorted(paths)}\n(t/'upgrade-review-pin.v2.json').write_text(json.dumps(pin,indent=2)+'\\n',encoding='utf-8',newline='\\n');print('PIN',json.dumps({k:v for k,v in pin.items() if k!='paths'}))\ncritical=[n for n in paths if n.startswith(('data/benchmark/','data/figures/','results/technical_note_offline/','tests/fixtures/')) or n.endswith('.svg') or n.endswith('.ipynb')]\nfor n in critical:assert subprocess.check_output(['git','show',':'+n])==(r/n).read_bytes(),n\nsnapshot=t/('staged-archive-'+uuid.uuid4().hex[:8]);snapshot.mkdir();archive=t/(snapshot.name+'.zip');subprocess.run(['git','archive','--format=zip','--output='+str(archive),pin['tree']],check=True)\nwith zipfile.ZipFile(archive) as z:\n assert all(not Path(n).is_absolute() and '..' not in Path(n).parts for n in z.namelist());z.extractall(snapshot)\nprotected=json.loads((r/'results/technical_note_offline/preserved_files.json').read_text())['files']\nfor n,x in protected.items():\n for root in [r,snapshot]:\n  p=root/n;assert p.stat().st_size==x['bytes'] and hashlib.sha256(p.read_bytes()).hexdigest()==x['sha256'],n\nbundle=snapshot/'results/technical_note_offline/offline_runs_final.zip';unpack=snapshot/'saved-final-runs';unpack.mkdir()\nwith zipfile.ZipFile(bundle) as z:\n assert all(not Path(n).is_absolute() and '..' not in Path(n).parts for n in z.namelist());z.extractall(unpack)\nenv=dict(os.environ,PYTHONPATH=str(snapshot/'src'),PYTHONUTF8='1')\ncommand=\"from pathlib import Path;from llm_reservoir_agent.verification import verify_run;import json; r=Path('saved-final-runs');v={p.name:verify_run(p,require_offline=True) for p in r.iterdir()};assert len(v)==4 and all(x['status']=='PASS' and x['observed_network_calls']==0 for x in v.values());print('ARCHIVE_VERIFIED',json.dumps(v));print('PYTHON_FROM_ARCHIVE',__import__('llm_reservoir_agent').__file__)\"\nsubprocess.run([sys.argv[1],'-c',command],cwd=snapshot,env=env,check=True)\nreport={'tree':pin['tree'],'diff_sha256':pin['diff_sha256'],'critical_index_bytes_checked':len(critical),'preserved_files_in_working_and_archive':len(protected),'archive_sha256':hashlib.sha256(archive.read_bytes()).hexdigest(),'snapshot':str(snapshot),'saved_runs_verified':4,'simulation_replay':False}\n(t/'staged-archive-check.json').write_text(json.dumps(report,indent=2)+'\\n',encoding='utf-8',newline='\\n');print('ARCHIVE_CHECK',json.dumps(report))",
+    "C:/Users/wenyu/Documents/LLM Rervoir/HydroCNHS/llm_integration_review/.venv/Scripts/python.exe"
+  ],
+  "python_capture_runtime": "3.13.11",
+  "exit_code": 0,
+  "current_test_counts": null,
+  "stdout": {
+    "path": "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\HydroCNHS-Delaware-Operations\\runs\\hydrocnhs-llm-concept-20261011\\20261012T170203838645Z-stdout.log",
+    "bytes": 3067,
+    "sha256": "dd67c12fd7b3504498ba782224a859cc97a7a1b137b96ca3e8204970253d7200"
+  },
+  "stderr": {
+    "path": "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\HydroCNHS-Delaware-Operations\\runs\\hydrocnhs-llm-concept-20261011\\20261012T170203838645Z-stderr.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "created_at_utc": "2026-10-12T17:02:03.846233+00:00"
+}

@@ -1,0 +1,425 @@
+{"source": "https://github.com/DasanikBD/Delaware-Reservoir-LLM/blob/6c3dc532d712af55db1f4a1d8e018c86249ce7a8/benchmark_release.py", "git_blob": "4a0fb4dc3bbdacc0738e924f7a9bb7afa5832fbb", "sha256": "c11a81c71cdd34b80e30a1da1af6e493e75582b4bb56794d426c0683909604b6", "lines": 376, "read_range": [1, 376]}
+1: """Benchmark reservoir release rules from Abeshu et al. (2023), Sect. 2.3.1-2.3.3.
+2: 
+3: WHAT THIS FILE DOES
+4: ===================
+5: This module answers ONE question each simulated day:
+6: 
+7:     "Given today's inflow and the current storage, how much water should the
+8:      reservoir release?"  (the "benchmark" way - published generic rules)
+9: 
+10: It implements the three release rules of:
+11: 
+12:     Abeshu, G. W., et al. (2023): Enhancing the representation of water
+13:     management in global hydrological models, Geosci. Model Dev., 16,
+14:     5449-5472.
+15: 
+16: one rule per reservoir purpose:
+17: 
+18:     * Irrigation reservoirs   (Sect. 2.3.1, Eqs. 1-2) - release follows the
+19:       downstream water demand (Hanasaki et al., 2006 scheme).
+20:     * Hydropower reservoirs   (Sect. 2.3.2) - release follows a power-
+21:       maximizing lookup table built by dynamic programming.
+22:     * Flood control / other   (Sect. 2.3.3, Eq. 4)   - release is a function
+23:       of mean inflow, current inflow, and storage only.
+24: 
+25: HOW THE PIECES FIT TOGETHER
+26: ===========================
+27:     reservoir_model.py  (the driver: water balance, input/output)
+28:         |
+29:         |  creates one BenchmarkPolicy per reservoir, then calls
+30:         |  policy.target_release(date, inflow, storage) every day
+31:         v
+32:     BenchmarkPolicy  (bottom of this file - the "traffic director")
+33:         |-- irrigation      -> irrigation_provisional_release() + hanasaki_final_release()
+34:         |-- hydropower      -> HydropowerSDP.release()  (table lookup)
+35:         |-- flood_control / other -> hanasaki_final_release() with i_mean
+36: 
+37: KEY SYMBOLS (used throughout, following the paper's notation)
+38: =============================================================
+39:     i_mean  mean annual inflow (m^3/s)      C      storage capacity (m^3)
+40:     gamma   degree of regulation = C / (annual inflow volume)  [-]
+41:     alpha   capacity reduction factor (paper fixes it at 0.85) [-]
+42:     k_rls   release coefficient = S_start_of_year / (alpha*C)  [-]
+43: 
+44: UNITS
+45: =====
+46: All flows are m^3/s and all storages m^3 unless a name says otherwise.
+47: The paper works at a MONTHLY time step; here the same rules are applied
+48: DAILY (today's inflow stands in for the monthly inflow i_m,y, while k_rls
+49: still updates only once per operational year).
+50: """
+51: 
+52: from dataclasses import dataclass, field
+53: 
+54: import numpy as np
+55: import pandas as pd
+56: 
+57: # --- unit-conversion constants used across the project ---------------------
+58: SECONDS_PER_DAY = 86400.0     # seconds in one day (converts m^3/s <-> m^3/day)
+59: DAYS_PER_YEAR = 365.25        # average days per year (includes leap years)
+60: 
+61: 
+62: # ===========================================================================
+63: # SECTION 1 - THE CORE RELEASE EQUATIONS (plain functions, no state)
+64: # ===========================================================================
+65: # These two small functions ARE the benchmark method. Everything else in the
+66: # file is bookkeeping around them.
+67: 
+68: def irrigation_provisional_release(i_mean: float, d_now: float, d_mean: float) -> float:
+69:     """Provisional release R'_m,y for irrigation reservoirs (paper Eq. 1).
+70: 
+71:     The idea: an irrigation reservoir should release more when downstream
+72:     demand is high and less when it is low, centred on the mean inflow.
+73: 
+74:     Parameters
+75:     ----------
+76:     i_mean : mean annual inflow (m^3/s)
+77:     d_now  : current downstream water demand (m^3/s)
+78:     d_mean : long-term mean downstream water demand (m^3/s)
+79:     """
+80:     # Case 1 (Eq. 1, top): demand is LARGE relative to inflow
+81:     # -> release half the mean inflow as a base, scaled by relative demand.
+82:     if d_mean >= 0.5 * i_mean:
+83:         return (i_mean / 2.0) * (1.0 + d_now / d_mean)
+84:     # Case 2 (Eq. 1, bottom): demand is SMALL relative to inflow
+85:     # -> release the mean inflow, shifted by the demand anomaly.
+86:     return i_mean + d_now - d_mean
+87: 
+88: 
+89: def hanasaki_final_release(provisional: float, i_now: float,
+90:                            gamma: float, k_rls: float) -> float:
+91:     """Adjust a provisional release for the degree of regulation (Eqs. 2 & 4).
+92: 
+93:     The idea: a LARGE reservoir (gamma >= 0.5) can fully smooth the flow, so
+94:     it releases the provisional value scaled by how full it currently is
+95:     (k_rls). A SMALL reservoir cannot store much, so its release is a blend
+96:     between the smoothed value and today's actual inflow.
+97: 
+98:     Parameters
+99:     ----------
+100:     provisional : R'_m,y from Eq. 1 (irrigation) or i_mean (flood control)
+101:     i_now       : current inflow i_m,y (m^3/s)
+102:     gamma       : degree of regulation C / I_mean (dimensionless)
+103:     k_rls       : release coefficient S_first,y / (alpha * C)
+104:     """
+105:     # Hydrologically LARGE reservoir: full smoothing.
+106:     if gamma >= 0.5:
+107:         return k_rls * provisional
+108:     # Hydrologically SMALL reservoir: blend. The weight (gamma/0.5)^2 grows
+109:     # from 0 (tiny reservoir -> release = inflow) to 1 (at gamma = 0.5).
+110:     ratio = (gamma / 0.5) ** 2
+111:     return ratio * k_rls * provisional + (1.0 - ratio) * i_now
+112: 
+113: 
+114: # ===========================================================================
+115: # SECTION 2 - HYDROPOWER RESERVOIRS (Sect. 2.3.2)
+116: # ===========================================================================
+117: # Hydropower is different: instead of a formula, the paper builds a POLICY
+118: # TABLE offline ("if storage is X in month M, release Y"), chosen so that
+119: # long-term power production is maximized. Power = eta * rho*g * R * H, so
+120: # maximizing power means maximizing release * head.
+121: #
+122: # The table is found by BACKWARD-RECURSIVE DYNAMIC PROGRAMMING (DP):
+123: # starting from December and stepping backwards, we ask at every storage
+124: # level "which release gives the best power NOW plus the best expected
+125: # power LATER?" - sweeping the 12-month cycle until the answer stabilizes.
+126: 
+127: @dataclass
+128: class HydropowerSDP:
+129:     """Energy-maximizing monthly release policy via backward-recursive DP.
+130: 
+131:     Discretization follows the paper: 10 release increments x 1000 storage
+132:     levels x 12 months; a wedge-shaped reservoir converts storage to head;
+133:     inflow uncertainty enters as the average over the historical inflows
+134:     observed in each calendar month.
+135: 
+136:     Parameters
+137:     ----------
+138:     capacity_m3   : usable storage capacity alpha*C (m^3)
+139:     q_max         : maximum turbine flow (m^3/s)
+140:     installed_kw  : plant installed capacity (kW)
+141:     dam_height_m  : dam height = maximum storage depth (m)
+142:     efficiency    : turbine efficiency eta (0.9 in the paper)
+143:     """
+144: 
+145:     capacity_m3: float
+146:     q_max: float
+147:     installed_kw: float
+148:     dam_height_m: float
+149:     efficiency: float = 0.9
+150:     n_storage: int = 1000          # storage levels in the table
+151:     n_release: int = 10            # release increments in the table
+152:     # internal results, filled in by fit(): the policy table and its axis
+153:     _policy: np.ndarray = field(default=None, repr=False)       # (12, n_storage) m^3/s
+154:     _storage_grid: np.ndarray = field(default=None, repr=False)
+155: 
+156:     RHO_G = 9.81  # specific weight of water (kN/m^3): P[kW] = eta*rho_g*Q*H
+157: 
+158:     # ------------------------------------------------------------------
+159:     def head(self, storage_m3: np.ndarray) -> np.ndarray:
+160:         """Turbine head (m) as a function of storage, for a wedge reservoir.
+161: 
+162:         Geometry: for a wedge-shaped reservoir the water DEPTH grows with
+163:         the square root of the stored VOLUME:  y = H_dam * sqrt(V / C).
+164:         The turbine head = depth above the intake + fixed intake elevation.
+165:         The intake elevation itself is backed out from the power equation
+166:         at installed capacity (H_max = P / (eta * rho_g * q_max)).
+167:         """
+168:         # maximum head the plant was designed for (from the power equation)
+169:         h_max = self.installed_kw / (self.efficiency * self.RHO_G * self.q_max)
+170:         # elevation of the intake above the turbine (fixed part of the head)
+171:         intake = h_max - self.dam_height_m
+172:         # water depth above the intake (varies with storage; clip guards
+173:         # against tiny negative storages from floating-point arithmetic)
+174:         depth = self.dam_height_m * np.sqrt(np.clip(storage_m3, 0.0, None)
+175:                                             / self.capacity_m3)
+176:         return intake + depth
+177: 
+178:     # ------------------------------------------------------------------
+179:     def fit(self, monthly_inflows: pd.Series, n_cycles: int = 30) -> "HydropowerSDP":
+180:         """Build the 12 x n_storage release-policy table.
+181: 
+182:         Parameters
+183:         ----------
+184:         monthly_inflows : Series of monthly mean inflow (m^3/s) indexed by
+185:                           month timestamps, spanning several years. These are
+186:                           the "scenarios" the DP averages over.
+187:         n_cycles        : how many times to sweep the 12-month cycle
+188:                           backwards (enough for the table to converge).
+189:         """
+190:         # --- set up the discretized state (storage) and decision (release) axes
+191:         s_grid = np.linspace(0.0, self.capacity_m3, self.n_storage)
+192:         r_grid = np.linspace(0.0, self.q_max, self.n_release + 1)
+193:         sec_month = DAYS_PER_YEAR / 12.0 * SECONDS_PER_DAY  # seconds per month
+194:         head_now = self.head(s_grid)                        # head at each storage level
+195: 
+196:         # --- group the historical inflows by calendar month --------------
+197:         months = monthly_inflows.index.month
+198:         inflow_by_month = {
+199:             m: monthly_inflows.values[months == m] for m in range(1, 13)
+200:         }
+201: 
+202:         # --- OPTIMIZATION: precompute, once per (month, release, inflow), --
+203:         # the immediate power benefit and the resulting next storage. These
+204:         # never change between DP sweeps; only the "future value" curve does,
+205:         # so recomputing them inside the sweep loop (as a naive DP would)
+206:         # wastes ~n_cycles x the work.
+207:         #
+208:         # precomp[month] is a list with one entry per candidate release:
+209:         #     (release, [(benefit array, next-storage array), one per inflow])
+210:         precomp = {}
+211:         for m in range(1, 13):
+212:             inflows = inflow_by_month[m]
+213:             inflows = inflows[~np.isnan(inflows)]           # drop missing months
+214:             per_release = []
+215:             for r in r_grid:
+216:                 scenarios = []
+217:                 for i in inflows:
+218:                     # water available this month limits the actual release
+219:                     avail = s_grid / sec_month + i
+220:                     r_act = np.minimum(r, avail)
+221:                     # mass balance to next month's storage (spill is clipped
+222:                     # off at capacity and earns no power)
+223:                     s_next = np.clip(s_grid + (i - r_act) * sec_month,
+224:                                      0.0, self.capacity_m3)
+225:                     # power produced this month at each storage level
+226:                     benefit = self.efficiency * self.RHO_G * r_act * head_now
+227:                     scenarios.append((benefit, s_next))
+228:                 per_release.append((r, scenarios))
+229:             precomp[m] = per_release if len(inflows) else []
+230: 
+231:         # --- the backward recursion ---------------------------------------
+232:         future = np.zeros(self.n_storage)          # value of ending at each storage
+233:         policy = np.zeros((12, self.n_storage))    # best release per (month, storage)
+234: 
+235:         for sweep in range(n_cycles * 12):
+236:             m = 12 - (sweep % 12)                  # December -> January, repeated
+237:             if not precomp[m]:
+238:                 continue                            # no inflow data for this month
+239:             best_val = np.full(self.n_storage, -np.inf)
+240:             best_rel = np.zeros(self.n_storage)
+241:             # evaluate each candidate release: its value = average over the
+242:             # inflow scenarios of (power now + best value of what follows)
+243:             for r, scenarios in precomp[m]:
+244:                 value = np.zeros(self.n_storage)
+245:                 for benefit, s_next in scenarios:
+246:                     # np.interp reads the future-value curve at next storage
+247:                     value += benefit + np.interp(s_next, s_grid, future)
+248:                 value /= len(scenarios)            # average over scenarios
+249:                 better = value > best_val          # keep this release where it wins
+250:                 best_val[better] = value[better]
+251:                 best_rel[better] = r
+252:             future = best_val                      # becomes "later" for month m-1
+253:             policy[m - 1] = best_rel
+254: 
+255:         # paper rule: at full pool always release the maximum turbine flow
+256:         policy[:, -1] = self.q_max
+257:         self._policy = policy
+258:         self._storage_grid = s_grid
+259:         return self
+260: 
+261:     # ------------------------------------------------------------------
+262:     def release(self, storage_m3: float, month: int) -> float:
+263:         """Look up the optimal release (m^3/s) for a storage level and month."""
+264:         if self._policy is None:
+265:             raise RuntimeError("call fit() before release()")
+266:         # find the storage grid cell we are in (clipped to the table edges)
+267:         idx = int(np.clip(np.searchsorted(self._storage_grid, storage_m3),
+268:                           0, self.n_storage - 1))
+269:         return float(self._policy[month - 1, idx])
+270: 
+271: 
+272: # ===========================================================================
+273: # SECTION 3 - THE POLICY OBJECT THE SIMULATION DRIVER TALKS TO
+274: # ===========================================================================
+275: # reservoir_model.py never calls the equations above directly. It builds ONE
+276: # BenchmarkPolicy per reservoir and calls target_release() once per day.
+277: # This class precomputes the long-term statistics the equations need and
+278: # routes each daily decision to the right rule for the reservoir's purpose.
+279: 
+280: @dataclass
+281: class BenchmarkPolicy:
+282:     """Daily release decisions per Abeshu et al. (2023) for one reservoir.
+283: 
+284:     Parameters
+285:     ----------
+286:     purpose      : 'irrigation', 'hydropower', 'flood_control', or 'other'
+287:     capacity_m3  : total storage capacity C (m^3)
+288:     inflow       : daily inflow series (m^3/s) - used ONLY for the long-term
+289:                    statistics (mean inflow, seasonality), not consumed day by day
+290:     alpha        : capacity reduction factor (the paper fixes 0.85)
+291:     demand       : daily downstream demand series (m^3/s); irrigation only
+292:     hydropower   : a fitted HydropowerSDP instance; hydropower only
+293:     """
+294: 
+295:     purpose: str
+296:     capacity_m3: float
+297:     inflow: pd.Series
+298:     alpha: float = 0.85
+299:     demand: pd.Series = None
+300:     hydropower: HydropowerSDP = None
+301: 
+302:     # ------------------------------------------------------------------
+303:     def __post_init__(self):
+304:         """Precompute every long-term statistic the daily rules will need."""
+305:         # mean annual inflow i_mean (m^3/s) - the anchor of all the rules
+306:         self.i_mean = float(self.inflow.mean())
+307:         # mean annual inflow VOLUME (m^3/yr), to compare with capacity
+308:         annual_volume = self.i_mean * SECONDS_PER_DAY * DAYS_PER_YEAR
+309:         # degree of regulation: how many years of inflow the reservoir holds
+310:         self.gamma = self.capacity_m3 / annual_volume
+311:         # environmental floor: never release less than 10% of mean inflow
+312:         self.env_flow = 0.1 * self.i_mean
+313:         # mean demand (irrigation rule only; 0 when no demand is supplied)
+314:         self.d_mean = float(self.demand.mean()) if self.demand is not None else 0.0
+315:         # month in which the "operational year" begins (see helper below)
+316:         self.op_year_start_month = self._op_year_start_month()
+317:         # k_rls is (re)set on the first call and at each operational new year
+318:         self.k_rls = None
+319: 
+320:     # ------------------------------------------------------------------
+321:     def _op_year_start_month(self) -> int:
+322:         """First month whose typical inflow drops below the annual mean.
+323: 
+324:         Hanasaki et al. (2006) start the "operational year" when the wet
+325:         season ends, i.e. the first calendar month whose climatological mean
+326:         inflow falls below the annual mean while the previous month was
+327:         above it. If no such transition exists we fall back to October
+328:         (the standard US water-year start).
+329:         """
+330:         clim = self.inflow.groupby(self.inflow.index.month).mean()
+331:         for m in range(1, 13):
+332:             prev = clim.get(12 if m == 1 else m - 1, np.nan)   # previous month
+333:             if prev >= self.i_mean and clim.get(m, np.nan) < self.i_mean:
+334:                 return m
+335:         return 10  # fallback: start of the US water year
+336: 
+337:     # ------------------------------------------------------------------
+338:     def target_release(self, date: pd.Timestamp, inflow_now: float,
+339:                        storage_start_m3: float) -> float:
+340:         """Rule-based target release (m^3/s) for one day.
+341: 
+342:         NOTE: this is the rule's WISH. Physical feasibility (enough water in
+343:         storage, spill above capacity) is enforced by reservoir_model.py.
+344:         """
+345:         # (1) refresh k_rls once per operational year: it is the fraction of
+346:         #     usable capacity that is full at the START of the year, and it
+347:         #     scales this year's releases up (full) or down (empty).
+348:         if self.k_rls is None or (date.month == self.op_year_start_month
+349:                                   and date.day == 1):
+350:             self.k_rls = storage_start_m3 / (self.alpha * self.capacity_m3)
+351: 
+352:         # (2) route to the rule for this reservoir's purpose
+353:         if self.purpose == "irrigation":
+354:             # today's demand (fall back to the mean when no series given)
+355:             d_now = (float(self.demand.get(date, self.d_mean))
+356:                      if self.demand is not None else 0.0)
+357:             provisional = irrigation_provisional_release(self.i_mean, d_now,
+358:                                                          self.d_mean)
+359:             release = hanasaki_final_release(provisional, inflow_now,
+360:                                              self.gamma, self.k_rls)
+361:         elif self.purpose == "hydropower":
+362:             # simple table lookup in the pre-fitted DP policy
+363:             release = self.hydropower.release(storage_start_m3, date.month)
+364:         elif self.purpose in ("flood_control", "other"):
+365:             # Eq. 4: same shape as Eq. 2 but the "provisional" is i_mean
+366:             release = hanasaki_final_release(self.i_mean, inflow_now,
+367:                                              self.gamma, self.k_rls)
+368:         else:
+369:             raise ValueError(f"unknown reservoir purpose: {self.purpose!r}")
+370: 
+371:         # (3) apply the environmental-flow floor (paper Sect. 2.3): if the
+372:         #     rule produced nothing usable or less than 10% of mean annual
+373:         #     inflow, release that 10% instead.
+374:         if not np.isfinite(release) or release < self.env_flow:
+375:             release = self.env_flow
+376:         return release
+{"source": "https://github.com/DasanikBD/Delaware-Reservoir-LLM/blob/6c3dc532d712af55db1f4a1d8e018c86249ce7a8/README.md", "git_blob": "a185477c23262f2b2b398b97ec7e67b58de1b687", "sha256": "78815ad42e1943d3e89a23955197ec7e5e1260ac1e851979eaf3b6ad90ce14d9", "lines": 47, "read_range": [1, 47]}
+1: # Delaware River Basin — LLM-Guided Reservoir Operations
+2: 
+3: Comparing three methods for deciding daily reservoir releases across four
+4: reservoirs in the Delaware River Basin: a rule-based benchmark, a zero-shot
+5: LLM (no manual), and an LLM guided by Decision Knowledge Packages (DKPs) —
+6: structured excerpts from each reservoir's real operating manual.
+7: 
+8: ## Reservoirs in scope
+9: - **Prompton Reservoir** — flood control (no gates; outflow is uncontrolled by design)
+10: - **F.E. Walter Dam** — flood control
+11: - **Beltzville Lake** — water supply
+12: - **Lake Wallenpaupack** — hydropower
+13: 
+14: ## Repo structure
+15: | Path | What it is |
+16: |---|---|
+17: | `reservoir_model.py` | Main driver — water-balance simulation, shared across all reservoirs |
+18: | `benchmark_release.py` | Rule-based benchmark method (purpose-specific: flood control / water supply / hydropower) |
+19: | `zeroshot_llm_release.py` | Zero-shot LLM policy + shared Ollama backend |
+20: | `dkp_llm_release.py` | DKP-guided LLM policy (retrieval-augmented over each reservoir's DKP) |
+21: | `run_<reservoir>_1yr_all.py` | Per-reservoir wrapper — runs benchmark → zero-shot → DKP in one go |
+22: | `data/` | Inflow/release gauge CSVs + DKP markdown files — **not tracked in git** (see below) |
+23: | `shared_reasoning/` | Sample prompts + actual LLM reasoning, for team review |
+24: | `full_results/` | Full day-by-day simulation outputs, all methods, all reservoirs |
+25: 
+26: ## How to run
+27: 1. Install [Ollama](https://ollama.com), pull `gemma4:12b`, make sure it's running locally
+28: 2. Place all `.py` files and the `data/` folder together in one project folder
+29: 3. Run any `run_<reservoir>_1yr_all.py` script (F5 in IDLE, or `python run_beltzville_1yr_all.py`)
+30: 
+31: **Note:** `data/` is git-ignored (keeps the repo light), so cloning this repo alone
+32: won't include the gauge CSVs or DKP files needed to actually run a simulation —
+33: ask Anik for those separately if you need to run it yourself rather than just
+34: review the code and results.
+35: 
+36: ## Current status / known limitations
+37: - **Wallenpaupack** runs on a documented stand-in inflow dataset (a real prior-year
+38:   outflow record, relabeled) — no real inflow gauge exists for this reservoir yet,
+39:   pending generated inflow data from Prof. Yang.
+40: - **Wallenpaupack** has no fixed minimum-release floor — it tracks a monthly
+41:   elevation target instead, a genuinely different operating rule than the other three.
+42: - **F.E. Walter's** DKP fallback (timeout) rate ran higher than the other
+43:   reservoirs in the most recent pass — flagged for review, likely infrastructure
+44:   load rather than a modeling issue.
+45: 
+46: ## Contact
+47: Anik Das — CAWS Research Group, Lehigh University

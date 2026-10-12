@@ -5,23 +5,23 @@
 A concrete example of the generic HydroCNHS reservoir-agent framework.
 This is the original DKP strategy with **synthetic offline replies**, not a live LLM run.
 
-1. Input: shared [case JSON](../../../cases/fe_walter_reference/case.json), [daily inflow CSV](../../../cases/fe_walter_reference/inflows.csv), and [reply fixture](../../../cases/fe_walter_reference/dkp_responses.json).
-2. Settings: commented [experiment.yaml](experiment.yaml), one FE Walter agent, daily 2016-01-01..03, `mode: offline`, `max_calls: 0`.
+1. Input: shared [case JSON](../../../cases/fe_walter_reference/case.json), [daily inflow CSV](../../../cases/fe_walter_reference/inflows.csv), and [reply fixture](../../../tests/fixtures/dkp_responses.json).
+2. Settings: commented [experiment.tutorial.yaml](experiment.tutorial.yaml), one FE Walter agent, daily 2016-01-01..03, `mode: offline`, `max_calls: 0`.
 3. Prompt: YAML reads [system instructions](../../../prompts/fe_walter_reference/dkp_system.txt) from `prompts/`. [prompt_preview.txt](prompt_preview.txt) shows the complete original English system prompt, first-day state prompt and response schema. It is a **reading snapshot**, not a runtime template. Original builders regenerate the daily state/history and retrieve relevant DKP excerpts.
 4. Knowledge: Original [DKP v1.2](../../../data/anik_v3_7/DKP_FEWalter_Dam_v1.2.md) and conditional excerpt retrieval.
 5. Audit: original native strategy audit plus the generic release-bounds auditor. Neither rewrites the model's request; the shared physical solver enforces feasibility.
 6. From the installed repository root, run:
 
 ```powershell
-python run_experiment.py check examples/fe_walter/dkp/experiment.yaml
-python run_experiment.py run examples/fe_walter/dkp/experiment.yaml
-python run_experiment.py verify runs/fe-walter-example-dkp
+python run_experiment.py check examples/fe_walter/dkp/experiment.tutorial.yaml
+python run_experiment.py run examples/fe_walter/dkp/experiment.tutorial.yaml
+python run_experiment.py verify runs/fe-walter-tutorial-dkp
 ```
 
 7. Results: `summary.json`, `reservoir_trajectory.csv`, `network_flows.csv`, `audit.jsonl` and `raw/`. With these pass-through fixtures: 3 days, 0 model calls, 3 audit PASS, reservoir balance residual 0 m³. These are expected fixture checks based on the preserved offline diagnostic, not newly generated decisions.
 
 **Assumptions:** original initial storage 1,992.61 acre-ft, zero losses, identity downstream reach `[1.0]`; live readiness false. Change `run_id` and `output` before another run. Editing the reading snapshot has no effect on execution. For broader prompt/state customization, use the generic `configured` strategy. A separate [live YAML](experiment.llm.yaml) supports the same native strategy; see the [preparation guide](../../../docs/reference_live.md). Its current case remains blocked for live execution. To edit system instructions, copy the file and use `reference.system_prompt_mode: custom`; the trace records a variant. `original` mode verifies parity against the original builder.
 
-The generic templates under `prompts/` are a separate strategy. This example preserves the original English prompt rather than translating its runtime text. The fixture audit PASS does not approve a real operating strategy.
+Generic synthetic prompt templates are test fixtures under `tests/fixtures/prompts/`; old root files remain compatibility links. This example preserves the original English prompt rather than translating its runtime text. The fixture audit PASS does not approve a real operating strategy.
 
 Prompt system SHA256: `c018043ce34a6e47024024ce63622d837dffa686a15523eb97d4bdd4ae678352`. Shared assets and original vendor bytes remain unchanged.

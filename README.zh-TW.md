@@ -1,80 +1,57 @@
-# LLM Reservoir Agent
+# HydroCNHS + LLM Reservoir Agent
 
 [English](README.md) | [繁體中文](README.zh-TW.md)
 
-完整 HydroCNHS，加上可設定的 LLM 水庫 agent，用於 daily 實驗。
-HydroCNHS 負責水文與 routing；agent 提議放流，物理程式更新蓄水、限制放流並計算溢流。
-YAML 執行器使用給定的 daily 入流，不重新執行 GWLF／ABCD，也不更改已校正參數。
+以完整固定版本 HydroCNHS 為基礎的升級版，透過原有 Dam API 新增可設定的
+水庫決策系統。HydroCNHS 負責產流與 routing；決策單元提出放流；共同物理程式
+執行限制、更新蓄水與計算 spill。Audit／trace 保存完整因果鏈。
 
-原生 HydroCNHS 支援集水區面積、水文／routing 參數與校正工具，使用原生模型設定與 Python API；水庫 YAML 執行器尚未包成一鍵 calibration／validation 流程。詳見 [水文設定與 C&V](docs/HYDROLOGY_SETUP.md)。
+![HydroCNHS 與新增決策系統](docs/figures/hydrocnhs-upgrade-zh-TW.png)
 
-![HydroCNHS 加上 LLM 水庫決策層](docs/figures/hydrocnhs-llm-concept-zh-TW.png)
+## FE Walter 三種方法
 
-## 範例與 prompt 入口
+DKP 是 Decision Knowledge Package，以獨立文件提供操作知識。
 
-設計自己的實驗請選通用範例；查看原版策略請選 Anik V3.7 範例。
-
-| 範例 | 設定／操作教學 | 可直接閱讀的 prompt | 使用內容 |
+| 方法 | 設定 | Prompt／知識 | 教學 |
 |---|---|---|---|
-| 通用水庫 agent | [YAML](experiments/fe_walter.yaml) · [操作手冊](docs/USER_GUIDE.md) | [可修改的 template](prompts/daily_release.txt) · [選用 DKP template](prompts/daily_dkp_release.txt) | 自訂 prompt／知識檔；提供的 YAML 採固定離線放流 |
-| Anik V3.7 — FE Walter zero-shot 原版 | [YAML](examples/fe_walter/zero_shot/experiment.yaml) · [操作教學](examples/fe_walter/zero_shot/README.zh-TW.md) | [執行用 system prompt](prompts/fe_walter_reference/zeroshot_system.txt) · [完整原版 prompt 快照](examples/fe_walter/zero_shot/prompt_preview.txt) | 原版公開資訊與季節目標，不使用 DKP |
-| Anik V3.7 — FE Walter DKP 原版 | [YAML](examples/fe_walter/dkp/experiment.yaml) · [操作教學](examples/fe_walter/dkp/README.zh-TW.md) | [執行用 system prompt](prompts/fe_walter_reference/dkp_system.txt) · [完整原版 prompt 快照](examples/fe_walter/dkp/prompt_preview.txt) | 原版 [DKP v1.2](data/anik_v3_7/DKP_FEWalter_Dam_v1.2.md) 與依情境檢索 |
+| Hanasaki-based rule benchmark | [YAML](examples/fe_walter/benchmark/experiment.yaml) | 不用 prompt；採 flood-control 分支 | [03](tutorials/03_benchmark.ipynb) |
+| Zero-shot | [YAML](examples/fe_walter/zero_shot/experiment.tutorial.yaml) | [原版 system prompt](prompts/fe_walter_reference/zeroshot_system.txt) | [04](tutorials/04_zero_shot.ipynb) |
+| DKP | [YAML](examples/fe_walter/dkp/experiment.tutorial.yaml) | [原版 system prompt](prompts/fe_walter_reference/dkp_system.txt) + [DKP](data/anik_v3_7/DKP_FEWalter_Dam_v1.2.md) | [05](tutorials/05_dkp.ipynb) |
 
-`prompts/daily_*.txt` 是通用 template；`prompts/fe_walter_reference/` 放的是原版 FE Walter system 指令。兩個原版快照均包含完整 system prompt、第一天狀態 prompt 與回覆 schema；YAML 讀取獨立 system 檔，每日狀態與 DKP 摘錄仍由原版 builder 動態產生。修改快照不影響執行；修改 system 指令須明確選 `custom` 模式，詳見 [prompt 檔設定](prompts/fe_walter_reference/README.md)。兩個原版教學保留原始 audit，使用**合成離線回覆**。另有保留相同策略、temperature 0.7 的真實 LLM YAML，見 [真實執行準備](docs/reference_live.zh-TW.md)；現有原版 case 仍阻擋真實執行。原版 prompt 保留英文，操作教學提供獨立中英文頁面。
+兩套 prompt 保留 Anik V3.7 文字、每日 builder、回覆 schema、檢索與原版 audit。
+離線回覆是合成資料，不能證明 LLM 策略品質。另有 temperature **0.7** 的真實
+LLM 設定範本；完成[真實實驗前條件](docs/LIVE_READINESS.md)前仍阻擋執行。
 
-## 1. 安裝
+## 安裝與三日示範
 
-使用 Python 3.12，完整取得此 repo，然後在 repo 目錄執行：
+使用 Python 3.12 與完整 repo。初次安裝依賴可能需要網路；離線實驗不呼叫模型或 provider。
 
 ```powershell
 python -m venv .venv
 .venv\Scripts\Activate.ps1
 python -m pip install -e . -c environment/requirements-bundled.txt
+python run_experiment.py check examples/fe_walter/benchmark/experiment.yaml
+python run_experiment.py run examples/fe_walter/benchmark/experiment.yaml
+python run_experiment.py verify runs/fe-walter-benchmark-tutorial --require-offline
 ```
 
-## 2. 先跑離線範例
+已有輸出不會覆寫；新 run 請同時修改 `run_id`、`output`。三方法與 31 日多水庫
+操作見[逐步教學](tutorials/README.zh-TW.md)。
 
-```powershell
-python run_experiment.py check experiments/synthetic_cascade.yaml
-python run_experiment.py run experiments/synthetic_cascade.yaml
-python run_experiment.py verify runs/synthetic-cascade
-```
+## 自己的流域與水庫
 
-此範例為四天、三個水庫，使用固定測試放流，不呼叫 LLM。程式不覆寫已存在的輸出目錄；新實驗請修改 `run_id` 與 `output`。
+1. 在新 case 準備每日局部入流 CSV、河網連線、物理限制與初始蓄水。
+2. 複製適合的 YAML，每個受控水庫指定一個決策單元；被動出口不配置 LLM。
+3. 各庫提供自己的 profile、prompt／DKP 與 versioned auditor，先離線執行 `check → run → verify`。
 
-從上方範例表選擇策略；共用的原版選項見 [原版設定教學](cases/fe_walter_reference/README.zh-TW.md)。
+水庫 YAML 使用給定入流。原生 GWLF／ABCD、集水區面積、水文／routing 參數、
+校正、四種耦合 API 與 sediment 工具保留於[原生 HydroCNHS 設定](docs/HYDROLOGY_SETUP.md)。
+LLM 改變蓄水與下游 routed flow，不修改產流方程或已校正參數；換區域仍需自己的有效資料與規則。
 
-## 3. 設定自己的案例
+查看 `summary.json`、`reservoir_trajectory.csv`、`network_flows.csv`，以及連到 `raw/`
+的精簡 decision／physics／audit log。策略 FAIL／WARN／UNKNOWN 原樣保留；物理與檔案
+驗收通過不代表操作策略已核准。
 
-1. 在 case JSON 準備水庫網路、物理參數與初始蓄水。
-2. 準備 daily 局部入流 CSV：`date,node,local_inflow_cms`，單位 m³/s。若來源是 Excel，整理這三欄並匯出不含 BOM 的 UTF-8 CSV；程式不直接讀 `.xlsx`。更新 case 中的 CSV SHA256。
-3. 複製有註解的 [實驗 YAML](experiments/fe_walter.yaml)，設定 case 路徑、輸出與 agents。一個受控水庫配置一個 agent；被動出口水庫不需要 agent。
-4. 每個 agent 指定水庫 ID、prompt、DKP 檔、model profile 與 auditors。檔案路徑以 YAML 所在目錄為基準。
-5. 使用自己的 YAML 路徑，依序執行上述 `check`、`run`、`verify`。
-
-| 要修改的內容 | 設定位置 |
-|---|---|
-| Agents、日期、模型／選項、輸出、auditor 選擇 | `experiments/*.yaml` |
-| 位置、連線、物理限制、初始狀態、入流 CSV／hash | `cases/` 下的 case JSON |
-| Agent 指令 | `prompt` → `prompts/` 下的 UTF-8 template |
-| DKP／操作規則 | `knowledge` → 自己的 UTF-8 檔，例如放在 `knowledge/` |
-| 選用的靜態輸入 | Agent 設定中的 `context` 或 `context_file` |
-
-Prompt 檔提供 user 指令；backend 固定 system JSON 回覆契約。模型提議放流，auditor 檢查所設定的規則，物理程式實施可行放流。
-
-## 4. 使用 LLM
-
-使用通用 `configured` 策略時，選擇 `models` profile，設定 `mode: llm`，移除離線用的 `release_cms`，並設定 `max_calls`。先執行 `check`。真實請求還需要 `--allow-network` 與已具備實驗條件的 case；執行器不下載模型。
-
-[單水庫](experiments/fe_walter.yaml) · [FE Walter／Beltzville／被動 Prompton](experiments/fe_belt_prompton.yaml) · [LLM 設定範例](experiments/synthetic_llm.yaml)
-
-## 5. 查看結果
-
-`summary.json`：執行狀態、audit 統計與水量平衡誤差；`reservoir_trajectory.csv`：放流與蓄水；`network_flows.csv`：下游流量。精簡 log 指向 `raw/` 中的完整證據。Audit PASS 只表示所選規則通過，不能視為操作策略已核准。
-
-完整操作步驟與各項設定：[User guide／完整操作手冊](docs/USER_GUIDE.md)。
-研究結果：[已保存結果](results/README.md)。進階 API 與歷史重現：[進階流程](docs/ADVANCED_WORKFLOWS.md)。固定 HydroCNHS 原始碼與授權：[Source manifest](third_party/hydrocnhs/SOURCE.json)。
-
-FE Walter 的 DKP 策略 audit：[七天離線示範與真實實驗前缺口](cases/fe_walter_dkp_offline/README.md)。此案例不呼叫 LLM；缺少策略輸入時維持 UNKNOWN。
-
-真實三水庫案例仍有 live-readiness 缺口。Repo 保留既有科學結果與原始 audit 判定。
+[設定手冊](docs/USER_GUIDE.zh-TW.md) · [盤點與原版對照](docs/PROJECT_INVENTORY.md) ·
+[離線證據](results/technical_note_offline/README.md) · [Technical Note 英文初稿](paper/technical_note.md) ·
+[歷史入口](archive/README.md) · [來源／授權](third_party/hydrocnhs/SOURCE.json)

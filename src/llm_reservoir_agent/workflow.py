@@ -115,7 +115,7 @@ def load_settings(path, *, runtime_root=PROJECT_ROOT):
     for identifier, spec in configured.items():
         _text(identifier, "agent ID")
         _mapping(spec, {"reservoir", "mode", "model", "prompt", "prompt_version", "knowledge", "context",
-                        "context_file", "release_cms", "auditors", "response_schema", "strategy", "reference"}, "agent " + identifier)
+                         "context_file", "release_cms", "auditors", "response_schema", "strategy", "reference", "benchmark"}, "agent " + identifier)
         name = spec.get("reservoir")
         if name not in controlled or name in assigned:
             raise ValueError("each controlled reservoir needs exactly one unique agent; passive nodes cannot have agents")
@@ -124,8 +124,25 @@ def load_settings(path, *, runtime_root=PROJECT_ROOT):
         if mode not in ("offline", "llm"):
             raise ValueError("agent mode must explicitly be offline or llm")
         strategy = spec.get("strategy", "configured")
-        if strategy not in ("configured", "reference_v3_7"):
+        if strategy not in ("configured", "reference_v3_7", "benchmark"):
             raise ValueError("unknown agent strategy")
+        if strategy == "benchmark":
+            from .benchmark_config import load_benchmark
+            if mode != "offline" or set(spec)-{"reservoir","mode","strategy","benchmark","auditors"}:
+                raise ValueError("benchmark is deterministic/offline and accepts no model or prompt")
+            physical=network['reservoirs'][name]['physical']
+            benchmark,pins=load_benchmark(spec.get('benchmark'),path.parent,physical,start)
+            files.update(pins)
+            checks=spec.get('auditors',[])
+            if not isinstance(checks,list) or len(checks)!=len(set(checks)) or any(a not in auditors for a in checks):
+                raise ValueError("benchmark auditors must be unique configured IDs")
+            if any(auditors[a].get('type')=='dkp_strategy' for a in checks):
+                raise ValueError("DKP reasoning audit requires a DKP decision, not a benchmark action")
+            agents[identifier]=dict(reservoir=name,mode=mode,strategy=strategy,benchmark=benchmark,
+                                    audit_plugins=[ConfiguredAudit(a,auditors[a]) for a in checks])
+            continue
+        if 'benchmark' in spec:
+            raise ValueError("benchmark settings require benchmark strategy")
         if strategy == "reference_v3_7":
             from .reference_backend import validate_reference
             allowed = {"reservoir", "mode", "strategy", "reference", "auditors"}
@@ -137,6 +154,8 @@ def load_settings(path, *, runtime_root=PROJECT_ROOT):
             if mode == "llm" and model_id not in models:
                 raise ValueError("LLM reference requires a known model profile")
             reference, pins, count = validate_reference(spec.get("reference"), path.parent, runtime_root, mode=mode)
+            if network["reservoirs"][name]["physical"]["reservoir_id"] != reference["profile"]:
+                raise ValueError("reference profile must match physical reservoir_id")
             if mode == "offline" and count != len(rows):
                 raise ValueError("reference fixture requires exactly one response for each selected day")
             files.update(pins)
@@ -254,6 +273,10 @@ def run_settings(settings, *, allow_network=False, runtime_root=PROJECT_ROOT, tr
         return (transport or http_json_transport)(url, payload, headers, timeout)
     backends = {}
     for identifier, agent in current.agents.items():
+        if agent.get('strategy') == 'benchmark':
+            from .benchmark import BenchmarkBackend
+            backends[agent['reservoir']]=AuditedBackend(BenchmarkBackend(**agent['benchmark']),agent['audit_plugins'])
+            continue
         if agent.get("strategy") == "reference_v3_7":
             from .reference_backend import ReferenceBackend
             physical = current.network["reservoirs"][agent["reservoir"]]["physical"]
@@ -273,6 +296,43 @@ def run_settings(settings, *, allow_network=False, runtime_root=PROJECT_ROOT, tr
                           run_id=plan["run_id"], project_root=runtime_root, provenance=provenance)
 
 
+def verify_settings_output(settings, *, runtime_root=PROJECT_ROOT):
+    """Verify a cached run and require its current inputs and runtime to match.
+
+    Historical runs remain inspectable with verify_run. Reusing them as the
+    current experiment requires unchanged settings, data and implementation.
+    """
+    import platform
+    from .verification import verify_run
+
+    current = load_settings(settings.path, runtime_root=runtime_root)
+    output = Path(current.report["output"])
+    verified = verify_run(output, require_offline=True)
+    experiment = json.loads((output / "experiment.json").read_bytes())
+    first = json.loads((output / "decisions.jsonl").read_text(encoding="utf-8").splitlines()[0])
+    provenance = first.get("provenance", {})
+    implementations = {p.name: hashlib.sha256(p.read_bytes()).hexdigest()
+                       for p in Path(__file__).parent.glob("*.py")}
+    root = Path(runtime_root)
+    matches = (
+        current.report == settings.report
+        and provenance.get("plan") == current.report
+        and provenance.get("settings") == current.data
+        and provenance.get("source_files") == current.files
+        and experiment.get("network") == current.network
+        and experiment.get("inflow_records") == current.rows
+        and experiment.get("implementation_files") == implementations
+        and experiment.get("python") == platform.python_version()
+        and experiment.get("abm_module_sha256") == hashlib.sha256(
+            (root / "examples/llm_reservoir_abm.py").read_bytes()).hexdigest()
+        and experiment.get("hydrocnhs_core") == json.loads(
+            (root / "environment/hydrocnhs-core.json").read_bytes())
+    )
+    if not matches:
+        raise ValueError("cached run differs from current settings, inputs or runtime; choose a new run_id/output")
+    return verified
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description="Configure and run daily HydroCNHS reservoir agents")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -283,10 +343,11 @@ def main(argv=None):
             command.add_argument("--allow-network", action="store_true")
     verify = sub.add_parser("verify")
     verify.add_argument("output", type=Path)
+    verify.add_argument("--require-offline", action="store_true")
     args = parser.parse_args(argv)
     if args.command == "verify":
         from .verification import verify_run
-        result = verify_run(args.output)
+        result = verify_run(args.output, require_offline=args.require_offline)
     else:
         settings = load_settings(args.config)
         if args.command == "check":

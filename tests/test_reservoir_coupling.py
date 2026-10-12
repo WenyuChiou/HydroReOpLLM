@@ -38,7 +38,7 @@ class FakeBackend:
 
 
 def fixture():
-    config, rows = load_llm_case(ROOT / "cases/fe_walter_llm_fixture.json")
+    config, rows = load_llm_case(ROOT / "tests/fixtures/cases/fe_walter_llm_fixture.json")
     config = copy.deepcopy(config)
     config.update(agent_name="ReservoirX", downstream_outlet="RiverX", start_date="2001-01-01")
     config["agent_config"]["Inputs"]["Links"] = {"CatchmentX": -1, "ReservoirX": 1}
@@ -85,7 +85,7 @@ class ConfigurationTests(unittest.TestCase):
         self.assertEqual(backend.observations, [])
 
     def test_fixture_units_match_existing_case(self):
-        config, normalized = load_llm_case(ROOT / "cases/fe_walter_llm_fixture.json")
+        config, normalized = load_llm_case(ROOT / "tests/fixtures/cases/fe_walter_llm_fixture.json")
         old, original = load_case(ROOT / "cases/fe_walter.json")
         self.assertEqual(config["agent_config"], old["agent_config"])
         self.assertEqual([r["inflow_cms"] for r in normalized],
@@ -127,7 +127,7 @@ class NativeCouplingTests(unittest.TestCase):
     def test_neutral_host_matches_accepted_legacy_seven_days(self):
         from delaware_operations.hydrocnhs_bridge import run_hydrocnhs
         old, original = load_case(ROOT / "cases/fe_walter.json")
-        config, normalized = load_llm_case(ROOT / "cases/fe_walter_llm_fixture.json")
+        config, normalized = load_llm_case(ROOT / "tests/fixtures/cases/fe_walter_llm_fixture.json")
         expected, _ = run_hydrocnhs(old, original, policy=ConstantPolicy(2))
         actual, summary = run_coupled_reservoir(config, normalized, policy=LLMPolicyAdapter(ConstantPolicy(2)))
         self.assertEqual(actual, expected)

@@ -132,7 +132,7 @@ class SingleReservoirAcceptance(Base):
         self.assertEqual(config, original)
 
     def test_offline_response_loader_and_raw_provenance(self):
-        config, rows = load_case(PROJECT_ROOT / "cases/fe_walter_llm_fixture.json")
+        config, rows = load_case(PROJECT_ROOT / "tests/fixtures/cases/fe_walter_llm_fixture.json")
         backends = load_responses(PROJECT_ROOT / "data/fixtures/fe_walter_synthetic_responses.json", config, rows)
         records, result = self.run_case(config, rows, backends)
         self.validate_outputs(config, rows, records, result)
@@ -144,7 +144,7 @@ class SingleReservoirAcceptance(Base):
         self.assertEqual(events[0]["provenance"]["data_kind"], "synthetic_fixture")
 
     def test_fe_walter_native_output(self):
-        config, rows = load_case(PROJECT_ROOT / "cases/fe_walter_llm_fixture.json")
+        config, rows = load_case(PROJECT_ROOT / "tests/fixtures/cases/fe_walter_llm_fixture.json")
         backend = Backend(release=100000.0)
         records, result = self.run_case(config, rows, {"FEWalter": backend})
         self.assertEqual(len(rows), 7)
