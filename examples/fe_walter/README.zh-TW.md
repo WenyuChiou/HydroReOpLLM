@@ -1,4 +1,4 @@
-# 用升級版 HydroCNHS 執行 FE Walter
+# 用 HydroOpsLM 執行 FE Walter
 
 [English](README.md) | [繁體中文](README.zh-TW.md) · [全部範例](../README.zh-TW.md)
 
@@ -7,9 +7,9 @@
 
 | 方法 | 完整步驟 | 離線 YAML | 決策來源 |
 |---|---|---|---|
-| Hanasaki-based benchmark | [操作](benchmark/README.zh-TW.md) | [YAML](benchmark/experiment.yaml) | 決定性的防洪放流規則 |
-| Zero-shot | [操作](zero_shot/README.zh-TW.md) | [YAML](zero_shot/experiment.tutorial.yaml) | 保留 prompt／schema，使用合成回覆 |
-| DKP | [操作](dkp/README.zh-TW.md) | [YAML](dkp/experiment.tutorial.yaml) | 保留 prompt、知識檢索，使用合成回覆 |
+| Hanasaki-based benchmark | [操作](benchmark/README.zh-TW.md) | [YAML](benchmark/experiment.hydroopslm.offline.yaml) | 決定性的防洪放流規則 |
+| Zero-shot | [操作](zero_shot/README.zh-TW.md) | [YAML](zero_shot/experiment.hydroopslm.offline.yaml) | 保留 prompt／schema，使用合成回覆 |
+| DKP | [操作](dkp/README.zh-TW.md) | [YAML](dkp/experiment.hydroopslm.offline.yaml) | 保留 prompt、知識檢索，使用合成回覆 |
 
 1. 依[首頁](../../README.zh-TW.md)安裝。
 2. 查看共同 [case](../../cases/fe_walter_reference/case.json) 與
@@ -39,3 +39,5 @@ spill 及蓄水更新，將 total outflow 注入下游一次。實際結果回�
 模擬仍由本框架執行。Benchmark 只改編固定版本的放流函數。來源檔案及 hashes 保留供重現，
 各方法操作頁提供連結。離線合成回覆不能評估 LLM 策略品質；真實 YAML 維持 temperature
 **0.7**，執行前仍需[readiness 檢查](../../docs/LIVE_READINESS.md)。
+
+[完整 LLM 決策流程](../../tutorials/README.zh-TW.md#查看完整決策) · [通用模組設定](../../docs/USER_GUIDE.zh-TW.md)

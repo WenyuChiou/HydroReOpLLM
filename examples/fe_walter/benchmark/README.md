@@ -10,15 +10,15 @@ physics and routing and records audit/trace. All three methods share the same
 1. Use the same [input and physical case](../../../cases/fe_walter_reference/case.json)
    as the zero-shot and DKP examples. Initial storage remains an assumption;
    the downstream reach remains an identity diagnostic.
-2. Read [experiment.yaml](experiment.yaml). It selects `strategy: benchmark`,
+2. Read [experiment.hydroopslm.offline.yaml](experiment.hydroopslm.offline.yaml). It selects `strategy: benchmark`,
    `mode: offline`, and no model or prompt. The statistics file pins the unchanged
    simulated inflow source and uses only 1996–2015, before the demonstration.
 3. Run from the repository folder:
 
 ```powershell
-python run_experiment.py check examples/fe_walter/benchmark/experiment.yaml
-python run_experiment.py run examples/fe_walter/benchmark/experiment.yaml
-python run_experiment.py verify runs/fe-walter-benchmark-tutorial --require-offline
+python run_experiment.py check examples/fe_walter/benchmark/experiment.hydroopslm.offline.yaml
+python run_experiment.py run examples/fe_walter/benchmark/experiment.hydroopslm.offline.yaml
+python run_experiment.py verify runs/hydroopslm-fe-walter-benchmark --require-offline
 ```
 
 The example covers 2016-01-01 through 2016-01-03. Existing output folders are
