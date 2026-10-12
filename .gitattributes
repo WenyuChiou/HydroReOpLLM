@@ -11,6 +11,11 @@ data/figures/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-a
 results/technical_note_offline/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 docs/figures/fe-walter-study-map.* -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 docs/figures/hydrocnhs-upgrade-* -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+# Preserve the byte hashes recorded by the editable generic figure's provenance.
+docs/figures/hydrocnhs-coupling-framework-en.* -text
+docs/figures/assets/coupling-framework/** -text
+docs/figures/source/build_coupling_drawio.py -text
+docs/README_FRAMEWORK_PROPOSAL.md -text
 tests/fixtures/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 tutorials/*.ipynb -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 tutorials/build_notebooks.py -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol

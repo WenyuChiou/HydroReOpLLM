@@ -1,6 +1,8 @@
-# FE Walter — Anik V3.7 Zero-shot
+# HydroCNHS FE Walter — Zero-shot
 
 [English](README.md) | [繁體中文](README.zh-TW.md) · [All reference settings](../../../cases/fe_walter_reference/README.md)
+
+This repository runs daily Dam coupling, reservoir physics and downstream routing. A policy compatibility adapter supplies prompts, response parsing and strategy audit; the next day uses the physical outcome. See the [shared three-method execution path](../README.md).
 
 A concrete example of the generic HydroCNHS reservoir-agent framework.
 This is the original Zero-shot strategy with **synthetic offline replies**, not a live LLM run.
@@ -15,7 +17,7 @@ This is the original Zero-shot strategy with **synthetic offline replies**, not 
 ```powershell
 python run_experiment.py check examples/fe_walter/zero_shot/experiment.tutorial.yaml
 python run_experiment.py run examples/fe_walter/zero_shot/experiment.tutorial.yaml
-python run_experiment.py verify runs/fe-walter-tutorial-zeroshot
+python run_experiment.py verify runs/fe-walter-tutorial-zeroshot --require-offline
 ```
 
 7. Results: `summary.json`, `reservoir_trajectory.csv`, `network_flows.csv`, `audit.jsonl` and `raw/`. With these pass-through fixtures: 3 days, 0 model calls, 3 audit PASS, reservoir balance residual 0 m³. These are expected fixture checks based on the preserved offline diagnostic, not newly generated decisions.
@@ -25,3 +27,5 @@ python run_experiment.py verify runs/fe-walter-tutorial-zeroshot
 Generic synthetic prompt templates are test fixtures under `tests/fixtures/prompts/`; old root files remain compatibility links. This example preserves the original English prompt rather than translating its runtime text. The fixture audit PASS does not approve a real operating strategy.
 
 Prompt system SHA256: `f0999945b989cf1a97e8e7239d78c774baf9c7e82c342ae27551baf56ca45133`. Shared assets and original vendor bytes remain unchanged.
+
+Strategy provenance: Anik V3.7. Preserved prompts/schema/retrieval and vendor hashes support parity checks; this example executes through this repository's `run_experiment.py`.

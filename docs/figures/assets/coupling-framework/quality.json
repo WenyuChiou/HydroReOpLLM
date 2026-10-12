@@ -1,0 +1,152 @@
+{
+  "status": "TECHNICAL_CHECKS_PASS_DESIGN_CANDIDATE",
+  "drawio_version": "26.0.4",
+  "native_cards": 11,
+  "attached_edges": 13,
+  "movable_raster_objects": 7,
+  "distinct_generated_assets": 6,
+  "generic_labels": "PASS",
+  "endpoint_and_connection_site_checks": "PASS",
+  "edit_save_native_reopen_render": "PASS",
+  "svg_embedded_images": 7,
+  "all_preexisting_tracked_files_unchanged": true,
+  "simulation_or_reservoir_llm_calls": 0,
+  "image_generation_cost": null,
+  "visual_qa": {
+    "full_png": "PASS",
+    "width_900_png": "PASS",
+    "edited_copy": "PASS",
+    "meaning": 2,
+    "short_language": 2,
+    "layout": 2,
+    "editability": 2,
+    "audience_comprehension": 1,
+    "user_design_acceptance": "PENDING"
+  },
+  "comparison": "Previous accepted image reviewed for causal responsibilities; generic redesign changes method boxes and graphic layout. No pixel-fidelity claim.",
+  "unperformed": [
+    "GUI drag interactions",
+    "scientific peer review",
+    "audience comprehension test",
+    "simulation rerun"
+  ],
+  "observed_revision_history": [
+    {
+      "version": 1,
+      "status": "REJECTED",
+      "reason": "Wrapped sublabels and state label overlapped the lower boundary heading.",
+      "preserved_evidence": "runs/hydrocnhs-llm-concept-20261011/rejected-figure-v1.png"
+    },
+    {
+      "version": 2,
+      "status": "REVISED",
+      "reason": "Moved feedback label clear of its vertical connector; straightened water-flow connections."
+    },
+    {
+      "version": 3,
+      "status": "CORRECTED",
+      "finding": "SVG export contained HTML foreignObject text and a draw.io compatibility-help hyperlink.",
+      "correction": "Changed the native producer to unwrapped text with explicit line breaks; export now has native SVG text, no foreignObject and no non-W3C URL.",
+      "baseline_allowlist_or_exclusion_changed": false,
+      "failed_gate_receipt": "runs/hydrocnhs-llm-concept-20261011/20261012T180539729585Z-command.json"
+    },
+    {
+      "version": 4,
+      "status": "DOCUMENTATION_UPDATE",
+      "reason": "The earlier README proposal is now explicitly a historical record after the generic bilingual guide was implemented. Figure geometry and exports are unchanged.",
+      "proposal_original_sha256": "dcc9ed4e5abe7bc2bb4201958ce2c088ee657a00a1521402ad431dad92748c21",
+      "proposal_current_sha256": "2aebdfe39a3e3d1d03e404ce6cdb2e8e5bdd7b4388ad84da29cf677ab3e7bb52"
+    },
+    {
+      "version": 5,
+      "status": "SERIALIZATION_CORRECTION",
+      "reason": "Staged whitespace check found CRLF in two new metadata files. Normalize their serialization and make the relationship-map producer emit LF. No figure geometry, icon pixels, XML/SVG/PDF/PNG exports, prompts or scientific settings changed.",
+      "original_metadata_hashes": {
+        "docs/figures/assets/coupling-framework/generation.json": "10e5aba815f2cf5372829b70f978ce145f8284cfbb0fec88f2933f03be8a4387",
+        "docs/figures/assets/coupling-framework/relationship-map.json": "cc9ca1d514e162c8a616021bc8e0c23988cca77aa2acc665d7b8bf93e7ade63c"
+      },
+      "baseline_allowlist_or_exclusion_changed": false,
+      "failed_gate_receipt": "runs/hydrocnhs-llm-concept-20261011/20261012T183002385486Z-command.json"
+    }
+  ],
+  "artifacts": {
+    "docs/figures/hydrocnhs-coupling-framework-en.drawio": {
+      "bytes": 8354960,
+      "sha256": "ff2ef53cd186fbba111e59c16484df88a97a9713ca70e95b8cc91bbcc3bbebc0"
+    },
+    "docs/figures/hydrocnhs-coupling-framework-en.png": {
+      "bytes": 395973,
+      "sha256": "56c1b1acb01a6be6072697112b09f61626c99620885ea34f1509f9df3d7691ec"
+    },
+    "docs/figures/hydrocnhs-coupling-framework-en.svg": {
+      "bytes": 8353685,
+      "sha256": "9c3fa9436b8ebf587cf06649a5fd812b45513a91cfaaad669f054290cbc55574"
+    },
+    "docs/figures/hydrocnhs-coupling-framework-en.pdf": {
+      "bytes": 5641030,
+      "sha256": "9facea550421c547bd3b6498d5202390ae0feef28bbc3233a24cbc9087d38526"
+    },
+    "docs/README_FRAMEWORK_PROPOSAL.md": {
+      "bytes": 2980,
+      "sha256": "2aebdfe39a3e3d1d03e404ce6cdb2e8e5bdd7b4388ad84da29cf677ab3e7bb52"
+    },
+    "docs/figures/source/build_coupling_drawio.py": {
+      "bytes": 11855,
+      "sha256": "3771ce8f20ee7583259b69e931e3375dba218480c3e4f9f410a2173b32bd7b2c"
+    },
+    "docs/figures/assets/coupling-framework/audit.png": {
+      "bytes": 656235,
+      "sha256": "44c34f441cefaa128551582eb23e87b8ac65bd150516f774c8b0b1836c84242d"
+    },
+    "docs/figures/assets/coupling-framework/decision.png": {
+      "bytes": 790642,
+      "sha256": "fcfca724a1e6dbc3257e650814d142b91329ff28532c3d28059470269f36e1f3"
+    },
+    "docs/figures/assets/coupling-framework/EDITING.md": {
+      "bytes": 2375,
+      "sha256": "05c433cfe7e830efb44a87be766c42e46daf664289d38e36c4ba039d7ccd16d5"
+    },
+    "docs/figures/assets/coupling-framework/generation.json": {
+      "bytes": 10494,
+      "sha256": "41c67aa5b5b098c2944e47ad40bd022cd412ce932f9744adbcd14cbc1818bb41"
+    },
+    "docs/figures/assets/coupling-framework/hydrology.png": {
+      "bytes": 909860,
+      "sha256": "bd1f6c67ff73729fe268fd2f3cd4fc74900693cadae85e13a15ec9c3daf61ef7"
+    },
+    "docs/figures/assets/coupling-framework/knowledge.png": {
+      "bytes": 833827,
+      "sha256": "055e90e8b3d8d1a994f513b41f9125ccce10eea9dafbb7df2be67827e22079ab"
+    },
+    "docs/figures/assets/coupling-framework/relationship-map.json": {
+      "bytes": 5739,
+      "sha256": "e8dd928f2c0308203ceedc0d94671f4290ba14094cbc8c618aa422c9734b17af"
+    },
+    "docs/figures/assets/coupling-framework/reservoir.png": {
+      "bytes": 844104,
+      "sha256": "955df76117decac05a75ecd67a8f6e3a2a9756b61f0bb398986204cc100eaf3a"
+    },
+    "docs/figures/assets/coupling-framework/routing.png": {
+      "bytes": 1105942,
+      "sha256": "dea072b0277e124553062f6d3910cdbb0531a971c766bb5bbc6394c97c9f341f"
+    }
+  },
+  "png_dimensions": {
+    "hydrocnhs-coupling-framework-en.png": [
+      2562,
+      1663
+    ],
+    "hydrocnhs-upgrade-en.png": [
+      1900,
+      933
+    ]
+  },
+  "validation_log": {
+    "path": "runs/hydrocnhs-llm-concept-20261011/20261012T180932362419Z-stdout.log",
+    "sha256": "f2ab660cb89671d657e2d04670c5901427eabddcbe5f8ff49fcecbd006f7563e",
+    "exit_code": 0,
+    "tool_runtime": "Python 3.12.14",
+    "test_count": null,
+    "scope": "Figure assertions; no simulation test suite rerun."
+  }
+}

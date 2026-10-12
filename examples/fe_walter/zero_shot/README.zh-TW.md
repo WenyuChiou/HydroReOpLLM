@@ -1,6 +1,8 @@
-# FE Walter — Anik V3.7 Zero-shot 原版範例
+# HydroCNHS FE Walter — Zero-shot
 
 [English](README.md) | [繁體中文](README.zh-TW.md) · [完整原版設定](../../../cases/fe_walter_reference/README.zh-TW.md)
+
+本例由升級版 HydroCNHS 執行每日 Dam API、水庫物理與下游 routing。策略相容 adapter 提供 prompt、回覆解析與策略 audit；下一日使用實際物理結果。詳見[三方法共用執行鏈](../README.zh-TW.md)。
 
 這是通用 HydroCNHS 水庫 agent 框架的一個具體案例。
 使用原版 Zero-shot 策略與**合成離線回覆**，尚未呼叫真實 LLM。
@@ -15,7 +17,7 @@
 ```powershell
 python run_experiment.py check examples/fe_walter/zero_shot/experiment.tutorial.yaml
 python run_experiment.py run examples/fe_walter/zero_shot/experiment.tutorial.yaml
-python run_experiment.py verify runs/fe-walter-tutorial-zeroshot
+python run_experiment.py verify runs/fe-walter-tutorial-zeroshot --require-offline
 ```
 
 7. 結果：查看 `summary.json`、`reservoir_trajectory.csv`、`network_flows.csv`、`audit.jsonl` 與 `raw/`。這組放流等於入流的測試回覆，預期為 3 天、0 次模型呼叫、3 次 audit PASS、水庫水量平衡殘差 0 m³。這是依據已保存離線診斷的預期檢查值，並非新生成的模型決策。
@@ -25,3 +27,5 @@ python run_experiment.py verify runs/fe-walter-tutorial-zeroshot
 通用合成 prompt template 放在 `tests/fixtures/prompts/`；舊根目錄檔案保留供歷史相容。本案例保留原版英文 prompt，不翻譯執行時的指令文字。測試回覆的 audit PASS 不代表真實操作策略已通過。
 
 System prompt SHA256：`f0999945b989cf1a97e8e7239d78c774baf9c7e82c342ae27551baf56ca45133`。共用資料與原始 vendor 程式 bytes 維持不變。
+
+策略來源：Anik V3.7。原版 prompt／schema／檢索與 vendor hashes 供相容性核對；本例的模擬入口為本 repo 的 `run_experiment.py`。

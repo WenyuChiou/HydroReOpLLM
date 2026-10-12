@@ -1,6 +1,8 @@
-# FE Walter — Anik V3.7 DKP
+# HydroCNHS FE Walter — DKP
 
 [English](README.md) | [繁體中文](README.zh-TW.md) · [All reference settings](../../../cases/fe_walter_reference/README.md)
+
+This repository runs daily Dam coupling, reservoir physics and downstream routing. A policy compatibility adapter supplies prompts, response parsing and strategy audit; the next day uses the physical outcome. See the [shared three-method execution path](../README.md).
 
 A concrete example of the generic HydroCNHS reservoir-agent framework.
 This is the original DKP strategy with **synthetic offline replies**, not a live LLM run.
@@ -15,7 +17,7 @@ This is the original DKP strategy with **synthetic offline replies**, not a live
 ```powershell
 python run_experiment.py check examples/fe_walter/dkp/experiment.tutorial.yaml
 python run_experiment.py run examples/fe_walter/dkp/experiment.tutorial.yaml
-python run_experiment.py verify runs/fe-walter-tutorial-dkp
+python run_experiment.py verify runs/fe-walter-tutorial-dkp --require-offline
 ```
 
 7. Results: `summary.json`, `reservoir_trajectory.csv`, `network_flows.csv`, `audit.jsonl` and `raw/`. With these pass-through fixtures: 3 days, 0 model calls, 3 audit PASS, reservoir balance residual 0 m³. These are expected fixture checks based on the preserved offline diagnostic, not newly generated decisions.
@@ -25,3 +27,5 @@ python run_experiment.py verify runs/fe-walter-tutorial-dkp
 Generic synthetic prompt templates are test fixtures under `tests/fixtures/prompts/`; old root files remain compatibility links. This example preserves the original English prompt rather than translating its runtime text. The fixture audit PASS does not approve a real operating strategy.
 
 Prompt system SHA256: `c018043ce34a6e47024024ce63622d837dffa686a15523eb97d4bdd4ae678352`. Shared assets and original vendor bytes remain unchanged.
+
+Strategy provenance: Anik V3.7. Preserved prompts/schema/retrieval and vendor hashes support parity checks; this example executes through this repository's `run_experiment.py`.

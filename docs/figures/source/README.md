@@ -1,5 +1,11 @@
 # Editable figure sources
 
+The main README uses the generic [coupling framework](../hydrocnhs-coupling-framework-en.drawio).
+Edit its native draw.io cards, icons and attached connectors independently;
+[editing instructions](../assets/coupling-framework/EDITING.md) explain exports and icon provenance.
+`build_coupling_drawio.py` creates this editable master. The older concept sources
+below remain available for historical and case-specific figures.
+
 `render_concept.py` generates native text, boxes and arrows as SVG plus PNG/PDF;
 `render_study_map.py` plots the frozen EPSG:5070 geometry, labels and markers.
 Labels remain SVG text; paths/shapes are separate objects. Python sources are the
