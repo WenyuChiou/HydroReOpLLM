@@ -1,85 +1,59 @@
-# HydroOpsLM 逐步教學
+# HydroOpsLM 教學
 
 [English](README.md) | [繁體中文](README.zh-TW.md)
 
-依[框架 README](../README.zh-TW.md)安裝。先從 00 理解 LLM 決策路徑，
-再準備輸入、設定 agents 並執行離線範例。
-各 notebook 提供英文／繁體中文說明，共用可執行 cells。
-Runtime prompt 保留原始英文 bytes。
+請依[框架 README](../README.zh-TW.md)安裝。各課從資訊與設定開始，依序走到
+決策、物理及保存的證據。Runtime prompts 保留原始英文文字。
 
-| 順序 | Notebook | 查看什麼 |
+| 順序 | Notebook | 重點 |
 |---|---|---|
-| 00 | [LLM 架構](00_overview.ipynb) | Info → prompt → proposal → checker → execution、audit／trace 與 feedback |
+| 00 | [LLM 架構](00_overview.ipynb) | 資訊 → prompt → proposal → checker → execution → feedback |
 | 01 | [輸入與地圖](01_input_and_map.ipynb) | 入流、單位、初始狀態與 GIS |
-| 02 | [Agent 設定](02_yaml.ipynb) | YAML、model、prompt、knowledge 與 auditor |
-| 03 | [規則基準](03_benchmark.ipynb) | 決定請求放流，使用共同物理／routing |
-| 04 | [Zero-shot](04_zero_shot.ipynb) | 完整 prompt、合成回覆及決策鏈 |
-| 05 | [DKP](05_dkp.ipynb) | 檢索知識、完整 prompt 及決策鏈 |
-| 06 | [Audit 與 trace](06_audit_trace.ipynb) | 原判定、綁定的 physics 與實際隔日歷史 |
-| 07 | [多庫／自己的資料](07_multi_and_custom.ipynb) | 河網、狀態隔離、被動出口及 31 日流量 |
+| 02 | [Agent 設定](02_yaml.ipynb) | YAML、model、prompt、knowledge 與 auditors |
+| 03 | [規則基準](03_benchmark.ipynb) | 透過原生 Dam 耦合執行自訂規則 |
+| 04 | [Zero-shot fixture](04_zero_shot.ipynb) | 合成回覆與決策鏈 |
+| 05 | [DKP fixture](05_dkp.ipynb) | 合成回覆與知識檢索 |
+| 06 | [Audit 與 trace](06_audit_trace.ipynb) | 判定、綁定物理與隔日資訊 |
+| 07 | [多庫／自己的資料](07_multi_and_custom.ipynb) | 河網、狀態隔離與被動出口 |
+| 08 | [本機 Ollama 流程](08_ollama_workflow.ipynb) | 檢查、執行、驗證並查看實際本機模型 run |
 
-[通用設定](../docs/USER_GUIDE.zh-TW.md)與[LLM 模組](../docs/LLM_MODULES.zh-TW.md)
-皆為正式手冊。[範例](../examples/README.zh-TW.md)提供三種具體方法。
+## 本機 Ollama 示範
 
-## 離線執行
+請先安裝 Ollama，並讓 `gemma3:4b` 可在本機使用。Zero-shot 與 DKP 設定皆使用
+temperature `0.7`、daily 2016-01-01 至 2016-01-03、各三次請求且不重試。
+
+執行命令前，請將初始蓄水 **1,992.61 acre-ft** 與下游 `UH=[1.0]`
+identity routing 視為範圍受限的整合假設；它們不是現地驗證或策略驗收。
+Ollama case 是明示的診斷案例；原始 case readiness 仍為 `false`。
+
+```powershell
+python run_experiment.py check examples/fe_walter/zero_shot/experiment.ollama.yaml
+python run_experiment.py run examples/fe_walter/zero_shot/experiment.ollama.yaml --allow-network
+python run_experiment.py verify runs/hydroopslm-fe-walter-zero-shot-ollama-gemma3-4b-20261012
+python tutorials/inspect_decision_flow.py runs/hydroopslm-fe-walter-zero-shot-ollama-gemma3-4b-20261012
+```
+
+DKP 請將 YAML 的 `zero_shot` 換成 `dkp`，輸出使用
+`runs/hydroopslm-fe-walter-dkp-ollama-gemma3-4b-20261012`。`check` 不執行
+inference 或 provider request。`run --allow-network` 明確允許本機 Ollama request。
+`verify` 與 inspector 讀取實際模型 run，因此不加 `--require-offline`。
+
+Inspector 顯示資訊、完整 prompts、模型回覆、正規化 proposal、checker 結果、
+已提交物理、隔日資訊、audit 與 trace 路徑；DKP 也顯示依條件檢索的知識。
+Checker validity、策略 audit 與物理可行性是三項不同結果。
+
+## 開發驗證 fixtures
+
+教學 04／05、`experiment.hydroopslm.offline.yaml` 與保存的回覆 fixtures
+仍可用於可重現的開發檢查。它們不是預設使用者路徑，也不能評估模型品質。
+既有離線 notebook suite 的執行方式如下：
 
 ```powershell
 python tutorials/build_notebooks.py --execute
 ```
 
-此命令按順序執行八課共 28 個純 Python code cells，保存實際 stdout；
-不是 Jupyter kernel 測試。Builder 阻擋 HTTP／socket connect。
-已有 run 僅在目前 YAML／input／implementation hashes 相符時驗證並重用；
-缺少 run 才離線建立，hash 不符則停止，不覆寫。
+設定原生產流、參數、routing、校正與驗證時，請將本 repo 的
+[水文設定](../docs/HYDROLOGY_SETUP.md)與
+[HydroCNHS 官方文件](https://cylin928.github.io/HydroCNHS/)搭配使用。
 
-| 方法 | check／run YAML | verify output |
-|---|---|---|
-| Benchmark | `examples/fe_walter/benchmark/experiment.hydroopslm.offline.yaml` | `runs/hydroopslm-fe-walter-benchmark` |
-| Zero-shot | `examples/fe_walter/zero_shot/experiment.hydroopslm.offline.yaml` | `runs/hydroopslm-fe-walter-zero-shot` |
-| DKP | `examples/fe_walter/dkp/experiment.hydroopslm.offline.yaml` | `runs/hydroopslm-fe-walter-dkp` |
-| 31 日河網 | `tutorials/config/multi_reservoir.hydroopslm.offline.yaml` | `runs/hydroopslm-three-reservoir-31d-v2` |
-
-```powershell
-python run_experiment.py check examples/fe_walter/zero_shot/experiment.hydroopslm.offline.yaml
-python run_experiment.py run examples/fe_walter/zero_shot/experiment.hydroopslm.offline.yaml
-python run_experiment.py verify runs/hydroopslm-fe-walter-zero-shot --require-offline
-```
-
-其他方法替換成表中路徑。已有 output 會拒絕；
-請 verify，或使用新的 ID／output。FE 範例涵蓋 2016-01-01–03。
-
-## 查看完整決策
-
-離線範例存在後，不重跑模擬即可查看某日：
-
-```powershell
-python tutorials/inspect_decision_flow.py runs/hydroopslm-fe-walter-zero-shot
-python tutorials/inspect_decision_flow.py runs/hydroopslm-fe-walter-dkp --timestep 1
-```
-
-Inspector 先驗證離線證據，再顯示 **info、完整 system／user prompt、合成回覆、
-正規化 proposal、action 契約重檢、原 audit、已提交物理、隔日 info 與 trace 路徑**。
-重檢是當次執行，不捏造歷史 checker event。04／05 另展示拒絕負值 proposal，
-不呼叫物理程式或改寫已存狀態。Checker、策略 audit 與物理平衡分別呈現。
-
-通用固定放流 offline backend 跳過 prompt／模型。
-兩個參考 offline 案例會組合 prompt 並解析給定回覆；
-全部回覆是合成資料，不能衡量真實 LLM 策略品質。
-
-## 使用自己的資料與設計實驗
-
-Excel 匯出不含 BOM 的 UTF-8 CSV：`date,node,local_inflow_cms`、
-ISO 日期、m³/s，並記錄 SHA256。此 FE 資料是已完成上游 routing 的模擬
-水庫入流，只加入一次。原生 runoff 設定由手冊連結。
-
-2016 年一月河網中，FE Walter／Beltzville 匯入 Lehigh contributions，
-Prompton 在 Lackawaxen contributions 使用被動出口。這不是串聯或完整河流流量。
-`UH=[1]` 驗證連接，不是校正旅行時間。07 教學說明自己的 case；
-測試涵蓋串聯、匯流與延遲。
-
-比較方法時，固定共用輸入、初始狀態、物理與 routing。
-改變 prompt／knowledge／auditor 時更新版本並保存新 run。
-真實 provider 實驗前請讀[真實實驗條件](../docs/LIVE_READINESS.md)。
-
-[先前 Demo](https://github.com/WenyuChiou/HydroCNHS-Delaware-Demo) ·
-[地圖來源](../data/figures/SOURCES.md) · [可編輯圖](../docs/figures/source/README.md)
+[正式設定手冊](../docs/USER_GUIDE.zh-TW.md) · [FE Walter 示範](../examples/fe_walter/README.zh-TW.md)

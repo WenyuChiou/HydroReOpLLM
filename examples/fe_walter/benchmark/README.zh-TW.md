@@ -1,10 +1,11 @@
-# HydroCNHS FE Walter — 規則式 benchmark
+# HydroOpsLM FE Walter — 規則式 benchmark
 
 [English](README.md) | [繁體中文](README.zh-TW.md)
 
-本例透過升級版 HydroCNHS 執行 Hanasaki 類防洪決策 backend。它提出 requested release；
-本框架的 Dam API、共同物理程式與 routing 執行模擬，audit／trace 保存完整結果。
-三方法的[共用執行鏈](../README.zh-TW.md)相同；本規則沒有季節目標追蹤控制器。
+本例透過原生 HydroCNHS Dam API 呼叫自訂、決定性的 Hanasaki 類防洪規則。
+規則提出 requested release；框架套用共同水庫物理與 routing，並保存 audit／trace。
+HydroCNHS 並未內建此規則作為策略或物理模型。三方法的
+[共用執行鏈](../README.zh-TW.md)相同；本規則沒有季節目標追蹤控制器。
 
 1. 使用與 zero-shot、DKP 相同的 [input 與物理 case](../../../cases/fe_walter_reference/case.json)。
    初始蓄水仍是既定假設，下游 reach 仍是 identity 診斷設定。

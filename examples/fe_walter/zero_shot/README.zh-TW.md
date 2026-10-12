@@ -1,41 +1,46 @@
-# HydroOpsLM FE Walter — Zero-shot
+# HydroOpsLM FE Walter — 本機 Ollama zero-shot
 
-[English](README.md) | [繁體中文](README.zh-TW.md) · [完整原版設定](../../../cases/fe_walter_reference/README.zh-TW.md)
+[English](README.md) | [繁體中文](README.zh-TW.md) · [三方法示範](../README.zh-TW.md)
 
-本例由 HydroOpsLM 執行每日 Dam API、水庫物理與下游 routing。策略相容 adapter 提供 prompt、回覆解析與策略 audit；下一日使用實際物理結果。詳見[三方法共用執行鏈](../README.zh-TW.md)。
+Zero-shot 透過 HydroOpsLM LLM 介面提供操作 prompt 與當前水庫資訊，不檢索
+DKP 摘錄。「淺層」只描述這項 context 設計，不代表績效或品質。
 
-這是HydroOpsLM 水庫 agent 框架的一個具體案例。
-使用原版 Zero-shot 策略與**合成離線回覆**，尚未呼叫真實 LLM。
+## 操作流程
 
-1. Input：共用的 [case JSON](../../../cases/fe_walter_reference/case.json)、[daily 入流 CSV](../../../cases/fe_walter_reference/inflows.csv) 與 [測試回覆](../../../tests/fixtures/zeroshot_responses.json)。
-2. 設定：有註解的 [experiment.hydroopslm.offline.yaml](experiment.hydroopslm.offline.yaml)，1 個 FE Walter agent，daily 2016-01-01 至 2016-01-03，`mode: offline`、`max_calls: 0`。
-3. Prompt：YAML 實際讀取 `prompts/` 中的 [system 指令](../../../prompts/fe_walter_reference/zeroshot_system.txt)。[prompt_preview.txt](prompt_preview.txt) 包含完整原版英文 system prompt、第一天狀態 prompt 與回覆 schema。它是**閱讀快照**，不是執行用 template。原版 builder 每天產生當日狀態與歷史；zero-shot 不檢索 DKP 摘錄。
-4. 知識：公開資訊與季節目標，不使用 DKP。
-5. Audit：保留原版策略 audit，另外使用通用放流界限 auditor。兩者均不改寫模型的放流要求；共用物理程式負責實施可行放流。
-6. 在已安裝的 repo 根目錄執行：
+1. 查看共用 [case](../../../cases/fe_walter_ollama_demo/case.json) 與
+   [daily 入流](../../../cases/fe_walter_reference/inflows.csv)。
+2. 開啟 [experiment.ollama.yaml](experiment.ollama.yaml)。設定為本機 Ollama
+   `gemma3:4b`、temperature `0.7`、daily 2016-01-01 至 2016-01-03、
+   三次請求且不重試。
+3. 查看 [system prompt](../../../prompts/fe_walter_reference/zeroshot_system.txt)
+   與[閱讀預覽](prompt_preview.txt)。Runtime 會逐日組合資訊與歷史；修改預覽不會
+   改變執行內容。
+4. 依下方命令執行本機檢查、模擬與驗證。
+5. 查看實際保存的決策 trace。
 
-```powershell
-python run_experiment.py check examples/fe_walter/zero_shot/experiment.hydroopslm.offline.yaml
-python run_experiment.py run examples/fe_walter/zero_shot/experiment.hydroopslm.offline.yaml
-python run_experiment.py verify runs/hydroopslm-fe-walter-zero-shot --require-offline
-```
-
-7. 結果：查看 `summary.json`、`reservoir_trajectory.csv`、`network_flows.csv`、`audit.jsonl` 與 `raw/`。這組放流等於入流的測試回覆，預期為 3 天、0 次模型呼叫、3 次 audit PASS、水庫水量平衡殘差 0 m³。這是依據已保存離線診斷的預期檢查值，並非新生成的模型決策。
-
-**假設與限制：**初始蓄水採原版假設 1,992.61 acre-ft，損失設為零，下游河段 `[1.0]` 為不延遲的測試 routing；真實實驗就緒狀態為 false。新一輪執行須更改 `run_id` 與 `output`。修改閱讀快照不會改變執行；若要更廣泛地自訂 prompt／狀態格式，請使用通用 `configured` 策略。另有保留相同原版策略的 [真實 LLM YAML](experiment.llm.yaml)，見 [準備教學](../../../docs/reference_live.zh-TW.md)；現有 case 仍阻擋真實執行。修改 system 指令時，複製檔案並設 `reference.system_prompt_mode: custom`，trace 會標記為變體；`original` 模式核對文字是否與原版 builder 一致。
-
-通用合成 prompt template 放在 `tests/fixtures/prompts/`；舊根目錄檔案保留供歷史相容。本案例保留原版英文 prompt，不翻譯執行時的指令文字。測試回覆的 audit PASS 不代表真實操作策略已通過。
-
-System prompt SHA256：`f0999945b989cf1a97e8e7239d78c774baf9c7e82c342ae27551baf56ca45133`。共用資料與原始 vendor 程式 bytes 維持不變。
-
-策略來源：Anik V3.7。原版 prompt／schema／檢索與 vendor hashes 供相容性核對；本例的模擬入口為本 repo 的 `run_experiment.py`。
-
-## 查看完整決策
-
-離線輸出存在後，執行以下唯讀檢視，或依[教學 04／05](../../../tutorials/README.zh-TW.md)：
+執行命令前，請留意兩項範圍受限的整合假設：初始蓄水為
+**1,992.61 acre-ft**，下游 `UH=[1.0]` 為 identity routing。兩者都不是
+現地驗證或策略驗收。Ollama case 是明示的診斷案例，不會把原始 case readiness
+從 `false` 改為已通過。
 
 ```powershell
-python tutorials/inspect_decision_flow.py runs/hydroopslm-fe-walter-zero-shot
+python run_experiment.py check examples/fe_walter/zero_shot/experiment.ollama.yaml
+python run_experiment.py run examples/fe_walter/zero_shot/experiment.ollama.yaml --allow-network
+python run_experiment.py verify runs/hydroopslm-fe-walter-zero-shot-ollama-gemma3-4b-20261012
+python tutorials/inspect_decision_flow.py runs/hydroopslm-fe-walter-zero-shot-ollama-gemma3-4b-20261012
 ```
 
-依序查看 info、prompt variables、完整 system／user prompt、合成回覆、正規化 proposal、action 契約重檢、原 audit、實際放流及隔日 info。Checker 重檢不是捏造歷史事件；原 FAIL／WARN／UNKNOWN 保留，實際放流由共同物理計算。原 experiment.tutorial.yaml 及其歷史結果保留，新入口使用獨立 HydroOpsLM run。
+`check` 不執行 inference 或 provider request。`run --allow-network` 明確允許
+設定中的本機 Ollama request。這是實際模型 run，因此 `verify` 與 inspector
+不加 `--require-offline`。
+
+查看 `summary.json`、`reservoir_trajectory.csv`、`network_flows.csv`、
+`audit.jsonl` 與 `raw/`。Trace 將逐日資訊、完整 prompts、模型回覆、正規化
+requested release、checker 結果、implemented release、蓄水、routed flow 與
+策略 audit 串在一起。成功解析 action、audit 通過及放流物理可行是三項不同判定。
+
+合成[離線 YAML](experiment.hydroopslm.offline.yaml)、保存的回覆 fixtures 與
+教學 04／05 仍保留供開發驗證；它們不是預設使用者路徑，也不能衡量真實模型行為。
+
+[Ollama notebook](../../../tutorials/08_ollama_workflow.ipynb) ·
+[正式模組手冊](../../../docs/LLM_MODULES.zh-TW.md)

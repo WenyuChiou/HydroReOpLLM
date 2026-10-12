@@ -1,0 +1,8 @@
+{
+  "completed_reservoir_days": {
+    "fe_walter": 3
+  },
+  "completed_network_days": 3,
+  "last_committed_reservoir": "fe_walter",
+  "last_committed_date": "2016-01-03T00:00:00"
+}

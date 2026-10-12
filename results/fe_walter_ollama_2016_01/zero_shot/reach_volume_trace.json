@@ -1,0 +1,35 @@
+{
+  "schema_version": "reach-volume-trace.v1",
+  "reaches": [
+    {
+      "source": "FEWalter",
+      "target": "Downstream",
+      "fraction": 1.0,
+      "unit_hydrograph": [
+        1.0
+      ],
+      "initial_in_transit_m3": 0.0,
+      "final_in_transit_m3": 0.0,
+      "daily": [
+        {
+          "date": "2016-01-01",
+          "entered_m3": 2775639.9964176,
+          "arrived_m3": 2775639.9964176,
+          "in_transit_end_m3": 0.0
+        },
+        {
+          "date": "2016-01-02",
+          "entered_m3": 1931326.7634835197,
+          "arrived_m3": 1931326.7634835197,
+          "in_transit_end_m3": 0.0
+        },
+        {
+          "date": "2016-01-03",
+          "entered_m3": 1931326.7634835197,
+          "arrived_m3": 1931326.7634835197,
+          "in_transit_end_m3": 0.0
+        }
+      ]
+    }
+  ]
+}
