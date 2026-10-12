@@ -137,6 +137,25 @@ class DecisionFlowInspectorTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "complete generation"):
             load_decision_flow(self.output)
 
+    @patch("tutorials.inspect_decision_flow.verify_run", return_value={"status": "PASS"})
+    def test_completed_ollama_reply_without_optional_reason_is_inspectable(self, _verified):
+        del self.trace["provider_reply"]["done_reason"]
+        self._save_trace()
+        flow = load_decision_flow(self.output)
+        self.assertEqual(flow["provider_evidence"]["completion"],
+                         {"done": True, "done_reason": None})
+        self.assertEqual(flow["saved_requested_action"]["release_cms"], 30.0)
+
+    @patch("tutorials.inspect_decision_flow.verify_run", return_value={"status": "PASS"})
+    def test_missing_completion_or_explicit_invalid_reason_remains_rejected(self, _verified):
+        for reply in ({"done": False}, {}, {"done": True, "done_reason": None},
+                      {"done": True, "done_reason": "length"}):
+            with self.subTest(reply=reply):
+                self.trace["provider_reply"] = reply
+                self._save_trace()
+                with self.assertRaisesRegex(ValueError, "complete generation"):
+                    load_decision_flow(self.output)
+
 
 if __name__ == "__main__":
     unittest.main()

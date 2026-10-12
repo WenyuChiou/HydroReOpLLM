@@ -56,7 +56,8 @@ def _provider_evidence(trace, provenance):
         raise ValueError("live trace/model provenance mismatch")
     provider = model.get("provider")
     if provider == "ollama":
-        complete = provider_reply.get("done") is True and provider_reply.get("done_reason") == "stop"
+        complete = (provider_reply.get("done") is True and
+                    ("done_reason" not in provider_reply or provider_reply["done_reason"] == "stop"))
         completion = {"done": provider_reply.get("done"),
                       "done_reason": provider_reply.get("done_reason")}
     elif provider == "openai_compatible":
