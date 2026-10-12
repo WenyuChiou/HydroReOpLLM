@@ -8,4 +8,4 @@ Frozen `data/accepted`, `data/anik_v3_7`, `cases`, `third_party`, native `src/hy
 
 Five-year historical results remain diagnostic: audit FAIL/WARN and unknown request costs are preserved. See [the inventory](../docs/PROJECT_INVENTORY.md) and [acceptance](../docs/upgrade_acceptance.md).
 
-The earlier [configured-backend guide](CONFIGURED_BACKEND_GUIDE.zh-TW.md) remains available for historical/custom configurations; new users start with the current three-method tutorial.
+The earlier [configured-backend guide](CONFIGURED_BACKEND_GUIDE.zh-TW.md) retains its historical bytes. Current generic settings now live in the formal [HydroOpsLM settings guide](../docs/USER_GUIDE.md) ([繁體中文](../docs/USER_GUIDE.zh-TW.md)); start with [LLM modules](../docs/LLM_MODULES.md) and the [tutorial](../tutorials/README.md).

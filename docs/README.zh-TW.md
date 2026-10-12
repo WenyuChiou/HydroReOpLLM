@@ -1,25 +1,20 @@
-# HydroCNHS + LLM Reservoir Agent 使用手冊
+# HydroOpsLM 使用手冊
 
 [English](README.md) | [繁體中文](README.zh-TW.md)
 
-安裝與首次執行先依[首頁](../README.zh-TW.md)操作。
-本手冊分開說明原生水文模型設定與新增的 LLM 水庫模組。
-[官方 HydroCNHS 文件站](https://cylin928.github.io/HydroCNHS/)
-提供原版模型建立、耦合 API、校正及 data collector 教學。
+先讀[框架 README](../README.zh-TW.md)，再沿著 LLM 決策路徑操作。
 
-| 步驟 | 文件 | 要設定或檢查的內容 |
-|---|---|---|
-| 1 | [水文設定](HYDROLOGY_SETUP.md) | 集水區面積、氣象、GWLF／ABCD 參數、routing 與 C&V |
-| 2 | [準備 input](../tutorials/01_input_and_map.ipynb) | Daily 入流、單位、水庫 profile 與 GIS |
-| 3 | [實驗設定](USER_GUIDE.zh-TW.md) | YAML、日期、河網、agents、決策 backend 與輸出 |
-| 4 | [策略設計](policy_design.md) | Observation、prompt、額外知識與 action schema |
-| 5 | [Audit plugins](auditor_plugins.md) | 版本化檢查與 decision／physics／trace 紀錄 |
-| 6 | [逐步教學](../tutorials/README.zh-TW.md) | 離線 daily 模擬、驗證及結果 |
-| 7 | [多庫與自己的資料](../tutorials/07_multi_and_custom.ipynb) | 河網拓樸、獨立決策單元與被動出口 |
+| 閱讀順序 | 學會什麼 |
+|---|---|
+| [LLM 模組](LLM_MODULES.zh-TW.md) | 模型看見什麼；info、prompt、proposal、checker、execution 與 feedback |
+| [設定](USER_GUIDE.zh-TW.md) | Agent／水庫對應、獨立 prompt、knowledge、model 與 auditor |
+| [逐步教學](../tutorials/README.zh-TW.md) | 離線 daily 模擬與保存的完整決策鏈 |
+| [範例](../examples/README.zh-TW.md) | 三種具體方法使用框架的共同模擬路徑 |
+| [Auditor 插件](auditor_plugins.md) | 版本化規則、判定與證據綁定 |
+| [多庫／自己的資料](../tutorials/07_multi_and_custom.ipynb) | 河網、狀態隔離與被動出口 |
+| [真實實驗條件](LIVE_READINESS.md) | 使用真實 provider 前的剩餘要求 |
 
-[範例](../examples/README.zh-TW.md)提供完整設定。
-[原生進階操作](ADVANCED_WORKFLOWS.md)說明保留的 HydroCNHS 功能。
-使用真實 provider 前，先完成[準備條件](LIVE_READINESS.md)。
-
-目前手冊可直接在 repo 閱讀；上面的官方文件站屬於原版 HydroCNHS。
-本 repo 尚未發布自己的文件站。部分詳細指南及 notebook 內容為英文。
+集水區面積、氣象 forcing、水文參數、routing 與 C&V，請讀
+[原生設定](HYDROLOGY_SETUP.md)、[進階流程](ADVANCED_WORKFLOWS.md)
+及[HydroCNHS 官方文件](https://cylin928.github.io/HydroCNHS/)。
+本手冊可在 repo 閱讀；HydroOpsLM 尚未發布自己的文件站。

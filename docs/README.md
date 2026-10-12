@@ -1,25 +1,20 @@
-# HydroCNHS + LLM Reservoir Agent user manual
+# HydroOpsLM user manual
 
 [English](README.md) | [繁體中文](README.zh-TW.md)
 
-Follow the [root README](../README.md) for installation and your first run.
-This manual separates native hydrological model setup from the added LLM reservoir
-modules. The [official HydroCNHS documentation](https://cylin928.github.io/HydroCNHS/)
-covers the original model builder, coupling APIs, calibration and data collector.
+Start with the [framework README](../README.md), then follow the LLM decision path.
 
-| Step | Read | What you will configure or check |
-|---|---|---|
-| 1 | [Hydrology setup](HYDROLOGY_SETUP.md) | Basin areas, forcing, GWLF/ABCD parameters, routing and C&V |
-| 2 | [Input preparation](../tutorials/01_input_and_map.ipynb) | Daily inflow, units, reservoir profiles and GIS |
-| 3 | [Experiment settings](USER_GUIDE.md) | YAML, dates, network, agents, decision backend and output |
-| 4 | [Policy design](policy_design.md) | Observations, prompts, optional knowledge and action schema |
-| 5 | [Audit plugins](auditor_plugins.md) | Versioned checks and decision/physics/trace records |
-| 6 | [Tutorials](../tutorials/README.md) | Offline daily simulation, verification and results |
-| 7 | [Multiple reservoirs / your own data](../tutorials/07_multi_and_custom.ipynb) | Topology, independent decision units and passive outlets |
+| Read in order | What you will learn |
+|---|---|
+| [LLM modules](LLM_MODULES.md) | What the model sees; info, prompt, proposal, checker, execution and feedback |
+| [Settings](USER_GUIDE.md) | Agent/reservoir mapping, independent prompts, knowledge, models and auditors |
+| [Step-by-step tutorials](../tutorials/README.md) | Offline daily runs and the complete saved decision chain |
+| [Examples](../examples/README.md) | Three concrete methods using the framework's common simulation path |
+| [Audit plugins](auditor_plugins.md) | Versioned rules, verdicts and evidence binding |
+| [Multiple reservoirs / own data](../tutorials/07_multi_and_custom.ipynb) | Topology, state isolation and passive outlets |
+| [Live readiness](LIVE_READINESS.md) | Remaining conditions before real-provider experiments |
 
-[Examples](../examples/README.md) provide complete configurations.
-[Advanced native workflows](ADVANCED_WORKFLOWS.md) cover the retained HydroCNHS capabilities.
-Before using a real provider, follow [live readiness](LIVE_READINESS.md).
-
-The manual is currently browsable in the repository; the official site above is
-the upstream HydroCNHS site. This repository does not yet have a published documentation site.
+For basin areas, meteorological forcing, hydrological parameters, routing and C&V,
+see [native setup](HYDROLOGY_SETUP.md), [advanced workflows](ADVANCED_WORKFLOWS.md)
+and the [official HydroCNHS documentation](https://cylin928.github.io/HydroCNHS/).
+This manual is browsable in the repository; HydroOpsLM has no published documentation site yet.

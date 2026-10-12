@@ -11,15 +11,18 @@ import json
 import os
 import platform
 from pathlib import Path
+from unittest.mock import patch
 
 ROOT=Path(__file__).resolve().parents[1]
 SETUP='''from pathlib import Path
 import json, sys
 ROOT = next(p for p in [Path.cwd(), *Path.cwd().parents] if (p/'src/hydrocnhs').is_dir())
 sys.path.insert(0, str(ROOT/'src'))
+sys.path.insert(0, str(ROOT))
 from llm_reservoir_agent.workflow import load_settings, run_settings, verify_settings_output
 from llm_reservoir_agent.verification import verify_run
 from unittest.mock import patch
+from tutorials.inspect_decision_flow import show_decision_flow
 def ensure_offline(config):
     settings = load_settings(ROOT/config)
     assert settings.report['planned_llm_calls'] == 0
@@ -32,46 +35,116 @@ print('Checkout:', ROOT.name)
 '''
 
 LESSONS=[
-('00_overview','HydroCNHS with reservoir decisions',
- 'Keep HydroCNHS hydrology, routing, calibration tools and its four coupling APIs. This extension supplies decisions and common reservoir physics through the Dam API. The LLM proposes a release; deterministic code applies it.\n\n![Architecture](../docs/figures/hydrocnhs-coupling-framework-en.png)',
+ ('00_overview','HydroOpsLM: understand the LLM decision path',
+  'HydroOpsLM studies LLM reservoir operations through the HydroCNHS Dam API. Follow info + independent prompt + optional context → LLM → reader → proposal → checker → execution → feedback. Audit evaluates configured rules; trace records the chain. Info changes daily; templates, model settings and audit rubrics stay fixed for one run. Only final messages are visible to the model. Requested release is a proposal; common physics determines implemented release, spill and storage.\n\nRead [LLM modules](../docs/LLM_MODULES.md) and [generic settings](../docs/USER_GUIDE.md).\n\n![Architecture](../docs/figures/hydrocnhs-coupling-framework-en.png)',
   [('Inspect bundled capabilities',"import hydrocnhs\nsource=json.loads((ROOT/'third_party/hydrocnhs/SOURCE.json').read_text())\nprint('Native HydroCNHS commit:', source['commit'])\nprint('Rainfall-runoff:', sorted(p.name for p in (ROOT/'src/hydrocnhs/rainfall_runoff_model').glob('*.py')))\nprint('Methods: rule-based benchmark, zero-shot, DKP')")],
  'Use lesson 01 to distinguish already routed inflow from meteorological forcing. Calibration/validation remain native HydroCNHS workflows; no recalibration is performed here.'),
 ('01_input_and_map','Prepare daily input',
  'The three methods use the same frozen daily inflow and physical case. The sample is already aggregated and upstream-routed; insert it once at the reservoir inflow node. It is simulated inflow, not a forecast. Excel users should export a CSV with an explicit date column and units.\n\n![FE Walter](../docs/figures/fe-walter-study-map.png)',
  [('Read three daily inputs',"import csv\nrows=list(csv.DictReader((ROOT/'cases/fe_walter_reference/inflows.csv').open()))\nprint(rows[:3])\ncase=json.loads((ROOT/'cases/fe_walter_reference/case.json').read_text())\nprint('Physical settings:', case['network']['reservoirs']['FEWalter']['physical'])"),
-  ('Check dates and units',"settings=load_settings(ROOT/'examples/fe_walter/zero_shot/experiment.tutorial.yaml')\nprint({k:settings.report[k] for k in ['days','start_date','end_date','data_kind','live_ready']})\nprint('Map units:', [f['properties']['subbasin_id'] for f in json.loads((ROOT/'data/figures/fe_walter_map.json').read_text())['subbasins']])")],
+  ('Check dates and units',"settings=load_settings(ROOT/'examples/fe_walter/zero_shot/experiment.hydroopslm.offline.yaml')\nprint({k:settings.report[k] for k in ['days','start_date','end_date','data_kind','live_ready']})\nprint('Map units:', [f['properties']['subbasin_id'] for f in json.loads((ROOT/'data/figures/fe_walter_map.json').read_text())['subbasins']])")],
  'See docs/HYDROLOGY_SETUP.md for native basin areas, rainfall-runoff parameters, routing and C&V. Do not add a second copy of already routed inflow.'),
-('02_yaml','Set YAML, agents and outputs',
+ ('02_yaml','Configure your HydroOpsLM agents',
  'Paths are relative to YAML. One controlled reservoir needs one agent; passive outlets have no LLM. Change run_id and output for a new experiment. A model profile is required only for live LLM mode.',
- [('Inspect commented YAML',"print((ROOT/'examples/fe_walter/dkp/experiment.tutorial.yaml').read_text())"),
-  ('Validate without a provider',"for config in ['examples/fe_walter/benchmark/experiment.yaml','examples/fe_walter/zero_shot/experiment.tutorial.yaml','examples/fe_walter/dkp/experiment.tutorial.yaml']:\n    plan=load_settings(ROOT/config).report\n    print(config, {k:plan[k] for k in ['days','agent_count','agent_strategies','planned_llm_calls']})\nlive=load_settings(ROOT/'examples/fe_walter/dkp/experiment.llm.yaml')\nprint('Live template temperature:', live.data['models']['reservoir_model']['temperature'])\nprint('Live readiness:', live.report['live_ready'])")],
+ [('Inspect commented YAML',"print((ROOT/'examples/fe_walter/dkp/experiment.hydroopslm.offline.yaml').read_text())"),
+  ('Validate without a provider',"for config in ['examples/fe_walter/benchmark/experiment.hydroopslm.offline.yaml','examples/fe_walter/zero_shot/experiment.hydroopslm.offline.yaml','examples/fe_walter/dkp/experiment.hydroopslm.offline.yaml']:\n    plan=load_settings(ROOT/config).report\n    print(config, {k:plan[k] for k in ['days','agent_count','agent_strategies','planned_llm_calls']})\nlive=load_settings(ROOT/'examples/fe_walter/dkp/experiment.llm.yaml')\nprint('Live template temperature:', live.data['models']['reservoir_model']['temperature'])\nprint('Live readiness:', live.report['live_ready'])")],
  'check never calls the provider. Actual live execution needs confirmed case readiness, a named installed model, a budget and explicit --allow-network. This tutorial stops at offline verification.'),
 ('03_benchmark','Run the HydroCNHS FE Walter benchmark',
  'Use the flood-control branch. Statistics are derived from frozen 1996–2015 inflow, before the 2016 sample. This statistical reference period is not a new calibration. The benchmark selects requested release; this repository runs hydrocnhs.Model.run, the Dam API, common physics and routing for all three methods.',
  [('Read statistics and coefficient rules',"stats=json.loads((ROOT/'data/benchmark/fe_walter_statistics.json').read_text())\nprint({k:stats[k] for k in ['reference_start','reference_end','reference_day_count','mean_inflow_cms']})\nprint('gamma = capacity / (mean inflow * 86400 * 365.25)')\nprint('k = starting storage / (alpha * capacity); update on operating-year start')\nprint('Environment floor = 10% of historical mean inflow')"),
-  ('Run or verify three days',"settings, verified=ensure_offline('examples/fe_walter/benchmark/experiment.yaml')\nprint(json.dumps(verified,indent=2))")],
+  ('Run or verify three days',"settings, verified=ensure_offline('examples/fe_walter/benchmark/experiment.hydroopslm.offline.yaml')\nprint(json.dumps(verified,indent=2))")],
  'This implementation matches the pinned Anik flood-control function across 162 differential vectors. It is a benchmark adaptation, not an official FE Walter operating rule.'),
 ('04_zero_shot','Run the HydroCNHS FE Walter zero-shot example',
  'Repository YAML → hydrocnhs.Model.run → Dam observation → preserved prompt/schema → requested release → shared physics → downstream routing → audit/trace. The adapter supplies decision logic; HydroCNHS runs the simulation using frozen inflow. Offline replies are synthetic, not model outputs. The actual prompt is prompts/fe_walter_reference/zeroshot_system.txt.',
- [('Inspect input, system prompt and response fixture',"print((ROOT/'examples/fe_walter/zero_shot/experiment.tutorial.yaml').read_text())\nprint((ROOT/'prompts/fe_walter_reference/zeroshot_system.txt').read_text())\nfixture=json.loads((ROOT/'tests/fixtures/zeroshot_responses.json').read_text())\nprint('Reply kind:', fixture['data_kind']); print('First reply:', fixture['responses'][0])"),
-  ('Run daily and inspect rendered trace',"settings, verified=ensure_offline('examples/fe_walter/zero_shot/experiment.tutorial.yaml')\nprint(json.dumps(verified,indent=2))\nraw=[json.loads(p.read_text()) for p in (Path(settings.report['output'])/'raw').glob('policy_*.json')]\nfirst=min(raw,key=lambda item:item['backend_trace']['input_variables']['timestep'])\nprint('Daily variables:',first['backend_trace']['input_variables'])\nprint('Schema fields:', list(first['backend_trace']['schema']['properties']))")],
+ [('Inspect input, system prompt and response fixture',"print((ROOT/'examples/fe_walter/zero_shot/experiment.hydroopslm.offline.yaml').read_text())\nprint((ROOT/'prompts/fe_walter_reference/zeroshot_system.txt').read_text())\nfixture=json.loads((ROOT/'tests/fixtures/zeroshot_responses.json').read_text())\nprint('Reply kind:', fixture['data_kind']); print('First reply:', fixture['responses'][0])"),
+  ('Run daily and inspect rendered trace',"settings, verified=ensure_offline('examples/fe_walter/zero_shot/experiment.hydroopslm.offline.yaml')\nprint(json.dumps(verified,indent=2))\nraw=[json.loads(p.read_text()) for p in (Path(settings.report['output'])/'raw').glob('policy_*.json')]\nfirst=min(raw,key=lambda item:item['backend_trace']['input_variables']['timestep'])\nprint('Daily variables:',first['backend_trace']['input_variables'])\nprint('Schema fields:', list(first['backend_trace']['schema']['properties']))")],
  'A new reservoir may use an explicit reservoir profile; it must supply its own facts and level-storage relation. Never copy FE Walter capacities or target levels to it.'),
 ('05_dkp','Run the HydroCNHS FE Walter DKP example',
  'This repository runs hydrocnhs.Model.run, the Dam API, shared physics and downstream routing using frozen inflow. The DKP decision adapter adds retrieved knowledge to FE Walter public facts and the current daily state. The preserved builder retrieves relevant document sections; it does not paste the whole DKP or fine-tune a model. The actual system prompt and DKP remain separate files.',
- [('Inspect the prompt and knowledge entry',"print((ROOT/'examples/fe_walter/dkp/experiment.tutorial.yaml').read_text())\nprint((ROOT/'prompts/fe_walter_reference/dkp_system.txt').read_text())\ndkp=(ROOT/'data/anik_v3_7/DKP_FEWalter_Dam_v1.2.md').read_text()\nprint('DKP headings:', [s for s in dkp.splitlines() if s.startswith('#')][:12])"),
-  ('Run and inspect retrieval evidence',"settings, verified=ensure_offline('examples/fe_walter/dkp/experiment.tutorial.yaml')\nprint(json.dumps(verified,indent=2))\nraw=[json.loads(p.read_text()) for p in (Path(settings.report['output'])/'raw').glob('policy_*.json')]\nfirst=min(raw,key=lambda item:item['backend_trace']['input_variables']['timestep'])\nprompt=first['backend_trace']['prompt']\nassert 'Retrieved DKP sections' in prompt\nassert dkp not in prompt\nprint('Retrieved excerpt, first 1200 characters:',prompt[prompt.index('Retrieved DKP sections'):][:1200])\nprint('Native audit retained:', 'backend_audit' in first)")],
+ [('Inspect the prompt and knowledge entry',"print((ROOT/'examples/fe_walter/dkp/experiment.hydroopslm.offline.yaml').read_text())\nprint((ROOT/'prompts/fe_walter_reference/dkp_system.txt').read_text())\ndkp=(ROOT/'data/anik_v3_7/DKP_FEWalter_Dam_v1.2.md').read_text()\nprint('DKP headings:', [s for s in dkp.splitlines() if s.startswith('#')][:12])"),
+  ('Run and inspect retrieval evidence',"settings, verified=ensure_offline('examples/fe_walter/dkp/experiment.hydroopslm.offline.yaml')\nprint(json.dumps(verified,indent=2))\nraw=[json.loads(p.read_text()) for p in (Path(settings.report['output'])/'raw').glob('policy_*.json')]\nfirst=min(raw,key=lambda item:item['backend_trace']['input_variables']['timestep'])\nprompt=first['backend_trace']['prompt']\nassert 'Retrieved DKP sections' in prompt\nassert dkp not in prompt\nprint('Retrieved excerpt, first 1200 characters:',prompt[prompt.index('Retrieved DKP sections'):][:1200])\nprint('Native audit retained:', 'backend_audit' in first)")],
  'The native V3.7 DKP builder/auditor is FE-specific. Other reservoirs use the configured prompt/knowledge/auditor path with their own profile and rules; merely renaming FE Walter is rejected.'),
 ('06_audit_trace','Read audit, physics and trace',
  'PASS means the configured check passed. WARN, FAIL and UNKNOWN retain their meaning. File/physics acceptance does not establish operating-policy quality. Requested release and implemented total outflow are both recorded; next-day history contains the physical outcome.',
- [('Read the decision-to-physics chain',"settings, verified=ensure_offline('examples/fe_walter/dkp/experiment.tutorial.yaml')\noutput=Path(settings.report['output'])\nphysics=[json.loads(line) for line in (output/'physics.jsonl').read_text().splitlines()]\nfirst=physics[0]\nprint('Binding:', {k:first[k] for k in ['decision_id','reservoir_id','timestep']})\nprint('Physics:', first['record']['transition'])\naudit=[json.loads(line) for line in (output/'audit.jsonl').read_text().splitlines()]\nprint('Audit statuses:', [row['status'] for row in audit])\nprint('Policy accepted:', verified['operating_strategy_accepted'])"),
+ [('Read the decision-to-physics chain',"settings, verified=ensure_offline('examples/fe_walter/dkp/experiment.hydroopslm.offline.yaml')\noutput=Path(settings.report['output'])\nphysics=[json.loads(line) for line in (output/'physics.jsonl').read_text().splitlines()]\nfirst=physics[0]\nprint('Binding:', {k:first[k] for k in ['decision_id','reservoir_id','timestep']})\nprint('Physics:', first['record']['transition'])\naudit=[json.loads(line) for line in (output/'audit.jsonl').read_text().splitlines()]\nprint('Audit statuses:', [row['status'] for row in audit])\nprint('Policy accepted:', verified['operating_strategy_accepted'])"),
   ('Inspect actual next-day history',"raw=[json.loads(p.read_text()) for p in (output/'raw').glob('policy_*.json')]\nvariables=sorted((p['backend_trace']['input_variables'] for p in raw),key=lambda p:p['timestep'])\nprint('Next-day history:', variables[1]['native_history'])\nprint('Residual m3:',verified['max_system_balance_residual_m3'])")],
- 'Malformed/incomplete replies stop before physical release and are not retried automatically. See docs/auditor_plugins.md to add a versioned reservoir-specific checker.'),
+ 'Malformed/incomplete replies stop before physical release and are not retried automatically. See docs/auditor_plugins.md to add a versioned reservoir-specific auditor.'),
 ('07_multi_and_custom','Use several reservoirs or your own catchment',
  'FE Walter and Beltzville join on Lehigh contributions. Prompton drains through Lackawaxen contributions. These reservoirs are tributary branches, not a three-dam cascade. The managed outlet sums these contributions; it is not full river discharge. A true cascade connects an upstream outlet to the next reservoir inflow node, including local inflow and travel delay.',
- [('Check and run 31 days with passive Prompton',"settings, verified=ensure_offline('tutorials/config/multi_reservoir.offline.yaml')\nprint('Agents:',settings.report['agent_reservoirs'])\nprint('Passive count:',settings.report['passive_reservoir_count'])\nprint('Connections:',settings.network['connections'])\nprint(json.dumps(verified,indent=2))"),
+ [('Check and run 31 days with passive Prompton',"settings, verified=ensure_offline('tutorials/config/multi_reservoir.hydroopslm.offline.yaml')\nprint('Agents:',settings.report['agent_reservoirs'])\nprint('Passive count:',settings.report['passive_reservoir_count'])\nprint('Connections:',settings.network['connections'])\nprint(json.dumps(verified,indent=2))"),
   ('Inspect routed contributions',"import csv\nrows=list(csv.DictReader((Path(settings.report['output'])/'network_flows.csv').open()))\nprint('Flow columns:', list(rows[0]))\nprint('First and last days:', rows[0], rows[-1])\nprint('Custom checklist: case geometry/units -> physics/profile -> own prompt/DKP -> auditor -> offline checks -> live readiness')")],
  'UH=[1] is transparent connectivity, not calibrated downstream travel time. The tests also cover delayed routing, serial reservoirs, confluence and channel storage. Prompton strategy audit remains UNKNOWN; offline plumbing acceptance does not clear live-readiness blockers.')
 ]
+
+
+LESSONS[2][3].append((
+    'Inspect generic configuration and changing info',
+    "print((ROOT/'tutorials/config/multi_reservoir.hydroopslm.offline.yaml').read_text())\n"
+    "print('Generic template placeholders: $agent_id, $observation, $knowledge, $previous_transition')\n"
+    "print('info is the observation teaching label, not a YAML key.')\n"
+    "print('Generic offline mode bypasses prompt/model; reference offline mode renders prompt and parses fixtures.')\n"
+    "print('Formal settings: docs/USER_GUIDE.md; module interfaces: docs/LLM_MODULES.md')"))
+for lesson in (LESSONS[4], LESSONS[5]):
+    lesson[3].append((
+        'Follow info, prompt, proposal, checker, audit/trace and feedback',
+        "flow=show_decision_flow(Path(settings.report['output']))\n"
+        "assert flow['checker']['action_contract_recheck']=='PASS'\n"
+        "assert flow['next_info']['state']['storage_m3']==flow['execution']['storage_end_m3']\n"
+        "print('Original audit preserved:', flow['audit']['status'])"))
+    lesson[3].append((
+        'Reject an invalid proposal before execution',
+        "from llm_reservoir_agent.contracts import parse_action\n"
+        "try:\n"
+        "    parse_action({'schema_version':'reservoir-action.v1','release_cms':-1})\n"
+        "except ValueError as error:\n"
+        "    print('Checker rejected negative release:', str(error))\n"
+        "else:\n"
+        "    raise AssertionError('invalid action accepted')\n"
+        "print('This isolated contract check calls no solver and changes no saved state.')"))
+
+# English and Traditional Chinese share executable cells and original English prompts.
+ZH_LESSONS = {
+    '00_overview': (
+        '理解 LLM 決策路徑',
+        'HydroOpsLM 透過 HydroCNHS Dam API 研究 LLM 水庫操作。流程為 info＋獨立 prompt＋選用 context → LLM → reader → proposal → checker → execution → feedback。Audit 評估指定規則，trace 保存鏈條。Info 逐日更新；同一 run 的模板、模型及 audit 規則固定。模型只看見最終 messages。請求放流是 proposal，實際放流、spill 與蓄水由共同物理計算。詳見正式模組及設定手冊。',
+        ['查看保留的原生能力'],
+        '下一課區分已 routing 入流與氣象 forcing。C&V 保留原生 HydroCNHS 工作流程；此處不重新校正。'),
+    '01_input_and_map': (
+        '準備每日輸入',
+        '三方法共用固定 daily 入流與物理 case。此資料已彙整並完成上游 routing，只在水庫入流節點加入一次；它是模擬入流，不是預報。Excel 請匯出含日期與明確單位的 CSV。',
+        ['讀取三日輸入', '檢查日期與單位'],
+        '原生面積、水文參數、routing 與 C&V 見 docs/HYDROLOGY_SETUP.md。不要重複加入已 routing 入流。'),
+    '02_yaml': (
+        '設定 HydroOpsLM agents',
+        '路徑以 YAML 所在目錄為基準。每座受控水庫一個 agent；被動出口不配置 LLM。新實驗更改 run_id 與 output；只有真實 LLM 模式需要 model profile。',
+        ['閱讀有註解 YAML', '不連 provider 的設定驗證', '查看通用設定與變動 info'],
+        'check 不呼叫 provider。真實執行需要 case readiness、已可用模型、額度與 --allow-network；教學只做離線驗證。'),
+    '03_benchmark': (
+        '執行 FE Walter 規則基準',
+        '使用 flood-control 分支；統計由固定 1996–2015 入流取得，早於 2016 範例，不是重新校正。Benchmark 只選請求放流；三方法皆由本 repo 執行 hydrocnhs.Model.run、Dam API、共同物理與 routing。',
+        ['讀取統計與年度係數', '執行或驗證三日'],
+        '此實作已在 162 組差分向量與固定 Anik flood-control 函數比對；這是 benchmark 調整版，不是 FE Walter 官方操作規則。'),
+    '04_zero_shot': (
+        '執行 FE Walter zero-shot',
+        'Repository YAML → hydrocnhs.Model.run → Dam observation → 保留的 prompt／schema → 請求放流 → 共同物理 → 下游 routing → audit／trace。Adapter 提供決策邏輯，HydroCNHS 使用固定入流模擬。離線回覆是合成資料；system prompt 位於 prompts/fe_walter_reference/zeroshot_system.txt。',
+        ['查看輸入、system prompt 與回覆 fixture', 'Daily 執行與 prompt trace', '追查 info、prompt、proposal、checker、audit／trace 與 feedback', '在執行前拒絕錯誤 proposal'],
+        '其他水庫須提供自己的 profile、公開資料及水位／蓄水關係；不要複製 FE Walter 庫容或目標水位。'),
+    '05_dkp': (
+        '執行 FE Walter DKP',
+        '本 repo 用固定入流執行 hydrocnhs.Model.run、Dam API、共同物理及下游 routing。決策 adapter 將檢索知識加入 FE Walter 公開資料與當日狀態；原 builder 選取文件章節，不貼完整 DKP，也不 fine-tune 模型。System prompt 與 DKP 保持獨立。',
+        ['查看 prompt 與知識入口', '執行並查看檢索證據', '追查 info、prompt、proposal、checker、audit／trace 與 feedback', '在執行前拒絕錯誤 proposal'],
+        '原 V3.7 builder／auditor 為 FE 專用；其他水庫使用 configured 與自己的 profile、prompt、knowledge、auditor；僅改名會拒絕。'),
+    '06_audit_trace': (
+        '閱讀 audit、physics 與 trace',
+        'PASS 指配置的檢查通過；WARN、FAIL、UNKNOWN 保持原意。檔案／物理驗收不證明策略品質。請求與實際總出流皆保存；隔日歷史使用物理結果。',
+        ['閱讀 decision 到 physics 的鏈條', '查看實際隔日歷史'],
+        '錯誤／不完整回覆在放流前停止，不自動重試。版本化 auditor 擴充見 docs/auditor_plugins.md。'),
+    '07_multi_and_custom': (
+        '多庫或自己的集水區',
+        'FE Walter 與 Beltzville 匯入 Lehigh contributions；Prompton 流向 Lackawaxen contributions。它們是支流水庫，不是三壩串聯。出口加總管理的貢獻量，不代表完整河流流量。真正串聯需把上游出口連到下一庫入流，加入局部入流與傳遞延遲。',
+        ['檢查與執行 31 日；Prompton 被動出口', '查看 routed contributions'],
+        'UH=[1] 僅驗證連接，不是校正旅行時間。測試另涵蓋延遲、串聯、匯流及 channel storage。Prompton 策略 audit 仍 UNKNOWN；離線連接驗收不能消除 live-readiness 缺口。'),
+}
 
 
 def build(execute=False):
@@ -81,16 +154,20 @@ def build(execute=False):
         cells=[]
         def markdown(text): cells.append({'cell_type':'markdown','id':f'm{len(cells)}','metadata':{},'source':text.splitlines(True)})
         def code(source): cells.append({'cell_type':'code','id':f'c{len(cells)}','metadata':{},'source':source.splitlines(True),'execution_count':None,'outputs':[]})
-        markdown('# '+title+'\n\n## Goal\n'+intro);markdown('## Setup\nPython 3.10+ with repository dependencies. All cells use local files; no provider calls.');code(SETUP)
+        zh_title,zh_intro,zh_steps,zh_ending=ZH_LESSONS[name]
+        markdown('# '+title+' / '+zh_title+'\n\n## Goal / 目標\n'+intro+'\n\n'+zh_intro)
+        markdown('## Setup / 準備\nPython 3.12 with repository dependencies. Local files only; no provider calls. / 使用 Python 3.12 與既有依賴；使用局部檔案，不呼叫 provider。');code(SETUP)
         markdown('## Steps')
-        for heading,source in steps:markdown('### '+heading);code(source)
-        markdown('## Checks\nReview the printed inputs, counts, source labels and residuals. Synthetic replies validate interfaces only.\n\n## Next steps\n'+ending)
+        for step_index,(heading,source) in enumerate(steps):
+            markdown('### '+heading+' / '+zh_steps[step_index]);code(source)
+        markdown('## Checks / 檢查\nReview printed inputs, counts, sources and residuals. Synthetic replies validate interfaces only. / 核對輸入、計數、來源與殘差；合成回覆僅驗證介面。\n\n## Next steps / 下一步\n'+ending+'\n\n'+zh_ending)
         namespace={'__name__':'__main__'};count=0
         if execute:
             for cell in cells:
                 if cell['cell_type']=='code':
                     count+=1;stream=io.StringIO()
-                    with contextlib.redirect_stdout(stream):exec(compile(''.join(cell['source']),name+'.ipynb','exec'),namespace)
+                    with contextlib.redirect_stdout(stream), patch('socket.socket.connect', side_effect=AssertionError('tutorial network forbidden')), patch('urllib.request.build_opener', side_effect=AssertionError('tutorial HTTP forbidden')), patch('urllib.request.urlopen', side_effect=AssertionError('tutorial HTTP forbidden')):
+                        exec(compile(''.join(cell['source']),name+'.ipynb','exec'),namespace)
                     cell['execution_count']=count
                     if stream.getvalue():cell['outputs']=[{'output_type':'stream','name':'stdout','text':stream.getvalue().splitlines(True)}]
         notebook={'nbformat':4,'nbformat_minor':5,'metadata':{'kernelspec':{'name':'python3','language':'python','display_name':'Python 3'},'language_info':{'name':'python','version':platform.python_version()},'execution_method':'ordered pure-Python cells; no Jupyter kernel used'},'cells':cells}

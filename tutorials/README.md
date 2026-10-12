@@ -1,69 +1,87 @@
-# Daily reservoir tutorial
+# HydroOpsLM step-by-step tutorials
 
 [English](README.md) | [繁體中文](README.zh-TW.md)
 
-Start at 00, then follow the notebooks in order. Each lesson has a goal, setup,
-steps, checks and next steps. The notebook prose is English; this page and the
-settings guide provide Traditional Chinese navigation. Install from the root README first.
+Install from the [framework README](../README.md). Start at 00 to understand the
+LLM decision path, then prepare inputs, configure agents and run an offline example.
+Each notebook has English/Traditional Chinese guidance and shared executable cells.
+Runtime prompts retain their original English bytes.
 
-| Order | Notebook |
-|---|---|
-| 00 | [Architecture / 原版與升級架構](00_overview.ipynb) |
-| 01 | [Input and GIS / 入流與地圖](01_input_and_map.ipynb) |
-| 02 | [YAML and agents / 設定與 agent](02_yaml.ipynb) |
-| 03 | [Rule benchmark / 規則基準](03_benchmark.ipynb) |
-| 04 | [Zero-shot](04_zero_shot.ipynb) |
-| 05 | [DKP](05_dkp.ipynb) |
-| 06 | [Audit and trace](06_audit_trace.ipynb) |
-| 07 | [Multiple reservoirs and own data / 多庫與自己的資料](07_multi_and_custom.ipynb) |
+| Order | Notebook | What you will inspect |
+|---|---|---|
+| 00 | [LLM architecture](00_overview.ipynb) | Info → prompt → proposal → checker → execution, audit/trace and feedback |
+| 01 | [Input and map](01_input_and_map.ipynb) | Inflow, units, initial state and GIS |
+| 02 | [Agent settings](02_yaml.ipynb) | YAML, models, prompts, knowledge and auditors |
+| 03 | [Rule benchmark](03_benchmark.ipynb) | Deterministic requested release using common physics/routing |
+| 04 | [Zero-shot](04_zero_shot.ipynb) | Full prompt, synthetic reply and complete decision chain |
+| 05 | [DKP](05_dkp.ipynb) | Retrieved knowledge, full prompt and complete decision chain |
+| 06 | [Audit and trace](06_audit_trace.ipynb) | Original verdict, bound physics and actual next-day history |
+| 07 | [Multiple reservoirs / your own data](07_multi_and_custom.ipynb) | Topology, state isolation, passive outlets and 31-day flow |
 
-## Execute offline without a notebook server
+[Generic settings](../docs/USER_GUIDE.md) and [LLM modules](../docs/LLM_MODULES.md)
+are formal manuals. [Examples](../examples/README.md) contain the three concrete methods.
+
+## Execute offline
 
 ```powershell
 python tutorials/build_notebooks.py --execute
 ```
 
-This executes every pure-Python code cell in order and saves actual stdout in the
-notebooks. It is not a Jupyter kernel test. A notebook server may also open these
-standard nbformat 4 files. Existing run directories are verified and reused;
-absent directories are created offline. There are 23 code cells across eight lessons.
-
-These are repository-native HydroCNHS examples. The [FE Walter entry](../examples/fe_walter/README.md)
-explains the common simulation path and separates strategy provenance from execution.
-
-## Run each method directly
+This executes 28 pure-Python code cells across eight lessons and saves actual
+stdout; it does not test a Jupyter kernel. The builder blocks HTTP/socket connects.
+Existing runs are verified and reused only if current YAML/input/implementation
+hashes match. Missing runs are created offline; a mismatch stops rather than overwrites.
 
 | Method | check/run YAML | verify output |
 |---|---|---|
-| Benchmark | `examples/fe_walter/benchmark/experiment.yaml` | `runs/fe-walter-benchmark-tutorial` |
-| Zero-shot | `examples/fe_walter/zero_shot/experiment.tutorial.yaml` | `runs/fe-walter-tutorial-zeroshot` |
-| DKP | `examples/fe_walter/dkp/experiment.tutorial.yaml` | `runs/fe-walter-tutorial-dkp` |
-| 31-day network | `tutorials/config/multi_reservoir.offline.yaml` | `runs/three-reservoir-tutorial-31d` |
+| Benchmark | `examples/fe_walter/benchmark/experiment.hydroopslm.offline.yaml` | `runs/hydroopslm-fe-walter-benchmark` |
+| Zero-shot | `examples/fe_walter/zero_shot/experiment.hydroopslm.offline.yaml` | `runs/hydroopslm-fe-walter-zero-shot` |
+| DKP | `examples/fe_walter/dkp/experiment.hydroopslm.offline.yaml` | `runs/hydroopslm-fe-walter-dkp` |
+| 31-day network | `tutorials/config/multi_reservoir.hydroopslm.offline.yaml` | `runs/hydroopslm-three-reservoir-31d-v2` |
 
 ```powershell
-python run_experiment.py check examples/fe_walter/zero_shot/experiment.tutorial.yaml
-python run_experiment.py run examples/fe_walter/zero_shot/experiment.tutorial.yaml
-python run_experiment.py verify runs/fe-walter-tutorial-zeroshot --require-offline
+python run_experiment.py check examples/fe_walter/zero_shot/experiment.hydroopslm.offline.yaml
+python run_experiment.py run examples/fe_walter/zero_shot/experiment.hydroopslm.offline.yaml
+python run_experiment.py verify runs/hydroopslm-fe-walter-zero-shot --require-offline
 ```
 
-Substitute the table's paths for the other methods. The command runner refuses to
-overwrite an existing output; use `verify`, or select new IDs/output for a new run.
-Notebook reuse also checks current YAML, input and implementation hashes. A mismatch
-stops with an instruction to select new IDs/output; historical `verify` inspects saved evidence.
-The three FE samples cover 2016-01-01–03. The network covers January 2016.
+Substitute the table's paths for other methods. Existing output is refused;
+verify it or choose new IDs/output. The FE samples cover 2016-01-01–03.
 
-Input CSV columns are `date,node,local_inflow_cms`. Export Excel to UTF-8 CSV
-without BOM, use ISO dates and m³/s, and record its SHA256 in the case.
-These FE inputs are simulated, already upstream-routed reservoir inflow; do not
-route or inject that same inflow a second time. Full natural runoff requires the
-[native hydrology setup](../docs/HYDROLOGY_SETUP.md), followed by operations coupling.
+## Inspect a complete decision
 
-In the network, FE Walter and Beltzville join on Lehigh contributions; Prompton
-uses a passive outlet on Lackawaxen contributions. This is not a serial cascade
-or full Delaware discharge. `UH=[1]` tests connectivity, not calibrated travel time.
-Lesson 07 and tests cover true cascades, confluences, delays and channel storage.
+After the offline example exists, display a day without rerunning a simulation:
 
-The earlier Demo lessons remain a [source reference](https://github.com/WenyuChiou/HydroCNHS-Delaware-Demo);
-the upgraded lessons preserve their input → setup → run → results teaching sequence
-and reuse its frozen GIS. [Map sources](../data/figures/SOURCES.md) list exact provenance.
-[Figure sources](../docs/figures/source/README.md) explain editing and regeneration.
+```powershell
+python tutorials/inspect_decision_flow.py runs/hydroopslm-fe-walter-zero-shot
+python tutorials/inspect_decision_flow.py runs/hydroopslm-fe-walter-dkp --timestep 1
+```
+
+The inspector verifies offline evidence, then shows **info, full system/user
+prompt, synthetic reply, normalized proposal, action-contract recheck, original
+audit, committed physics, next-day info and trace paths**. The recheck is current;
+it does not invent a historical checker event. Lessons 04/05 also demonstrate
+rejection of a negative proposal without calling physics or changing saved state.
+Checker acceptance, strategy audit and physical balance are separate outcomes.
+
+The generic fixed-release offline backend bypasses prompt/model execution.
+The two reference offline cases assemble prompts and parse supplied replies;
+all replies are synthetic and cannot measure real LLM policy quality.
+
+## Use your data and design an experiment
+
+Export Excel to UTF-8 CSV without BOM: `date,node,local_inflow_cms`, ISO dates,
+m³/s and a recorded SHA256. These FE inputs are simulated, already upstream-routed
+reservoir inflow; insert them once. Native runoff setup is linked from the manual.
+
+The January 2016 network joins FE Walter/Beltzville on Lehigh contributions and
+uses a passive Prompton outlet on Lackawaxen contributions. It is not a serial
+cascade or full river discharge. `UH=[1]` tests connectivity, not calibrated travel time.
+Lesson 07 covers own-case preparation; tests cover cascades, confluences and delays.
+
+Keep shared inputs, initial states, physics and routing fixed when comparing
+methods. Version each changed prompt/knowledge/auditor and save a new run.
+Read [live readiness](../docs/LIVE_READINESS.md) before real-provider experiments.
+
+[Earlier Demo](https://github.com/WenyuChiou/HydroCNHS-Delaware-Demo) ·
+[Map sources](../data/figures/SOURCES.md) · [Editable figures](../docs/figures/source/README.md)

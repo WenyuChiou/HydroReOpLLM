@@ -8,14 +8,14 @@
 
 1. 使用與 zero-shot、DKP 相同的 [input 與物理 case](../../../cases/fe_walter_reference/case.json)。
    初始蓄水仍是既定假設，下游 reach 仍是 identity 診斷設定。
-2. 讀取 [experiment.yaml](experiment.yaml)：`strategy: benchmark`、`mode: offline`，
+2. 讀取 [experiment.hydroopslm.offline.yaml](experiment.hydroopslm.offline.yaml)：`strategy: benchmark`、`mode: offline`，
    不設定模型或 prompt。統計檔固定原模擬入流來源，只使用示範之前的 1996–2015 年。
 3. 從 repo 根目錄執行：
 
 ```powershell
-python run_experiment.py check examples/fe_walter/benchmark/experiment.yaml
-python run_experiment.py run examples/fe_walter/benchmark/experiment.yaml
-python run_experiment.py verify runs/fe-walter-benchmark-tutorial --require-offline
+python run_experiment.py check examples/fe_walter/benchmark/experiment.hydroopslm.offline.yaml
+python run_experiment.py run examples/fe_walter/benchmark/experiment.hydroopslm.offline.yaml
+python run_experiment.py verify runs/hydroopslm-fe-walter-benchmark --require-offline
 ```
 
 示範日期為 2016-01-01 至 2016-01-03。輸出資料夾不會覆寫；再次執行請同時更改

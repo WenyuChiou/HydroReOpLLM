@@ -1,23 +1,23 @@
-# HydroCNHS FE Walter — Zero-shot
+# HydroOpsLM FE Walter — Zero-shot
 
 [English](README.md) | [繁體中文](README.zh-TW.md) · [All reference settings](../../../cases/fe_walter_reference/README.md)
 
 This repository runs daily Dam coupling, reservoir physics and downstream routing. A policy compatibility adapter supplies prompts, response parsing and strategy audit; the next day uses the physical outcome. See the [shared three-method execution path](../README.md).
 
-A concrete example of the generic HydroCNHS reservoir-agent framework.
+A concrete example of the HydroOpsLM reservoir-agent framework.
 This is the original Zero-shot strategy with **synthetic offline replies**, not a live LLM run.
 
 1. Input: shared [case JSON](../../../cases/fe_walter_reference/case.json), [daily inflow CSV](../../../cases/fe_walter_reference/inflows.csv), and [reply fixture](../../../tests/fixtures/zeroshot_responses.json).
-2. Settings: commented [experiment.tutorial.yaml](experiment.tutorial.yaml), one FE Walter agent, daily 2016-01-01..03, `mode: offline`, `max_calls: 0`.
+2. Settings: commented [experiment.hydroopslm.offline.yaml](experiment.hydroopslm.offline.yaml), one FE Walter agent, daily 2016-01-01..03, `mode: offline`, `max_calls: 0`.
 3. Prompt: YAML reads [system instructions](../../../prompts/fe_walter_reference/zeroshot_system.txt) from `prompts/`. [prompt_preview.txt](prompt_preview.txt) shows the complete original English system prompt, first-day state prompt and response schema. It is a **reading snapshot**, not a runtime template. Original builders regenerate the daily state and history; zero-shot does not retrieve DKP excerpts.
 4. Knowledge: Public facts and seasonal target; no DKP.
 5. Audit: original native strategy audit plus the generic release-bounds auditor. Neither rewrites the model's request; the shared physical solver enforces feasibility.
 6. From the installed repository root, run:
 
 ```powershell
-python run_experiment.py check examples/fe_walter/zero_shot/experiment.tutorial.yaml
-python run_experiment.py run examples/fe_walter/zero_shot/experiment.tutorial.yaml
-python run_experiment.py verify runs/fe-walter-tutorial-zeroshot --require-offline
+python run_experiment.py check examples/fe_walter/zero_shot/experiment.hydroopslm.offline.yaml
+python run_experiment.py run examples/fe_walter/zero_shot/experiment.hydroopslm.offline.yaml
+python run_experiment.py verify runs/hydroopslm-fe-walter-zero-shot --require-offline
 ```
 
 7. Results: `summary.json`, `reservoir_trajectory.csv`, `network_flows.csv`, `audit.jsonl` and `raw/`. With these pass-through fixtures: 3 days, 0 model calls, 3 audit PASS, reservoir balance residual 0 m³. These are expected fixture checks based on the preserved offline diagnostic, not newly generated decisions.
@@ -29,3 +29,13 @@ Generic synthetic prompt templates are test fixtures under `tests/fixtures/promp
 Prompt system SHA256: `f0999945b989cf1a97e8e7239d78c774baf9c7e82c342ae27551baf56ca45133`. Shared assets and original vendor bytes remain unchanged.
 
 Strategy provenance: Anik V3.7. Preserved prompts/schema/retrieval and vendor hashes support parity checks; this example executes through this repository's `run_experiment.py`.
+
+## Inspect the complete decision
+
+After the offline output exists, run this read-only inspector or follow [lessons 04/05](../../../tutorials/README.md):
+
+```powershell
+python tutorials/inspect_decision_flow.py runs/hydroopslm-fe-walter-zero-shot
+```
+
+Read info, prompt variables, full system/user prompt, synthetic reply, normalized proposal, action-contract recheck, original audit, executed release and next-day info. The recheck is not an invented historical event; original FAIL/WARN/UNKNOWN remain, and common physics determines implemented release. The original experiment.tutorial.yaml and historical outputs remain preserved; this entry uses a separate HydroOpsLM run.

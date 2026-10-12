@@ -1,4 +1,4 @@
-# FE Walter in the upgraded HydroCNHS
+# FE Walter with HydroOpsLM
 
 [English](README.md) | [繁體中文](README.zh-TW.md) · [All examples](../README.md)
 
@@ -8,9 +8,9 @@ decision logic and prompt conventions; simulation is owned by this repository.
 
 | Method | Walkthrough | Offline YAML | Decisions |
 |---|---|---|---|
-| Hanasaki-based benchmark | [Steps](benchmark/README.md) | [YAML](benchmark/experiment.yaml) | Deterministic flood-control rule |
-| Zero-shot | [Steps](zero_shot/README.md) | [YAML](zero_shot/experiment.tutorial.yaml) | Preserved prompt/schema with synthetic replies |
-| DKP | [Steps](dkp/README.md) | [YAML](dkp/experiment.tutorial.yaml) | Preserved prompt, knowledge retrieval and synthetic replies |
+| Hanasaki-based benchmark | [Steps](benchmark/README.md) | [YAML](benchmark/experiment.hydroopslm.offline.yaml) | Deterministic flood-control rule |
+| Zero-shot | [Steps](zero_shot/README.md) | [YAML](zero_shot/experiment.hydroopslm.offline.yaml) | Preserved prompt/schema with synthetic replies |
+| DKP | [Steps](dkp/README.md) | [YAML](dkp/experiment.hydroopslm.offline.yaml) | Preserved prompt, knowledge retrieval and synthetic replies |
 
 1. Install from the [main README](../../README.md).
 2. Inspect the shared [case](../../cases/fe_walter_reference/case.json) and
@@ -44,3 +44,5 @@ driver. The benchmark adapts only the pinned release function. Source files/hash
 remain recorded for reproducibility; method pages link them. Offline fixtures cannot
 measure LLM policy quality. Live YAMLs retain temperature **0.7** and remain subject
 to [readiness checks](../../docs/LIVE_READINESS.md).
+
+[Complete LLM decision flow](../../tutorials/README.md#inspect-a-complete-decision) · [Generic module settings](../../docs/USER_GUIDE.md)

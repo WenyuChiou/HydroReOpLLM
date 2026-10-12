@@ -1,43 +1,40 @@
-# HydroCNHS + LLM Reservoir Agent
+# HydroOpsLM
 
 [English](README.md) | [繁體中文](README.zh-TW.md)
 
-**HydroCNHS + LLM Reservoir Agent** is a Python framework for studying how
-large language models (LLMs) make reservoir operating decisions within a coupled
-hydrological simulation. It builds on the complete, pinned [HydroCNHS](https://github.com/cylin928/HydroCNHS)
-core and connects configurable reservoir decision units through its existing Dam API.
+**HydroOpsLM** is a modular Python framework for studying LLM-based reservoir
+operations within coupled hydrological simulations. It builds on the complete,
+pinned [HydroCNHS](https://github.com/cylin928/HydroCNHS) core and connects reservoir
+decision units through its existing Dam API. The Python package remains
+`llm_reservoir_agent`.
 
-## What can you do with it?
+## What can you do?
 
-- Use native HydroCNHS rainfall–runoff models, routing, model building,
-  calibration/validation, four coupling APIs and sediment tools.
-- Study LLM reservoir decisions alongside rule-based or custom controllers,
-  with configurable inputs, prompts, knowledge sources and auditors.
-- Simulate one or multiple reservoirs on your own river network, and inspect
-  requested release, implemented release, storage, spill, downstream flow and trace records.
+- Configure what each LLM sees, its prompt, model, optional knowledge and auditors.
+- Compare LLM, rule-based and custom decisions using common reservoir physics.
+- Connect one or multiple reservoirs and inspect release, storage and downstream flow.
+- Follow a decision from its input and proposal to its executed outcome and audit/trace.
+
+Native HydroCNHS model building, hydrology, routing, calibration/validation,
+four coupling APIs and sediment tools remain available.
 
 ## How does it work?
 
-HydroCNHS computes rainfall–runoff with GWLF (Generalized Watershed Loading Functions)
-or ABCD and routes flow with the Lohmann model. At each controlled reservoir,
-the selected policy observes the daily state and proposes a release through the Dam API.
-In LLM mode, a prompt combines inflow, reservoir state and past executed releases;
-optional knowledge adds context. A checker validates the returned action before
-the shared, added reservoir solver applies physical limits and updates storage and spill.
-Release plus spill enters downstream routing once. Audit and trace retain the
-decision and its physical outcome; the next day uses the actual executed history.
+Available information and an independent prompt, with optional context, enter
+the LLM. A response parser produces a **proposal: requested controlled release**.
+A checker validates its format and values before common reservoir physics
+calculates implemented release, spill and storage. Actual outflow enters downstream
+routing once; executed outcomes feed the next decision.
 
-![Coupled hydrology and reservoir operations](docs/figures/hydrocnhs-coupling-framework-en.png)
+![HydroOpsLM: HydroCNHS with modular LLM reservoir decisions](docs/figures/hydrocnhs-coupling-framework-en.png)
 
-LLM decisions change reservoir storage and downstream flow. They do not change
-the native rainfall–runoff equations. Rule-based and LLM policies use the same
-physical solver in the operations runner; native HydroCNHS supplies the Dam interface.
+HydroOpsLM is the framework name; the figure title identifies its two components:
+HydroCNHS and the LLM reservoir agent.
 
-## User manual and tutorials
-
-Start with the six steps below. The [user manual](docs/README.md) links the full
-setup guides, [runnable notebooks](tutorials/README.md) and [examples](examples/README.md).
-For native HydroCNHS features, see the [official user manual](https://cylin928.github.io/HydroCNHS/).
+Audit evaluates configured operating rules; trace records inputs, decisions,
+sources and physical outcomes. A valid action does not imply an accepted strategy.
+HydroCNHS supplies hydrology and routing; the LLM changes reservoir decisions,
+storage and downstream flow. See [LLM modules](docs/LLM_MODULES.md) for the interfaces.
 
 ## Get started
 
@@ -51,33 +48,16 @@ python -m venv .venv
 python -m pip install -e . -c environment/requirements-bundled.txt
 ```
 
-### 2. Prepare your inputs
+### 2. Choose an offline configuration
 
-For rainfall–runoff simulation, configure basin areas, meteorological forcing,
-parameters and routing with the [native HydroCNHS guide](docs/HYDROLOGY_SETUP.md).
-GWLF/ABCD, calibration/validation, the four coupling APIs and sediment tools remain available.
+Start at [Examples](examples/README.md) and follow its linked YAML and tutorial.
+The daily operations runner takes a river network, initial reservoir states and
+supplied local inflow CSV: `date,node,local_inflow_cms`. Already upstream-routed
+reservoir inflow must be inserted once at its inlet.
 
-The daily operations runner uses **supplied local inflow**: CSV columns
-`date,node,local_inflow_cms`, a river network, physical limits and initial storage.
-Already upstream-routed reservoir inflow must be inserted once at its inlet.
+### 3. Check, run and verify
 
-### 3. Set up the experiment
-
-Choose a working configuration from [Examples](examples/README.md), then copy its YAML
-for your case. Set `case`, dates, `run_id` and `output`. Assign one decision unit to
-each controlled reservoir; passive outlets need no LLM. River connections determine
-which release influences downstream inflow.
-
-### 4. Configure decisions and checks
-
-Choose a decision backend and provide each reservoir's profile, rules or prompt,
-input context and versioned auditors. For LLM mode, also select the provider/model
-and sampling settings. Start offline. The [settings guide](docs/USER_GUIDE.md)
-explains each field; [live readiness](docs/LIVE_READINESS.md) lists the remaining requirements.
-
-### 5. Check, run and verify
-
-Replace the two paths below with your YAML and its configured output directory.
+Replace these paths with the chosen offline YAML and its configured output.
 
 ```powershell
 $experiment = "path/to/experiment.yaml"
@@ -87,23 +67,41 @@ python run_experiment.py run $experiment
 python run_experiment.py verify $output --require-offline
 ```
 
-`check` makes no provider calls. Existing outputs are never overwritten: verify
-them, or select a new `run_id` and `output`. Follow the [notebooks](tutorials/README.md)
-for complete runnable demonstrations.
+`check` makes no provider calls. Existing outputs are never overwritten:
+verify them, or select a new `run_id` and `output`. The
+[tutorial notebooks](tutorials/README.md) show the complete workflow.
 
-### 6. Read the results
+## Configure your agent
 
-Open `summary.json`, `reservoir_trajectory.csv`, `network_flows.csv`, and the
-decision/physics/audit logs linked to `raw/`. Compare requested release, implemented
-release, spill, storage and routed flow. Next-day history uses the physical outcome.
-Policy FAIL/WARN/UNKNOWN remain visible; physical acceptance does not approve a strategy.
+Assign one independent decision unit to each controlled reservoir; passive outlets
+need no LLM. Configure its information, prompt, optional knowledge, model and
+versioned auditors using the [settings guide](docs/USER_GUIDE.md).
+The [module guide](docs/LLM_MODULES.md) distinguishes fixed settings from information
+that changes each day. The current operations runner uses daily timesteps.
 
-## Cite HydroCNHS
+## Design an experiment and read results
+
+Keep inflow, initial state, physics and routing fixed when comparing decision
+methods. Change one declared factor, save a new run, and retain the prompt/model/
+audit versions. River connections determine which release affects downstream inflow.
+Follow [multiple reservoirs and your own data](tutorials/07_multi_and_custom.ipynb)
+and the [live preparation checklist](docs/LIVE_READINESS.md) before a real-provider experiment.
+
+Read `reservoir_trajectory.csv`, `network_flows.csv` and `summary.json`.
+Follow a decision ID through decision, physics and audit logs into `raw/` for the
+complete prompt/reply evidence. Compare requested and implemented release, spill,
+storage and routed flow; retain FAIL/WARN/UNKNOWN.
+
+[User manual](docs/README.md) · [Step-by-step tutorials](tutorials/README.md) ·
+[Native HydroCNHS setup](docs/HYDROLOGY_SETUP.md) ·
+[Official HydroCNHS documentation](https://cylin928.github.io/HydroCNHS/)
+
+## Attribution
 
 Lin, C. Y., Yang, Y. C. E., & Wi, S. (2022).
 [HydroCNHS: A Python Package of Hydrological Model for Coupled Natural Human Systems](https://doi.org/10.1061/(ASCE)WR.1943-5452.0001630).
 *Journal of Water Resources Planning and Management*, 148(12), 6022005.
-This repository adds the LLM reservoir integration; credit the original HydroCNHS separately.
+HydroOpsLM adds LLM reservoir integration; credit the original HydroCNHS separately.
 
 [Inventory](docs/PROJECT_INVENTORY.md) · [Offline evidence](results/technical_note_offline/README.md) ·
 [Technical Note](paper/technical_note.md) · [Historical entries](archive/README.md) ·

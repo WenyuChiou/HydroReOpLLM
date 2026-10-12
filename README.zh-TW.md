@@ -1,35 +1,36 @@
-# HydroCNHS + LLM Reservoir Agent
+# HydroOpsLM
 
 [English](README.md) | [繁體中文](README.zh-TW.md)
 
-**HydroCNHS + LLM Reservoir Agent** 是研究大型語言模型（LLM）水庫操作決策的 Python 框架，
-讓決策在耦合水文模擬中執行。以完整固定版本的 [HydroCNHS](https://github.com/cylin928/HydroCNHS)
-核心為基礎，透過原有 Dam API 接入可設定的水庫決策單元。
+**HydroOpsLM** 是在耦合水文模擬中研究 LLM 水庫操作的模組化 Python 框架。
+以完整固定版本的 [HydroCNHS](https://github.com/cylin928/HydroCNHS) 核心為基礎，
+透過原有 Dam API 接入水庫決策單元。Python 套件名稱維持 `llm_reservoir_agent`。
 
 ## 可以做什麼？
 
-- 使用原生 HydroCNHS 的降雨產流、routing、模型建立、校正與驗證（C&V）、四種耦合 API 及 sediment 工具。
-- 研究 LLM 水庫決策，並與 rule-based 或自訂控制器比較；輸入、prompt、知識來源及 auditor 皆可設定。
-- 在自己的河網模擬單庫或多庫，查看請求放流、實際放流、蓄水、spill、下游流量與 trace 紀錄。
+- 設定每個 LLM 看見的資訊、prompt、模型、選用知識與 auditor。
+- 使用共同水庫物理，比較 LLM、規則與自訂決策。
+- 連接單庫或多庫，查看放流、蓄水與下游流量。
+- 從決策輸入與 proposal，追查實際執行結果及 audit／trace。
+
+原生 HydroCNHS 的模型建立、水文、routing、校正與驗證（C&V）、
+四種耦合 API 及 sediment 工具皆保留。
 
 ## 如何運作？
 
-HydroCNHS 使用 GWLF（Generalized Watershed Loading Functions）或 ABCD 計算降雨產流，
-以 Lohmann 模型進行 routing。每座受控水庫的指定策略讀取當日狀態，透過 Dam API 提出放流。
-LLM 模式將入流、水庫狀態與過去實際放流組成 prompt，也可加入額外知識。
-Checker 先檢查回覆格式及數值，再由新增的共同水庫物理程式套用限制、更新蓄水及 spill。
-實際放流加 spill 只注入下游 routing 一次；audit／trace 保留決策與物理結果，隔日使用實際執行歷史。
+可用資訊與獨立 prompt，加上選用的額外內容，送入 LLM。
+Response parser 將回覆轉為 **proposal：請求的受控放流量**。
+Checker 檢查格式與數值，再由共同水庫物理計算實際放流、spill 與蓄水。
+實際總出流只注入下游 routing 一次；執行結果回饋到下一次決策。
 
-![耦合水文與水庫操作框架](docs/figures/hydrocnhs-coupling-framework-en.png)
+![HydroOpsLM：HydroCNHS 與模組化 LLM 水庫決策](docs/figures/hydrocnhs-coupling-framework-en.png)
 
-LLM 決策會改變蓄水與下游流量，不修改原生降雨產流方程。
-水庫操作入口的 rule-based 與 LLM 策略使用同一物理求解器；原生 HydroCNHS 提供 Dam 耦合介面。
+HydroOpsLM 是框架名稱；圖中標題說明它的兩個組成部分：
+HydroCNHS 與 LLM 水庫 agent。
 
-## 使用手冊與教學
-
-先依下列六步操作。[使用手冊](docs/README.zh-TW.md)集中完整設定指南、
-[可執行 notebooks](tutorials/README.zh-TW.md)與[範例](examples/README.zh-TW.md)。
-原生 HydroCNHS 功能請參考[官方文件站](https://cylin928.github.io/HydroCNHS/)。
+Audit 評估指定的操作規則；trace 保存輸入、決策、來源與物理結果。
+Action 有效不代表策略已通過驗收。HydroCNHS 負責水文與 routing；
+LLM 改變水庫決策、蓄水及下游流量。各介面見[LLM 模組手冊](docs/LLM_MODULES.zh-TW.md)。
 
 ## 開始使用
 
@@ -43,29 +44,15 @@ python -m venv .venv
 python -m pip install -e . -c environment/requirements-bundled.txt
 ```
 
-### 2. 準備輸入
+### 2. 選擇離線設定
 
-降雨產流模擬依[原生 HydroCNHS 手冊](docs/HYDROLOGY_SETUP.md)設定集水區面積、氣象資料、
-參數與 routing。GWLF／ABCD、C&V、四種耦合 API 與 sediment 工具皆保留。
+從[範例](examples/README.zh-TW.md)開始，依其 YAML 與教學操作。
+每日操作入口需要河網、水庫初始狀態，以及給定的局部入流 CSV：
+`date,node,local_inflow_cms`。已完成上游 routing 的水庫入流，只在入口注入一次。
 
-每日水庫操作入口使用**給定局部入流**：CSV 欄位 `date,node,local_inflow_cms`，
-搭配河網、物理限制及初始蓄水。已完成上游 routing 的水庫入流，只在入口注入一次。
+### 3. 檢查、執行與驗證
 
-### 3. 設定實驗
-
-從[範例](examples/README.zh-TW.md)選擇可執行設定，複製 YAML 後替換自己的 case。
-設定 `case`、日期、`run_id` 與 `output`。每座受控水庫指定一個決策單元；被動出口
-不配置 LLM。河網連線決定哪座水庫的放流會影響下游入流。
-
-### 4. 設定決策與檢查
-
-選擇決策 backend，各庫提供自己的 profile、規則或 prompt、輸入情境與 versioned auditor。
-使用 LLM 時另設定 provider／model 與取樣參數，先做離線驗證。
-[設定手冊](docs/USER_GUIDE.zh-TW.md)逐項說明欄位；[真實實驗條件](docs/LIVE_READINESS.md)列出準備要求。
-
-### 5. 檢查、執行與驗證
-
-將下列兩個路徑換成自己的 YAML 及其中指定的輸出資料夾。
+將以下路徑換成選用的離線 YAML 及其中設定的輸出目錄。
 
 ```powershell
 $experiment = "path/to/experiment.yaml"
@@ -75,22 +62,39 @@ python run_experiment.py run $experiment
 python run_experiment.py verify $output --require-offline
 ```
 
-`check` 不呼叫 provider。已有輸出不會覆寫：使用 verify，或指定新的 `run_id` 與 `output`。
-完整可執行示範請依[逐步 notebooks](tutorials/README.zh-TW.md)操作。
+`check` 不呼叫 provider。已有輸出不會覆寫：
+使用 verify，或指定新的 `run_id` 與 `output`。
+[逐步 notebooks](tutorials/README.zh-TW.md)展示完整流程。
 
-### 6. 查看結果
+## 設定你的 agent
 
-開啟 `summary.json`、`reservoir_trajectory.csv`、`network_flows.csv`，以及連到 `raw/`
-的 decision／physics／audit logs。比較 requested release、implemented release、spill、
-蓄水與 routed flow。隔日歷史使用實際物理結果。
-策略 FAIL／WARN／UNKNOWN 原樣保留；物理驗收不代表操作策略通過。
+每座受控水庫配置一個獨立決策單元；被動出口不配置 LLM。
+依[設定手冊](docs/USER_GUIDE.zh-TW.md)設定資訊、prompt、選用知識、模型及版本化 auditor。
+[模組手冊](docs/LLM_MODULES.zh-TW.md)區分固定設定與逐日變動的資訊。
+目前操作入口使用 daily timestep。
 
-## 引用 HydroCNHS
+## 設計實驗與查看結果
+
+比較決策方法時，固定入流、初始狀態、物理與 routing。
+每次只改變一個明確列出的條件，保存新的 run，並保留 prompt／model／audit 版本。
+河網連線決定哪座水庫的放流會影響下游入流。
+真實 provider 實驗前，依[多庫與自己的資料](tutorials/07_multi_and_custom.ipynb)
+及[真實實驗準備清單](docs/LIVE_READINESS.md)完成準備。
+
+查看 `reservoir_trajectory.csv`、`network_flows.csv` 與 `summary.json`。
+以 decision ID 串起 decision、physics、audit logs，再進入 `raw/` 查看完整 prompt／回覆證據。
+比較 requested／implemented release、spill、蓄水及 routed flow；保留 FAIL／WARN／UNKNOWN。
+
+[使用手冊](docs/README.zh-TW.md) · [逐步教學](tutorials/README.zh-TW.md) ·
+[原生 HydroCNHS 設定](docs/HYDROLOGY_SETUP.md) ·
+[HydroCNHS 官方文件](https://cylin928.github.io/HydroCNHS/)
+
+## 來源與引用
 
 Lin, C. Y., Yang, Y. C. E., & Wi, S. (2022).
 [HydroCNHS: A Python Package of Hydrological Model for Coupled Natural Human Systems](https://doi.org/10.1061/(ASCE)WR.1943-5452.0001630).
 *Journal of Water Resources Planning and Management*, 148(12), 6022005。
-本 repo 新增 LLM 水庫整合；原版 HydroCNHS 的貢獻請另外引用。
+HydroOpsLM 新增 LLM 水庫整合；原版 HydroCNHS 的貢獻請另外引用。
 
 [專案盤點](docs/PROJECT_INVENTORY.md) · [離線證據](results/technical_note_offline/README.md) ·
 [Technical Note](paper/technical_note.md) · [歷史入口](archive/README.md) ·
