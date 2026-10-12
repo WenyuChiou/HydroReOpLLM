@@ -28,6 +28,9 @@ notebooks. It is not a Jupyter kernel test. A notebook server may also open thes
 standard nbformat 4 files. Existing run directories are verified and reused;
 absent directories are created offline. There are 23 code cells across eight lessons.
 
+These are repository-native HydroCNHS examples. The [FE Walter entry](../examples/fe_walter/README.md)
+explains the common simulation path and separates strategy provenance from execution.
+
 ## Run each method directly
 
 | Method | check/run YAML | verify output |

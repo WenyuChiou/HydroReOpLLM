@@ -1,0 +1,138 @@
+{
+  "tool": "image_gen.imagegen",
+  "model_version": null,
+  "usage_cost": null,
+  "calls": 6,
+  "transparent_background": true,
+  "assets": [
+    {
+      "asset": "hydrology",
+      "original_cache_name": "exec-57e84d11-a6c4-4c90-bb4b-142b0fc4ff84.png",
+      "path": "hydrology.png",
+      "sha256": "bd1f6c67ff73729fe268fd2f3cd4fc74900693cadae85e13a15ec9c3daf61ef7",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "mode": "RGBA",
+      "alpha_range": [
+        0,
+        255
+      ]
+    },
+    {
+      "asset": "reservoir",
+      "original_cache_name": "exec-c2b50ba2-4b8e-4bf1-9fab-f27bcb902993.png",
+      "path": "reservoir.png",
+      "sha256": "955df76117decac05a75ecd67a8f6e3a2a9756b61f0bb398986204cc100eaf3a",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "mode": "RGBA",
+      "alpha_range": [
+        0,
+        255
+      ]
+    },
+    {
+      "asset": "routing",
+      "original_cache_name": "exec-706348eb-0c2b-4237-a546-1a534c285567.png",
+      "path": "routing.png",
+      "sha256": "dea072b0277e124553062f6d3910cdbb0531a971c766bb5bbc6394c97c9f341f",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "mode": "RGBA",
+      "alpha_range": [
+        0,
+        255
+      ]
+    },
+    {
+      "asset": "decision",
+      "original_cache_name": "exec-6c61ff24-8fb5-4e6f-8a76-599e268140e5.png",
+      "path": "decision.png",
+      "sha256": "fcfca724a1e6dbc3257e650814d142b91329ff28532c3d28059470269f36e1f3",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "mode": "RGBA",
+      "alpha_range": [
+        0,
+        255
+      ]
+    },
+    {
+      "asset": "knowledge",
+      "original_cache_name": "exec-734cf1e1-da52-49b9-9749-327508dec9d8.png",
+      "path": "knowledge.png",
+      "sha256": "055e90e8b3d8d1a994f513b41f9125ccce10eea9dafbb7df2be67827e22079ab",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "mode": "RGBA",
+      "alpha_range": [
+        0,
+        255
+      ]
+    },
+    {
+      "asset": "audit",
+      "original_cache_name": "exec-4b940be4-3761-477f-8f1c-c2816b4f0df0.png",
+      "path": "audit.png",
+      "sha256": "44c34f441cefaa128551582eb23e87b8ac65bd150516f774c8b0b1836c84242d",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "mode": "RGBA",
+      "alpha_range": [
+        0,
+        255
+      ]
+    }
+  ],
+  "prompts": {
+    "tool": "built-in image_gen",
+    "model_version": "not exposed; do not infer",
+    "transparent_background": true,
+    "icons": [
+      {
+        "key": "hydrology",
+        "subject": "A rain cloud above a small hillside catchment with water running into a blue stream; blue hydrologic water and subdued sage terrain. Clearly represents rainfall-runoff modeling, not flood disaster.",
+        "prompt": "Use case: scientific-educational.\nAsset type: ONE isolated text-free illustration icon for an editable draw.io scientific architecture diagram. Transparent background with true alpha, no opaque square or checkerboard. Professional restrained flat editorial/vector-like illustration, filled shapes, clean dark navy details, soft muted colors, consistent 3/4 perspective and medium stroke weight, plenty of transparent margin. A recognizable single pictogram rather than a scene. No text, letters, numbers, logos, watermarks, arrows, badges, label boxes, gradients, cast shadows or decorative objects. Designed to remain recognizable when placed at about 90 pixels tall beside editable English labels. Centered square composition.\nSubject: A rain cloud above a small hillside catchment with water running into a blue stream; blue hydrologic water and subdued sage terrain. Clearly represents rainfall-runoff modeling, not flood disaster."
+      },
+      {
+        "key": "reservoir",
+        "subject": "A compact concrete reservoir dam with blue stored water on one side and a small controlled outlet on the other, dark navy gate details and subdued warm ochre structure. Clearly represents reservoir storage and physical release limits, not power generation.",
+        "prompt": "Use case: scientific-educational.\nAsset type: ONE isolated text-free illustration icon for an editable draw.io scientific architecture diagram. Transparent background with true alpha, no opaque square or checkerboard. Professional restrained flat editorial/vector-like illustration, filled shapes, clean dark navy details, soft muted colors, consistent 3/4 perspective and medium stroke weight, plenty of transparent margin. A recognizable single pictogram rather than a scene. No text, letters, numbers, logos, watermarks, arrows, badges, label boxes, gradients, cast shadows or decorative objects. Designed to remain recognizable when placed at about 90 pixels tall beside editable English labels. Centered square composition.\nSubject: A compact concrete reservoir dam with blue stored water on one side and a small controlled outlet on the other, dark navy gate details and subdued warm ochre structure. Clearly represents reservoir storage and physical release limits, not power generation."
+      },
+      {
+        "key": "routing",
+        "subject": "A simple blue river network with two tributaries merging into one meandering downstream channel, dark navy bank details and subdued sage surroundings. No arrows. Clearly represents river routing and confluence, not a map of an actual place.",
+        "prompt": "Use case: scientific-educational.\nAsset type: ONE isolated text-free illustration icon for an editable draw.io scientific architecture diagram. Transparent background with true alpha, no opaque square or checkerboard. Professional restrained flat editorial/vector-like illustration, filled shapes, clean dark navy details, soft muted colors, consistent 3/4 perspective and medium stroke weight, plenty of transparent margin. A recognizable single pictogram rather than a scene. No text, letters, numbers, logos, watermarks, arrows, badges, label boxes, gradients, cast shadows or decorative objects. Designed to remain recognizable when placed at about 90 pixels tall beside editable English labels. Centered square composition.\nSubject: A simple blue river network with two tributaries merging into one meandering downstream channel, dark navy bank details and subdued sage surroundings. No arrows. Clearly represents river routing and confluence, not a map of an actual place."
+      },
+      {
+        "key": "decision",
+        "subject": "A compact stylized reasoning brain joined to a small speech bubble and a navy circuit element, muted plum and lavender filled shapes. No face or mascot. Clearly represents a language-model decision module; do not include a robot body or a human.",
+        "prompt": "Use case: scientific-educational.\nAsset type: ONE isolated text-free illustration icon for an editable draw.io scientific architecture diagram. Transparent background with true alpha, no opaque square or checkerboard. Professional restrained flat editorial/vector-like illustration, filled shapes, clean dark navy details, soft muted colors, consistent 3/4 perspective and medium stroke weight, plenty of transparent margin. A recognizable single pictogram rather than a scene. No text, letters, numbers, logos, watermarks, arrows, badges, label boxes, gradients, cast shadows or decorative objects. Designed to remain recognizable when placed at about 90 pixels tall beside editable English labels. Centered square composition.\nSubject: A compact stylized reasoning brain joined to a small speech bubble and a navy circuit element, muted plum and lavender filled shapes. No face or mascot. Clearly represents a language-model decision module; do not include a robot body or a human."
+      },
+      {
+        "key": "knowledge",
+        "subject": "An open operating-manual book with a small colored bookmark and abstract unlettered navy lines as page texture, muted teal filled cover/pages. Clearly represents prompt and reservoir operating knowledge. No actual glyphs or text.",
+        "prompt": "Use case: scientific-educational.\nAsset type: ONE isolated text-free illustration icon for an editable draw.io scientific architecture diagram. Transparent background with true alpha, no opaque square or checkerboard. Professional restrained flat editorial/vector-like illustration, filled shapes, clean dark navy details, soft muted colors, consistent 3/4 perspective and medium stroke weight, plenty of transparent margin. A recognizable single pictogram rather than a scene. No text, letters, numbers, logos, watermarks, arrows, badges, label boxes, gradients, cast shadows or decorative objects. Designed to remain recognizable when placed at about 90 pixels tall beside editable English labels. Centered square composition.\nSubject: An open operating-manual book with a small colored bookmark and abstract unlettered navy lines as page texture, muted teal filled cover/pages. Clearly represents prompt and reservoir operating knowledge. No actual glyphs or text."
+      },
+      {
+        "key": "audit",
+        "subject": "A compact clipboard document with a magnifying glass and three small neutral record rows, muted forest-green and sage filled shapes with navy details. Clearly represents inspection and trace records. No green check mark, pass badge, approval seal, text or lettering.",
+        "prompt": "Use case: scientific-educational.\nAsset type: ONE isolated text-free illustration icon for an editable draw.io scientific architecture diagram. Transparent background with true alpha, no opaque square or checkerboard. Professional restrained flat editorial/vector-like illustration, filled shapes, clean dark navy details, soft muted colors, consistent 3/4 perspective and medium stroke weight, plenty of transparent margin. A recognizable single pictogram rather than a scene. No text, letters, numbers, logos, watermarks, arrows, badges, label boxes, gradients, cast shadows or decorative objects. Designed to remain recognizable when placed at about 90 pixels tall beside editable English labels. Centered square composition.\nSubject: A compact clipboard document with a magnifying glass and three small neutral record rows, muted forest-green and sage filled shapes with navy details. Clearly represents inspection and trace records. No green check mark, pass badge, approval seal, text or lettering."
+      }
+    ]
+  },
+  "role": "Illustrative icons; not empirical data or geographic features.",
+  "processing": "Byte-identical copies of generated originals; no pixel editing."
+}

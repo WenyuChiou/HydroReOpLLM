@@ -1,0 +1,132 @@
+{
+  "status": "PASS",
+  "scope": "Repository-native offline example execution; not policy-quality acceptance",
+  "base_commit": "f5552fbd2365f33b444daaa1fa815ada4b1ca19c",
+  "python": "3.12.14",
+  "pytest": "9.1.1",
+  "test_command": [
+    "C:/Users/wenyu/Documents/LLM Rervoir/HydroCNHS/llm_integration_review/.venv/Scripts/python.exe",
+    "-c",
+    "import sys,pytest\nsys.path.insert(0,r'C:/Users/wenyu/Documents/LLM Rervoir/HydroCNHS-Delaware-Operations/src')\nprint('Python',sys.version,'pytest',pytest.__version__,'src',sys.path[0])\nraise SystemExit(pytest.main(['tests/test_native_examples.py','-q','-s','--tb=short']))\n"
+  ],
+  "exit_code": 0,
+  "current_test_count": 3,
+  "examples": [
+    {
+      "days": 3,
+      "example": "examples/fe_walter/benchmark/experiment.yaml",
+      "native_model_runs": 1,
+      "network_calls": 0,
+      "shared_physical_transitions": 3,
+      "verified": {
+        "audit_binding_counts": {
+          "legacy_unbound": 0,
+          "versioned_suite": 3
+        },
+        "audit_counts": {
+          "PASS": 3
+        },
+        "date_end": "2016-01-03",
+        "date_start": "2016-01-01",
+        "days": 3,
+        "external_audit_pins_checked": [],
+        "final_channel_storage_m3": 0.0,
+        "max_reservoir_balance_residual_m3": 2.3283064365386963e-10,
+        "max_routing_difference_cms": 0.0,
+        "max_system_balance_residual_m3": 2.3283064365386963e-10,
+        "observed_network_calls": 0,
+        "operating_strategy_accepted": null,
+        "reservoir_count": 1,
+        "reservoir_days": 3,
+        "status": "PASS"
+      }
+    },
+    {
+      "days": 3,
+      "example": "examples/fe_walter/zero_shot/experiment.tutorial.yaml",
+      "native_model_runs": 1,
+      "network_calls": 0,
+      "shared_physical_transitions": 3,
+      "verified": {
+        "audit_binding_counts": {
+          "legacy_unbound": 0,
+          "versioned_suite": 3
+        },
+        "audit_counts": {
+          "PASS": 3
+        },
+        "date_end": "2016-01-03",
+        "date_start": "2016-01-01",
+        "days": 3,
+        "external_audit_pins_checked": [],
+        "final_channel_storage_m3": 0.0,
+        "max_reservoir_balance_residual_m3": 0.0,
+        "max_routing_difference_cms": 0.0,
+        "max_system_balance_residual_m3": 0.0,
+        "observed_network_calls": 0,
+        "operating_strategy_accepted": null,
+        "reservoir_count": 1,
+        "reservoir_days": 3,
+        "status": "PASS"
+      }
+    },
+    {
+      "days": 3,
+      "example": "examples/fe_walter/dkp/experiment.tutorial.yaml",
+      "native_model_runs": 1,
+      "network_calls": 0,
+      "shared_physical_transitions": 3,
+      "verified": {
+        "audit_binding_counts": {
+          "legacy_unbound": 0,
+          "versioned_suite": 3
+        },
+        "audit_counts": {
+          "PASS": 3
+        },
+        "date_end": "2016-01-03",
+        "date_start": "2016-01-01",
+        "days": 3,
+        "external_audit_pins_checked": [],
+        "final_channel_storage_m3": 0.0,
+        "max_reservoir_balance_residual_m3": 0.0,
+        "max_routing_difference_cms": 0.0,
+        "max_system_balance_residual_m3": 0.0,
+        "observed_network_calls": 0,
+        "operating_strategy_accepted": null,
+        "reservoir_count": 1,
+        "reservoir_days": 3,
+        "status": "PASS"
+      }
+    }
+  ],
+  "upstream_hydrology_recomputed": false,
+  "original_yaml_prompts_inputs_vendor_bytes_changed": false,
+  "notebook_code_cells_and_outputs_changed": false,
+  "known_prior_checks": {
+    "tests": "test_benchmark_workflow.py + test_reference_workflow.py",
+    "passed": 23,
+    "subtests_passed": 21,
+    "execution_exit_code": 1,
+    "reason": "Same execution included 3 new native tests with an incorrect node-ID expectation. Only the 3 corrected tests were subsequently rerun."
+  },
+  "failure_history": [
+    {
+      "log": "20261012T181243157845Z-command.json",
+      "reason": "read search named nonexistent workflow modules; corrected discovery"
+    },
+    {
+      "log": "20261012T182421189071Z-command.json",
+      "reason": "test collection missing src path; zero executed tests"
+    },
+    {
+      "log": "20261012T182543229474Z-command.json",
+      "reason": "new test expected topology node FEWalter instead of declared physical ID fe_walter; changed assertion to declared physical ID"
+    }
+  ],
+  "log": {
+    "path": "native_engine.log",
+    "sha256": "3a06f0c9a0b36beeef625400f4c29708eeae5b53c62070da45642f7db024735d",
+    "excerpt_limits": "Full stdout retained; 2156 bytes."
+  }
+}

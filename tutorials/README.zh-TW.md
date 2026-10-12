@@ -26,6 +26,9 @@ python tutorials/build_notebooks.py --execute
 八份 nbformat 4 notebook 共 23 個 code cell，也能用 notebook server 開啟。
 已有 run 會驗證並重用，不存在的 run 才會離線建立。
 
+這些是本 repo 的 HydroCNHS 使用範例。[FE Walter 入口](../examples/fe_walter/README.zh-TW.md)
+說明共同模擬執行鏈，以及策略來源與框架執行各自的責任。
+
 ## 逐一執行各方法
 
 | 方法 | check／run YAML | verify 輸出 |

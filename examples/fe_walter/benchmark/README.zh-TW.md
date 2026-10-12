@@ -1,9 +1,10 @@
-# FE Walter：daily 規則式 benchmark
+# HydroCNHS FE Walter — 規則式 benchmark
 
 [English](README.md) | [繁體中文](README.zh-TW.md)
 
-本例採 Anik benchmark 的 Hanasaki 類防洪放流規則，依 Abeshu et al.
-（2023）第 2.3.3 節。這是新增到 HydroCNHS 的決策 backend；它沒有季節目標追蹤控制器。
+本例透過升級版 HydroCNHS 執行 Hanasaki 類防洪決策 backend。它提出 requested release；
+本框架的 Dam API、共同物理程式與 routing 執行模擬，audit／trace 保存完整結果。
+三方法的[共用執行鏈](../README.zh-TW.md)相同；本規則沒有季節目標追蹤控制器。
 
 1. 使用與 zero-shot、DKP 相同的 [input 與物理 case](../../../cases/fe_walter_reference/case.json)。
    初始蓄水仍是既定假設，下游 reach 仍是 identity 診斷設定。
@@ -14,7 +15,7 @@
 ```powershell
 python run_experiment.py check examples/fe_walter/benchmark/experiment.yaml
 python run_experiment.py run examples/fe_walter/benchmark/experiment.yaml
-python run_experiment.py verify runs/fe-walter-benchmark-tutorial
+python run_experiment.py verify runs/fe-walter-benchmark-tutorial --require-offline
 ```
 
 示範日期為 2016-01-01 至 2016-01-03。輸出資料夾不會覆寫；再次執行請同時更改
@@ -29,6 +30,8 @@ python run_experiment.py verify runs/fe-walter-benchmark-tutorial
 `audit.jsonl`。Raw trace 保存係數與 proposed release；共同物理求解器保存
 implemented release、spill 與蓄水量。沒有 LLM 呼叫。規則的環境流量下限與
 程式執行的物理限制是不同設定；物理可行不會消除策略 audit 的違規判定。
+
+策略改編依固定版本 Anik benchmark 與 Abeshu et al.（2023）第 2.3.3 節。
 
 來源：[固定版本 Anik 程式](https://github.com/DasanikBD/Delaware-Reservoir-LLM/blob/6c3dc532d712af55db1f4a1d8e018c86249ce7a8/benchmark_release.py)、
 [Abeshu et al.（2023）](https://doi.org/10.5194/gmd-16-5449-2023)、

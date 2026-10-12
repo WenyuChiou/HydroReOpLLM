@@ -1,11 +1,18 @@
-# Three FE Walter methods
+# Framework examples
 
-| Method | Offline YAML | Prompt / knowledge |
+[English](README.md) | [繁體中文](README.zh-TW.md)
+
+These examples run through this repository's `check → run → verify` workflow and
+native HydroCNHS Dam API. Each case supplies its inputs and decision strategy;
+the framework owns reservoir physics, routing, outputs and audit/trace.
+
+| Example | Start here | Scope |
 |---|---|---|
-| Hanasaki-based benchmark | [benchmark](fe_walter/benchmark/experiment.yaml) | No prompt; statistics from 1996–2015 |
-| Zero-shot | [zero-shot](fe_walter/zero_shot/experiment.tutorial.yaml) | [Original system prompt](../prompts/fe_walter_reference/zeroshot_system.txt) + daily state |
-| DKP | [DKP](fe_walter/dkp/experiment.tutorial.yaml) | [Original system prompt](../prompts/fe_walter_reference/dkp_system.txt) + retrieved [DKP](../data/anik_v3_7/DKP_FEWalter_Dam_v1.2.md) |
+| FE Walter: three decision methods | [Walkthrough](fe_walter/README.md) | Shared inflow and physics; benchmark, zero-shot and DKP |
+| Multiple reservoirs | [Lesson 07](../tutorials/07_multi_and_custom.ipynb) | Controlled reservoirs, passive outlet and river connections |
+| Your catchment | [Hydrology setup](../docs/HYDROLOGY_SETUP.md) | Native runoff, parameters, routing and C&V |
 
-Start with the [tutorial](../tutorials/README.md). Zero-shot and DKP offline replies are **synthetic test fixtures**. They validate integration and cannot compare policy quality. The live-interface YAMLs retain temperature **0.7** and require a separate readiness decision.
-
-Native HydroCNHS ABM loader examples at this directory's root remain compatibility modules. Historical experiment inputs are listed in [archive](../archive/README.md).
+Start with the [tutorial](../tutorials/README.md). Offline LLM replies are synthetic
+fixtures for interface checks. Live templates retain temperature **0.7** and require
+a separate readiness decision. Root-level ABM files remain native loader compatibility
+modules; [archive](../archive/README.md) lists historical experiment entries.

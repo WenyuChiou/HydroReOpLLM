@@ -1,0 +1,366 @@
+{
+  "scope": "Generic coupled hydrology/reservoir-operation framework; no case examples.",
+  "canvas": [
+    1800,
+    1120
+  ],
+  "nodes": [
+    {
+      "id": "settings",
+      "bounds": [
+        100,
+        270,
+        205,
+        185
+      ]
+    },
+    {
+      "id": "observation",
+      "bounds": [
+        390,
+        290,
+        240,
+        145
+      ]
+    },
+    {
+      "id": "policy",
+      "bounds": [
+        735,
+        245,
+        300,
+        205
+      ]
+    },
+    {
+      "id": "validation",
+      "bounds": [
+        1130,
+        310,
+        230,
+        105
+      ]
+    },
+    {
+      "id": "stop",
+      "bounds": [
+        1165,
+        455,
+        160,
+        52
+      ]
+    },
+    {
+      "id": "audit",
+      "bounds": [
+        1460,
+        270,
+        200,
+        185
+      ]
+    },
+    {
+      "id": "runoff",
+      "bounds": [
+        95,
+        755,
+        225,
+        215
+      ]
+    },
+    {
+      "id": "upstream",
+      "bounds": [
+        390,
+        755,
+        230,
+        215
+      ]
+    },
+    {
+      "id": "physics",
+      "bounds": [
+        735,
+        745,
+        300,
+        250
+      ]
+    },
+    {
+      "id": "downstream",
+      "bounds": [
+        1130,
+        755,
+        230,
+        215
+      ]
+    },
+    {
+      "id": "river-flow",
+      "bounds": [
+        1460,
+        800,
+        200,
+        125
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "id": "settings-policy",
+      "source": "settings",
+      "target": "policy",
+      "exit": [
+        0.5,
+        0
+      ],
+      "entry": [
+        0.12,
+        0
+      ],
+      "via": [
+        [
+          203,
+          235
+        ],
+        [
+          771,
+          235
+        ]
+      ]
+    },
+    {
+      "id": "observation-policy",
+      "source": "observation",
+      "target": "policy",
+      "exit": [
+        1,
+        0.48
+      ],
+      "entry": [
+        0,
+        0.57
+      ],
+      "via": []
+    },
+    {
+      "id": "policy-validation",
+      "source": "policy",
+      "target": "validation",
+      "exit": [
+        1,
+        0.57
+      ],
+      "entry": [
+        0,
+        0.48
+      ],
+      "via": []
+    },
+    {
+      "id": "invalid-stop",
+      "source": "validation",
+      "target": "stop",
+      "exit": [
+        0.5,
+        1
+      ],
+      "entry": [
+        0.5,
+        0
+      ],
+      "via": []
+    },
+    {
+      "id": "valid-physics",
+      "source": "validation",
+      "target": "physics",
+      "exit": [
+        0,
+        0.85
+      ],
+      "entry": [
+        0.8,
+        0
+      ],
+      "via": [
+        [
+          1090,
+          399
+        ],
+        [
+          1090,
+          560
+        ],
+        [
+          975,
+          560
+        ]
+      ]
+    },
+    {
+      "id": "runoff-upstream",
+      "source": "runoff",
+      "target": "upstream",
+      "exit": [
+        1,
+        0.5
+      ],
+      "entry": [
+        0,
+        0.5
+      ],
+      "via": []
+    },
+    {
+      "id": "upstream-physics",
+      "source": "upstream",
+      "target": "physics",
+      "exit": [
+        1,
+        0.5
+      ],
+      "entry": [
+        0,
+        0.47
+      ],
+      "via": []
+    },
+    {
+      "id": "physics-downstream",
+      "source": "physics",
+      "target": "downstream",
+      "exit": [
+        1,
+        0.47
+      ],
+      "entry": [
+        0,
+        0.5
+      ],
+      "via": []
+    },
+    {
+      "id": "downstream-river",
+      "source": "downstream",
+      "target": "river-flow",
+      "exit": [
+        1,
+        0.5
+      ],
+      "entry": [
+        0,
+        0.5
+      ],
+      "via": []
+    },
+    {
+      "id": "inflow-observation",
+      "source": "upstream",
+      "target": "observation",
+      "exit": [
+        0.5,
+        0
+      ],
+      "entry": [
+        0.5,
+        1
+      ],
+      "via": []
+    },
+    {
+      "id": "state-feedback",
+      "source": "physics",
+      "target": "observation",
+      "exit": [
+        0.3,
+        0
+      ],
+      "entry": [
+        1,
+        0.85
+      ],
+      "via": [
+        [
+          825,
+          610
+        ],
+        [
+          670,
+          610
+        ],
+        [
+          670,
+          414
+        ]
+      ]
+    },
+    {
+      "id": "decision-record",
+      "source": "policy",
+      "target": "audit",
+      "exit": [
+        0.85,
+        0
+      ],
+      "entry": [
+        0.5,
+        0
+      ],
+      "via": [
+        [
+          990,
+          225
+        ],
+        [
+          1560,
+          225
+        ]
+      ]
+    },
+    {
+      "id": "execution-record",
+      "source": "physics",
+      "target": "audit",
+      "exit": [
+        0.95,
+        0
+      ],
+      "entry": [
+        0.25,
+        1
+      ],
+      "via": [
+        [
+          1020,
+          720
+        ],
+        [
+          1410,
+          720
+        ],
+        [
+          1410,
+          485
+        ],
+        [
+          1510,
+          485
+        ]
+      ]
+    }
+  ],
+  "responsibilities": {
+    "HydroCNHS": "Climate/catchment inputs, rainfall-runoff and configured river routing.",
+    "operation extension": "Observation, configurable decision policy and action validation.",
+    "reservoir physics": "Deterministic feasible release, spill, storage and water balance via Dam API.",
+    "audit / trace": "Record decision and physical execution; never infer strategy acceptance from rendering."
+  },
+  "notes": [
+    "Invalid actions stop before storage changes.",
+    "Controlled release plus spill enters downstream routing once.",
+    "Actual executed release and resulting state feed later observations.",
+    "A configured river network determines coupling between reservoirs.",
+    "No arrow changes climate inputs or upstream rainfall-runoff equations."
+  ]
+}

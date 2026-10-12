@@ -1,10 +1,11 @@
-# FE Walter: daily rule-based benchmark
+# HydroCNHS FE Walter — rule-based benchmark
 
 [English](README.md) | [繁體中文](README.zh-TW.md)
 
-This is the deterministic Hanasaki-based flood-control rule used by Anik's
-benchmark, following Abeshu et al. (2023), Sect. 2.3.3. It is an added decision
-backend for HydroCNHS, not a built-in HydroCNHS policy or a seasonal target controller.
+This upgraded HydroCNHS example uses a deterministic Hanasaki-based flood-control
+decision backend. It requests release; the framework runs its Dam API, common
+physics and routing and records audit/trace. All three methods share the same
+[execution path](../README.md). This added rule has no seasonal target controller.
 
 1. Use the same [input and physical case](../../../cases/fe_walter_reference/case.json)
    as the zero-shot and DKP examples. Initial storage remains an assumption;
@@ -17,7 +18,7 @@ backend for HydroCNHS, not a built-in HydroCNHS policy or a seasonal target cont
 ```powershell
 python run_experiment.py check examples/fe_walter/benchmark/experiment.yaml
 python run_experiment.py run examples/fe_walter/benchmark/experiment.yaml
-python run_experiment.py verify runs/fe-walter-benchmark-tutorial
+python run_experiment.py verify runs/fe-walter-benchmark-tutorial --require-offline
 ```
 
 The example covers 2016-01-01 through 2016-01-03. Existing output folders are
@@ -35,6 +36,8 @@ solver records implemented release, spill and storage. No LLM calls occur.
 The benchmark's environmental floor and the host's physical limits are different
 rules. A policy audit violation remains visible even when physics can implement
 a feasible release.
+
+Source adaptation follows the pinned Anik benchmark and Abeshu et al. (2023), Sect. 2.3.3.
 
 Sources: [pinned Anik implementation](https://github.com/DasanikBD/Delaware-Reservoir-LLM/blob/6c3dc532d712af55db1f4a1d8e018c86249ce7a8/benchmark_release.py),
 [Abeshu et al. (2023)](https://doi.org/10.5194/gmd-16-5449-2023),
