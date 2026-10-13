@@ -20,6 +20,6 @@
 
 原 FE 五年 711 audit FAIL 與失敗／未知費用紀錄保留。此次曾有 Windows Temp 的 progress.json 替換錯誤；原因未證實，改用保留的專案測試輸出目錄後 targeted test 與全套 89 tests 通過，原程式未加入盲目重試。前次失敗 log 一併保存。
 
-資料：[baseline](baseline/reservoir_trajectory.csv)、[FE pulse](fe_pulse/reservoir_trajectory.csv)、[delay 帳本](delayed/network_balance.csv)、[發布驗收 JSON](acceptance.release.json)、[檔案 manifest](manifest.json)。重現 case 與各種區域／庫數／prompt／DKP 的測試規劃見 [前置驗收計畫](../../docs/offline_pre_live_acceptance.md)。圖另提供 [PDF](figures/overview.pdf) 與 [SVG](figures/overview.svg)。
+資料：[baseline](baseline/reservoir_trajectory.csv)、[FE pulse](fe_pulse/reservoir_trajectory.csv)、[delay 帳本](delayed/network_balance.csv)、[發布驗收 JSON](acceptance.release.json)、[檔案 manifest](manifest.json)。重現 case 與各種區域／庫數／prompt／DKP 的測試規劃見 [前置驗收計畫](../../archive/README.md)。圖另提供 [PDF](figures/overview.pdf) 與 [SVG](figures/overview.svg)。
 
 獨立審查發現的 audit 狀態提升與不合理 release/spill 分拆缺口已修正；新增更新雜湊後仍須拒絕的毀損測試。原始 89-test 與初次驗收紀錄保留；發布前 94-test 與三個既有 run 的檔案驗證通過，沒有重跑實驗。92-test 驗收仍保留；額外補上 observation／action schema、設定的物理限制及放流上限核對。

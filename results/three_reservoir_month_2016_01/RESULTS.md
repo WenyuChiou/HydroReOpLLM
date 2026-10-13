@@ -39,4 +39,4 @@ flowchart LR
 
 完整資料：[baseline](baseline/reservoir_trajectory.csv)、[FE pulse](fe_pulse/reservoir_trajectory.csv)、[Belt pulse](belt_pulse/reservoir_trajectory.csv)、[delay水量帳本](delayed/network_balance.csv)、[驗收JSON](acceptance.json)、[檔案manifest](manifest.json)。[月case與重現方法](../../cases/fe_belt_prompton_offline/README_2016_01.md)共用既有曲線與物理設定。已有94-test執行依相同package／tests／core依賴bytes沿用，並未重新跑整套；本次4個月run與逐檔驗證均為新執行。
 
-圖另有[PDF](figures/overview.pdf)與[SVG](figures/overview.svg)。[原7天驗收](../three_reservoir_offline/RESULTS.md)及原FE五年711 audit FAIL／13failed／attempt1289未知與未知費用均保留。[真實LLM前置測試計畫](../../docs/offline_pre_live_acceptance.md)仍適用。
+圖另有[PDF](figures/overview.pdf)與[SVG](figures/overview.svg)。[原7天驗收](../three_reservoir_offline/RESULTS.md)及原FE五年711 audit FAIL／13failed／attempt1289未知與未知費用均保留。[真實LLM前置測試計畫](../../archive/README.md)仍適用。

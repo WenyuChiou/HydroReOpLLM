@@ -2,7 +2,7 @@
 
 [English](USER_GUIDE.md) | [繁體中文](USER_GUIDE.zh-TW.md)
 
-Start with an offline [example](../examples/README.md), then adapt its YAML.
+Start with the [FE Walter example](../examples/fe_walter/README.md), then adapt its YAML.
 This is the formal guide for the generic `configured` strategy.
 [LLM modules](LLM_MODULES.md) explains the decision interfaces; method-specific
 settings remain with the [FE Walter examples](../examples/fe_walter/README.md).
@@ -21,7 +21,7 @@ settings remain with the [FE Walter examples](../examples/fe_walter/README.md).
 Export Excel to UTF-8 CSV without BOM. Convert cfs to m³/s with
 `0.028316846592`. Include every routing node each day, including zero-flow nodes.
 Already routed total inflow must not be added again as incremental local inflow.
-Record the CSV SHA256 in the case. See [input preparation](../tutorials/01_input_and_map.ipynb).
+Record the CSV SHA256 in the case. See [input preparation](../tutorials/main.ipynb).
 
 ## 2. Connect agents to reservoirs
 
@@ -37,9 +37,17 @@ fourth public method or a ready-to-run data bundle:
 ```yaml
 schema_version: llm-reservoir-experiment.v1 # Supported YAML contract.
 case: ../my_case/case.json                 # Your network, physics and input/hash.
-run_id: my-offline-test                    # Change for each new experiment.
-output: ../runs/my-offline-test            # Must not already exist.
-max_calls: 0                              # No real-provider calls.
+run_id: my-daily-test                    # Change for each new experiment.
+output: ../runs/my-daily-test            # Must not already exist.
+max_calls: 3                              # Three days × one LLM agent.
+models:
+  reservoir_model:
+    provider: ollama
+    model: gemma3:4b                        # Already installed locally.
+    base_url: http://localhost:11434
+    temperature: 0.7                       # Explicit sampling setting.
+    max_tokens: 2048
+    timeout_seconds: 120
 auditors:                                 # Versioned operating checks.
   release_limits:
     type: release_bounds
@@ -48,8 +56,8 @@ agents:
   operator_1:                             # Independent decision unit.
     reservoir: R1                         # Exact controlled reservoir key in case.
     strategy: configured                  # Generic prompt/knowledge backend.
-    mode: offline                         # Fixed test action; bypasses model/prompt.
-    release_cms: 5                        # Requested controlled release in m³/s.
+    mode: llm                             # Render prompt and request a proposal.
+    model: reservoir_model                # Select the profile above.
     prompt: ../my_case/prompts/controller.txt # Instruction template.
     prompt_version: "1"                    # Update when changing the instructions.
     knowledge: {}                         # Optional ID -> local document path.
@@ -57,6 +65,8 @@ agents:
     response_schema: reservoir-action.v1  # Standard normalized action.
     auditors: [release_limits]            # Checks enabled for this agent.
 ```
+
+For an installed wheel with inputs shared across case folders, set `case_root` to their common data-bundle directory.
 
 All paths resolve from the YAML directory. `case_root` optionally sets the
 allowed case bundle root. `start_date`/`end_date` are quoted ISO dates inside
@@ -107,7 +117,7 @@ Keep temperature **0.7** for the current experiment design.
 | `api_key_env` | Environment-variable name, never the credential value |
 
 Set `max_calls` to cover days × LLM agents. Real execution also requires
-`--allow-network` and case readiness; this guide's validation remains offline.
+`--allow-network` and case readiness; reading saved results requires neither gate nor a model call.
 Unsupported settings/provider errors stop without retries or a fallback.
 See [live readiness](LIVE_READINESS.md) before enabling a provider.
 
@@ -138,8 +148,9 @@ Specialized response schemas and reference retrieval belong to their specific
 
 ## 6. Run and read evidence
 
-Use the README's `check → run → verify --require-offline` commands with a
-complete offline YAML. Existing output is refused; use a new run ID/output
+Use `check → run → verify`; `check` makes no provider call. Model execution
+requires `run --allow-network` and a ready case. For a no-provider test only,
+use a supplied-response configuration and `verify --require-offline`. Existing output is refused; use a new run ID/output
 rather than overwriting. This runner has no automatic resume.
 
 | Output | What to inspect |
@@ -152,10 +163,26 @@ rather than overwriting. This runner has no automatic resume.
 | `network_flows.csv`, `network_balance.csv` | Routed flows and reservoir/channel water balance |
 | `reach_volume_trace.json` | Reach inflow, outflow and channel storage |
 
-Use [decision-flow inspection](../tutorials/README.md#inspect-a-complete-decision)
+Use [decision-flow inspection](../tutorials/main.ipynb)
 to display info, actual prompt, reply, proposal, checker, audit, physics and feedback.
 Format acceptance and physical acceptance do not establish strategy quality.
 Missing evidence/cost stays unknown; synthetic replies are not live model results.
 
-[Multiple reservoirs / own data](../tutorials/07_multi_and_custom.ipynb) ·
+[Multiple reservoirs / own data](../tutorials/advanced.ipynb) ·
 [Native hydrology setup](HYDROLOGY_SETUP.md) · [LLM modules](LLM_MODULES.md)
+
+## Preserved FE Walter prompt profile
+
+The reference examples use `strategy: reference_v3_7` and
+`system_prompt_mode: original`. Versioned TXT files remain independent in
+`prompts/fe_walter_reference`; native builders render date/state/history and
+retrieve DKP excerpts. Live mode forbids a supplied `responses` fixture. Native
+release/schema is cfs; the adapter converts it once to m³/s. These FE Walter
+options are case-specific, not default rules for another reservoir.
+
+A complete generation is required: Ollama `done: true`, with `done_reason: stop`
+when present, or OpenAI-compatible `finish_reason: stop`. Missing, null or
+non-stop status is rejected as applicable. Valid JSON alone is insufficient.
+`raw/` retains actual messages, request hash, reply, native audit and available
+request ID/usage; credential values are excluded. See the saved
+[Ollama walkthrough](../examples/fe_walter/README.md).

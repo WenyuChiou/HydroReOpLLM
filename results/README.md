@@ -7,4 +7,4 @@
 
 [manifest.json](manifest.json) 核對每份複製檔的來源、大小與 SHA256。結果檔保留原始 bytes，發布沒有新增模型請求或重跑模擬。JSON 中的絕對路徑是當時本機驗收參照；完整 provider journals 留在原始本機 run，manifest 保存它們的雜湊。此資料包可查閱數值、圖與已保存的合成河網 trace，不能單靠精簡資料包重做五年原文逐筆稽核。
 
-通用 CLI 的重現方式在 [repo README](../README.md)；實際三庫下一步在 [測試計畫](../docs/three_reservoir_test_plan.md)。
+通用 CLI 的重現方式在 [repo README](../README.md)；實際三庫下一步在 [測試計畫](../archive/README.md)。

@@ -45,5 +45,5 @@ The synthetic [offline YAML](experiment.hydroopslm.offline.yaml), saved response
 fixtures and lessons 04/05 remain developer-validation assets. They are not the
 default user path and cannot measure real model behavior.
 
-[Ollama notebook](../../../tutorials/08_ollama_workflow.ipynb) ·
+[Ollama notebook](../../../tutorials/main.ipynb) ·
 [Formal module guide](../../../docs/LLM_MODULES.md)

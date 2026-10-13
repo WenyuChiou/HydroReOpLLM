@@ -1,24 +1,34 @@
-# HydroOpsLM editable concept figure
+# HydroOpsLM editable coupling figure
 
-The outer boundary is HydroOpsLM. Native HydroCNHS supplies GWLF/ABCD runoff,
-Lohmann routing and the Dam API. The highlighted reservoir operations are added
-through that API; the common deterministic reservoir solver is not native HydroCNHS.
-Choose rules or a checked LLM release for each controlled reservoir.
+The outer boundary is HydroOpsLM. Native HydroCNHS supplies GWLF/ABCD
+rainfall-runoff, Lohmann routing, and the Dam API callback host. The native Dam
+API is not a reservoir physical solver. The separate **Added reservoir
+operations** block owns deterministic state update and implemented release plus
+spill, then returns total outflow to the Dam host once.
 
-The upper route is Prompt → Language model → Rule output → Checker.
-Rule output is a requested release value, not executable code. Invalid or incomplete
-replies stop before applying release; there is no automatic fallback. Strategy
-audit findings are recorded separately from format/value checking.
+Each controlled reservoir selects one policy: **User rule policy OR the checked
+LLM policy**. The LLM route is Prompt → Language model → Rule output (requested
+release data) → Checker. A valid proposal connects directly to the shared
+operations block. An invalid or incomplete proposal stops before physical state
+changes; the figure omits a separate stop box so it cannot look like another
+workflow stage or automatic fallback.
 
-Blue solid arrows carry water; plum arrows carry proposed release; gray dashed
-arrows supply inflow/optional knowledge; green dashed arrows return executed
-reservoir information and record evidence. Audit/trace is a record, not a bypass.
+Prompt receives reservoir inflow, current storage or pool, and implemented
+release history. Optional knowledge is a small secondary input. Audit/trace
+records prompt, reply, proposal, check, and physical execution; it never gates
+the controller or accepts reservoir physics.
+
+Blue denotes hydrology and physical operations, purple denotes policy decisions,
+teal denotes checking and records, and gray denotes optional or callback
+information. Color does not mean pass or fail.
 
 ## Edit and export
 
-Text, cards and attached connectors are native draw.io objects. The six preserved
-icon assets are separately movable raster images; their pixels are not vector objects.
-The cover uses a new text-free illustration plus native editable title/subtitle.
+Text, cards, native vector symbols, and attached connectors are editable draw.io
+objects. The six preserved PNG icon files remain unchanged and are placed as
+eight independently movable raster objects; their internal pixels are not vector
+objects. Rebuilding overwrites manual layout edits, so retain a separate copy for
+GUI experiments.
 
 ```powershell
 python docs/figures/source/build_coupling_drawio.py
@@ -27,12 +37,7 @@ draw.io --export --format svg --embed-svg-images --embed-svg-fonts false --outpu
 draw.io --export --format pdf --crop --output docs/figures/hydrocnhs-coupling-framework-en.pdf docs/figures/hydrocnhs-coupling-framework-en.drawio
 ```
 
-Use the installed executable path if needed. The producer overwrites manual
-layout edits, so keep a separate copy when editing in draw.io. Cover master:
-`docs/figures/hydroopslm-cover.drawio`; illustration provenance is beside its asset.
-SVG accessibility title/description do not change diagram geometry.
-
-Current checks cover full and 900-pixel rendering and a native label, icon,
-card and connector edit → save → reopen → render probe. GUI dragging and
-reader comprehension are separate, unmeasured outcomes. Previous layouts and
-quality records remain in Git history and the task-local original snapshot.
+The current SVG contains native text, no `foreignObject`, and no external
+resources. The PDF is one page. Full-size and 900-pixel PNG renders were
+inspected; audience comprehension, scientific peer review, and user aesthetic
+approval remain separate outcomes.

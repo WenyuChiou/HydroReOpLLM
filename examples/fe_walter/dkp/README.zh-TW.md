@@ -43,5 +43,5 @@ python tutorials/inspect_decision_flow.py runs/hydroopslm-fe-walter-dkp-ollama-g
 合成[離線 YAML](experiment.hydroopslm.offline.yaml)、保存的回覆 fixtures 與
 教學 04／05 仍保留供開發驗證；它們不是預設使用者路徑，也不能衡量真實模型行為。
 
-[Ollama notebook](../../../tutorials/08_ollama_workflow.ipynb) ·
+[Ollama notebook](../../../tutorials/main.ipynb) ·
 [正式模組手冊](../../../docs/LLM_MODULES.zh-TW.md)

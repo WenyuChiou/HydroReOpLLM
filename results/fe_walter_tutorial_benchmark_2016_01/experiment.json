@@ -1,0 +1,176 @@
+{
+  "schema_version": "llm-reservoir-run.v2",
+  "run_id": "fe-walter-tutorial-benchmark-2016-01",
+  "network": {
+    "schema_version": "llm-reservoir-network.v1",
+    "data_kind": "simulated_local_inflow",
+    "start_date": "2016-01-01",
+    "reservoirs": {
+      "FEWalter": {
+        "inflow_node": "FEW_INFLOW",
+        "physical": {
+          "reservoir_id": "fe_walter",
+          "capacity_m3": 135532852.33895192,
+          "dead_storage_m3": 49.3392742128,
+          "initial_storage_m3": 2457848.279729185,
+          "minimum_release_cms": 1.41584235,
+          "maximum_release_cms": 283.16847,
+          "dt_seconds": 86400.0
+        }
+      }
+    },
+    "connections": [
+      {
+        "source": "FEWalter",
+        "target": "Downstream",
+        "unit_hydrograph": [
+          1.0
+        ]
+      }
+    ],
+    "outlet": "Downstream",
+    "source_files": {
+      "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\HydroCNHS-Delaware-Operations\\cases\\fe_walter_reference\\inflows.csv": "f707927eb8b7894eaba61fe3b1ae484afe59d68b94941cc056addcc356326c5e",
+      "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\HydroCNHS-Delaware-Operations\\cases\\fe_walter_ollama_demo\\case.json": "75fd146cd91a234c4971ea9e91b7fcc19c30e3777dd2890aad67cc155952f300"
+    },
+    "knowledge_packages": {}
+  },
+  "inflow_records": [
+    {
+      "date": "2016-01-01",
+      "local_inflow_cms": {
+        "FEW_INFLOW": 32.12531870666853,
+        "Downstream": 0.0
+      }
+    },
+    {
+      "date": "2016-01-02",
+      "local_inflow_cms": {
+        "FEW_INFLOW": 22.353047216043638,
+        "Downstream": 0.0
+      }
+    },
+    {
+      "date": "2016-01-03",
+      "local_inflow_cms": {
+        "FEW_INFLOW": 14.193931416870026,
+        "Downstream": 0.0
+      }
+    }
+  ],
+  "backend_provenance": {
+    "FEWalter": {
+      "algorithm_version": "hanasaki-daily-flood-control.v1",
+      "alpha": 0.85,
+      "audit_suite_sha256": "fcdc84b93d9417491a51b1a728319e4576d813a1f1f8b11e6e1ea1df8e4e3e4a",
+      "auditor_id": "reservoir_audit_suite",
+      "auditor_specs": [
+        {
+          "auditor_id": "release_limits",
+          "implementation_sha256": "e7067001c612108edcb38a9c8ceed7926ccc0f1f2a761e8f1463b179dd963858",
+          "rubric_sha256": "69b5ef3b8c5a00737731d347b4b2189cd32653c6d87b33e1bb895927213cbc44",
+          "spec_sha256": "b99755e58248df47708265297c663396417a132866cf09477b3a7a0da7c4047f",
+          "version": "1"
+        }
+      ],
+      "auditor_version": "1",
+      "backend": "hanasaki_benchmark",
+      "backend_auditor_id": null,
+      "capacity_m3": 135532852.33895192,
+      "environmental_flow_cms": 1.8254464846811211,
+      "equation_source": {
+        "citation": "Abeshu et al. (2023)",
+        "implementation_commit": "6c3dc532d712af55db1f4a1d8e018c86249ce7a8",
+        "implementation_sha256": "c11a81c71cdd34b80e30a1da1af6e493e75582b4bb56794d426c0683909604b6",
+        "section": "2.3.3"
+      },
+      "gamma": 0.23527268329384976,
+      "inflow_statistics_source": {
+        "inflow_sha256": "91759fdfbaa3e85b0257a5708391f53d264eb0ef898f94c4e580a391e131b64f",
+        "reference_day_count": 7305,
+        "reference_end": "2015-12-31",
+        "reference_start": "1996-01-01",
+        "statistics_sha256": "44a5d67ef9d256b1710403b641ff0629deff21f196cd1d951823197f0ffcbdf7"
+      },
+      "mean_annual_inflow_volume_m3": 576067099.8497294,
+      "mean_inflow_cms": 18.25446484681121,
+      "mode": "benchmark",
+      "model_used": false,
+      "monthly_mean_inflow_cms": {
+        "1": 19.844036726972636,
+        "10": 21.59651815844306,
+        "11": 18.099254778453947,
+        "12": 24.088042064443815,
+        "2": 18.688632899197067,
+        "3": 29.343656606431633,
+        "4": 22.07196682982202,
+        "5": 14.855617257811693,
+        "6": 15.095383741182898,
+        "7": 8.77337253984133,
+        "8": 10.62391006709885,
+        "9": 15.953716311979257
+      },
+      "network_enabled": false,
+      "op_year_start_month": 5,
+      "purpose": "flood_control",
+      "reservoir_id": "fe_walter"
+    }
+  },
+  "python": "3.12.14",
+  "hydrocnhs_core": {
+    "hydrocnhs_commit": "fdd5097a3fcabb312c6c3739efc71da2d67c47da",
+    "normalization": "CRLF to LF only",
+    "files": [
+      {
+        "path": "hydrocnhs.py",
+        "normalized_sha256": "cad2ff1c33424716b1a72d315b38d12946a8c494e68b18f2f41838cb9814e2d7"
+      },
+      {
+        "path": "routing.py",
+        "normalized_sha256": "088e0b1f928030bc38a991cb369b7109e753350cc399e8b646197bdb0d97d1db"
+      },
+      {
+        "path": "util.py",
+        "normalized_sha256": "26a150cff2733496f9bc5205696f4e80c2bea7bd9e47e5a34fd41393c1b5a05a"
+      },
+      {
+        "path": "abm.py",
+        "normalized_sha256": "b348391cc14ea4feb12de6d88be3a7647c34c27ddce66556661fa97898128275"
+      },
+      {
+        "path": "data_collector.py",
+        "normalized_sha256": "cccd72962d75a60880125e380623e6094a14abd2f696c35b5ef280c416569f9f"
+      }
+    ]
+  },
+  "implementation_files": {
+    "agent.py": "2606d5e937e7c6df92d2fb2c295ff54b656a1e2e2d1e5be5a73a84bf114f49a5",
+    "audit.py": "f87f8c0df2bf7b32bc0c7abca58f0b751e9700d104c85e0da8b12b1faeb04d5b",
+    "auditor.py": "a34d8e90dfa8c3926f1358a8329ef6cb9c0faa045e9f741c144325fcb8b9b34b",
+    "balance.py": "e5445ea4f646c5f7618e3cc410d6f11d73e06faf3207a6f897a640b49a2ea7e8",
+    "benchmark.py": "fd04b1262a209dd4552bd0a515cff75352e36e5361d67f28fb75f10a3f7dd4ab",
+    "benchmark_config.py": "03c6d2737676bdf91038ce6d6c6d181d5ea02c988bfbe71da79d1c66c089d231",
+    "case.py": "2f262fc23bbbc0a8326d248c1126030d38cc55dc8308147b2b9be69370b2f989",
+    "configured_audit.py": "e7067001c612108edcb38a9c8ceed7926ccc0f1f2a761e8f1463b179dd963858",
+    "configured_backend.py": "a0f6adf21c52eeaba168defd5524ea29bd44b72254c0bfd5aef0f8a6b41aa46f",
+    "contracts.py": "cfeb44ac59c9c63c6ba2f548b078fa9ded3cd43a277a79806946429dbb6a10ed",
+    "daily_inputs.py": "e3c2fa957ee2dd0e01c83de7134251140409c0cc79946c5fb9ee502b80a624c7",
+    "dkp_adapter.py": "aa6412e98b148cab0e6bab08f32e7713b32cc3f765a6880ba354c7286fae09d8",
+    "dkp_audit.py": "23ecbaba1d0f2d7e910586b7da5cb145d0a14959ff0841933e9f03755ea92fcd",
+    "experiment.py": "a93d14befc747b4dba81be0cb4e2a638f1876b0ba8edddef82872c92bb56f9de",
+    "network.py": "9b5eafdc5af40f77a07f4a07a0efbd812a4e7cc64877f75e27617d4f9b2454f3",
+    "passive.py": "58177c71fa1b7b27c9474fd667ed4261e31551797b40a6daa7061d9b04cc59fe",
+    "physics.py": "cd1e2133698ca15f0d7be6c3396b7ba4770c8b802f43dae028e3244e7305afcf",
+    "policies.py": "db76ae4c3a4f5cfc70ae54cd8bd7ea53f76965e74aaf5b17f75aa7a5d67420a6",
+    "policy_adapter.py": "a66d4b8c652a73b01acb5116c00a25e647ab1c48324d3a58f4de807c9cf12b1e",
+    "prompt.py": "ef665a3ef7ab9e7613fee247761f641473668465d82f61330343f6e312137b3f",
+    "reference_backend.py": "6aae00ca68c979b5959d50984850eeb8adaebb12304e661e647dc22e3230f428",
+    "reservoir_profile.py": "c9e6256e2fb922fb514aec208b6e16b92a64a5196a1886f19776fd4e4e1a69fe",
+    "trace.py": "17b69cefd785d76b5902259a0311b7f86242d194b1622dc7e62a0b47ca93dffe",
+    "verification.py": "78746df5cd9c9f15b3d752100eb2231e227426469ea944c27da7a409b88555ce",
+    "workflow.py": "a6db74b70562ef99be74d820f80f4b381cfdd671e8a0b7eab29ea69607f9bd83",
+    "__init__.py": "ad56b6af1717f0fa13b8b70cd5eb10d4af15e5fd85dbb80758088fabda6e01fe"
+  },
+  "abm_module_sha256": "dc457b976c8aea750212c27683d75c325484be0d7c947bb3fb8c240fe0ae7185",
+  "automatic_retry": false
+}

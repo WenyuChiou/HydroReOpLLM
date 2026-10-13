@@ -5,7 +5,7 @@
 修改 prompt 或增加 backend 前，先讀本頁。
 HydroCNHS 提供水文、routing 與 Dam API。新增的決策路徑為：
 
-`info + prompt + 選用 context → LLM → reader → proposal → checker → execution → feedback`
+`info + prompt + 選用 context → LLM → Rule output → checker → execution → feedback`
 
 Audit 評估指定操作規則；trace 保存完整鏈條。目前操作入口使用 daily。
 
@@ -63,14 +63,14 @@ Checker PASS 表示 action 契約有效。Auditor PASS 表示配置的規則通�
 
 ## 追查一個決策
 
-[教學](../tutorials/README.zh-TW.md#查看完整決策)展示：
-info → 完整 system／user prompt → 合成回覆 → 正規化 proposal →
+[教學](../tutorials/main.ipynb)展示：
+info → 完整 system／user prompt → 保存的實際 Ollama 回覆 → 正規化 proposal →
 action 契約重新檢查 → 原 audit → 已提交物理 → 隔日 info。
 
 重新檢查是當次對正規化 action 的檢視，不捏造歷史 checker event。
 Trace 保留原 audit 與 prompt／回覆證據。
 通用固定放流 offline 跳過模型／prompt；參考 offline 案例則執行 prompt
-組合與給定回覆解析。兩者皆不能證明真實 LLM 決策品質。
+組合與給定回覆解析。给定回覆不能證明真實 LLM 決策品質；保存的實際 Ollama 回覆保留原策略判定。
 
 [Contracts](../src/llm_reservoir_agent/contracts.py) ·
 [Prompt／parser 契約](../src/llm_reservoir_agent/prompt.py) ·

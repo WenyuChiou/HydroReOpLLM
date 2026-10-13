@@ -44,4 +44,5 @@ Lin, C. Y., Yang, Y. C. E., & Wi, S. (2022).
 
 [專案盤點](docs/PROJECT_INVENTORY.md) ·
 [Technical note](paper/technical_note.md) ·
+[建置 HTML 文件](docs/BUILDING.md) ·
 [原版來源與授權](third_party/hydrocnhs/SOURCE.json)

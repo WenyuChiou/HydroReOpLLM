@@ -1,0 +1,35 @@
+name: Model-free validation
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install package and validation tools
+        run: python -m pip install -e '.[test,docs]' build -c environment/requirements-bundled.txt
+      - name: Check preserved compatibility and model-free interfaces
+        run: python -m pytest -q tests/test_native_examples.py tests/test_benchmark_workflow.py tests/test_yaml_workflow.py tests/test_reservoir_profile.py tests/test_operations.py tests/test_case_and_hydrocnhs.py tests/test_decision_flow_tutorial.py tests/test_tutorial_decision_flow.py
+      - name: Execute saved-evidence tutorials without network
+        run: python tutorials/build_notebooks.py --execute --check
+      - name: Build HTML from saved outputs
+        run: python docs/build.py
+      - name: Build package and check CLI
+        run: |
+          python -m build
+          reservoir-experiment --help
+      - name: Verify wheel outside the source checkout
+        run: |
+          python -m pip uninstall -y llm-reservoir-agent
+          python -m pip install --no-deps dist/*.whl
+          python -I scripts/check_installed_runtime.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: hydroopslm-html-and-package
+          path: |
+            build/docs
+            dist

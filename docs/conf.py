@@ -1,0 +1,14 @@
+project = "HydroOpsLM"
+author = "HydroOpsLM contributors"
+extensions = ["myst_nb"]
+source_suffix = {".md": "myst-nb", ".ipynb": "myst-nb"}
+root_doc = "index"
+nb_execution_mode = "off"  # Render saved outputs; never run a notebook or model.
+myst_enable_extensions = ["colon_fence", "deflist"]
+myst_heading_anchors = 4
+html_theme = "alabaster"
+html_title = "HydroOpsLM documentation"
+html_static_path = ["_static"]
+html_css_files = ["manual.css"]
+html_theme_options = {"page_width": "1100px", "body_max_width": "850px"}
+exclude_patterns = ["_static/**"]

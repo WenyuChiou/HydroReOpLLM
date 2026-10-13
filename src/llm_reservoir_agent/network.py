@@ -17,8 +17,9 @@ from .physics import PhysicalConfig
 from .policy_adapter import validate_isolated_backends
 from .passive import PassiveOutlet, complete_backends
 from .balance import network_balance
+from .runtime import default_runtime_root
 
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
+PROJECT_ROOT = default_runtime_root()
 
 
 def validate_network(config):
