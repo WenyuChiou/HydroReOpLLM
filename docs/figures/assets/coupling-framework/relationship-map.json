@@ -417,7 +417,7 @@
     "Rule-based operation": "Selectable user operating rules produce a requested release.",
     "LLM modules": "Prompt, language model, operation proposal, and response checks form the alternative policy.",
     "Native HydroCNHS": "Provides GWLF/ABCD rainfall-runoff, Lohmann routing, and the native Dam API.",
-    "Reservoir operation": "HydroOpsLM adds storage balance, release, and spill inside the native Dam API operation node.",
+    "Reservoir": "HydroOpsLM adds storage balance, release, and spill inside the native Dam API operation node.",
     "Operation audit": "Evaluates the current observation and requested action from either selected policy before physical execution.",
     "Trace records": "Binds policy records and decision-audit verdicts to implemented release, storage, and spill after physical execution."
   },

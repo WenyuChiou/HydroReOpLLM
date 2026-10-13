@@ -1,13 +1,13 @@
 {
   "status": "PARENT_VISUAL_AND_STRUCTURE_CHECKS_PASS",
-  "revision": 25,
+  "revision": 26,
   "drawio_version": "26.0.4",
   "native_cards": 12,
   "native_cells": 77,
   "attached_edges": 16,
   "horizontal_paths_without_turns": 9,
   "movable_raster_objects": 11,
-  "svg_native_text": 38,
+  "svg_native_text": 37,
   "svg_foreign_objects": 0,
   "new_generated_icon_assets": 0,
   "preserved_generated_icon_assets": 4,
@@ -34,7 +34,7 @@
     "Rule-based operation": "Selectable user operating rules produce a requested release.",
     "LLM modules": "Prompt, language model, operation proposal, and response checks form the alternative policy.",
     "Native HydroCNHS": "Provides GWLF/ABCD rainfall-runoff, Lohmann routing, and the native Dam API.",
-    "Reservoir operation": "HydroOpsLM adds storage balance, release, and spill inside the native Dam API operation node.",
+    "Reservoir": "HydroOpsLM adds storage balance, release, and spill inside the native Dam API operation node.",
     "Operation audit": "Evaluates the current observation and requested action from either selected policy before physical execution.",
     "Trace records": "Binds policy records and decision-audit verdicts to implemented release, storage, and spill after physical execution."
   },
@@ -60,33 +60,34 @@
     "Round23 independent code review REVISE: audit consumes requested actions before physics. Release request label and responsibility notes corrected; targeted semantic and full/900px/PDF visual PASS.",
     "User rejected hollow visual style and water-path elbows; replaced with semantic fills, aligned node centres and shorter policy connections; consolidated Dam API observation feedback",
     "User requested key-node labels only: removed seven explanatory text blocks and shortened observation labels to Available information.",
-    "Parent visual recheck corrected a Checked release label touching the Trace records outline; moved the label and connector to a clear lane."
+    "Parent visual recheck corrected a Checked release label touching the Trace records outline; moved the label and connector to a clear lane.",
+    "Final literal label simplification: Reservoir + Dam API only; connector geometry and policies unchanged."
   ],
   "previous_quality_sha256": "5bf9cd8e23303e4fc17111337f9bded4ad8bd46063375983b90af85b53b0887c",
   "artifacts": {
     "docs/figures/hydrocnhs-coupling-framework-en.drawio": {
-      "bytes": 12803598,
-      "sha256": "b39a62bc76fad058990a9a7628be6af5d5959d5504fb143299f2ed089d806f66"
+      "bytes": 12803584,
+      "sha256": "bc742f04303b4e7a71be3e094250ece0ca9e382c1a421463496e9ecc4935515e"
     },
     "docs/figures/hydrocnhs-coupling-framework-en.png": {
-      "bytes": 299472,
-      "sha256": "21a3ea1f51fdf88d55d60cb789439981c6fd25464aa98ae78e283b8b19130fd2"
+      "bytes": 297803,
+      "sha256": "6af69e7988515eb4168048dfbc47d808db3aa6fb880fccd7a188e7359b9d9682"
     },
     "docs/figures/hydrocnhs-coupling-framework-en.svg": {
-      "bytes": 12801386,
-      "sha256": "a46ce4e77090d17569cab06d2263f263985dbea325d596116906b83126e2c46e"
+      "bytes": 12801344,
+      "sha256": "1e248f5c90966112a89fc3745ea492d3bbe5db88671306681f074333c26a0ad5"
     },
     "docs/figures/hydrocnhs-coupling-framework-en.pdf": {
-      "bytes": 8883935,
-      "sha256": "3e3708f8e01118ab49fbf2f6f4f6979e31c03a5b32600ab4ddc2671169f7383b"
+      "bytes": 8883931,
+      "sha256": "5005e7b6b0afc519db13cd103b384c1f2c20c2d30d4d96ecd054a9069e7ac8fa"
     },
     "docs/figures/source/build_coupling_drawio.py": {
-      "bytes": 14813,
-      "sha256": "d697f7ade61ce64601f14d689a7b02f1119b766ffa1157ab024f0f9f6cc46fe8"
+      "bytes": 14792,
+      "sha256": "a8b4b387313b0638e8cc66d43335d451c499e18dcc4d86d8141ee1b96a72be94"
     },
     "docs/figures/assets/coupling-framework/relationship-map.json": {
-      "bytes": 8950,
-      "sha256": "d62769d523ba145f7d43713c4a870ea429ec615094eb7f9fb11de46da26a75a3"
+      "bytes": 8940,
+      "sha256": "c76bf2ab7b955a5c53ca3203f1366b0999dce55343d59057504489f0b748cf2a"
     }
   }
 }

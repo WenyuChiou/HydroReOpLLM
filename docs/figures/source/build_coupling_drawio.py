@@ -172,7 +172,7 @@ def build(output_dir=None):
     # All four water-path centres are y=905: no automatic elbow in the water arrows.
     card("reservoir-operation", 690, 775, 610, 260, BLUE, width=4)
     raster_icon("reservoir-icon", "reservoir.png", 25, 28, 200, "reservoir-operation")
-    text("reservoir-name", "Reservoir\noperation", 250, 55, 335, 72, 30, True,
+    text("reservoir-name", "Reservoir", 250, 65, 335, 60, 34, True,
          "reservoir-operation", align="left")
     text("reservoir-api", "Dam API", 250, 135, 335, 38, 24,
          parent="reservoir-operation", align="left", color=BLUE)
@@ -245,7 +245,7 @@ def build(output_dir=None):
             "Rule-based operation": "Selectable user operating rules produce a requested release.",
             "LLM modules": "Prompt, language model, operation proposal, and response checks form the alternative policy.",
             "Native HydroCNHS": "Provides GWLF/ABCD rainfall-runoff, Lohmann routing, and the native Dam API.",
-            "Reservoir operation": "HydroOpsLM adds storage balance, release, and spill inside the native Dam API operation node.",
+            "Reservoir": "HydroOpsLM adds storage balance, release, and spill inside the native Dam API operation node.",
             "Operation audit": "Evaluates the current observation and requested action from either selected policy before physical execution.",
             "Trace records": "Binds policy records and decision-audit verdicts to implemented release, storage, and spill after physical execution.",
         },
