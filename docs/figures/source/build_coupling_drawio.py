@@ -119,7 +119,7 @@ def build(output_dir=None):
     # Rule policy card and generated icon.
     card("rule-policy", 78, 210, 392, 220, ORANGE, width=4)
     raster_icon("rule-icon", "rule-operation.png", 18, 28, 145, "rule-policy")
-    text("rule-name", "User operating\nrules", 174, 38, 200, 72, 30, True,
+    text("rule-name", "Operating\nrules", 174, 38, 200, 72, 30, True,
          "rule-policy", align="left")
 
     # LLM policy sequence with optional knowledge beside Prompt.
@@ -145,12 +145,12 @@ def build(output_dir=None):
     text("checks-name", "Response\nchecks", 5, 132, 290, 74, 30, True, "checks")
 
     # Compact record sidecars. Audit evaluates the requested action before physics.
-    card("operation-audit", 970, 500, 310, 155, TEAL)
+    card("operation-audit", 970, 470, 310, 155, TEAL)
     raster_icon("operation-audit-icon", "audit.png", 15, 15, 110, "operation-audit")
     text("operation-audit-name", "Operation\naudit", 130, 30, 170, 70, 28, True,
          "operation-audit", align="left")
 
-    card("trace", 1300, 530, 350, 125, TEAL)
+    card("trace", 1300, 500, 350, 125, TEAL)
     raster_icon("trace-icon", "trace-records.png", 12, 8, 108, "trace")
     text("trace-name", "Trace records", 130, 45, 215, 40, 28, True,
          "trace", align="left")
@@ -159,30 +159,30 @@ def build(output_dir=None):
     frame("hydrocnhs-boundary", 40, 710, 1800, 340, BLUE,
           "Native HydroCNHS", 66, 500)
 
-    card("runoff", 65, 775, 245, 260, BLUE)
-    raster_icon("runoff-icon", "hydrology.png", 43, 0, 160, "runoff")
-    text("runoff-name", "Rainfall-runoff", 5, 164, 235, 42, 30, True, "runoff")
-    text("runoff-detail", "GWLF / ABCD", 5, 215, 235, 34, 24, parent="runoff")
+    card("runoff", 65, 775, 300, 260, BLUE)
+    raster_icon("runoff-icon", "hydrology.png", 70, 0, 160, "runoff")
+    text("runoff-name", "Rainfall-runoff", 5, 164, 290, 42, 30, True, "runoff")
+    text("runoff-detail", "GWLF / ABCD", 5, 215, 290, 34, 24, parent="runoff")
 
-    card("upstream", 365, 775, 255, 260, BLUE)
-    raster_icon("upstream-icon", "routing.png", 48, 0, 160, "upstream")
-    text("upstream-name", "Upstream\nrouting", 5, 145, 245, 66, 30, True, "upstream")
-    text("upstream-detail", "Lohmann", 5, 216, 245, 34, 24, parent="upstream")
+    card("upstream", 435, 775, 300, 260, BLUE)
+    raster_icon("upstream-icon", "routing.png", 70, 0, 160, "upstream")
+    text("upstream-name", "Upstream\nrouting", 5, 145, 290, 66, 30, True, "upstream")
+    text("upstream-detail", "Lohmann", 5, 216, 290, 34, 24, parent="upstream")
 
     # All four water-path centres are y=905: no automatic elbow in the water arrows.
-    card("reservoir-operation", 690, 775, 610, 260, BLUE, width=4)
-    raster_icon("reservoir-icon", "reservoir.png", 25, 28, 200, "reservoir-operation")
-    text("reservoir-name", "Reservoir", 250, 65, 335, 60, 34, True,
-         "reservoir-operation", align="left")
-    text("reservoir-api", "Dam API", 250, 135, 335, 38, 24,
-         parent="reservoir-operation", align="left", color=BLUE)
+    card("reservoir-operation", 805, 775, 340, 260, BLUE, width=4)
+    raster_icon("reservoir-icon", "reservoir.png", 90, 0, 160, "reservoir-operation")
+    text("reservoir-name", "Reservoir", 5, 164, 330, 42, 34, True,
+         "reservoir-operation")
+    text("reservoir-api", "Dam API", 5, 215, 330, 34, 24,
+         parent="reservoir-operation", color=BLUE)
 
-    card("downstream", 1400, 775, 270, 260, BLUE)
-    raster_icon("downstream-icon", "routing.png", 55, 0, 160, "downstream")
-    text("downstream-name", "Downstream\nrouting", 5, 154, 260, 68, 30, True,
+    card("downstream", 1215, 775, 300, 260, BLUE)
+    raster_icon("downstream-icon", "routing.png", 70, 0, 160, "downstream")
+    text("downstream-name", "Downstream\nrouting", 5, 154, 290, 68, 30, True,
          "downstream")
-    text("downstream-detail", "Lohmann", 5, 218, 260, 34, 24, parent="downstream")
-    text("outlet-label", "Downstream\ndischarge", 1680, 804, 150, 66, 24, True)
+    text("downstream-detail", "Lohmann", 5, 218, 290, 34, 24, parent="downstream")
+    text("outlet-label", "Downstream\ndischarge", 1550, 804, 240, 66, 24, True)
 
     # Top policy sequence and short optional input.
     edge("knowledge-prompt", "knowledge", "prompt", INK, (1, .5), (0, 136 / 220), width=4)
@@ -192,20 +192,20 @@ def build(output_dir=None):
 
     # Policy requests meet the same operation; neither passes through the other policy.
     edge("rule-reservoir", "rule-policy", "reservoir-operation", INK, (.5, 1),
-         (35 / 610, 0), [(274, 650), (725, 650)], width=5)
-    label("rule-release-label", "Rule release", 310, 612, 170, 36)
+         (45 / 340, 0), [(274, 650), (850, 650)], width=5)
+    label("rule-release-label", "Rule-based release", 310, 612, 250, 36)
     edge("checks-reservoir", "checks", "reservoir-operation", INK, (.87, 1),
-         (490 / 610, 0), [(1761, 699), (1180, 699)], width=5)
+         (1, 58 / 260), [(1761, 725), (1170, 725), (1170, 833)], width=5)
     label("checked-release-label", "Checked release", 1480, 660, 210, 32)
 
     # Dam-API observations already include routed inflow, storage and executed history.
     # Both selectable policies receive the same available observation.
     edge("information-prompt", "reservoir-operation", "prompt", INK,
-         (90 / 610, 0), (90 / 220, 1), width=4)
-    text("information-label", "Available information", 450, 540, 300, 40,
+         (75 / 340, 0), (190 / 220, 1), width=4)
+    text("information-label", "Available information", 555, 540, 305, 40,
          24, True, align="right")
     edge("information-rule", "reservoir-operation", "rule-policy", INK,
-         (10 / 610, 0), (122 / 392, 1), [(700, 695), (200, 695)], width=4)
+         (15 / 340, 0), (122 / 392, 1), [(820, 695), (200, 695)], width=4)
     label("rule-information-label", "Available information", 330, 660, 300, 30)
 
     # Audit receives the release request at the shared operation interface, before physics.
@@ -213,10 +213,14 @@ def build(output_dir=None):
     edge("proposal-trace", "proposal", "trace", INK, (.45, 1), (22.5 / 350, 0), width=4)
     edge("checks-trace", "checks", "trace", INK, (.18, 1), (254 / 350, 0), width=4)
     edge("execution-audit", "reservoir-operation", "operation-audit", INK,
-         (310 / 610, 0), (30 / 310, 1),
+         (225 / 340, 0), (60 / 310, 1),
          width=4)
-    label("audit-request-label", "Release\nrequest", 1030, 685, 135, 60)
+    label("audit-request-label", "Release\nrequest", 920, 640, 100, 60)
     edge("audit-trace", "operation-audit", "trace", INK, (1, .6), (0, .504), width=4)
+    # Committed release, spill and storage are recorded separately from the proposal.
+    edge("execution-trace", "reservoir-operation", "trace", INK,
+         (305 / 340, 0), (150 / 350, 1), [(1110, 645), (1450, 645)], width=4)
+    text("execution-record-label", "Actual operation", 1210, 653, 230, 32, 24, True)
 
     # Blue water path only.
     edge("runoff-upstream", "runoff", "upstream", BLUE, (1, .5), (0, .5), width=7)
@@ -240,6 +244,13 @@ def build(output_dir=None):
             "black": "solid information, release requests, audit evidence, and trace records",
             "dashed_or_dotted": "not used",
             "crossings_or_jump_arcs": "not used",
+        },
+        "color_semantics": {
+            "blue": "Hydrology, routing and reservoir calculation; pale fill shares the role of its border.",
+            "orange": "Rule-based operation.",
+            "purple": "LLM information and decision modules; teal checks remain distinct within the LLM region.",
+            "teal": "Response checks, operation audit and trace recording; never PASS or FAIL.",
+            "gray": "Optional knowledge input.",
         },
         "responsibilities": {
             "Rule-based operation": "Selectable user operating rules produce a requested release.",

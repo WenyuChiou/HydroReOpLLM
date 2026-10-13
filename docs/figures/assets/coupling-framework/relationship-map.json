@@ -75,7 +75,7 @@
       "id": "operation-audit",
       "bounds": [
         970,
-        500,
+        470,
         310,
         155
       ],
@@ -86,7 +86,7 @@
       "id": "trace",
       "bounds": [
         1300,
-        530,
+        500,
         350,
         125
       ],
@@ -98,7 +98,7 @@
       "bounds": [
         65,
         775,
-        245,
+        300,
         260
       ],
       "outline": "#4F7F9C",
@@ -107,9 +107,9 @@
     {
       "id": "upstream",
       "bounds": [
-        365,
+        435,
         775,
-        255,
+        300,
         260
       ],
       "outline": "#4F7F9C",
@@ -118,9 +118,9 @@
     {
       "id": "reservoir-operation",
       "bounds": [
-        690,
+        805,
         775,
-        610,
+        340,
         260
       ],
       "outline": "#4F7F9C",
@@ -129,9 +129,9 @@
     {
       "id": "downstream",
       "bounds": [
-        1400,
+        1215,
         775,
-        270,
+        300,
         260
       ],
       "outline": "#4F7F9C",
@@ -209,7 +209,7 @@
         1
       ],
       "entry": [
-        0.05737704918032787,
+        0.1323529411764706,
         0
       ],
       "via": [
@@ -218,7 +218,7 @@
           650
         ],
         [
-          725,
+          850,
           650
         ]
       ]
@@ -233,17 +233,21 @@
         1
       ],
       "entry": [
-        0.8032786885245902,
-        0
+        1,
+        0.2230769230769231
       ],
       "via": [
         [
           1761,
-          699
+          725
         ],
         [
-          1180,
-          699
+          1170,
+          725
+        ],
+        [
+          1170,
+          833
         ]
       ]
     },
@@ -253,11 +257,11 @@
       "target": "prompt",
       "color": "#1F2933",
       "exit": [
-        0.14754098360655737,
+        0.22058823529411764,
         0
       ],
       "entry": [
-        0.4090909090909091,
+        0.8636363636363636,
         1
       ],
       "via": []
@@ -268,7 +272,7 @@
       "target": "rule-policy",
       "color": "#1F2933",
       "exit": [
-        0.01639344262295082,
+        0.04411764705882353,
         0
       ],
       "entry": [
@@ -277,7 +281,7 @@
       ],
       "via": [
         [
-          700,
+          820,
           695
         ],
         [
@@ -322,11 +326,11 @@
       "target": "operation-audit",
       "color": "#1F2933",
       "exit": [
-        0.5081967213114754,
+        0.6617647058823529,
         0
       ],
       "entry": [
-        0.0967741935483871,
+        0.1935483870967742,
         1
       ],
       "via": []
@@ -345,6 +349,30 @@
         0.504
       ],
       "via": []
+    },
+    {
+      "id": "execution-trace",
+      "source": "reservoir-operation",
+      "target": "trace",
+      "color": "#1F2933",
+      "exit": [
+        0.8970588235294118,
+        0
+      ],
+      "entry": [
+        0.42857142857142855,
+        1
+      ],
+      "via": [
+        [
+          1110,
+          645
+        ],
+        [
+          1450,
+          645
+        ]
+      ]
     },
     {
       "id": "runoff-upstream",
@@ -412,6 +440,13 @@
     "black": "solid information, release requests, audit evidence, and trace records",
     "dashed_or_dotted": "not used",
     "crossings_or_jump_arcs": "not used"
+  },
+  "color_semantics": {
+    "blue": "Hydrology, routing and reservoir calculation; pale fill shares the role of its border.",
+    "orange": "Rule-based operation.",
+    "purple": "LLM information and decision modules; teal checks remain distinct within the LLM region.",
+    "teal": "Response checks, operation audit and trace recording; never PASS or FAIL.",
+    "gray": "Optional knowledge input."
   },
   "responsibilities": {
     "Rule-based operation": "Selectable user operating rules produce a requested release.",
