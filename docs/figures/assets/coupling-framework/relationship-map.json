@@ -2,7 +2,7 @@
   "scope": "HydroOpsLM: one selected policy feeds one shared reservoir operation in the native HydroCNHS chain.",
   "canvas": [
     1880,
-    1250
+    1090
   ],
   "nodes": [
     {
@@ -11,9 +11,10 @@
         78,
         210,
         392,
-        250
+        220
       ],
-      "outline": "#C46A28"
+      "outline": "#C46A28",
+      "fill": "#FBE7D2"
     },
     {
       "id": "knowledge",
@@ -23,7 +24,8 @@
         115,
         92
       ],
-      "outline": "#7B858C"
+      "outline": "#7B858C",
+      "fill": "#EEF1F4"
     },
     {
       "id": "prompt",
@@ -31,9 +33,10 @@
         690,
         205,
         220,
-        275
+        220
       ],
-      "outline": "#765780"
+      "outline": "#765780",
+      "fill": "#EDE2F3"
     },
     {
       "id": "language-model",
@@ -41,9 +44,10 @@
         950,
         205,
         220,
-        275
+        220
       ],
-      "outline": "#765780"
+      "outline": "#765780",
+      "fill": "#EDE2F3"
     },
     {
       "id": "proposal",
@@ -51,9 +55,10 @@
         1210,
         205,
         250,
-        275
+        220
       ],
-      "outline": "#765780"
+      "outline": "#765780",
+      "fill": "#EDE2F3"
     },
     {
       "id": "checks",
@@ -61,69 +66,76 @@
         1500,
         205,
         300,
-        275
+        220
       ],
-      "outline": "#3F7F78"
+      "outline": "#3F7F78",
+      "fill": "#DDEFEA"
     },
     {
       "id": "operation-audit",
       "bounds": [
         970,
-        540,
+        500,
         310,
-        180
+        155
       ],
-      "outline": "#3F7F78"
+      "outline": "#3F7F78",
+      "fill": "#DDEFEA"
     },
     {
       "id": "trace",
       "bounds": [
         1300,
-        570,
+        530,
         350,
-        150
+        125
       ],
-      "outline": "#3F7F78"
+      "outline": "#3F7F78",
+      "fill": "#DDEFEA"
     },
     {
       "id": "runoff",
       "bounds": [
         65,
-        915,
+        775,
         245,
         260
       ],
-      "outline": "#4F7F9C"
+      "outline": "#4F7F9C",
+      "fill": "#DEEDF5"
     },
     {
       "id": "upstream",
       "bounds": [
         365,
-        915,
+        775,
         255,
         260
       ],
-      "outline": "#4F7F9C"
+      "outline": "#4F7F9C",
+      "fill": "#DEEDF5"
     },
     {
       "id": "reservoir-operation",
       "bounds": [
-        830,
-        875,
-        500,
-        310
+        690,
+        775,
+        610,
+        260
       ],
-      "outline": "#4F7F9C"
+      "outline": "#4F7F9C",
+      "fill": "#DEEDF5"
     },
     {
       "id": "downstream",
       "bounds": [
         1400,
-        915,
+        775,
         270,
         260
       ],
-      "outline": "#4F7F9C"
+      "outline": "#4F7F9C",
+      "fill": "#DEEDF5"
     }
   ],
   "edges": [
@@ -138,7 +150,7 @@
       ],
       "entry": [
         0,
-        0.5
+        0.6181818181818182
       ],
       "via": []
     },
@@ -193,33 +205,21 @@
       "target": "reservoir-operation",
       "color": "#1F2933",
       "exit": [
-        1,
-        0.5
+        0.5,
+        1
       ],
       "entry": [
-        0.88,
+        0.05737704918032787,
         0
       ],
       "via": [
         [
-          520,
-          335
+          274,
+          650
         ],
         [
-          520,
-          100
-        ],
-        [
-          1820,
-          100
-        ],
-        [
-          1820,
-          825
-        ],
-        [
-          1270,
-          825
+          725,
+          650
         ]
       ]
     },
@@ -233,85 +233,56 @@
         1
       ],
       "entry": [
-        0.7,
+        0.8032786885245902,
         0
       ],
       "via": [
         [
           1761,
-          535
-        ],
-        [
-          1761,
-          785
+          699
         ],
         [
           1180,
-          785
+          699
         ]
       ]
     },
     {
-      "id": "inflow-prompt",
-      "source": "upstream",
-      "target": "prompt",
-      "color": "#1F2933",
-      "exit": [
-        0.62,
-        0
-      ],
-      "entry": [
-        0.27,
-        1
-      ],
-      "via": [
-        [
-          523,
-          800
-        ],
-        [
-          610,
-          800
-        ],
-        [
-          610,
-          540
-        ],
-        [
-          749,
-          540
-        ]
-      ]
-    },
-    {
-      "id": "history-prompt",
+      "id": "information-prompt",
       "source": "reservoir-operation",
       "target": "prompt",
       "color": "#1F2933",
       "exit": [
-        0.2,
+        0.14754098360655737,
         0
       ],
       "entry": [
-        0.73,
+        0.4090909090909091,
+        1
+      ],
+      "via": []
+    },
+    {
+      "id": "information-rule",
+      "source": "reservoir-operation",
+      "target": "rule-policy",
+      "color": "#1F2933",
+      "exit": [
+        0.01639344262295082,
+        0
+      ],
+      "entry": [
+        0.3112244897959184,
         1
       ],
       "via": [
         [
-          930,
-          760
+          700,
+          695
         ],
         [
-          660,
-          760
-        ],
-        [
-          660,
-          560
-        ],
-        [
-          851,
-          560
+          200,
+          695
         ]
       ]
     },
@@ -325,7 +296,7 @@
         1
       ],
       "entry": [
-        0.065,
+        0.06428571428571428,
         0
       ],
       "via": []
@@ -340,7 +311,7 @@
         1
       ],
       "entry": [
-        0.725,
+        0.7257142857142858,
         0
       ],
       "via": []
@@ -351,11 +322,11 @@
       "target": "operation-audit",
       "color": "#1F2933",
       "exit": [
-        0.34,
+        0.5081967213114754,
         0
       ],
       "entry": [
-        0.097,
+        0.0967741935483871,
         1
       ],
       "via": []
@@ -367,11 +338,11 @@
       "color": "#1F2933",
       "exit": [
         1,
-        0.625
+        0.6
       ],
       "entry": [
         0,
-        0.55
+        0.504
       ],
       "via": []
     },
@@ -452,6 +423,7 @@
   },
   "policy_choice": "Each reservoir chooses exactly one policy: user operating rules or a checked LLM proposal.",
   "prompt_inputs": {
+    "source": "Dam API observation at the shared reservoir operation",
     "current": "current inflow",
     "beginning_of_step": "beginning storage / pool and implemented release history",
     "optional": "optional knowledge"

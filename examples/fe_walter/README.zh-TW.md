@@ -2,8 +2,9 @@
 
 [English](README.md) | [繁體中文](README.zh-TW.md) · [全部範例](../README.zh-TW.md)
 
-此範例用相同的三日 FE Walter 輸入、物理 case、零損失假設及 `UH=[1.0]`
-routing 比較三種決策方法。
+此單水庫範例示範規則式 benchmark，以及 zero-shot、DKP 兩種 LLM 資訊設計。
+三者使用相同的三日 FE Walter 輸入、物理 case、零損失假設及 `UH=[1.0]`
+routing，用來教學 HydroOpsLM 的操作流程；保存的診斷結果不代表策略效果已證實。
 
 | 方法 | 決策來源 | 預設教學證據 |
 |---|---|---|

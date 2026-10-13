@@ -1,18 +1,20 @@
 {
-  "status": "TECHNICAL_CHECKS_PASS_STABLE_CANDIDATE",
-  "revision": 23,
+  "status": "PARENT_VISUAL_AND_STRUCTURE_CHECKS_PASS",
+  "revision": 25,
   "drawio_version": "26.0.4",
   "native_cards": 12,
+  "native_cells": 77,
   "attached_edges": 16,
+  "horizontal_paths_without_turns": 9,
   "movable_raster_objects": 11,
-  "distinct_preserved_icon_assets": 6,
-  "new_generated_icon_assets": 4,
-  "new_image_generation_calls": 4,
+  "svg_native_text": 38,
+  "svg_foreign_objects": 0,
+  "new_generated_icon_assets": 0,
+  "preserved_generated_icon_assets": 4,
+  "new_image_generation_calls": 1,
+  "generation_purpose": "Full-image comparison only; not used as the authoritative scientific figure",
   "generation_cost": null,
   "new_reservoir_model_requests": 0,
-  "svg_native_text": 60,
-  "svg_foreign_objects": 0,
-  "svg_external_resources": 0,
   "line_semantics": {
     "blue": "solid water and implemented outflow",
     "black": "solid information, release requests, audit evidence, and trace records",
@@ -26,6 +28,7 @@
     "teal": "checks and records",
     "gray": "optional knowledge"
   },
+  "fill_semantics": "Flat pale fills match component and region function; never verdict or focus",
   "policy_choice": "Each reservoir chooses exactly one policy: user operating rules or a checked LLM proposal.",
   "responsibilities": {
     "Rule-based operation": "Selectable user operating rules produce a requested release.",
@@ -35,105 +38,55 @@
     "Operation audit": "Evaluates the current observation and requested action from either selected policy before physical execution.",
     "Trace records": "Binds policy records and decision-audit verdicts to implemented release, storage, and spill after physical execution."
   },
+  "record_flow": "The shared operation interface supplies the release request to decision audit before physics. Trace later binds its verdict to committed physical execution; LLM proposal and checker records are retained separately.",
   "visual_qa": {
-    "full_png": "PASS",
-    "width_900_png": "PASS",
-    "pdf_raster": "PASS",
-    "html_embedded_width_1000": "PASS",
+    "full_png": "parent PASS",
+    "width_900_png": "parent PASS",
+    "pdf_raster": "parent PASS",
     "overlap_or_clipping_observed": false,
-    "orthogonal_solid_routes": 16,
-    "parent_inspection": "PASS",
-    "independent_review": "PASS",
-    "minimum_body_font_at_900_px": 11.64,
-    "editability": "Native labels/arrows/cards plus movable raster icons. Round20 edit/save/reopen/export probe retained; Round23 adds one native editable label without changing routes.",
+    "main_water_and_llm_sequences": "Horizontal, zero turns; remaining connections use straight segments and right angles.",
+    "independent_review": "Exact staged fingerprint precommit gate; verdict recorded in commit/PR and task evidence",
     "audience_comprehension": "UNMEASURED",
     "user_design_acceptance": "PENDING"
   },
+  "comparison_image_defects": [
+    "audit incorrectly shown as an execution gate",
+    "feedback source and executed history omitted"
+  ],
   "correction_history": [
     "Round20 independent REVISE: Prompt text on border and audit spacing.",
     "Round21 parent REVISE: one Prompt line still too wide and audit border padding.",
     "Round22 four-line Prompt, audit spacing and upstream heading padding; targeted independent PASS.",
-    "Round23 independent code review REVISE: audit consumes requested actions before physics. Release request label and responsibility notes corrected; targeted semantic and full/900px/PDF visual PASS."
+    "Round23 independent code review REVISE: audit consumes requested actions before physics. Release request label and responsibility notes corrected; targeted semantic and full/900px/PDF visual PASS.",
+    "User rejected hollow visual style and water-path elbows; replaced with semantic fills, aligned node centres and shorter policy connections; consolidated Dam API observation feedback",
+    "User requested key-node labels only: removed seven explanatory text blocks and shortened observation labels to Available information.",
+    "Parent visual recheck corrected a Checked release label touching the Trace records outline; moved the label and connector to a clear lane."
   ],
+  "previous_quality_sha256": "5bf9cd8e23303e4fc17111337f9bded4ad8bd46063375983b90af85b53b0887c",
   "artifacts": {
     "docs/figures/hydrocnhs-coupling-framework-en.drawio": {
-      "path": "docs\\figures\\hydrocnhs-coupling-framework-en.drawio",
-      "bytes": 12807420,
-      "sha256": "78400a960df15a505aa8fefc392aefbaa0a3ef0ee9860efac1887f7d10704267"
+      "bytes": 12803598,
+      "sha256": "b39a62bc76fad058990a9a7628be6af5d5959d5504fb143299f2ed089d806f66"
     },
     "docs/figures/hydrocnhs-coupling-framework-en.png": {
-      "path": "docs\\figures\\hydrocnhs-coupling-framework-en.png",
-      "bytes": 356143,
-      "sha256": "f654f04d1b34c6f92b6e1d699b4c348c0b25fb5859833e7000debb0c9e03b219"
+      "bytes": 299472,
+      "sha256": "21a3ea1f51fdf88d55d60cb789439981c6fd25464aa98ae78e283b8b19130fd2"
     },
     "docs/figures/hydrocnhs-coupling-framework-en.svg": {
-      "path": "docs\\figures\\hydrocnhs-coupling-framework-en.svg",
-      "bytes": 12804913,
-      "sha256": "ab2998752feb4546624bfb59f48d5d9c505c3afa78abd7f42682bc81c67d253a"
+      "bytes": 12801386,
+      "sha256": "a46ce4e77090d17569cab06d2263f263985dbea325d596116906b83126e2c46e"
     },
     "docs/figures/hydrocnhs-coupling-framework-en.pdf": {
-      "path": "docs\\figures\\hydrocnhs-coupling-framework-en.pdf",
-      "bytes": 8891872,
-      "sha256": "9baae14443993d57792d3fd8834c5218c0227d33d4c36019614c7f688cddaca9"
+      "bytes": 8883935,
+      "sha256": "3e3708f8e01118ab49fbf2f6f4f6979e31c03a5b32600ab4ddc2671169f7383b"
     },
     "docs/figures/source/build_coupling_drawio.py": {
-      "path": "docs\\figures\\source\\build_coupling_drawio.py",
-      "bytes": 14854,
-      "sha256": "8dd5bcba5b8382250419773add4661576068843e3bb944a7c6441e69596e698d"
+      "bytes": 14813,
+      "sha256": "d697f7ade61ce64601f14d689a7b02f1119b766ffa1157ab024f0f9f6cc46fe8"
     },
     "docs/figures/assets/coupling-framework/relationship-map.json": {
-      "path": "docs\\figures\\assets\\coupling-framework\\relationship-map.json",
-      "bytes": 8909,
-      "sha256": "498aa352db1e0225eff0f7aafb2c8ec50e015ea63bd07bbf931660ae587927d9"
+      "bytes": 8950,
+      "sha256": "d62769d523ba145f7d43713c4a870ea429ec615094eb7f9fb11de46da26a75a3"
     }
-  },
-  "inspected_views": [
-    {
-      "path": "runs/hydroopslm-cleanup-20261012/T2-final/round23-coupling-900.png",
-      "bytes": 223875,
-      "sha256": "601c2416571061f479be5db1ff8251b4d9fcb772df7fee752488893ca8dad75c"
-    },
-    {
-      "path": "runs/hydroopslm-cleanup-20261012/T2-final/round23-coupling-pdf.png",
-      "bytes": 498924,
-      "sha256": "41f37a0118c9571aa9d1548b66805aa55460b5824c0ba2b0275726a8310ac77d"
-    },
-    {
-      "path": "runs/hydroopslm-cleanup-20261012/diagram-redesign-20261013/manual-QA-round23/index-concept.png",
-      "bytes": 227860,
-      "sha256": "77a910bf21a4158fa9e4a8fa13f571b5da8008fe17db6f16a064c0c45d7f3790"
-    }
-  ],
-  "independent_review": {
-    "reviewer": "/root/figure_manual_final_review",
-    "verdict": "PASS",
-    "scope": "Targeted Round23 release-request semantics, full PNG, 900px PNG, PDF raster, no new overlaps/crossings; prior stable48 review retained.",
-    "log": {
-      "path": "runs\\hydroopslm-cleanup-20261012\\20261013T041816578694Z-stdout.log",
-      "bytes": 1969,
-      "sha256": "23e98215aad6b30dcbaa7211b311f8df5601f989c903687c3d2b8a523ddc3ce5"
-    },
-    "exit_code": 0,
-    "tests_run": 0
-  },
-  "unperformed": [
-    "manual GUI drag test",
-    "human audience comprehension",
-    "user aesthetic acceptance",
-    "journal scientific review",
-    "public documentation deployment"
-  ],
-  "record_flow": "The shared operation interface supplies the release request to decision audit before physics. Trace later binds its verdict to committed physical execution; LLM proposal and checker records are retained separately.",
-  "prior_independent_review": {
-    "reviewer": "/root/concept_round20_visual_review",
-    "verdict": "PASS",
-    "scope": "Targeted Round22 full/900px/PDF recheck with unchanged routes/meaning accepted from previous review",
-    "log": {
-      "path": "runs\\hydroopslm-cleanup-20261012\\20261013T032627396861Z-stdout.log",
-      "bytes": 3135,
-      "sha256": "23abccea7dc3a9405cff970407eb7618e095e074c2a220a6eeabf4d03dac14b4"
-    },
-    "exit_code": 0,
-    "tests_run": 0
   }
 }

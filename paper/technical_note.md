@@ -201,6 +201,10 @@ workflow without issuing new model requests when it reads the preserved runs.
 
 ### Francis E. Walter setting
 
+The FE Walter examples demonstrate two LLM information designs, zero-shot and
+DKP, alongside a rule-based benchmark within the same single-reservoir workflow.
+They document configuration and execution rather than comparative policy performance.
+
 Francis E. Walter Reservoir was selected because the project contains frozen
 semidistributed hydrology, operating documents, and a reference decision
 program. The study map contains seven geographic model units and USGS gauges
@@ -369,7 +373,8 @@ their labels and do not imply a universal serial reservoir network.
 
 ![Figure 2](../docs/figures/fe-walter-study-map.png)
 
-**Figure 2.** Seven FE Walter model units, mapped rivers, and USGS gauges
+**Figure 2.** Hydrological setting of the FE Walter single-reservoir example:
+seven model units, mapped rivers, and USGS gauges
 01447500 and 01447720 in the Delaware River Basin. D denotes parameter donors, X
 spatial-transfer diagnostics, and R residual units; these roles are not
 calibration or validation evidence. Geometry is retained from the project's
