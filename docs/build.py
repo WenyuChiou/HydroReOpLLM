@@ -33,6 +33,7 @@ PAGES = {
         "README.md", "README.zh-TW.md", "LLM_MODULES.md", "LLM_MODULES.zh-TW.md",
         "USER_GUIDE.md", "USER_GUIDE.zh-TW.md", "HYDROLOGY_SETUP.md",
         "LIVE_READINESS.md", "auditor_plugins.md", "PROJECT_INVENTORY.md", "BUILDING.md",
+        "GETTING_STARTED.md", "RESULTS_GUIDE.md", "REFERENCE.md",
     )},
 }
 LINK = re.compile(r"(!?\[[^\]]*\]\()([^\s)]+)(\))")
@@ -84,14 +85,15 @@ def prepare(source: Path) -> None:
     for name in ("main", "advanced"):
         shutil.copyfile(ROOT / f"tutorials/{name}.ipynb", downloads / f"{name}.ipynb")
     groups = {
-        "Start here": ["docs/README", "docs/BUILDING", "examples/fe_walter/README"],
-        "Three methods": [f"examples/fe_walter/{method}/README"
+        "User guide": ["docs/README", "docs/GETTING_STARTED", "docs/USER_GUIDE",
+                       "docs/LLM_MODULES", "examples/fe_walter/README"],
+        "Three examples": [f"examples/fe_walter/{method}/README"
                           for method in ("benchmark", "zero_shot", "dkp")],
-        "Configure and verify": ["docs/LLM_MODULES", "docs/USER_GUIDE",
-                                 "docs/auditor_plugins", "docs/LIVE_READINESS"],
-        "Tutorials": ["tutorials/README", "tutorials/main", "tutorials/advanced"],
+        "Continue": ["tutorials/advanced", "docs/RESULTS_GUIDE", "docs/REFERENCE"],
+        "Tutorials": ["tutorials/README", "tutorials/main"],
         "HydroCNHS and references": ["docs/HYDROLOGY_SETUP", "paper/technical_note",
-                                    "docs/PROJECT_INVENTORY", "archive/README", "repository"],
+                                    "docs/PROJECT_INVENTORY", "archive/README", "repository",
+                                    "docs/BUILDING", "docs/auditor_plugins", "docs/LIVE_READINESS"],
         "繁體中文": [path.rsplit(".", 1)[0] for path in PAGES.values()
                    if "zh-TW" in path],
     }
@@ -101,6 +103,7 @@ def prepare(source: Path) -> None:
                          + "\n".join(entries) + "\n```\n")
     shutil.copyfile(ROOT / "docs/conf.py", source / "conf.py")
     shutil.copytree(ROOT / "docs/_static", source / "_static")
+    shutil.copytree(ROOT / "docs/_templates", source / "_templates")
 
 
 def main() -> int:
