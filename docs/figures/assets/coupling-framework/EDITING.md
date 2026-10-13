@@ -49,5 +49,11 @@ To inspect a candidate before replacing the figure, pass
 `--output-dir build/figure-candidate` to the producer and export that copy.
 Wait for each export command to finish before starting the next one.
 
+For a paper, use the vector SVG or PDF at **180 mm width**: the smallest label
+is approximately **8.25 pt**. The supplied PDF has that physical page width.
+A fresh draw.io PDF uses its canvas size; place it at 180 mm in the manuscript.
+This overview is intended for a full-width figure, not a single-column reduction.
+The four water-process cards are equally sized; colors identify roles, not verdicts.
+
 `relationship-map.json` records bounds, connector endpoints, line semantics, and
 responsibility notes for review and regression checks.

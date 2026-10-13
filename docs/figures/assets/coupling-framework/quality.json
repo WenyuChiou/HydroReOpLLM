@@ -1,6 +1,6 @@
 {
   "status": "PARENT_VISUAL_AND_STRUCTURE_CHECKS_PASS",
-  "revision": 27,
+  "revision": 28,
   "drawio_version": "26.0.4",
   "native_cards": 12,
   "native_cells": 79,
@@ -42,12 +42,12 @@
   "visual_qa": {
     "full_png": "parent PASS",
     "width_900_png": "parent PASS",
-    "pdf_raster": "parent PASS",
-    "main_water_and_llm_sequences": "Horizontal; remaining connectors straight orthogonal segments",
+    "pdf_raster": "parent PASS at180mm width",
     "strict_edge_crossings": 0,
-    "independent_review": "Required independent stable-diff gate; final verdict stored in commit and task receipt",
-    "audience_comprehension": "UNMEASURED",
-    "user_design_acceptance": "PENDING"
+    "independent_review": "PASS separate-context source/figure review and targeted CSS/website visual recheck; no critical issues or warnings",
+    "human_comprehension": "UNMEASURED",
+    "journal_compliance": "NOT CLAIMED",
+    "browser_screenshots": "PASS actual loopback HTTP screenshots; 1280/1100/1099/899px, bilingual homes and both tutorials; all images loaded, no page overflow"
   },
   "comparison_image_defects": [
     "audit incorrectly shown as an execution gate",
@@ -64,33 +64,35 @@
     "Final literal label simplification: Reservoir + Dam API only; connector geometry and policies unchanged.",
     "Compact reservoir card:610 to340pixels, vertical icon/label alignment and evenly spaced water nodes.",
     "Explicit committed-operation record into Trace; source mappings and distinct audit/check roles verified.",
-    "Moved record sidecars and their labels to prevent overlap with the native model boundary."
+    "Moved record sidecars and their labels to prevent overlap with the native model boundary.",
+    "Dedicated documentation site; four equally sized water cards; minimum30px labels and180mm vector PDF.",
+    "Actual terminal-backed HTTP screenshots revealed a stacked desktop menu; corrected responsive sidebar and Arial headings, then independent screenshot review PASS."
   ],
-  "previous_quality_sha256": "5bf9cd8e23303e4fc17111337f9bded4ad8bd46063375983b90af85b53b0887c",
+  "previous_quality_sha256": "9760c3e2333322acb36034cb9de4b7db2a38bc2c0b2af93b41ccd0e5c4e7103d",
   "artifacts": {
     "docs/figures/hydrocnhs-coupling-framework-en.drawio": {
-      "bytes": 12804593,
-      "sha256": "073187985904610fe9fe2fec8a63fdc48debb7dc5ef917b734b47cd0373fc694"
+      "bytes": 12804683,
+      "sha256": "213816a99946981e463bea49587d0d2384510e0be33e5699a714a579de364648"
     },
     "docs/figures/hydrocnhs-coupling-framework-en.png": {
-      "bytes": 288961,
-      "sha256": "717411c82ef9f0098e48c6051dc6503ae59153c4a920391a862ed7a7bf332e9f"
+      "bytes": 301629,
+      "sha256": "51beca80d4b808d4f9b051c6795c97f4845dc8608a1d67d183982759bb74b6c0"
     },
     "docs/figures/hydrocnhs-coupling-framework-en.svg": {
-      "bytes": 12802235,
-      "sha256": "f6c76f23db9b632aa23896d644380d8fe0344353444f256b7335c7016b5e4a8c"
+      "bytes": 12802265,
+      "sha256": "635c269b1749fe51f2e3ef7727c6ba63882a2913389cd8f06a34f2b66d78b837"
     },
     "docs/figures/hydrocnhs-coupling-framework-en.pdf": {
-      "bytes": 8883477,
-      "sha256": "d01d19f60a605c22df2a20103c7d4bbdc2985956c41c958fa656fa17c134bd6a"
+      "bytes": 8963997,
+      "sha256": "3d111a3bbc08a0d5c0180c25288e5e6d3033b0865eb084bb7ae1cea539e24ffd"
     },
     "docs/figures/source/build_coupling_drawio.py": {
-      "bytes": 15544,
-      "sha256": "7eb45c500c3a4c91fbc99c79234bde64843d1fc7914a8709b602f3ce75c6b219"
+      "bytes": 15538,
+      "sha256": "48a078fd0c1b0dab7b410d270f3e10ed72f35bac835859718cf6592221244138"
     },
     "docs/figures/assets/coupling-framework/relationship-map.json": {
-      "bytes": 9780,
-      "sha256": "c9a70d32aa670b7401a4cf9a6f7f400d591aad00a5b417bd2d561d83237e13af"
+      "bytes": 9817,
+      "sha256": "89a95d17a5700789b08d956084256f92205ab68097286a64f46663b7b65cae9c"
     }
   },
   "color_semantics": {
@@ -100,7 +102,9 @@
     "teal": "Response checks, operation audit and trace recording; never PASS or FAIL.",
     "gray": "Optional knowledge input."
   },
-  "reservoir_width_before": 610,
-  "reservoir_width_after": 340,
-  "reservoir_width_reduction_percent": 44.26229508196721
+  "reservoir_width_before": 340,
+  "reservoir_width_after": 300,
+  "reservoir_width_reduction_percent": 11.76470588235294,
+  "paper_width_mm": 180,
+  "minimum_type_pt_at_paper_width": 8.251798713840017
 }

@@ -14,8 +14,10 @@ from urllib.parse import unquote, urlsplit
 ROOT = Path(__file__).resolve().parents[1]
 REMOTE = "https://github.com/WenyuChiou/LLM_reservoir_agent"
 PAGES = {
-    "README.md": "index.md",
-    "README.zh-TW.md": "index.zh-TW.md",
+    "docs/index.md": "index.md",
+    "docs/index.zh-TW.md": "index.zh-TW.md",
+    "README.md": "repository.md",
+    "README.zh-TW.md": "repository.zh-TW.md",
     "examples/fe_walter/README.md": "examples/fe_walter/README.md",
     "examples/fe_walter/README.zh-TW.md": "examples/fe_walter/README.zh-TW.md",
     **{f"examples/fe_walter/{method}/{name}": f"examples/fe_walter/{method}/{name}"
@@ -76,9 +78,27 @@ def prepare(source: Path) -> None:
             target.write_text(json.dumps(notebook, ensure_ascii=False), encoding="utf-8")
         else:
             target.write_text(rewrite((ROOT / original).read_text(encoding="utf-8"), original, destination), encoding="utf-8")
-    entries = [path.rsplit(".", 1)[0] for path in PAGES.values() if path != "index.md"]
+    # Keep a readable manual hierarchy; notebooks are also downloadable as original bytes.
+    downloads = source / "_notebook_downloads"
+    downloads.mkdir()
+    for name in ("main", "advanced"):
+        shutil.copyfile(ROOT / f"tutorials/{name}.ipynb", downloads / f"{name}.ipynb")
+    groups = {
+        "Start here": ["docs/README", "docs/BUILDING", "examples/fe_walter/README"],
+        "Three methods": [f"examples/fe_walter/{method}/README"
+                          for method in ("benchmark", "zero_shot", "dkp")],
+        "Configure and verify": ["docs/LLM_MODULES", "docs/USER_GUIDE",
+                                 "docs/auditor_plugins", "docs/LIVE_READINESS"],
+        "Tutorials": ["tutorials/README", "tutorials/main", "tutorials/advanced"],
+        "HydroCNHS and references": ["docs/HYDROLOGY_SETUP", "paper/technical_note",
+                                    "docs/PROJECT_INVENTORY", "archive/README", "repository"],
+        "繁體中文": [path.rsplit(".", 1)[0] for path in PAGES.values()
+                   if "zh-TW" in path],
+    }
     with (source / "index.md").open("a", encoding="utf-8") as handle:
-        handle.write("\n\n```{toctree}\n:hidden:\n\n" + "\n".join(entries) + "\n```\n")
+        for caption, entries in groups.items():
+            handle.write(f"\n\n```{{toctree}}\n:hidden:\n:maxdepth: 1\n:caption: {caption}\n\n"
+                         + "\n".join(entries) + "\n```\n")
     shutil.copyfile(ROOT / "docs/conf.py", source / "conf.py")
     shutil.copytree(ROOT / "docs/_static", source / "_static")
 

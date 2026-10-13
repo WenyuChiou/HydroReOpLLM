@@ -8,8 +8,10 @@ python tutorials/build_notebooks.py --check
 python docs/build.py
 ```
 
-Open `build/docs/index.html`. The manual includes both entry languages and the
-two English notebooks. Tables and figures come from their saved MIME outputs.
+Open `build/docs/index.html`. This is the documentation-site home, with chapter
+navigation, three examples, single/multiple-reservoir tutorials and downloadable
+notebooks. The notebook downloads retain the original committed bytes.
+Tables and figures come from saved MIME outputs.
 MyST-NB execution is **off**: building the site does not run a simulation, start
 Ollama or call a provider. Source/data links lead to the private GitHub repo and
 require its normal access. The site is a local build; it is not publicly deployed.
@@ -27,7 +29,8 @@ remain unchanged.
 ## 繁體中文
 
 在完整 repo 使用上方安裝及建置指令，再開啟 `build/docs/index.html`。
-文件包含中英文入口與兩本英文 notebook，直接顯示保存的表格／圖片。
+文件站提供中英文首頁、章節目錄、三個範例、單／多水庫教學及 notebook 下載，
+直接顯示保存的表格／圖片；下載檔保留已提交 notebook 的原始 bytes。
 MyST-NB 不執行 cells；建置不啟動 Ollama、呼叫 provider 或執行模擬。
 原始碼／資料連結仍需私人 repo 權限，文件站尚未公開部署。
 另用 `--execute --check` 更新保存資料的圖表時，網路會被封鎖，

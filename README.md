@@ -51,8 +51,9 @@ covers multiple reservoirs, passive outlets, routing and your own data.
 [Native HydroCNHS setup](docs/HYDROLOGY_SETUP.md) ·
 [**cylin928.github.io/HydroCNHS/**](https://cylin928.github.io/HydroCNHS/)
 
-Build this project's [HTML manual](docs/BUILDING.md) for module settings,
-single/multiple-reservoir setup, audit/trace and troubleshooting.
+Start at the [documentation-site home](docs/index.md).
+[Build and open the site](docs/BUILDING.md) for chapter navigation, three methods,
+single/multiple-reservoir setup, audit/trace and downloadable tutorial notebooks.
 
 HydroOpsLM adds reservoir-decision integration to HydroCNHS. Please credit the
 original project separately:

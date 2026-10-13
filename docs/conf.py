@@ -10,5 +10,7 @@ html_theme = "alabaster"
 html_title = "HydroOpsLM documentation"
 html_static_path = ["_static"]
 html_css_files = ["manual.css"]
-html_theme_options = {"page_width": "1280px", "body_max_width": "1000px"}
-exclude_patterns = ["_static/**"]
+html_theme_options = {"page_width": "1280px", "body_max_width": "960px",
+                      "sidebar_width": "260px", "fixed_sidebar": True}
+html_sidebars = {"**": ["about.html", "globaltoc.html", "searchbox.html"]}
+exclude_patterns = ["_static/**", "_notebook_downloads/**"]  # Downloads are not extra pages.
