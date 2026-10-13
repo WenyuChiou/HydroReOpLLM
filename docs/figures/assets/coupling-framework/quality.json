@@ -1,18 +1,18 @@
 {
   "status": "PARENT_VISUAL_AND_STRUCTURE_CHECKS_PASS",
-  "revision": 26,
+  "revision": 27,
   "drawio_version": "26.0.4",
   "native_cards": 12,
-  "native_cells": 77,
-  "attached_edges": 16,
+  "native_cells": 79,
+  "attached_edges": 17,
   "horizontal_paths_without_turns": 9,
   "movable_raster_objects": 11,
-  "svg_native_text": 37,
+  "svg_native_text": 38,
   "svg_foreign_objects": 0,
   "new_generated_icon_assets": 0,
   "preserved_generated_icon_assets": 4,
-  "new_image_generation_calls": 1,
-  "generation_purpose": "Full-image comparison only; not used as the authoritative scientific figure",
+  "new_image_generation_calls": 0,
+  "generation_purpose": "No generation this revision; prior comparison and icon provenance retained",
   "generation_cost": null,
   "new_reservoir_model_requests": 0,
   "line_semantics": {
@@ -43,9 +43,9 @@
     "full_png": "parent PASS",
     "width_900_png": "parent PASS",
     "pdf_raster": "parent PASS",
-    "overlap_or_clipping_observed": false,
-    "main_water_and_llm_sequences": "Horizontal, zero turns; remaining connections use straight segments and right angles.",
-    "independent_review": "Exact staged fingerprint precommit gate; verdict recorded in commit/PR and task evidence",
+    "main_water_and_llm_sequences": "Horizontal; remaining connectors straight orthogonal segments",
+    "strict_edge_crossings": 0,
+    "independent_review": "Required independent stable-diff gate; final verdict stored in commit and task receipt",
     "audience_comprehension": "UNMEASURED",
     "user_design_acceptance": "PENDING"
   },
@@ -61,33 +61,46 @@
     "User rejected hollow visual style and water-path elbows; replaced with semantic fills, aligned node centres and shorter policy connections; consolidated Dam API observation feedback",
     "User requested key-node labels only: removed seven explanatory text blocks and shortened observation labels to Available information.",
     "Parent visual recheck corrected a Checked release label touching the Trace records outline; moved the label and connector to a clear lane.",
-    "Final literal label simplification: Reservoir + Dam API only; connector geometry and policies unchanged."
+    "Final literal label simplification: Reservoir + Dam API only; connector geometry and policies unchanged.",
+    "Compact reservoir card:610 to340pixels, vertical icon/label alignment and evenly spaced water nodes.",
+    "Explicit committed-operation record into Trace; source mappings and distinct audit/check roles verified.",
+    "Moved record sidecars and their labels to prevent overlap with the native model boundary."
   ],
   "previous_quality_sha256": "5bf9cd8e23303e4fc17111337f9bded4ad8bd46063375983b90af85b53b0887c",
   "artifacts": {
     "docs/figures/hydrocnhs-coupling-framework-en.drawio": {
-      "bytes": 12803584,
-      "sha256": "bc742f04303b4e7a71be3e094250ece0ca9e382c1a421463496e9ecc4935515e"
+      "bytes": 12804593,
+      "sha256": "073187985904610fe9fe2fec8a63fdc48debb7dc5ef917b734b47cd0373fc694"
     },
     "docs/figures/hydrocnhs-coupling-framework-en.png": {
-      "bytes": 297803,
-      "sha256": "6af69e7988515eb4168048dfbc47d808db3aa6fb880fccd7a188e7359b9d9682"
+      "bytes": 288961,
+      "sha256": "717411c82ef9f0098e48c6051dc6503ae59153c4a920391a862ed7a7bf332e9f"
     },
     "docs/figures/hydrocnhs-coupling-framework-en.svg": {
-      "bytes": 12801344,
-      "sha256": "1e248f5c90966112a89fc3745ea492d3bbe5db88671306681f074333c26a0ad5"
+      "bytes": 12802235,
+      "sha256": "f6c76f23db9b632aa23896d644380d8fe0344353444f256b7335c7016b5e4a8c"
     },
     "docs/figures/hydrocnhs-coupling-framework-en.pdf": {
-      "bytes": 8883931,
-      "sha256": "5005e7b6b0afc519db13cd103b384c1f2c20c2d30d4d96ecd054a9069e7ac8fa"
+      "bytes": 8883477,
+      "sha256": "d01d19f60a605c22df2a20103c7d4bbdc2985956c41c958fa656fa17c134bd6a"
     },
     "docs/figures/source/build_coupling_drawio.py": {
-      "bytes": 14792,
-      "sha256": "a8b4b387313b0638e8cc66d43335d451c499e18dcc4d86d8141ee1b96a72be94"
+      "bytes": 15544,
+      "sha256": "7eb45c500c3a4c91fbc99c79234bde64843d1fc7914a8709b602f3ce75c6b219"
     },
     "docs/figures/assets/coupling-framework/relationship-map.json": {
-      "bytes": 8940,
-      "sha256": "c76bf2ab7b955a5c53ca3203f1366b0999dce55343d59057504489f0b748cf2a"
+      "bytes": 9780,
+      "sha256": "c9a70d32aa670b7401a4cf9a6f7f400d591aad00a5b417bd2d561d83237e13af"
     }
-  }
+  },
+  "color_semantics": {
+    "blue": "Hydrology, routing and reservoir calculation; pale fill shares the role of its border.",
+    "orange": "Rule-based operation.",
+    "purple": "LLM information and decision modules; teal checks remain distinct within the LLM region.",
+    "teal": "Response checks, operation audit and trace recording; never PASS or FAIL.",
+    "gray": "Optional knowledge input."
+  },
+  "reservoir_width_before": 610,
+  "reservoir_width_after": 340,
+  "reservoir_width_reduction_percent": 44.26229508196721
 }
