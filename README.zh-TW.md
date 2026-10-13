@@ -49,8 +49,8 @@ check、run、verify 及 audit／trace。[進階篇](tutorials/advanced.ipynb)
 [原生 HydroCNHS 設定](docs/HYDROLOGY_SETUP.md) ·
 [**cylin928.github.io/HydroCNHS/**](https://cylin928.github.io/HydroCNHS/)
 
-建置本專案的 [HTML 手冊](docs/BUILDING.md)，查看模組設定、
-單／多水庫設定、audit／trace 與偵錯。
+從[文件站首頁](docs/index.zh-TW.md)開始；[建置並開啟文件站](docs/BUILDING.md)，
+依章節查看三種方法、單／多水庫設定及 audit／trace，另可下載 tutorial notebook。
 
 HydroOpsLM 在 HydroCNHS 上加入水庫決策整合。請另外引用原始專案：
 

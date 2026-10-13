@@ -19,7 +19,7 @@ metadata were not copied.
   implications, limitations, conclusion, and availability.
 - Embedded Figure 1 source:
   `docs/figures/hydrocnhs-coupling-framework-en.png`, SHA256
-  `717411c82ef9f0098e48c6051dc6503ae59153c4a920391a862ed7a7bf332e9f`.
+  `51beca80d4b808d4f9b051c6795c97f4845dc8608a1d67d183982759bb74b6c0`.
 - Embedded Figure 2 source: `docs/figures/fe-walter-study-map.png`, SHA256
   `aa4ad48f118c44ab40b024f1d3d4934551d497d411531f87c39cd6b28b46ff77`.
 
