@@ -1,107 +1,116 @@
 {
-  "scope": "Generic HydroCNHS flow plus an independent LLM decision extension; one policy choice per reservoir, optional context, no named case.",
+  "scope": "HydroOpsLM concept: native HydroCNHS hydrology and Dam callback host, selectable user-rule or checked-LLM policy, and added deterministic reservoir operations.",
   "canvas": [
-    1800,
-    1320
+    1920,
+    1240
   ],
   "nodes": [
     {
       "id": "prompt",
       "bounds": [
-        85,
-        230,
-        270,
-        270
+        480,
+        220,
+        220,
+        205
       ]
     },
     {
       "id": "language-model",
       "bounds": [
-        465,
-        230,
-        300,
-        270
+        755,
+        220,
+        235,
+        205
       ]
     },
     {
       "id": "rule-output",
       "bounds": [
-        875,
-        290,
-        250,
+        1045,
+        245,
+        190,
         150
       ]
     },
     {
       "id": "checker",
       "bounds": [
-        1235,
-        230,
-        270,
-        270
+        1285,
+        220,
+        145,
+        205
       ]
     },
     {
       "id": "knowledge",
       "bounds": [
-        85,
-        550,
-        420,
-        70
+        480,
+        448,
+        250,
+        42
       ]
     },
     {
       "id": "audit",
       "bounds": [
-        680,
-        550,
-        560,
-        115
+        1510,
+        170,
+        325,
+        320
       ]
     },
     {
-      "id": "stop",
+      "id": "user-rule",
       "bounds": [
-        1360,
-        550,
-        350,
-        115
+        75,
+        590,
+        330,
+        145
+      ]
+    },
+    {
+      "id": "operations",
+      "bounds": [
+        660,
+        555,
+        650,
+        200
       ]
     },
     {
       "id": "runoff",
       "bounds": [
         75,
-        920,
-        275,
-        325
+        900,
+        255,
+        245
       ]
     },
     {
       "id": "upstream",
       "bounds": [
-        420,
-        920,
-        300,
-        325
+        390,
+        900,
+        265,
+        245
       ]
     },
     {
-      "id": "reservoir",
+      "id": "dam-api",
       "bounds": [
-        810,
-        915,
-        320,
-        335
+        815,
+        900,
+        260,
+        245
       ]
     },
     {
       "id": "downstream",
       "bounds": [
-        1200,
-        920,
-        350,
-        325
+        1240,
+        900,
+        285,
+        245
       ]
     }
   ],
@@ -153,76 +162,117 @@
       "source": "knowledge",
       "target": "prompt",
       "exit": [
-        0.25,
+        0.5,
         0
       ],
       "entry": [
-        0.4,
+        0.35,
         1
       ],
       "via": []
     },
     {
-      "id": "checker-stop",
+      "id": "checked-proposal",
       "source": "checker",
-      "target": "stop",
+      "target": "operations",
       "exit": [
-        0.85,
+        0.5,
         1
       ],
       "entry": [
-        0.6,
-        0
-      ],
-      "via": []
-    },
-    {
-      "id": "checker-audit",
-      "source": "checker",
-      "target": "audit",
-      "exit": [
-        0.1,
-        1
-      ],
-      "entry": [
-        0.85,
-        0
+        1,
+        0.45
       ],
       "via": [
         [
-          1262,
-          525
+          1357.5,
+          500
         ],
         [
-          1156,
-          525
+          1360,
+          645
         ]
       ]
     },
     {
-      "id": "checked-release",
-      "source": "checker",
-      "target": "reservoir",
+      "id": "rule-proposal",
+      "source": "user-rule",
+      "target": "operations",
       "exit": [
         1,
-        0.65
+        0.5
       ],
       "entry": [
-        0.9,
+        0,
+        0.5
+      ],
+      "via": []
+    },
+    {
+      "id": "operations-prompt",
+      "source": "operations",
+      "target": "prompt",
+      "exit": [
+        0.35,
         0
+      ],
+      "entry": [
+        1,
+        0.72
       ],
       "via": [
         [
-          1730,
-          405.5
+          887.5,
+          525
         ],
         [
-          1730,
-          730
+          740,
+          525
         ],
         [
-          1098,
-          730
+          740,
+          368
+        ]
+      ]
+    },
+    {
+      "id": "decision-trace",
+      "source": "checker",
+      "target": "audit",
+      "exit": [
+        1,
+        0.35
+      ],
+      "entry": [
+        0,
+        0.35
+      ],
+      "via": []
+    },
+    {
+      "id": "execution-trace",
+      "source": "operations",
+      "target": "audit",
+      "exit": [
+        1,
+        0.78
+      ],
+      "entry": [
+        0.45,
+        1
+      ],
+      "via": [
+        [
+          1590,
+          711
+        ],
+        [
+          1590,
+          525
+        ],
+        [
+          1656,
+          525
         ]
       ]
     },
@@ -241,9 +291,9 @@
       "via": []
     },
     {
-      "id": "upstream-reservoir",
+      "id": "upstream-dam-api",
       "source": "upstream",
-      "target": "reservoir",
+      "target": "dam-api",
       "exit": [
         1,
         0.5
@@ -255,8 +305,8 @@
       "via": []
     },
     {
-      "id": "reservoir-downstream",
-      "source": "reservoir",
+      "id": "dam-api-downstream",
+      "source": "dam-api",
       "target": "downstream",
       "exit": [
         1,
@@ -283,106 +333,57 @@
       "via": []
     },
     {
-      "id": "inflow-prompt",
-      "source": "upstream",
-      "target": "prompt",
+      "id": "dam-callback",
+      "source": "dam-api",
+      "target": "operations",
       "exit": [
-        0.3,
+        0.34,
         0
       ],
       "entry": [
-        0,
-        0.5
-      ],
-      "via": [
-        [
-          510,
-          705
-        ],
-        [
-          65,
-          705
-        ],
-        [
-          65,
-          365
-        ]
-      ]
-    },
-    {
-      "id": "reservoir-feedback",
-      "source": "reservoir",
-      "target": "prompt",
-      "exit": [
-        0.1,
-        0
-      ],
-      "entry": [
-        0.85,
+        0.42,
         1
       ],
-      "via": [
-        [
-          842,
-          795
-        ],
-        [
-          555,
-          795
-        ],
-        [
-          555,
-          520
-        ],
-        [
-          314.5,
-          520
-        ]
-      ]
+      "via": []
     },
     {
-      "id": "execution-record",
-      "source": "reservoir",
-      "target": "audit",
+      "id": "operations-return",
+      "source": "operations",
+      "target": "dam-api",
       "exit": [
-        0.65,
-        0
-      ],
-      "entry": [
-        0.65,
+        0.62,
         1
       ],
-      "via": [
-        [
-          1018,
-          860
-        ],
-        [
-          1044,
-          860
-        ]
-      ]
+      "entry": [
+        0.66,
+        0
+      ],
+      "via": []
     }
   ],
   "responsibilities": {
-    "HydroCNHS": "Native GWLF/ABCD rainfall-runoff, Lohmann routing and Dam coupling API.",
-    "LLM modules": "Prompt assembled from available information, language model, response parsing, release proposal and strict action checking. The concept does not prescribe a timestep; the shipped operations driver is daily.",
-    "policy alternatives": "The native Dam API accepts a user-defined rule policy or an added LLM policy; choose one per controlled reservoir.",
-    "reservoir physics": "Added shared deterministic solver: feasible release, spill, storage and water balance. Not a built-in native HydroCNHS reservoir solver.",
-    "audit / trace": "Record decision and physical execution; never infer strategy acceptance from rendering."
+    "Native HydroCNHS": "GWLF/ABCD rainfall-runoff, Lohmann routing, and the Dam API callback host. The Dam API is not a reservoir physical solver.",
+    "Added reservoir operations": "Create the reservoir observation, invoke exactly one selected policy, apply the deterministic storage transition, and return implemented release plus spill once.",
+    "User rule policy": "A per-reservoir policy alternative that requests a release.",
+    "Checked LLM policy": "Prompt, language model, requested-release data, and strict format/value checking. A valid proposal reaches the shared deterministic operations directly.",
+    "Audit / trace": "Sidecar record of prompt, reply, proposal, check, and physical execution; never a controller gate or physics acceptance step."
   },
   "conditions": {
-    "checked-release": "Format and value checks valid; only the selected LLM policy returns this proposal through the Dam API.",
-    "checker-stop": "Malformed, incomplete or invalid action; stop before physical transition, without a fallback policy.",
-    "knowledge-prompt": "Optional configured information, not a mandatory decision stage."
+    "policy choice": "Each controlled reservoir uses user rule policy OR checked LLM policy.",
+    "checked-proposal": "Only a format/value-valid requested release reaches physical operations.",
+    "invalid proposal": "Stop before the physical transition; record available evidence; do not imply automatic fallback.",
+    "operations-return": "Implemented controlled release plus spill returns to the Dam host once for downstream routing.",
+    "knowledge-prompt": "Optional configured information; not a required controller stage."
   },
+  "prompt_inputs": [
+    "reservoir inflow",
+    "current storage / pool",
+    "implemented release history"
+  ],
   "notes": [
-    "Rule output is a requested release value, not executable code. Parsing and checking are combined conceptual roles; a malformed reply stops before reservoir execution.",
-    "Checker PASS means the action contract passed, not that a strategy audit accepted the policy.",
-    "Invalid actions stop before storage changes; no automatic rule-policy fallback is implied.",
-    "Controlled release plus spill enters downstream routing once.",
-    "Actual executed release and resulting state feed later observations.",
-    "A configured river network determines coupling between reservoirs.",
-    "No arrow changes climate inputs or upstream rainfall-runoff equations."
+    "Color encodes role, not pass status: blue physical operations, purple decisions, teal checking/records, gray optional information.",
+    "Rule output is requested-release data, not executable code.",
+    "No named reservoir, FE/DKP policy, or Anik case appears in the generic figure.",
+    "The audit sidecar cannot advance or accept the physical workflow."
   ]
 }

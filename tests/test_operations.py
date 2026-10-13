@@ -92,7 +92,8 @@ class OperationsTests(unittest.TestCase):
             self.assertFalse(summary["catchment_feedback"])
             self.assertFalse(summary["recorded_actions_respond_to_current_state"])
             self.assertEqual(summary["response_data_kind"], "synthetic_fixture")
-            self.assertIn("run_operations.py", summary["implementation_files"])
+            self.assertEqual(summary["implementation_files"]["delaware_operations/operations.py"],
+                             sha256(ROOT / "src/delaware_operations/operations.py"))
             for name, digest in summary["output_sha256"].items():
                 self.assertEqual(digest, sha256(output / name))
             audits = [json.loads(line) for line in (output / "response_audit.jsonl").read_text().splitlines()]

@@ -34,7 +34,7 @@ The native `hydrocnhs.Model` accepts a YAML path or model dictionary. Its `run(t
 
 The returned dictionary contains modeled flow series. Prepare the reservoir runner's `date,node,local_inflow_cms` CSV and case hash from those results. Use local/incremental inflow for each node; do not add upstream reservoir output to a CSV that the network will route again.
 
-For the existing FE Walter case, [advanced workflows](ADVANCED_WORKFLOWS.md#run-the-accepted-semi-distributed-hydrology) document the preserved seven-subbasin hydrology entry point. Those commands execute simulations; they are not needed to read saved results.
+For the existing FE Walter case, [advanced workflows](../archive/README.md) document the preserved seven-subbasin hydrology entry point. Those commands execute simulations; they are not needed to read saved results.
 
 ### 3. Calibrate, then validate
 
@@ -76,7 +76,7 @@ The current `run_experiment.py check/run/verify` commands verify reservoir exper
 
 以水文輸出準備水庫執行器的 `date,node,local_inflow_cms` CSV，並更新 case hash。各節點使用局部／增量入流，避免把上游水庫出流加進 CSV 後，又由 network 重複 routing。
 
-既有 FE Walter 七子集水區入口見 [進階流程](ADVANCED_WORKFLOWS.md#run-the-accepted-semi-distributed-hydrology)。其中的指令會啟動模擬；只查看保存結果不需要執行。
+既有 FE Walter 七子集水區入口見 [進階流程](../archive/README.md)。其中的指令會啟動模擬；只查看保存結果不需要執行。
 
 ### 3. 先 calibration，再 validation
 

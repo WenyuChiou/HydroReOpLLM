@@ -2,58 +2,48 @@
 
 [English](README.md) | [繁體中文](README.zh-TW.md)
 
-請依[框架 README](../README.zh-TW.md)安裝。各課從資訊與設定開始，依序走到
-決策、物理及保存的證據。Runtime prompts 保留原始英文文字。
+教學整併為兩本英文 notebook。兩者只讀取已追蹤、已驗收的 snapshot，並保存
+GitHub 與 MyST-NB 可顯示的表格與圖片輸出。預設流程不呼叫模型或網路，也不下載、
+重新校正或執行新的模擬。
 
-| 順序 | Notebook | 重點 |
+| Notebook | 用途 | 保存的證據 |
 |---|---|---|
-| 00 | [LLM 架構](00_overview.ipynb) | 資訊 → prompt → proposal → checker → execution → feedback |
-| 01 | [輸入與地圖](01_input_and_map.ipynb) | 入流、單位、初始狀態與 GIS |
-| 02 | [Agent 設定](02_yaml.ipynb) | YAML、model、prompt、knowledge 與 auditors |
-| 03 | [規則基準](03_benchmark.ipynb) | 透過原生 Dam 耦合執行自訂規則 |
-| 04 | [Zero-shot fixture](04_zero_shot.ipynb) | 合成回覆與決策鏈 |
-| 05 | [DKP fixture](05_dkp.ipynb) | 合成回覆與知識檢索 |
-| 06 | [Audit 與 trace](06_audit_trace.ipynb) | 判定、綁定物理與隔日資訊 |
-| 07 | [多庫／自己的資料](07_multi_and_custom.ipynb) | 河網、狀態隔離與被動出口 |
-| 08 | [本機 Ollama 流程](08_ollama_workflow.ipynb) | 檢查、執行、驗證並查看實際本機模型 run |
+| [主教學](main.ipynb) | 輸入 → YAML → 規則／prompt → check → 保存的 run → verify → audit／trace | 同一個三日 FE Walter case，比較確定性規則、zero-shot 與 DKP |
+| [進階教學](advanced.ipynb) | 河網、被動出口、狀態隔離、routing 限制及自有資料設定 | 已驗收的三庫 31 日 snapshot |
 
-## 本機 Ollama 示範
+主比較使用初始蓄水 **2,457,848.279729185 m³（1,992.61 acre-ft）**、零損失，
+以及下游 `UH=[1.0]` identity routing；這些都是範圍受限的整合假設。保存的
+zero-shot audit 為 2 PASS／1 FAIL，DKP 為 3 FAIL；所有方法的策略驗收皆為
+`null`。
 
-請先安裝 Ollama，並讓 `gemma3:4b` 可在本機使用。Zero-shot 與 DKP 設定皆使用
-temperature `0.7`、daily 2016-01-01 至 2016-01-03、各三次請求且不重試。
+## 建置與檢查
 
-執行命令前，請將初始蓄水 **1,992.61 acre-ft** 與下游 `UH=[1.0]`
-identity routing 視為範圍受限的整合假設；它們不是現地驗證或策略驗收。
-Ollama case 是明示的診斷案例；原始 case readiness 仍為 `false`。
-
-```powershell
-python run_experiment.py check examples/fe_walter/zero_shot/experiment.ollama.yaml
-python run_experiment.py run examples/fe_walter/zero_shot/experiment.ollama.yaml --allow-network
-python run_experiment.py verify runs/hydroopslm-fe-walter-zero-shot-ollama-gemma3-4b-20261012
-python tutorials/inspect_decision_flow.py runs/hydroopslm-fe-walter-zero-shot-ollama-gemma3-4b-20261012
-```
-
-DKP 請將 YAML 的 `zero_shot` 換成 `dkp`，輸出使用
-`runs/hydroopslm-fe-walter-dkp-ollama-gemma3-4b-20261012`。`check` 不執行
-inference 或 provider request。`run --allow-network` 明確允許本機 Ollama request。
-`verify` 與 inspector 讀取實際模型 run，因此不加 `--require-offline`。
-
-Inspector 顯示資訊、完整 prompts、模型回覆、正規化 proposal、checker 結果、
-已提交物理、隔日資訊、audit 與 trace 路徑；DKP 也顯示依條件檢索的知識。
-Checker validity、策略 audit 與物理可行性是三項不同結果。
-
-## 開發驗證 fixtures
-
-教學 04／05、`experiment.hydroopslm.offline.yaml` 與保存的回覆 fixtures
-仍可用於可重現的開發檢查。它們不是預設使用者路徑，也不能評估模型品質。
-既有離線 notebook suite 的執行方式如下：
+請在 repository 根目錄使用已安裝 pandas 與 matplotlib 的專案環境：
 
 ```powershell
 python tutorials/build_notebooks.py --execute
+python tutorials/build_notebooks.py --check
 ```
 
-設定原生產流、參數、routing、校正與驗證時，請將本 repo 的
-[水文設定](../docs/HYDROLOGY_SETUP.md)與
-[HydroCNHS 官方文件](https://cylin928.github.io/HydroCNHS/)搭配使用。
+Builder 不需 Jupyter kernel；它依序執行 cells、封鎖 socket／urllib，並嵌入
+pandas HTML 與 matplotlib PNG。資料來自
+`results/fe_walter_ollama_2016_01`、
+`results/fe_walter_tutorial_benchmark_2016_01` 及
+`results/three_reservoir_month_2016_01`，不依賴被忽略的 `runs/`。
 
-[正式設定手冊](../docs/USER_GUIDE.zh-TW.md) · [FE Walter 示範](../examples/fe_walter/README.zh-TW.md)
+## 選用的本機 Ollama 重跑
+
+Notebook 只記錄此流程，不會自動執行。指定模型已可在本機使用後，請改用新的
+`run_id` 與輸出路徑。現有 YAML 最多三次呼叫且不重試；必須明確加入
+`--allow-network`。
+
+```powershell
+Copy-Item examples/fe_walter/zero_shot/experiment.ollama.yaml examples/fe_walter/zero_shot/my-run.yaml
+# 先編輯 my-run.yaml，將 run_id 與 output 改為新值。
+python run_experiment.py check examples/fe_walter/zero_shot/my-run.yaml
+python run_experiment.py run examples/fe_walter/zero_shot/my-run.yaml --allow-network
+```
+
+[FE Walter 範例指南](../examples/fe_walter/README.zh-TW.md) ·
+[通用 YAML／模組手冊](../docs/USER_GUIDE.zh-TW.md) ·
+[原生 HydroCNHS 水文與 C&V](../docs/HYDROLOGY_SETUP.md)

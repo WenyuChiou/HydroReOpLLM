@@ -5,7 +5,7 @@
 Read this before changing a prompt or adding a backend.
 HydroCNHS supplies hydrology, routing and the Dam API. The added decision path is:
 
-`info + prompt + optional context → LLM → reader → proposal → checker → execution → feedback`
+`info + prompt + optional context → LLM → Rule output → checker → execution → feedback`
 
 Audit evaluates the configured operating rules; trace records the complete chain.
 The current operations runner is daily.
@@ -70,15 +70,16 @@ These outcomes must be displayed separately.
 
 ## Follow one decision
 
-The [tutorials](../tutorials/README.md#inspect-a-complete-decision) display:
-info → full system/user prompt → synthetic reply → normalized proposal →
+The [tutorials](../tutorials/main.ipynb) display:
+info → full system/user prompt → saved actual Ollama reply → normalized proposal →
 action-contract recheck → original audit → committed physics → next-day info.
 
 The recheck is a current inspection of the normalized action, not a fabricated
 historical checker event. Trace retains the original audit and prompt/reply evidence.
 Generic fixed-release offline mode skips model/prompt execution; the reference
 offline examples exercise prompt assembly and supplied-reply parsing.
-Neither demonstrates real LLM decision quality.
+Supplied replies do not demonstrate real LLM decision quality; actual saved
+Ollama replies retain their original policy audit verdicts.
 
 [Contracts](../src/llm_reservoir_agent/contracts.py) ·
 [Prompt/parser protocols](../src/llm_reservoir_agent/prompt.py) ·

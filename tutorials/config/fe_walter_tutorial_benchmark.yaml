@@ -1,0 +1,24 @@
+# Deterministic companion to the saved three-day Ollama tutorial snapshots.
+# It uses the same input, physical case, losses, and UH=[1] routing; no model or
+# network request is configured.
+schema_version: llm-reservoir-experiment.v1
+run_id: fe-walter-tutorial-benchmark-2016-01
+case: ../../cases/fe_walter_ollama_demo/case.json
+output: ../../results/fe_walter_tutorial_benchmark_2016_01
+start_date: '2016-01-01'
+end_date: '2016-01-03'
+max_calls: 0
+agents:
+  fe_operator:
+    reservoir: FEWalter
+    mode: offline
+    strategy: benchmark
+    benchmark:
+      purpose: flood_control
+      alpha: 0.85
+      statistics: ../../data/benchmark/fe_walter_statistics.json
+    auditors: [release_limits]
+auditors:
+  release_limits:
+    type: release_bounds
+    version: '1'

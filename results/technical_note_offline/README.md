@@ -41,7 +41,7 @@ and [comparison output](logs/20261012T145323522501Z-stdout.log), with recipes in
 the matching command receipts. The later benchmark source is distinct from the
 unchanged V3.7 vendor used for LLM prompt, retrieval and audit compatibility.
 
-The [full acceptance report](../../docs/upgrade_acceptance.md) records compatibility,
+The [full acceptance report](../../archive/README.md) records compatibility,
 documentation/figure checks and boundaries. [Live preparation](../../docs/LIVE_READINESS.md)
 lists the remaining experiment conditions. Historical five-year diagnostics,
 policy failures and unknown request costs remain unchanged.

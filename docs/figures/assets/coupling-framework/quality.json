@@ -1,231 +1,96 @@
 {
-  "status": "TECHNICAL_CHECKS_PASS_DESIGN_CANDIDATE",
-  "revision": 8,
+  "status": "TECHNICAL_CHECKS_PASS_STABLE_CANDIDATE",
+  "revision": 10,
   "drawio_version": "26.0.4",
-  "native_cards": 11,
-  "attached_edges": 14,
-  "movable_raster_objects": 7,
-  "distinct_generated_assets": 6,
-  "icon_size_native_units": [
-    200,
-    210
-  ],
-  "new_image_generation_calls": 1,
+  "native_cards": 12,
+  "attached_edges": 15,
+  "movable_raster_objects": 8,
+  "distinct_preserved_icon_assets": 6,
+  "new_image_generation_calls": 0,
   "endpoint_and_connection_site_checks": "PASS",
-  "isolated_rebuild_identical": "PASS",
-  "edit_save_native_reopen_render": "PASS",
-  "svg_embedded_images": 7,
+  "svg_native_text": 42,
+  "svg_foreign_objects": 0,
+  "svg_external_resources": 0,
+  "pdf_pages": 1,
   "visual_qa": {
     "full_png": "PASS",
     "width_900_png": "PASS",
-    "edited_copy": "PASS",
     "meaning": 2,
     "short_language": 2,
     "layout": 2,
-    "editability": 2,
-    "audience_comprehension": 1,
+    "editability": "Scratch label/icon/connector changed, saved, reparsed and draw.io rendered; manual GUI drag unperformed",
+    "audience_comprehension": "UNMEASURED",
     "user_design_acceptance": "PENDING",
-    "independent_review": "PENDING"
+    "independent_review": "PASS"
   },
   "observations": [
-    "Outer HydroOpsLM frame separates the added LLM modules from native HydroCNHS.",
-    "GWLF/ABCD runoff, upstream Lohmann routing, Reservoir / Dam API, downstream Lohmann routing and downstream discharge read left to right.",
-    "One reservoir chooses a custom rule policy OR checked LLM proposal. The tan Added operations badge denotes the new shared physical solver; native HydroCNHS owns the Dam API.",
-    "Prompt, language model, Rule output (requested release) and Checker form the main upper sequence. Optional knowledge is subordinate beside Prompt.",
-    "Named paths convey reservoir inflow, storage/water level and executed release history. Valid release proposals reach operations; invalid replies stop with no release applied.",
-    "Audit/trace receives checker and physical-execution records; strategy-audit FAIL/WARN/UNKNOWN is separate from action validity.",
-    "Actual full PNG, 900-pixel PNG and edited/reopened draw.io rendering were inspected. No observed line runs through label text.",
-    "Six existing generated icon assets remain unchanged; seven placements use native image objects. Text, frames and arrows remain separately editable. The cover artwork is one new text-free generated raster plus editable native title."
+    "The HydroOpsLM frame separates native HydroCNHS, LLM modules, and added deterministic reservoir operations.",
+    "Native GWLF/ABCD rainfall-runoff, upstream Lohmann routing, Dam API callback host, downstream Lohmann routing, and discharge read left to right.",
+    "The native Dam API is a callback host; added reservoir operations own state update and implemented release plus spill, which return to the host once.",
+    "Each reservoir uses a user rule policy OR the checked LLM policy; both alternatives converge on the one deterministic operations block.",
+    "Prompt inputs are reservoir inflow, current storage or pool, and implemented release history. Optional knowledge is subordinate.",
+    "Rule output is requested-release data. A valid proposal has a direct connector to operations; invalid input stops before physical transition as documented in the relationship map and editing guide.",
+    "Audit/trace is a record-only sidecar for prompt, reply, proposal, check, and physical execution.",
+    "Blue marks physical operations, purple decision work, teal checking and records, and gray optional or callback information; color does not encode pass status.",
+    "The final full PNG and 900-pixel rendering were inspected. No observed connector crosses a label or non-endpoint box."
   ],
   "unperformed": [
-    "GUI drag interactions",
+    "manual GUI drag test in draw.io Desktop",
     "audience comprehension test",
     "scientific peer review",
-    "documentation website deployment"
-  ],
-  "observed_revision_history": [
-    {
-      "version": 1,
-      "status": "REJECTED",
-      "reason": "Wrapped sublabels and state label overlapped the lower boundary heading.",
-      "preserved_evidence": "runs/hydrocnhs-llm-concept-20261011/rejected-figure-v1.png"
-    },
-    {
-      "version": 2,
-      "status": "REVISED",
-      "reason": "Moved feedback label clear of its vertical connector; straightened water-flow connections."
-    },
-    {
-      "version": 3,
-      "status": "CORRECTED",
-      "finding": "SVG export contained HTML foreignObject text and a draw.io compatibility-help hyperlink.",
-      "correction": "Changed the native producer to unwrapped text with explicit line breaks; export now has native SVG text, no foreignObject and no non-W3C URL.",
-      "baseline_allowlist_or_exclusion_changed": false,
-      "failed_gate_receipt": "runs/hydrocnhs-llm-concept-20261011/20261012T180539729585Z-command.json"
-    },
-    {
-      "version": 4,
-      "status": "DOCUMENTATION_UPDATE",
-      "reason": "The earlier README proposal is now explicitly a historical record after the generic bilingual guide was implemented. Figure geometry and exports are unchanged.",
-      "proposal_original_sha256": "dcc9ed4e5abe7bc2bb4201958ce2c088ee657a00a1521402ad431dad92748c21",
-      "proposal_current_sha256": "2aebdfe39a3e3d1d03e404ce6cdb2e8e5bdd7b4388ad84da29cf677ab3e7bb52"
-    },
-    {
-      "version": 5,
-      "status": "SERIALIZATION_CORRECTION",
-      "reason": "Staged whitespace check found CRLF in two new metadata files. Normalize their serialization and make the relationship-map producer emit LF. No figure geometry, icon pixels, XML/SVG/PDF/PNG exports, prompts or scientific settings changed.",
-      "original_metadata_hashes": {
-        "docs/figures/assets/coupling-framework/generation.json": "10e5aba815f2cf5372829b70f978ce145f8284cfbb0fec88f2933f03be8a4387",
-        "docs/figures/assets/coupling-framework/relationship-map.json": "cc9ca1d514e162c8a616021bc8e0c23988cca77aa2acc665d7b8bf93e7ade63c"
-      },
-      "baseline_allowlist_or_exclusion_changed": false,
-      "failed_gate_receipt": "runs/hydrocnhs-llm-concept-20261011/20261012T183002385486Z-command.json"
-    },
-    {
-      "version": 6,
-      "status": "USER_REQUESTED_REDESIGN",
-      "reason": "Larger unchanged icons, named native models, rule/LLM Dam API alternatives and concise upper LLM modules; bilingual README and manual navigation follow upstream structure.",
-      "original_quality_sha256": "ebe5d1a43c05fab80d07a2650622b6776b12560a93065854ca4115f6e909b60f",
-      "originals": "runs/hydrocnhs-llm-concept-20261011/revision6-originals",
-      "corrections": [
-        "Removed redundant Release label; moved connector away from LLM card and labels.",
-        "Shortened overlong diagnostic edit label after rendered inspection. Original diagnostic PNG retained."
-      ],
-      "baseline_allowlist_or_exclusion_changed": false
-    },
-    {
-      "version": 7,
-      "status": "USER_REQUESTED_REDESIGN",
-      "reason": "User rejected revision6: unclear HydroCNHS sequence, repeated prompt inputs, dominant optional knowledge, duplicated policy boxes and solver fine print.",
-      "prior_design_acceptance": "REJECTED_BY_USER",
-      "prior_quality_sha256": "a0a69db317f6c554191af76bdb2eeabdf7875b1f4547c7cda6a671036aab7502",
-      "originals": "runs/hydrocnhs-llm-concept-20261011/revision7-originals",
-      "corrections": [
-        "Preserved the first candidate: PASS vertical intersected Stop and Dam API text. Moved Stop outside PASS and left-aligned Dam API; inspected again."
-      ],
-      "baseline_allowlist_or_exclusion_changed": false
-    },
-    {
-      "version": 8,
-      "status": "USER_REQUESTED_REDESIGN",
-      "reason": "HydroOpsLM outer frame; merge response-reader/release-decision as Rule output; clearer storage, proposal, discharge labels; added-versus-native ownership; subordinate knowledge; thicker lines and large icons.",
-      "prior_quality_sha256": "e6e2548c5097e150e476b99c7d900f73e62e747df17f0482527ffed070015a95",
-      "originals": "runs\\hydrocnhs-llm-concept-20261011\\hydroopslm-ollama-20261012/original-hydrocnhs-coupling-framework-en.*",
-      "corrections": [
-        "The first edit-probe label overflowed; preserve it and use short Proposal label for the successful edited render.",
-        "Staged whitespace gate identified CRLF in the new SVG header and cover provenance; normalize LF serialization only, preserve originals and failed receipt 20261012T220046107512Z-command.json."
-      ],
-      "baseline_allowlist_or_exclusion_changed": false
-    }
+    "user aesthetic approval",
+    "documentation deployment"
   ],
   "artifacts": {
     "docs/figures/hydrocnhs-coupling-framework-en.drawio": {
-      "bytes": 8351423,
-      "sha256": "bccbaede29f73c4bd399efb14392997656d8eabcd10748bb90b47d1f379d330c"
+      "bytes": 9230956,
+      "sha256": "f11126847707931bbe6ba4a6a6bf080f1da72065b3f73fa3fb370d5b0230f463"
     },
     "docs/figures/hydrocnhs-coupling-framework-en.png": {
-      "bytes": 738515,
-      "sha256": "5dc152b2a60acb7548b1cd4ef8368b0ce47d46bf15d493badc8c45c3604c1621"
+      "bytes": 540030,
+      "sha256": "280751e411b79373f65c3712985c61a7fc12338bf51ae4c88a5685e8094b3673"
     },
     "docs/figures/hydrocnhs-coupling-framework-en.svg": {
-      "bytes": 8351752,
-      "sha256": "d393b87e74ec24902444147cdcc515febc603ce3deda59f405a150a249d0a5cb"
+      "bytes": 9229912,
+      "sha256": "15930600e269467aacf0388c438ea702a9ac10543c4ad0bf04f8f4b3b44eda17"
     },
     "docs/figures/hydrocnhs-coupling-framework-en.pdf": {
-      "bytes": 5644057,
-      "sha256": "8d852255f0158168ec06e057bb89294d784098273b05f163222c8619fec71074"
-    },
-    "docs/README_FRAMEWORK_PROPOSAL.md": {
-      "bytes": 2980,
-      "sha256": "2aebdfe39a3e3d1d03e404ce6cdb2e8e5bdd7b4388ad84da29cf677ab3e7bb52"
+      "bytes": 5644580,
+      "sha256": "30912a885a98189245c1f2591e71e2c3dbe84589cc61861fe5a05ddcc54294fa"
     },
     "docs/figures/source/build_coupling_drawio.py": {
-      "bytes": 11833,
-      "sha256": "3b4bbc0985e4c4195e26ef526968d27d939bfdad5f291f497da7511d583c93ac"
-    },
-    "docs/figures/assets/coupling-framework/audit.png": {
-      "bytes": 656235,
-      "sha256": "44c34f441cefaa128551582eb23e87b8ac65bd150516f774c8b0b1836c84242d"
-    },
-    "docs/figures/assets/coupling-framework/decision.png": {
-      "bytes": 790642,
-      "sha256": "fcfca724a1e6dbc3257e650814d142b91329ff28532c3d28059470269f36e1f3"
-    },
-    "docs/figures/assets/coupling-framework/EDITING.md": {
-      "bytes": 2335,
-      "sha256": "64694cca4f362aa164bc38b2aa836c556548ffec4bc01e93e64c15235934006e"
-    },
-    "docs/figures/assets/coupling-framework/generation.json": {
-      "bytes": 10494,
-      "sha256": "41c67aa5b5b098c2944e47ad40bd022cd412ce932f9744adbcd14cbc1818bb41"
-    },
-    "docs/figures/assets/coupling-framework/hydrology.png": {
-      "bytes": 909860,
-      "sha256": "bd1f6c67ff73729fe268fd2f3cd4fc74900693cadae85e13a15ec9c3daf61ef7"
-    },
-    "docs/figures/assets/coupling-framework/knowledge.png": {
-      "bytes": 833827,
-      "sha256": "055e90e8b3d8d1a994f513b41f9125ccce10eea9dafbb7df2be67827e22079ab"
+      "bytes": 14343,
+      "sha256": "a0358482b95af7cdad3202500e1efd95eb2dfb0b26fe529e997e4e440e038fdb"
     },
     "docs/figures/assets/coupling-framework/relationship-map.json": {
-      "bytes": 7039,
-      "sha256": "d1bdf0c1d437f09bb90ff98f1cd6202a2e3aa80dbc9a963e877e77b9ffc7a844"
-    },
-    "docs/figures/assets/coupling-framework/reservoir.png": {
-      "bytes": 844104,
-      "sha256": "955df76117decac05a75ecd67a8f6e3a2a9756b61f0bb398986204cc100eaf3a"
-    },
-    "docs/figures/assets/coupling-framework/routing.png": {
-      "bytes": 1105942,
-      "sha256": "dea072b0277e124553062f6d3910cdbb0531a971c766bb5bbc6394c97c9f341f"
-    },
-    "docs/figures/hydroopslm-cover.drawio": {
-      "bytes": 2171982,
-      "sha256": "2f7d667f02d45874e3922318126b437cf9216e6d8a1760f0e5ccf30fe369fc2c"
-    },
-    "docs/figures/hydroopslm-cover.png": {
-      "bytes": 1464663,
-      "sha256": "6abf9dbcfe70ec5c242e9d93898c54c96ab7320d8a2346322b7b11fc9d8a02d0"
-    },
-    "docs/figures/assets/hydroopslm-cover-art.png": {
-      "bytes": 1628065,
-      "sha256": "76d3967c90ce8c8a0061abf1d1690853e525630f36bb2490cf03bb793bdc177c"
-    },
-    "docs/figures/assets/hydroopslm-cover-provenance.json": {
-      "bytes": 549,
-      "sha256": "49102d7b5802d1a4e9d88363ab36981a35355c0b4e82f91a0fbbc3a64e69bf73"
+      "bytes": 7125,
+      "sha256": "abfdd0355a727f79216580c025888fac62eda49c43d1b4b10ee3318dc923da0f"
     }
   },
-  "png_dimensions": {
-    "hydrocnhs-coupling-framework-en.png": [
-      2648,
-      1943
-    ],
-    "hydroopslm-cover.png": [
-      2174,
-      726
-    ]
-  },
+  "png_dimensions": [
+    2828,
+    1823
+  ],
+  "width_900_dimensions": [
+    900,
+    580
+  ],
   "validation_log": {
-    "path": "runs/hydrocnhs-llm-concept-20261011/20261012T214835710710Z-stdout.log",
-    "sha256": "50f9e008bd7316fa1d2695c9d1609daded7f9e5a9baae6f6f020a5e81edbc95c",
+    "path": "runs/hydroopslm-cleanup-20261012/20261012T234904383951Z-stdout.log",
+    "sha256": "e9e1b6fc9d991fa9663778608a18de987b01061b8ecd0d74d95ad9ccccca1caa",
     "exit_code": 0,
-    "scope": "Current isolated byte-identical native rebuild and editing notes. Additional endpoints/SVG/PDF checks appear in this revision run receipts."
-  },
-  "edit_validation_log": {
-    "path": "runs/hydrocnhs-llm-concept-20261011/20261012T214839123871Z-stdout.log",
-    "sha256": "8c592392166ba2281fd70ca61cb55b88979835ae830da6240d6a3e6bbc9d2884",
-    "exit_code": 0,
-    "scope": "Native edited XML reopened and rendered; Proposal label and altered icon/card/connector checked."
+    "checks": 11
   },
   "export_diagnostics": {
-    "status": "PASS",
-    "notes": "Current PNG/SVG/PDF exports were sequential and returned exit 0 with empty stderr; earlier export diagnostics remain in historical receipts.",
-    "receipts": [
-      "runs/hydrocnhs-llm-concept-20261011/20261012T214552298062Z-command.json",
-      "runs/hydrocnhs-llm-concept-20261011/20261012T214554875572Z-command.json",
-      "runs/hydrocnhs-llm-concept-20261011/20261012T214558639263Z-command.json"
-    ]
+    "png": "exit0, empty stderr",
+    "svg": "exit0, empty stderr",
+    "pdf": "exit0, empty stderr"
   },
-  "scope": "Editable concept and generated cover; simulation evidence is reported separately."
+  "independent_review": {
+    "reviewer": "/root/cleanup_visual_review",
+    "initial": "REQUEST_CHANGES",
+    "final": "PASS",
+    "correction": "audit branch clears Valid proposal at full and 900px",
+    "png_sha256": "280751e411b79373f65c3712985c61a7fc12338bf51ae4c88a5685e8094b3673"
+  }
 }

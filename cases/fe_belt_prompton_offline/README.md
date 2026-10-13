@@ -18,7 +18,7 @@ is unquantified; this is not a certified current operating rating.
 
 Initial storage uses the previous UTC daily mean as an explicit proxy. Beltzville
 capacity/ceiling are numerical test settings, not approved operational bounds.
-See `case.json` assumptions and [pre-live requirements](../../docs/offline_pre_live_acceptance.md).
+See `case.json` assumptions and [pre-live requirements](../../archive/README.md).
 
 The outlet represents managed-reservoir contributions only. The baseline UH is
 transparent zero-delay; complete downstream reach data and lateral flows are

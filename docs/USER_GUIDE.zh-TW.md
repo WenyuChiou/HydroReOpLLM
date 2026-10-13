@@ -2,7 +2,7 @@
 
 [English](USER_GUIDE.md) | [繁體中文](USER_GUIDE.zh-TW.md)
 
-先完成一個離線[範例](../examples/README.zh-TW.md)，再修改其 YAML。
+先完成 [FE Walter 範例](../examples/fe_walter/README.zh-TW.md)，再修改其 YAML。
 本頁是通用 `configured` 策略的正式手冊。
 [LLM 模組](LLM_MODULES.zh-TW.md)解釋決策介面；方法專用設定放在
 [FE Walter 範例](../examples/fe_walter/README.zh-TW.md)。
@@ -21,7 +21,7 @@
 將 Excel 匯出成不含 BOM 的 UTF-8 CSV。cfs 乘 `0.028316846592` 轉為 m³/s。
 每天須包含全部 routing nodes，包括零流量節點。
 已 routing 的總入流不能再次作為局部新增入流加入。
-將 CSV SHA256 記入 case，詳見[輸入準備](../tutorials/01_input_and_map.ipynb)。
+將 CSV SHA256 記入 case，詳見[輸入準備](../tutorials/main.ipynb)。
 
 ## 2. 對應 agent 與水庫
 
@@ -36,9 +36,17 @@
 ```yaml
 schema_version: llm-reservoir-experiment.v1 # 支援的 YAML 契約。
 case: ../my_case/case.json                 # 自己的河網、物理、輸入／hash。
-run_id: my-offline-test                    # 每次新實驗更改。
-output: ../runs/my-offline-test            # 目錄須尚未存在。
-max_calls: 0                              # 不呼叫真實 provider。
+run_id: my-daily-test                    # 每次新實驗更改。
+output: ../runs/my-daily-test            # 目錄須尚未存在。
+max_calls: 3                              # 三日 × 一個 LLM agent。
+models:
+  reservoir_model:
+    provider: ollama
+    model: gemma3:4b                        # 本機已安裝的模型。
+    base_url: http://localhost:11434
+    temperature: 0.7                       # 明確設定取樣溫度。
+    max_tokens: 2048
+    timeout_seconds: 120
 auditors:                                 # 版本化操作檢查。
   release_limits:
     type: release_bounds
@@ -47,8 +55,8 @@ agents:
   operator_1:                             # 獨立決策單元。
     reservoir: R1                         # case 中受控水庫的精確 key。
     strategy: configured                  # 通用 prompt／knowledge backend。
-    mode: offline                         # 固定測試動作；跳過模型／prompt。
-    release_cms: 5                        # 請求受控放流，m³/s。
+    mode: llm                             # 渲染 prompt 並請求 proposal。
+    model: reservoir_model                # 選用上述 model profile。
     prompt: ../my_case/prompts/controller.txt # 操作指示模板。
     prompt_version: "1"                    # 改指示時更新版本。
     knowledge: {}                         # 選填：ID -> 局部文件路徑。
@@ -56,6 +64,8 @@ agents:
     response_schema: reservoir-action.v1  # 標準正規化 action。
     auditors: [release_limits]            # 此 agent 啟用的檢查。
 ```
+
+若使用已安裝的 wheel，且輸入分散在不同 case 資料夾，請將 `case_root` 設為它們共同的資料根目錄。
 
 所有路徑以 YAML 所在目錄為基準。`case_root` 可指定允許的 case bundle 根目錄。
 `start_date`／`end_date` 使用引號包住的 ISO 日期，須位於既有連續入流期間。
@@ -104,7 +114,7 @@ Static context 不能取代 host 的蓄水或入流。
 | `api_key_env` | 環境變數名稱，不填 credential 本身 |
 
 `max_calls` 須涵蓋日數 × LLM agents。真實執行另需
-`--allow-network` 與 case readiness；本手冊的驗證維持離線。
+`--allow-network` 與 case readiness；閱讀保存結果不需要啟用這些 gate 或呼叫模型。
 不支援的設定或 provider 錯誤會停止，不自動重試或 fallback。
 啟用 provider 前請依[真實實驗條件](LIVE_READINESS.md)準備。
 
@@ -133,7 +143,9 @@ FAIL > UNKNOWN > WARN > PASS；原 backend audit 保留。
 
 ## 6. 執行與閱讀證據
 
-使用 README 的 `check → run → verify --require-offline`，搭配完整離線 YAML。
+使用 `check → run → verify`；`check` 不呼叫 provider。執行模型另需
+`run --allow-network` 及 ready case。只有給定回覆的無 provider 測試
+才使用 `verify --require-offline`。
 已有 output 會拒絕；請用新 run ID／output，不覆寫。此 runner 沒有自動續跑。
 
 | 輸出 | 查看什麼 |
@@ -146,9 +158,23 @@ FAIL > UNKNOWN > WARN > PASS；原 backend audit 保留。
 | `network_flows.csv`、`network_balance.csv` | Routed flow 與水庫／河段水量平衡 |
 | `reach_volume_trace.json` | 各河段入流、出流及 channel storage |
 
-依[完整決策流程檢視](../tutorials/README.zh-TW.md#查看完整決策)
+依[完整決策流程檢視](../tutorials/main.ipynb)
 展示 info、實際 prompt、回覆、proposal、checker、audit、physics 與 feedback。
 格式及物理驗收不代表策略品質。缺證據／費用保持未知；合成回覆不是實際模型結果。
 
-[多庫／自己的資料](../tutorials/07_multi_and_custom.ipynb) ·
+[多庫／自己的資料](../tutorials/advanced.ipynb) ·
 [原生水文設定](HYDROLOGY_SETUP.md) · [LLM 模組](LLM_MODULES.zh-TW.md)
+
+## 保留的 FE Walter prompt profile
+
+參考案例使用 `strategy: reference_v3_7` 及 `system_prompt_mode: original`。
+獨立 TXT 放在 `prompts/fe_walter_reference`；原 builder 渲染日期、狀態及
+歷史，並檢索 DKP 片段。Live mode 不允許給定 `responses` 測試回覆。
+原 release／schema 使用 cfs，adapter 只轉換一次為 m³/s。這些是 FE Walter
+專用選項，不是其他水庫的預設規則。
+
+回覆須完整生成：Ollama 需 `done: true`，若有 `done_reason` 則須為 `stop`；
+OpenAI-compatible 需 `finish_reason: stop`。相應的缺值、null 或 non-stop
+狀態會被拒絕；JSON 有效仍不足。`raw/` 保存實際 messages、request hash、
+回覆、原 audit 及可得的 request ID／usage，排除 credential 值。
+見保存的 [Ollama 示範](../examples/fe_walter/README.zh-TW.md)。

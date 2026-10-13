@@ -1,11 +1,40 @@
-# Historical compatibility and evidence
+# Historical recovery index
 
-The supported teaching entry is [three FE Walter methods](../examples/README.md).
+[File inventory](inventory.csv) records all **1,026** pre-cleanup tracked paths,
+their dependencies, original bytes/SHA256 and disposition.
 
-Previous configs under `experiments/`, old synthetic cases under `cases/`, and the two generic prompt files at `prompts/` are retired teaching entries. Their original paths and bytes remain available because accepted provenance and historical tests reference them. The canonical synthetic fixtures now live in [tests/fixtures](../tests/fixtures/README.md).
+The seven historical root launchers and retired guides/notebooks are in the
+external **HydroOpsLM-pre-cleanup-20261012-fbd9a993** recovery package.
+The maintained entry is [run_experiment.py](../run_experiment.py).
 
-Frozen `data/accepted`, `data/anik_v3_7`, `cases`, `third_party`, native `src/hydrocnhs`, and historical `results` retain their accepted bytes. This archive index does not move or rewrite scientific records. The existing `examples/fe_walter/*/experiment.yaml` files are historical reproductions; use the new `experiment.tutorial.yaml` files for new offline outputs.
+| Recovery artifact | SHA256 |
+|---|---|
+| `tracked-working-tree.zip` — original paths/bytes | `3c5ec105f1d854aca54745032771e3c6cd55b368aba0eb997d2dd1ed500fc92d` |
+| `complete-history.bundle` — complete Git history | `d25ed82b340a69d0e61347644a0537b52272ef37bbb7791e83d56d586aab67d2` |
 
-Five-year historical results remain diagnostic: audit FAIL/WARN and unknown request costs are preserved. See [the inventory](../docs/PROJECT_INVENTORY.md) and [acceptance](../docs/upgrade_acceptance.md).
+Base commit: `fbd9a993731ce979835dcc46f7a9cbad6aa7387b`.
+The package is kept outside the repo at `../_recovery/`; request it from the
+maintainer to reproduce a retired entry. All 1,026 paths were restored and
+verified byte-for-byte in `verified-restoration/`; `git bundle verify` passed.
 
-The earlier [configured-backend guide](CONFIGURED_BACKEND_GUIDE.zh-TW.md) retains its historical bytes. Current generic settings now live in the formal [HydroOpsLM settings guide](../docs/USER_GUIDE.md) ([繁體中文](../docs/USER_GUIDE.zh-TW.md)); start with [LLM modules](../docs/LLM_MODULES.md) and the [tutorial](../tutorials/README.md).
+After checking both archive hashes, restore into a **new directory**:
+
+```powershell
+git clone --branch main complete-history.bundle restored-repo
+python -m zipfile -e tracked-working-tree.zip restored-repo
+```
+
+Git supplies history; ZIP restores exact working-tree bytes, including original
+line endings. Compare each file with `inventory.csv`. Do not overwrite an active
+checkout or rerun an experiment to inspect it. Ignored runs, environments and
+credentials are excluded; existing local evidence remains in its original place.
+
+Required helpers remain under `src/delaware_operations` and `third_party`:
+the formal DKP adapter/auditor uses the preserved original policy loader.
+The historical recovery module requires its restored launchers and original
+revision. Existing console entrypoints, accepted inputs, C&V, raw replies,
+audit failures and unknown costs remain preserved.
+
+歷史入口與文件已移至 repo 外的恢復包；原始 hash 及去向見 CSV。
+正式操作使用 `run_experiment.py`。恢復到新目錄並逐項核對 bytes，
+不要覆寫目前 repo 或重跑已完成實驗。必要 helper 與原始紀錄保留。

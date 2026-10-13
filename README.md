@@ -48,4 +48,5 @@ Lin, C. Y., Yang, Y. C. E., & Wi, S. (2022).
 
 [Project inventory](docs/PROJECT_INVENTORY.md) ·
 [Technical note](paper/technical_note.md) ·
+[HTML documentation build](docs/BUILDING.md) ·
 [Upstream source and license](third_party/hydrocnhs/SOURCE.json)

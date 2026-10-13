@@ -63,4 +63,4 @@ python run_experiment.py verify runs/fe-walter-reference-dkp
 查看 `summary.json`、`reservoir_trajectory.csv`、`network_flows.csv`。精簡的 `audit.jsonl`、`decisions.jsonl`、`backend_events.jsonl` 指向 `raw/` 中的完整 payload，包含原版 system／state prompt、回覆 schema、測試回覆與原始 audit。
 Adapter 把原版 cfs 放流轉成通用 m³/s action；物理程式實施可行放流、溢流與蓄水，下一次決策接收真正實施後的狀態。放流加溢流只注入下游 routing 一次。DKP 檢索選取規則摘錄，不會每天貼上整份 DKP。
 
-預設原版 YAML 使用離線測試回覆，不套用 temperature；另有 [真實 LLM YAML](../../docs/reference_live.zh-TW.md)，使用 `mode: llm`、`model` profile 與 temperature 0.7，不使用測試回覆檔。原版與通用真實策略都須符合既有 network／readiness／budget 限制；現有原版 case 仍未就緒。已驗收五年結果完全保留；離線 audit PASS 不代表真實策略通過，也不取代先前的 FAIL 證據。
+預設原版 YAML 使用離線測試回覆，不套用 temperature；另有 [真實 LLM YAML](../../archive/README.md)，使用 `mode: llm`、`model` profile 與 temperature 0.7，不使用測試回覆檔。原版與通用真實策略都須符合既有 network／readiness／budget 限制；現有原版 case 仍未就緒。已驗收五年結果完全保留；離線 audit PASS 不代表真實策略通過，也不取代先前的 FAIL 證據。

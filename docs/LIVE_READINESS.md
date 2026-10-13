@@ -1,7 +1,10 @@
 # Before a real LLM experiment
 
-All tutorial executions are offline. Both live method templates retain temperature
-**0.7**, original prompts, DKP retrieval and native audit; `check` never calls a provider.
+The tutorial reads saved three-day local Ollama results by default. The two
+model configurations retain temperature **0.7**, original prompts, retrieval and
+audit; `check` never calls a provider. Only the separate bounded demo case is
+ready for its stated diagnostic assumptions. Broader experiments need the
+conditions below.
 
 | Condition | Current status / required action |
 |---|---|
@@ -18,5 +21,5 @@ Malformed, truncated or transport-failed replies stop before release. No automat
 fallback, retry, silent temperature change or policy PASS promotion occurs.
 The existing 2016–2020 diagnostic trajectory and failed/unknown attempts remain
 historical evidence; their audit FAIL does not establish an accepted policy.
-See [original-compatible live options](reference_live.md) and
-[Chinese options](reference_live.zh-TW.md) for the exact provider fields.
+See the [settings guide](USER_GUIDE.md) ([繁體中文](USER_GUIDE.zh-TW.md))
+for provider fields, prompt profiles and completion checks.

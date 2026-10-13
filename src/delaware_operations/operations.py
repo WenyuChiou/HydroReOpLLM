@@ -157,8 +157,8 @@ def main(argv=None):
         "days_with_adjustments": sum(bool(r["transition"]["adjustments"]) for r in records),
         **provenance, **policy_provenance, **implementation_provenance(root, args.engine),
     })
-    summary["implementation_files"]["run_operations.py"] = sha256(Path(__file__).resolve().parents[2] / "run_operations.py")
-    # The combined hash must cover the final source map, including the entrypoint.
+    # The actual module is already pinned by implementation_provenance. Historical
+    # root launchers are restored from the recovery package when reproducing them.
     import hashlib
     summary["implementation_sha256"] = hashlib.sha256(json.dumps(
         summary["implementation_files"], sort_keys=True).encode()).hexdigest()

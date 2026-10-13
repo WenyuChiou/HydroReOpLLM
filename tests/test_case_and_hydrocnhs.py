@@ -15,6 +15,11 @@ sys.path.insert(0, str(ROOT / "src"))
 from delaware_operations.case import load_case
 from delaware_operations.replay import run_replay
 
+# Exercise the preserved fe-walter-demo callable after the root launcher archive.
+LEGACY_CLI = [sys.executable, "-c",
+              f"import sys; sys.path.insert(0, {str(ROOT / 'src')!r}); "
+              "from delaware_operations.cli import main; raise SystemExit(main())"]
+
 
 class CaseTests(unittest.TestCase):
     def test_frozen_case_and_no_network_replay(self):
@@ -40,19 +45,19 @@ class CaseTests(unittest.TestCase):
 
     def test_output_cannot_overwrite_existing_directory(self):
         with tempfile.TemporaryDirectory() as folder:
-            result = subprocess.run([sys.executable, str(ROOT / "run_demo.py"), "--output", folder], capture_output=True, text=True)
+            result = subprocess.run([*LEGACY_CLI, "--output", folder], capture_output=True, text=True)
             self.assertNotEqual(result.returncode, 0)
             self.assertEqual(list(Path(folder).iterdir()), [])
 
     def test_long_runs_rejected(self):
-        result = subprocess.run([sys.executable, str(ROOT / "run_demo.py"), "--days", "365"], capture_output=True, text=True)
+        result = subprocess.run([*LEGACY_CLI, "--days", "365"], capture_output=True, text=True)
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("between 1 and 7", result.stderr)
 
     def test_explicit_project_root_and_run_provenance(self):
         with tempfile.TemporaryDirectory() as folder:
             output = Path(folder) / "output"
-            result = subprocess.run([sys.executable, str(ROOT / "run_demo.py"),
+            result = subprocess.run([*LEGACY_CLI,
                                      "--project-root", str(ROOT), "--days", "1", "--output", str(output)],
                                     cwd=folder, capture_output=True, text=True)
             self.assertEqual(result.returncode, 0, result.stderr)

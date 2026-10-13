@@ -1,0 +1,7 @@
+.body img { max-width: 100%; height: auto; }
+div.cell_output .output.text_html { overflow-x: auto; }
+table.dataframe { font-size: 0.9rem; border-collapse: collapse; }
+table.dataframe th, table.dataframe td { padding: 0.4rem; }
+div.highlight pre { white-space: pre; overflow-x: auto; }
+.body h1, .body h2 { color: #263d4c; }
+pre.prompt-text { white-space: pre-wrap; overflow-wrap: anywhere; }

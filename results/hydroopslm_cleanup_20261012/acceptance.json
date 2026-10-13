@@ -1,0 +1,267 @@
+{
+  "schema_version": 1,
+  "objective": "Existing HydroOpsLM cleanup, concept figure and main/advanced tutorials",
+  "status": "pre_publication_technical_checks_passed",
+  "base_commit": "fbd9a993731ce979835dcc46f7a9cbad6aa7387b",
+  "base_tree": "91669b1baddc6622ca23c35116cbd5288c016569",
+  "new_reservoir_model_requests": 0,
+  "model_downloads": 0,
+  "recalibration": false,
+  "recovery": {
+    "original_paths": 1026,
+    "restored_raw_bytes_match": true,
+    "archive_sha256": "3c5ec105f1d854aca54745032771e3c6cd55b368aba0eb997d2dd1ed500fc92d",
+    "git_bundle_sha256": "d25ed82b340a69d0e61347644a0537b52272ef37bbb7791e83d56d586aab67d2",
+    "index": "../../archive/README.md"
+  },
+  "preservation": {
+    "protected_original_raw_files": 796,
+    "protected_original_sha256_match": true,
+    "retired_original_files": 25,
+    "historical_days": 1827,
+    "historical_failed_attempts": 13,
+    "historical_unknown_attempt": 1289,
+    "unknown_cost": null,
+    "historical_file_and_physical_acceptance": "PASS",
+    "historical_operating_strategy_acceptance": "FAIL"
+  },
+  "validation": {
+    "source_tests_passed": 119,
+    "subtests_passed": 18,
+    "saved_evidence_notebook_cells_executed": 15,
+    "html_pages": 20,
+    "html_notebook_execution": "off",
+    "main_html_tables": 10,
+    "advanced_html_tables": 7,
+    "complete_prompt_blocks": 4,
+    "wheel_smoke_days": 2,
+    "wheel_smoke_system_residual_m3": 0,
+    "wheel_uses_reused_verified_scientific_dependencies": true,
+    "local_links_checked_at_receipt": 333,
+    "locale_pairs_structure_checked": 6
+  },
+  "scientific_checks": {
+    "Rule": {
+      "status": "PASS",
+      "days": 3,
+      "reservoir_count": 1,
+      "reservoir_days": 3,
+      "date_start": "2016-01-01",
+      "date_end": "2016-01-03",
+      "audit_counts": {
+        "PASS": 3
+      },
+      "max_reservoir_balance_residual_m3": 2.3283064365386963e-10,
+      "max_system_balance_residual_m3": 2.3283064365386963e-10,
+      "max_routing_difference_cms": 0.0,
+      "final_channel_storage_m3": 0.0,
+      "observed_network_calls": 0,
+      "operating_strategy_accepted": null,
+      "audit_binding_counts": {
+        "versioned_suite": 3,
+        "legacy_unbound": 0
+      },
+      "external_audit_pins_checked": []
+    },
+    "Zero-shot": {
+      "status": "PASS",
+      "days": 3,
+      "reservoir_count": 1,
+      "reservoir_days": 3,
+      "date_start": "2016-01-01",
+      "date_end": "2016-01-03",
+      "audit_counts": {
+        "PASS": 2,
+        "FAIL": 1
+      },
+      "max_reservoir_balance_residual_m3": 0.0,
+      "max_system_balance_residual_m3": 0.0,
+      "max_routing_difference_cms": 0.0,
+      "final_channel_storage_m3": 0.0,
+      "observed_network_calls": 3,
+      "operating_strategy_accepted": null,
+      "audit_binding_counts": {
+        "versioned_suite": 3,
+        "legacy_unbound": 0
+      },
+      "external_audit_pins_checked": [],
+      "saved_provider_days_checked": 3,
+      "causal_next_info_pairs_checked": 2
+    },
+    "DKP": {
+      "status": "PASS",
+      "days": 3,
+      "reservoir_count": 1,
+      "reservoir_days": 3,
+      "date_start": "2016-01-01",
+      "date_end": "2016-01-03",
+      "audit_counts": {
+        "FAIL": 3
+      },
+      "max_reservoir_balance_residual_m3": 8.731149137020111e-10,
+      "max_system_balance_residual_m3": 8.731149137020111e-10,
+      "max_routing_difference_cms": 0.0,
+      "final_channel_storage_m3": 0.0,
+      "observed_network_calls": 3,
+      "operating_strategy_accepted": null,
+      "audit_binding_counts": {
+        "versioned_suite": 3,
+        "legacy_unbound": 0
+      },
+      "external_audit_pins_checked": [],
+      "saved_provider_days_checked": 3,
+      "causal_next_info_pairs_checked": 2
+    },
+    "Three reservoirs": {
+      "status": "PASS",
+      "days": 31,
+      "reservoir_count": 3,
+      "reservoir_days": 93,
+      "date_start": "2016-01-01",
+      "date_end": "2016-01-31",
+      "audit_counts": {
+        "UNKNOWN": 93
+      },
+      "max_reservoir_balance_residual_m3": 9.313225746154785e-10,
+      "max_system_balance_residual_m3": 1.862645149230957e-09,
+      "max_routing_difference_cms": 0.0,
+      "final_channel_storage_m3": 0.0,
+      "observed_network_calls": 0,
+      "operating_strategy_accepted": null,
+      "audit_binding_counts": {
+        "versioned_suite": 0,
+        "legacy_unbound": 93
+      },
+      "external_audit_pins_checked": []
+    },
+    "common_comparison": {
+      "same_inflows": true,
+      "same_physical_profile": true,
+      "new_model_requests": 0
+    }
+  },
+  "visual_review": {
+    "reviewer": "/root/cleanup_visual_review",
+    "verdict": "PASS",
+    "scope": "targeted recheck of audit connector collision",
+    "observed": "Full PNG x2357 and 900px x750 vertical branch clears Valid proposal; correct operation-to-audit bottom endpoint; no new collision/clipping/end ambiguity.",
+    "png_sha256": "280751e411b79373f65c3712985c61a7fc12338bf51ae4c88a5685e8094b3673"
+  },
+  "saved_ollama": {
+    "model": "gemma3:4b",
+    "temperature": 0.7,
+    "requests_per_method_previously_saved": 3,
+    "zero_shot_audit": {
+      "PASS": 2,
+      "FAIL": 1
+    },
+    "dkp_audit": {
+      "FAIL": 3
+    },
+    "strategy_acceptance": null
+  },
+  "multi_reservoir_saved_month": {
+    "days": 31,
+    "strategy_audit": {
+      "UNKNOWN": 93
+    },
+    "strategy_acceptance": null
+  },
+  "command_receipts": [
+    {
+      "receipt": "20261012T231335019519Z-command.json",
+      "receipt_sha256": "3d0a5967222b8e5fbccaf39a91939fe1331997d2e34b8934c5cfc756b81df4a7",
+      "exit_code": 0,
+      "stdout_sha256": "6fabb45d6bcb248512c8f20514abdbd4b7f39878b8314eb60dcb90db7731bd8a",
+      "stderr_sha256": "b86566b63f391828944777d5565ff77b6a03be6e75ffebb707df1802e38c9880"
+    },
+    {
+      "receipt": "20261012T234904383951Z-command.json",
+      "receipt_sha256": "ce2b790003db82d56af87490f41b94c9d538533dae615acc0befb580f266eec2",
+      "exit_code": 0,
+      "stdout_sha256": "e9e1b6fc9d991fa9663778608a18de987b01061b8ecd0d74d95ad9ccccca1caa",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "receipt": "20261012T235714657708Z-command.json",
+      "receipt_sha256": "d52197151e639f738081047e2d6bcdcdf3149373c284b6efcc7849d17b8fab7f",
+      "exit_code": 0,
+      "stdout_sha256": "0d594dc31dcc5eaf9eb114f170c1590a9582f2a24c565e55aadba5fe91512652",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "receipt": "20261013T000146578991Z-command.json",
+      "receipt_sha256": "19c173e627b3a27ff403668fd5ec53729260d42d450f7d5b583dc42d6c7d5af2",
+      "exit_code": 0,
+      "stdout_sha256": "fcd7b03825b6aec0f7da29252c4cae3d229ed8d2980f6078a7d98fd1bd61720e",
+      "stderr_sha256": "4e425155e33c9a4fe67580a04b2f30956b28d665fdf45b14f5c66842626123a7"
+    },
+    {
+      "receipt": "20261013T000149465038Z-command.json",
+      "receipt_sha256": "3b567033daeb58189c8448831af4eee832cafe5d39983bebb6037aec3ef774de",
+      "exit_code": 0,
+      "stdout_sha256": "fecdb0ef9f0b211d79588e8ac55c94547ef14426e2c7a3bd41bf777f446f3bd5",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "receipt": "20261013T000332380882Z-command.json",
+      "receipt_sha256": "7ebf795a401294e1afef1d2a9cac7eb625e412cf11f369a1f4addb85c0d2c40d",
+      "exit_code": 0,
+      "stdout_sha256": "fb6bf3887e0cb6de2272ff34511c33980d8a4d79cb705eb6711c7e8cdcc278fb",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "receipt": "20261013T000339596615Z-command.json",
+      "receipt_sha256": "23a1af316b2cdf9ea8132edde78298f98b64feac1ebb7d2b7afa44064ae0b86c",
+      "exit_code": 0,
+      "stdout_sha256": "830e51448fdff877d381913991131d67446c403f917203d64c4c7315eabbc9e7",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "receipt": "20261013T000412259965Z-command.json",
+      "receipt_sha256": "3fb6037fb1e63dd1598ec1544c5a8a0f2cc5fb935acb8db08ff6cca79526cc32",
+      "exit_code": 0,
+      "stdout_sha256": "56d1234ab55c6f4086d32320b56dc7158cc8f8b676530e9da17181fe2f47d0f2",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "receipt": "20261013T000458745328Z-command.json",
+      "receipt_sha256": "4fd82be263aa618b3338c29a50387e0e6a8016a2c6127017927eca6803b5f15d",
+      "exit_code": 0,
+      "stdout_sha256": "45d1f02d6bd9bb5352e08604b7673182dd1246949b926c0be647a3ddc86b1bcc",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "receipt": "20261013T000655786355Z-command.json",
+      "receipt_sha256": "ff189b0e80ec32c673c59ff0f1a0354822449d82a587ebec3802d3921936a5b9",
+      "exit_code": 0,
+      "stdout_sha256": "760e94e6cae5a3183ce4127edc0997f8ac5ae3863c72f89b1f921e8cff08f197",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "receipt": "20261013T000735294730Z-command.json",
+      "receipt_sha256": "91064887a2098b60330a5067b7a9d4c62fa10400ebe16a7b384b431603d4f548",
+      "exit_code": 0,
+      "stdout_sha256": "eb86e233d3a20193261177924278d5d01c3e907f1c1e2a7f4ca1ad1d3383f02f",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "receipt": "20261013T000902288743Z-command.json",
+      "receipt_sha256": "a965c942b7158d83a44c1f8a268e33a84b1943ded8249bf203cff0e0472a82e1",
+      "exit_code": 0,
+      "stdout_sha256": "36f6dbfb7d4eee8e579ec162d7bc5da5537f9fa0a658e85dbdfd8d65f7a25f76",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "command_logs": "Complete local logs retained in runs/hydroopslm-cleanup-20261012; not redistributed as scientific outputs",
+  "publication_checks": {
+    "independent_staged_diff_review": "pending",
+    "independent_locale_semantics": "pending",
+    "github_ci": "pending",
+    "pull_request": "pending"
+  },
+  "limits": [
+    "No operating-strategy comparison accepted from these three-day examples",
+    "No journal certification or public documentation deployment claimed"
+  ]
+}
