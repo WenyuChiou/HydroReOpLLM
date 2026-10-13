@@ -1,0 +1,10 @@
+{
+  "asset": "operation-proposal.png",
+  "tool": "built-in image_gen",
+  "sha256": "a52ac5804269c2ad0b6d920ea55fa88313b42140e830c2c851b6d785e19dec57",
+  "use": "Text-free generated illustration; figure labels and connectors remain editable.",
+  "prompt": "Isolated white document, blue water droplet, purple structured rows, orange rationale bubble. Flat filled-color scientific icon, no letters/numbers, no checkmark, transparent background.",
+  "model_version": "Not exposed by tool result",
+  "source_file": "exec-0fd96a2b-1b58-4388-bc41-4330ccc5e352.png",
+  "prompt_file": "operation-proposal.prompt.txt"
+}

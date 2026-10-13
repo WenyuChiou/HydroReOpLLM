@@ -1,0 +1,10 @@
+{
+  "tool": "built-in image_gen",
+  "asset": "trace-records.png",
+  "source_path": "C:\\Users\\wenyu\\.codex\\generated_images\\01a12239-77bf-78f1-8729-786b439a1b48\\exec-f65ca8bb-09c6-4454-9c76-820b80623a61.png",
+  "sha256": "ee698aa668e2bba1a539533f76260cae618f151cdb751fec8a2677132bd339be",
+  "transparent_background": true,
+  "model_version": null,
+  "cost": null,
+  "role": "text-free icon; all diagram labels and connections remain draw.io objects"
+}

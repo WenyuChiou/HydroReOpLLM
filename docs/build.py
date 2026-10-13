@@ -18,11 +18,15 @@ PAGES = {
     "README.zh-TW.md": "index.zh-TW.md",
     "examples/fe_walter/README.md": "examples/fe_walter/README.md",
     "examples/fe_walter/README.zh-TW.md": "examples/fe_walter/README.zh-TW.md",
+    **{f"examples/fe_walter/{method}/{name}": f"examples/fe_walter/{method}/{name}"
+       for method in ("benchmark", "zero_shot", "dkp")
+       for name in ("README.md", "README.zh-TW.md")},
     "tutorials/README.md": "tutorials/README.md",
     "tutorials/README.zh-TW.md": "tutorials/README.zh-TW.md",
     "tutorials/main.ipynb": "tutorials/main.ipynb",
     "tutorials/advanced.ipynb": "tutorials/advanced.ipynb",
     "archive/README.md": "archive/README.md",
+    "paper/technical_note.md": "paper/technical_note.md",
     **{f"docs/{name}": f"docs/{name}" for name in (
         "README.md", "README.zh-TW.md", "LLM_MODULES.md", "LLM_MODULES.zh-TW.md",
         "USER_GUIDE.md", "USER_GUIDE.zh-TW.md", "HYDROLOGY_SETUP.md",

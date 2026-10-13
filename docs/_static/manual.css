@@ -5,3 +5,22 @@ table.dataframe th, table.dataframe td { padding: 0.4rem; }
 div.highlight pre { white-space: pre; overflow-x: auto; }
 .body h1, .body h2 { color: #263d4c; }
 pre.prompt-text { white-space: pre-wrap; overflow-wrap: anywhere; }
+body, div.body, div.sphinxsidebar, div.body h1, div.body h2,
+div.body h3, div.body h4 {
+  font-family: Arial, "Microsoft JhengHei", "PingFang TC", sans-serif;
+}
+body, div.body { font-size: 18px; line-height: 1.55; }
+div.sphinxsidebar { font-size: 16px; }
+pre, code, div.highlight pre {
+  font-family: Consolas, "Liberation Mono", monospace;
+}
+div.body table { max-width: 100%; }
+div.body td, div.body th { overflow-wrap: anywhere; }
+div.body table.dataframe td { white-space: nowrap; overflow-wrap: normal; }
+div.body table.dataframe th { overflow-wrap: normal; }
+div.cell_output pre.prompt-text { font-size: 16px; line-height: 1.45; }
+#demonstration-and-verification table td:nth-child(3),
+#demonstration-and-verification table td:nth-child(5) {
+  white-space: nowrap;
+  overflow-wrap: normal;
+}

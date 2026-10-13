@@ -1,0 +1,10 @@
+{
+  "tool": "built-in image_gen",
+  "asset": "response-checks.png",
+  "source_path": "C:\\Users\\wenyu\\.codex\\generated_images\\01a12239-77bf-78f1-8729-786b439a1b48\\exec-4a2f20e1-354c-4822-a01b-f9beff6d257d.png",
+  "sha256": "20d3fb159c8a2bbf7993b0bdf81f621b8b8a2bbc8323a4176c8d56c3f32e7780",
+  "transparent_background": true,
+  "model_version": null,
+  "cost": null,
+  "role": "text-free icon; all diagram labels and connections remain draw.io objects"
+}

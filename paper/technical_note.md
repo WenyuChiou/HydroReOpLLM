@@ -1,281 +1,378 @@
-# A Configurable Reservoir Decision System for HydroCNHS: Rule-Based and Language-Model Interfaces
+# HydroOpsLM: Configurable Rule-Based and Language-Model Reservoir Decisions in HydroCNHS
 
-**Initial English draft for a JWRPM Technical Note — software verification scope.**
-Author names, affiliations, acknowledgments and submission formatting remain to be confirmed.
+**Provisional English draft for a JWRPM Technical Note.** Author names,
+affiliations, acknowledgments, venue formatting, and submission length remain to
+be confirmed.
 
 ## Abstract
 
-HydroCNHS couples daily hydrological simulation with human decisions through four
-application programming interfaces. Reservoir decisions supplied by language
-models require an additional distinction between a proposed release and the
-release that can be physically implemented. This technical note presents an
-extension of the HydroCNHS Dam interface that separates configurable decision
-backends, reservoir physics, river routing and versioned audits. Three methods
-share the same observation and action contracts: a Hanasaki-based flood-control
-benchmark, zero-shot prompting, and prompting with a Decision Knowledge Package
-(DKP). Francis E. Walter Reservoir provides the single-reservoir example, with
-preserved simulated inflow and original-compatible prompts. Offline verification
-included 162 numerical comparisons of the benchmark function, three-day examples
-of each method, and a 31-day network with two controlled reservoirs and a passive
-outlet. The network's maximum absolute daily system water-balance residual was
-3.73 × 10⁻⁹ m³, and stored routing outputs matched their independent reconstruction.
-The language-model examples used synthetic replies and therefore establish
-interface behavior rather than operating-policy performance. The extension
-provides inspectable configuration, decision-to-physics records and tutorial
-notebooks while retaining the native HydroCNHS core and calibration tools.
+Hydrological models that represent reservoir operations need to distinguish a
+decision proposal from the physical release that the simulated reservoir can
+implement. That distinction becomes especially important when a language model
+supplies the proposal. This technical note presents HydroOpsLM, an extension of the
+HydroCNHS Dam application programming interface that separates configurable
+decision backends, response checks, reservoir physics, river routing, and
+versioned audit records. A Hanasaki-based daily rule, zero-shot prompting, and
+prompting with a Decision Knowledge Package (DKP) share a common observation and
+action interface. The extension retains the native HydroCNHS hydrological
+models, routing, coupling interfaces, and calibration utilities. Verification
+used 162 comparisons with a pinned benchmark function, three-day Francis E.
+Walter Reservoir trajectories, and a 31-day three-reservoir network. Six
+historical Ollama `gemma3:4b` requests produced the zero-shot and DKP actions.
+All six responses were complete and physically executed, but the policy audits
+returned two PASS and one FAIL for zero-shot and three FAIL for DKP; no operating
+strategy was accepted. Maximum absolute system water-balance residuals were
+2.33 × 10⁻¹⁰ m³ for the rule, 0 m³ for zero-shot, 8.73 × 10⁻¹⁰ m³ for DKP, and
+1.86 × 10⁻⁹ m³ for the synthetic 31-day network. Stored routing outputs matched
+independent reconstruction. These results verify the software interface and
+accounting path, not the comparative quality or field suitability of the
+decision methods.
 
-**Keywords:** HydroCNHS; reservoir operations; language models; water balance; auditability.
+**Keywords:** HydroCNHS; reservoir operations; large language models; water balance; auditability.
 
 ## Introduction
 
-Reservoir operation introduces human decisions into the hydrological cycle.
-HydroCNHS already represents such decisions through Dam, RiverDiv, Conveying and
-InSitu interfaces that place human actions within the model's routing sequence
-(Lin et al. 2022). The present work builds on that architecture. It retains the
-hydrological core and adds a configurable reservoir decision system at the Dam
-interface, rather than introducing a second hydrological model.
+Reservoir operation is a natural-human coupling problem: hydrological states
+condition a management decision, and the implemented decision changes storage
+and downstream flow. HydroCNHS provides daily hydrological simulation and four
+application programming interfaces (APIs)—Dam, RiverDiv, Conveying, and InSitu—
+for representing such human actions within model execution (Lin et al. 2022).
+The native package includes the GWLF and ABCD rainfall-runoff models, Lohmann
+routing, model-building utilities, genetic-algorithm calibration, data
+collection, and performance indicators. A reservoir decision extension should
+use these capabilities without creating a parallel hydrological model or
+allowing a decision generator to bypass physical accounting.
 
-A language model can propose a release from a description of inflow, storage and
-operating knowledge. That proposal must be distinguished from a physical state
-update: a requested release may exceed available water or outlet capacity.
-Separating these responsibilities also makes a comparison with deterministic
-rules interpretable. Each method can receive the same inflow and initial state,
-while the same physical and routing code converts its requested release into
-implemented outflow. The objective of this note is to document and verify that
-interface, its configuration and its evidence trail. It does not test whether a
-language model operates a reservoir better than a rule-based benchmark.
+Language models add a specific implementation problem. A model can propose a
+numeric release while also returning reasoning, targets, or statements about
+the expected storage response. A syntactically valid proposal can still
+contradict those statements or exceed the water and outlet constraints of the
+reservoir. A reproducible experiment therefore needs separate records for the
+proposed action, checks of the response, the physically implemented release,
+and its routed consequence. The same separation is useful for a deterministic
+rule because it allows alternative decision methods to receive the same
+hydrological state and pass through the same physical solver.
 
-## HydroCNHS and the extension
+This note documents HydroOpsLM, a configurable reservoir decision system integrated through
+the HydroCNHS Dam API. Its objectives are to (1) define the responsibility
+boundary between decisions and reservoir physics, (2) provide a common interface
+for rule-based, zero-shot, and DKP-assisted methods, (3) show how a researcher
+configures and inspects an experiment, and (4) verify numerical compatibility,
+water accounting, routing, and trace integrity in saved examples. The evidence
+does not establish that a language model is a better reservoir operator, that
+an audited response is an approved policy, or that the diagnostic network is a
+calibrated representation of downstream travel time.
 
-The bundled HydroCNHS source retains GWLF and ABCD rainfall–runoff models, Hamon
-potential evapotranspiration, Lohmann routing, the four coupling interfaces,
-model-building utilities, genetic-algorithm calibration, data collection,
-performance indicators and sediment-related tools. These are inherited
-capabilities, not contributions of this extension. A source manifest pins the
-upstream revision and individual file hashes. Availability of the full source
-does not imply new empirical validation of every module.
+## System architecture and methods
 
-The added system has four responsibilities (Fig. 1). A reservoir-local decision
-backend receives an observation and returns requested release. A common physical
-solver applies water availability and outlet constraints, calculates spill and
-updates storage. HydroCNHS routes the implemented total outflow through the river
-network. Audit and trace code bind the observation, proposal, physical transition
-and diagnostic findings to the same reservoir and day. YAML assigns one decision
-unit to each controlled reservoir; passive outlets use their rating relationships
-without a language-model agent. Agent history and audit state remain separate
-between reservoirs even when they share a model profile.
+### Relationship to native HydroCNHS
 
-The daily observation precedes the decision and contains the date, timestep,
-routed inflow, starting storage and available physical context. The solver then
-computes the end-of-day balance,
+The extension adds decision configuration and evidence handling around the
+existing Dam API (Fig. 1). It does not change the equations or calibrated
+parameters used by the native rainfall-runoff models. A source manifest pins the
+retained HydroCNHS revision and file hashes. This preservation establishes which
+native implementation is present; it is not a new validation of every inherited
+module. The added code supplies decision backends, response validation, a common
+reservoir solver, routing injection, and linked audit and trace records.
 
-\[
-S_{t+1}=S_t+Q_{in,t}\Delta t-R_{impl,t}\Delta t-V_{spill,t}-V_{evap,t}-V_{seep,t},
-\]
+Each controlled reservoir has its own decision unit. YAML configuration selects
+one rule or language-model backend, a reservoir profile, physical limits, and an
+audit suite. Multiple controlled reservoirs can use the same model profile while
+retaining independent histories and causal identifiers. A passive reservoir can
+instead use a storage-discharge relation and has no decision agent. The current
+multi-reservoir implementation does not provide joint negotiation or a shared
+controller among agents.
 
-where storage and loss volumes are in m³, flows are in m³/s, and Δt is 86,400 s.
-Implemented controlled release and spill are injected once into downstream
-routing. The next day's history retains the proposal and the actual total
-outflow. Reservoir decisions therefore change storage and downstream inflow in
-connected networks. They do not alter rainfall–runoff equations or calibrated
-hydrological parameters. With fixed upstream inflow and one reservoir, this
-feedback concerns reservoir operations; it does not constitute feedback to
-catchment runoff generation.
+The daily sequence is explicit. HydroCNHS supplies routed inflow, while the
+added reservoir solver supplies beginning-of-step storage. The selected decision
+method observes this information and proposes a release. Response checks establish
+whether the returned record is parseable and
+complete. The common solver then applies availability and outlet constraints,
+computes spill and losses, and updates storage. The implemented total outflow is
+injected once into downstream routing. The next day's history uses what was
+actually executed rather than merely what was proposed.
 
-The operations runner consumes supplied daily local inflows. A researcher who
-starts with meteorological forcing first uses the native HydroCNHS model setup
-and then connects its routed reservoir inflow through the same Dam interface.
-Already routed reservoir inflow must not be introduced again as additional local
-runoff. A serial network adds upstream implemented outflow, local inflow and
-travel delay at each downstream reservoir. Tributary networks instead combine
-the routed contributions at their confluence.
+For daily timestep Δt = 86,400 s, the storage update is
 
-## Three decision methods
+![Storage balance equation](../docs/figures/note-storage-balance.png)
 
-### Hanasaki-based daily benchmark
+Storage and loss terms are volumes in m³, while inflow and implemented
+controlled release are in m³/s. Spill is stored as a volume in this expression
+and is also represented as a flow in the execution record. In a connected
+network, controlled release plus spill affects downstream inflow after the
+specified unit-hydrograph routing. Fixed local catchment inflow remains
+unchanged. With meteorological forcing, the native hydrological models generate
+runoff and route it to the Dam API during model execution. The saved tutorial
+instead supplies frozen reservoir inflow. Already routed inflow must not be
+added a second time as local runoff.
 
-The benchmark is a daily adaptation of the non-irrigation, flood-control branch
-associated with Hanasaki et al. (2006). The formulation is also documented by
-Abeshu et al. (2023, Eq. 4). It serves as a reproducible decision baseline, not as
-an official Francis E. Walter operating policy or a reservoir controller built
-into the original HydroCNHS release.
+### Common decision and evidence contracts
 
-Let C be reservoir capacity, q̄ the historical mean inflow, and
-γ = C/(q̄ × 86,400 × 365.25) the ratio of capacity to annual inflow volume.
-At initialization and at the start of an operating year, define
-k = S_start/(αC), with α = 0.85. The daily provisional release is
+The portable action contract contains two required fields: a schema version and
+`release_cms`. This narrow contract lets the same physical code consume a rule
+or model action. The native zero-shot reply contains six fields, including
+reasoning and operating targets; DKP adds knowledge-related fields. Both complete
+replies remain in the raw trace. The FE Walter prompt requests
+release in cubic feet per second, but conversion to cubic meters per second
+occurs once at the adapter boundary. Keeping the native reply alongside the
+common action preserves evidence without duplicating unit conversion.
 
-\[
-R^*_t=\begin{cases}
-k\bar q,&\gamma\geq0.5,\\
-(\gamma/0.5)^2k\bar q+[1-(\gamma/0.5)^2]Q_{in,t},&0\leq\gamma<0.5.
-\end{cases}
-\]
+Format checks and policy audits answer different questions. Schema and numeric
+checks determine whether execution can proceed. An invalid or incomplete reply,
+or a transport failure, stops the run before the physical step; the software
+does not silently substitute a fallback action. A policy audit can return PASS,
+FAIL, WARN, or UNKNOWN after a valid action is parsed. Its verdict is stored and
+does not overwrite the requested release. Physical constraints remain the
+solver's responsibility. Consequently, a completed run with a negligible water-
+balance residual may still contain policy-audit failures and cannot be described
+as an accepted operating strategy.
 
-Requested release is max(R*ₜ, 0.1q̄). The 10% floor belongs to this benchmark;
-it is not transferred to the language-model policies as a site-specific legal
-requirement. The common solver still determines feasible release. Monthly
-historical means select the first wet-to-dry transition as the operating-year
-start, with an October fallback when no such transition exists, matching the
-pinned reference implementation. For FE Walter the selected month is May.
+For every reservoir-day, compact logs link the observation, prompt and retrieved
+knowledge, native response, common action, audit result, physical transition,
+and routing result. Source, prompt, implementation, and rubric hashes identify
+the versions used. These hashes establish byte identity and trace binding; they
+do not establish empirical validity or policy approval.
 
-The FE statistics use 7,305 days from 1996–2015 in the frozen simulated-inflow
-record. Mean inflow is 18.25446484681121 m³/s using the reference conversion
-factor. This period precedes the 2016 demonstration and is a benchmark climatology,
-not a new calibration/validation split. Only the release decision was integrated;
-the reference program's separate simulation driver and physical model were not
-copied into the operations loop.
+### Decision methods
 
-### Zero-shot and DKP
+The deterministic benchmark is a daily adaptation of the non-irrigation,
+flood-control branch described by Hanasaki et al. (2006) and represented in
+Abeshu et al. (2023, Eq. 4). It is a reproducible comparison rule rather than an
+official FE Walter operating policy. Let C be capacity, q̄ historical mean inflow,
+and
 
-Zero-shot supplies the original FE Walter public facts, seasonal target, daily
-state and response contract without DKP retrieval. The DKP method adds selected
-sections of a Decision Knowledge Package, a document that records operating
-knowledge and its sources. The retained native builder chooses sections
-conditionally rather than inserting the entire document. Both methods preserve
-the reference system text, numerical formatting, state builder and response
-schema; the DKP method also preserves retrieval and the original policy audit.
-The system prompts are external files, and the daily variables are separately
-exposed in trace. Exact FE compatibility is distinct from an intentionally
-modified prompt, which requires an explicit custom setting and a new source hash.
+![Capacity ratio equation](../docs/figures/note-capacity-ratio.png)
 
-The reference profiles and auditors contain reservoir-specific facts. A new
-reservoir must supply its own profile, level–storage relationship, operating
-knowledge and versioned checks. The native FE DKP path rejects other reservoir
-profiles because its retrieval and auditor contain FE-specific rules. The generic
-configured backend accepts independent prompt/knowledge packages and auditors
-for other cases. Separate live templates retain temperature 0.7, explicit model
-identifiers, output limits, timeout and request caps. No provider was invoked for
-the demonstrations reported here.
+At initialization and the start of an operating year, the implementation sets
+k = S_start/(αC), with α = 0.85. The provisional daily release is
 
-## FE Walter demonstration and verification
+![Daily benchmark release equation](../docs/figures/note-rule-release.png)
 
-Francis E. Walter Reservoir was selected because the project already had frozen
-semidistributed hydrology, operating documents and a reference decision program.
-The study map uses the earlier Demo's formal GIS layers (Fig. 2). Seven geographic
-model units comprise two donor, three spatial-transfer diagnostic and two residual
-units; a dummy aggregation node in model YAML has no separate mapped footprint.
-The retained hydrological calibration and validation periods are 1990–2010 and
-2011–2020. Those parameters and simulated inflows were not recalibrated or rerun
-for this software demonstration.
+Requested release is max(R*ₜ, 0.1q̄). The environmental floor belongs to this
+benchmark and is not imposed on the language-model methods as a legal site
+requirement. Monthly historical means select the first wet-to-dry transition as
+the operating-year start, with October as a fallback, matching the pinned daily
+reference function. The FE Walter benchmark uses frozen 1996–2015 statistics
+and q̄ = 18.25446484681121 m³/s. The 2016 demonstration follows that historical
+period, but this division is not presented as a new hydrological calibration and
+validation experiment.
 
-The three single-reservoir examples use the same physical case and frozen inflow
-for January 1–3, 2016. The reference initial storage is 1,992.61 acre-ft, retained
-as an assumption rather than relabeled as an observed starting condition. The
-network example covers January 2016 with FE Walter and Beltzville as separate
-controlled reservoirs and Prompton as a passive outlet. FE Walter and Beltzville
-contribute through the Lehigh system; Prompton contributes through the Lackawaxen
-system. The reported managed outlet sums these reservoir contributions, not the
-entire Delaware River discharge. Identity unit hydrographs test connectivity and
-water accounting; separate regression tests exercise delayed routing, channel
-storage, serial reservoirs and confluence.
+The zero-shot backend supplies the original FE Walter public facts, seasonal
+target, daily state, and response contract without DKP retrieval. The DKP backend
+adds sections selected from a sourced operating-knowledge document. Both retain
+the pinned FE Walter prompt builder, numerical formatting, response schema, and
+history construction; DKP also retains its retrieval and policy-audit fields.
+The reference profiles are site-specific. Applying the approach to another
+reservoir requires a new profile, physical relationship, operating knowledge,
+prompt package, and versioned audit rules. The native FE DKP adapter rejects a
+different reservoir profile because its retrieval and auditor encode FE-specific
+content; a generic configured backend accepts independently supplied packages.
 
-Verification addressed numerical compatibility, physical conservation and
-evidence consistency. The benchmark release function matched the pinned reference
-function in all 162 differential cases, including both capacity-ratio branches
-and the environmental floor. Backend tests also covered initialization, operating-year
-changes, chronology and invalid statistics. Prompt/profile tests covered
-original FE rendering and cross-reservoir isolation. Independent saved-output
-verification reconstructed storage transitions and routed volumes, checked
-decision/audit bindings and required zero model calls for offline acceptance.
+## Using the system
 
-| Example | Duration | Maximum absolute reservoir residual (m³) | Maximum absolute system residual (m³) | Routing reconstruction difference (m³/s) | Model calls |
-|---|---:|---:|---:|---:|---:|
-| Rule benchmark | 3 days | 2.33 × 10⁻¹⁰ | 2.33 × 10⁻¹⁰ | 0 | 0 |
-| Zero-shot, synthetic replies | 3 days | 0 | 0 | 0 | 0 |
-| DKP, synthetic replies | 3 days | 0 | 0 | 0 | 0 |
-| Two controlled reservoirs + passive Prompton | 31 days / 93 reservoir-days | 3.03 × 10⁻⁹ | 3.73 × 10⁻⁹ | 0 | 0 |
+A reproducible application begins by identifying the hydrological source of each
+reservoir inflow and whether it is local, already routed, or supplied as a frozen
+diagnostic series. The researcher then defines reservoir capacity, dead storage,
+initial storage, minimum and maximum release, losses, timestep, and downstream
+unit hydrographs. Each controlled reservoir receives one decision configuration;
+a passive outlet receives its storage-discharge relationship. Site-specific
+profiles and operating documents are versioned with the case.
 
-**Table 1.** Absolute daily residuals from independent verification of stored
-offline runs. Routing difference compares reconstructed and stored outputs.
-The language-model rows contain synthetic replies and are not performance trials.
+Before a language-model run, the researcher selects a provider and exact model,
+sets temperature, token and request limits, and timeout, then
+reviews the rendered prompt and units. The saved FE example used Ollama 0.40.3
+with `gemma3:4b` digest
+`c30276f7dffec93a536d283e15088990454b8d21cf180a3d6eea4959e4147291`,
+temperature 0.7, a 2,048-token limit, a 120-s timeout, no seed, and no automatic
+retries. These settings describe the historical diagnostic requests; they do
+not imply deterministic replication when the seed is unavailable.
 
-All four runs passed file, physical and routing verification. Each single-reservoir
-run retained three configured audit PASS records. The network retained
-62 PASS records for controlled decisions and 31 UNKNOWN records for passive
-Prompton, whose operating strategy was not evaluated by those decision auditors.
-Operating-strategy acceptance remained unset. These results establish that
-decisions can pass through a common physical/routing implementation with a
-consistent trace. They do not rank the three policies; equal fixture trajectories
-do not establish equal language-model behavior.
+Execution produces a directory of decisions, physical transitions, audit
+records, backend events, network flows, balances, and raw prompt-response
+artifacts. Inspection should proceed in causal order: confirm the observation,
+read the native reply and common action, inspect the policy verdict, compare
+requested with implemented release and spill, then follow the routed outflow and
+next-day history. The independent verifier reconstructs storage and routing from
+stored records. Researchers should retain failed audits and invalid attempts
+rather than selecting only favorable days. The supplied tutorial applies this
+workflow without issuing new model requests when it reads the preserved runs.
 
-## Auditability, reuse and limits
+## Demonstration and verification
 
-Audits record the selected rubric, implementation version, source hashes and
-decision binding. PASS means the configured checks passed; FAIL, WARN and UNKNOWN
-retain their diagnostic meanings. Audit does not silently replace a requested
-action, while physical limits are applied by the solver. Invalid, incomplete or
-transport-failed model replies stop before release is applied. Compact daily logs
-link to full prompt, retrieval, schema and audit evidence in raw records.
-An independent verifier checks continuity and conservation from stored files;
-hashes establish byte consistency, not empirical policy validity.
+### Francis E. Walter setting
 
-Fixed upstream forcing limits the present demonstrations to operation and routing
-feedback. Identity routing does not establish downstream travel-time accuracy.
-The assumed initial storage, simplified seasonal target, differing physical and
-prompt capacities, DKP schedule applicability and environmental-flow exceptions
-remain explicit conditions for a real FE Walter experiment. Each additional
-reservoir requires its own sourced physical and policy settings. The existing
-five-year diagnostic trajectory, including policy audit failures and failed or
-unknown requests, is preserved and is not promoted to an accepted operating
-strategy by the current software checks.
+Francis E. Walter Reservoir was selected because the project contains frozen
+semidistributed hydrology, operating documents, and a reference decision
+program. The study map contains seven geographic model units and USGS gauges
+01447500 and 01447720 (Fig. 2). Two D units are parameter donors, three X units are
+spatial-transfer diagnostics, and two R units are residual areas. Those roles
+describe model construction; they are not calibration or validation proof. The
+map is projected in EPSG:5070, so its north arrow denotes grid north. The inlet
+is a derived waterbody-boundary crossing and the outlet is taken from the dam
+project record; neither is presented as a surveyed point.
+
+The three single-reservoir trajectories use the same daily local inflows for
+January 1–3, 2016: 32.12531870666853, 22.353047216043638, and
+14.193931416870026 m³/s. Initial storage is 2,457,848.279729185 m³
+(1,992.61 acre-ft), retained as a diagnostic assumption. Evaporation and seepage
+are zero, and `UH=[1]` provides identity routing. Rainfall-runoff was not
+recomputed. These controlled conditions isolate the decision-to-physics path;
+they do not represent a complete field operations study.
+
+The benchmark requested 25.098588428722316, 17.49002431902703, and
+11.137442353207074 m³/s. Zero-shot requested 32.1254629215,
+22.3533190218, and 22.3533190218 m³/s. DKP requested 1.41584235 m³/s on
+all three days. All nine requests were physically implemented unchanged, spill
+was zero, and routing reconstruction differed from stored flow by 0 m³/s. The
+rule made no model calls. Zero-shot and DKP together represent six historical
+real Ollama calls; every response recorded `done=true` and `done_reason=stop`.
+
+| Example | Decision requests | Policy audit | Maximum absolute system residual (m³) | Final storage (m³) | Historical model calls |
+|---|---|---:|---:|---:|---:|
+| Hanasaki-based rule, 3 days | 25.0986, 17.4900, 11.1374 m³/s | 3 PASS | 2.3283 × 10⁻¹⁰ | 3,749,203.6091 | 0 |
+| Zero-shot, 3 days | 32.1255, 22.3533, 22.3533 m³/s | 2 PASS, 1 FAIL | 0 | 1,752,841.2465 | 3 |
+| DKP, 3 days | 1.41584 m³/s each day | 3 FAIL | 8.7311 × 10⁻¹⁰ | 8,024,148.4327 | 3 |
+| Three-reservoir network, 31 days | synthetic controlled actions; passive Prompton | 93 UNKNOWN | 1.8626 × 10⁻⁹ | reservoir-specific | 0 |
+
+**Table 1.** Saved diagnostic trajectories and independent verification. The
+largest reservoir residual in the 31-day network was 9.3132 × 10⁻¹⁰ m³. Every
+row had 0 m³/s routing reconstruction difference and
+`operating_strategy_accepted=null`. Audit status concerns configured policy
+checks; numerical verification concerns file, physics, and routing consistency.
+
+Numerical compatibility of the benchmark was examined separately from these
+trajectories. A frozen 162-vector comparison covered both capacity-ratio branches,
+the release floor, initialization, and operating-year behavior; the implemented
+daily function matched the pinned Anik reference function in all comparisons.
+This evidence supports compatibility with that function, not an official FE
+Walter rule or a fresh reproduction of the broader Hanasaki model.
+
+These audit results show why execution and policy assessment must
+remain distinct. The final zero-shot reply contradicted its stated release
+relation and storage direction. DKP replies requested 50 ft³/s
+(1.41584 m³/s), but contradicted claimed equal-to-inflow or hold behavior and later
+target logic. Both methods returned responses valid enough to execute, and their water
+balances were conserved, but the retained audit failures preclude a claim of
+accepted policy performance. No new model request was made while preparing this
+note.
+
+### Multi-reservoir routing demonstration
+
+The 31-day January 2016 example uses a synthetic decision fixture on an actual
+branch topology. FE Walter and Beltzville are independent controlled reservoirs
+whose contributions meet on the Lehigh branch. Prompton is a passive outlet on
+the West Branch Lackawaxen/Lackawaxen branch. The two branches then meet the
+Delaware. The diagnostic outlet sums the three managed-reservoir contributions;
+it is not total Delaware River discharge. No universal serial connection among
+the three reservoirs is implied, and no agent coordinates their decisions.
+
+The run contains 31 days and 93 reservoir-days. All 93 strategy audits are
+UNKNOWN because the synthetic controlled actions and passive outlet have no
+applicable operating-policy acceptance result. The maximum absolute reservoir
+and system balance residuals are 9.313225746154785 × 10⁻¹⁰ and
+1.862645149230957 × 10⁻⁹ m³, respectively; routing reconstruction difference is
+0 m³/s. Identity routing verifies connectivity and accounting but does not
+validate travel time. Prompton's provisional storage-discharge curve, zero
+losses, simplified initial states, and provisional Beltzville bounds further
+limit operational interpretation.
+
+## Implications and limitations
+
+The main contribution is an inspectable boundary between decision generation
+and hydrological execution. A researcher can compare decision methods while
+holding the physical solver and routed inflow constant, or can replace physical
+and policy packages without changing the common action interface. Persistent
+causal records make it possible to identify whether a discrepancy originated in
+the prompt, parser, policy audit, physical constraint, or routing step. These
+properties support controlled software experiments and later reproducibility
+review.
+
+The current evidence remains diagnostic. Three days and one unseeded model
+instance do not characterize stochastic response distributions or compare
+decision quality. Policy-audit failures are observations from the saved replies,
+not estimates of a general failure rate. Fixed inflows omit feedback to catchment
+runoff generation. Identity unit hydrographs do not establish downstream timing,
+and the multi-reservoir outlet excludes unmanaged flow and lateral inflows. The
+FE initial storage, seasonal target, prompt and physical capacities, DKP schedule
+applicability, and environmental-flow exceptions require case-specific review.
+Each additional reservoir needs sourced physical relationships, operational
+knowledge, prompts, and audit rules. Human review of the operating meaning and
+an independently designed experiment are required before policy-performance or
+live-operation claims are considered.
 
 ## Conclusions
 
-The extension places rule-based and language-model reservoir decisions within
-the existing HydroCNHS Dam interface while retaining separate responsibilities
-for physics, routing and audit. Numerical benchmark comparisons and offline
-single- and multi-reservoir tests support the implemented interface and water
-accounting. Researchers can use the YAML examples and executed notebooks to
-inspect inputs, prompts, knowledge retrieval and resulting transitions before
-configuring their own reservoirs. Assessing policy performance requires a
-separate, explicitly designed real-model experiment with verified initial
-conditions, routing, operating rules and stochastic replication.
+HydroOpsLM integrates rule-based and language-model reservoir
+decisions through the native HydroCNHS Dam API while keeping proposal, policy
+checks, physical implementation, routing, and evidence records distinct. The
+162-vector benchmark comparison and saved single- and multi-reservoir
+trajectories support the implemented interface and numerical accounting. Six
+historical language-model responses also show that physical completion
+does not imply policy acceptance: four of six daily audits failed and no
+strategy was accepted. The system is therefore ready for inspectable research
+workflows and tutorial use under documented assumptions, while comparative
+operating performance remains an open experimental question.
 
 ## Data and software availability
 
-Code, source manifests, three-method settings, prompts, frozen input references,
-editable figures, notebook sources and offline acceptance records are maintained
-in [LLM_reservoir_agent](https://github.com/WenyuChiou/LLM_reservoir_agent).
-The repository is currently private; public release and a permanent archival DOI
-remain author decisions before submission. Native HydroCNHS source and its current
-license attribution are retained. Full settings and prompt text are provided in
-the [tutorial](../tutorials/README.md) and [settings guide](../docs/USER_GUIDE.md),
-with the [offline evidence](../results/technical_note_offline/README.md).
+Code, source manifests, case settings, prompts, frozen input references, editable
+figures, tutorial sources, and saved result records are maintained in
+[LLM_reservoir_agent](https://github.com/WenyuChiou/LLM_reservoir_agent). The
+repository is currently private, and a public archive with a persistent DOI has
+not yet been designated. The tutorial describes how to reconstruct reported
+results from the saved actions without making a model request.
+
+For authors who opt into ASCE's Reproducible Results program, the 2025 policy
+requires public data, model, code, and directions; one-action reconstruction; a
+DOI archive; and project-independent colleague reproduction (Stagge et al. 2025). Public
+release, DOI, and named human reproduction remain open. Any Data Availability
+and Reproducible Results statements must report the released artifacts, reviewer
+name, affiliation, and outcome. The present AI-assisted review is not that
+certification.
 
 ## References
 
-Lin, C.-Y., Y.-C. E. Yang, and S. Wi. 2022. “HydroCNHS: A Python package of
-hydrological model for coupled natural–human systems.” *Journal of Water Resources
-Planning and Management*, 148(12), 06022005.
-[doi:10.1061/(ASCE)WR.1943-5452.0001630](https://doi.org/10.1061/%28ASCE%29WR.1943-5452.0001630).
+Abeshu, G. W., F. Tian, T. Wild, M. Zhao, S. Turner, A. F. M. K. Chowdhury,
+C. R. Vernon, H. Hu, Y. Zhuang, M. Hejazi, and H.-Y. Li. 2023. “Enhancing the
+representation of water management in global hydrological models.”
+*Geoscientific Model Development*, 16, 5449–5472.
+[doi:10.5194/gmd-16-5449-2023](https://doi.org/10.5194/gmd-16-5449-2023).
 
-Hanasaki, N., S. Kanae, and T. Oki. 2006. “A reservoir operation scheme for global
-river routing models.” *Journal of Hydrology*, 327(1–2), 22–41.
+Hanasaki, N., S. Kanae, and T. Oki. 2006. “A reservoir operation scheme for
+global river routing models.” *Journal of Hydrology*, 327(1–2), 22–41.
 [doi:10.1016/j.jhydrol.2005.11.011](https://doi.org/10.1016/j.jhydrol.2005.11.011).
 
-Abeshu, G. W., F. Tian, T. Wild, M. Zhao, S. Turner, A. F. M. K. Chowdhury,
-C. R. Vernon, H. Hu, Y. Zhuang, M. Hejazi, and H.-Y. Li. 2023.
-“Enhancing the representation of water management in
-global hydrological models.” *Geoscientific Model Development*, 16, 5449–5472.
-[doi:10.5194/gmd-16-5449-2023](https://gmd.copernicus.org/articles/16/5449/2023/).
+Lin, C.-Y., Y.-C. E. Yang, and S. Wi. 2022. “HydroCNHS: A Python package of
+hydrological model for coupled natural–human systems.” *Journal of Water
+Resources Planning and Management*, 148(12), 06022005.
+[doi:10.1061/(ASCE)WR.1943-5452.0001630](https://doi.org/10.1061/%28ASCE%29WR.1943-5452.0001630).
+
+Stagge, J. H., D. E. Rosenberg, A. M. Castronova, A. Ostfeld, and
+A. Spackman Jones. 2025. “Update to the Journal of Water Resources Planning
+and Management’s Reproducible Results Policy.”
+*Journal of Water Resources Planning and Management*, 151(1),
+01824002; published online October 29, 2024.
+[doi:10.1061/JWRMD5.WRENG-6726](https://ascelibrary.com/doi/10.1061/JWRMD5.WRENG-6726).
 
 ## Figures
 
-![Figure 1](../docs/figures/hydrocnhs-upgrade-en.png)
+![Figure 1](../docs/figures/hydrocnhs-coupling-framework-en.png)
 
-**Figure 1.** Existing HydroCNHS hydrology/routing and the added reservoir decision
-system. Solid blue arrows carry water, dashed brown arrows carry requested
-release, and dotted green arrows carry state/evidence. Rule-based, zero-shot and
-DKP (Decision Knowledge Package) are alternative backends. Added reservoir
-physics operates at the original Dam API and returns implemented outflow;
-next-day state feeds the next observation. Audit retains decision and transition
-records rather than acting as a replacement controller.
+**Figure 1.** HydroCNHS coupling architecture and the added reservoir decision
+system. Hydrological states reach a reservoir-local rule or language-model
+backend; response checks, the common physical solver, routing, and trace records
+then follow in daily causal order. Rule-based, zero-shot, and DKP-assisted
+operation are alternative backends. Each controlled reservoir has an independent
+agent and history; passive outlets use physical relationships without an agent.
+The solid orthogonal routes represent information or water paths according to
+their labels and do not imply a universal serial reservoir network.
 
 ![Figure 2](../docs/figures/fe-walter-study-map.png)
 
-**Figure 2.** Seven FE Walter model subbasins, mapped rivers and USGS stations in
-the Delaware River Basin. Geometry is retained from the project's frozen
-NHDPlus HR/NLDI/WBD GIS in EPSG:5070. The dam/outlet point comes from the project
-record; the inlet is a derived river/lake boundary crossing, not a surveyed
-location. Exact source revisions and hashes are supplied with the editable map.
+**Figure 2.** Seven FE Walter model units, mapped rivers, and USGS gauges
+01447500 and 01447720 in the Delaware River Basin. D denotes parameter donors, X
+spatial-transfer diagnostics, and R residual units; these roles are not
+calibration or validation evidence. Geometry is retained from the project's
+frozen NHDPlus HR, NLDI, and WBD sources in EPSG:5070, for which the arrow shows
+grid north. The outlet follows the dam project record, and the inlet is a
+derived waterbody-boundary crossing rather than a surveyed location.

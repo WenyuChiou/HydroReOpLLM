@@ -1,203 +1,137 @@
 {
-  "scope": "HydroOpsLM concept: native HydroCNHS hydrology and Dam callback host, selectable user-rule or checked-LLM policy, and added deterministic reservoir operations.",
+  "scope": "HydroOpsLM: one selected policy feeds one shared reservoir operation in the native HydroCNHS chain.",
   "canvas": [
-    1920,
-    1240
+    1880,
+    1250
   ],
   "nodes": [
     {
-      "id": "prompt",
+      "id": "rule-policy",
       "bounds": [
-        480,
-        220,
-        220,
-        205
-      ]
-    },
-    {
-      "id": "language-model",
-      "bounds": [
-        755,
-        220,
-        235,
-        205
-      ]
-    },
-    {
-      "id": "rule-output",
-      "bounds": [
-        1045,
-        245,
-        190,
-        150
-      ]
-    },
-    {
-      "id": "checker",
-      "bounds": [
-        1285,
-        220,
-        145,
-        205
-      ]
+        78,
+        210,
+        392,
+        250
+      ],
+      "outline": "#C46A28"
     },
     {
       "id": "knowledge",
       "bounds": [
-        480,
-        448,
-        250,
-        42
-      ]
-    },
-    {
-      "id": "audit",
-      "bounds": [
-        1510,
-        170,
-        325,
-        320
-      ]
-    },
-    {
-      "id": "user-rule",
-      "bounds": [
-        75,
-        590,
-        330,
-        145
-      ]
-    },
-    {
-      "id": "operations",
-      "bounds": [
-        660,
         555,
-        650,
-        200
-      ]
+        295,
+        115,
+        92
+      ],
+      "outline": "#7B858C"
+    },
+    {
+      "id": "prompt",
+      "bounds": [
+        690,
+        205,
+        220,
+        275
+      ],
+      "outline": "#765780"
+    },
+    {
+      "id": "language-model",
+      "bounds": [
+        950,
+        205,
+        220,
+        275
+      ],
+      "outline": "#765780"
+    },
+    {
+      "id": "proposal",
+      "bounds": [
+        1210,
+        205,
+        250,
+        275
+      ],
+      "outline": "#765780"
+    },
+    {
+      "id": "checks",
+      "bounds": [
+        1500,
+        205,
+        300,
+        275
+      ],
+      "outline": "#3F7F78"
+    },
+    {
+      "id": "operation-audit",
+      "bounds": [
+        970,
+        540,
+        310,
+        180
+      ],
+      "outline": "#3F7F78"
+    },
+    {
+      "id": "trace",
+      "bounds": [
+        1300,
+        570,
+        350,
+        150
+      ],
+      "outline": "#3F7F78"
     },
     {
       "id": "runoff",
       "bounds": [
-        75,
-        900,
-        255,
-        245
-      ]
+        65,
+        915,
+        245,
+        260
+      ],
+      "outline": "#4F7F9C"
     },
     {
       "id": "upstream",
       "bounds": [
-        390,
-        900,
-        265,
-        245
-      ]
+        365,
+        915,
+        255,
+        260
+      ],
+      "outline": "#4F7F9C"
     },
     {
-      "id": "dam-api",
+      "id": "reservoir-operation",
       "bounds": [
-        815,
-        900,
-        260,
-        245
-      ]
+        830,
+        875,
+        500,
+        310
+      ],
+      "outline": "#4F7F9C"
     },
     {
       "id": "downstream",
       "bounds": [
-        1240,
-        900,
-        285,
-        245
-      ]
+        1400,
+        915,
+        270,
+        260
+      ],
+      "outline": "#4F7F9C"
     }
   ],
   "edges": [
     {
-      "id": "prompt-model",
-      "source": "prompt",
-      "target": "language-model",
-      "exit": [
-        1,
-        0.5
-      ],
-      "entry": [
-        0,
-        0.5
-      ],
-      "via": []
-    },
-    {
-      "id": "model-output",
-      "source": "language-model",
-      "target": "rule-output",
-      "exit": [
-        1,
-        0.5
-      ],
-      "entry": [
-        0,
-        0.5
-      ],
-      "via": []
-    },
-    {
-      "id": "output-checker",
-      "source": "rule-output",
-      "target": "checker",
-      "exit": [
-        1,
-        0.5
-      ],
-      "entry": [
-        0,
-        0.5
-      ],
-      "via": []
-    },
-    {
       "id": "knowledge-prompt",
       "source": "knowledge",
       "target": "prompt",
-      "exit": [
-        0.5,
-        0
-      ],
-      "entry": [
-        0.35,
-        1
-      ],
-      "via": []
-    },
-    {
-      "id": "checked-proposal",
-      "source": "checker",
-      "target": "operations",
-      "exit": [
-        0.5,
-        1
-      ],
-      "entry": [
-        1,
-        0.45
-      ],
-      "via": [
-        [
-          1357.5,
-          500
-        ],
-        [
-          1360,
-          645
-        ]
-      ]
-    },
-    {
-      "id": "rule-proposal",
-      "source": "user-rule",
-      "target": "operations",
+      "color": "#1F2933",
       "exit": [
         1,
         0.5
@@ -209,77 +143,243 @@
       "via": []
     },
     {
-      "id": "operations-prompt",
-      "source": "operations",
+      "id": "prompt-model",
+      "source": "prompt",
+      "target": "language-model",
+      "color": "#1F2933",
+      "exit": [
+        1,
+        0.42
+      ],
+      "entry": [
+        0,
+        0.42
+      ],
+      "via": []
+    },
+    {
+      "id": "model-proposal",
+      "source": "language-model",
+      "target": "proposal",
+      "color": "#1F2933",
+      "exit": [
+        1,
+        0.42
+      ],
+      "entry": [
+        0,
+        0.42
+      ],
+      "via": []
+    },
+    {
+      "id": "proposal-checks",
+      "source": "proposal",
+      "target": "checks",
+      "color": "#1F2933",
+      "exit": [
+        1,
+        0.42
+      ],
+      "entry": [
+        0,
+        0.42
+      ],
+      "via": []
+    },
+    {
+      "id": "rule-reservoir",
+      "source": "rule-policy",
+      "target": "reservoir-operation",
+      "color": "#1F2933",
+      "exit": [
+        1,
+        0.5
+      ],
+      "entry": [
+        0.88,
+        0
+      ],
+      "via": [
+        [
+          520,
+          335
+        ],
+        [
+          520,
+          100
+        ],
+        [
+          1820,
+          100
+        ],
+        [
+          1820,
+          825
+        ],
+        [
+          1270,
+          825
+        ]
+      ]
+    },
+    {
+      "id": "checks-reservoir",
+      "source": "checks",
+      "target": "reservoir-operation",
+      "color": "#1F2933",
+      "exit": [
+        0.87,
+        1
+      ],
+      "entry": [
+        0.7,
+        0
+      ],
+      "via": [
+        [
+          1761,
+          535
+        ],
+        [
+          1761,
+          785
+        ],
+        [
+          1180,
+          785
+        ]
+      ]
+    },
+    {
+      "id": "inflow-prompt",
+      "source": "upstream",
       "target": "prompt",
+      "color": "#1F2933",
       "exit": [
-        0.35,
+        0.62,
         0
       ],
       "entry": [
-        1,
-        0.72
+        0.27,
+        1
       ],
       "via": [
         [
-          887.5,
-          525
+          523,
+          800
         ],
         [
-          740,
-          525
+          610,
+          800
         ],
         [
-          740,
-          368
+          610,
+          540
+        ],
+        [
+          749,
+          540
         ]
       ]
     },
     {
-      "id": "decision-trace",
-      "source": "checker",
-      "target": "audit",
+      "id": "history-prompt",
+      "source": "reservoir-operation",
+      "target": "prompt",
+      "color": "#1F2933",
       "exit": [
-        1,
-        0.35
+        0.2,
+        0
       ],
       "entry": [
-        0,
-        0.35
+        0.73,
+        1
       ],
-      "via": []
+      "via": [
+        [
+          930,
+          760
+        ],
+        [
+          660,
+          760
+        ],
+        [
+          660,
+          560
+        ],
+        [
+          851,
+          560
+        ]
+      ]
     },
     {
-      "id": "execution-trace",
-      "source": "operations",
-      "target": "audit",
+      "id": "proposal-trace",
+      "source": "proposal",
+      "target": "trace",
+      "color": "#1F2933",
       "exit": [
-        1,
-        0.78
-      ],
-      "entry": [
         0.45,
         1
       ],
-      "via": [
-        [
-          1590,
-          711
-        ],
-        [
-          1590,
-          525
-        ],
-        [
-          1656,
-          525
-        ]
-      ]
+      "entry": [
+        0.065,
+        0
+      ],
+      "via": []
+    },
+    {
+      "id": "checks-trace",
+      "source": "checks",
+      "target": "trace",
+      "color": "#1F2933",
+      "exit": [
+        0.18,
+        1
+      ],
+      "entry": [
+        0.725,
+        0
+      ],
+      "via": []
+    },
+    {
+      "id": "execution-audit",
+      "source": "reservoir-operation",
+      "target": "operation-audit",
+      "color": "#1F2933",
+      "exit": [
+        0.34,
+        0
+      ],
+      "entry": [
+        0.097,
+        1
+      ],
+      "via": []
+    },
+    {
+      "id": "audit-trace",
+      "source": "operation-audit",
+      "target": "trace",
+      "color": "#1F2933",
+      "exit": [
+        1,
+        0.625
+      ],
+      "entry": [
+        0,
+        0.55
+      ],
+      "via": []
     },
     {
       "id": "runoff-upstream",
       "source": "runoff",
       "target": "upstream",
+      "color": "#4F7F9C",
       "exit": [
         1,
         0.5
@@ -291,9 +391,10 @@
       "via": []
     },
     {
-      "id": "upstream-dam-api",
+      "id": "upstream-reservoir",
       "source": "upstream",
-      "target": "dam-api",
+      "target": "reservoir-operation",
+      "color": "#4F7F9C",
       "exit": [
         1,
         0.5
@@ -305,9 +406,10 @@
       "via": []
     },
     {
-      "id": "dam-api-downstream",
-      "source": "dam-api",
+      "id": "reservoir-downstream",
+      "source": "reservoir-operation",
       "target": "downstream",
+      "color": "#4F7F9C",
       "exit": [
         1,
         0.5
@@ -322,6 +424,7 @@
       "id": "downstream-outlet",
       "source": "downstream",
       "target": "outlet-anchor",
+      "color": "#4F7F9C",
       "exit": [
         1,
         0.5
@@ -331,59 +434,39 @@
         0.5
       ],
       "via": []
-    },
-    {
-      "id": "dam-callback",
-      "source": "dam-api",
-      "target": "operations",
-      "exit": [
-        0.34,
-        0
-      ],
-      "entry": [
-        0.42,
-        1
-      ],
-      "via": []
-    },
-    {
-      "id": "operations-return",
-      "source": "operations",
-      "target": "dam-api",
-      "exit": [
-        0.62,
-        1
-      ],
-      "entry": [
-        0.66,
-        0
-      ],
-      "via": []
     }
   ],
+  "line_semantics": {
+    "blue": "solid water and implemented outflow",
+    "black": "solid information, release requests, audit evidence, and trace records",
+    "dashed_or_dotted": "not used",
+    "crossings_or_jump_arcs": "not used"
+  },
   "responsibilities": {
-    "Native HydroCNHS": "GWLF/ABCD rainfall-runoff, Lohmann routing, and the Dam API callback host. The Dam API is not a reservoir physical solver.",
-    "Added reservoir operations": "Create the reservoir observation, invoke exactly one selected policy, apply the deterministic storage transition, and return implemented release plus spill once.",
-    "User rule policy": "A per-reservoir policy alternative that requests a release.",
-    "Checked LLM policy": "Prompt, language model, requested-release data, and strict format/value checking. A valid proposal reaches the shared deterministic operations directly.",
-    "Audit / trace": "Sidecar record of prompt, reply, proposal, check, and physical execution; never a controller gate or physics acceptance step."
+    "Rule-based operation": "Selectable user operating rules produce a requested release.",
+    "LLM modules": "Prompt, language model, operation proposal, and response checks form the alternative policy.",
+    "Native HydroCNHS": "Provides GWLF/ABCD rainfall-runoff, Lohmann routing, and the native Dam API.",
+    "Reservoir operation": "HydroOpsLM adds storage balance, release, and spill inside the native Dam API operation node.",
+    "Operation audit": "Evaluates the current observation and requested action from either selected policy before physical execution.",
+    "Trace records": "Binds policy records and decision-audit verdicts to implemented release, storage, and spill after physical execution."
   },
-  "conditions": {
-    "policy choice": "Each controlled reservoir uses user rule policy OR checked LLM policy.",
-    "checked-proposal": "Only a format/value-valid requested release reaches physical operations.",
-    "invalid proposal": "Stop before the physical transition; record available evidence; do not imply automatic fallback.",
-    "operations-return": "Implemented controlled release plus spill returns to the Dam host once for downstream routing.",
-    "knowledge-prompt": "Optional configured information; not a required controller stage."
+  "policy_choice": "Each reservoir chooses exactly one policy: user operating rules or a checked LLM proposal.",
+  "prompt_inputs": {
+    "current": "current inflow",
+    "beginning_of_step": "beginning storage / pool and implemented release history",
+    "optional": "optional knowledge"
   },
-  "prompt_inputs": [
-    "reservoir inflow",
-    "current storage / pool",
-    "implemented release history"
-  ],
+  "execution_contract": "Only a requested release enters reservoir operation; LLM rationale is retained in trace records.",
+  "record_flow": "The shared operation interface supplies the release request to decision audit before physics. Trace later binds its verdict to committed physical execution; LLM proposal and checker records are retained separately.",
+  "asset_hooks": {
+    "rule": "docs/figures/assets/coupling-framework/rule-operation.png",
+    "proposal": "docs/figures/assets/coupling-framework/operation-proposal.png",
+    "checks": "docs/figures/assets/coupling-framework/response-checks.png",
+    "trace": "docs/figures/assets/coupling-framework/trace-records.png"
+  },
   "notes": [
-    "Color encodes role, not pass status: blue physical operations, purple decisions, teal checking/records, gray optional information.",
-    "Rule output is requested-release data, not executable code.",
-    "No named reservoir, FE/DKP policy, or Anik case appears in the generic figure.",
-    "The audit sidecar cannot advance or accept the physical workflow."
+    "Color identifies role, never verdict.",
+    "All labels and connectors are native editable draw.io objects; illustrations are independently movable raster objects.",
+    "The FAIL diagnostic caveat belongs in the external caption, not inside the diagram."
   ]
 }

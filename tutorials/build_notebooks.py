@@ -171,13 +171,19 @@ rule_output = pd.DataFrame([{
     "decision ID": row["decision_id"],
 } for row in rule_decisions])
 llm_outputs = pd.DataFrame([
-    {"method": "Zero-shot", "saved native reply": zero_flow["saved_native_reply"],
+    {"method": "Zero-shot",
      "normalized requested release (m³/s)": zero_flow["proposal"]["release_cms"]},
-    {"method": "DKP", "saved native reply": dkp_flow["saved_native_reply"],
+    {"method": "DKP",
      "normalized requested release (m³/s)": dkp_flow["proposal"]["release_cms"]},
 ])
 display(rule_output)
-display(llm_outputs)'''),
+display(llm_outputs)
+for method, slug, flow in (("Zero-shot", "zero_shot", zero_flow), ("DKP", "dkp", dkp_flow)):
+    trace = json.loads((saved / slug / flow["trace_files"]["policy"]).read_text(encoding="utf-8"))["backend_trace"]
+    display(ReadableText(f"Complete saved {method} model reply",
+                         trace["provider_reply"]["message"]["content"]))
+    display(ReadableText(f"{method} common action (m³/s)",
+                         json.dumps(flow["proposal"], indent=2)))'''),
         md('''## 4. Run and verify: default to saved snapshots
 
 The default tutorial does **not** run a simulation or model. It verifies three
@@ -198,7 +204,7 @@ for method, output in outputs.items():
         "verification": result["status"],
         "days": result["days"],
         "audit counts": str(result["audit_counts"]),
-        "network calls": result["observed_network_calls"],
+        "historical model calls": result["observed_network_calls"],
         "max system residual (m³)": result["max_system_balance_residual_m3"],
         "operating strategy accepted": result["operating_strategy_accepted"],
     })
@@ -238,17 +244,25 @@ display(fig)'''),
 implemented physics, and next observation. `current_recheck` parses the saved
 action against today’s common action contract. It is explicitly a **current
 recheck**, not evidence that a historical checker event existed.'''),
-        code('''chain = pd.DataFrame([
-    ("info", zero_flow["prompt_variables"]["date"], "historical saved observation"),
-    ("provider completion", str(zero_flow["provider_evidence"]["completion"]), "historical saved provider evidence"),
-    ("requested release", zero_flow["saved_requested_action"]["release_cms"], "historical saved action, m³/s"),
-    ("action contract", zero_flow["current_recheck"]["action_contract"], "current revalidation only"),
-    ("strategy audit", zero_flow["saved_audit"]["status"], "historical saved verdict"),
-    ("implemented total outflow", zero_flow["saved_implemented_physics"]["total_outflow_cms"], "historical physics, m³/s"),
-    ("next storage", zero_flow["next_info"]["state"]["storage_m3"], "next historical info, m³"),
-], columns=["stage", "value", "evidence meaning"])
-display(chain)
-display(pd.DataFrame([zero_flow["trace_files"]]))'''),
+        code('''chains = []
+for method, slug, flow in (("Zero-shot", "zero_shot", zero_flow), ("DKP", "dkp", dkp_flow)):
+    stages = [
+        ("info", flow["prompt_variables"]["date"], "historical saved observation"),
+        ("provider completion", str(flow["provider_evidence"]["completion"]), "historical saved provider evidence"),
+        ("requested release", flow["saved_requested_action"]["release_cms"], "historical saved action, m³/s"),
+        ("response checks", flow["current_recheck"]["action_contract"], "current action-contract recheck"),
+        ("operation audit", flow["saved_audit"]["status"], "historical saved verdict"),
+        ("implemented total outflow", flow["saved_implemented_physics"]["total_outflow_cms"], "historical physics, m³/s"),
+        ("next storage", flow["next_info"]["state"]["storage_m3"], "next historical info, m³"),
+    ]
+    chains.extend({"method": method, "stage": stage, "value": value, "evidence meaning": meaning}
+                  for stage, value, meaning in stages)
+    next_flow = load_decision_flow(saved / slug, timestep=1)
+    display(ReadableText(f"{method}: implemented release history in the next prompt",
+                         json.dumps(next_flow["saved_native_history"], indent=2, ensure_ascii=False)))
+display(pd.DataFrame(chains))
+display(pd.DataFrame([{"method": method, **flow["trace_files"]}
+                      for method, flow in (("Zero-shot", zero_flow), ("DKP", dkp_flow))]))'''),
         md('''## Optional explicit live rerun
 
 With the named model already available locally, copy either YAML to a new file

@@ -11,6 +11,10 @@
 
 ![HydroCNHS 與 HydroOpsLM 耦合架構](docs/figures/hydrocnhs-coupling-framework-en.png)
 
+每座水庫透過 HydroCNHS 的 Dam API 選用一種決策方法。
+HydroOpsLM 加入共同蓄水、放流及 spill 計算。回覆檢查與操作規則 audit
+分開進行；診斷實驗保留失敗的 audit 判定。
+
 ## 安裝
 
 使用 Python 3.12 與完整 repo：
@@ -24,23 +28,35 @@ python -m pip install -e . -c environment/requirements-bundled.txt
 執行本機 LLM 教學前，另請安裝 [Ollama](https://ollama.com/)，並讓
 `gemma3:4b` 可在本機使用。此 repo 不會替你下載或啟動模型。
 
-## 執行範例
+## 範例
 
-依 [FE Walter 完整示範](examples/fe_walter/README.zh-TW.md)，透過同一條
-HydroCNHS 模擬路徑比較自訂規則、zero-shot prompt 與決策知識 prompt。
-示範涵蓋設定、執行前檢查、執行、驗證及決策 trace 檢視。
+從 [FE Walter 完整示範](examples/fe_walter/README.zh-TW.md)開始。
+三種方法共用水庫操作及 routing 介面。
+
+| 方法 | 決策來源 | 從這裡開始 |
+|---|---|---|
+| Rule-based benchmark | Hanasaki-based 防洪放流規則 | [規則及相同三日案例](examples/fe_walter/README.zh-TW.md#rule-based-benchmark) |
+| Zero-shot | Prompt 與可用水庫資訊 | [Prompt 及 Ollama 設定](examples/fe_walter/zero_shot/README.zh-TW.md) |
+| DKP | 相同 LLM 介面加上操作知識檢索 | [知識及 Ollama 設定](examples/fe_walter/dkp/README.zh-TW.md) |
+
+[主教學](tutorials/main.ipynb)依序展示 input、YAML、prompt／規則、
+check、run、verify 及 audit／trace。[進階篇](tutorials/advanced.ipynb)
+涵蓋多水庫、被動出口、routing 與自己的資料。
 
 ## 文件與引用
 
 [使用手冊](docs/README.zh-TW.md) · [教學](tutorials/README.zh-TW.md) ·
 [原生 HydroCNHS 設定](docs/HYDROLOGY_SETUP.md) ·
-[HydroCNHS 官方文件](https://cylin928.github.io/HydroCNHS/)
+[**cylin928.github.io/HydroCNHS/**](https://cylin928.github.io/HydroCNHS/)
+
+建置本專案的 [HTML 手冊](docs/BUILDING.md)，查看模組設定、
+單／多水庫設定、audit／trace 與偵錯。
 
 HydroOpsLM 在 HydroCNHS 上加入水庫決策整合。請另外引用原始專案：
 
 Lin, C. Y., Yang, Y. C. E., & Wi, S. (2022).
 [HydroCNHS: A Python Package of Hydrological Model for Coupled Natural Human Systems](https://doi.org/10.1061/(ASCE)WR.1943-5452.0001630).
-*Journal of Water Resources Planning and Management*, 148(12), 6022005。
+*Journal of Water Resources Planning and Management*, 148(12), 06022005。
 
 [專案盤點](docs/PROJECT_INVENTORY.md) ·
 [Technical note](paper/technical_note.md) ·
