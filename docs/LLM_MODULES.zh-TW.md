@@ -5,7 +5,7 @@
 修改 prompt 或增加 backend 前，先讀本頁。
 HydroCNHS 提供水文、routing 與 Dam API。新增的決策路徑為：
 
-`info + prompt + 選用 context → LLM → Rule output → checker → execution → feedback`
+`info + prompt + 選用 context → LLM → 操作提案 → 回覆檢查 → execution → feedback`
 
 Audit 評估指定操作規則；trace 保存完整鏈條。目前操作入口使用 daily。
 
@@ -15,8 +15,8 @@ Audit 評估指定操作規則；trace 保存完整鏈條。目前操作入口�
 | Prompt | Observation、模板、選用知識 → messages | 獨立 TXT；`PromptSpec`／`PromptStrategy.build` |
 | Optional context | 局部知識或額外資訊 → 模型情境 | YAML `knowledge`／`context`；自訂檢索由 backend 負責 |
 | LLM backend | Messages＋取樣設定 → 原回覆 | Model profile；注入的決策 backend |
-| Response reader | 回覆 → 正規化放流 proposal | `ResponseParser.parse`；選用 backend parser |
-| Checker | Candidate → 有效 `ReservoirAction` 或停止 | 嚴格 action 契約，先於物理更新 |
+| 操作提案 | 模型回覆 → 請求放流及可得理由 | 原欄位保留於 trace；正規化 action 使用 m³/s |
+| 回覆檢查 | 完整回覆 → 解析且有效的 `ReservoirAction` 或停止 | `ResponseParser.parse` 及嚴格欄位／單位／數值檢查，先於物理更新 |
 | Reservoir execution | 請求＋當前可用水量 → 實際放流、spill、state | 共同物理；限制由 host 控制 |
 | Auditor | 綁定的 observation／decision → PASS／WARN／FAIL／UNKNOWN | `AuditSpec`／各庫獨立 `AuditPlugin` |
 | Trace／feedback | 決策及已提交結果 → 證據、下一步歷史 | Journal 與 backend transition feedback |
@@ -70,7 +70,7 @@ action 契約重新檢查 → 原 audit → 已提交物理 → 隔日 info。
 重新檢查是當次對正規化 action 的檢視，不捏造歷史 checker event。
 Trace 保留原 audit 與 prompt／回覆證據。
 通用固定放流 offline 跳過模型／prompt；參考 offline 案例則執行 prompt
-組合與給定回覆解析。给定回覆不能證明真實 LLM 決策品質；保存的實際 Ollama 回覆保留原策略判定。
+組合與給定回覆解析。給定回覆不能證明真實 LLM 決策品質；保存的實際 Ollama 回覆保留原策略判定。
 
 [Contracts](../src/llm_reservoir_agent/contracts.py) ·
 [Prompt／parser 契約](../src/llm_reservoir_agent/prompt.py) ·

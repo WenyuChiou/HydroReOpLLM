@@ -6,11 +6,13 @@
 |---|---|
 | [FE Walter walkthrough](../examples/fe_walter/README.md) | Three methods and saved results |
 | [Main tutorial](../tutorials/main.ipynb) | Input → YAML → prompt/rule → check → run → verify → audit/trace |
-| [LLM modules](LLM_MODULES.md) | Info, prompt, Rule output, checker and feedback |
+| [LLM modules](LLM_MODULES.md) | Info, prompt, operation proposal, response checks and feedback |
 | [Settings](USER_GUIDE.md) | Reservoirs, models, prompts, knowledge and auditors |
 | [Advanced tutorial](../tutorials/advanced.ipynb) | Multiple reservoirs, passive outlets, routing and own data |
 | [Audit plugins](auditor_plugins.md) | Versioned checks, verdicts and evidence binding |
 | [Live readiness](LIVE_READINESS.md) | Conditions for broader model experiments |
+| [Single reservoir](../tutorials/main.ipynb) / [multiple reservoirs](../tutorials/advanced.ipynb) | Select a method for each controlled reservoir; passive outlets need no LLM |
+| [Troubleshooting](USER_GUIDE.md#troubleshooting) | Response errors, audit verdicts, readiness and output paths |
 
 For catchment setup, parameters, meteorology and C&V, use
 [native setup](HYDROLOGY_SETUP.md) and the

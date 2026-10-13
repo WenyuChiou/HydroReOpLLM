@@ -5,7 +5,7 @@
 Read this before changing a prompt or adding a backend.
 HydroCNHS supplies hydrology, routing and the Dam API. The added decision path is:
 
-`info + prompt + optional context → LLM → Rule output → checker → execution → feedback`
+`info + prompt + optional context → LLM → operation proposal → response checks → execution → feedback`
 
 Audit evaluates the configured operating rules; trace records the complete chain.
 The current operations runner is daily.
@@ -16,8 +16,8 @@ The current operations runner is daily.
 | Prompt | Observation, template, optional knowledge → messages | Independent TXT; `PromptSpec` / `PromptStrategy.build` |
 | Optional context | Local knowledge or supplied extra information → model context | YAML `knowledge`/`context`; custom retrieval belongs to a backend |
 | LLM backend | Messages + sampling settings → raw reply | Model profile; injected decision backend |
-| Response reader | Reply → normalized release proposal | `ResponseParser.parse`; selected backend parser |
-| Checker | Candidate → valid `ReservoirAction` or stop | Strict action contract, before physical update |
+| Operation proposal | Model reply → requested release and available rationale | Native fields stay in trace; normalized action uses m³/s |
+| Response checks | Complete reply → parsed and valid `ReservoirAction` or stop | `ResponseParser.parse` and strict field/unit/value checks, before physical update |
 | Reservoir execution | Request + current water → implemented release, spill, state | Common physics; limits remain under host control |
 | Auditor | Bound observation/decision → PASS/WARN/FAIL/UNKNOWN | `AuditSpec` / reservoir-local `AuditPlugin` |
 | Trace / feedback | Decision and committed outcome → evidence, next-step history | Journal and backend transition feedback |

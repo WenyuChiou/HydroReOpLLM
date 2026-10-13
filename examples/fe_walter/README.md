@@ -23,6 +23,14 @@ The saved model used `gemma3:4b`, temperature 0.7, three calls per method, and n
 retry. Zero-shot retained 2 PASS / 1 FAIL audits; DKP retained 3 FAIL; strategy
 acceptance is `null`.
 
+## Rule-based benchmark
+
+The [three-day benchmark YAML](../../tutorials/config/fe_walter_tutorial_benchmark.yaml)
+selects the Hanasaki-based flood-control policy with frozen 1996–2015 statistics.
+It uses the same case and common simulation driver as the two LLM methods.
+No model request is needed. The [benchmark specification](benchmark/README.md)
+describes the equations and differential tests.
+
 Build and validate the saved-evidence notebooks without a provider call:
 
 ```powershell

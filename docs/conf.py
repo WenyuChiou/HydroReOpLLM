@@ -10,5 +10,5 @@ html_theme = "alabaster"
 html_title = "HydroOpsLM documentation"
 html_static_path = ["_static"]
 html_css_files = ["manual.css"]
-html_theme_options = {"page_width": "1100px", "body_max_width": "850px"}
+html_theme_options = {"page_width": "1280px", "body_max_width": "1000px"}
 exclude_patterns = ["_static/**"]

@@ -1,0 +1,10 @@
+{
+  "tool": "built-in image_gen",
+  "asset": "rule-operation.png",
+  "source_path": "C:\\Users\\wenyu\\.codex\\generated_images\\01a12239-77bf-78f1-8729-786b439a1b48\\exec-936ac479-01e8-4975-bbdd-41a804486a90.png",
+  "sha256": "0709d2ac38c9cdbf518aa76d1d043d52812934e563024a9610e5b8a39edd503c",
+  "transparent_background": true,
+  "model_version": null,
+  "cost": null,
+  "role": "text-free icon; all diagram labels and connections remain draw.io objects"
+}

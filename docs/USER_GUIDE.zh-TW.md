@@ -178,3 +178,14 @@ OpenAI-compatible 需 `finish_reason: stop`。相應的缺值、null 或 non-sto
 狀態會被拒絕；JSON 有效仍不足。`raw/` 保存實際 messages、request hash、
 回覆、原 audit 及可得的 request ID／usage，排除 credential 值。
 見保存的 [Ollama 示範](../examples/fe_walter/README.zh-TW.md)。
+
+## 偵錯
+
+| 看到什麼 | 代表什麼／下一步 |
+|---|---|
+| 回覆未完整生成或無效 | 套用放流前停止。查看原回覆及完成欄位，修正設定後再用新案例執行。 |
+| Schema、單位或放流數值無效 | 回覆檢查拒絕提案。確認 parser 與 action schema 一致。 |
+| 水量平衡正常但 audit FAIL／WARN | 指定操作準則指出決策問題。查看 `audit.jsonl`；物理驗收不會覆蓋策略判定。 |
+| Audit UNKNOWN | 尚無適用的策略判定。若需策略評估，設定該水庫的 auditor。 |
+| Readiness 阻擋 | 依[真實實驗條件](LIVE_READINESS.md)補足證據，不移除 gate 強制執行。 |
+| Output 已存在 | 使用新的 `run_id` 及 `output`，保留先前結果。 |

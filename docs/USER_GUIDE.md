@@ -186,3 +186,14 @@ non-stop status is rejected as applicable. Valid JSON alone is insufficient.
 `raw/` retains actual messages, request hash, reply, native audit and available
 request ID/usage; credential values are excluded. See the saved
 [Ollama walkthrough](../examples/fe_walter/README.md).
+
+## Troubleshooting
+
+| What you see | What it means / next step |
+|---|---|
+| Incomplete generation or invalid response | Execution stops before release is applied. Inspect the raw reply and completion fields; correct the configuration before a new run. |
+| Invalid schema, unit or release value | Response checks reject the proposal. Match the selected parser and action schema. |
+| Audit FAIL or WARN with valid water balance | The configured operating criteria flagged the decision. Read `audit.jsonl`; physical acceptance does not override it. |
+| Audit UNKNOWN | The decision has no applicable strategy verdict. Configure a reservoir-specific auditor if strategy assessment is required. |
+| Readiness blocked | Resolve the conditions in [live readiness](LIVE_READINESS.md); do not remove the gate to force execution. |
+| Output already exists | Choose a new `run_id` and `output`. Preserve the previous results. |

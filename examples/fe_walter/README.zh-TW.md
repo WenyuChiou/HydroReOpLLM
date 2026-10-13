@@ -21,6 +21,13 @@ prompt、規則／模型輸出、目前格式重驗、實際放流、隔日資�
 temperature 0.7、每方法三次呼叫且不重試。Zero-shot audit 保留 2 PASS／1 FAIL，
 DKP 保留 3 FAIL；策略驗收為 `null`。
 
+## Rule-based benchmark
+
+[三日 benchmark YAML](../../tutorials/config/fe_walter_tutorial_benchmark.yaml)
+選用 Hanasaki-based 防洪策略及固定的 1996–2015 統計。
+它與兩種 LLM 方法使用相同 case 及共同模擬入口，不需模型請求。
+[Benchmark 說明](benchmark/README.zh-TW.md)提供公式與數值對照測試。
+
 下列命令只建置並檢查保存證據，不呼叫 provider：
 
 ```powershell

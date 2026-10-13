@@ -12,6 +12,10 @@ hydrology, routing, parameter, calibration and validation foundation.
 
 ![HydroCNHS coupling framework with HydroOpsLM](docs/figures/hydrocnhs-coupling-framework-en.png)
 
+Each reservoir selects one decision method through HydroCNHS's Dam API.
+HydroOpsLM adds common storage, release and spill calculations. Response checks
+and operating-rule audits are separate; diagnostic runs retain failed audits.
+
 ## Install
 
 Use Python 3.12 and a complete checkout:
@@ -26,25 +30,36 @@ For the local LLM walkthrough, also install
 [Ollama](https://ollama.com/) and make `gemma3:4b` available locally. The
 repository does not download or start the model for you.
 
-## Run the example
+## Examples
 
-Follow the [FE Walter walkthrough](examples/fe_walter/README.md) to compare a
-custom rule-based policy, zero-shot prompting and decision-knowledge prompting
-through the same HydroCNHS simulation path. The walkthrough covers configuration,
-preflight checks, execution, verification and decision-trace inspection.
+Start with the [FE Walter walkthrough](examples/fe_walter/README.md).
+All three methods use the same reservoir operation and routing interfaces.
+
+| Method | Decision source | Start here |
+|---|---|---|
+| Rule-based benchmark | Hanasaki-based flood-control rule | [Rule and matched three-day case](examples/fe_walter/README.md#rule-based-benchmark) |
+| Zero-shot | Prompt with available reservoir information | [Prompt and Ollama settings](examples/fe_walter/zero_shot/README.md) |
+| DKP | Same LLM interface with retrieved operating knowledge | [Knowledge and Ollama settings](examples/fe_walter/dkp/README.md) |
+
+The [main tutorial](tutorials/main.ipynb) follows input, YAML, prompt/rule,
+check, run, verify and audit/trace. The [advanced tutorial](tutorials/advanced.ipynb)
+covers multiple reservoirs, passive outlets, routing and your own data.
 
 ## Documentation and citation
 
 [User manual](docs/README.md) · [Tutorials](tutorials/README.md) ·
 [Native HydroCNHS setup](docs/HYDROLOGY_SETUP.md) ·
-[Official HydroCNHS documentation](https://cylin928.github.io/HydroCNHS/)
+[**cylin928.github.io/HydroCNHS/**](https://cylin928.github.io/HydroCNHS/)
+
+Build this project's [HTML manual](docs/BUILDING.md) for module settings,
+single/multiple-reservoir setup, audit/trace and troubleshooting.
 
 HydroOpsLM adds reservoir-decision integration to HydroCNHS. Please credit the
 original project separately:
 
 Lin, C. Y., Yang, Y. C. E., & Wi, S. (2022).
 [HydroCNHS: A Python Package of Hydrological Model for Coupled Natural Human Systems](https://doi.org/10.1061/(ASCE)WR.1943-5452.0001630).
-*Journal of Water Resources Planning and Management*, 148(12), 6022005.
+*Journal of Water Resources Planning and Management*, 148(12), 06022005.
 
 [Project inventory](docs/PROJECT_INVENTORY.md) ·
 [Technical note](paper/technical_note.md) ·
