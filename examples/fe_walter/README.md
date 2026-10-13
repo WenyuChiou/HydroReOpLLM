@@ -2,8 +2,10 @@
 
 [English](README.md) | [繁體中文](README.zh-TW.md) · [All examples](../README.md)
 
-This example compares three decision methods on the same three-day FE Walter
-input, physical case, zero-loss assumption, and `UH=[1.0]` routing.
+This single-reservoir example demonstrates a rule-based benchmark and two LLM
+information designs: zero-shot and DKP. All three use the same three-day FE Walter
+input, physical case, zero-loss assumption, and `UH=[1.0]` routing. They illustrate
+how to use HydroOpsLM; these saved diagnostic runs do not establish policy performance.
 
 | Method | Decision source | Default tutorial evidence |
 |---|---|---|

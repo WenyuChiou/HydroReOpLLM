@@ -9,8 +9,8 @@ metadata were not copied.
 
 ## Current candidate
 
-- Candidate SHA256: `8b10c730324217d5918d581c0d2cbd00ac4297de285b3c4fb87d08ba7e88eb1d`.
-- Candidate size: 22,886 bytes and 378 lines.
+- Candidate SHA256: `58d6833bff1ce674ac1ca4d36ad33475929cb978a3765b2c9587635a28cfbc33`.
+- Candidate size: 23,186 bytes and 383 lines.
 - Lifecycle state: complete internal provisional draft after parent editorial
   review; submission-package decisions remain open. It is not labeled final, verified,
   submission-ready, or journal-compliant.
@@ -19,7 +19,7 @@ metadata were not copied.
   implications, limitations, conclusion, and availability.
 - Embedded Figure 1 source:
   `docs/figures/hydrocnhs-coupling-framework-en.png`, SHA256
-  `f654f04d1b34c6f92b6e1d699b4c348c0b25fb5859833e7000debb0c9e03b219`.
+  `21a3ea1f51fdf88d55d60cb789439981c6fd25464aa98ae78e283b8b19130fd2`.
 - Embedded Figure 2 source: `docs/figures/fe-walter-study-map.png`, SHA256
   `aa4ad48f118c44ab40b024f1d3d4934551d497d411531f87c39cd6b28b46ff77`.
 
@@ -86,13 +86,18 @@ operation claims.
 - Prose: complete parent reading and sentence/paragraph continuity review retained
   visible actors and the proposal/implemented-release distinction. The independent
   language audit of the preceding complete candidate found two repeated-opening
-  warnings; both were corrected. Its targeted current-candidate recheck reported
-  0 Critical and 0 Warning. That language result is not scientific certification.
-- Delivery: the exact current draft is embedded in the local HTML manual. Figures,
+  warnings; both were corrected. Its targeted recheck reported
+  0 Critical and 0 Warning for the preceding complete candidate. The current
+  revision clarifies the example opening and map caption; those bounded passages
+  receive a new semantic and context review. The earlier language result is not
+  claimed for the revised exact file and is not scientific certification.
+- Delivery: the preceding complete draft was inspected in the local HTML manual. Figures,
   three locally rendered equations, captions, and Table 1 were inspected at
   1,000 px display width, with Arial 18 px body text. Audit words and storage
   numbers remain on one line, images load, and the page has no horizontal overflow.
   The editable equation source is docs/figures/source/render_note_equations.py.
+  The revised diagram receives new full-size, 900 px, PDF, and manual checks;
+  the bounded prose changes receive a new semantic and context review.
 - Current author-guide length/format remains unverified. Author metadata, public
   release/DOI, human reproduction, and a formatted submission package remain open.
 
