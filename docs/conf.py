@@ -12,5 +12,6 @@ html_static_path = ["_static"]
 html_css_files = ["manual.css"]
 html_theme_options = {"page_width": "1280px", "body_max_width": "960px",
                       "sidebar_width": "260px", "fixed_sidebar": True}
-html_sidebars = {"**": ["about.html", "globaltoc.html", "searchbox.html"]}
-exclude_patterns = ["_static/**", "_notebook_downloads/**"]  # Downloads are not extra pages.
+templates_path = ["_templates"]
+html_sidebars = {"**": ["about.html", "navigation.html", "searchbox.html"]}
+exclude_patterns = ["_static/**", "_templates/**", "_notebook_downloads/**"]

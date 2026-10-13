@@ -1,0 +1,59 @@
+# Reference and citation
+
+Use these references after completing an example. They describe how to configure
+your own operation method and how to report its provenance.
+
+## Module reference
+
+| Topic | Reference |
+|---|---|
+| Inputs, reservoirs, agents and YAML | [Simulation settings](USER_GUIDE.md) |
+| Information, prompt, proposal and feedback | [LLM modules](LLM_MODULES.md) |
+| Configurable operating checks | [Audit plugins](auditor_plugins.md) |
+| Conditions for broader experiments | [Live readiness](LIVE_READINESS.md) |
+| Native hydrology, parameters and C&V | [HydroCNHS setup](HYDROLOGY_SETUP.md) |
+
+The generic YAML is a configuration reference. The public FE Walter examples
+remain rule-based benchmark, zero-shot and DKP.
+
+## Cite the original hydrological framework
+
+HydroOpsLM uses HydroCNHS for hydrological modeling, river routing and the Dam API.
+Use the [original HydroCNHS documentation](https://cylin928.github.io/HydroCNHS/)
+for those capabilities and cite its paper:
+
+Lin, C.-Y., Yang, Y.-C. E., and Wi, S. (2022). “HydroCNHS: A Python Package of
+Hydrological Model for Coupled Natural Human Systems.” *Journal of Water
+Resources Planning and Management*, 148(12), 06022005.
+[DOI](https://doi.org/10.1061/(ASCE)WR.1943-5452.0001630).
+
+Record the HydroOpsLM Git commit, input hashes and experiment settings separately.
+The [Technical Note draft](../paper/technical_note.md) is a draft, not a published
+citation or evidence that submission requirements have been met.
+
+## Cite the rule-based benchmark
+
+Hanasaki, N., Kanae, S., and Oki, T. (2006). “A reservoir operation scheme for
+global river routing models.” *Journal of Hydrology*, 327, 22–41.
+[DOI](https://doi.org/10.1016/j.jhydrol.2005.11.011).
+
+Abeshu, G. W., et al. (2023). “Enhancing the representation of water management
+in global hydrological models.” *Geoscientific Model Development*, 16, 5449–5472.
+[Section 2.3.3](https://gmd.copernicus.org/articles/16/5449/2023/).
+
+The FE Walter example applies the flood-control formulation daily through a
+custom Dam API policy. It is not a built-in HydroCNHS rule. The
+[benchmark sources and adaptation](../examples/fe_walter/benchmark/README.md#sources-and-adaptation)
+identify its pinned implementation, statistics period and differential tests.
+
+## Tutorials and maintenance
+
+Read the [main tutorial](../tutorials/main.ipynb) or
+[multiple-reservoir tutorial](../tutorials/advanced.ipynb) online, or download
+the original notebooks:
+
+- {download}`Main notebook <../_notebook_downloads/main.ipynb>`
+- {download}`Advanced notebook <../_notebook_downloads/advanced.ipynb>`
+
+[Build the manual](BUILDING.md) · [Project inventory](PROJECT_INVENTORY.md) ·
+[Historical recovery](../archive/README.md) · [Repository README](../README.md)

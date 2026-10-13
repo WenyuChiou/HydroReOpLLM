@@ -65,3 +65,34 @@ div.cell_output pre.prompt-text { font-size: 16px; line-height: 1.45; }
   white-space: nowrap;
   overflow-wrap: normal;
 }
+
+/* Linked illustrations identify the three examples; text labels remain links.
+   These rules are scoped so scientific tables keep their original layout. */
+div.body .example-links table { width: 100%; table-layout: fixed; }
+div.body .example-links th, div.body .example-links td {
+  width: 33.333%; padding: 12px 16px; text-align: center; vertical-align: top;
+  background: #f1f5f9; border: 1px solid #d4e0e8;
+}
+div.body .example-links th { padding-bottom: 0; }
+div.body .example-links td { border-top: 0; }
+div.body .example-links img { width: 88px; height: 88px; object-fit: contain; }
+div.body .example-links a { text-decoration: none; }
+div.body .example-links a:hover { text-decoration: underline; }
+div.body .example-links a:focus-visible,
+div.sphinxsidebar .manual-navigation a:focus-visible {
+  outline: 2px solid #245e83; outline-offset: 4px;
+}
+div.sphinxsidebar .manual-navigation { list-style: none; padding-left: 0; }
+div.sphinxsidebar .manual-navigation > li { margin-bottom: 12px; }
+div.sphinxsidebar .manual-navigation ul { list-style: none; padding-left: 16px; }
+div.sphinxsidebar .manual-navigation ul li { margin: 8px 0; }
+div.sphinxsidebar .manual-navigation a {
+  display: flex; align-items: flex-start; gap: 8px;
+}
+div.sphinxsidebar .navigation-icon {
+  width: 28px; height: 28px; object-fit: contain; flex-shrink: 0;
+}
+@media (max-width: 600px) {
+  div.body .example-links th, div.body .example-links td { padding: 8px 4px; }
+  div.body .example-links img { width: 64px; height: 64px; }
+}

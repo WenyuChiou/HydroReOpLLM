@@ -1,0 +1,57 @@
+{
+  "source": "../../figures/hydrocnhs-coupling-framework-en.drawio",
+  "source_sha256": "213816a99946981e463bea49587d0d2384510e0be33e5699a714a579de364648",
+  "description": "Existing generated icon pixels extracted unchanged from the editable concept figure. No new image or model request.",
+  "icons": [
+    {
+      "file": "rule.png",
+      "mxCell_id": "rule-icon",
+      "sha256": "0709d2ac38c9cdbf518aa76d1d043d52812934e563024a9610e5b8a39edd503c",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "bytes": 886216
+    },
+    {
+      "file": "prompt.png",
+      "mxCell_id": "prompt-icon",
+      "sha256": "055e90e8b3d8d1a994f513b41f9125ccce10eea9dafbb7df2be67827e22079ab",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "bytes": 833827
+    },
+    {
+      "file": "language-model.png",
+      "mxCell_id": "language-model-icon",
+      "sha256": "fcfca724a1e6dbc3257e650814d142b91329ff28532c3d28059470269f36e1f3",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "bytes": 790642
+    },
+    {
+      "file": "records.png",
+      "mxCell_id": "trace-icon",
+      "sha256": "ee698aa668e2bba1a539533f76260cae618f151cdb751fec8a2677132bd339be",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "bytes": 983484
+    },
+    {
+      "file": "reservoir.png",
+      "mxCell_id": "reservoir-icon",
+      "sha256": "955df76117decac05a75ecd67a8f6e3a2a9756b61f0bb398986204cc100eaf3a",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "bytes": 844104
+    }
+  ]
+}
