@@ -2,27 +2,30 @@
 
 The outer boundary is HydroOpsLM. Each reservoir selects one policy: user
 operating rules or the checked LLM route. The LLM route is Prompt → Language
-model → Operation proposal → Response checks. Only the checked requested
-release enters the common physical operation; rationale is retained in trace
-records.
+model → Operation proposal → Response checks. Both alternatives feed one shared
+reservoir operation. Requested release is proposal data; optional rationale is
+retained in trace records rather than becoming a second operation engine.
 
 Native HydroCNHS supplies GWLF/ABCD rainfall-runoff, Lohmann routing, and the
 native Dam API. Inside that shared reservoir-operation node, HydroOpsLM adds the
-storage balance, release, and spill responsibilities. The LLM information profile selects reservoir conditions, river observations,
-demands, executed history, and forecasts. External data joins selected simulation
-information before the prompt. Native downstream simulation values come only from
-completed steps. The rule example retains its original reservoir observation;
-the tutorial gives fields, time availability, and units.
+storage balance, release, and spill responsibilities. The LLM information profile
+selects simulation feedback plus external records such as river observations,
+demands, forecasts, operating targets, and executed history. Native downstream
+simulation values come only from completed steps. The rule example retains its
+original reservoir observation; the tutorial gives fields, time availability,
+and units.
 
-Operation audit evaluates the current observation and requested action against
-configured operating criteria before physical execution. The upward “Release
-request” connector refers to the request at the shared operation interface.
+Decision audit evaluates the current observation and requested action against
+configured operating criteria before physical storage, release, and spill
+calculations. The upward “Requested release” connector refers to proposal data
+at the shared operation interface.
 An audit failure is
 retained and does not automatically block a diagnostic trajectory; this caveat
 belongs in the surrounding documentation rather than inside the diagram. Trace
-records bind the decision-audit verdict to implemented release, storage, and
-spill after execution, without acting as a gate. Rule-based and LLM policies share these audit and execution-trace
-responsibilities; checker-specific fields apply only to the LLM route.
+records are finalized after physics and bind the decision-audit verdict to
+implemented release, storage, and spill, without acting as a gate. Rule-based and
+LLM policies share these audit and execution-trace responsibilities;
+checker-specific fields apply only to the LLM route.
 
 Blue solid arrows carry water or implemented outflow. Black solid arrows carry
 information, proposals, audit evidence, and trace records. Blue outlines mark

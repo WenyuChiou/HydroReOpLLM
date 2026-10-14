@@ -144,8 +144,9 @@ The evidence chain is distributed deliberately:
 | What happened physically? | `physics.jsonl` and `reservoir_trajectory.csv` |
 | Was feedback committed? | `backend_events.jsonl` |
 
-Continue with [Prepare inputs and configure a run](USER_GUIDE.md). The original
+Continue with [the three FE Walter examples](../examples/fe_walter/README.md).
+Then adapt [inputs and YAML](USER_GUIDE.md) for your own experiment. The original
 notebook remains available as an exact-byte companion:
 {download}`download main.ipynb <../_notebook_downloads/main.ipynb>`.
 
-[Previous: Installation](GETTING_STARTED.md) · [Next: Prepare inputs](USER_GUIDE.md)
+[Previous: Installation](GETTING_STARTED.md) · [Next: FE Walter examples](../examples/fe_walter/README.md)

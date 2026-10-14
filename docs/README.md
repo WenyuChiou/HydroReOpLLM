@@ -3,9 +3,9 @@
 [English](README.md) | [繁體中文](README.zh-TW.md)
 
 HydroOpsLM connects reservoir operation methods to HydroCNHS through its Dam API.
-The three F.E. Walter examples compare a rule-based benchmark, LLM operation
-with available information, and LLM operation with retrieved knowledge using
-common reservoir calculations and routing.
+Choose each reservoir's information, prompt, operation method and audit criteria.
+The same interfaces support a single reservoir or a connected network. The
+F.E. Walter examples demonstrate three methods using common reservoir accounting.
 
 ![HydroOpsLM concept](figures/hydrocnhs-coupling-framework-en.png)
 
@@ -20,7 +20,7 @@ releases can also change a downstream reservoir's inflow. Each controlled
 reservoir has its own decision unit and history. Passive outlets need no LLM.
 
 Response checks validate a model reply before release is applied. An operating
-audit evaluates configured criteria and retains its verdict. Trace records link
+audit evaluates configured criteria and retains PASS, FAIL, WARN or UNKNOWN. Trace records link
 the available information and decision to what was actually executed.
 
 Continue with [Installation](GETTING_STARTED.md), then follow

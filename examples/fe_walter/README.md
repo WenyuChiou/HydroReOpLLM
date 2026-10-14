@@ -7,11 +7,11 @@ information designs: available information and retrieved knowledge. All three us
 input, physical case, zero-loss assumption, and `UH=[1.0]` routing. They illustrate
 how to use HydroOpsLM; these saved diagnostic runs do not establish policy performance.
 
-| Example | Decision source | Step-by-step guide | Saved evidence |
+| Example | Complete configuration | Decision evidence | Saved result |
 |---|---|---|---|
-| Rule-based benchmark | Flood-control rule with frozen 1996–2015 statistics | [Rule-based](benchmark/README.md) | [Deterministic snapshot](../../results/fe_walter_tutorial_benchmark_2016_01/) |
-| LLM operation with available information | Local Ollama prompt and reply | [Available-information guide](zero_shot/README.md) | [Historical `zero_shot` snapshot](../../results/fe_walter_ollama_2016_01/zero_shot/) |
-| LLM operation with retrieved knowledge | The same LLM interface with source-bound retrieved operating knowledge | [Retrieved-knowledge guide](dkp/README.md) | [Historical `dkp` snapshot](../../results/fe_walter_ollama_2016_01/dkp/) |
+| [Rule-based benchmark](benchmark/README.md) | [`tutorials/config/fe_walter_tutorial_benchmark.yaml`](../../tutorials/config/fe_walter_tutorial_benchmark.yaml) | Daily rule; no model call | [3 PASS; acceptance `null`](../../results/fe_walter_tutorial_benchmark_2016_01/) |
+| [LLM operation with available information](zero_shot/README.md) | [`zero_shot/experiment.ollama.yaml`](zero_shot/experiment.ollama.yaml) | Saved prompt and full Ollama reply | [2 PASS / 1 FAIL; acceptance `null`](../../results/fe_walter_ollama_2016_01/zero_shot/) |
+| [LLM operation with retrieved knowledge](dkp/README.md) | [`dkp/experiment.ollama.yaml`](dkp/experiment.ollama.yaml) | Saved prompt, retrieved sources and full Ollama reply | [3 FAIL; acceptance `null`](../../results/fe_walter_ollama_2016_01/dkp/) |
 
 Each guide follows **input → YAML → prompt or rule → check → run → verify →
 audit/trace**. The guides read existing results first and show how to configure

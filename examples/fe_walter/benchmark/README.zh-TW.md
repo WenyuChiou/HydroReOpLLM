@@ -25,11 +25,46 @@
 
 ## 2. 設定 YAML
 
-開啟 [experiment.hydroopslm.offline.yaml](experiment.hydroopslm.offline.yaml)。
-YAML 選用 `strategy: benchmark`、`mode: offline`、`purpose: flood_control`
+保存結果所用的完整設定是
+[`tutorials/config/fe_walter_tutorial_benchmark.yaml`](../../../tutorials/config/fe_walter_tutorial_benchmark.yaml)。
+若要建立新輸出，請從
+[experiment.hydroopslm.offline.yaml](experiment.hydroopslm.offline.yaml)開始。
+它選用 `strategy: benchmark`、`mode: offline`、`purpose: flood_control`
 與 `max_calls: 0`，並使用示範期以前的
 [固定 1996–2015 統計資料](../../../data/benchmark/fe_walter_statistics.json)。
 它不需要模型或 prompt。
+
+<details>
+<summary>保存的完整 benchmark YAML（展開）</summary>
+
+```yaml
+# Deterministic companion to the saved three-day Ollama tutorial snapshots.
+# It uses the same input, physical case, losses, and UH=[1] routing; no model or
+# network request is configured.
+schema_version: llm-reservoir-experiment.v1
+run_id: fe-walter-tutorial-benchmark-2016-01
+case: ../../cases/fe_walter_ollama_demo/case.json
+output: ../../results/fe_walter_tutorial_benchmark_2016_01
+start_date: '2016-01-01'
+end_date: '2016-01-03'
+max_calls: 0
+agents:
+  fe_operator:
+    reservoir: FEWalter
+    mode: offline
+    strategy: benchmark
+    benchmark:
+      purpose: flood_control
+      alpha: 0.85
+      statistics: ../../data/benchmark/fe_walter_statistics.json
+    auditors: [release_limits]
+auditors:
+  release_limits:
+    type: release_bounds
+    version: '1'
+```
+
+</details>
 
 若要建立新執行，請在原檔旁複製一份：
 
@@ -58,6 +93,8 @@ python run_experiment.py check examples/fe_walter/benchmark/my-run.yaml
 ```
 
 此命令檢查設定，不會進行 inference 或模型請求。
+預期結果是三個每日步驟、一座受控水庫、`planned_llm_calls: 0`、
+`max_calls: 0`，以及零次 network call。
 
 ## 5. 執行
 
@@ -100,6 +137,8 @@ release、spill 與 ending storage。總出流是 controlled release 加 spill�
 
 此基準在 release-bounds auditor 下保留 **3 PASS**。這套檢查與 LLM 操作 audit
 不同，因此不能用計數排名方法。
+[完整的第一日規則紀錄](../../../results/fe_walter_tutorial_benchmark_2016_01/raw/policy_a55e8402dabaa06d6127816db201078ccaff0234147efb071c505797a92cdd3a.json)
+保存輸入、每日規則 provenance、請求放流與來源 hash。
 
 檢查保存的決策：
 

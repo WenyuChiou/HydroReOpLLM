@@ -1,37 +1,45 @@
 <nav aria-label="HydroOpsLM user manual">
   <div class="manual-brand">
-    <a href="{{ pathto('index') }}">HydroOpsLM User Manual</a>
-    <span>Daily reservoir decisions in HydroCNHS</span>
+    <a href="{{ pathto('index') }}"><img class="brand-logo" src="{{ pathto('_static/logo-64.png', 1) }}" alt="" width="48" height="48">HydroOpsLM</a>
+    <span>User manual</span>
   </div>
   <p class="manual-utility">
     <a href="{{ pathto('index.zh-TW') }}" lang="zh-Hant">繁體中文</a>
     <a href="https://github.com/WenyuChiou/LLM_reservoir_agent">Repository</a>
   </p>
   {% set chapters %}
-  <h3>Learning chapters</h3>
-  <ol class="manual-navigation">
-    <li><a href="{{ pathto('docs/README') }}">Introduction</a></li>
-    <li><a href="{{ pathto('docs/GETTING_STARTED') }}">Installation</a></li>
-    <li><a href="{{ pathto('docs/FIRST_DECISION') }}">Your first reservoir decision</a></li>
-    <li><a href="{{ pathto('docs/USER_GUIDE') }}">Prepare inputs and configure</a></li>
-    <li><a href="{{ pathto('docs/LLM_MODULES') }}">Design model instructions</a></li>
-    <li><a href="{% if pagename == 'docs/USER_GUIDE' %}#{% else %}{{ pathto('docs/USER_GUIDE') }}#{% endif %}check-run-and-verify">Check, run and verify</a></li>
-    <li><a href="{{ pathto('docs/RESULTS_GUIDE') }}">Read results, audit and trace</a></li>
-    <li><a href="{{ pathto('examples/fe_walter/README') }}">Three worked methods</a></li>
-    <li><a href="{{ pathto('tutorials/advanced') }}">Multiple reservoirs</a></li>
-  </ol>
-  <h3>Examples</h3>
-  <ul class="manual-navigation manual-reference">
-    <li><a href="{{ pathto('examples/fe_walter/benchmark/README') }}">Rule-based benchmark</a></li>
-    <li><a href="{{ pathto('examples/fe_walter/zero_shot/README') }}">LLM operation with available information</a></li>
-    <li><a href="{{ pathto('examples/fe_walter/dkp/README') }}">LLM operation with retrieved knowledge</a></li>
+  {% macro chapter(page, label) -%}
+    <li><a href="{{ pathto(page) }}"{% if pagename == page %} aria-current="page"{% endif %}>{{ label }}</a></li>
+  {%- endmacro %}
+  <h3>Getting started</h3>
+  <ul class="manual-navigation">
+    {{ chapter('docs/README', 'Overview') }}
+    {{ chapter('docs/GETTING_STARTED', 'Installation') }}
+    {{ chapter('docs/FIRST_DECISION', 'Your first reservoir decision') }}
+  </ul>
+  <h3>Worked examples</h3>
+  <ul class="manual-navigation">
+    {{ chapter('examples/fe_walter/README', 'FE Walter: common setup') }}
+    {{ chapter('examples/fe_walter/benchmark/README', 'Rule-based benchmark') }}
+    {{ chapter('examples/fe_walter/zero_shot/README', 'LLM with available information') }}
+    {{ chapter('examples/fe_walter/dkp/README', 'LLM with retrieved knowledge') }}
+  </ul>
+  <h3>Build your experiment</h3>
+  <ul class="manual-navigation">
+    {{ chapter('docs/USER_GUIDE', 'Inputs and YAML') }}
+    {{ chapter('docs/INFORMATION', 'Choose decision information') }}
+    {{ chapter('docs/LLM_MODULES', 'Prompts and modules') }}
+    {{ chapter('tutorials/advanced', 'Multiple reservoirs') }}
+    {{ chapter('docs/RESULTS_GUIDE', 'Results, audit and trace') }}
+    {{ chapter('docs/RUNNING', 'Running and maintenance') }}
   </ul>
   <h3>Reference</h3>
   <ul class="manual-navigation manual-reference">
-    <li><a href="{{ pathto('docs/INFORMATION') }}">Decision information</a></li>
-    <li><a href="{{ pathto('docs/PARAMETER_REFERENCE') }}">Parameter reference</a></li>
-    <li><a href="{{ pathto('docs/REFERENCE') }}">Sources and citation</a></li>
-    <li><a href="{{ pathto('docs/HYDROLOGY_SETUP') }}">Native HydroCNHS setup</a></li>
+    {{ chapter('docs/PARAMETER_REFERENCE', 'Full parameter reference') }}
+    {{ chapter('docs/auditor_plugins', 'Auditor extensions') }}
+    {{ chapter('docs/HYDROLOGY_SETUP', 'Native HydroCNHS setup') }}
+    {{ chapter('docs/REFERENCE', 'Sources and citation') }}
+    {{ chapter('docs/BUILDING', 'Build the manual') }}
   </ul>
   {% endset %}
   <div class="desktop-chapters">{{ chapters }}</div>

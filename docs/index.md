@@ -1,68 +1,66 @@
-# HydroOpsLM user manual
+# HydroOpsLM User Manual
 
-[English](index.md) | [繁體中文](index.zh-TW.md) | [Repository](https://github.com/WenyuChiou/LLM_reservoir_agent)
+HydroOpsLM connects reservoir operating decisions to HydroCNHS hydrology and
+river routing. Configure the information, prompt and checks for each reservoir;
+inspect how a proposal becomes an implemented release.
 
-HydroOpsLM is a research framework for placing reservoir decisions inside a
-HydroCNHS simulation. HydroCNHS remains responsible for watershed hydrology,
-river routing, model parameters, calibration and validation. HydroOpsLM adds
-decision methods, common reservoir accounting, response checks, diagnostic
-audits and trace records.
+![HydroOpsLM concept](figures/hydrocnhs-coupling-framework-en.png)
 
-![HydroCNHS hydrology and routing connected to HydroOpsLM decisions, checks and records](figures/hydrocnhs-coupling-framework-en.png)
+[View the concept at full size](https://wenyuchiou.github.io/LLM_reservoir_agent/_images/hydrocnhs-coupling-framework-en.png).
 
-Blue arrows show water flow; black arrows show information and release proposals.
-Gray cards supply external data or optional knowledge. The native Dam API is
-retained; HydroOpsLM adds the common storage, release and spill calculations.
-Downstream simulation information comes from completed days. GWLF and ABCD are
-runoff-model alternatives; Lohmann is the routing method; the Dam API couples
-reservoir operation to that water pathway.
+Blue arrows carry water; black arrows carry information and proposals. Both
+operation methods use the native Dam API. HydroOpsLM adds common storage,
+release and spill calculations. A response check and an operation audit answer
+different questions; their records remain separate.
 
-The current operations runner advances once per day. A decision method proposes
-controlled release; host physics determines the implemented controlled release,
-spill and ending storage. The model cannot overwrite the physical state.
+## Start here
 
-## Start reading
+[Install HydroOpsLM](GETTING_STARTED.md), then follow
+[your first reservoir decision](FIRST_DECISION.md). This walkthrough opens a
+saved real Ollama reply and follows it through checks, audit, actual release and
+the next day's information. Reading this manual makes no model request.
 
-Follow the numbered chapters if this is your first experiment:
+## Three worked examples
 
-1. [Introduction](README.md) — responsibilities and limits.
-2. [Installation](GETTING_STARTED.md) — install and inspect saved evidence.
-3. [Your first reservoir decision](FIRST_DECISION.md) — one complete saved
-   F.E. Walter decision from information to next-day state.
-4. [Prepare inputs and configure a run](USER_GUIDE.md) — case, CSV and YAML.
-5. [Design the model instructions](LLM_MODULES.md) — messages, knowledge and
-   selected information.
-6. [Check, run and verify](USER_GUIDE.md#6-check-run-and-verify) — explicit commands
-   and stop conditions.
-7. [Read results, audit and trace](RESULTS_GUIDE.md) — interpret evidence.
-8. [Three worked methods](../examples/fe_walter/README.md) — compare methods
-   only after learning the common decision cycle.
-9. [Multiple reservoirs and your own basin](../tutorials/advanced.ipynb) — routing,
-   passive outlets and isolated agent state.
+Use the same FE Walter input and initial conditions to learn each method.
+The [case overview](../examples/fe_walter/README.md) explains the common setup.
 
-The saved tutorials render without executing notebooks or contacting a model.
+::: {container} method-list
 
-## Worked methods
+### [Rule-based benchmark](../examples/fe_walter/benchmark/README.md)
 
-| Public method | Decision source | Guide |
-|---|---|---|
-| Rule-based benchmark | Hanasaki-based flood-control rule | [Open guide](../examples/fe_walter/benchmark/README.md) |
-| LLM operation with available information | Original prompt plus available reservoir information | [Open guide](../examples/fe_walter/zero_shot/README.md) |
-| LLM operation with retrieved knowledge | Same interface plus source-bound retrieved knowledge | [Open guide](../examples/fe_walter/dkp/README.md) |
+Published reservoir rules adapted to daily flood control.
 
-The directories and provenance retain the historical machine identifiers
-`zero_shot`, `dkp` and `reference_v3_7`. Those identifiers preserve reproducible
-paths; the titles above are the public method names.
+### [LLM with available information](../examples/fe_walter/zero_shot/README.md)
 
-## Reference and original notebooks
+An independent prompt, reservoir information and a local model.
 
-- [Decision information](INFORMATION.md): static, CSV, simulation and registered
-  extension sources; profiles, causal selection and `$information`.
-- [Complete parameter reference](PARAMETER_REFERENCE.md): YAML, model, agent,
-  physics, network, audit and output fields.
-- [Reference and citations](REFERENCE.md): HydroCNHS and benchmark sources.
-- {download}`Download the original main notebook <_notebook_downloads/main.ipynb>`
-- {download}`Download the original advanced notebook <_notebook_downloads/advanced.ipynb>`
+### [LLM with retrieved knowledge](../examples/fe_walter/dkp/README.md)
 
-For weather-driven model building, watershed parameters and calibration and
-validation, use the [original HydroCNHS documentation](https://cylin928.github.io/HydroCNHS/).
+The same decision interface with sourced operating knowledge.
+
+:::
+
+Each guide follows **input → YAML → prompt/rule → check → run → verify → results**.
+The three-day records demonstrate integration, not policy superiority.
+
+## Build your own experiment
+
+Continue with [inputs and YAML](USER_GUIDE.md), [decision information](INFORMATION.md)
+and [prompts and modules](LLM_MODULES.md). Then read
+[multiple reservoirs](../tutorials/advanced.ipynb),
+[results and audit/trace](RESULTS_GUIDE.md), and
+[running and maintenance](RUNNING.md).
+
+## Notebooks and sources
+
+{download}`Main notebook <_notebook_downloads/main.ipynb>` ·
+{download}`Advanced notebook <_notebook_downloads/advanced.ipynb>`
+
+These are the original notebooks with saved outputs.
+For catchment setup, hydrological parameters and calibration/validation, use the
+[HydroCNHS manual](https://cylin928.github.io/HydroCNHS/).
+See [sources and citation](REFERENCE.md) for the framework and benchmark.
+
+[繁體中文](index.zh-TW.md) ·
+[Repository](https://github.com/WenyuChiou/LLM_reservoir_agent)
