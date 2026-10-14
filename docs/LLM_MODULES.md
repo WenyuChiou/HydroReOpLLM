@@ -14,6 +14,7 @@ The current operations runner is daily.
 |---|---|---|
 | Information adapter | Causally available state → observation (`info`) | Case input, host state and backend observation mapping |
 | Prompt | Observation, template, optional knowledge → messages | Independent TXT; `PromptSpec` / `PromptStrategy.build` |
+| Selected information | Causal source catalog + profile → `decision-information.v1` | YAML `information_sources` / `information_profiles`; registered extensions only |
 | Optional context | Local knowledge or supplied extra information → model context | YAML `knowledge`/`context`; custom retrieval belongs to a backend |
 | LLM backend | Messages + sampling settings → raw reply | Model profile; injected decision backend |
 | Operation proposal | Model reply → requested release and available rationale | Native fields stay in trace; normalized action uses m³/s |
@@ -41,7 +42,8 @@ The host observation contains `timestep`, `timestamp`, `inflow_cms`,
 `release_upper_bound_cms`, `state` and `context`.
 Only content included in the final messages is visible to the LLM.
 A backend may expose additional fields only with explicit meaning, units and
-availability time. A forecast is not future observed truth. Each reservoir keeps
+availability time. The `$information` snapshot implements this selection for the
+generic configured strategy; see [Decision information](INFORMATION.md). A forecast is not future observed truth. Each reservoir keeps
 its own state/history; passive outlets bypass the decision path.
 
 The template stays independent of daily data. In the generic YAML backend,
@@ -49,6 +51,9 @@ The template stays independent of daily data. In the generic YAML backend,
 `$previous_transition` is null initially and later the actual committed outcome.
 Knowledge is optional. Generic local knowledge is included in full; automatic
 retrieval/tools are Python extensions. See [settings](USER_GUIDE.md).
+
+The locked `reference_v3_7` profiles preserve their original messages and reject
+extra information. Use a versioned generic prompt for `$information` examples.
 
 ## Proposal and acceptance
 

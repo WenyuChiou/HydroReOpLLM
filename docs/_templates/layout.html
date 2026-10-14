@@ -1,0 +1,20 @@
+{% extends "!layout.html" %}
+
+{% block document %}
+  {{ super() }}
+  {% if toc %}
+  <aside class="chapter-toc" aria-label="On this page">
+    <h3>On this page</h3>
+    {{ toc }}
+  </aside>
+  {% endif %}
+{% endblock %}
+
+{% block relbar_bottom %}
+  {% if prev or next %}
+  <nav class="chapter-pagination" aria-label="Previous and next chapter">
+    {% if prev %}<a class="previous" href="{{ prev.link|e }}">← {{ prev.title }}</a>{% endif %}
+    {% if next %}<a class="next" href="{{ next.link|e }}">{{ next.title }} →</a>{% endif %}
+  </nav>
+  {% endif %}
+{% endblock %}

@@ -45,7 +45,7 @@ class LLMReservoirAgent:
         if not isinstance(attributes, Mapping):
             raise TypeError("Attributes must be a mapping")
         self.context = _json_mapping_copy(attributes.get("Context", {}), "Attributes.Context")
-        if set(self.context) & {"reservoir_id", "evaporation_m3", "seepage_m3"}:
+        if set(self.context) & {"reservoir_id", "evaporation_m3", "seepage_m3", "decision_information"}:
             raise ValueError("Attributes.Context cannot override host identity or physical assumptions")
         physical = attributes.get("Physical")
         if not isinstance(physical, Mapping):
@@ -215,6 +215,12 @@ class LLMReservoirAgent:
             },
         )
         try:
+            information = getattr(self, "information_builder", None)
+            if information is not None:
+                # The provider receives a copy; it cannot alter physical inputs.
+                snapshot = information(observation.to_dict())
+                observation = ReservoirObservation(**dict(observation.to_dict(), context={
+                    **observation.context, "decision_information": _json_mapping_copy(snapshot, "decision_information")}))
             candidate = self.policy.decide(observation.to_dict())
             action = parse_action(candidate)
         except Exception as exc:

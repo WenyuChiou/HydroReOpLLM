@@ -1,21 +1,42 @@
-<nav aria-label="User manual">
-  <h3>User manual</h3>
-  <ul class="manual-navigation">
-    <li><a href="{{ pathto('docs/README') }}"><img class="navigation-icon" src="{{ pathto('_static/icons/reservoir.png', 1) }}" alt="" aria-hidden="true">1. Overview</a></li>
-    <li><a href="{{ pathto('docs/GETTING_STARTED') }}"><img class="navigation-icon" src="{{ pathto('_static/icons/language-model.png', 1) }}" alt="" aria-hidden="true">2. Getting started</a></li>
-    <li><a href="{{ pathto('docs/USER_GUIDE') }}"><img class="navigation-icon" src="{{ pathto('_static/icons/prompt.png', 1) }}" alt="" aria-hidden="true">3. Simulation settings</a></li>
-    <li><a href="{{ pathto('docs/LLM_MODULES') }}"><img class="navigation-icon" src="{{ pathto('_static/icons/prompt.png', 1) }}" alt="" aria-hidden="true">4. LLM decision workflow</a></li>
-    <li><a href="{{ pathto('examples/fe_walter/README') }}"><img class="navigation-icon" src="{{ pathto('_static/icons/rule.png', 1) }}" alt="" aria-hidden="true">5. Examples</a>
-      <ul>
-        <li><a href="{{ pathto('examples/fe_walter/benchmark/README') }}"><img class="navigation-icon" src="{{ pathto('_static/icons/rule.png', 1) }}" alt="" aria-hidden="true">Rule-based benchmark</a></li>
-        <li><a href="{{ pathto('examples/fe_walter/zero_shot/README') }}"><img class="navigation-icon" src="{{ pathto('_static/icons/language-model.png', 1) }}" alt="" aria-hidden="true">Zero-shot</a></li>
-        <li><a href="{{ pathto('examples/fe_walter/dkp/README') }}"><img class="navigation-icon" src="{{ pathto('_static/icons/prompt.png', 1) }}" alt="" aria-hidden="true">DKP</a></li>
-      </ul>
-    </li>
-    <li><a href="{{ pathto('tutorials/advanced') }}"><img class="navigation-icon" src="{{ pathto('_static/icons/reservoir.png', 1) }}" alt="" aria-hidden="true">6. Multiple reservoirs</a></li>
-    <li><a href="{{ pathto('docs/RESULTS_GUIDE') }}"><img class="navigation-icon" src="{{ pathto('_static/icons/records.png', 1) }}" alt="" aria-hidden="true">7. Results, audit and troubleshooting</a></li>
-    <li><a href="{{ pathto('docs/REFERENCE') }}"><img class="navigation-icon" src="{{ pathto('_static/icons/records.png', 1) }}" alt="" aria-hidden="true">8. Reference and citation</a></li>
+<nav aria-label="HydroOpsLM user manual">
+  <div class="manual-brand">
+    <a href="{{ pathto('index') }}">HydroOpsLM User Manual</a>
+    <span>Daily reservoir decisions in HydroCNHS</span>
+  </div>
+  <p class="manual-utility">
+    <a href="{{ pathto('index.zh-TW') }}" lang="zh-Hant">繁體中文</a>
+    <a href="https://github.com/WenyuChiou/LLM_reservoir_agent">Repository</a>
+  </p>
+  {% set chapters %}
+  <h3>Learning chapters</h3>
+  <ol class="manual-navigation">
+    <li><a href="{{ pathto('docs/README') }}">Introduction</a></li>
+    <li><a href="{{ pathto('docs/GETTING_STARTED') }}">Installation</a></li>
+    <li><a href="{{ pathto('docs/FIRST_DECISION') }}">Your first reservoir decision</a></li>
+    <li><a href="{{ pathto('docs/USER_GUIDE') }}">Prepare inputs and configure</a></li>
+    <li><a href="{{ pathto('docs/LLM_MODULES') }}">Design model instructions</a></li>
+    <li><a href="{% if pagename == 'docs/USER_GUIDE' %}#{% else %}{{ pathto('docs/USER_GUIDE') }}#{% endif %}check-run-and-verify">Check, run and verify</a></li>
+    <li><a href="{{ pathto('docs/RESULTS_GUIDE') }}">Read results, audit and trace</a></li>
+    <li><a href="{{ pathto('examples/fe_walter/README') }}">Three worked methods</a></li>
+    <li><a href="{{ pathto('tutorials/advanced') }}">Multiple reservoirs</a></li>
+  </ol>
+  <h3>Examples</h3>
+  <ul class="manual-navigation manual-reference">
+    <li><a href="{{ pathto('examples/fe_walter/benchmark/README') }}">Rule-based benchmark</a></li>
+    <li><a href="{{ pathto('examples/fe_walter/zero_shot/README') }}">LLM operation with available information</a></li>
+    <li><a href="{{ pathto('examples/fe_walter/dkp/README') }}">LLM operation with retrieved knowledge</a></li>
   </ul>
-  <p><a href="{{ pathto('tutorials/main') }}">Main tutorial</a> ·
-     <a href="{{ pathto('index.zh-TW') }}">繁體中文</a></p>
+  <h3>Reference</h3>
+  <ul class="manual-navigation manual-reference">
+    <li><a href="{{ pathto('docs/INFORMATION') }}">Decision information</a></li>
+    <li><a href="{{ pathto('docs/PARAMETER_REFERENCE') }}">Parameter reference</a></li>
+    <li><a href="{{ pathto('docs/REFERENCE') }}">Sources and citation</a></li>
+    <li><a href="{{ pathto('docs/HYDROLOGY_SETUP') }}">Native HydroCNHS setup</a></li>
+  </ul>
+  {% endset %}
+  <div class="desktop-chapters">{{ chapters }}</div>
+  <details class="mobile-chapters">
+    <summary>Contents</summary>
+    {{ chapters }}
+  </details>
 </nav>

@@ -13,8 +13,9 @@ your own operation method and how to report its provenance.
 | Conditions for broader experiments | [Live readiness](LIVE_READINESS.md) |
 | Native hydrology, parameters and C&V | [HydroCNHS setup](HYDROLOGY_SETUP.md) |
 
-The generic YAML is a configuration reference. The public FE Walter examples
-remain rule-based benchmark, zero-shot and DKP.
+The generic YAML is a configuration reference. The public F.E. Walter examples
+are Rule-based benchmark, LLM operation with available information, and LLM
+operation with retrieved knowledge. Historical machine IDs remain in provenance.
 
 ## Cite the original hydrological framework
 

@@ -14,6 +14,13 @@ hydrology, routing, parameter, calibration and validation foundation.
 
 ![HydroCNHS coupling framework with HydroOpsLM](docs/figures/hydrocnhs-coupling-framework-en.png)
 
+Blue arrows show water flow; black arrows show information and release proposals.
+Gray cards supply external data or optional knowledge. The native Dam API is
+retained; HydroOpsLM adds the common storage, release and spill calculations.
+Downstream simulation information comes from completed days. GWLF and ABCD are
+runoff-model alternatives; Lohmann is the routing method; the Dam API couples
+reservoir operation to that water pathway.
+
 Each reservoir selects one decision method through HydroCNHS's Dam API.
 HydroOpsLM adds common storage, release and spill calculations. Response checks
 and operating-rule audits are separate; diagnostic runs retain failed audits.
@@ -40,8 +47,8 @@ All three methods use the same reservoir operation and routing interfaces.
 | Method | Decision source | Start here |
 |---|---|---|
 | Rule-based benchmark | Hanasaki-based flood-control rule | [Rule and matched three-day case](examples/fe_walter/README.md#rule-based-benchmark) |
-| Zero-shot | Prompt with available reservoir information | [Prompt and Ollama settings](examples/fe_walter/zero_shot/README.md) |
-| DKP | Same LLM interface with retrieved operating knowledge | [Knowledge and Ollama settings](examples/fe_walter/dkp/README.md) |
+| LLM operation with available information | Prompt with available reservoir information | [Prompt and Ollama settings](examples/fe_walter/zero_shot/README.md) |
+| LLM operation with retrieved knowledge | Same LLM interface with source-bound retrieved knowledge | [Knowledge and Ollama settings](examples/fe_walter/dkp/README.md) |
 
 The [main tutorial](tutorials/main.ipynb) follows input, YAML, prompt/rule,
 check, run, verify and audit/trace. The [advanced tutorial](tutorials/advanced.ipynb)
@@ -49,7 +56,7 @@ covers multiple reservoirs, passive outlets, routing and your own data.
 
 ## Documentation and citation
 
-[User manual](docs/README.md) · [Tutorials](tutorials/README.md) ·
+[User manual](docs/index.md) · [Decision information](docs/INFORMATION.md) · [Tutorials](tutorials/README.md) ·
 [Native HydroCNHS setup](docs/HYDROLOGY_SETUP.md) ·
 [**cylin928.github.io/HydroCNHS/**](https://cylin928.github.io/HydroCNHS/)
 

@@ -17,12 +17,34 @@
       "fill": "#FBE7D2"
     },
     {
-      "id": "knowledge",
+      "id": "information",
       "bounds": [
         555,
-        280,
+        205,
         180,
-        120
+        220
+      ],
+      "outline": "#765780",
+      "fill": "#EDE2F3"
+    },
+    {
+      "id": "external-data",
+      "bounds": [
+        555,
+        480,
+        180,
+        140
+      ],
+      "outline": "#7B858C",
+      "fill": "#EEF1F4"
+    },
+    {
+      "id": "knowledge",
+      "bounds": [
+        780,
+        480,
+        180,
+        140
       ],
       "outline": "#7B858C",
       "fill": "#EEF1F4"
@@ -140,17 +162,47 @@
   ],
   "edges": [
     {
+      "id": "information-prompt",
+      "source": "information",
+      "target": "prompt",
+      "color": "#1F2933",
+      "exit": [
+        1,
+        0.42
+      ],
+      "entry": [
+        0,
+        0.42
+      ],
+      "via": []
+    },
+    {
+      "id": "external-information",
+      "source": "external-data",
+      "target": "information",
+      "color": "#1F2933",
+      "exit": [
+        0.5,
+        0
+      ],
+      "entry": [
+        0.5,
+        1
+      ],
+      "via": []
+    },
+    {
       "id": "knowledge-prompt",
       "source": "knowledge",
       "target": "prompt",
       "color": "#1F2933",
       "exit": [
-        1,
-        0.5
+        0.5,
+        0
       ],
       "entry": [
-        0,
-        0.6136363636363636
+        0.5,
+        1
       ],
       "via": []
     },
@@ -252,26 +304,30 @@
       ]
     },
     {
-      "id": "information-prompt",
-      "source": "reservoir-operation",
-      "target": "prompt",
+      "id": "simulation-information",
+      "source": "hydrocnhs-boundary",
+      "target": "information",
       "color": "#1F2933",
       "exit": [
-        0.25,
+        0.4666666666666667,
         0
       ],
       "entry": [
-        0.9047619047619048,
-        1
+        1,
+        0.78
       ],
       "via": [
         [
           880,
-          580
+          635
         ],
         [
-          955,
-          580
+          755,
+          635
+        ],
+        [
+          755,
+          376.6
         ]
       ]
     },
@@ -455,21 +511,22 @@
     "orange": "Rule-based operation.",
     "purple": "LLM information and decision modules; teal checks remain distinct within the LLM region.",
     "teal": "Response checks, operation audit and trace recording; never PASS or FAIL.",
-    "gray": "Optional knowledge input."
+    "gray": "External data and optional knowledge sources."
   },
   "responsibilities": {
     "Rule-based operation": "Selectable user operating rules produce a requested release.",
-    "LLM modules": "Prompt, language model, operation proposal, and response checks form the alternative policy.",
+    "LLM modules": "Selected decision information, prompt, language model, operation proposal, and response checks form the alternative policy.",
     "Native HydroCNHS": "Provides GWLF/ABCD rainfall-runoff, Lohmann routing, and the native Dam API.",
     "Reservoir": "HydroOpsLM adds storage balance, release, and spill inside the native Dam API operation node.",
-    "Operation audit": "Evaluates the current observation and requested action from either selected policy before physical execution.",
+    "Operation audit": "Checks configured decision criteria before physics; optional control-point checks separately inspect routed outcomes.",
     "Trace records": "Binds policy records and decision-audit verdicts to implemented release, storage, and spill after physical execution."
   },
   "policy_choice": "Each reservoir chooses exactly one policy: user operating rules or a checked LLM proposal.",
   "prompt_inputs": {
-    "source": "Dam API observation at the shared reservoir operation",
-    "current": "current inflow",
-    "beginning_of_step": "beginning storage / pool and implemented release history",
+    "source": "A configured selection from simulation information and external data",
+    "types": "Reservoir conditions, river/gauge conditions, executed history, demand, forecasts, and operating targets",
+    "causality": "Downstream simulated flow uses completed steps; external records must be available by the decision clock",
+    "legacy_examples": "The preserved FE Walter examples retain their original inflow, pool and release-history inputs",
     "optional": "optional knowledge"
   },
   "execution_contract": "Only a requested release enters reservoir operation; LLM rationale is retained in trace records.",

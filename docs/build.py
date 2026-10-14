@@ -33,7 +33,8 @@ PAGES = {
         "README.md", "README.zh-TW.md", "LLM_MODULES.md", "LLM_MODULES.zh-TW.md",
         "USER_GUIDE.md", "USER_GUIDE.zh-TW.md", "HYDROLOGY_SETUP.md",
         "LIVE_READINESS.md", "auditor_plugins.md", "PROJECT_INVENTORY.md", "BUILDING.md",
-        "GETTING_STARTED.md", "RESULTS_GUIDE.md", "REFERENCE.md",
+        "GETTING_STARTED.md", "FIRST_DECISION.md", "INFORMATION.md", "INFORMATION.zh-TW.md",
+        "PARAMETER_REFERENCE.md", "RESULTS_GUIDE.md", "REFERENCE.md",
     )},
 }
 LINK = re.compile(r"(!?\[[^\]]*\]\()([^\s)]+)(\))")
@@ -85,11 +86,11 @@ def prepare(source: Path) -> None:
     for name in ("main", "advanced"):
         shutil.copyfile(ROOT / f"tutorials/{name}.ipynb", downloads / f"{name}.ipynb")
     groups = {
-        "User guide": ["docs/README", "docs/GETTING_STARTED", "docs/USER_GUIDE",
-                       "docs/LLM_MODULES", "examples/fe_walter/README"],
-        "Three examples": [f"examples/fe_walter/{method}/README"
-                          for method in ("benchmark", "zero_shot", "dkp")],
-        "Continue": ["tutorials/advanced", "docs/RESULTS_GUIDE", "docs/REFERENCE"],
+        "Read the manual": ["docs/README", "docs/GETTING_STARTED", "docs/FIRST_DECISION", "docs/USER_GUIDE",
+                            "docs/INFORMATION", "docs/LLM_MODULES", "docs/RESULTS_GUIDE"],
+        "Three examples": ["examples/fe_walter/README", *[f"examples/fe_walter/{method}/README"
+                          for method in ("benchmark", "zero_shot", "dkp")]],
+        "Continue": ["tutorials/advanced", "docs/PARAMETER_REFERENCE", "docs/REFERENCE"],
         "Tutorials": ["tutorials/README", "tutorials/main"],
         "HydroCNHS and references": ["docs/HYDROLOGY_SETUP", "paper/technical_note",
                                     "docs/PROJECT_INVENTORY", "archive/README", "repository",

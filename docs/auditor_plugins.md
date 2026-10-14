@@ -2,7 +2,7 @@
 
 `AuditSpec`, `AuditPlugin` and `AuditedBackend` are public, provider-independent
 interfaces. Each reservoir supplies its own backend and auditor instances. Case
-geography, reservoir count, prompt text and DKP content do not define these APIs.
+geography, reservoir count, prompt text and retrieved-knowledge content do not define these APIs.
 
 ## Compose checks around an existing backend
 

@@ -13,7 +13,7 @@ dependencies, original bytes/hash and destination. The
 | Added reservoir operations | Observation/action, physical limits, release, spill, storage, balance | Shared rule/LLM execution |
 | Added LLM modules | Prompt/context, providers, parsing, checker, reservoir-local audit | Configurable proposals and trace |
 | Networks | DAG, split/merge, delays, isolated agents, passive outlets | Physical/routing coupling; no central joint planner |
-| Examples | FE Walter benchmark, zero-shot and DKP | Main tutorial and advanced tutorial |
+| Examples | F.E. Walter rule benchmark and two named LLM information designs | Main tutorial and advanced tutorial |
 | Historical sources | Accepted inputs, old configs, vendor helpers, results | Reproducibility dependencies; old launchers/docs restored externally |
 
 ## Data flow
@@ -34,7 +34,8 @@ validation is 2011–2020; no recalibration is part of this cleanup.
 ## Evidence and limits
 
 Saved Ollama results contain three requests per LLM method, `gemma3:4b`,
-temperature 0.7. Zero-shot has **2 PASS / 1 FAIL**; DKP has **3 FAIL**.
+temperature 0.7. LLM operation with available information has **2 PASS / 1 FAIL**;
+LLM operation with retrieved knowledge has **3 FAIL**.
 Execution and water balance do not certify an operating policy. Initial
 storage, identity downstream routing and zero losses are teaching assumptions.
 

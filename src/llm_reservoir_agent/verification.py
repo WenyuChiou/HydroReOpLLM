@@ -405,6 +405,59 @@ def verify_run(output, *, require_offline=False, expected_audit_suites=None):
     _check(summary.get("completed_reservoir_days") == dict.fromkeys(ids, n), "summary completion mismatch")
     _check(summary.get("final_storage_m3") == {name: series[-1]["transition"]["storage_end_m3"] for name, series in records.items()},
            "summary final storage mismatch")
+    information = experiment.get("information_config")
+    if information is not None:
+        from .information_verification import verify_information
+        from .information import _parse_timestamp, _iso
+        from datetime import timedelta
+        _check(set(information["bindings"]) <= set(records), "information bindings contain unknown reservoirs")
+        for name, series in records.items():
+            def read_completed(source, observation):
+                location, quantity = source["location"], source["quantity"]
+                step = observation["timestep"]
+                clock = _parse_timestamp(observation["timestamp"], "decision clock", allow_legacy=True)
+                local_current = location == name and quantity in ("inflow", "storage")
+                values = []
+                for earlier in range(step):
+                    stamp = clock - timedelta(days=step-earlier)
+                    if quantity == "flow":
+                        value = flows[location][earlier]
+                    else:
+                        prior = records[location][earlier]
+                        if local_current and quantity == "storage":
+                            value = prior["observation"]["state"]["storage_m3"]
+                        else:
+                            field = {"storage": "storage_end_m3", "release": "controlled_release_cms", "inflow": "inflow_cms"}[quantity]
+                            value = prior["transition"][field]
+                        if quantity == "storage" and not local_current:
+                            stamp += timedelta(days=1)
+                    available = stamp if quantity == "storage" else stamp+timedelta(days=1)
+                    values.append({"value": value, "valid_time": _iso(stamp), "available_at": _iso(available)})
+                if local_current:
+                    value = observation["inflow_cms"] if quantity == "inflow" else observation["state"]["storage_m3"]
+                    values.append({"value": value, "valid_time": _iso(clock), "available_at": _iso(clock)})
+                return values
+            for record in series:
+                snapshot = record["observation"]["context"].get("decision_information")
+                if name in information["bindings"]:
+                    _check(isinstance(snapshot, dict), "missing selected information")
+                    profile = information["profiles"][information["bindings"][name]]
+                    verify_information(snapshot, record["observation"], profile, information["sources"],
+                                       source_records=information.get("source_records"), simulation_reader=read_completed)
+                else:
+                    _check(snapshot is None, "information leaked to an unbound reservoir")
+    extra = summary.get("additional_output_files", {})
+    checks = experiment.get("outcome_checks", {})
+    _check(set(extra) == ({"outcome_audit.jsonl"} if checks else set()), "additional output coverage mismatch")
+    if checks:
+        from .outcome import evaluate_outcomes
+        raw = inside(output, "outcome_audit.jsonl").read_bytes()
+        _check(raw.endswith(b"\n") and hashlib.sha256(raw).hexdigest() == extra["outcome_audit.jsonl"], "outcome audit hash/tail mismatch")
+        outcomes = [json.loads(line) for line in raw.splitlines()]
+        expected_outcomes = evaluate_outcomes(checks, records, flows, rows,
+                                             experiment.get("information_agents", {}), result["run_id"])
+        _check(outcomes == expected_outcomes, "outcome audit differs from routed result and decision evidence")
+        _check(dict(Counter(r["status"] for r in outcomes)) == summary.get("outcome_audit_counts"), "outcome audit counts mismatch")
     _close(summary.get("max_mass_balance_residual_m3"), max_balance, "summary reservoir balance mismatch")
     _close(summary.get("max_system_balance_residual_m3"), max_system, "summary system balance mismatch")
     _close(summary.get("final_channel_storage_m3"), stocks[-1], "summary channel stock mismatch")

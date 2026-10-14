@@ -14,7 +14,7 @@ conditions below.
 | Operating policy | Original seasonal target is simplified. Resolve year/date-specific schedules, DKP 2014 exhibit applicability, environmental-flow exceptions and required missing inputs; do not transfer FE rules to another reservoir. |
 | Other reservoirs | Own geometry, storage/elevation and outlet curves, initial state, prompt/knowledge, versioned auditors; passive Prompton needs no LLM and its strategy status remains UNKNOWN. |
 | Model and provider | Explicit installed/available model ID, supported structured output/temperature, timeout/token limits, credential environment variable name, and approved request budget; no automatic downloads. |
-| Scientific comparison | Same forcing/initial state/physics/routing across benchmark, zero-shot and DKP; defined performance metrics, stochastic replications and failure handling before interpretation. |
+| Scientific comparison | Same forcing/initial state/physics/routing across the rule benchmark and both named LLM information designs; defined performance metrics, stochastic replications and failure handling before interpretation. |
 | Readiness gate | Create a new case with supported values and explicit live readiness; use new run/output IDs. No accepted scientific input is overwritten. |
 
 Malformed, truncated or transport-failed replies stop before release. No automatic

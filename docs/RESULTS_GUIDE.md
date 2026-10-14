@@ -12,6 +12,7 @@ executed. Then inspect the audit and the trace explaining that decision.
 | `network_balance.csv` | Water-balance evidence for the network |
 | `reach_volume_trace.json` | Routing inputs and outputs |
 | `summary.json` | Completion, numerical checks and audit counts |
+| `outcome_audit.jsonl` | Optional post-routing control-point diagnostics and resolved limit sources |
 
 Rates use **m³/s**; storage and water-balance residuals use **m³**. Total outflow
 is implemented controlled release plus spill. The total is injected into routing
@@ -28,7 +29,7 @@ methods. Detailed tables are embedded in the [main tutorial](../tutorials/main.i
 
 Read one step in this order: **available information → rendered prompt → full
 reply → operation proposal → response checks → actual release → next-step
-information**. For DKP, also inspect the retrieved excerpts and their sources.
+information**. For the retrieved-knowledge method, also inspect the excerpts and their sources.
 
 | Record | Evidence |
 |---|---|
@@ -36,6 +37,11 @@ information**. For DKP, also inspect the retrieved excerpts and their sources.
 | `audit.jsonl` | Configured operating criteria and their verdicts |
 | `physics.jsonl` and `backend_events.jsonl` | Applied release, storage calculations and coupling events |
 | `experiment.json` | Saved settings and provenance |
+
+When an information profile is enabled, the selected source, valid/available
+times and history are preserved under
+`observation.context.decision_information`. Read that snapshot beside the final
+messages, action, physical transition and any control-point outcome record.
 
 The [LLM decision workflow](LLM_MODULES.md) explains each module. The inspector
 reads saved records; it makes no model request.
@@ -54,10 +60,27 @@ an operating criterion.
 | WARN | A configured warning requires interpretation |
 | UNKNOWN | The required evidence or an applicable auditor is unavailable |
 
-The saved zero-shot example retains **2 PASS / 1 FAIL**; DKP retains **3 FAIL**.
+The saved available-information example retains **2 PASS / 1 FAIL**; the
+retrieved-knowledge example retains **3 FAIL**.
 The benchmark retains **3 PASS** under its release-bounds auditor. Their auditor
 suites differ, so these counts do not establish which policy is better. Strategy
 acceptance remains unset in the LLM snapshots.
+
+These historical machine names identify preserved provenance. The public method
+titles are **LLM operation with available information** and **LLM operation with
+retrieved knowledge**.
+
+## Read post-routing outcome checks
+
+`outcome_audit.jsonl` is separate from request/decision `audit.jsonl`. Each
+`control-point-audit.v1` row records the check ID, timestep, node, routed flow,
+resolved minimum/maximum, status, limit sources and decision references. A
+dynamic limit comes from selected information at that same decision timestep;
+missing optional information yields `UNKNOWN`.
+
+The result diagnoses the routed system after decisions and routing. It does not
+change a release, optimize routing, guarantee safety or assign causal blame to
+one agent. Keep its counts separate from historical request-audit counts.
 
 ## Troubleshoot
 

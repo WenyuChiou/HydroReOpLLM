@@ -1,13 +1,12 @@
 {
   "status": "PARENT_VISUAL_AND_STRUCTURE_CHECKS_PASS",
-  "revision": 28,
+  "revision": 29,
   "drawio_version": "26.0.4",
-  "native_cards": 12,
-  "native_cells": 79,
-  "attached_edges": 17,
-  "horizontal_paths_without_turns": 9,
-  "movable_raster_objects": 11,
-  "svg_native_text": 38,
+  "native_cards": 14,
+  "native_cells": 85,
+  "attached_edges": 19,
+  "movable_raster_objects": 14,
+  "svg_native_text": 40,
   "svg_foreign_objects": 0,
   "new_generated_icon_assets": 0,
   "preserved_generated_icon_assets": 4,
@@ -26,7 +25,7 @@
     "orange": "rule-based operation",
     "purple": "LLM modules",
     "teal": "checks and records",
-    "gray": "optional knowledge"
+    "gray": "external data and optional knowledge"
   },
   "fill_semantics": "Flat pale fills match component and region function; never verdict or focus",
   "policy_choice": "Each reservoir chooses exactly one policy: user operating rules or a checked LLM proposal.",
@@ -36,18 +35,20 @@
     "Native HydroCNHS": "Provides GWLF/ABCD rainfall-runoff, Lohmann routing, and the native Dam API.",
     "Reservoir": "HydroOpsLM adds storage balance, release, and spill inside the native Dam API operation node.",
     "Operation audit": "Evaluates the current observation and requested action from either selected policy before physical execution.",
-    "Trace records": "Binds policy records and decision-audit verdicts to implemented release, storage, and spill after physical execution."
+    "Trace records": "Binds policy records and decision-audit verdicts to implemented release, storage, and spill after physical execution.",
+    "Available information": "Configurable per-agent selection of causally available simulation values and external data; no same-step downstream simulation values.",
+    "External data": "Optional catalogs for observed river conditions, demands, forecasts and other supplied quantities with units and availability."
   },
   "record_flow": "The shared operation interface supplies the release request to decision audit before physics. Trace later binds its verdict to committed physical execution; LLM proposal and checker records are retained separately.",
   "visual_qa": {
-    "full_png": "parent PASS",
-    "width_900_png": "parent PASS",
-    "pdf_raster": "parent PASS at180mm width",
-    "strict_edge_crossings": 0,
-    "independent_review": "PASS separate-context source/figure review and targeted CSS/website visual recheck; no critical issues or warnings",
+    "full_png": "parent and independent cold-reader PASS, currentPNG97695ce9",
+    "width_900_png": "parent and independent cold-reader PASS, currentprevieweb9a6d8f",
+    "pdf_raster": "parent PASS actualdraw.io PDF1500px render; nativecanvas placedat180mm forpaper",
+    "independent_review": "Same finaldiagram cold-reader and targeted endpoint/900px recheck PASS, no concrete blocker",
     "human_comprehension": "UNMEASURED",
     "journal_compliance": "NOT CLAIMED",
-    "browser_screenshots": "PASS actual loopback HTTP screenshots; 1280/1100/1099/899px, bilingual homes and both tutorials; all images loaded, no page overflow"
+    "browser_screenshots": "PASS14 actualChrome154.0.8037.98 loopbackHTTP pages at1600/1280/900/390px; allimagesloaded,nooverflow,Arial18; narrowContents linktested",
+    "editability_test": "PASS temporarycopy label, icon, module and attachedconnector modified, saved, reopened/exportedin native draw.io26.0.4 and actualPNGinspected; productionbytesunchanged"
   },
   "comparison_image_defects": [
     "audit incorrectly shown as an execution gate",
@@ -66,33 +67,34 @@
     "Explicit committed-operation record into Trace; source mappings and distinct audit/check roles verified.",
     "Moved record sidecars and their labels to prevent overlap with the native model boundary.",
     "Dedicated documentation site; four equally sized water cards; minimum30px labels and180mm vector PDF.",
-    "Actual terminal-backed HTTP screenshots revealed a stacked desktop menu; corrected responsive sidebar and Arial headings, then independent screenshot review PASS."
+    "Actual terminal-backed HTTP screenshots revealed a stacked desktop menu; corrected responsive sidebar and Arial headings, then independent screenshot review PASS.",
+    "Revision29 configurable Available information plus External data; two independent cold readers, first-use model roles and causality clarified in caption. Release request restored after targeted relation check. Existing generated icons and native Dam API retained."
   ],
-  "previous_quality_sha256": "9760c3e2333322acb36034cb9de4b7db2a38bc2c0b2af93b41ccd0e5c4e7103d",
+  "previous_quality_sha256": "f398ac159e531a3c77b2b76d4eb16cbe897b6d865eb578bed43a4c40d7d0b242",
   "artifacts": {
     "docs/figures/hydrocnhs-coupling-framework-en.drawio": {
-      "bytes": 12804683,
-      "sha256": "213816a99946981e463bea49587d0d2384510e0be33e5699a714a579de364648"
+      "bytes": 16442741,
+      "sha256": "f1dedd09a7fdf198ee390685baf953500dcc366eeab419973fb9068a59f033d5"
     },
     "docs/figures/hydrocnhs-coupling-framework-en.png": {
-      "bytes": 301629,
-      "sha256": "51beca80d4b808d4f9b051c6795c97f4845dc8608a1d67d183982759bb74b6c0"
+      "bytes": 323722,
+      "sha256": "97695ce9386aab5c9cf63dc4c3a1dcc2aedfcdf2876dbd3ad4955da5b2ed63c9"
     },
     "docs/figures/hydrocnhs-coupling-framework-en.svg": {
-      "bytes": 12802265,
-      "sha256": "635c269b1749fe51f2e3ef7727c6ba63882a2913389cd8f06a34f2b66d78b837"
+      "bytes": 16440568,
+      "sha256": "2e28d584e37132a0891644e84e49d2f48eb07054777b5a62e56ab08be0de4f27"
     },
     "docs/figures/hydrocnhs-coupling-framework-en.pdf": {
-      "bytes": 8963997,
-      "sha256": "3d111a3bbc08a0d5c0180c25288e5e6d3033b0865eb084bb7ae1cea539e24ffd"
+      "bytes": 8885380,
+      "sha256": "b509bf073dcc2f3a4bdfa9a2fc389b8d083e3c6ffeff354d4d1cdcdc5e59b69a"
     },
     "docs/figures/source/build_coupling_drawio.py": {
-      "bytes": 15538,
-      "sha256": "48a078fd0c1b0dab7b410d270f3e10ed72f35bac835859718cf6592221244138"
+      "bytes": 16460,
+      "sha256": "7b6451f6c4612a8948df08e1e4a43cacc207c40d288dd90846b2d80606321ea6"
     },
     "docs/figures/assets/coupling-framework/relationship-map.json": {
-      "bytes": 9817,
-      "sha256": "89a95d17a5700789b08d956084256f92205ab68097286a64f46663b7b65cae9c"
+      "bytes": 11024,
+      "sha256": "fa33ad96db61a5164af2b4bc772e85585e08dff9874b674a4dc5b4b30f5d449f"
     }
   },
   "color_semantics": {
@@ -100,7 +102,7 @@
     "orange": "Rule-based operation.",
     "purple": "LLM information and decision modules; teal checks remain distinct within the LLM region.",
     "teal": "Response checks, operation audit and trace recording; never PASS or FAIL.",
-    "gray": "Optional knowledge input."
+    "gray": "External data and optional knowledge sources."
   },
   "reservoir_width_before": 340,
   "reservoir_width_after": 300,

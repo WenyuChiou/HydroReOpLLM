@@ -3,33 +3,31 @@
 [English](README.md) | [繁體中文](README.zh-TW.md) · [All examples](../README.md)
 
 This single-reservoir example demonstrates a rule-based benchmark and two LLM
-information designs: zero-shot and DKP. All three use the same three-day FE Walter
+information designs: available information and retrieved knowledge. All three use the same three-day F.E. Walter
 input, physical case, zero-loss assumption, and `UH=[1.0]` routing. They illustrate
 how to use HydroOpsLM; these saved diagnostic runs do not establish policy performance.
 
 | Example | Decision source | Step-by-step guide | Saved evidence |
 |---|---|---|---|
 | Rule-based benchmark | Flood-control rule with frozen 1996–2015 statistics | [Rule-based](benchmark/README.md) | [Deterministic snapshot](../../results/fe_walter_tutorial_benchmark_2016_01/) |
-| Zero-shot | Local Ollama prompt and reply | [Zero-shot](zero_shot/README.md) | [Zero-shot snapshot](../../results/fe_walter_ollama_2016_01/zero_shot/) |
-| DKP | The same LLM interface with retrieved operating knowledge | [DKP](dkp/README.md) | [DKP snapshot](../../results/fe_walter_ollama_2016_01/dkp/) |
+| LLM operation with available information | Local Ollama prompt and reply | [Available-information guide](zero_shot/README.md) | [Historical `zero_shot` snapshot](../../results/fe_walter_ollama_2016_01/zero_shot/) |
+| LLM operation with retrieved knowledge | The same LLM interface with source-bound retrieved operating knowledge | [Retrieved-knowledge guide](dkp/README.md) | [Historical `dkp` snapshot](../../results/fe_walter_ollama_2016_01/dkp/) |
 
 Each guide follows **input → YAML → prompt or rule → check → run → verify →
 audit/trace**. The guides read existing results first and show how to configure
 a separate run without overwriting them.
 
-Open the [main notebook](../../tutorials/main.ipynb) for the full comparison. It shows the input
-with units, complete saved prompts, rule/model outputs, current contract recheck,
-implemented release, next information, audit verdicts, and a three-method plot.
-
-![Three-day FE Walter results](../../tutorials/assets/fe_walter_three_method.png)
-
-Implemented outflow and storage under shared demonstration conditions. These
-short trajectories illustrate integration, not operational-policy performance.
+First follow [one complete decision](../../docs/FIRST_DECISION.md). After the
+request, implemented release, spill, storage and audits are defined, the
+[results chapter](../../docs/RESULTS_GUIDE.md) explains the three-day figure.
+The [main notebook](../../tutorials/main.ipynb) preserves the full saved prompts,
+replies, tables and plot as a companion artifact.
 
 Initial storage **2,457,848.279729185 m³ (1,992.61 acre-ft)** is an integration
 assumption rather than an observed 2016 state. Identity routing is not calibrated.
 The saved model used `gemma3:4b`, temperature 0.7, three calls per method, and no
-retry. Zero-shot retained 2 PASS / 1 FAIL audits; DKP retained 3 FAIL; strategy
+retry. The available-information method retained 2 PASS / 1 FAIL audits; the
+retrieved-knowledge method retained 3 FAIL; strategy
 acceptance is `null`.
 
 ## Rule-based benchmark

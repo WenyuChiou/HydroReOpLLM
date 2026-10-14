@@ -1,0 +1,284 @@
+# Complete parameter reference
+
+This page inventories the public experiment, model, agent, information, case,
+physics, routing and audit keys. **Default** means a software default. Values in
+the example column are examples, not defaults or recommendations. Paths resolve
+from the experiment YAML unless `case_root` establishes the allowed case bundle.
+Unknown keys, duplicate YAML keys and nonfinite numbers are rejected.
+
+## Experiment YAML
+
+| Path | Required; type | Unit / default | Meaning, range and effect | Example | Source |
+|---|---|---|---|---|---|
+| `schema_version` | yes; text | exactly `llm-reservoir-experiment.v1` | Selects this loader contract | same | `workflow.load_settings` |
+| `case` | yes; path | no default | Case JSON inside `case_root` | `../case/case.json` | `workflow.load_settings` |
+| `case_root` | no; path | conditional; see meaning | Allowed root for case and pinned files. Without it, use the runtime root when the case is inside that root; otherwise use the case file's parent. | `../bundle` | `workflow.load_settings` |
+| `run_id` | yes; nonempty text | no default | Trace identity; choose a new value per run | `my-run-01` | `workflow.load_settings` |
+| `output` | yes; path | no default | New output directory; existing output is refused | `../runs/my-run-01` | `workflow.load_settings` |
+| `start_date`, `end_date` | no; quoted ISO date | case extent | Inclusive continuous daily subset; no automatic warm-up | `"2016-01-01"` | `workflow.load_settings` |
+| `max_calls` | no; integer | `0` | Must be at least the planned LLM request count; offline runs need no positive allowance | `3` | `workflow.load_settings` |
+| `models` | conditional; mapping | `{}` when no LLM | Named model profiles | see below | `workflow.load_settings` |
+| `agents` | yes; mapping | no default | One entry per controlled reservoir; passive outlets have none | `operator_1: …` | `workflow.load_settings` |
+| `auditors` | no; mapping | `{}` | Named request/decision diagnostic checks | `release_limits: …` | `workflow.load_settings` |
+| `information_sources` | no; mapping | `{}` | Opt-in causal source catalog | see [Information](INFORMATION.md) | `information.InformationCatalog` |
+| `information_profiles` | no; mapping | `{}` | Named selections from the source catalog | `operator_view: …` | `information.InformationCatalog` |
+| `outcome_checks` | no; mapping | `{}` | Post-routing control-point diagnostics | `downstream_minimum: …` | outcome-check loader |
+
+The current runner is daily. It does not automatically resume or retry a model
+request. A live run also requires `--allow-network` and a live-ready case.
+
+## Model profile
+
+| Key | Required; type | Default | Range / meaning | Example | Source |
+|---|---|---|---|---|---|
+| `provider` | yes; text | none | `ollama` or `openai_compatible` | `ollama` | `configured_backend.validate_model_settings` |
+| `model` | yes; text | none | Provider model ID; the software does not download it | `gemma3:4b` | same |
+| `base_url` | yes; HTTP(S) URL | none | Ollama base URL or final OpenAI-compatible endpoint | `http://localhost:11434` | same |
+| `temperature` | no; finite number | `0.7` | 0 through 2; current F.E. Walter examples explicitly use 0.7 | `0.7` | same |
+| `max_tokens` | no; integer | `512` | Positive output limit | `2048` | same |
+| `timeout_seconds` | no; number | `60` | Positive single-request timeout | `120` | same |
+| `seed` | no; integer or null | `null` | Passed when supported; does not guarantee reproducibility | `7` | same |
+| `api_key_env` | no; text or null | `null` | Environment-variable name, never a credential value | `MODEL_API_KEY` | same |
+
+## Agent
+
+Common keys are below. An agent ID is the mapping key; `agent_name` and
+`n_agents` are not YAML fields.
+
+| Key | Required; type | Default / allowed | Meaning and effect | Source |
+|---|---|---|---|---|
+| `reservoir` | yes; text | exact controlled reservoir ID | Binds one isolated backend/state/history to one reservoir | `workflow.load_settings` |
+| `strategy` | no; text | `configured`; also `benchmark`, `reference_v3_7` | Selects the implemented backend contract | same |
+| `mode` | yes; text | `offline` or `llm` as strategy permits | Chooses fixed/supplied operation or provider request | same |
+| `model` | LLM only; profile ID | none | Selects `models` entry | same |
+| `prompt` | configured strategy; path | none | UTF-8 `string.Template` user instructions; also validated in fixed offline mode | same |
+| `prompt_version` | no; text | `"1"` | User-managed prompt identity | same |
+| `knowledge` | no; mapping | `{}` | Alias to local full-document path; generic strategy does no automatic retrieval | same |
+| `context` | no; JSON mapping | `{}` | Static supplemental facts; cannot override host physical core | same |
+| `context_file` | no; path | none | JSON supplemental context file | same |
+| `information` | no; profile ID | none | Enables `$information`; requires an existing information profile | information integration |
+| `response_schema` | no; text | `reservoir-action.v1` | Generic common action or preserved `reservoir-dkp-decision.v1` contract | same |
+| `auditors` | no; unique list | `[]` | IDs from top-level `auditors`; all enabled checks participate | same |
+| `release_cms` | configured offline; number | none | Fixed nonnegative requested release in m³/s | same |
+
+### Configured prompt placeholders
+
+| Placeholder | Value | Rule |
+|---|---|---|
+| `$agent_id` | JSON agent ID | Optional |
+| `$observation` | Protected current host observation plus static context | Optional; required by the specialized retrieved-knowledge response contract |
+| `$knowledge` | Selected IDs and complete local document text | Optional; required by the specialized retrieved-knowledge response contract |
+| `$previous_transition` | Previous committed observation/action/physics; first step `null` | Optional |
+| `$information` | Selected `decision-information.v1` snapshot | Required when agent selects an information profile |
+
+Use `$$` for a literal dollar sign. Unknown placeholders stop validation.
+The generic system message contains the response contract; YAML does not expose
+an arbitrary generic `system_prompt` field.
+
+### Rule-based benchmark strategy
+
+`strategy: benchmark` requires `mode: offline`, a `benchmark` mapping and no
+model/prompt fields.
+
+| `benchmark` key | Required / default | Meaning |
+|---|---|---|
+| `statistics` | required path | Pinned `reservoir-benchmark-statistics.v1` JSON |
+| `purpose` | optional; `flood_control` | `flood_control` or `other` |
+| `alpha` | optional; `0.85` | Finite value in `(0, 1]`; research-selected capacity threshold factor |
+
+The statistics document requires `schema_version`, `reservoir_id`,
+`reference_start`, `reference_end`, `source`, `mean_inflow_cms`,
+`monthly_mean_inflow_cms`, and `reference_day_count`. `source` contains the
+pinned inflow path, SHA256, format and column declarations. These are frozen
+evidence, not runtime defaults. The
+F.E. Walter flood-control adaptation is sourced to Hanasaki et al. (2006) and
+Abeshu et al. (2023), Section 2.3.3.
+
+### Preserved F.E. Walter reference strategy
+
+`strategy: reference_v3_7` uses nested `reference` keys. These reproduce the
+historical case; they are not generic defaults.
+
+| Key | Required / allowed | Meaning |
+|---|---|---|
+| `profile` | required; `fe_walter` | Pinned reservoir profile |
+| `method` | required; `zeroshot` or `dkp` | Historical machine method ID |
+| `system_prompt` | optional path | Explicit prompt bytes; required when mode is `custom` |
+| `system_prompt_mode` | optional; `original` | `original` or `custom`; original mode preserves the pinned builder |
+| `prompt_storage` | optional boolean; `false` | Historical message-construction option |
+| `hide_availability_line` | optional boolean; `true` | Historical formatting option |
+| `dkp_no_missing_inputs` | optional boolean; `true` | Historical retrieved-knowledge response/audit contract |
+| `zeroshot_knowledge` | optional; `target` | Historical `target` or `wiki` context condition; `wiki` only for the `zeroshot` machine method |
+| `dkp` | required path for `dkp` method | Pinned knowledge/retrieval input |
+| `responses` | required path in offline mode | Supplied replies; forbidden in live mode |
+| `profile_file` | optional path | External `reservoir-profile.v1`; otherwise use a pinned built-in profile |
+
+This profile rejects the new information setting. Use a versioned generic prompt
+to demonstrate `$information` without changing original prompt provenance.
+
+## Host observation and action
+
+| Record path | Type / unit | Meaning |
+|---|---|---|
+| `schema_version` | `reservoir-observation.v1` | Observation contract |
+| `timestep` | nonnegative integer | Zero-based daily step |
+| `timestamp` | ISO label | Host step label; legacy dates are UTC anchored for information selection |
+| `inflow_cms` | nonnegative m³/s | Current local reservoir inflow supplied by the host |
+| `release_upper_bound_cms` | nonnegative m³/s | Available-water and operating physical bound |
+| `state.storage_m3` | m³ | Beginning storage |
+| `state.capacity_m3` | m³ | Maximum storage before spill |
+| `state.dead_storage_m3` | m³ | Lower physical storage bound |
+| `state.minimum_release_cms`, `state.maximum_release_cms` | m³/s | Configured controlled-release bounds |
+| `state.dt_seconds` | seconds; daily `86400` | Physical step length |
+| `context` | JSON mapping | Host identity/assumptions plus supplemental context |
+
+The public action is exactly `schema_version: reservoir-action.v1` and finite,
+nonnegative `release_cms` in m³/s. Storage, spill and routing are not action fields.
+
+## Information catalog
+
+All source/profile fields, defaults, causal selection and rendered snapshot
+fields are specified in [Decision information](INFORMATION.md). Every source has
+required `type`, `quantity`, `unit`, and `location`, with optional `datum`.
+
+| Source type | Type-specific keys |
+|---|---|
+| `static` | required `value` |
+| `csv` | required `path`, `kind` (`observation` or `forecast`) |
+| `simulation` | no additional keys; quantity limited to inflow/storage/release/flow |
+| `extension` | required registered `provider`; optional JSON `parameters`; optional `kind` defaults to `observation` |
+
+Each profile has exactly `fields`; each alias requires `source` and accepts
+`required` (default `true`), `unit`, `history` (default `1`, positive integer),
+and `max_age_seconds` (optional nonnegative number).
+
+Supported output conversions are `m3/s` ↔ `cfs`, `m3` ↔ `acre-ft`, and
+`m` ↔ `ft`. Simulation sources must declare native `m3/s` for flow rates and
+`m3` for storage; profile fields may request a supported converted unit.
+
+## Network case and inflow
+
+The preferred case document uses `schema_version:
+llm-reservoir-network-case.v1`.
+
+| Path | Required / default | Meaning |
+|---|---|---|
+| `data_kind` | required | `simulated_local_inflow`, `observed_local_inflow`, or `synthetic_fixture` |
+| `network` | required mapping | `llm-reservoir-network.v1` document below |
+| `inflow_source.path` | required for file input | CSV path inside project root |
+| `inflow_source.sha256` | required | Exact file byte hash |
+| `inflow_source.format` | `daily-node-local-cms.v1` | Requires `date,node,local_inflow_cms` columns |
+| `inflow_records` | synthetic fixture only | Inline daily rows; mutually exclusive with `inflow_source` |
+| `knowledge_packages.<id>.path`, `.sha256` | optional pair | Hash-pinned local knowledge document |
+
+The legacy `llm-reservoir-case.v1` loader remains supported for preserved
+single-reservoir cases. Its input and HydroCNHS commit are pinned; use the
+network case for new work.
+
+### `network`
+
+| Key | Required / default | Meaning and constraints |
+|---|---|---|
+| `schema_version` | required `llm-reservoir-network.v1` | Network contract |
+| `start_date` | required canonical ISO date | First daily inflow row |
+| `case_id` | optional nonempty text | Trace identity |
+| `reservoirs` | required nonempty mapping | Reservoir specifications |
+| `junctions` | optional list; `[]` | Distinct routing node IDs |
+| `outlet` | required text | Unique common terminal node |
+| `connections` | required nonempty list | Acyclic routing edges; all internal output routed once |
+| `node_locations` | optional mapping; `{}` | Structured location metadata for known nodes |
+| `assumptions` | optional mapping; `{}` | Declared case assumptions |
+
+Each reservoir requires `inflow_node` and `physical`. `operation_mode` defaults
+to `controlled`; `passive_outlet` reservoirs have no agent and require a rating
+specification. Optional `location`, `context`, and `policy_spec` are JSON mappings.
+Context cannot override `reservoir_id`, evaporation, seepage, case ID or location.
+
+Each connection requires `source` and `target`; `fraction` defaults to `1.0` and
+must be in `(0,1]`; `unit_hydrograph` defaults to `[1.0]`, contains nonnegative
+weights and sums to 1. Outgoing fractions from each internal node sum to 1.
+Each daily inflow row supplies nonnegative incremental local inflow for every
+routing node. Already routed total flow must not be injected again.
+
+### Passive outlet rating
+
+A reservoir with `operation_mode: passive_outlet` has no agent. Its
+`passive_outlet` value is a `passive-storage-discharge.v1` mapping.
+
+| Key | Required / default | Meaning and constraints |
+|---|---|---|
+| `schema_version` | required exact text | `passive-storage-discharge.v1` |
+| `storage_m3` | required numeric list | At least two finite, nonnegative, strictly increasing storage points |
+| `discharge_cms` | required numeric list | Same length; finite, nonnegative, and nondecreasing discharge values |
+| `provenance` | required mapping | Source identity for the rating data |
+
+The runner interpolates only within the declared range and does not extrapolate.
+Passive reservoirs require `minimum_release_cms: 0`; their maximum release must
+cover the highest rating discharge. They have no independent decision state.
+
+## Reservoir physics
+
+| Key | Required; type | Unit / default | Constraint and effect |
+|---|---|---|---|
+| `reservoir_id` | yes; text | no default | Unique physical reservoir ID |
+| `capacity_m3` | yes; number | m³ | Positive maximum storage; excess becomes spill |
+| `dead_storage_m3` | yes; number | m³ | Nonnegative lower storage bound |
+| `initial_storage_m3` | yes; number | m³ | Between dead storage and capacity |
+| `minimum_release_cms` | yes; number | m³/s | Nonnegative lower controlled-release target |
+| `maximum_release_cms` | yes; number | m³/s | At least minimum release |
+| `dt_seconds` | no; number | `86400` s | Positive; network runner currently requires exactly daily |
+
+The current kernel assumes zero evaporation and seepage. It clips requested
+release to operating and available-water bounds, computes spill above capacity,
+and checks mass balance. A case example value is not a literature range.
+
+## Request/decision auditors
+
+| Type and key | Required / default | Meaning |
+|---|---|---|
+| Common `type` | required | `release_bounds` or `field_range` |
+| Common `version` | optional; `"1"` | Auditor version string |
+| `release_bounds.tolerance_cms` | optional; `0` m³/s | Nonnegative tolerance around feasible bound |
+| `field_range.path` | required | Dot path beginning `observation` or `action` |
+| `field_range.minimum`, `.maximum` | at least one | Finite numeric diagnostic bound |
+| `field_range.on_violation` | optional; `FAIL` | `FAIL` or `WARN` |
+| `dkp_strategy.knowledge_id` | required text | ID of knowledge supplied to that agent |
+| `dkp_strategy.profile` | required path | Pinned `dkp-audit-profile.v1` with dated targets and storage-elevation curve source |
+
+Missing or nonnumeric `field_range` evidence yields `UNKNOWN`. Suite aggregation
+is `FAIL > UNKNOWN > WARN > PASS`; an empty suite is `UNKNOWN`. Audit status is
+diagnostic and does not change the action or physical transition.
+
+## Post-routing outcome checks
+
+| Key | Required / default | Meaning |
+|---|---|---|
+| `node` | required network node | Routed flow location |
+| `minimum_cms`, `maximum_cms` | optional nonnegative m³/s | Scalar limits |
+| `minimum_information`, `maximum_information` | optional `{agent, field}` | Same-timestep selected information as a dynamic limit |
+| `tolerance_cms` | optional; `1e-9` m³/s | Nonnegative comparison tolerance |
+
+At least one bound is required. A scalar and information reference cannot both
+define the same bound. Missing optional information yields `UNKNOWN`. The
+independent `outcome_audit.jsonl` result does not change historical request audits,
+routing or releases and does not assign system-level failure to one agent.
+
+## Output records
+
+| Path | Contents |
+|---|---|
+| `experiment.json`, `summary.json` | Settings, hashes, runtime identity, completion and counts |
+| `decisions.jsonl` | Host observation, normalized request and provenance |
+| `audit.jsonl` | Request/decision diagnostic verdicts |
+| `outcome_audit.jsonl` | Post-routing control-point diagnostics |
+| `physics.jsonl` | Requested and implemented release, spill, storage and balance |
+| `backend_events.jsonl` | Decision/feedback lifecycle and failures |
+| `raw/` | Available complete messages, native replies, audit payloads and source references |
+| `reservoir_trajectory.csv` | Daily reservoir rates and storage |
+| `network_flows.csv`, `network_balance.csv` | Routed flow and network water balance |
+| `reach_volume_trace.json` | Reach inflow, outflow and channel storage |
+
+See [Results, audit and trace](RESULTS_GUIDE.md) for interpretation. Full water-use
+allocation and turbine/head/energy solving are outside the current feature set.
+
+[Previous: Multiple reservoirs](../tutorials/advanced.ipynb) · [Next: Reference and citation](REFERENCE.md)

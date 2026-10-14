@@ -10,7 +10,7 @@ div.body h1, div.body h2,
 div.body h3, div.body h4 {
   font-family: Arial, "Microsoft JhengHei", "PingFang TC", sans-serif;
 }
-body, div.body { font-size: 18px; line-height: 1.55; }
+body, div.body { font-size: 18px; line-height: 1.62; }
 div.sphinxsidebar { font-size: 16px; }
 pre, code, div.highlight pre {
   font-family: Consolas, "Liberation Mono", monospace;
@@ -19,6 +19,8 @@ div.body table { max-width: 100%; }
 div.body td, div.body th { overflow-wrap: anywhere; }
 div.body table.dataframe td { white-space: nowrap; overflow-wrap: normal; }
 div.body table.dataframe th { overflow-wrap: normal; }
+/* Long inline schema names must not widen narrow manual pages. */
+div.body code.literal .pre { white-space: normal; overflow-wrap: anywhere; }
 div.sphinxsidebar .caption { font-weight: bold; color: #263d4c; margin-top: 1.2em; }
 div.sphinxsidebarwrapper { max-height: 95vh; overflow-y: auto; }
 div.sphinxsidebar h3, div.sphinxsidebar h4, div.sphinxsidebar p,
@@ -33,10 +35,10 @@ div.body .download { font-weight: bold; }
   body { margin: 0; padding: 0; }
   div.document {
     display: grid;
-    grid-template-columns: 260px minmax(0, 1fr);
+    grid-template-columns: 270px minmax(0, 1fr);
     gap: 32px;
     width: calc(100% - 48px);
-    max-width: 1280px;
+    max-width: 1320px;
     margin: 24px auto;
     align-items: start;
   }
@@ -51,6 +53,18 @@ div.body .download { font-weight: bold; }
   }
   div.sphinxsidebarwrapper { padding: 16px; max-height: calc(100vh - 48px); }
   div.document > div.clearer { display: none; }
+}
+.chapter-toc { display: none; }
+@media (min-width: 1450px) {
+  div.document {
+    grid-template-columns: 270px minmax(0, 860px) 230px;
+    max-width: 1424px;
+  }
+  .chapter-toc {
+    display: block; grid-column: 3; grid-row: 1; position: sticky; top: 24px;
+    max-height: calc(100vh - 48px); overflow-y: auto; padding: 12px 0 12px 18px;
+    border-left: 1px solid #d4e0e8; font-size: 15px;
+  }
 }
 @media (max-width: 1099px) {
   div.sphinxsidebar {
@@ -83,16 +97,57 @@ div.sphinxsidebar .manual-navigation a:focus-visible {
   outline: 2px solid #245e83; outline-offset: 4px;
 }
 div.sphinxsidebar .manual-navigation { list-style: none; padding-left: 0; }
+div.sphinxsidebar ol.manual-navigation { list-style: decimal; padding-left: 28px; }
 div.sphinxsidebar .manual-navigation > li { margin-bottom: 12px; }
 div.sphinxsidebar .manual-navigation ul { list-style: none; padding-left: 16px; }
 div.sphinxsidebar .manual-navigation ul li { margin: 8px 0; }
 div.sphinxsidebar .manual-navigation a {
-  display: flex; align-items: flex-start; gap: 8px;
+  display: block;
 }
 div.sphinxsidebar .navigation-icon {
   width: 28px; height: 28px; object-fit: contain; flex-shrink: 0;
+}
+
+.manual-brand { border-bottom: 2px solid #245e83; padding-bottom: 12px; }
+.manual-brand a { display: block; font-size: 21px; font-weight: 700; }
+.manual-brand span { display: block; margin-top: 4px; color: #536875; font-size: 14px; }
+.manual-utility { display: flex; flex-wrap: wrap; gap: 12px; }
+.manual-reference { font-size: 15px; }
+.chapter-toc h3 { margin-top: 0; color: #263d4c; }
+.chapter-toc ul { list-style: none; padding-left: 0; }
+.chapter-toc ul ul { padding-left: 14px; }
+.chapter-toc li { margin: 6px 0; }
+.chapter-pagination {
+  display: flex; justify-content: space-between; gap: 24px; margin: 48px 0 12px;
+  padding-top: 18px; border-top: 1px solid #d4e0e8;
+}
+.chapter-pagination .next { margin-left: auto; text-align: right; }
+div.body blockquote { border-left: 4px solid #2b8a8a; margin-left: 0; padding-left: 18px; }
+div.body table { display: block; overflow-x: auto; border-collapse: collapse; }
+div.body th { background: #edf4f8; color: #203947; }
+div.body th, div.body td { border: 1px solid #cad8e1; padding: 0.5rem; }
+details { margin: 1rem 0; padding: 0.75rem 1rem; background: #f6f7f9; border: 1px solid #d9e0e5; }
+details summary { cursor: pointer; font-weight: 700; color: #4d3c78; }
+@media (max-width: 1099px) {
+  div.sphinxsidebar { max-height: none; }
+  div.sphinxsidebar .desktop-chapters { display: none; }
+  div.sphinxsidebar .mobile-chapters { display: block; }
+  div.sphinxsidebar .mobile-chapters .manual-navigation { display: block; }
+  .manual-brand { border-bottom: 0; }
+  .chapter-pagination { flex-direction: column; }
+  .chapter-pagination .next { margin-left: 0; text-align: left; }
 }
 @media (max-width: 600px) {
   div.body .example-links th, div.body .example-links td { padding: 8px 4px; }
   div.body .example-links img { width: 64px; height: 64px; }
 }
+
+/* The same chapter links remain accessible on narrow screens. */
+div.sphinxsidebar .mobile-chapters { display: none; }
+@media (max-width: 1099px) {
+  div.sphinxsidebar .mobile-chapters { display: block; margin: 12px 0; }
+  div.sphinxsidebar .mobile-chapters[open] { max-height: 65vh; overflow-y: auto; }
+}
+
+/* Keep the model-call column heading as whole words. */
+#demonstration-and-verification table th:last-child { min-width: 105px; overflow-wrap: normal; }

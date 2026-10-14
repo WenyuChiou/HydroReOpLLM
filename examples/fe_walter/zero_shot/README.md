@@ -1,10 +1,13 @@
-# FE Walter: zero-shot
+# F.E. Walter: LLM operation with available information
 
 [English](README.md) | [繁體中文](README.zh-TW.md) · [Three examples](../README.md)
 
-Zero-shot supplies operating instructions and available reservoir information
-to the LLM. It does not retrieve DKP excerpts. The example uses local Ollama;
-the walkthrough reads saved replies before showing how to start a new run.
+This method supplies operating instructions and available reservoir information
+to the LLM. It does not retrieve knowledge excerpts. The example uses local
+Ollama; the walkthrough reads saved replies before showing how to start a new run.
+
+The `zero_shot` directory and provenance value are historical machine IDs kept
+unchanged for reproducibility. They are not the public method title.
 
 ## 1. Prepare input
 

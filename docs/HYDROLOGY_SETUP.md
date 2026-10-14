@@ -11,7 +11,7 @@ There are two configuration layers:
 | Layer | Configure here | What it controls |
 |---|---|---|
 | Catchment hydrology | Native HydroCNHS model YAML/dictionary | Subbasins, area, latitude, GWLF/ABCD, hydrological parameters, river connections and routing parameters |
-| Reservoir experiments | `experiments/*.yaml` plus case JSON | Reservoir physics and initial storage, supplied local inflows, agents, prompts, DKP, models, auditors and outputs |
+| Reservoir experiments | `experiments/*.yaml` plus case JSON | Reservoir physics and initial storage, supplied local inflows, agents, prompts, retrieved knowledge, models, auditors and outputs |
 
 The reservoir runner currently supplies existing inflow series to HydroCNHS. Changing a catchment area or runoff parameter will change inflow only when you run the native rainfall-runoff model and prepare a new inflow dataset. It will not alter an already frozen inflow CSV.
 
@@ -55,7 +55,7 @@ The current `run_experiment.py check/run/verify` commands verify reservoir exper
 | 層級 | 設定位置 | 負責內容 |
 |---|---|---|
 | 集水區水文 | 原生 HydroCNHS model YAML／dictionary | 子集水區、面積、緯度、GWLF／ABCD、水文參數、河網與 routing 參數 |
-| 水庫實驗 | `experiments/*.yaml` 加 case JSON | 水庫物理與初始蓄水、給定局部入流、agents、prompt、DKP、模型、auditor 與輸出 |
+| 水庫實驗 | `experiments/*.yaml` 加 case JSON | 水庫物理與初始蓄水、給定局部入流、agents、prompt、檢索知識、模型、auditor 與輸出 |
 
 目前水庫執行器把既有入流序列交給 HydroCNHS。若修改面積或產流參數，必須重新執行原生水文並準備新入流資料，才會改變水庫的入流；已凍結的 CSV 不會因此改變。
 
