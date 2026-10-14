@@ -32,6 +32,52 @@ Open [experiment.ollama.yaml](experiment.ollama.yaml). The YAML selects local Ol
 **at most three requests**, and **no retries**. Each controlled reservoir is
 assigned one independent agent; this case has one.
 
+<details>
+<summary>Exact saved run YAML (expand)</summary>
+
+```yaml
+# User-requested three-day local Ollama diagnostic; check performs no provider call.
+schema_version: llm-reservoir-experiment.v1
+case: ../../../cases/fe_walter_ollama_demo/case.json
+start_date: "2016-01-01"
+end_date: "2016-01-03"
+run_id: hydroopslm-fe-walter-zero-shot-ollama-gemma3-4b-20261012
+output: ../../../runs/hydroopslm-fe-walter-zero-shot-ollama-gemma3-4b-20261012
+max_calls: 3
+models:
+  reservoir_model:
+    provider: ollama
+    model: gemma3:4b
+    base_url: http://localhost:11434
+    temperature: 0.7
+    max_tokens: 2048
+    seed: null
+    timeout_seconds: 120
+    api_key_env: null
+auditors:
+  release_limits:
+    type: release_bounds
+    version: "1"
+agents:
+  fe_operator:
+    reservoir: FEWalter
+    mode: llm
+    model: reservoir_model
+    strategy: reference_v3_7
+    reference:
+      profile: fe_walter
+      method: zeroshot
+      system_prompt: ../../../prompts/fe_walter_reference/zeroshot_system.txt
+      system_prompt_mode: original
+      prompt_storage: false
+      hide_availability_line: true
+      dkp_no_missing_inputs: true
+      zeroshot_knowledge: target
+    auditors: [release_limits]
+```
+
+</details>
+
 For a new run, copy it beside its original:
 
 ```powershell
@@ -45,9 +91,83 @@ demonstration. An existing output folder must not be reused.
 ## 3. Review the prompt or rule
 
 Read the [system prompt](../../../prompts/fe_walter_reference/zeroshot_system.txt)
-and [reading preview](prompt_preview.txt). The system template is fixed; current
-inflow, starting storage and implemented release history update each day.
-Editing the preview does not change execution.
+and [builder reading preview](prompt_preview.txt). The preview is not the saved
+model reply. The [complete saved day-one record](../../../results/fe_walter_ollama_2016_01/zero_shot/raw/policy_4e2006ff9c730ed33c23b8f580d2e49e1d6d8a4a643806a24ef48fe689147292.json)
+contains the actual rendered user prompt, response schema and full Ollama reply.
+The system template is fixed. The host tracks starting storage and converts it
+to pool elevation; the rendered model message exposes the current pool elevation,
+inflow and implemented release history, but not the numeric storage state. Editing
+the preview does not change execution.
+
+<details>
+<summary>Exact saved day-one model exchange (expand)</summary>
+
+**System message**
+
+````text
+You are the operator of a reservoir, making one release decision per day.
+
+Reservoir information (public sources):
+- Name: F.E. Walter Dam on the Lehigh River, Pennsylvania
+- Location: Bear Creek Township, Luzerne County and Kidder Township, Carbon County, Pennsylvania
+- Purpose: flood control, water storage, recreation
+- Opened: 1961; operated by the U.S. Army Corps of Engineers
+- Type: earth-fill embankment with rock shell, impounding the Lehigh River
+- Dam height (foundation): 234 ft; length: 3,000 ft
+- Spillway type: concrete
+- Catchment area: 289 square miles
+- Total capacity (publicly reported): 110,700 acre-feet
+- Operation target: Your goal is to keep the water level at or near the designated normal pool elevation: 1300.0 ft N.G.V.D. in the winter (November through April) and 1370.0 ft N.G.V.D. in the summer (May through October).
+
+Each day you will receive the current date, mean inflow,
+water level at the beginning of the interval, and the previous one or two
+simulated release decisions.
+Flows are also stated as volumes in cubic feet over their interval, the
+unit of the water balance. Decide the interval's mean release
+in cfs, consistent with the reservoir's purpose. You have no operating
+manual; use general reservoir-operation principles.
+
+Physical water balance (not an operating rule):
+- storage_change_cubic_feet = (inflow_cfs - release_cfs) * 86,400 * interval_days.
+- A release below inflow increases storage; a release equal to inflow
+  leaves storage approximately unchanged; a release above inflow decreases
+  storage. Passing inflow cannot refill a reservoir below its target.
+
+Constraints you must respect:
+- Do not plan to release more water than is available (storage + inflow).
+- Avoid letting storage exceed capacity (uncontrolled spill).
+- Avoid abrupt interval-to-interval release changes unless conditions require them.
+
+Respond only with JSON, with the fields in this order:
+  applicable_target_ft (the operation-target water level for this interval),
+  pool_position (below_target | at_target | above_target),
+  intended_storage_direction (increase | hold | decrease),
+  release_relation_to_inflow (below_inflow | equal_to_inflow | above_inflow),
+  reasoning (1-2 sentences), release_cfs (number).
+Decide the first four, then write the reasoning, then choose release_cfs.
+Make release_cfs consistent with the four fields and with your reasoning.
+````
+
+**User message**
+
+````text
+Date: 2016-01-01 (January, day 1 of the year)
+1. Today's inflow: 1,134.5 cfs (= 98,020,360 cubic feet (= 2,250 acre-feet) over 1 days)
+2. Water level at beginning of interval: 1300.00 ft NGVD29
+3. Previous simulated release decisions (and what was actually released):
+   None (first simulated step).
+4. Number of days in this decision interval: 1
+
+Decide the mean release for this interval (cfs).
+````
+
+**Native assistant reply**
+
+````json
+{"applicable_target_ft": 1300.00, "pool_position": "at_target", "intended_storage_direction": "hold", "release_relation_to_inflow": "equal_to_inflow", "reasoning": "Given the target water level of 1300.0 ft and the inflow of 1134.5 cfs, a release equal to inflow is appropriate to maintain the target. This will hold the current storage level.", "release_cfs": 1134.5}
+````
+
+</details>
 
 Follow **info → rendered prompt → full reply → operation proposal → response
 checks → actual release → next-day information** in the
@@ -63,6 +183,8 @@ python run_experiment.py check examples/fe_walter/zero_shot/my-run.yaml
 ```
 
 This checks the configuration without inference or a model request.
+Expect three daily steps, one agent, `planned_llm_calls: 3`, `max_calls: 3`,
+and no calls during `check`.
 
 ## 5. Run
 

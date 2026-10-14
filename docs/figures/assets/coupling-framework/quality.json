@@ -1,12 +1,12 @@
 {
-  "status": "PARENT_VISUAL_AND_STRUCTURE_CHECKS_PASS",
-  "revision": 29,
+  "status": "WORKER_CANDIDATE_STATIC_AND_VISUAL_CHECKS_PASS",
+  "revision": 30,
   "drawio_version": "26.0.4",
   "native_cards": 14,
-  "native_cells": 85,
+  "native_cells": 87,
   "attached_edges": 19,
   "movable_raster_objects": 14,
-  "svg_native_text": 40,
+  "svg_native_text": 41,
   "svg_foreign_objects": 0,
   "new_generated_icon_assets": 0,
   "preserved_generated_icon_assets": 4,
@@ -33,22 +33,22 @@
     "Rule-based operation": "Selectable user operating rules produce a requested release.",
     "LLM modules": "Prompt, language model, operation proposal, and response checks form the alternative policy.",
     "Native HydroCNHS": "Provides GWLF/ABCD rainfall-runoff, Lohmann routing, and the native Dam API.",
-    "Reservoir": "HydroOpsLM adds storage balance, release, and spill inside the native Dam API operation node.",
-    "Operation audit": "Evaluates the current observation and requested action from either selected policy before physical execution.",
+    "Reservoir operation": "HydroOpsLM adds storage balance, release, and spill through the native Dam API.",
+    "Operation audit": "Records configured decision criteria before physical storage, release, and spill calculations; it is not a PASS gate.",
     "Trace records": "Binds policy records and decision-audit verdicts to implemented release, storage, and spill after physical execution.",
     "Available information": "Configurable per-agent selection of causally available simulation values and external data; no same-step downstream simulation values.",
-    "External data": "Optional catalogs for observed river conditions, demands, forecasts and other supplied quantities with units and availability."
+    "External records": "Optional observed river conditions, demands, forecasts, targets and other supplied quantities with units and availability."
   },
   "record_flow": "The shared operation interface supplies the release request to decision audit before physics. Trace later binds its verdict to committed physical execution; LLM proposal and checker records are retained separately.",
   "visual_qa": {
-    "full_png": "parent and independent cold-reader PASS, currentPNG97695ce9",
-    "width_900_png": "parent and independent cold-reader PASS, currentprevieweb9a6d8f",
-    "pdf_raster": "parent PASS actualdraw.io PDF1500px render; nativecanvas placedat180mm forpaper",
-    "independent_review": "Same finaldiagram cold-reader and targeted endpoint/900px recheck PASS, no concrete blocker",
+    "full_png": "worker visual PASS at 1856x1066, candidate 05ae6ada; parent review pending",
+    "width_900_png": "worker visual PASS, candidate 264dca8d; parent review pending",
+    "pdf_raster": "draw.io PDF export PASS; independent raster review pending",
+    "independent_review": "PENDING parent T4 review",
     "human_comprehension": "UNMEASURED",
     "journal_compliance": "NOT CLAIMED",
     "browser_screenshots": "PASS14 actualChrome154.0.8037.98 loopbackHTTP pages at1600/1280/900/390px; allimagesloaded,nooverflow,Arial18; narrowContents linktested",
-    "editability_test": "PASS temporarycopy label, icon, module and attachedconnector modified, saved, reopened/exportedin native draw.io26.0.4 and actualPNGinspected; productionbytesunchanged"
+    "editability_test": "PASS final candidate copy label changed, audit icon moved and attached request-audit endpoint changed; reopened/exported in draw.io 26.0.4 and rendered PNG 0aac17ca inspected"
   },
   "comparison_image_defects": [
     "audit incorrectly shown as an execution gate",
@@ -68,33 +68,34 @@
     "Moved record sidecars and their labels to prevent overlap with the native model boundary.",
     "Dedicated documentation site; four equally sized water cards; minimum30px labels and180mm vector PDF.",
     "Actual terminal-backed HTTP screenshots revealed a stacked desktop menu; corrected responsive sidebar and Arial headings, then independent screenshot review PASS.",
-    "Revision29 configurable Available information plus External data; two independent cold readers, first-use model roles and causality clarified in caption. Release request restored after targeted relation check. Existing generated icons and native Dam API retained."
+    "Revision29 configurable Available information plus External data; two independent cold readers, first-use model roles and causality clarified in caption. Release request restored after targeted relation check. Existing generated icons and native Dam API retained.",
+    "Revision30 targeted clarification: Reservoir operation via native Dam API, simulation feedback plus external records, decision audit before physics, and trace finalized after physics. No PASS gate, second operation engine, icon generation, or broad layout change."
   ],
-  "previous_quality_sha256": "f398ac159e531a3c77b2b76d4eb16cbe897b6d865eb578bed43a4c40d7d0b242",
+  "previous_quality_sha256": "d168ce3b7d732db6b78dc7b6d99a58601f1d7ea6b8a5b919c133b329ca016c37",
   "artifacts": {
     "docs/figures/hydrocnhs-coupling-framework-en.drawio": {
-      "bytes": 16442741,
-      "sha256": "f1dedd09a7fdf198ee390685baf953500dcc366eeab419973fb9068a59f033d5"
+      "bytes": 16443388,
+      "sha256": "f12e434db54747964994849ad0d4189f46287dec6888f59e460d0d0876f1593a"
     },
     "docs/figures/hydrocnhs-coupling-framework-en.png": {
-      "bytes": 323722,
-      "sha256": "97695ce9386aab5c9cf63dc4c3a1dcc2aedfcdf2876dbd3ad4955da5b2ed63c9"
+      "bytes": 330926,
+      "sha256": "05ae6adab061ef415a20f398ffa6d6881834a60eeb49bf0a08742194de09db15"
     },
     "docs/figures/hydrocnhs-coupling-framework-en.svg": {
-      "bytes": 16440568,
-      "sha256": "2e28d584e37132a0891644e84e49d2f48eb07054777b5a62e56ab08be0de4f27"
+      "bytes": 16440687,
+      "sha256": "2ba0da4385c88910e3830b01c3395947eb7856448cd83a200694df965b8f2285"
     },
     "docs/figures/hydrocnhs-coupling-framework-en.pdf": {
-      "bytes": 8885380,
-      "sha256": "b509bf073dcc2f3a4bdfa9a2fc389b8d083e3c6ffeff354d4d1cdcdc5e59b69a"
+      "bytes": 8885816,
+      "sha256": "018562c4202287c25b09a0df8451f0f3c3afaf1a7203a12021d1e61c72eb1e3b"
     },
     "docs/figures/source/build_coupling_drawio.py": {
-      "bytes": 16460,
-      "sha256": "7b6451f6c4612a8948df08e1e4a43cacc207c40d288dd90846b2d80606321ea6"
+      "bytes": 16570,
+      "sha256": "cecf0641422458299f669e5d4c99e509b137bd0cdc1c1f2b70610fdcbb68ea60"
     },
     "docs/figures/assets/coupling-framework/relationship-map.json": {
-      "bytes": 11024,
-      "sha256": "fa33ad96db61a5164af2b4bc772e85585e08dff9874b674a4dc5b4b30f5d449f"
+      "bytes": 11018,
+      "sha256": "87f7027cd569ff63cf2627048cfc0a6a38b4713e0c13a3efbf522339ec66ebf6"
     }
   },
   "color_semantics": {

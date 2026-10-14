@@ -386,7 +386,7 @@
       "via": []
     },
     {
-      "id": "execution-audit",
+      "id": "request-audit",
       "source": "reservoir-operation",
       "target": "operation-audit",
       "color": "#1F2933",
@@ -517,13 +517,13 @@
     "Rule-based operation": "Selectable user operating rules produce a requested release.",
     "LLM modules": "Selected decision information, prompt, language model, operation proposal, and response checks form the alternative policy.",
     "Native HydroCNHS": "Provides GWLF/ABCD rainfall-runoff, Lohmann routing, and the native Dam API.",
-    "Reservoir": "HydroOpsLM adds storage balance, release, and spill inside the native Dam API operation node.",
-    "Operation audit": "Checks configured decision criteria before physics; optional control-point checks separately inspect routed outcomes.",
+    "Reservoir operation": "HydroOpsLM adds storage balance, release, and spill through the native Dam API.",
+    "Operation audit": "Records configured decision criteria before physical storage, release, and spill calculations; it is not a PASS gate.",
     "Trace records": "Binds policy records and decision-audit verdicts to implemented release, storage, and spill after physical execution."
   },
   "policy_choice": "Each reservoir chooses exactly one policy: user operating rules or a checked LLM proposal.",
   "prompt_inputs": {
-    "source": "A configured selection from simulation information and external data",
+    "source": "A configured selection from simulation feedback and external records",
     "types": "Reservoir conditions, river/gauge conditions, executed history, demand, forecasts, and operating targets",
     "causality": "Downstream simulated flow uses completed steps; external records must be available by the decision clock",
     "legacy_examples": "The preserved FE Walter examples retain their original inflow, pool and release-history inputs",

@@ -16,7 +16,7 @@ pre, code, div.highlight pre {
   font-family: Consolas, "Liberation Mono", monospace;
 }
 div.body table { max-width: 100%; }
-div.body td, div.body th { overflow-wrap: anywhere; }
+div.body td, div.body th { overflow-wrap: normal; word-break: normal; }
 div.body table.dataframe td { white-space: nowrap; overflow-wrap: normal; }
 div.body table.dataframe th { overflow-wrap: normal; }
 /* Long inline schema names must not widen narrow manual pages. */
@@ -28,6 +28,7 @@ div.sphinxsidebar h3 a { color: #263d4c; }
 div.sphinxsidebar a { color: #245e83; }
 div.body a { color: #245e83; }
 div.body .download { font-weight: bold; }
+div.body a.download code { font-family: inherit; font-size: inherit; }
 
 /* Keep the chapter menu beside the text at desktop widths. The theme's
    page-width breakpoint otherwise stacks the whole menu above the reader. */
@@ -109,7 +110,8 @@ div.sphinxsidebar .navigation-icon {
 }
 
 .manual-brand { border-bottom: 2px solid #245e83; padding-bottom: 12px; }
-.manual-brand a { display: block; font-size: 21px; font-weight: 700; }
+.manual-brand a { display: flex; align-items: center; gap: 12px; font-size: 22px; font-weight: 700; text-decoration: none; }
+.manual-brand .brand-logo { width: 48px; height: 48px; flex-shrink: 0; }
 .manual-brand span { display: block; margin-top: 4px; color: #536875; font-size: 14px; }
 .manual-utility { display: flex; flex-wrap: wrap; gap: 12px; }
 .manual-reference { font-size: 15px; }
@@ -122,12 +124,14 @@ div.sphinxsidebar .navigation-icon {
   padding-top: 18px; border-top: 1px solid #d4e0e8;
 }
 .chapter-pagination .next { margin-left: auto; text-align: right; }
-div.body blockquote { border-left: 4px solid #2b8a8a; margin-left: 0; padding-left: 18px; }
+div.body blockquote { margin: 16px 0; padding: 16px; background: #f1f5f9; border: 1px solid #d4e0e8; }
 div.body table { display: block; overflow-x: auto; border-collapse: collapse; }
 div.body th { background: #edf4f8; color: #203947; }
 div.body th, div.body td { border: 1px solid #cad8e1; padding: 0.5rem; }
 details { margin: 1rem 0; padding: 0.75rem 1rem; background: #f6f7f9; border: 1px solid #d9e0e5; }
 details summary { cursor: pointer; font-weight: 700; color: #4d3c78; }
+/* Saved messages remain complete while long prose is readable on small screens. */
+div.body details pre { white-space: pre-wrap; overflow-wrap: anywhere; }
 @media (max-width: 1099px) {
   div.sphinxsidebar { max-height: none; }
   div.sphinxsidebar .desktop-chapters { display: none; }
@@ -151,3 +155,24 @@ div.sphinxsidebar .mobile-chapters { display: none; }
 
 /* Keep the model-call column heading as whole words. */
 #demonstration-and-verification table th:last-child { min-width: 105px; overflow-wrap: normal; }
+
+/* Book chapters use text first; identity and method illustrations are secondary. */
+div.sphinxsidebar .manual-navigation > li { margin-bottom: 4px; }
+div.sphinxsidebar .manual-navigation a { padding: 4px 8px; border-radius: 4px; }
+div.sphinxsidebar .manual-navigation a[aria-current="page"] {
+  background: #dce9f1; color: #163b52; font-weight: 700; text-decoration: none;
+}
+div.sphinxsidebar nav h3 { margin: 24px 0 8px; font-size: 16px; font-weight: 700; }
+div.sphinxsidebar .manual-reference { font-size: 16px; }
+div.body .method-list { margin: 16px 0 24px; }
+div.body .method-list h3 { font-size: 20px; margin: 24px 0 4px; }
+div.body .method-list p { margin: 0 0 16px; }
+div.body p { max-width: 76ch; }
+@media (max-width: 600px) {
+  div.body { padding: 0 16px; }
+  div.body th, div.body td { min-width: 120px; }
+  div.body th:first-child, div.body td:first-child { min-width: 144px; }
+  div.body h1 { font-size: 30px; }
+  div.body h2 { font-size: 24px; }
+  div.body .method-list h3 { font-size: 20px; }
+}

@@ -7,6 +7,9 @@ page run from the repository root.
 
 Use Python 3.12 and the repository's pinned dependency constraints:
 
+Clone or download the repository first, then open its root directory. Repository
+access is required while this project is private; the published manual is public.
+
 ```powershell
 python -m venv .venv
 .venv\Scripts\Activate.ps1
@@ -16,6 +19,9 @@ python -m pip install -e . -c environment/requirements-bundled.txt
 The two LLM examples use local Ollama with `gemma3:4b` already available and
 temperature **0.7**. HydroOpsLM does not download or start the model. Reading
 the saved records and building this manual make no model request.
+
+For CPU/GPU, disk space and interruptions, see
+[Running and maintenance](RUNNING.md).
 
 ## Verify the installation without inference
 

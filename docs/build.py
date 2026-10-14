@@ -34,10 +34,11 @@ PAGES = {
         "USER_GUIDE.md", "USER_GUIDE.zh-TW.md", "HYDROLOGY_SETUP.md",
         "LIVE_READINESS.md", "auditor_plugins.md", "PROJECT_INVENTORY.md", "BUILDING.md",
         "GETTING_STARTED.md", "FIRST_DECISION.md", "INFORMATION.md", "INFORMATION.zh-TW.md",
-        "PARAMETER_REFERENCE.md", "RESULTS_GUIDE.md", "REFERENCE.md",
+        "PARAMETER_REFERENCE.md", "RESULTS_GUIDE.md", "REFERENCE.md", "RUNNING.md",
     )},
 }
-LINK = re.compile(r"(!?\[[^\]]*\]\()([^\s)]+)(\))")
+# Match the inner image in a linked badge before its enclosing Markdown link.
+LINK = re.compile(r"(!?\[[^\[\]]*\]\()([^\s)]+)(\))")
 
 
 def prepare(source: Path) -> None:
@@ -86,13 +87,13 @@ def prepare(source: Path) -> None:
     for name in ("main", "advanced"):
         shutil.copyfile(ROOT / f"tutorials/{name}.ipynb", downloads / f"{name}.ipynb")
     groups = {
-        "Read the manual": ["docs/README", "docs/GETTING_STARTED", "docs/FIRST_DECISION", "docs/USER_GUIDE",
-                            "docs/INFORMATION", "docs/LLM_MODULES", "docs/RESULTS_GUIDE"],
-        "Three examples": ["examples/fe_walter/README", *[f"examples/fe_walter/{method}/README"
+        "Getting started": ["docs/README", "docs/GETTING_STARTED", "docs/FIRST_DECISION"],
+        "Worked examples": ["examples/fe_walter/README", *[f"examples/fe_walter/{method}/README"
                           for method in ("benchmark", "zero_shot", "dkp")]],
-        "Continue": ["tutorials/advanced", "docs/PARAMETER_REFERENCE", "docs/REFERENCE"],
-        "Tutorials": ["tutorials/README", "tutorials/main"],
-        "HydroCNHS and references": ["docs/HYDROLOGY_SETUP", "paper/technical_note",
+        "Build your experiment": ["docs/USER_GUIDE", "docs/INFORMATION", "docs/LLM_MODULES",
+                                  "tutorials/advanced", "docs/RESULTS_GUIDE", "docs/RUNNING"],
+        "Reference": ["docs/PARAMETER_REFERENCE", "docs/REFERENCE", "docs/HYDROLOGY_SETUP",
+                      "tutorials/README", "tutorials/main", "paper/technical_note",
                                     "docs/PROJECT_INVENTORY", "archive/README", "repository",
                                     "docs/BUILDING", "docs/auditor_plugins", "docs/LIVE_READINESS"],
         "繁體中文": [path.rsplit(".", 1)[0] for path in PAGES.values()
@@ -104,6 +105,10 @@ def prepare(source: Path) -> None:
                          + "\n".join(entries) + "\n```\n")
     shutil.copyfile(ROOT / "docs/conf.py", source / "conf.py")
     shutil.copytree(ROOT / "docs/_static", source / "_static")
+    # Reuse accepted identity assets without regenerating or changing their bytes.
+    for size in (32, 64):
+        shutil.copyfile(ROOT / f"docs/figures/assets/branding/logo-{size}.png",
+                        source / f"_static/logo-{size}.png")
     shutil.copytree(ROOT / "docs/_templates", source / "_templates")
 
 

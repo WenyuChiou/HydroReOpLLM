@@ -92,6 +92,7 @@ one agent. Keep its counts separate from historical request-audit counts.
 | Output folder already exists | Copy the YAML and set a new run ID and output path |
 | Readiness blocks execution | Resolve the documented prerequisite; retain the original gate |
 
+For interrupted runs and resource planning, read [Running and maintenance](RUNNING.md).
 See [detailed troubleshooting](USER_GUIDE.md#troubleshooting),
 [audit plugins](auditor_plugins.md) and [live readiness](LIVE_READINESS.md).
 

@@ -3,8 +3,8 @@
 [English](README.md) | [繁體中文](README.zh-TW.md)
 
 HydroOpsLM 透過 HydroCNHS 的 Dam API，將水庫操作方法與 HydroCNHS 連接。
-三個 F.E. Walter 範例使用共同的水庫計算與 routing，比較規則式基準、使用
-可用資訊的 LLM 操作，以及使用檢索知識的 LLM 操作。
+可為每座水庫選擇資訊、prompt、操作方法與 audit 準則。相同介面支援單一水庫
+或連接的河網；F.E. Walter 範例使用共同水庫收支計算展示三種方法。
 
 ![HydroOpsLM 概念圖](figures/hydrocnhs-coupling-framework-en.png)
 
@@ -17,7 +17,7 @@ HydroCNHS 計算降雨逕流與河川 routing。操作方法提出 release 請�
 自己的決策單元與歷史紀錄；被動出口不需要 LLM。
 
 回覆檢查會在套用 release 前驗證模型回覆。操作 audit 會依設定的準則評估，
-並保留判定結果。Trace 紀錄則把可用資訊與決策連結至實際執行內容。
+並保留 PASS、FAIL、WARN 或 UNKNOWN。Trace 紀錄則把可用資訊與決策連結至實際執行內容。
 
 接著閱讀[安裝](GETTING_STARTED.md)，再逐步查看[一個完整保存的決策](FIRST_DECISION.md)。
 了解共用決策週期後，再閱讀[三種 F.E. Walter 方法](../examples/fe_walter/README.zh-TW.md)。

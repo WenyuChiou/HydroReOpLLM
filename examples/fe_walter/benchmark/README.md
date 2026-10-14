@@ -26,9 +26,44 @@ readiness gate. Read the saved example without starting a model.
 
 ## 2. Configure YAML
 
-Open [experiment.hydroopslm.offline.yaml](experiment.hydroopslm.offline.yaml). The YAML selects `strategy: benchmark`, `mode: offline`, `purpose: flood_control`
+The exact configuration behind the saved result is
+[`tutorials/config/fe_walter_tutorial_benchmark.yaml`](../../../tutorials/config/fe_walter_tutorial_benchmark.yaml).
+For a new output, start from
+[experiment.hydroopslm.offline.yaml](experiment.hydroopslm.offline.yaml). It selects `strategy: benchmark`, `mode: offline`, `purpose: flood_control`
 and `max_calls: 0`. It uses [frozen 1996–2015 statistics](../../../data/benchmark/fe_walter_statistics.json),
 before the demonstration period. It needs no model or prompt.
+
+<details>
+<summary>Exact saved benchmark YAML (expand)</summary>
+
+```yaml
+# Deterministic companion to the saved three-day Ollama tutorial snapshots.
+# It uses the same input, physical case, losses, and UH=[1] routing; no model or
+# network request is configured.
+schema_version: llm-reservoir-experiment.v1
+run_id: fe-walter-tutorial-benchmark-2016-01
+case: ../../cases/fe_walter_ollama_demo/case.json
+output: ../../results/fe_walter_tutorial_benchmark_2016_01
+start_date: '2016-01-01'
+end_date: '2016-01-03'
+max_calls: 0
+agents:
+  fe_operator:
+    reservoir: FEWalter
+    mode: offline
+    strategy: benchmark
+    benchmark:
+      purpose: flood_control
+      alpha: 0.85
+      statistics: ../../data/benchmark/fe_walter_statistics.json
+    auditors: [release_limits]
+auditors:
+  release_limits:
+    type: release_bounds
+    version: '1'
+```
+
+</details>
 
 For a new run, copy it beside its original:
 
@@ -58,6 +93,8 @@ python run_experiment.py check examples/fe_walter/benchmark/my-run.yaml
 ```
 
 This checks the configuration without inference or a model request.
+Expect three daily steps, one controlled reservoir, `planned_llm_calls: 0`,
+`max_calls: 0`, and zero network calls.
 
 ## 5. Run
 
@@ -101,6 +138,8 @@ trajectory; stored CSVs retain full precision.
 
 The benchmark retains **3 PASS** under its release-bounds auditor. This suite
 differs from the LLM operating audit, so the counts cannot rank the methods.
+The [complete saved day-one rule record](../../../results/fe_walter_tutorial_benchmark_2016_01/raw/policy_a55e8402dabaa06d6127816db201078ccaff0234147efb071c505797a92cdd3a.json)
+records the input, daily-rule provenance, requested release and source hashes.
 
 Inspect the saved decision:
 

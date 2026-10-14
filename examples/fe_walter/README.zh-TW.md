@@ -7,11 +7,11 @@
 以及 `UH=[1.0]` routing。這些範例用來說明 HydroOpsLM 的使用方式；保存的
 診斷執行不能證明操作策略的績效。
 
-| 範例 | 決策來源 | 逐步指南 | 保存證據 |
+| 範例 | 完整設定 | 決策證據 | 保存結果 |
 |---|---|---|---|
-| 規則式基準 | 使用固定 1996–2015 統計資料的防洪規則 | [規則式指南](benchmark/README.zh-TW.md) | [決定性快照](../../results/fe_walter_tutorial_benchmark_2016_01/) |
-| 使用可用資訊的 LLM 操作 | 本機 Ollama prompt 與回覆 | [可用資訊指南](zero_shot/README.zh-TW.md) | [歷史 `zero_shot` 快照](../../results/fe_walter_ollama_2016_01/zero_shot/) |
-| 使用檢索知識的 LLM 操作 | 相同 LLM 介面，加上與來源綁定的檢索操作知識 | [檢索知識指南](dkp/README.zh-TW.md) | [歷史 `dkp` 快照](../../results/fe_walter_ollama_2016_01/dkp/) |
+| [規則式基準](benchmark/README.zh-TW.md) | [`tutorials/config/fe_walter_tutorial_benchmark.yaml`](../../tutorials/config/fe_walter_tutorial_benchmark.yaml) | 每日規則；不呼叫模型 | [3 PASS；acceptance `null`](../../results/fe_walter_tutorial_benchmark_2016_01/) |
+| [使用可用資訊的 LLM 操作](zero_shot/README.zh-TW.md) | [`zero_shot/experiment.ollama.yaml`](zero_shot/experiment.ollama.yaml) | 保存的 prompt 與完整 Ollama 回覆 | [2 PASS / 1 FAIL；acceptance `null`](../../results/fe_walter_ollama_2016_01/zero_shot/) |
+| [使用檢索知識的 LLM 操作](dkp/README.zh-TW.md) | [`dkp/experiment.ollama.yaml`](dkp/experiment.ollama.yaml) | 保存的 prompt、檢索來源與完整 Ollama 回覆 | [3 FAIL；acceptance `null`](../../results/fe_walter_ollama_2016_01/dkp/) |
 
 每份指南都依照 **輸入 → YAML → prompt 或規則 → 檢查 → 執行 → 驗證 →
 audit/trace** 的順序進行。指南會先讀取現有結果，再說明如何設定獨立的新執行，

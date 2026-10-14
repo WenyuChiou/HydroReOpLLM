@@ -1,33 +1,26 @@
+![HydroOpsLM logo](docs/figures/assets/branding/logo-64.png)
+
 # HydroOpsLM
 
 [English](README.md) | [繁體中文](README.zh-TW.md)
 
-[![Documentation — Open manual](https://wenyuchiou.github.io/LLM_reservoir_agent/_static/docs-badge-en.svg)](https://wenyuchiou.github.io/LLM_reservoir_agent/)
+[![Read the user manual](docs/_static/docs-badge-en.svg)](https://wenyuchiou.github.io/LLM_reservoir_agent/)
 
-![HydroOpsLM cover](docs/figures/hydroopslm-cover.png)
+**HydroOpsLM** connects configurable language-model reservoir operations to
+[HydroCNHS](https://github.com/cylin928/HydroCNHS). Researchers choose the
+information, prompts and operating checks for each reservoir. HydroCNHS provides
+the hydrology and river routing; HydroOpsLM adds reservoir accounting and records
+each proposal, audit and implemented release.
 
-**HydroOpsLM** is a Python framework for studying language-model reservoir
-decisions inside coupled hydrological simulations. It connects configurable
-decision methods to the existing Dam API in
-[HydroCNHS](https://github.com/cylin928/HydroCNHS), which remains the native
-hydrology, routing, parameter, calibration and validation foundation.
+![HydroOpsLM concept](docs/figures/hydrocnhs-coupling-framework-en.png)
 
-![HydroCNHS coupling framework with HydroOpsLM](docs/figures/hydrocnhs-coupling-framework-en.png)
-
-Blue arrows show water flow; black arrows show information and release proposals.
-Gray cards supply external data or optional knowledge. The native Dam API is
-retained; HydroOpsLM adds the common storage, release and spill calculations.
-Downstream simulation information comes from completed days. GWLF and ABCD are
-runoff-model alternatives; Lohmann is the routing method; the Dam API couples
-reservoir operation to that water pathway.
-
-Each reservoir selects one decision method through HydroCNHS's Dam API.
-HydroOpsLM adds common storage, release and spill calculations. Response checks
-and operating-rule audits are separate; diagnostic runs retain failed audits.
+Blue arrows carry water; black arrows carry information and proposals. Each
+reservoir uses one operation method through the native Dam API. HydroOpsLM adds
+the common storage, release and spill calculations.
 
 ## Install
 
-Use Python 3.12 and a complete checkout:
+Use Python 3.12. From the repository root:
 
 ```powershell
 python -m venv .venv
@@ -35,43 +28,45 @@ python -m venv .venv
 python -m pip install -e . -c environment/requirements-bundled.txt
 ```
 
-For the local LLM walkthrough, also install
-[Ollama](https://ollama.com/) and make `gemma3:4b` available locally. The
-repository does not download or start the model for you.
+Follow [Installation](docs/GETTING_STARTED.md) to check the setup without inference.
+The LLM examples use local Ollama `gemma3:4b`, temperature **0.7**. Reading saved
+results requires no model; the framework does not download or start one.
 
-## Examples
+## Three worked examples
 
-Start with the [FE Walter walkthrough](examples/fe_walter/README.md).
-All three methods use the same reservoir operation and routing interfaces.
+Start with [one complete reservoir decision](docs/FIRST_DECISION.md), then follow
+the [FE Walter walkthrough](examples/fe_walter/README.md).
 
-| Method | Decision source | Start here |
+| Method | Decision source | Step-by-step guide |
 |---|---|---|
-| Rule-based benchmark | Hanasaki-based flood-control rule | [Rule and matched three-day case](examples/fe_walter/README.md#rule-based-benchmark) |
-| LLM operation with available information | Prompt with available reservoir information | [Prompt and Ollama settings](examples/fe_walter/zero_shot/README.md) |
-| LLM operation with retrieved knowledge | Same LLM interface with source-bound retrieved knowledge | [Knowledge and Ollama settings](examples/fe_walter/dkp/README.md) |
+| Rule-based benchmark | Published reservoir rules adapted to daily flood control | [Rule-based](examples/fe_walter/benchmark/README.md) |
+| LLM with available information | Prompt and available reservoir information | [Available information](examples/fe_walter/zero_shot/README.md) |
+| LLM with retrieved knowledge | Same interface with sourced operating knowledge | [Retrieved knowledge](examples/fe_walter/dkp/README.md) |
 
-The [main tutorial](tutorials/main.ipynb) follows input, YAML, prompt/rule,
-check, run, verify and audit/trace. The [advanced tutorial](tutorials/advanced.ipynb)
-covers multiple reservoirs, passive outlets, routing and your own data.
+Each guide covers input → YAML → prompt/rule → check → run → verify → results.
+Saved records demonstrate execution; the three-day example does not establish
+which policy performs best.
 
-## Documentation and citation
+## Documentation
 
-[User manual](docs/index.md) · [Decision information](docs/INFORMATION.md) · [Tutorials](tutorials/README.md) ·
-[Native HydroCNHS setup](docs/HYDROLOGY_SETUP.md) ·
-[**cylin928.github.io/HydroCNHS/**](https://cylin928.github.io/HydroCNHS/)
+- [**User manual**](https://wenyuchiou.github.io/LLM_reservoir_agent/): inputs, prompts, single/multiple reservoirs and audit/trace.
+- [Notebooks](tutorials/README.md): main walkthrough and advanced network tutorial.
+- [Running and maintenance](docs/RUNNING.md): CPU/GPU, storage and interrupted runs.
 
-Read the [online manual](https://wenyuchiou.github.io/LLM_reservoir_agent/) for chapter navigation, three methods,
-single/multiple-reservoir setup, audit/trace and downloadable tutorial notebooks.
-You can also [build the site locally](docs/BUILDING.md).
+## Research and citation
 
-HydroOpsLM adds reservoir-decision integration to HydroCNHS. Please credit the
-original project separately:
+Hydrological setup, catchment parameters and calibration/validation follow the
+[original HydroCNHS manual](https://cylin928.github.io/HydroCNHS/).
+Please credit its authors:
 
-Lin, C. Y., Yang, Y. C. E., & Wi, S. (2022).
+Lin, C. Y., Yang, Y. C. E., and Wi, S. (2022).
 [HydroCNHS: A Python Package of Hydrological Model for Coupled Natural Human Systems](https://doi.org/10.1061/(ASCE)WR.1943-5452.0001630).
 *Journal of Water Resources Planning and Management*, 148(12), 06022005.
 
-[Project inventory](docs/PROJECT_INVENTORY.md) ·
-[Technical note](paper/technical_note.md) ·
-[HTML documentation build](docs/BUILDING.md) ·
-[Upstream source and license](third_party/hydrocnhs/SOURCE.json)
+[Method sources and citation](docs/REFERENCE.md) · [Technical Note draft](paper/technical_note.md)
+
+## Project
+
+[Repository](https://github.com/WenyuChiou/LLM_reservoir_agent) ·
+[Build the manual](docs/BUILDING.md) ·
+[Source and licensing](third_party/hydrocnhs/SOURCE.json)

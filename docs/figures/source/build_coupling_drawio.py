@@ -129,7 +129,8 @@ def build(output_dir=None):
          "information")
     card("external-data", 555, 480, 180, 140, GRAY, width=2)
     raster_icon("external-data-icon", "hydrology.png", 58, 0, 64, "external-data")
-    text("external-data-name", "External\ndata", 5, 65, 170, 70, 30, True, "external-data")
+    text("external-data-name", "External\nrecords", 5, 65, 170, 70, 30, True,
+         "external-data")
     card("knowledge", 780, 480, 180, 140, GRAY, width=2)
     raster_icon("knowledge-icon", "knowledge.png", 58, 0, 64, "knowledge")
     text("knowledge-name", "Optional\nknowledge", 5, 65, 170, 70, 30, True, "knowledge")
@@ -179,9 +180,9 @@ def build(output_dir=None):
     # All four water-path centres are y=905: no automatic elbow in the water arrows.
     card("reservoir-operation", 805, 775, 300, 260, BLUE, width=4)
     raster_icon("reservoir-icon", "reservoir.png", 70, 0, 160, "reservoir-operation")
-    text("reservoir-name", "Reservoir", 5, 164, 290, 42, 32, True,
+    text("reservoir-name", "Reservoir operation", 5, 164, 290, 42, 30, True,
          "reservoir-operation")
-    text("reservoir-api", "Dam API", 5, 215, 290, 34, 30,
+    text("reservoir-api", "native Dam API", 5, 215, 290, 34, 28,
          parent="reservoir-operation")
 
     card("downstream", 1175, 775, 300, 260, BLUE)
@@ -211,6 +212,7 @@ def build(output_dir=None):
     # The offset corridor avoids the external-data and knowledge source cards.
     edge("simulation-information", "hydrocnhs-boundary", "information", INK,
          (840 / 1800, 0), (1, .78), [(880, 635), (755, 635), (755, 376.6)], width=4)
+    label("simulation-feedback-label", "Simulation feedback", 560, 656, 280, 38, 26)
     edge("information-rule", "reservoir-operation", "rule-policy", INK,
          (15 / 300, 0), (122 / 392, 1), [(820, 695), (200, 695)], width=4)
 
@@ -218,10 +220,10 @@ def build(output_dir=None):
     # Trace subsequently binds that verdict to committed physical execution.
     edge("proposal-trace", "proposal", "trace", INK, (.45, 1), (73 / 350, 0), width=4)
     edge("checks-trace", "checks", "trace", INK, (.18, 1), (293.6 / 350, 0), width=4)
-    edge("execution-audit", "reservoir-operation", "operation-audit", INK,
+    edge("request-audit", "reservoir-operation", "operation-audit", INK,
          (225 / 300, 0), (60 / 310, 1),
          width=4)
-    label("audit-request-label", "Release\nrequest", 895, 635, 120, 68)
+    label("audit-request-label", "Requested\nrelease", 895, 635, 120, 68)
     edge("audit-trace", "operation-audit", "trace", INK, (1, .6), (0, .504), width=4)
     # Committed release, spill and storage are recorded separately from the proposal.
     edge("execution-trace", "reservoir-operation", "trace", INK,
@@ -262,13 +264,13 @@ def build(output_dir=None):
             "Rule-based operation": "Selectable user operating rules produce a requested release.",
             "LLM modules": "Selected decision information, prompt, language model, operation proposal, and response checks form the alternative policy.",
             "Native HydroCNHS": "Provides GWLF/ABCD rainfall-runoff, Lohmann routing, and the native Dam API.",
-            "Reservoir": "HydroOpsLM adds storage balance, release, and spill inside the native Dam API operation node.",
-            "Operation audit": "Checks configured decision criteria before physics; optional control-point checks separately inspect routed outcomes.",
+            "Reservoir operation": "HydroOpsLM adds storage balance, release, and spill through the native Dam API.",
+            "Operation audit": "Records configured decision criteria before physical storage, release, and spill calculations; it is not a PASS gate.",
             "Trace records": "Binds policy records and decision-audit verdicts to implemented release, storage, and spill after physical execution.",
         },
         "policy_choice": "Each reservoir chooses exactly one policy: user operating rules or a checked LLM proposal.",
         "prompt_inputs": {
-            "source": "A configured selection from simulation information and external data",
+            "source": "A configured selection from simulation feedback and external records",
             "types": "Reservoir conditions, river/gauge conditions, executed history, demand, forecasts, and operating targets",
             "causality": "Downstream simulated flow uses completed steps; external records must be available by the decision clock",
             "legacy_examples": "The preserved FE Walter examples retain their original inflow, pool and release-history inputs",
