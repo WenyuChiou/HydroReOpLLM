@@ -18,6 +18,8 @@ jobs:
         run: python tutorials/build_notebooks.py --execute --check
       - name: Build HTML from saved outputs
         run: python docs/build.py
+      - name: Validate documentation links and downloads
+        run: python scripts/check_docs_site.py build/docs
       - name: Build package and check CLI
         run: |
           python -m build
