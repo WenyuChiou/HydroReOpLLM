@@ -268,7 +268,7 @@ class ConfiguredBackend:
             raise TypeError("transport must be callable")
         try:
             Template(self.prompt_spec.template).substitute(
-                observation="", knowledge="", agent_id="", previous_transition=""
+                observation="", knowledge="", agent_id="", previous_transition="", information=""
             )
         except (KeyError, ValueError) as exc:
             raise ValueError("prompt template contains an invalid or unsupported placeholder") from exc
@@ -310,11 +310,15 @@ class ConfiguredBackend:
         if self._audit_context_builders:
             namespace["audit_contexts"] = audit_contexts if audit_contexts is not None else self._audit_contexts(observation)
         previous = json_snapshot(self._previous_transition, label="previous_transition")
+        selected = observation.context.get("decision_information")
+        if "information" in Template(self.prompt_spec.template).get_identifiers() and selected is None:
+            raise ValueError("$information requires a bound information profile")
         content = Template(self.prompt_spec.template).substitute(
             observation=_canonical_json(namespace),
             knowledge=_canonical_json(self._knowledge),
             agent_id=_canonical_json(self.agent_id),
             previous_transition=_canonical_json(previous),
+            information=_canonical_json(selected),
         )
         if self.response_schema != ACTION_SCHEMA_VERSION:
             contract = ("Return exactly one JSON object with schema_version, release_cms, operating_mode, "
@@ -375,7 +379,8 @@ class ConfiguredBackend:
         trace["raw_reply"] = raw
         self.last_request_id = raw.get("id")
 
-        content, trace["usage"] = chat_reply(raw, self.model["provider"])
+        content, trace["usage"] = chat_reply(raw, self.model["provider"],
+            require_complete="information" in Template(self.prompt_spec.template).get_identifiers())
         candidate = _strict_json(content)
         if self.response_schema != ACTION_SCHEMA_VERSION:
             from .dkp_audit import validate_dkp_decision

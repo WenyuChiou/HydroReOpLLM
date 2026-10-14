@@ -17,6 +17,7 @@ settings remain with the [FE Walter examples](../examples/fe_walter/README.md).
 | Prompt TXT | Independent UTF-8 instruction template |
 | Knowledge TXT/MD, optional | Identified, versioned local documents |
 | Context JSON, optional | Static supplemental facts |
+| Information CSV, optional | Timestamped observations or forecasts selected by a profile |
 
 Export Excel to UTF-8 CSV without BOM. Convert cfs to m³/s with
 `0.028316846592`. Include every routing node each day, including zero-flow nodes.
@@ -76,10 +77,10 @@ state in a new case. Preserve accepted files.
 
 ## 3. Choose what the LLM sees
 
-The teaching label **info** means the supplied observation, not a YAML field.
-In the generic template, `$observation` contains `observed_hydrology`
-(time, inflow, state, release upper bound and context) and `static_context`.
-Static context cannot replace host storage or inflow.
+`$observation` is the protected host observation: time, current local inflow,
+state, release upper bound and context. `$information` is a separate, opt-in
+`decision-information.v1` snapshot assembled from a named profile. Static
+context and selected information cannot replace host storage, inflow or physics.
 
 | Placeholder | Contents |
 |---|---|
@@ -87,14 +88,16 @@ Static context cannot replace host storage or inflow.
 | `$observation` | Current observation plus separate static context |
 | `$knowledge` | Selected package IDs mapped to their full document text |
 | `$previous_transition` | Previous committed observation/action/physics record; first day null |
+| `$information` | Only aliases selected by the agent's information profile |
 
 Templates use Python `string.Template`; write `$$` for a literal dollar sign.
 Unknown placeholders stop validation. The generic backend supplies a fixed
 system message for the JSON contract; operation instructions in `prompt`
 form the user message. It has no generic YAML `system_prompt` field.
-Local knowledge is included in full; automatic retrieval, arbitrary dynamic CSV
-features, forecasts and agent conversations are not built-in generic YAML options.
-Extend the Python backend with causal, timestamped inputs when needed.
+Local knowledge is included in full; automatic retrieval and agent conversations
+are not built-in generic YAML options. Timestamped observations and forecasts
+use declared [information sources and profiles](INFORMATION.md). Extension
+sources name providers registered in Python; YAML cannot import arbitrary code.
 
 Generic `mode: offline` returns `release_cms` directly and does not render or
 execute the prompt. The reference examples' offline mode instead renders their
@@ -146,12 +149,17 @@ substitute a decision. Add case-specific rules through
 Specialized response schemas and reference retrieval belong to their specific
 [examples](../examples/fe_walter/README.md), not a universal operating rule.
 
-## 6. Run and read evidence
+## 6. Check, run and verify
 
 Use `check → run → verify`; `check` makes no provider call. Model execution
 requires `run --allow-network` and a ready case. For a no-provider test only,
 use a supplied-response configuration and `verify --require-offline`. Existing output is refused; use a new run ID/output
 rather than overwriting. This runner has no automatic resume.
+
+Optional `outcome_checks` run after routing and write `outcome_audit.jsonl`.
+They compare control-point flow with explicit scalar or selected-information
+limits. They are diagnostic: their status does not correct a release, optimize
+routing or guarantee safety. See [Decision information](INFORMATION.md#control-point-outcome-checks).
 
 | Output | What to inspect |
 |---|---|
@@ -162,6 +170,7 @@ rather than overwriting. This runner has no automatic resume.
 | `reservoir_trajectory.csv` | Requested/implemented release, spill, storage and balance |
 | `network_flows.csv`, `network_balance.csv` | Routed flows and reservoir/channel water balance |
 | `reach_volume_trace.json` | Reach inflow, outflow and channel storage |
+| `outcome_audit.jsonl` | Optional post-routing control-point diagnostics |
 
 Use [decision-flow inspection](../tutorials/main.ipynb)
 to display info, actual prompt, reply, proposal, checker, audit, physics and feedback.

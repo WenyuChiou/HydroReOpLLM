@@ -122,10 +122,17 @@ def build(output_dir=None):
     text("rule-name", "Operating\nrules", 174, 38, 200, 72, 30, True,
          "rule-policy", align="left")
 
-    # LLM policy sequence with optional knowledge beside Prompt.
-    card("knowledge", 555, 280, 180, 120, GRAY, width=2)
-    text("knowledge-name", "Optional\nknowledge", 5, 20, 170, 80, 30, True,
-         "knowledge")
+    # Information is selected for the decision; it is not limited to local inflow.
+    card("information", 555, 205, 180, 220, PURPLE)
+    raster_icon("information-icon", "trace-records.png", 35, 2, 110, "information")
+    text("information-name", "Available\ninformation", 5, 128, 170, 80, 30, True,
+         "information")
+    card("external-data", 555, 480, 180, 140, GRAY, width=2)
+    raster_icon("external-data-icon", "hydrology.png", 58, 0, 64, "external-data")
+    text("external-data-name", "External\ndata", 5, 65, 170, 70, 30, True, "external-data")
+    card("knowledge", 780, 480, 180, 140, GRAY, width=2)
+    raster_icon("knowledge-icon", "knowledge.png", 58, 0, 64, "knowledge")
+    text("knowledge-name", "Optional\nknowledge", 5, 65, 170, 70, 30, True, "knowledge")
 
     card("prompt", 765, 205, 210, 220, PURPLE)
     raster_icon("prompt-icon", "knowledge.png", 50, 1, 110, "prompt")
@@ -185,7 +192,9 @@ def build(output_dir=None):
     text("outlet-label", "Downstream\ndischarge", 1550, 804, 240, 76, 30, True)
 
     # Top policy sequence and short optional input.
-    edge("knowledge-prompt", "knowledge", "prompt", INK, (1, .5), (0, 135 / 220), width=4)
+    edge("information-prompt", "information", "prompt", INK, (1, .42), (0, .42), width=4)
+    edge("external-information", "external-data", "information", INK, (.5, 0), (.5, 1), width=4)
+    edge("knowledge-prompt", "knowledge", "prompt", INK, (.5, 0), (.5, 1), width=4)
     edge("prompt-model", "prompt", "language-model", INK, (1, .42), (0, .42), width=5)
     edge("model-proposal", "language-model", "proposal", INK, (1, .42), (0, .42), width=5)
     edge("proposal-checks", "proposal", "checks", INK, (1, .42), (0, .42), width=5)
@@ -198,15 +207,12 @@ def build(output_dir=None):
          (1, 58 / 260), [(1779.9, 725), (1130, 725), (1130, 833)], width=5)
     label("checked-release-label", "Checked release", 1460, 657, 260, 38)
 
-    # Dam-API observations already include routed inflow, storage and executed history.
-    # Both selectable policies receive the same available observation.
-    edge("information-prompt", "reservoir-operation", "prompt", INK,
-         (75 / 300, 0), (190 / 210, 1), [(880, 580), (955, 580)], width=4)
-    text("information-label", "Available information", 520, 540, 340, 40,
-         30, True, align="right")
+    # The region supplies selected native values, including completed gauge flows.
+    # The offset corridor avoids the external-data and knowledge source cards.
+    edge("simulation-information", "hydrocnhs-boundary", "information", INK,
+         (840 / 1800, 0), (1, .78), [(880, 635), (755, 635), (755, 376.6)], width=4)
     edge("information-rule", "reservoir-operation", "rule-policy", INK,
          (15 / 300, 0), (122 / 392, 1), [(820, 695), (200, 695)], width=4)
-    label("rule-information-label", "Available information", 310, 657, 340, 36)
 
     # Audit receives the release request at the shared operation interface, before physics.
     # Trace subsequently binds that verdict to committed physical execution.
@@ -250,21 +256,22 @@ def build(output_dir=None):
             "orange": "Rule-based operation.",
             "purple": "LLM information and decision modules; teal checks remain distinct within the LLM region.",
             "teal": "Response checks, operation audit and trace recording; never PASS or FAIL.",
-            "gray": "Optional knowledge input.",
+            "gray": "External data and optional knowledge sources.",
         },
         "responsibilities": {
             "Rule-based operation": "Selectable user operating rules produce a requested release.",
-            "LLM modules": "Prompt, language model, operation proposal, and response checks form the alternative policy.",
+            "LLM modules": "Selected decision information, prompt, language model, operation proposal, and response checks form the alternative policy.",
             "Native HydroCNHS": "Provides GWLF/ABCD rainfall-runoff, Lohmann routing, and the native Dam API.",
             "Reservoir": "HydroOpsLM adds storage balance, release, and spill inside the native Dam API operation node.",
-            "Operation audit": "Evaluates the current observation and requested action from either selected policy before physical execution.",
+            "Operation audit": "Checks configured decision criteria before physics; optional control-point checks separately inspect routed outcomes.",
             "Trace records": "Binds policy records and decision-audit verdicts to implemented release, storage, and spill after physical execution.",
         },
         "policy_choice": "Each reservoir chooses exactly one policy: user operating rules or a checked LLM proposal.",
         "prompt_inputs": {
-            "source": "Dam API observation at the shared reservoir operation",
-            "current": "current inflow",
-            "beginning_of_step": "beginning storage / pool and implemented release history",
+            "source": "A configured selection from simulation information and external data",
+            "types": "Reservoir conditions, river/gauge conditions, executed history, demand, forecasts, and operating targets",
+            "causality": "Downstream simulated flow uses completed steps; external records must be available by the decision clock",
+            "legacy_examples": "The preserved FE Walter examples retain their original inflow, pool and release-history inputs",
             "optional": "optional knowledge",
         },
         "execution_contract": "Only a requested release enters reservoir operation; LLM rationale is retained in trace records.",
@@ -285,7 +292,7 @@ def build(output_dir=None):
         json.dumps(relationship_map, indent=2) + "\n", encoding="utf-8", newline="\n"
     )
     print(output)
-    print(f"NODES {len(nodes)} EDGES {len(edges)} REUSED_GENERATED_ICONS 4")
+    print(f"NODES {len(nodes)} EDGES {len(edges)} GENERATED_ICONS_REUSED_NO_NEW_GENERATION")
 
 
 if __name__ == "__main__":

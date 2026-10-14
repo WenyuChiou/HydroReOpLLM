@@ -186,7 +186,7 @@ def run_network(config, rows, policies, *, project_root=PROJECT_ROOT):
     return _run_network(config, rows, complete_backends(config, policies), project_root=project_root)
 
 
-def _run_network(config, rows, policies, *, project_root=PROJECT_ROOT):
+def _run_network(config, rows, policies, *, project_root=PROJECT_ROOT, information_runtime=None):
     """Execute native Dam loops and independently verify every routed node."""
     topology, local = validate_inflows(config, rows)
     if not isinstance(policies, Mapping) or set(policies) != set(topology["reservoirs"]):
@@ -262,6 +262,8 @@ def _run_network(config, rows, policies, *, project_root=PROJECT_ROOT):
         agent.verify_simulation_sequence(native_sequence)
         agent.policy = policy
         agent.policy_id = getattr(policy, "policy_id", type(policy).__name__)
+        if information_runtime is not None:
+            agent.information_builder = information_runtime.bind(name, model, aliases)
     native_local = {aliases[node]: np.array(q) for node, q in local.items()}
     native_local.update({relay: np.zeros(len(rows)) for relay in relays})
     uhs = {(node, node): np.array([1., 0.]) for node in native_local}

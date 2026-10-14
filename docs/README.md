@@ -3,9 +3,9 @@
 [English](README.md) | [繁體中文](README.zh-TW.md)
 
 HydroOpsLM connects reservoir operation methods to HydroCNHS through its Dam API.
-The three FE Walter examples compare a rule-based benchmark, zero-shot LLM and
-LLM with retrieved operating knowledge using common reservoir calculations and
-routing.
+The three F.E. Walter examples compare a rule-based benchmark, LLM operation
+with available information, and LLM operation with retrieved knowledge using
+common reservoir calculations and routing.
 
 ![HydroOpsLM concept](figures/hydrocnhs-coupling-framework-en.png)
 
@@ -23,8 +23,10 @@ Response checks validate a model reply before release is applied. An operating
 audit evaluates configured criteria and retains its verdict. Trace records link
 the available information and decision to what was actually executed.
 
-Continue with [Getting started](GETTING_STARTED.md), then choose one of the
-[three FE Walter examples](../examples/fe_walter/README.md). For catchment setup,
+Continue with [Installation](GETTING_STARTED.md), then follow
+[one complete saved decision](FIRST_DECISION.md). The
+[three F.E. Walter methods](../examples/fe_walter/README.md) come after the shared
+decision cycle. For catchment setup,
 parameters, meteorology and C&V, use the
 [original HydroCNHS documentation](https://cylin928.github.io/HydroCNHS/) and
 [native setup guidance](HYDROLOGY_SETUP.md).

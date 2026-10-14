@@ -61,16 +61,19 @@ class ExperimentSettings:
     agents: dict
     files: dict
     report: dict
+    information_catalog: object = None
+    outcome_checks: object = None
 
 
-def load_settings(path, *, runtime_root=PROJECT_ROOT):
+def load_settings(path, *, runtime_root=PROJECT_ROOT, information_providers=None):
     """Read, pin and validate everything without constructing a provider."""
     from .configured_backend import validate_model_settings
     path = Path(path).resolve()
     raw = path.read_bytes()
     data = yaml.load(raw.decode("utf-8-sig"), Loader=UniqueLoader)
     _mapping(data, {"schema_version", "case", "case_root", "run_id", "output", "start_date", "end_date",
-                    "models", "agents", "auditors", "max_calls"}, "experiment")
+                    "models", "agents", "auditors", "max_calls", "information_sources",
+                    "information_profiles", "outcome_checks"}, "experiment")
     if data.get("schema_version") != "llm-reservoir-experiment.v1":
         raise ValueError("unsupported YAML experiment version")
     _text(data.get("run_id"), "run_id")
@@ -90,7 +93,22 @@ def load_settings(path, *, runtime_root=PROJECT_ROOT):
         raise ValueError("run dates must be inside the case's consecutive inflow interval")
     rows = [r for r in rows if start <= r["date"] <= end]
     network["start_date"] = start
-    validate_inflows(network, rows)
+    topology, _ = validate_inflows(network, rows)
+    catalog = None
+    sources, profiles = data.get("information_sources", {}), data.get("information_profiles", {})
+    if "information_sources" in data or "information_profiles" in data:
+        from .information import InformationCatalog
+        catalog = InformationCatalog(sources, profiles, base_path=path.parent,
+                                     location_ids=topology["nodes"], providers=information_providers)
+        # Native samples have fixed physical units. Output conversions belong
+        # to selected fields, not to relabeling a native value at its source.
+        for source in sources.values():
+            if source["type"] == "simulation":
+                expected = "m3" if source["quantity"] == "storage" else "m3/s"
+                if source["unit"] != expected:
+                    raise ValueError("simulation source requires native unit " + expected)
+                if source["quantity"] != "flow" and source["location"] not in network["reservoirs"]:
+                    raise ValueError("reservoir information requires a reservoir location")
     models = data.get("models", {})
     if not isinstance(models, dict):
         raise ValueError("models must be a mapping")
@@ -107,6 +125,8 @@ def load_settings(path, *, runtime_root=PROJECT_ROOT):
     files = {str(path): hashlib.sha256(raw).hexdigest()}
     files.update({str((case_root / p).resolve()): h for p, h in network.get("source_files", {}).items()})
     files[str(case)] = hashlib.sha256(case.read_bytes()).hexdigest()
+    if catalog is not None:
+        files.update(catalog.file_pins)
     agents, assigned = {}, set()
     configured = data.get("agents")
     if not isinstance(configured, dict) or not configured:
@@ -115,7 +135,8 @@ def load_settings(path, *, runtime_root=PROJECT_ROOT):
     for identifier, spec in configured.items():
         _text(identifier, "agent ID")
         _mapping(spec, {"reservoir", "mode", "model", "prompt", "prompt_version", "knowledge", "context",
-                         "context_file", "release_cms", "auditors", "response_schema", "strategy", "reference", "benchmark"}, "agent " + identifier)
+                         "context_file", "release_cms", "auditors", "response_schema", "strategy", "reference", "benchmark",
+                         "information"}, "agent " + identifier)
         name = spec.get("reservoir")
         if name not in controlled or name in assigned:
             raise ValueError("each controlled reservoir needs exactly one unique agent; passive nodes cannot have agents")
@@ -180,7 +201,14 @@ def load_settings(path, *, runtime_root=PROJECT_ROOT):
         prompt_bytes = prompt_path.read_bytes()
         template = prompt_bytes.decode("utf-8")
         # Validate every placeholder before running, including malformed dollar expressions.
-        Template(template).substitute(observation="{}", knowledge="{}", agent_id=identifier, previous_transition="null")
+        Template(template).substitute(observation="{}", knowledge="{}", agent_id=identifier,
+                                      previous_transition="null", information="{}")
+        selected = spec.get("information")
+        placeholders = Template(template).get_identifiers()
+        if selected is not None and (not isinstance(selected, str) or selected not in profiles):
+            raise ValueError("agent references an unknown information profile")
+        if (selected is not None) != ("information" in placeholders):
+            raise ValueError("information profile and $information placeholder must be configured together")
         files[str(prompt_path)] = hashlib.sha256(prompt_bytes).hexdigest()
         knowledge = spec.get("knowledge", {})
         if not isinstance(knowledge, dict):
@@ -231,8 +259,12 @@ def load_settings(path, *, runtime_root=PROJECT_ROOT):
                                  model=models.get(model_id), release_cms=release,
                                   auditors={a: auditors[a] for a in checks}, audit_plugins=plugins,
                                   response_schema=response_schema)
+        if selected is not None:
+            agents[identifier]["information"] = selected
     if assigned != controlled:
         raise ValueError("agents do not cover every controlled reservoir")
+    from .outcome import validate_outcome_checks
+    outcome_checks = validate_outcome_checks(data.get("outcome_checks", {}), topology["nodes"], agents, profiles, sources)
     llm_count = sum(a["mode"] == "llm" for a in agents.values())
     planned = llm_count * len(rows)
     maximum = data.get("max_calls", 0)
@@ -249,14 +281,23 @@ def load_settings(path, *, runtime_root=PROJECT_ROOT):
                   live_ready=network["data_kind"] == "synthetic_fixture" or readiness.get("ready") is True,
                   live_readiness=readiness, data_kind=network["data_kind"],
                   source_files=files, settings_sha256=hashlib.sha256(raw).hexdigest())
-    return ExperimentSettings(path, json_snapshot(data), network, rows, agents, files, report)
+    if catalog is not None:
+        report["information_bindings"] = {i: a["information"] for i, a in agents.items() if "information" in a}
+        report["information_provider_versions"] = {
+            identifier: source["provider_version"]
+            for identifier, source in catalog.export_configuration()["sources"].items()
+            if "provider_version" in source
+        }
+    if outcome_checks:
+        report["outcome_checks"] = outcome_checks
+    return ExperimentSettings(path, json_snapshot(data), network, rows, agents, files, report, catalog, outcome_checks)
 
 
-def run_settings(settings, *, allow_network=False, runtime_root=PROJECT_ROOT, transport=None):
+def run_settings(settings, *, allow_network=False, runtime_root=PROJECT_ROOT, transport=None, information_providers=None):
     from .configured_backend import ConfiguredBackend, http_json_transport
     from .experiment import run_experiment
     # Re-read rather than trusting mutable plans or changed files from an earlier check.
-    current = load_settings(settings.path, runtime_root=runtime_root)
+    current = load_settings(settings.path, runtime_root=runtime_root, information_providers=information_providers)
     if canonical_sha256(current.report) != canonical_sha256(settings.report):
         raise ValueError("experiment inputs changed after configuration check")
     plan = current.report
@@ -292,11 +333,22 @@ def run_settings(settings, *, allow_network=False, runtime_root=PROJECT_ROOT, tr
         backends[agent["reservoir"]] = AuditedBackend(backend, agent["audit_plugins"])
     provenance = {"schema_version": "yaml-experiment-provenance.v1", "plan": plan,
                   "settings": current.data, "source_files": current.files, "automatic_retry": False}
+    information_runtime = None
+    if current.information_catalog is not None:
+        from .information_runtime import InformationRuntime
+        information_runtime = InformationRuntime(current.information_catalog,
+            {a["reservoir"]: a["information"] for a in current.agents.values() if "information" in a},
+            current.data.get("information_sources", {}), current.data.get("information_profiles", {}),
+            bound_fields={a["reservoir"]: [ref["field"] for rule in current.outcome_checks.values()
+                for key, ref in rule.items() if key in ("minimum_information", "maximum_information") and ref["agent"] == identifier]
+                for identifier, a in current.agents.items()})
     return run_experiment(current.network, current.rows, backends, output=plan["output"],
-                          run_id=plan["run_id"], project_root=runtime_root, provenance=provenance)
+                          run_id=plan["run_id"], project_root=runtime_root, provenance=provenance,
+                          information_runtime=information_runtime, outcome_checks=current.outcome_checks,
+                          information_agents=current.agents)
 
 
-def verify_settings_output(settings, *, runtime_root=PROJECT_ROOT):
+def verify_settings_output(settings, *, runtime_root=PROJECT_ROOT, information_providers=None):
     """Verify a cached run and require its current inputs and runtime to match.
 
     Historical runs remain inspectable with verify_run. Reusing them as the
@@ -305,17 +357,27 @@ def verify_settings_output(settings, *, runtime_root=PROJECT_ROOT):
     import platform
     from .verification import verify_run
 
-    current = load_settings(settings.path, runtime_root=runtime_root)
+    current = load_settings(settings.path, runtime_root=runtime_root, information_providers=information_providers)
     output = Path(current.report["output"])
-    verified = verify_run(output, require_offline=True)
     experiment = json.loads((output / "experiment.json").read_bytes())
     first = json.loads((output / "decisions.jsonl").read_text(encoding="utf-8").splitlines()[0])
     provenance = first.get("provenance", {})
     implementations = {p.name: hashlib.sha256(p.read_bytes()).hexdigest()
                        for p in Path(__file__).parent.glob("*.py")}
     root = Path(runtime_root)
+    # Bind declarations to current trusted inputs before inspecting saved consistency.
+    expected_information = None
+    if current.information_catalog is not None:
+        expected_information = current.information_catalog.export_configuration()
+        expected_information["bindings"] = {
+            a["reservoir"]: a["information"] for a in current.agents.values() if "information" in a}
+    expected_outcome_agents = ({i: {"reservoir": a["reservoir"], "information": a.get("information")}
+                               for i, a in current.agents.items()} if current.outcome_checks else {})
     matches = (
-        current.report == settings.report
+        canonical_sha256(experiment.get("information_config")) == canonical_sha256(expected_information)
+        and canonical_sha256(experiment.get("outcome_checks", {})) == canonical_sha256(current.outcome_checks)
+        and canonical_sha256(experiment.get("information_agents", {})) == canonical_sha256(expected_outcome_agents)
+        and current.report == settings.report
         and provenance.get("plan") == current.report
         and provenance.get("settings") == current.data
         and provenance.get("source_files") == current.files
@@ -330,7 +392,7 @@ def verify_settings_output(settings, *, runtime_root=PROJECT_ROOT):
     )
     if not matches:
         raise ValueError("cached run differs from current settings, inputs or runtime; choose a new run_id/output")
-    return verified
+    return verify_run(output, require_offline=True)
 
 
 def main(argv=None):

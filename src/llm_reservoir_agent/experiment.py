@@ -118,7 +118,8 @@ class _ObservedBackend:
             details={"callback_present": callable(recorder)}, status="COMPLETED")
 
 
-def run_experiment(config, rows, backends, *, output, run_id, project_root=PROJECT_ROOT, provenance=None):
+def run_experiment(config, rows, backends, *, output, run_id, project_root=PROJECT_ROOT, provenance=None,
+                   information_runtime=None, outcome_checks=None, information_agents=None):
     """Run connected reservoirs with one isolated decision backend per reservoir.
 
     Local inflows are incremental natural runoff in cms. Incoming upstream
@@ -143,7 +144,7 @@ def run_experiment(config, rows, backends, *, output, run_id, project_root=PROJE
                 for name, backend in observed.items()}
     root = Path(project_root)
     try:
-        write_json(journal.output / "experiment.json", {
+        run_metadata = {
             "schema_version": "llm-reservoir-run.v2", "run_id": run_id,
             "network": config, "inflow_records": rows, "backend_provenance": metadata,
             "python": platform.python_version(),
@@ -152,8 +153,16 @@ def run_experiment(config, rows, backends, *, output, run_id, project_root=PROJE
                                      for p in Path(__file__).parent.glob("*.py")},
             "abm_module_sha256": hashlib.sha256((root / "examples/llm_reservoir_abm.py").read_bytes()).hexdigest(),
             "automatic_retry": False,
-        })
-        records, engine = _run_network(config, rows, policies, project_root=root)
+        }
+        if information_runtime is not None:
+            run_metadata["information_config"] = information_runtime.configuration
+        if outcome_checks:
+            run_metadata["outcome_checks"] = json_snapshot(outcome_checks)
+            run_metadata["information_agents"] = {i: {"reservoir": a["reservoir"], "information": a.get("information")}
+                                                  for i, a in (information_agents or {}).items()}
+        write_json(journal.output / "experiment.json", run_metadata)
+        records, engine = _run_network(config, rows, policies, project_root=root,
+                                       information_runtime=information_runtime)
         flows = engine.pop("routed_flows_cms")
         ledger = engine.pop("network_balance")
         reaches = engine.pop("reach_volume_trace")
@@ -180,6 +189,22 @@ def run_experiment(config, rows, backends, *, output, run_id, project_root=PROJE
             output_files={name: hashlib.sha256((journal.output / name).read_bytes()).hexdigest()
                           for name in ("experiment.json", "reservoir_trajectory.csv", "network_flows.csv",
                                        "network_balance.csv", "reach_volume_trace.json")})
+        if outcome_checks:
+            from .outcome import evaluate_outcomes
+            outcomes = evaluate_outcomes(outcome_checks, records, flows, rows, information_agents or {}, run_id)
+            target = journal.output / "outcome_audit.jsonl"
+            with target.open("xb") as handle:
+                for outcome in outcomes:
+                    raw = (json.dumps(outcome, ensure_ascii=False, allow_nan=False, sort_keys=True)+"\n").encode("utf-8")
+                    if handle.write(raw) != len(raw):
+                        raise OSError("incomplete outcome-audit write")
+                handle.flush()
+                os.fsync(handle.fileno())
+            summary["outcome_audit_counts"] = dict(Counter(item["status"] for item in outcomes))
+            summary["outcome_checks"] = outcome_checks
+            summary["information_agents"] = {i: {"reservoir": a["reservoir"], "information": a.get("information")}
+                                              for i, a in (information_agents or {}).items()}
+            summary["additional_output_files"] = {"outcome_audit.jsonl": hashlib.sha256(target.read_bytes()).hexdigest()}
         return records, journal.finalize(summary)
     except Exception as exc:
         failure = {"completed_reservoir_days": committed, "automatic_retry": False}

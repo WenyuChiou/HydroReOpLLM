@@ -1,68 +1,68 @@
-# HydroOpsLM
+# HydroOpsLM user manual
 
-[English](index.md) | [繁體中文](index.zh-TW.md)
+[English](index.md) | [繁體中文](index.zh-TW.md) | [Repository](https://github.com/WenyuChiou/LLM_reservoir_agent)
 
-HydroOpsLM provides a configurable environment for studying LLM reservoir
-operations in coupled hydrological simulations. It extends HydroCNHS through
-the Dam API while retaining the original hydrological models and river routing.
+HydroOpsLM is a research framework for placing reservoir decisions inside a
+HydroCNHS simulation. HydroCNHS remains responsible for watershed hydrology,
+river routing, model parameters, calibration and validation. HydroOpsLM adds
+decision methods, common reservoir accounting, response checks, diagnostic
+audits and trace records.
 
-![HydroOpsLM concept](figures/hydrocnhs-coupling-framework-en.png)
+![HydroCNHS hydrology and routing connected to HydroOpsLM decisions, checks and records](figures/hydrocnhs-coupling-framework-en.png)
 
-Each reservoir selects one operation method. HydroCNHS supplies hydrology and
-routing; HydroOpsLM adds decisions, shared reservoir calculations, response checks
-and audit/trace records. Blue arrows show water movement; black arrows show
-information and decisions.
+Blue arrows show water flow; black arrows show information and release proposals.
+Gray cards supply external data or optional knowledge. The native Dam API is
+retained; HydroOpsLM adds the common storage, release and spill calculations.
+Downstream simulation information comes from completed days. GWLF and ABCD are
+runoff-model alternatives; Lohmann is the routing method; the Dam API couples
+reservoir operation to that water pathway.
 
-## Start with one reservoir
+The current operations runner advances once per day. A decision method proposes
+controlled release; host physics determines the implemented controlled release,
+spill and ending storage. The model cannot overwrite the physical state.
 
-Begin with [Getting started](GETTING_STARTED.md), then choose one of the three
-FE Walter examples below. Each follows the same sequence:
-**input → YAML → prompt or rule → check → run → verify → audit/trace**.
+## Start reading
 
-## Three examples
+Follow the numbered chapters if this is your first experiment:
 
-::::{container} example-links
+1. [Introduction](README.md) — responsibilities and limits.
+2. [Installation](GETTING_STARTED.md) — install and inspect saved evidence.
+3. [Your first reservoir decision](FIRST_DECISION.md) — one complete saved
+   F.E. Walter decision from information to next-day state.
+4. [Prepare inputs and configure a run](USER_GUIDE.md) — case, CSV and YAML.
+5. [Design the model instructions](LLM_MODULES.md) — messages, knowledge and
+   selected information.
+6. [Check, run and verify](USER_GUIDE.md#6-check-run-and-verify) — explicit commands
+   and stop conditions.
+7. [Read results, audit and trace](RESULTS_GUIDE.md) — interpret evidence.
+8. [Three worked methods](../examples/fe_walter/README.md) — compare methods
+   only after learning the common decision cycle.
+9. [Multiple reservoirs and your own basin](../tutorials/advanced.ipynb) — routing,
+   passive outlets and isolated agent state.
 
-| ![Rule-based benchmark](_static/icons/rule.png) | ![Zero-shot](_static/icons/language-model.png) | ![DKP](_static/icons/prompt.png) |
+The saved tutorials render without executing notebooks or contacting a model.
+
+## Worked methods
+
+| Public method | Decision source | Guide |
 |---|---|---|
-| **[1. Rule-based benchmark](../examples/fe_walter/benchmark/README.md)** | **[2. Zero-shot](../examples/fe_walter/zero_shot/README.md)** | **[3. DKP](../examples/fe_walter/dkp/README.md)** |
-| Hanasaki-based flood-control rule | Prompt + available information | Prompt + retrieved operating knowledge |
+| Rule-based benchmark | Hanasaki-based flood-control rule | [Open guide](../examples/fe_walter/benchmark/README.md) |
+| LLM operation with available information | Original prompt plus available reservoir information | [Open guide](../examples/fe_walter/zero_shot/README.md) |
+| LLM operation with retrieved knowledge | Same interface plus source-bound retrieved knowledge | [Open guide](../examples/fe_walter/dkp/README.md) |
 
-::::
+The directories and provenance retain the historical machine identifiers
+`zero_shot`, `dkp` and `reference_v3_7`. Those identifiers preserve reproducible
+paths; the titles above are the public method names.
 
-The benchmark uses a daily adaptation of the flood-control formulation described
-by [Abeshu et al. (2023), Section 2.3.3](https://gmd.copernicus.org/articles/16/5449/2023/).
-Its [sources and adaptation](../examples/fe_walter/benchmark/README.md#sources-and-adaptation)
-identify Hanasaki et al. (2006) and the pinned implementation.
+## Reference and original notebooks
 
-## Follow a decision, then read the result
+- [Decision information](INFORMATION.md): static, CSV, simulation and registered
+  extension sources; profiles, causal selection and `$information`.
+- [Complete parameter reference](PARAMETER_REFERENCE.md): YAML, model, agent,
+  physics, network, audit and output fields.
+- [Reference and citations](REFERENCE.md): HydroCNHS and benchmark sources.
+- {download}`Download the original main notebook <_notebook_downloads/main.ipynb>`
+- {download}`Download the original advanced notebook <_notebook_downloads/advanced.ipynb>`
 
-The [main tutorial](../tutorials/main.ipynb) shows the first day's information,
-rendered prompt, complete model reply, response checks, actual release and
-next-day history. Its tables and figures use saved experiment records.
-
-![Three-day FE Walter results](../tutorials/assets/fe_walter_three_method.png)
-
-These three-day trajectories share inflow and initial conditions. They illustrate
-implemented outflow and storage; they do not establish policy performance.
-Operating-audit verdicts remain visible in the tutorial.
-
-- {download}`Download the main notebook <_notebook_downloads/main.ipynb>`
-
-Use [Simulation settings](USER_GUIDE.md) to change inputs and agents,
-[LLM decision workflow](LLM_MODULES.md) to follow the information exchange, and
-[Results, audit and troubleshooting](RESULTS_GUIDE.md) to inspect a run.
-
-## Extend to a river network
-
-The [multiple-reservoir tutorial](../tutorials/advanced.ipynb) adds controlled
-reservoirs, passive outlets and routing. Each controlled reservoir has its own
-decision history; the river network determines downstream effects.
-
-- {download}`Download the advanced notebook <_notebook_downloads/advanced.ipynb>`
-
-See [Reference and citation](REFERENCE.md) for detailed settings, method sources
-and reproducibility guidance.
-
-For watershed parameters, hydrological modeling and calibration/validation,
-continue with the [original HydroCNHS documentation](https://cylin928.github.io/HydroCNHS/).
+For weather-driven model building, watershed parameters and calibration and
+validation, use the [original HydroCNHS documentation](https://cylin928.github.io/HydroCNHS/).

@@ -13,6 +13,8 @@
 
 ![HydroCNHS 與 HydroOpsLM 耦合架構](docs/figures/hydrocnhs-coupling-framework-en.png)
 
+藍色箭頭表示水流，黑色箭頭表示資訊與放流提案。灰色卡片提供外部資料或可選知識。原生 Dam API 保留；HydroOpsLM 加入共同的蓄水、放流與 spill 計算。下游模擬資訊只取已完成的日步。GWLF 與 ABCD 是產流模型選項，Lohmann 是 routing 方法；Dam API 將水庫操作接入這條水流流程。
+
 每座水庫透過 HydroCNHS 的 Dam API 選用一種決策方法。
 HydroOpsLM 加入共同蓄水、放流及 spill 計算。回覆檢查與操作規則 audit
 分開進行；診斷實驗保留失敗的 audit 判定。
@@ -37,9 +39,9 @@ python -m pip install -e . -c environment/requirements-bundled.txt
 
 | 方法 | 決策來源 | 從這裡開始 |
 |---|---|---|
-| Rule-based benchmark | Hanasaki-based 防洪放流規則 | [規則及相同三日案例](examples/fe_walter/README.zh-TW.md#rule-based-benchmark) |
-| Zero-shot | Prompt 與可用水庫資訊 | [Prompt 及 Ollama 設定](examples/fe_walter/zero_shot/README.zh-TW.md) |
-| DKP | 相同 LLM 介面加上操作知識檢索 | [知識及 Ollama 設定](examples/fe_walter/dkp/README.zh-TW.md) |
+| Rule-based benchmark | Hanasaki-based 防洪放流規則 | [規則及相同三日案例](examples/fe_walter/README.zh-TW.md) |
+| 使用可用資訊的 LLM 操作 | Prompt 與可用水庫資訊 | [Prompt 及 Ollama 設定](examples/fe_walter/zero_shot/README.zh-TW.md) |
+| 使用檢索知識的 LLM 操作 | 相同 LLM 介面加上來源綁定的操作知識 | [知識及 Ollama 設定](examples/fe_walter/dkp/README.zh-TW.md) |
 
 [主教學](tutorials/main.ipynb)依序展示 input、YAML、prompt／規則、
 check、run、verify 及 audit／trace。[進階篇](tutorials/advanced.ipynb)

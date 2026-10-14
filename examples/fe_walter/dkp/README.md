@@ -1,10 +1,14 @@
-# FE Walter: DKP
+# F.E. Walter: LLM operation with retrieved knowledge
 
 [English](README.md) | [繁體中文](README.zh-TW.md) · [Three examples](../README.md)
 
-DKP adds conditionally retrieved operating knowledge to the same LLM interface
-used by zero-shot. The difference is the information supplied to the model;
-it does not imply better policy performance.
+This method adds conditionally retrieved, source-bound operating knowledge to
+the same LLM interface used by the available-information method. The difference
+is the information supplied to the model; it does not imply better policy performance.
+
+The `dkp` directory and provenance value are historical machine IDs kept
+unchanged for reproducibility. In the preserved implementation, DKP names the
+document-knowledge-prompting workflow and its pinned retrieval contract.
 
 ## 1. Prepare input
 

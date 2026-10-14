@@ -1,47 +1,51 @@
 # HydroOpsLM 使用手冊
 
-[English](index.md) | [繁體中文](index.zh-TW.md)
+[English](index.md) | [繁體中文](index.zh-TW.md) | [Repository](https://github.com/WenyuChiou/LLM_reservoir_agent)
 
-HydroOpsLM 將可設定的水庫決策接到原生 HydroCNHS Dam API。
-HydroCNHS 提供水文模型與河道 routing；HydroOpsLM 加入 LLM prompt、
-回覆檢查、水庫計算及 audit／trace 紀錄。
+HydroOpsLM 把水庫決策方法放入 HydroCNHS 模擬。HydroCNHS 仍負責集水區水文、
+河川 routing、參數、calibration 與 validation；HydroOpsLM 加入決策方法、
+共同水庫收支、回覆檢查、診斷 audit 與 trace 紀錄。
 
-![HydroOpsLM 概念圖](figures/hydrocnhs-coupling-framework-en.png)
+![HydroCNHS 與 HydroOpsLM 的耦合關係](figures/hydrocnhs-coupling-framework-en.png)
 
-每座水庫選用一種操作方法。藍線表示水流；黑線表示資訊與決策。
-回覆檢查確認輸出有效，操作 audit 判斷是否符合設定的規則，判定原樣保存在 trace。
+藍色箭頭表示水流，黑色箭頭表示資訊與放流提案。灰色卡片提供外部資料或可選知識。原生 Dam API 保留；HydroOpsLM 加入共同的蓄水、放流與 spill 計算。下游模擬資訊只取已完成的日步。GWLF 與 ABCD 是產流模型選項，Lohmann 是 routing 方法；Dam API 將水庫操作接入這條水流流程。
 
-## 從這裡開始
+目前操作 runner 為每日步長。決策方法提出 controlled release；主程式物理核心
+決定實際 controlled release、spill 與期末蓄水。LLM 不能改寫物理狀態。
 
-| 步驟 | 閱讀 | 準備內容 |
+## 建議閱讀順序
+
+1. [概念與責任](README.zh-TW.md)
+2. [安裝](GETTING_STARTED.md)
+3. [第一個完整水庫決策](FIRST_DECISION.md)
+4. [輸入與 YAML 設定](USER_GUIDE.zh-TW.md)
+5. [LLM 決策流程](LLM_MODULES.zh-TW.md)
+6. [Check、run、verify](USER_GUIDE.md#6-check-run-and-verify)
+7. [結果、audit 與 trace](RESULTS_GUIDE.md)
+8. [三種操作方法](../examples/fe_walter/README.zh-TW.md)
+9. [多水庫與自己的流域](../tutorials/advanced.ipynb)
+
+保存的教學與文件建置不會執行 notebook，也不會呼叫模型。
+
+## 三種操作方法
+
+| 公開名稱 | 決策來源 | 指南 |
 |---|---|---|
-| 1 | [安裝](../README.zh-TW.md#安裝) | Python 環境與模型需求 |
-| 2 | [FE Walter 示範](../examples/fe_walter/README.zh-TW.md) | Input、初始蓄水與三種方法 |
-| 3 | [模組設定](USER_GUIDE.zh-TW.md) | YAML、水庫 agent、prompt 及可選知識 |
-| 4 | [LLM 決策流程](LLM_MODULES.zh-TW.md) | Info → prompt → proposal → 檢查 → 實際放流 → 下一步資訊 |
-| 5 | [查看 audit／trace](USER_GUIDE.zh-TW.md#偵錯) | 結果、失敗檢查與重現紀錄 |
+| 規則式基準 | Hanasaki 型防洪規則 | [閱讀指南](../examples/fe_walter/benchmark/README.zh-TW.md) |
+| 使用可用資訊的 LLM 操作 | 原始 prompt 與可用水庫資訊 | [閱讀指南](../examples/fe_walter/zero_shot/README.zh-TW.md) |
+| 使用檢索知識的 LLM 操作 | 相同介面加上來源綁定的檢索知識 | [閱讀指南](../examples/fe_walter/dkp/README.zh-TW.md) |
 
-## 三個範例
+`zero_shot`、`dkp` 與 `reference_v3_7` 是保留的歷史機器 ID，只在路徑與
+provenance 中使用。
 
-| 方法 | 決策來源 | 範例 |
-|---|---|---|
-| Rule-based benchmark | Hanasaki-based 防洪放流規則 | [Rule-based](../examples/fe_walter/benchmark/README.zh-TW.md) |
-| Zero-shot | Prompt 與可用水庫資訊 | [Zero-shot](../examples/fe_walter/zero_shot/README.zh-TW.md) |
-| DKP | 相同 LLM 介面加上操作知識 | [DKP](../examples/fe_walter/dkp/README.zh-TW.md) |
+## 參考資料
 
-## 教學與 notebook
+- [決策資訊](INFORMATION.zh-TW.md)：來源、設定檔、因果選取與下游結果檢查。
+- [完整參數總表](PARAMETER_REFERENCE.md)：YAML、model、agent、物理、routing
+  與 audit 欄位。
+- [引用與來源](REFERENCE.md)：HydroCNHS 與規則式基準來源。
+- {download}`下載原始 main notebook <_notebook_downloads/main.ipynb>`
+- {download}`下載原始 advanced notebook <_notebook_downloads/advanced.ipynb>`
 
-文件站可直接閱讀[單水庫教學](../tutorials/main.ipynb)及
-[多水庫教學](../tutorials/advanced.ipynb)，表格、圖與模型回覆使用保存的實驗紀錄。
-建置文件站不會呼叫模型。
-
-- {download}`下載主教學 notebook <_notebook_downloads/main.ipynb>`
-- {download}`下載進階 notebook <_notebook_downloads/advanced.ipynb>`
-
-## 原生水文與引用
-
-集水區參數、水文建模及校正／驗證請使用
-[HydroCNHS 文件站](https://cylin928.github.io/HydroCNHS/)與
-[原生設定說明](HYDROLOGY_SETUP.md)。請另外引用
-[原版 HydroCNHS 論文](https://doi.org/10.1061/(ASCE)WR.1943-5452.0001630)，
-區分其貢獻與 HydroOpsLM 新增功能。
+氣象驅動模型建立、集水區參數及 calibration/validation，請使用
+[原始 HydroCNHS 文件](https://cylin928.github.io/HydroCNHS/)。

@@ -1,12 +1,11 @@
-# Getting started
+# Installation
 
-Start with one FE Walter reservoir. Read a saved example first, then copy its
-configuration if you want to run your own experiment. All commands below are
-issued from the repository folder.
+Install the framework before changing a decision method. All commands on this
+page run from the repository root.
 
-## 1. Install
+## Install in a virtual environment
 
-Use Python 3.12 and a virtual environment:
+Use Python 3.12 and the repository's pinned dependency constraints:
 
 ```powershell
 python -m venv .venv
@@ -15,43 +14,33 @@ python -m pip install -e . -c environment/requirements-bundled.txt
 ```
 
 The two LLM examples use local Ollama with `gemma3:4b` already available and
-temperature **0.7**. Reading the saved results and building this manual do not
-start Ollama or download a model. The rule-based example needs no language model.
+temperature **0.7**. HydroOpsLM does not download or start the model. Reading
+the saved records and building this manual make no model request.
 
-## 2. Choose an example
+## Verify the installation without inference
 
-| Example | What changes | Walkthrough |
-|---|---|---|
-| Rule-based benchmark | Release comes from a flood-control rule | [Rule-based](../examples/fe_walter/benchmark/README.md) |
-| Zero-shot | Release comes from a prompt and available information | [Zero-shot](../examples/fe_walter/zero_shot/README.md) |
-| DKP | The same LLM interface also receives retrieved operating knowledge | [DKP](../examples/fe_walter/dkp/README.md) |
+Validate a saved configuration:
 
-All three demonstrate daily steps from **2016-01-01 through 2016-01-03**. They
-share simulated inflow, initial storage of **2,457,848.279729185 m³
-(1,992.61 acre-ft)**, zero losses and identity downstream routing (`UH=[1.0]`).
-These are explicit integration assumptions; the initial state and routing are
-not field validation.
+```powershell
+python run_experiment.py check examples/fe_walter/zero_shot/experiment.ollama.yaml
+```
 
-## 3. Follow the same sequence
+`check` reads and validates inputs, pins source hashes and reports the planned
+calls. It does not contact the configured provider. To verify existing execution
+evidence without rerunning it:
 
-Each walkthrough teaches **input → YAML → prompt or rule → check → run → verify
-→ audit/trace**. Copy the YAML beside its original so relative input paths remain
-valid, then choose a new `run_id` and `output`. Existing results are not overwritten.
+```powershell
+python run_experiment.py verify results/fe_walter_ollama_2016_01/zero_shot
+```
 
-`check` validates configuration without requesting a model. `run` executes the
-selected method; the Ollama examples require an explicit `--allow-network`.
-`verify` checks saved execution evidence. The walkthroughs distinguish inspecting
-existing results from starting a new simulation.
+Keep model execution for [Check, run and verify](USER_GUIDE.md#6-check-run-and-verify),
+after you understand the files and output safeguards.
 
-## 4. Read a complete decision
+## Continue with one decision
 
-Open the [main tutorial](../tutorials/main.ipynb). It directly displays input
-tables, full prompts and model replies, requested and implemented release,
-next-day information, audit verdicts and three-day plots.
+Read [Your first reservoir decision](FIRST_DECISION.md). It follows a single
+saved actual Ollama decision through information, messages, native reply,
+normalized proposal, checks, audit, physics and next-day history. The worked
+method comparison comes later.
 
-- {download}`Download the main notebook <../_notebook_downloads/main.ipynb>`
-
-Continue to [Simulation settings](USER_GUIDE.md) when you need to change inputs
-or agents, then [Results, audit and troubleshooting](RESULTS_GUIDE.md) to read
-the output. Add a river network using the
-[multiple-reservoir tutorial](../tutorials/advanced.ipynb).
+[Previous: Introduction](README.md) · [Next: Your first reservoir decision](FIRST_DECISION.md)

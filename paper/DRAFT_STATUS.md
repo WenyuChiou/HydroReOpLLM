@@ -9,8 +9,8 @@ metadata were not copied.
 
 ## Current candidate
 
-- Candidate SHA256: `58d6833bff1ce674ac1ca4d36ad33475929cb978a3765b2c9587635a28cfbc33`.
-- Candidate size: 23,186 bytes and 383 lines.
+- Candidate SHA256: `b785ecd1f5b1853cf4b8d71e4a1307e500b9e12bb829bf4e1daa6d68ab82f5ee`.
+- Candidate size: 29,256 bytes and 476 lines.
 - Lifecycle state: complete internal provisional draft after parent editorial
   review; submission-package decisions remain open. It is not labeled final, verified,
   submission-ready, or journal-compliant.
@@ -19,7 +19,7 @@ metadata were not copied.
   implications, limitations, conclusion, and availability.
 - Embedded Figure 1 source:
   `docs/figures/hydrocnhs-coupling-framework-en.png`, SHA256
-  `51beca80d4b808d4f9b051c6795c97f4845dc8608a1d67d183982759bb74b6c0`.
+  `97695ce9386aab5c9cf63dc4c3a1dcc2aedfcdf2876dbd3ad4955da5b2ed63c9`.
 - Embedded Figure 2 source: `docs/figures/fe-walter-study-map.png`, SHA256
   `aa4ad48f118c44ab40b024f1d3d4934551d497d411531f87c39cd6b28b46ff77`.
 
@@ -32,6 +32,7 @@ metadata were not copied.
 | Real model integration | Six preserved Ollama `gemma3:4b` responses, completion metadata, raw traces, and original audits | Bounded historical diagnostic, not comparative performance or stochastic replication |
 | Storage and routing conservation | Current independent verification in `saved-evidence-recheck.json` and committed run files | Software/accounting verification; identity routing does not validate travel time |
 | Multi-reservoir isolation | 31-day saved branch network with two controlled reservoirs and passive Prompton | Independent agents and managed contributions, not joint coordination or complete Delaware flow |
+| Configurable information | Synthetic availability, forecast, revision, missing/stale, history and multi-reservoir tests; captured source records | Input/coupling verification, not operating-purpose physical validation |
 | Reproducibility readiness | Saved files, hashes, tutorial inspection route, and Stagge et al. (2025) policy record | Private repository, DOI archive, and independent human reproduction remain open |
 
 The authoritative current evidence record is
@@ -76,30 +77,33 @@ operation claims.
 
 ## Current editorial checks
 
-- Argument and structure: Introduction objectives map to the native/added boundary,
-  method contracts, user workflow, and two diagnostic demonstrations. Each section
-  adds the prerequisite for the next; the conclusions retain the diagnostic scope.
-- Evidence and scope: the equations match the pinned daily adaptation and Abeshu
-  Eq. 4. Table 1 agrees with current saved-file verification. Six historical
-  responses, four failed daily audits, identity routing, and all 93 UNKNOWN network
-  verdicts are reported without a strategy-performance or live-operation claim.
-- Prose: complete parent reading and sentence/paragraph continuity review retained
-  visible actors and the proposal/implemented-release distinction. The independent
-  language audit of the preceding complete candidate found two repeated-opening
-  warnings; both were corrected. Its targeted recheck reported
-  0 Critical and 0 Warning for the preceding complete candidate. The current
-  revision clarifies the example opening and map caption; those bounded passages
-  receive a new semantic and context review. The earlier language result is not
-  claimed for the revised exact file and is not scientific certification.
-- Delivery: the preceding complete draft was inspected in the local HTML manual. Figures,
-  three locally rendered equations, captions, and Table 1 were inspected at
-  1,000 px display width, with Arial 18 px body text. Audit words and storage
-  numbers remain on one line, images load, and the page has no horizontal overflow.
-  The editable equation source is docs/figures/source/render_note_equations.py.
-  The revised diagram receives new full-size, 900 px, PDF, and manual checks;
-  the bounded prose changes receive a new semantic and context review.
-- Current author-guide length/format remains unverified. Author metadata, public
-  release/DOI, human reproduction, and a formatted submission package remain open.
+- Argument and structure: parent read all 476 lines of the exact candidate. The
+  Introduction links operating-purpose information needs to the common physical
+  interface. Methods define selection and causality before outcome diagnostics;
+  the Results distinguish preserved trajectories from new synthetic interface
+  tests. The Abstract and Conclusions make the same bounded contribution.
+- Evidence and scope: original numbers, equations, C&V, inflow, and audit verdicts
+  are unchanged. The new USACE downstream-control source and Abeshu discussion
+  support information needs, not an implemented flood or energy model. CSV and
+  native information can be reconstructed; external provider truth is outside
+  saved-file verification. No same-step downstream feedback or joint optimization
+  is claimed.
+- Scholarly writing: the independent audit read all 476 lines of candidate
+  8659a367 and found 0 Critical and 2 noun-chain warnings. Parent shortened the
+  two example openings. The same reviewer confirmed only those replacements
+  changed and checked lines 214–246 in context on current b785ecd1, with
+  0 Critical and 0 Warning. This language evidence is not scientific certification.
+- Delivery: current Sphinx 8.2.3 build completed with notebook execution off;
+  38 HTML pages, 2,091 local references and two notebook downloads passed the
+  validator. Actual Chrome screenshots checked the manuscript, embedded figures,
+  Table 1, and the manual at desktop and narrow widths. Arial body text is 18 px;
+  no missing images or page overflow was observed. The diagram was independently
+  inspected at full size and 900 px and rendered from its native PDF; its text,
+  icons and connectors were changed on a separate draw.io copy and reopened.
+- Retrospective: the requested tool description, configurable information,
+  three examples, map, figures, and preserved evidence are covered. Current venue
+  length/format remains unverified. Author metadata, public release/DOI, human
+  reproduction, and a formatted submission package remain open.
 
 ## Historical draft record
 
