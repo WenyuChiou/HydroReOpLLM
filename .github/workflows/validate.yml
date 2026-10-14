@@ -14,6 +14,21 @@ jobs:
         run: python -m pip install -e '.[test,docs]' build -c environment/requirements-bundled.txt
       - name: Check preserved compatibility and model-free interfaces
         run: python -m pytest -q tests/test_native_examples.py tests/test_benchmark_workflow.py tests/test_yaml_workflow.py tests/test_reservoir_profile.py tests/test_operations.py tests/test_case_and_hydrocnhs.py tests/test_decision_flow_tutorial.py tests/test_tutorial_decision_flow.py tests/test_information.py tests/test_information_integration.py tests/test_configured_backend.py tests/test_verification_corruption.py
+      - name: Exercise information-to-operation paths with local HTTP fixtures
+        timeout-minutes: 5
+        env:
+          OPENBLAS_NUM_THREADS: '1'
+          HYDROOPS_E2E_OUTPUT: build/e2e
+        # The loopback servers return fixtures; they perform no model inference.
+        run: python -m pytest -q tests/test_information_end_to_end.py --junitxml=build/e2e-junit.xml
+      - name: Preserve end-to-end evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: information-e2e
+          path: |
+            build/e2e
+            build/e2e-junit.xml
       - name: Execute saved-evidence tutorials without network
         run: python tutorials/build_notebooks.py --execute --check
       - name: Build HTML from saved outputs
