@@ -3,7 +3,9 @@
   "source_file": "docs/figures/hydroopslm-cover.svg",
   "source_sha256": "3f20ef7c55684e334f356b4b3c48618e84d63eee2c100f61d4081bd1dbbc923a",
   "editable_file": "docs/_static/hydroopslm-social-preview.svg",
-  "editable_sha256": "e04bce8df3cf04368fdd7d83ebb2eba29489aeabebe4ac2da5d3e3f6f208ce26",
+  "editable_sha256": "d1b49039505eec239cab72a70361de5755169aca5e72bd2ea9b353b7111c34e9",
+  "editable_sha256_scope": "Committed Git blob bytes with LF line endings",
+  "original_export_input_sha256": "e04bce8df3cf04368fdd7d83ebb2eba29489aeabebe4ac2da5d3e3f6f208ce26",
   "export_file": "docs/_static/hydroopslm-social-preview.png",
   "size_px": [
     1280,
