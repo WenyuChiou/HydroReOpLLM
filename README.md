@@ -2,6 +2,8 @@
 
 [English](README.md) | [繁體中文](README.zh-TW.md)
 
+[![Documentation — Open manual](https://wenyuchiou.github.io/LLM_reservoir_agent/_static/docs-badge-en.svg)](https://wenyuchiou.github.io/LLM_reservoir_agent/)
+
 ![HydroOpsLM cover](docs/figures/hydroopslm-cover.png)
 
 **HydroOpsLM** is a Python framework for studying language-model reservoir
@@ -51,9 +53,9 @@ covers multiple reservoirs, passive outlets, routing and your own data.
 [Native HydroCNHS setup](docs/HYDROLOGY_SETUP.md) ·
 [**cylin928.github.io/HydroCNHS/**](https://cylin928.github.io/HydroCNHS/)
 
-Start at the [documentation-site home](docs/index.md).
-[Build and open the site](docs/BUILDING.md) for chapter navigation, three methods,
+Read the [online manual](https://wenyuchiou.github.io/LLM_reservoir_agent/) for chapter navigation, three methods,
 single/multiple-reservoir setup, audit/trace and downloadable tutorial notebooks.
+You can also [build the site locally](docs/BUILDING.md).
 
 HydroOpsLM adds reservoir-decision integration to HydroCNHS. Please credit the
 original project separately:

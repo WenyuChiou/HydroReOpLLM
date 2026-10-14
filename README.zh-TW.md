@@ -2,6 +2,8 @@
 
 [English](README.md) | [繁體中文](README.zh-TW.md)
 
+[![線上文件站 — 立即閱讀](https://wenyuchiou.github.io/LLM_reservoir_agent/_static/docs-badge-zh-TW.svg)](https://wenyuchiou.github.io/LLM_reservoir_agent/)
+
 ![HydroOpsLM 封面](docs/figures/hydroopslm-cover.png)
 
 **HydroOpsLM** 是用於研究耦合水文模擬中語言模型水庫決策的 Python 框架。
@@ -49,8 +51,9 @@ check、run、verify 及 audit／trace。[進階篇](tutorials/advanced.ipynb)
 [原生 HydroCNHS 設定](docs/HYDROLOGY_SETUP.md) ·
 [**cylin928.github.io/HydroCNHS/**](https://cylin928.github.io/HydroCNHS/)
 
-從[文件站首頁](docs/index.zh-TW.md)開始；[建置並開啟文件站](docs/BUILDING.md)，
+從[線上文件站](https://wenyuchiou.github.io/LLM_reservoir_agent/)開始，
 依章節查看三種方法、單／多水庫設定及 audit／trace，另可下載 tutorial notebook。
+也可[在本機建置文件站](docs/BUILDING.md)。
 
 HydroOpsLM 在 HydroCNHS 上加入水庫決策整合。請另外引用原始專案：
 
