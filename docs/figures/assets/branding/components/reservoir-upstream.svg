@@ -1,0 +1,26 @@
+<?xml version='1.0' encoding='utf-8'?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="266" height="169" viewBox="0 0 266 169" version="1.1" role="img" aria-labelledby="asset-reservoir-upstream-reservoir-upstream-title asset-reservoir-upstream-reservoir-upstream-description">
+  <title id="asset-reservoir-upstream-reservoir-upstream-title">HydroOpsLM native component: reservoir-upstream</title>
+  <desc id="asset-reservoir-upstream-reservoir-upstream-description">Compound native SVG group extracted without redesign from the illustrative cover. Transparent, self-contained viewBox and namespaced IDs; no bitmap. Import/drag behavior in other editors has not been tested.</desc>
+  <defs>
+    <linearGradient id="asset-reservoir-upstream-lake-depth" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#AACAD0" stop-opacity="1" />
+      <stop offset="0.53" stop-color="#8CB3BF" stop-opacity="1" />
+      <stop offset="1" stop-color="#6B98AB" stop-opacity="1" />
+    </linearGradient>
+  </defs>
+  <g id="asset-reservoir-upstream-viewbox-normalization" transform="translate(-1015 -152)">
+    <g id="asset-reservoir-upstream-component-content">
+      <g id="asset-reservoir-upstream-reservoir-upstream" inkscape:label="reservoir-upstream" transform="matrix(1.34 0 0 1.34 -422.9000000000001 -109.76000000000005)">
+        <path id="asset-reservoir-upstream-upper-reservoir-shore" d="M 1082 231 C 1088 220 1086 211 1091 204 C 1098 216 1111 216 1126 225 C 1140 234 1149 238 1168 233 C 1188 228 1202 240 1212 244 C 1230 249 1245 250 1263 266 Q 1246 321 1208 311 C 1187 305 1176 301 1163 287 C 1145 273 1127 276 1115 262 C 1107 253 1087 250 1082 231 Z" fill="#E8EBD9" stroke="#E8E5CD" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" opacity="1" />
+        <path id="asset-reservoir-upstream-upper-reservoir-water" d="M 1082 231 C 1088 220 1086 211 1091 204 C 1098 216 1111 216 1126 225 C 1140 234 1149 238 1168 233 C 1188 228 1202 240 1212 244 C 1230 249 1245 250 1263 266 Q 1246 321 1208 311 C 1187 305 1176 301 1163 287 C 1145 273 1127 276 1115 262 C 1107 253 1087 250 1082 231 Z" fill="url(#asset-reservoir-upstream-lake-depth)" stroke="#729AA2" stroke-width=".65" stroke-linecap="round" stroke-linejoin="round" opacity="1" />
+        <g id="asset-reservoir-upstream-water-surface-upstream" inkscape:label="water-surface-upstream">
+          <path id="asset-reservoir-upstream-upper-shore" d="M 1104 238 C 1124 259 1144 253 1164 264 C 1182 275 1203 271 1230 286" fill="none" stroke="#D7EBE8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity=".95" />
+          <path id="asset-reservoir-upstream-upper-depth" d="M 1134 247 C 1147 255 1170 248 1185 261 C 1196 271 1208 267 1223 275" fill="none" stroke="#D7EBE8" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" opacity=".95" />
+          <path id="asset-reservoir-upstream-upstream-pool-ripple-0" d="M1120 249 C1152 267 1184 273 1214 289" fill="none" stroke="#D7EBE8" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" />
+          <path id="asset-reservoir-upstream-upstream-pool-ripple-1" d="M1170 276 C1191 284 1204 286 1225 299" fill="none" stroke="#D7EBE8" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" />
+        </g>
+      </g>
+    </g>
+  </g>
+</svg>

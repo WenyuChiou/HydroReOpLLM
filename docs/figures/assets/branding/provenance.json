@@ -1,0 +1,93 @@
+{
+  "project": "HydroOpsLM",
+  "status": "visual_candidate_pending_user_selection",
+  "attribution": "Built on HydroCNHS",
+  "master": "docs/figures/hydroopslm-cover.svg",
+  "authoring": "native SVG paths/groups/text; CairoSVG PNG exports; Pillow preview assembly",
+  "logo": "Existing reservoir\u2013dam\u2013river project mark; placement scale removed for independent use",
+  "scientific_scope": "Conceptual illustration; gate openings and flow widths do not represent measured or simulated data",
+  "fonts": [
+    "Georgia",
+    "Segoe UI"
+  ],
+  "component_scope": "native compound groups with self-contained viewBox/defs and per-component ID prefixes",
+  "external_image_generation_used": false,
+  "cross_editor_import_tested": false,
+  "files": [
+    {
+      "file": "docs/figures/hydroopslm-cover.svg",
+      "sha256": "3f20ef7c55684e334f356b4b3c48618e84d63eee2c100f61d4081bd1dbbc923a",
+      "bytes": 157423
+    },
+    {
+      "file": "docs/figures/hydroopslm-cover.png",
+      "sha256": "d98bcbf3c9a962832022bd8ccfcfd9d462aced356fe3ddcc3cb0d37840cefe52",
+      "bytes": 263747
+    },
+    {
+      "file": "docs/figures/assets/branding/hydroopslm-cover-3600.png",
+      "sha256": "fd156b4830f2c4159969ace7143931b980923d2ab6dc7c9b68ab9f0fc7bd2188",
+      "bytes": 638771
+    },
+    {
+      "file": "docs/figures/assets/branding/hydroopslm-logo.svg",
+      "sha256": "a27a182a8895171dcb50d67ea55a0573d9ec1a560907195c6ffd9d69fbabf17f",
+      "bytes": 1669
+    },
+    {
+      "file": "docs/figures/assets/branding/hydroopslm-logo.png",
+      "sha256": "818f3ac729d4cbc39a7fbae6f4848ba53c8c9c248b85302ba0c82f876f2ef86f",
+      "bytes": 42964
+    },
+    {
+      "file": "docs/figures/assets/branding/logo-64.png",
+      "sha256": "0253b9cf42222289dd5a79d0b49e24bafca867e8650b0b611dca1ab17c95b4ba",
+      "bytes": 2277
+    },
+    {
+      "file": "docs/figures/assets/branding/logo-32.png",
+      "sha256": "fde0d348368f52d873a791380c0aa1c1299eb2f834cbfa680c7d02ab384359fa",
+      "bytes": 1117
+    },
+    {
+      "file": "docs/figures/assets/branding/components-preview.png",
+      "sha256": "c44e742c59bb434efbdfaf2c7624383d3dbcd7966c4e94d2f7fafb180fc31f1a",
+      "bytes": 96454
+    },
+    {
+      "file": "docs/figures/assets/branding/components/dam-upstream.svg",
+      "sha256": "80cedaf0af61bd5609fe19230d796c8023a71d8477c11911fcdfc9116b4516c3",
+      "bytes": 3893
+    },
+    {
+      "file": "docs/figures/assets/branding/components/dam-downstream.svg",
+      "sha256": "37e3a99714fc9c96fe700a5bb2f7d64510e755447210c378599a3230b7e97fd5",
+      "bytes": 3978
+    },
+    {
+      "file": "docs/figures/assets/branding/components/llm-robot.svg",
+      "sha256": "9908dba456fec22c6ce667fd505786e9d9261c9f4fd8c3aec1052bfb7fdc599e",
+      "bytes": 5579
+    },
+    {
+      "file": "docs/figures/assets/branding/components/reservoir-upstream.svg",
+      "sha256": "2140a5dcd6834952156814d6e62edc848ec46a05fabd137debf19cf5e2dd69da",
+      "bytes": 3366
+    },
+    {
+      "file": "docs/figures/assets/branding/components/reservoir-downstream.svg",
+      "sha256": "6828279e896ba51323a872f767d7e4fdaa2b8fd6bb77cd1a9d50eee0ac3dc1f9",
+      "bytes": 3305
+    },
+    {
+      "file": "docs/figures/assets/branding/components/water-surface.svg",
+      "sha256": "92fb3b7e9308c7be161d58a57dd6e065d0061d868588991a5d0e3fe85aaef0a2",
+      "bytes": 1934
+    },
+    {
+      "file": "docs/figures/assets/branding/components/river.svg",
+      "sha256": "3f2e6f45097613070a24c7ae312bada4fe858aedfe8d34d80e7d255a3b8cae10",
+      "bytes": 3184
+    }
+  ]
+}
