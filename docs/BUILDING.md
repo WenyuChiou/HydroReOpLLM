@@ -16,6 +16,17 @@ The build job reads repository contents and Pages settings. Only the deployment
 job receives Pages and OIDC write permissions, through the `github-pages`
 environment. The source repository stays private; the rendered manual is public.
 
+## Sharing preview
+
+The manual publishes Open Graph and Twitter image metadata on each page.
+The 1280 × 640 [preview](https://wenyuchiou.github.io/LLM_reservoir_agent/_static/hydroopslm-social-preview.png)
+uses the selected cover without cropping. Its
+[editable SVG](https://wenyuchiou.github.io/LLM_reservoir_agent/_static/hydroopslm-social-preview.svg)
+retains the original vector artwork and HydroCNHS credit. These settings apply
+to links to the public manual; they do not change the private repository's
+social preview. For a fork, update `html_baseurl` in `docs/conf.py` to your own
+public site URL.
+
 ## Local build
 
 From a complete checkout, install the documentation tools and build:

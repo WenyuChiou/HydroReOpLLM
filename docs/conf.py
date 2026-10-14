@@ -8,6 +8,16 @@ myst_enable_extensions = ["colon_fence", "deflist"]
 myst_heading_anchors = 4
 html_theme = "alabaster"
 html_title = "HydroOpsLM documentation"
+html_baseurl = "https://wenyuchiou.github.io/LLM_reservoir_agent/"
+# Sharing services need public absolute URLs, separate from the private repo.
+html_context = {
+    "site_url": html_baseurl,
+    "social_image": html_baseurl + "_static/hydroopslm-social-preview.png",
+    "social_description": (
+        "Connect reservoir operation decisions, configurable information and "
+        "language-model prompts to HydroCNHS hydrology and routing."
+    ),
+}
 html_static_path = ["_static"]
 html_css_files = ["manual.css"]
 html_theme_options = {"page_width": "1280px", "body_max_width": "960px",

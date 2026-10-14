@@ -1,0 +1,23 @@
+{
+  "source_commit": "8936742e3a27edcffb79f253d47f4c32003bf80d",
+  "source_file": "docs/figures/hydroopslm-cover.svg",
+  "source_sha256": "3f20ef7c55684e334f356b4b3c48618e84d63eee2c100f61d4081bd1dbbc923a",
+  "editable_file": "docs/_static/hydroopslm-social-preview.svg",
+  "editable_sha256": "e04bce8df3cf04368fdd7d83ebb2eba29489aeabebe4ac2da5d3e3f6f208ce26",
+  "export_file": "docs/_static/hydroopslm-social-preview.png",
+  "size_px": [
+    1280,
+    640
+  ],
+  "adaptation": "Native source SVG nested unchanged with vertical margins; no crop or generated artwork",
+  "repo_visibility": "private",
+  "scope": "Public documentation sharing preview only",
+  "export_sha256": "06249d1c114f643a5a9cb066714fd3a6543c8a6fa2cbaa32fcec6199ca8c5de2",
+  "export_bytes": 190550,
+  "renderer": {
+    "node": "v24.19.0",
+    "browser": "154.0.8037.98"
+  },
+  "selected_on": "2026-10-14",
+  "share_target": "Public HydroOpsLM user manual"
+}
