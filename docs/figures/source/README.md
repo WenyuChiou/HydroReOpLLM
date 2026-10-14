@@ -1,7 +1,8 @@
 # Editable figure sources
 
-The main README uses the HydroOpsLM [cover](../hydroopslm-cover.drawio) and generic [coupling framework](../hydrocnhs-coupling-framework-en.drawio).
-Edit its native draw.io cards, icons and attached connectors independently;
+The main README uses the HydroOpsLM [cover](../hydroopslm-cover.svg) and generic [coupling framework](../hydrocnhs-coupling-framework-en.drawio).
+[Branding editing instructions](../assets/branding/EDITING.md) describe the cover's native SVG groups and reusable components.
+Edit the coupling framework's native draw.io cards, icons and attached connectors independently;
 [editing instructions](../assets/coupling-framework/EDITING.md) explain exports and icon provenance.
 `build_coupling_drawio.py` creates this editable master. The older concept sources
 below remain available for historical and case-specific figures.

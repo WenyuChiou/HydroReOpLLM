@@ -1,0 +1,28 @@
+<?xml version='1.0' encoding='utf-8'?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="126" height="106" viewBox="0 0 126 106" version="1.1" role="img" aria-labelledby="asset-dam-downstream-dam-downstream-title asset-dam-downstream-dam-downstream-description">
+  <title id="asset-dam-downstream-dam-downstream-title">HydroOpsLM native component: dam-downstream</title>
+  <desc id="asset-dam-downstream-dam-downstream-description">Compound native SVG group extracted without redesign from the illustrative cover. Transparent, self-contained viewBox and namespaced IDs; no bitmap. Import/drag behavior in other editors has not been tested.</desc>
+  <defs />
+  <g id="asset-dam-downstream-viewbox-normalization" transform="translate(-1466 -394)">
+    <g id="asset-dam-downstream-component-content">
+      <g id="asset-dam-downstream-dam-downstream" inkscape:label="dam-downstream">
+        <path id="asset-dam-downstream-downstream-abutment-foundation" d="M1482.80 465.52 Q1555.40 486.64 1575.20 410.08" fill="none" stroke="#CAD8C9" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" />
+        <path id="asset-dam-downstream-downstream-dam-front" d="M1482.80 465.52 Q1555.40 486.64 1575.20 410.08 L1578.20 432.08 Q1563.40 510.64 1485.80 487.52 Z" fill="#AFC6BD" stroke="#759489" stroke-width=".85" stroke-linecap="round" stroke-linejoin="round" />
+        <path id="asset-dam-downstream-downstream-dam-bottom" d="M1485.80 487.52 Q1563.40 510.64 1578.20 432.08" fill="none" stroke="#6F9186" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round" />
+        <path id="asset-dam-downstream-downstream-dam-crest" d="M1482.80 465.52 Q1555.40 486.64 1575.20 410.08" fill="none" stroke="#557B72" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" />
+        <path id="asset-dam-downstream-downstream-crest-light" d="M1482.80 465.52 Q1555.40 486.64 1575.20 410.08" fill="none" stroke="#E5ECE0" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+        <path id="asset-dam-downstream-downstream-upstream-water-level" d="M1478.80 459.52 Q1552.40 480.64 1571.20 404.08" fill="none" stroke="#D6E6E2" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" />
+        <circle id="asset-dam-downstream-downstream-abutment-0" cx="1482.8" cy="465.52" r="4.5" fill="#BDD0BE" stroke="#64877F" stroke-width="1.1" />
+        <circle id="asset-dam-downstream-downstream-abutment-1" cx="1575.2" cy="410.08000000000004" r="4.5" fill="#BDD0BE" stroke="#64877F" stroke-width="1.1" />
+        <g id="asset-dam-downstream-gate-downstream" inkscape:label="gate-downstream">
+          <path id="asset-dam-downstream-downstream-gate-bay" d="M1531.20 469.37 L1553.20 455.07 L1555.20 477.07 L1533.20 491.37 Z" fill="#497F92" stroke="#64877F" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round" />
+          <path id="asset-dam-downstream-downstream-raised-gate-blade" d="M1531.20 469.37 L1553.20 455.07 L1555.20 463.07 L1533.20 477.37 Z" fill="#D1DED4" stroke="#64877F" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" />
+          <path id="asset-dam-downstream-downstream-gate-blade-sill" d="M1533.20 477.37 L1555.20 463.07" fill="none" stroke="#B78B50" stroke-width="3.1" stroke-linecap="round" stroke-linejoin="round" />
+          <path id="asset-dam-downstream-downstream-gate-hoist" d="M1542.20 454.22 L1543.20 466.22" fill="none" stroke="#64877F" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+          <circle id="asset-dam-downstream-downstream-hoist-joint" cx="1542.1999999999998" cy="454.22" r="2.1" fill="#B4C8B8" stroke="#64877F" stroke-width="0.8" />
+        </g>
+        <path id="asset-dam-downstream-downstream-crest-operation-rod" d="M1575.20 410.08 Q1555.40 483.64 1542.20 454.22" fill="none" stroke="#719183" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" />
+      </g>
+    </g>
+  </g>
+</svg>

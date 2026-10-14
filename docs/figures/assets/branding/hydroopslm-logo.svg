@@ -1,0 +1,18 @@
+<?xml version='1.0' encoding='utf-8'?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="128" height="128" viewBox="0 0 105 105" version="1.1" role="img" aria-labelledby="logo-title logo-desc">
+  <title id="logo-title">HydroOpsLM existing reservoir and river mark</title>
+  <desc id="logo-desc">Unchanged native mark extracted from the cover; transparent background.</desc>
+  <g id="HydroOpsLM-logo" inkscape:label="project-mark" transform="translate(0 0)">
+    <g id="mark-A-reservoir" inkscape:label="mark-A-reservoir">
+      <path id="mark-A-water" d="M 17 44 C 11 35 11 22 21 16 C 30 12 40 24 50 18 C 60 12 72 17 79 25 C 83 30 84 34 82 40 Q 53 69 17 44 Z" fill="#4D8196" stroke="none" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" opacity="1" />
+      <path id="mark-A-pool-line" d="M 24 29 C 38 45 59 43 72 31" fill="none" stroke="#FDFDFB" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" opacity="1" />
+    </g>
+    <g id="mark-A-dam" inkscape:label="mark-A-dam">
+      <path id="mark-A-crest" d="M 15 45 Q 51 72 84 41" fill="none" stroke="#153E50" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" opacity="1" />
+      <path id="mark-A-gate" d="M 51 58 L 52 68" fill="none" stroke="#B78B50" stroke-width="3.7" stroke-linecap="round" stroke-linejoin="round" opacity="1" />
+    </g>
+    <g id="mark-A-release" inkscape:label="mark-A-release">
+      <path id="mark-A-outflow" d="M 52 71 C 52 79 42 79 45 86 C 49 94 64 91 69 97" fill="none" stroke="#4D8196" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" opacity="1" />
+    </g>
+  </g>
+</svg>

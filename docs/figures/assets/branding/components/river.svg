@@ -1,0 +1,26 @@
+<?xml version='1.0' encoding='utf-8'?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="318" height="128" viewBox="0 0 318 128" version="1.1" role="img" aria-labelledby="asset-river-river-title asset-river-river-description">
+  <title id="asset-river-river-title">HydroOpsLM native component: river</title>
+  <desc id="asset-river-river-description">Compound native SVG group extracted without redesign from the illustrative cover. Transparent, self-contained viewBox and namespaced IDs; no bitmap. Import/drag behavior in other editors has not been tested.</desc>
+  <defs />
+  <g id="asset-river-viewbox-normalization" transform="translate(-1529 -468)">
+    <g id="asset-river-component-content">
+      <path id="asset-river-downstream-channel-bank" d="M1583 495 C1617 505 1642 475 1670 496 C1721 545 1714 558 1830 579" fill="none" stroke="#F8FAF3" stroke-width="21.8" stroke-linecap="round" stroke-linejoin="round" opacity="0.9" />
+      <path id="asset-river-downstream-channel" d="M1583 495 C1617 505 1642 475 1670 496 C1721 545 1714 558 1830 579" fill="none" stroke="#7CA5B4" stroke-width="18" stroke-linecap="round" stroke-linejoin="round" opacity="1" />
+      <g id="asset-river-release-downstream" inkscape:label="release-downstream">
+        <path id="asset-river-downstream-release-water" d="M1544.20 483.22 C1547 499 1565 501 1585 495" fill="none" stroke="#7CA5B4" stroke-width="17" stroke-linecap="round" stroke-linejoin="round" />
+        <path id="asset-river-downstream-release-reflection" d="M1544.20 483.22 C1547 499 1565 501 1585 495" fill="none" stroke="#DFECE8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+        <path id="asset-river-downstream-receiving-ripple-0" d="M1561 507 Q1578 512 1596 504" fill="none" stroke="#95B7BD" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" />
+        <path id="asset-river-downstream-receiving-ripple-1" d="M1574 513 Q1590 517 1608 506" fill="none" stroke="#95B7BD" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" />
+        <g id="asset-river-release-foam-downstream" inkscape:label="release-foam-downstream">
+          <path id="asset-river-downstream-foam-crescent" d="M1547 494 C1549 487 1563 489 1567 496 C1559 493 1553 499 1547 494 Z" fill="#DBEDE8" stroke="none" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" opacity=".92" />
+          <ellipse id="asset-river-downstream-spray-0" cx="1551" cy="486" rx="1.4" ry="1.4" fill="#D7EAE5" />
+          <ellipse id="asset-river-downstream-spray-1" cx="1562" cy="487" rx="1.1" ry="1.1" fill="#D7EAE5" />
+          <ellipse id="asset-river-downstream-spray-2" cx="1567" cy="492" rx="1.6" ry="1.6" fill="#D7EAE5" />
+          <path id="asset-river-downstream-foam-ripple-0" d="M1573 500 Q1580 503 1589 497" fill="none" stroke="#D3E8E3" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+          <path id="asset-river-downstream-foam-ripple-1" d="M1581 506 Q1592 508 1602 500" fill="none" stroke="#D3E8E3" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+        </g>
+      </g>
+    </g>
+  </g>
+</svg>

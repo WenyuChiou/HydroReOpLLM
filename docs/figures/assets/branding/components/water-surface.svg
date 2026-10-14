@@ -1,0 +1,16 @@
+<?xml version='1.0' encoding='utf-8'?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="220" height="125" viewBox="0 0 220 125" version="1.1" role="img" aria-labelledby="asset-water-surface-water-surface-title asset-water-surface-water-surface-description">
+  <title id="asset-water-surface-water-surface-title">HydroOpsLM native component: water-surface</title>
+  <desc id="asset-water-surface-water-surface-description">Compound native SVG group extracted without redesign from the illustrative cover. Transparent, self-contained viewBox and namespaced IDs; no bitmap. Import/drag behavior in other editors has not been tested.</desc>
+  <defs />
+  <g id="asset-water-surface-viewbox-normalization" transform="translate(-1304 -331)">
+    <g id="asset-water-surface-component-content" transform="matrix(1.32 0 0 1.32 -457.60000000000014 -149.60000000000002)">
+      <g id="asset-water-surface-water-surface-downstream" inkscape:label="water-surface-downstream">
+        <path id="asset-water-surface-lower-shore" d="M 1340 370 C 1365 367 1370 389 1396 390 C 1430 388 1442 411 1489 435" fill="none" stroke="#D7EBE8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity=".95" />
+        <path id="asset-water-surface-lower-depth" d="M 1370 377 C 1385 397 1409 395 1428 404 C 1442 411 1454 411 1470 422" fill="none" stroke="#D7EBE8" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" opacity=".95" />
+        <path id="asset-water-surface-downstream-pool-ripple-0" d="M1360 386 C1399 408 1435 407 1477 437" fill="none" stroke="#D7EBE8" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" />
+        <path id="asset-water-surface-downstream-pool-ripple-1" d="M1420 425 C1448 433 1472 443 1496 453" fill="none" stroke="#D7EBE8" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" />
+      </g>
+    </g>
+  </g>
+</svg>
