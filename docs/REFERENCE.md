@@ -3,6 +3,14 @@
 Use these references after completing an example. They describe how to configure
 your own operation method and how to report its provenance.
 
+## Framework name
+
+**HydroOpsLM — Hydrological Simulation with Large Language Model Reservoir Operations.**
+Hydro refers to hydrological simulation, Ops to reservoir operations, and LM to
+language models. The modules and method descriptions use large language model
+(LLM). The name identifies this extension; HydroCNHS retains its original name
+and attribution.
+
 ## Module reference
 
 | Topic | Reference |

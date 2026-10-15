@@ -1,5 +1,7 @@
 # HydroOpsLM 使用手冊
 
+**Hydrological Simulation with Large Language Model Reservoir Operations**
+
 在耦合水文模擬中設定水庫操作。先了解框架、建立模擬，再以一個 FE Walter 案例學習三種操作方法。
 
 ![HydroOpsLM 封面](figures/hydroopslm-cover.png)

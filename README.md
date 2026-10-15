@@ -2,13 +2,15 @@
 
 # HydroOpsLM
 
+**Hydrological Simulation with Large Language Model Reservoir Operations**
+
 [English](README.md) | [繁體中文](README.zh-TW.md)
 
 [![Read the user manual](docs/_static/docs-badge-en.svg)](https://wenyuchiou.github.io/HydroOpsLM/)
 
 ![HydroOpsLM cover](docs/figures/hydroopslm-cover.png)
 
-**HydroOpsLM** is a framework for language-model reservoir operations coupled
+**HydroOpsLM** is a framework for large language model (LLM) reservoir operations coupled
 with [HydroCNHS](https://github.com/cylin928/HydroCNHS). Configure each reservoir's
 decision information, prompt, operation method and checks. HydroCNHS provides
 hydrology and river routing; HydroOpsLM adds reservoir accounting and links

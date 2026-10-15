@@ -1,5 +1,7 @@
 # HydroOpsLM User Manual
 
+**Hydrological Simulation with Large Language Model Reservoir Operations**
+
 Configure reservoir operations within a coupled hydrological simulation.
 Start with the framework, build your simulation, then follow one FE Walter case through three operation methods.
 

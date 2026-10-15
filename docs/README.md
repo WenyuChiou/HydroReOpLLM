@@ -2,7 +2,9 @@
 
 [English](README.md) | [繁體中文](README.zh-TW.md)
 
-HydroOpsLM connects reservoir operation methods to HydroCNHS through its Dam API.
+HydroOpsLM (Hydrological Simulation with Large Language Model Reservoir Operations)
+connects reservoir operation methods to HydroCNHS through its Dam API.
+Here, LLM means large language model.
 Choose each reservoir's information, prompt, operation method and audit criteria.
 The same interfaces support a single reservoir or a connected network. The
 F.E. Walter examples demonstrate three methods using common reservoir accounting.
