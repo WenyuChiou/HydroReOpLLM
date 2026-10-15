@@ -1,3 +1,5 @@
+<img src="docs/figures/assets/branding/hydroopslm-logo.png" align="right" width="64" height="64" alt="HydroOpsLM logo">
+
 # HydroOpsLM
 
 [English](README.md) | [繁體中文](README.zh-TW.md)
@@ -42,7 +44,7 @@ python -m pip install -e . -c environment/requirements-bundled.txt
 | 使用檢索知識的 LLM | 相同介面加上有來源的操作知識 | [檢索知識](examples/fe_walter/dkp/README.zh-TW.md) |
 
 案例共用物理設定，再依序教授設定、操作方法、執行及保存決策。
-結果章節包含完整歷史 2016–2020 檢索知識實驗軌跡。
+先看已保存的 **2020 全年每日範例（366 日）**，再查看完整 2016–2020 紀錄。
 
 ## 研究與引用
 
@@ -54,9 +56,4 @@ Lin, C. Y., Yang, Y. C. E., and Wi, S. (2022).
 [HydroCNHS: A Python Package of Hydrological Model for Coupled Natural Human Systems](https://doi.org/10.1061/(ASCE)WR.1943-5452.0001630).
 *Journal of Water Resources Planning and Management*, 148(12), 06022005。
 
-[方法來源與引用](docs/REFERENCE.md) · [Technical Note 草稿](paper/technical_note.md)
-
-## 專案
-
-[Repository](https://github.com/WenyuChiou/HydroOpsLM) ·
-[來源與授權](third_party/hydrocnhs/SOURCE.json)
+[方法來源](docs/REFERENCE.md) · [來源與授權](third_party/hydrocnhs/SOURCE.json)

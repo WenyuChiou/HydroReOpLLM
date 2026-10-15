@@ -1,3 +1,5 @@
+<img src="docs/figures/assets/branding/hydroopslm-logo.png" align="right" width="64" height="64" alt="HydroOpsLM logo">
+
 # HydroOpsLM
 
 [English](README.md) | [繁體中文](README.zh-TW.md)
@@ -44,7 +46,7 @@ the [FE Walter case study](examples/fe_walter/README.md).
 | LLM with retrieved knowledge | Same interface with sourced operating knowledge | [Retrieved knowledge](examples/fe_walter/dkp/README.md) |
 
 The case shares its physical setup across methods. Follow configuration, the operation method, execution and saved decisions.
-The results chapter includes the full historical 2016–2020 retrieved-knowledge trajectory.
+Start with the saved **2020 daily example (366 days)**, then explore the full 2016–2020 record.
 
 ## Research and citation
 
@@ -56,9 +58,4 @@ Lin, C. Y., Yang, Y. C. E., and Wi, S. (2022).
 [HydroCNHS: A Python Package of Hydrological Model for Coupled Natural Human Systems](https://doi.org/10.1061/(ASCE)WR.1943-5452.0001630).
 *Journal of Water Resources Planning and Management*, 148(12), 06022005.
 
-[Method sources and citation](docs/REFERENCE.md) · [Technical Note draft](paper/technical_note.md)
-
-## Project
-
-[Repository](https://github.com/WenyuChiou/HydroOpsLM) ·
-[Source and licensing](third_party/hydrocnhs/SOURCE.json)
+[Method sources](docs/REFERENCE.md) · [Source and licensing](third_party/hydrocnhs/SOURCE.json)

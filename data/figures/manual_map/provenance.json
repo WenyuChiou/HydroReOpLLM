@@ -9,23 +9,23 @@
   "original_reference_png_sha256": "eac9fd260fd86ca4e11fa9d9566db6e86f412873f099a439df2871047996d67e",
   "package": {
     "file": "fe-walter-arcgis-source.zip",
-    "bytes": 2517171,
-    "sha256": "4c2e4d678d4c5e94a075e1b4557b6d61f10e52128ea0c06bf14ad805686639a3",
+    "bytes": 2518385,
+    "sha256": "2db52070c3f284d47bcdd85baa4f1212794af79855aa24813d954c023f12fb35",
     "aprx": "p30/FE_Walter_DRB_manual_v9.aprx",
     "picture_source": "../commondata/pictures/layout_overlay.svg (relative to APRX)"
   },
   "exports": {
     "fe-walter-catchment.png": {
-      "bytes": 2763284,
-      "sha256": "8ef5ab586041ef9fcb02aa5e563264bba6cecf57130042367de52c3c2a773eb8"
+      "bytes": 2639690,
+      "sha256": "915f2ee0401b2638fc762f63232cb2d4c7b52a7a8f820efdc2c06609b022ccb2"
     },
     "fe-walter-catchment.svg": {
-      "bytes": 16546933,
-      "sha256": "bab8bb81ce1eaae43aa345aa7397048232f6c6c40fea8db986a3ea185b6aeb80"
+      "bytes": 16548127,
+      "sha256": "9c7bc980c740cd4cdc1c195601686ae2fa7dbdb2b4cd69fa5bf7b3a7f253e1e4"
     },
     "fe-walter-catchment.pdf": {
-      "bytes": 1949086,
-      "sha256": "f5397ded732ad03d69b25c4aaab41f0e2f185c9b4cdbe5599b869a96219e692a"
+      "bytes": 1945788,
+      "sha256": "259984b9a38aa27031a3c35c2a4bcbe73de344be8db1707db9f976ffe26765d7"
     }
   },
   "exporter": {
@@ -35,7 +35,7 @@
   "map_content": {
     "layout_inches": [
       16,
-      9
+      8.35
     ],
     "panels": [
       "CONUS Locator",
@@ -77,7 +77,34 @@
         "transparency_percent": 78
       }
     ],
-    "service_attribution": "Esri service attribution is retained in the native layout/export; source package requires network access to refresh online basemap layers."
+    "service_attribution": "Esri service attribution is retained in the native layout/export; source package requires network access to refresh online basemap layers.",
+    "locator_leaders": {
+      "geometry": "Two single straight segments, without arrowheads; original location/extent anchors retained.",
+      "stroke": "#111111",
+      "width_svg_px": 0.9
+    },
+    "annotations": {
+      "removed": [
+        "Study area context",
+        "CONUS",
+        "F. E. Walter catchment"
+      ],
+      "DRB_title_font_pt": 18,
+      "legend": "opaque white with black border",
+      "colorbar": "full-width lower strip, no unused lower-left panel",
+      "dam_name": "F. E. Walter Reservoir",
+      "dam_name_anchor_projected_map_coordinates": [
+        1676720.8410128264,
+        2191179.5622697035
+      ],
+      "map_frames_and_camera_extents": "unchanged; scale equations remain valid",
+      "picture_bounds_inches": [
+        0,
+        0,
+        16,
+        8.35
+      ]
+    }
   },
   "scale_and_extent_checks": {
     "detail": {

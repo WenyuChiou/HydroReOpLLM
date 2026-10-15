@@ -91,7 +91,14 @@ def prepare(source: Path) -> None:
                     cell["source"] = rewrite("".join(cell["source"]), original, destination).splitlines(True)
             target.write_text(json.dumps(notebook, ensure_ascii=False), encoding="utf-8")
         else:
-            target.write_text(rewrite((ROOT / original).read_text(encoding="utf-8"), original, destination), encoding="utf-8")
+            text = rewrite((ROOT / original).read_text(encoding="utf-8"), original, destination)
+            if original in {"README.md", "README.zh-TW.md"}:
+                # Raw HTML images are not rewritten by MyST; reuse the local logo.
+                text = text.replace(
+                    'src="docs/figures/assets/branding/hydroopslm-logo.png"',
+                    'src="_static/hydroopslm-logo.svg"',
+                )
+            target.write_text(text, encoding="utf-8")
     # Keep a readable manual hierarchy; notebooks are also downloadable as original bytes.
     downloads = source / "_notebook_downloads"
     downloads.mkdir()
@@ -134,6 +141,8 @@ def prepare(source: Path) -> None:
     for size in (32, 64):
         shutil.copyfile(ROOT / f"docs/figures/assets/branding/logo-{size}.png",
                         source / f"_static/logo-{size}.png")
+    shutil.copyfile(ROOT / "docs/figures/assets/branding/hydroopslm-logo.svg",
+                    source / "_static/hydroopslm-logo.svg")
     shutil.copytree(ROOT / "docs/_templates", source / "_templates")
 
 

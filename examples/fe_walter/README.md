@@ -63,12 +63,13 @@ Shared physical setup is defined once on this page.
 
 ## Read the results
 
-Use [Results and decision records](results.md) for the **full 2016–2020 daily trajectory**:
-inflow and outflow, pool elevation, storage, and every recorded audit verdict.
+Use [Results and decision records](results.md) to follow **one year of daily operation (2020)**,
+then the full 2016–2020 record: flow, pool elevation, storage and audit verdicts.
 
 | Saved evidence | Period and model | Purpose |
 |---|---|---|
 | Three-method tutorial | 2016-01-01–01-03; LLM methods use `gemma3:4b`, temperature 0.7 | Learn each method under common three-day conditions |
+| One-year results walkthrough | 2020-01-01–12-31; 366 days from the historical retrieved-knowledge record | Inspect seasonal operation and individual decisions |
 | Historical retrieved-knowledge experiment | 2016-01-01–2020-12-31; `gemma4:12b`, temperature 0.7 | Inspect the complete 1,827-day trajectory and decision behaviour |
 
 The five-year record belongs to the historical DKP experiment.

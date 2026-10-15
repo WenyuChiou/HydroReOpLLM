@@ -3,6 +3,22 @@
 This chapter uses the **complete 2016–2020 retrieved-knowledge experiment**: 1,827 daily steps, one FE Walter reservoir, local Ollama `gemma4:12b`, temperature **0.7**.
 The figures and daily tables are copied from the accepted historical record; no simulation or model request was repeated.
 
+## One year of daily operation — 2020
+
+Use this full year to follow seasonal reservoir behaviour: **2020-01-01–12-31, 366 daily steps**.
+It is an excerpt of the saved retrieved-knowledge experiment below, using `gemma4:12b`, temperature **0.7**.
+January storage and release history continue from December 2019; this is not a new run initialized in January 2020.
+
+![FE Walter: one year of daily operation, 2020](../../results/fe_walter_dkp_2016_2020/figures/fe_walter_2020_detail.png)
+
+| Recorded check | 2020 result |
+|---|---:|
+| Daily records | 366 |
+| Operation audit | 135 PASS / 10 WARN / 221 FAIL |
+| Maximum saved daily water-balance residual | 0 m³ |
+
+This annual example shows one method. The rule-based and available-information tutorials retain their three-day records; no annual three-method comparison has been run.
+
 ## Full daily trajectory
 
 ![FE Walter: all 1,827 daily records](../../results/fe_walter_dkp_2016_2020/figures/fe_walter_2016_2020_daily.png)
@@ -39,8 +55,6 @@ Two days show why the implemented action matters. Both occur below the saved sum
 
 On May 2, release below inflow builds storage. On June 15, release approximately equal to inflow holds storage near its current level.
 The June reply calls 1,367.06 ft “at target”. The configured audit records that this contradicts the 1,370 ft target, and that passing inflow cannot refill a below-target reservoir.
-
-![FE Walter: 2020 daily detail](../../results/fe_walter_dkp_2016_2020/figures/fe_walter_2020_detail.png)
 
 ### Follow June 15 from information to next-day state
 

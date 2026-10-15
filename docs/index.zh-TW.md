@@ -28,7 +28,7 @@
 
 [03 · FE Walter 案例](../examples/fe_walter/README.zh-TW.md)
 
-同一地點、共用 input 與三種方法，接著查看完整五年保存結果。
+同一地點、共用 input 與三種方法。先閱讀一年每日操作，再查看完整保存紀錄。
 
 :::
 

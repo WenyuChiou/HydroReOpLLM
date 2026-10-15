@@ -29,7 +29,7 @@ Prepare your case, choose decision information and set up the operation method.
 
 [03 · Explore the FE Walter case](../examples/fe_walter/README.md)
 
-One site, common inputs and three methods, followed by the full saved five-year result.
+One site, common inputs and three methods. Read one year of daily operation, then the full saved record.
 
 :::
 
