@@ -36,6 +36,11 @@ The returned dictionary contains modeled flow series. Prepare the reservoir runn
 
 For the existing FE Walter case, [advanced workflows](../archive/README.md) document the preserved seven-subbasin hydrology entry point. Those commands execute simulations; they are not needed to read saved results.
 
+For a weather-driven run with reservoir decisions, follow the
+[Dam and policy wiring recipe](../examples/fe_walter/coupling.md#3-connect-a-weather-driven-native-run).
+This uses the native API; the experiment CLI keeps its supplied-inflow workflow.
+The bundled core calculates runoff at the start, then advances routing and agents daily.
+
 ### 3. Calibrate, then validate
 
 1. Prepare observed flow, weather, model configuration, warm-up and separate calibration/validation periods.
@@ -77,6 +82,10 @@ The current `run_experiment.py check/run/verify` commands verify reservoir exper
 以水文輸出準備水庫執行器的 `date,node,local_inflow_cms` CSV，並更新 case hash。各節點使用局部／增量入流，避免把上游水庫出流加進 CSV 後，又由 network 重複 routing。
 
 既有 FE Walter 七子集水區入口見 [進階流程](../archive/README.md)。其中的指令會啟動模擬；只查看保存結果不需要執行。
+
+由氣象驅動並包含水庫決策的執行，請依[Dam 與 policy 接入步驟](../examples/fe_walter/coupling.zh-TW.md#3-接入由氣象驅動的原生執行)。
+此接法使用原生 API；experiment CLI 維持給定入流的流程。
+隨附核心在開始時計算產流，再逐日執行 routing 與 agents。
 
 ### 3. 先 calibration，再 validation
 

@@ -13,7 +13,9 @@
 
 半分佈式水文模型保留各子集水區的氣象、面積及參數。
 HydroCNHS 先計算產流與上游 routing，再進入水庫操作。
-也可以使用已有且來源明確的入流序列，FE Walter 範例即採此方式。
+給定的 experiment CLI 使用已有且來源明確的入流序列，FE Walter 範例即採此方式。
+氣象驅動的原生執行需設定水文模型與 Dam-policy 綁定，不能只改 experiment YAML 欄位。
+選擇方法前，先閱讀[耦合流程](../examples/fe_walter/coupling.zh-TW.md)。
 
 [準備 input 與案例設定](USER_GUIDE.zh-TW.md) · [原生 HydroCNHS 設定](HYDROLOGY_SETUP.md)
 

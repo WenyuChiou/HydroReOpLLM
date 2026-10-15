@@ -34,6 +34,8 @@ PAGES = {
     "examples/fe_walter/README.zh-TW.md": "examples/fe_walter/README.zh-TW.md",
     "examples/fe_walter/hydrology.md": "examples/fe_walter/hydrology.md",
     "examples/fe_walter/hydrology.zh-TW.md": "examples/fe_walter/hydrology.zh-TW.md",
+    "examples/fe_walter/coupling.md": "examples/fe_walter/coupling.md",
+    "examples/fe_walter/coupling.zh-TW.md": "examples/fe_walter/coupling.zh-TW.md",
     "examples/fe_walter/results.md": "examples/fe_walter/results.md",
     "examples/fe_walter/results.zh-TW.md": "examples/fe_walter/results.zh-TW.md",
     **{f"examples/fe_walter/{method}/{name}": f"examples/fe_walter/{method}/{name}"
@@ -140,7 +142,7 @@ def prepare(source: Path) -> None:
     groups = {
         "Overview": ["docs/README"],
         "Build a simulation": ["docs/GETTING_STARTED", "docs/BUILD_SIMULATION", "docs/USER_GUIDE", "docs/INFORMATION", "docs/LLM_MODULES"],
-        "FE Walter case study": ["examples/fe_walter/README", "examples/fe_walter/hydrology", *[f"examples/fe_walter/{method}/README" for method in ("benchmark", "zero_shot", "dkp")], "examples/fe_walter/results"],
+        "FE Walter case study": ["examples/fe_walter/README", "examples/fe_walter/hydrology", "examples/fe_walter/coupling", *[f"examples/fe_walter/{method}/README" for method in ("benchmark", "zero_shot", "dkp")], "examples/fe_walter/results"],
         "Further configuration": ["tutorials/advanced", "docs/RESULTS_GUIDE", "docs/RUNNING"],
         "Reference": ["docs/PARAMETER_REFERENCE", "docs/REFERENCE", "docs/FIRST_DECISION", "docs/HYDROLOGY_SETUP",
                       "tutorials/README", "tutorials/main", "paper/technical_note",

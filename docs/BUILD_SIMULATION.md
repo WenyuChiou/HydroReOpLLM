@@ -14,7 +14,9 @@ River connections determine whether an upstream release reaches a downstream res
 
 For semi-distributed hydrology, retain each subcatchment's weather, area and parameters.
 HydroCNHS computes runoff and upstream routing before reservoir operation.
-You can also supply an existing, documented inflow series, as the FE Walter example does.
+The supplied experiment CLI uses an existing, documented inflow series, as the FE Walter example does.
+A weather-driven native run needs a hydrological model and Dam-policy binding; changing an experiment YAML field does not enable it.
+Follow [the coupled workflow](../examples/fe_walter/coupling.md) before choosing a method.
 
 [Prepare input files and case settings](USER_GUIDE.md#1-prepare-your-files) ·
 [Native HydroCNHS setup](HYDROLOGY_SETUP.md)

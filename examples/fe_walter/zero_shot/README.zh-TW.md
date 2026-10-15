@@ -7,6 +7,10 @@ Ollama；逐步指南會先讀取保存的回覆，再說明如何啟動新執�
 
 共用 input 與物理假設請先看[共用案例設定](../README.zh-TW.md)。
 
+先確認[本案例水文設定](../hydrology.zh-TW.md)與[每日耦合流程](../coupling.zh-TW.md)。
+此方法接在相同每日 Dam／routing 迴圈，使用預先模擬入流；操作執行不重算 GWLF。
+每次實際操作更新蓄水；LLM 方法保留實際放流歷史。
+
 ## 1. 設定操作方法
 
 使用本機 Ollama **gemma3:4b**，temperature **0.7**。

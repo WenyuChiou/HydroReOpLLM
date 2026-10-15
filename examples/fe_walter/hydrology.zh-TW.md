@@ -78,4 +78,5 @@ PBIAS 正值代表高估。PFE 的 CSV 原值為 fraction，這裡乘 100 顯示
 
 其他集水區的建模與校正方法見[原生 HydroCNHS 設定](../../docs/HYDROLOGY_SETUP.md)及 [HydroCNHS 文件](https://cylin928.github.io/HydroCNHS/)。
 
-[回到共用案例](README.zh-TW.md) → [選擇操作方法](README.zh-TW.md#選擇操作方法)。
+下一步：[每日耦合流程](coupling.zh-TW.md)，再選擇操作方法。
+[回到共用案例](README.zh-TW.md)。

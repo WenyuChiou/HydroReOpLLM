@@ -78,4 +78,5 @@ Positive PBIAS means overprediction. The CSV stores PFE as a fraction; this tabl
 
 For building and calibrating another catchment, use [Native HydroCNHS setup](../../docs/HYDROLOGY_SETUP.md) and the [HydroCNHS manual](https://cylin928.github.io/HydroCNHS/).
 
-[Return to the common case](README.md) → [choose an operation method](README.md#choose-an-operation-method).
+Next: [follow the coupled daily workflow](coupling.md), then choose an operation method.
+[Return to the common case](README.md).

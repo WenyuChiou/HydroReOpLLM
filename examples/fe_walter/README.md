@@ -3,7 +3,8 @@
 [English](README.md) | [繁體中文](README.zh-TW.md)
 
 One reservoir, one hydrological setting and three operation methods.
-Prepare the common case here, then choose a method and follow its decisions to the results.
+Follow **hydrological setting → coupled daily workflow → operation method → results**.
+Prepare the shared case here; the linked chapters explain each step.
 
 ## The site and hydrological background
 
@@ -52,6 +53,16 @@ Prepare these files before changing the operation method:
 | Knowledge file, when selected | Sourced operating guidance and retrieval settings |
 
 The [simulation design chapter](../../docs/BUILD_SIMULATION.md) explains how to adapt these components to your own reservoir.
+
+## Follow the coupled daily workflow
+
+Read [the daily coupling chapter](coupling.md) before selecting a method.
+Each day, HydroCNHS routes water to the Dam API; the policy requests release,
+reservoir physics updates storage and spill, and actual outflow enters downstream routing.
+Implemented release and ending storage feed the next decision.
+
+The current examples read precomputed hydrological inflow.
+The same chapter explains weather-driven native wiring and the verification it still requires.
 
 ## Choose an operation method
 

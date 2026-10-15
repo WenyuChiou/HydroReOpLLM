@@ -8,6 +8,10 @@ is the information supplied to the model; it does not imply better policy perfor
 
 Shared input and physical assumptions are defined in the [common case setup](../README.md#common-case-setup).
 
+First review [the case hydrology](../hydrology.md) and [the coupled daily workflow](../coupling.md).
+This method uses the same daily Dam/routing loop with precomputed inflow; the operation run does not recalculate GWLF.
+Each implemented operation advances storage; LLM methods retain implemented release history.
+
 ## 1. Configure the method
 
 Use local Ollama **gemma3:4b**, temperature **0.7**.
