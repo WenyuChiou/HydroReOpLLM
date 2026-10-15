@@ -148,9 +148,9 @@ The two LLM paths below read real saved Ollama evidence (`gemma3:4b`, temperatur
 system and user prompts are displayed as readable text. DKP adds conditionally
 retrieved knowledge; zero-shot does not. Raw records remain linked below.
 
-[Zero-shot raw traces](../results/fe_walter_ollama_2016_01/zero_shot/raw/) ·
-[DKP raw traces](../results/fe_walter_ollama_2016_01/dkp/raw/)'''),
-        code('''saved = ROOT / "results/fe_walter_ollama_2016_01"
+[Zero-shot raw traces](../examples/fe_walter/reference_outputs/ollama_three_day/zero_shot/raw/) ·
+[DKP raw traces](../examples/fe_walter/reference_outputs/ollama_three_day/dkp/raw/)'''),
+        code('''saved = ROOT / "examples/fe_walter/reference_outputs/ollama_three_day"
 zero_flow = load_decision_flow(saved / "zero_shot", timestep=0)
 dkp_flow = load_decision_flow(saved / "dkp", timestep=0)
 info = zero_flow["info"]
@@ -164,7 +164,7 @@ display(ReadableText("Complete saved system prompt", zero_flow["system_prompt"])
 display(ReadableText("Complete saved zero-shot user prompt", zero_flow["prompt"]))
 display(ReadableText("Complete saved DKP system prompt", dkp_flow["system_prompt"]))
 display(ReadableText("Complete saved DKP user prompt with retrieved knowledge", dkp_flow["prompt"]))'''),
-        code('''rule_decisions = jsonl(ROOT / "results/fe_walter_tutorial_benchmark_2016_01/decisions.jsonl")
+        code('''rule_decisions = jsonl(ROOT / "examples/fe_walter/reference_outputs/rule_three_day/decisions.jsonl")
 rule_output = pd.DataFrame([{
     "date": row["timestamp"],
     "rule output: requested release (m³/s)": row["action"]["release_cms"],
@@ -192,7 +192,7 @@ snapshot has zero network calls. Both LLM snapshots retain their original audit
 outcomes: zero-shot has **2 PASS / 1 FAIL**, DKP has **3 FAIL**, and
 `operating_strategy_accepted` is `null` for all three methods.'''),
         code('''outputs = {
-    "Rule": ROOT / "results/fe_walter_tutorial_benchmark_2016_01",
+    "Rule": ROOT / "examples/fe_walter/reference_outputs/rule_three_day",
     "Zero-shot": saved / "zero_shot",
     "DKP": saved / "dkp",
 }
@@ -285,7 +285,7 @@ For DKP, use `examples/fe_walter/dkp/experiment.ollama.yaml` as the source and
 
 [Formal YAML/module manual](../docs/USER_GUIDE.md) ·
 [Native HydroCNHS hydrology and C&V](../docs/HYDROLOGY_SETUP.md) ·
-[Saved Ollama evidence](../results/fe_walter_ollama_2016_01/README.md)'''),
+[Saved Ollama evidence](../examples/fe_walter/reference_outputs/ollama_three_day/README.md)'''),
     ]
 
 
@@ -298,10 +298,10 @@ run a new network simulation. The example demonstrates parallel tributary
 topology, isolated reservoir state, a physical passive outlet, and the settings
 that must change for another catchment.
 
-![Accepted three-reservoir month](../results/three_reservoir_month_2016_01/figures/overview.png)'''),
+![Accepted three-reservoir month](../examples/fe_walter/reference_outputs/multi_reservoir_month/figures/overview.png)'''),
         md('''## Setup
 
-All tables and plots come from `results/three_reservoir_month_2016_01/baseline`
+All tables and plots come from `examples/fe_walter/reference_outputs/multi_reservoir_month/baseline`
 and its accepted causality comparison.'''),
         code(SETUP),
         md('''## 1. Read the saved topology
@@ -310,7 +310,7 @@ FE Walter and Beltzville contribute to the Lehigh branch; Prompton contributes
 to the Lackawaxen branch. These are parallel tributaries, not a three-dam
 cascade. The managed outlet is the sum of these contributions, not full river
 discharge.'''),
-        code('''month = ROOT / "results/three_reservoir_month_2016_01"
+        code('''month = ROOT / "examples/fe_walter/reference_outputs/multi_reservoir_month"
 baseline = month / "baseline"
 experiment = json.loads((baseline / "experiment.json").read_text(encoding="utf-8"))
 network = experiment["network"]
@@ -409,7 +409,7 @@ display(own_data)'''),
         md('''[Generic YAML settings](../docs/USER_GUIDE.md) ·
 [Module interfaces](../docs/LLM_MODULES.md) ·
 [Native HydroCNHS hydrology and C&V](../docs/HYDROLOGY_SETUP.md) ·
-[Accepted three-reservoir evidence](../results/three_reservoir_month_2016_01/RESULTS.md)'''),
+[Accepted three-reservoir evidence](../examples/fe_walter/reference_outputs/multi_reservoir_month/README.md)'''),
     ]
 
 

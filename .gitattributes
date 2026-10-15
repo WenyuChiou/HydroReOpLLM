@@ -54,3 +54,7 @@ docs/figures/fe-walter-catchment.svg -text whitespace=-blank-at-eol,-blank-at-eo
 
 # Original accepted plot exports retain their generated SVG whitespace.
 results/fe_walter_dkp_2016_2020/figures/*.svg -text whitespace=-blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol
+
+# Curated teaching snapshots retain original bytes after relocation.
+examples/fe_walter/reference_outputs/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+examples/fe_walter/reference_outputs/**/figures/*.svg -text whitespace=-blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol

@@ -9,7 +9,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
-from urllib.parse import unquote, urlsplit
+from urllib.parse import quote, unquote, urlsplit
 
 ROOT = Path(__file__).resolve().parents[1]
 REMOTE = "https://github.com/WenyuChiou/HydroOpsLM"
@@ -46,7 +46,6 @@ PAGES = {
     "tutorials/main.ipynb": "tutorials/main.ipynb",
     "tutorials/advanced.ipynb": "tutorials/advanced.ipynb",
     "archive/README.md": "archive/README.md",
-    "paper/technical_note.md": "paper/technical_note.md",
     **{f"docs/{name}": f"docs/{name}" for name in (
         "README.md", "README.zh-TW.md", "LLM_MODULES.md", "LLM_MODULES.zh-TW.md",
         "USER_GUIDE.md", "USER_GUIDE.zh-TW.md", "HYDROLOGY_SETUP.md",
@@ -59,7 +58,7 @@ PAGES = {
 LINK = re.compile(r"(!?\[[^\[\]]*\]\()([^\s)]+)(\))")
 
 
-def prepare(source: Path) -> None:
+def prepare(source: Path, *, source_ref: str = "main") -> None:
     """Keep manual pages local; link source/evidence to the private repository."""
     def rewrite(text: str, original: str, destination: str) -> str:
         def replace(match: re.Match) -> str:
@@ -90,7 +89,7 @@ def prepare(source: Path) -> None:
                 value = Path(os.path.relpath(output, (source / destination).parent)).as_posix()
             else:
                 kind = "tree" if target.is_dir() else "blob"
-                value = f"{REMOTE}/{kind}/main/{relative}"
+                value = f"{REMOTE}/{kind}/{quote(source_ref, safe='')}/{relative}"
             if parsed.fragment:
                 value += "#" + parsed.fragment
             return match[1] + value + match[3]
@@ -137,7 +136,7 @@ def prepare(source: Path) -> None:
                 *[f"{kind}_{day}.json" for kind in ("trace", "operation") for day in ("2020-05-02", "2020-06-15")]]
     selected += [f"figures/fe_walter_{figure}.{ext}" for figure in ("2016_2020_daily", "2020_detail", "audit_by_year") for ext in ("pdf", "svg")]
     for relative in selected:
-        item = ROOT / "results/fe_walter_dkp_2016_2020" / relative
+        item = ROOT / "examples/fe_walter/reference_outputs/long_term_dkp" / relative
         shutil.copyfile(item, case_downloads / item.name)
     groups = {
         "Overview": ["docs/README"],
@@ -145,7 +144,7 @@ def prepare(source: Path) -> None:
         "FE Walter case study": ["examples/fe_walter/README", "examples/fe_walter/hydrology", "examples/fe_walter/coupling", *[f"examples/fe_walter/{method}/README" for method in ("benchmark", "zero_shot", "dkp")], "examples/fe_walter/results"],
         "Further configuration": ["tutorials/advanced", "docs/RESULTS_GUIDE", "docs/RUNNING"],
         "Reference": ["docs/PARAMETER_REFERENCE", "docs/REFERENCE", "docs/FIRST_DECISION", "docs/HYDROLOGY_SETUP",
-                      "tutorials/README", "tutorials/main", "paper/technical_note",
+                      "tutorials/README", "tutorials/main",
                                     "docs/PROJECT_INVENTORY", "archive/README", "repository",
                                     "docs/BUILDING", "docs/auditor_plugins", "docs/LIVE_READINESS"],
         "繁體中文": [path.rsplit(".", 1)[0] for path in PAGES.values()
@@ -169,13 +168,14 @@ def prepare(source: Path) -> None:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path, default=ROOT / "build/docs")
+    parser.add_argument("--source-ref", default="main", help="Git ref used for repository source links")
     args = parser.parse_args()
     build = ROOT / "build"
     build.mkdir(exist_ok=True)
     with tempfile.TemporaryDirectory(prefix="docs-source-", dir=build) as folder:
         source = Path(folder).resolve()
         assert source.is_relative_to(build.resolve())
-        prepare(source)
+        prepare(source, source_ref=args.source_ref)
         # Sphinx/MyST-NB reads saved MIME outputs; execution is disabled in conf.py.
         return subprocess.run([sys.executable, "-m", "sphinx", "-W", "--keep-going",
                                "-b", "html", str(source), str(args.output.resolve())], check=False).returncode

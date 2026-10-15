@@ -1,0 +1,517 @@
+{
+  "schema_version": "curated-example-outputs.v1",
+  "source_commit": "0d8dfe1577ef6783f7559aa3c74fb0f390c8a8fe",
+  "scope": "Selected saved teaching outputs only. Complete research artifacts, failure history and original bytes are archived separately; original runs were not repeated.",
+  "files": [
+    {
+      "path": "examples/fe_walter/reference_outputs/long_term_dkp/annual_summary.csv",
+      "bytes": 462,
+      "sha256": "f3e7f3e1175585814f4cd435931dbdf6199a575e5cd8e09855a0b79349a48c6f",
+      "original_path": "results/fe_walter_dkp_2016_2020/annual_summary.csv"
+    },
+    {
+      "path": "examples/fe_walter/reference_outputs/long_term_dkp/figures/fe_walter_2016_2020_daily.pdf",
+      "bytes": 123369,
+      "sha256": "fc4a4121676e14474d2b229abd72afff80366a310de3957efb278ddd9e7bd54f",
+      "original_path": "results/fe_walter_dkp_2016_2020/figures/fe_walter_2016_2020_daily.pdf"
+    },
+    {
+      "path": "examples/fe_walter/reference_outputs/long_term_dkp/figures/fe_walter_2016_2020_daily.png",
+      "bytes": 464968,
+      "sha256": "46794859b534f17fa4a7534fff9af53bbe96c5aad1b0ed15d38f938f03aeb2c9",
+      "original_path": "results/fe_walter_dkp_2016_2020/figures/fe_walter_2016_2020_daily.png"
+    },
+    {
+      "path": "examples/fe_walter/reference_outputs/long_term_dkp/figures/fe_walter_2016_2020_daily.svg",
+      "bytes": 446143,
+      "sha256": "3d4f8d69202671f9d1b6be2a4041e880ff11a89333814c08a470ba99cf07ab49",
+      "original_path": "results/fe_walter_dkp_2016_2020/figures/fe_walter_2016_2020_daily.svg"
+    },
+    {
+      "path": "examples/fe_walter/reference_outputs/long_term_dkp/figures/fe_walter_2020_detail.pdf",
+      "bytes": 69849,
+      "sha256": "9d08dac73a0d876a0636521cea9b7d2a743d63c19996557d449819f890e58449",
+      "original_path": "results/fe_walter_dkp_2016_2020/figures/fe_walter_2020_detail.pdf"
+    },
+    {
+      "path": "examples/fe_walter/reference_outputs/long_term_dkp/figures/fe_walter_2020_detail.png",
+      "bytes": 309820,
+      "sha256": "fbbb96c23ea5ae1e794828e4ab6681ccdf05c9e8c6a2dcddd837519ab15210f2",
+      "original_path": "results/fe_walter_dkp_2016_2020/figures/fe_walter_2020_detail.png"
+    },
+    {
+      "path": "examples/fe_walter/reference_outputs/long_term_dkp/figures/fe_walter_2020_detail.svg",
+      "bytes": 129332,
+      "sha256": "f4cc772ae68ea1263557c4cccece78f679fdfe164189710bea5ec6755efab261",
+      "original_path": "results/fe_walter_dkp_2016_2020/figures/fe_walter_2020_detail.svg"
+    },
+    {
+      "path": "examples/fe_walter/reference_outputs/long_term_dkp/figures/fe_walter_audit_by_year.pdf",
+      "bytes": 47958,
+      "sha256": "6d3cc2742532288085dcd21fbf67fbec39f2ab7650ac963561732e8f242be9a6",
+      "original_path": "results/fe_walter_dkp_2016_2020/figures/fe_walter_audit_by_year.pdf"
+    },
+    {
+      "path": "examples/fe_walter/reference_outputs/long_term_dkp/figures/fe_walter_audit_by_year.png",
+      "bytes": 70653,
+      "sha256": "060a16b4e4fb99bb414f959e6337c6dd62b06a0ccb7936f4a676ea1ccef790b1",
+      "original_path": "results/fe_walter_dkp_2016_2020/figures/fe_walter_audit_by_year.png"
+    },
+    {
+      "path": "examples/fe_walter/reference_outputs/long_term_dkp/figures/fe_walter_audit_by_year.svg",
+      "bytes": 17680,
+      "sha256": "d17b7a633cbc543d2b7ba809e8c56e3227e1ec275ad25431f7b79085d89fdcc5",
+      "original_path": "results/fe_walter_dkp_2016_2020/figures/fe_walter_audit_by_year.svg"
+    },
+    {
+      "path": "examples/fe_walter/reference_outputs/long_term_dkp/operation_2020-05-02.json",
+      "bytes": 931,
+      "sha256": "3b546863bf21597074067e45f4eeeed0bd2c634d2c2ac43b8c4f9793fe31e6ca",
+      "original_path": "results/fe_walter_dkp_2016_2020/operation_2020-05-02.json"
+    },
+    {
+      "path": "examples/fe_walter/reference_outputs/long_term_dkp/operation_2020-06-15.json",
+      "bytes": 939,
+      "sha256": "c7c8cf486b3e31816e721e0110f8ef718c430203f2b58334da3a74bb8b1a2827",
+      "original_path": "results/fe_walter_dkp_2016_2020/operation_2020-06-15.json"
+    },
+    {
+      "path": "examples/fe_walter/reference_outputs/long_term_dkp/plotted_daily.csv",
+      "bytes": 452903,
+      "sha256": "bb160b638cba382854e4091da08cbdf8056375b3fec6fdd97bff494e3357fe81",
+      "original_path": "results/fe_walter_dkp_2016_2020/plotted_daily.csv"
+    },
+    {
+      "path": "examples/fe_walter/reference_outputs/long_term_dkp/README.md",
+      "bytes": 611,
+      "sha256": "94e3e097cb33813b49be4205e307f10c1f0204e768b31bbeadf3c2d5e425398d",
+      "original_path": "results/fe_walter_dkp_2016_2020/README.md"
+    },
+    {
+      "path": "examples/fe_walter/reference_outputs/long_term_dkp/source_manifest.json",
+      "bytes": 4014,
+      "sha256": "8088c6f03726acf01359b6d3b81c9568fcf52741cea3e7f09ebac5ecfa9ee884",
+      "original_path": "results/fe_walter_dkp_2016_2020/source_manifest.json"
+    },
+    {
+      "path": "examples/fe_walter/reference_outputs/long_term_dkp/trace_2020-05-02.json",
+      "bytes": 11742,
+      "sha256": "b43f2b78b97ac067f77ad5d1aafd8d6e0854f51803ccd7c46d7800b072cfff6a",
+      "original_path": "results/fe_walter_dkp_2016_2020/trace_2020-05-02.json"
+    },
+    {
+      "path": "examples/fe_walter/reference_outputs/long_term_dkp/trace_2020-06-15.json",
+      "bytes": 11541,
+      "sha256": "f827e2dd84f7c8124af5713b482c5fa80dfe554c6267f64f846cac940af11688",
+      "original_path": "results/fe_walter_dkp_2016_2020/trace_2020-06-15.json"
+    },
+    {
+      "path": "examples/fe_walter/reference_outputs/long_term_dkp/trajectory.csv",
+      "bytes": 216119,
+      "sha256": "83c2e8c3f82a708485ca58ab3207a0aef2e88cf37f5061de9b57cfb3ded885b7",
+      "original_path": "results/fe_walter_dkp_2016_2020/trajectory.csv"
+    },
+    {
+      "path": "examples/fe_walter/reference_outputs/multi_reservoir_month/acceptance.json",
+      "bytes": 10100,
+      "sha256": "39596f01aa2a47df0b2d95a4a8521675ca863df2b1e03138ca2f33482e8acd8b",
+      "original_path": "results/three_reservoir_month_2016_01/acceptance.json"
+    },
+    {
+      "path": "examples/fe_walter/reference_outputs/multi_reservoir_month/baseline/experiment.json",
+      "bytes": 20897,
+      "sha256": "176760db5ac3bc1262b3d100549c74df89049ffd75c27261cc64e858f1470f08",
+      "original_path": "results/three_reservoir_month_2016_01/baseline/experiment.json"
+    },
+    {
+      "path": "examples/fe_walter/reference_outputs/multi_reservoir_month/baseline/reservoir_trajectory.csv",
+      "bytes": 14671,
+      "sha256": "67e697d106a8643169b8170ce202b9d053ffcca0d51eb55bec234d6ed92cea14",
+      "original_path": "results/three_reservoir_month_2016_01/baseline/reservoir_trajectory.csv"
+    },
+    {
+      "path": "examples/fe_walter/reference_outputs/multi_reservoir_month/baseline/summary.json",
+      "bytes": 3130,
+      "sha256": "43c198d0be73f6a7d535d5725e620d419c5ae254ee45bfa89656d47282e06749",
+      "original_path": "results/three_reservoir_month_2016_01/baseline/summary.json"
+    },
+    {
+      "path": "examples/fe_walter/reference_outputs/multi_reservoir_month/comparison.json",
+      "bytes": 4825,
+      "sha256": "4796573fa48beb3221ed0c4407b3a48f2d582b51b28ea62ce948844d111ddf28",
+      "original_path": "results/three_reservoir_month_2016_01/comparison.json"
+    },
+    {
+      "path": "examples/fe_walter/reference_outputs/multi_reservoir_month/figures/overview.pdf",
+      "bytes": 29675,
+      "sha256": "e6a3b32d54883960124345af53980ca6b08f855457d0b675d544688958c84fac",
+      "original_path": "results/three_reservoir_month_2016_01/figures/overview.pdf"
+    },
+    {
+      "path": "examples/fe_walter/reference_outputs/multi_reservoir_month/figures/overview.png",
+      "bytes": 316182,
+      "sha256": "9df324540ce995f21b5b34a2c77a0a56384761a45d86b93428bf22d63eb8a55e",
+      "original_path": "results/three_reservoir_month_2016_01/figures/overview.png"
+    },
+    {
+      "path": "examples/fe_walter/reference_outputs/multi_reservoir_month/figures/overview.svg",
+      "bytes": 125737,
+      "sha256": "139a122bb0f1e1a99c9176be8054107a7610a6fa545fd6a0bbc06171db5fa2ad",
+      "original_path": "results/three_reservoir_month_2016_01/figures/overview.svg"
+    },
+    {
+      "path": "examples/fe_walter/reference_outputs/multi_reservoir_month/README.md",
+      "bytes": 680,
+      "sha256": "acdc93bbb19652c2e5e7535c59acb2b36a5c24ef88c5a353416872680f6a5b36",
+      "original_path": null
+    },
+    {
+      "path": "examples/fe_walter/reference_outputs/ollama_three_day/dkp/audit.jsonl",
+      "bytes": 32792,
+      "sha256": "5d6f4b0b0073db7053071566f9319b39b1d1fdf9a07ea51951142f0c335173df",
+      "original_path": "results/fe_walter_ollama_2016_01/dkp/audit.jsonl"
+    },
+    {
+      "path": "examples/fe_walter/reference_outputs/ollama_three_day/dkp/backend_events.jsonl",
+      "bytes": 3069,
+      "sha256": "4d4764a6635302f7c377cf971723d9096da70522a84cb638cd190bd1ccb0891c",
+      "original_path": "results/fe_walter_ollama_2016_01/dkp/backend_events.jsonl"
+    },
+    {
+      "path": "examples/fe_walter/reference_outputs/ollama_three_day/dkp/decisions.jsonl",
+      "bytes": 31737,
+      "sha256": "de4e801d929532aee66f636dcabfd7fdd4f3ff2e34934d18e93c9dc7a10e3ac7",
+      "original_path": "results/fe_walter_ollama_2016_01/dkp/decisions.jsonl"
+    },
+    {
+      "path": "examples/fe_walter/reference_outputs/ollama_three_day/dkp/experiment.json",
+      "bytes": 7829,
+      "sha256": "99501e1f90b159371e7a05c35c38b91bad4eadc3a116a249281c6eac78004e28",
+      "original_path": "results/fe_walter_ollama_2016_01/dkp/experiment.json"
+    },
+    {
+      "path": "examples/fe_walter/reference_outputs/ollama_three_day/dkp/index.json",
+      "bytes": 2509,
+      "sha256": "dc5d63c90180fbef240b914279c8a5674bf1539aed2c027a904720f46b54df9a",
+      "original_path": "results/fe_walter_ollama_2016_01/dkp/index.json"
+    },
+    {
+      "path": "examples/fe_walter/reference_outputs/ollama_three_day/dkp/network_balance.csv",
+      "bytes": 415,
+      "sha256": "dc44f0476658a2fbe00a407be11af1af58ef1cee85c83e170782e525dbb343f1",
+      "original_path": "results/fe_walter_ollama_2016_01/dkp/network_balance.csv"
+    },
+    {
+      "path": "examples/fe_walter/reference_outputs/ollama_three_day/dkp/network_flows.csv",
+      "bytes": 438,
+      "sha256": "0876ad3500f65ac8ce40beba387324782d97547100225d2aa3ab50baf7a9d6db",
+      "original_path": "results/fe_walter_ollama_2016_01/dkp/network_flows.csv"
+    },
+    {
+      "path": "examples/fe_walter/reference_outputs/ollama_three_day/dkp/physics.jsonl",
+      "bytes": 3593,
+      "sha256": "c730c63cdb6646ba6db3558bbfd7e63e2846938591a7de86e92835949a1989d3",
+      "original_path": "results/fe_walter_ollama_2016_01/dkp/physics.jsonl"
+    },
+    {
+      "path": "examples/fe_walter/reference_outputs/ollama_three_day/dkp/progress.json",
+      "bytes": 181,
+      "sha256": "8a93eb5a7a4838c1624785725421c9288a69c7ac39ef542722305fc834c110d5",
+      "original_path": "results/fe_walter_ollama_2016_01/dkp/progress.json"
+    },
+    {
+      "path": "examples/fe_walter/reference_outputs/ollama_three_day/dkp/raw/audit_24bad2561f92f1ff5ef9ba6c227da2c8753ec2f80a4426b281b9bd57be2589ee.json",
+      "bytes": 39924,
+      "sha256": "eff31007900a7c549dfaa14f73d464066883e9da7fedf582658813eda21d30b5",
+      "original_path": "results/fe_walter_ollama_2016_01/dkp/raw/audit_24bad2561f92f1ff5ef9ba6c227da2c8753ec2f80a4426b281b9bd57be2589ee.json"
+    },
+    {
+      "path": "examples/fe_walter/reference_outputs/ollama_three_day/dkp/raw/audit_525a5e6130743db39c9b20a90a5974262ef848173b2f5c363b148eab56e0a7a0.json",
+      "bytes": 38940,
+      "sha256": "3a2adb41cc682031fd2577a1456206f995867f2061ddb94197a5ba9f520ab2f2",
+      "original_path": "results/fe_walter_ollama_2016_01/dkp/raw/audit_525a5e6130743db39c9b20a90a5974262ef848173b2f5c363b148eab56e0a7a0.json"
+    },
+    {
+      "path": "examples/fe_walter/reference_outputs/ollama_three_day/dkp/raw/audit_87d975aee46dea6d4818b1f090efec8cc79b1e29a0fc31132d62799f2f3741b6.json",
+      "bytes": 35956,
+      "sha256": "7274f33026aeb7a0b5034dea61c760aeb5be4065bde91f773ac978b84dc1ee89",
+      "original_path": "results/fe_walter_ollama_2016_01/dkp/raw/audit_87d975aee46dea6d4818b1f090efec8cc79b1e29a0fc31132d62799f2f3741b6.json"
+    },
+    {
+      "path": "examples/fe_walter/reference_outputs/ollama_three_day/dkp/raw/policy_24bad2561f92f1ff5ef9ba6c227da2c8753ec2f80a4426b281b9bd57be2589ee.json",
+      "bytes": 29082,
+      "sha256": "6789e36df21b7a01f0e06d2dcf9660a103ed0510d26aae4b3ebfeb1516148428",
+      "original_path": "results/fe_walter_ollama_2016_01/dkp/raw/policy_24bad2561f92f1ff5ef9ba6c227da2c8753ec2f80a4426b281b9bd57be2589ee.json"
+    },
+    {
+      "path": "examples/fe_walter/reference_outputs/ollama_three_day/dkp/raw/policy_525a5e6130743db39c9b20a90a5974262ef848173b2f5c363b148eab56e0a7a0.json",
+      "bytes": 28082,
+      "sha256": "3ccc94fd5f0c9f7d380a81a3943c34817edc73aa32d8d789d5d2760d54f11475",
+      "original_path": "results/fe_walter_ollama_2016_01/dkp/raw/policy_525a5e6130743db39c9b20a90a5974262ef848173b2f5c363b148eab56e0a7a0.json"
+    },
+    {
+      "path": "examples/fe_walter/reference_outputs/ollama_three_day/dkp/raw/policy_87d975aee46dea6d4818b1f090efec8cc79b1e29a0fc31132d62799f2f3741b6.json",
+      "bytes": 26591,
+      "sha256": "0716544f4d3bb86bcee009fb479f4dc631ccfb78bc8c5649df73290569444565",
+      "original_path": "results/fe_walter_ollama_2016_01/dkp/raw/policy_87d975aee46dea6d4818b1f090efec8cc79b1e29a0fc31132d62799f2f3741b6.json"
+    },
+    {
+      "path": "examples/fe_walter/reference_outputs/ollama_three_day/dkp/reach_volume_trace.json",
+      "bytes": 795,
+      "sha256": "fd700beab43e7301433f4f4bc5fee3615b61dac17daca73bc5644045ba2408e6",
+      "original_path": "results/fe_walter_ollama_2016_01/dkp/reach_volume_trace.json"
+    },
+    {
+      "path": "examples/fe_walter/reference_outputs/ollama_three_day/dkp/reservoir_trajectory.csv",
+      "bytes": 600,
+      "sha256": "5c0c31e1fd8a567d9d9f5bb3117985d4c32a6a31679a662c16e812e198461c6f",
+      "original_path": "results/fe_walter_ollama_2016_01/dkp/reservoir_trajectory.csv"
+    },
+    {
+      "path": "examples/fe_walter/reference_outputs/ollama_three_day/dkp/summary.json",
+      "bytes": 2509,
+      "sha256": "dc5d63c90180fbef240b914279c8a5674bf1539aed2c027a904720f46b54df9a",
+      "original_path": "results/fe_walter_ollama_2016_01/dkp/summary.json"
+    },
+    {
+      "path": "examples/fe_walter/reference_outputs/ollama_three_day/README.md",
+      "bytes": 2233,
+      "sha256": "fe5ed9464b66a5ffb800b1b36a48c27c7ea0397eaf35481a52dd52ab62f335b6",
+      "original_path": "results/fe_walter_ollama_2016_01/README.md"
+    },
+    {
+      "path": "examples/fe_walter/reference_outputs/ollama_three_day/README.zh-TW.md",
+      "bytes": 2107,
+      "sha256": "a7bd0d5855fa455f1cc34180ecd75ca3b597b50158a14148a7fe41ea833810a3",
+      "original_path": "results/fe_walter_ollama_2016_01/README.zh-TW.md"
+    },
+    {
+      "path": "examples/fe_walter/reference_outputs/ollama_three_day/verification.json",
+      "bytes": 9761,
+      "sha256": "55a1357c449d056bc5435d2f69a02fa80b42e43181a490c821a5d005f8679516",
+      "original_path": "results/fe_walter_ollama_2016_01/verification.json"
+    },
+    {
+      "path": "examples/fe_walter/reference_outputs/ollama_three_day/zero_shot/audit.jsonl",
+      "bytes": 29018,
+      "sha256": "177427d9c7fcdfe6fd6eeb79075c96190338a744b17692841d15e0bbd4f1ccb4",
+      "original_path": "results/fe_walter_ollama_2016_01/zero_shot/audit.jsonl"
+    },
+    {
+      "path": "examples/fe_walter/reference_outputs/ollama_three_day/zero_shot/backend_events.jsonl",
+      "bytes": 3123,
+      "sha256": "d36d8c69e9a4ca4f12176d69ecf814bd21e500083de7ad6a6c680f9401740351",
+      "original_path": "results/fe_walter_ollama_2016_01/zero_shot/backend_events.jsonl"
+    },
+    {
+      "path": "examples/fe_walter/reference_outputs/ollama_three_day/zero_shot/decisions.jsonl",
+      "bytes": 30155,
+      "sha256": "947b1f36f66901ae3f300650edeeb90b49057f54562bbb90ba65ad91ea939df0",
+      "original_path": "results/fe_walter_ollama_2016_01/zero_shot/decisions.jsonl"
+    },
+    {
+      "path": "examples/fe_walter/reference_outputs/ollama_three_day/zero_shot/experiment.json",
+      "bytes": 7644,
+      "sha256": "a901e101e7e3ba9c39260c252cff174cc2fc55cd9986ae41a46bf96ea87bb12e",
+      "original_path": "results/fe_walter_ollama_2016_01/zero_shot/experiment.json"
+    },
+    {
+      "path": "examples/fe_walter/reference_outputs/ollama_three_day/zero_shot/index.json",
+      "bytes": 2507,
+      "sha256": "d3e0e4e58ced8d641cc9dd5a3b30b2bf469cf21dd0385da462a9fff3d55a5ad4",
+      "original_path": "results/fe_walter_ollama_2016_01/zero_shot/index.json"
+    },
+    {
+      "path": "examples/fe_walter/reference_outputs/ollama_three_day/zero_shot/network_balance.csv",
+      "bytes": 376,
+      "sha256": "d18b96ade1808bdfe28c2321c0821c2d007d5607259d9d298b478d4bdb2b47e1",
+      "original_path": "results/fe_walter_ollama_2016_01/zero_shot/network_balance.csv"
+    },
+    {
+      "path": "examples/fe_walter/reference_outputs/ollama_three_day/zero_shot/network_flows.csv",
+      "bytes": 476,
+      "sha256": "6a836ebff4c73139a2bcd304f6c8d002a3ff2e54f1866fea31ba0467d95e079e",
+      "original_path": "results/fe_walter_ollama_2016_01/zero_shot/network_flows.csv"
+    },
+    {
+      "path": "examples/fe_walter/reference_outputs/ollama_three_day/zero_shot/physics.jsonl",
+      "bytes": 3706,
+      "sha256": "dff52d2836f99555ed7302dad92dde75b5ea4b49728b06503837953bcb33e605",
+      "original_path": "results/fe_walter_ollama_2016_01/zero_shot/physics.jsonl"
+    },
+    {
+      "path": "examples/fe_walter/reference_outputs/ollama_three_day/zero_shot/progress.json",
+      "bytes": 181,
+      "sha256": "8a93eb5a7a4838c1624785725421c9288a69c7ac39ef542722305fc834c110d5",
+      "original_path": "results/fe_walter_ollama_2016_01/zero_shot/progress.json"
+    },
+    {
+      "path": "examples/fe_walter/reference_outputs/ollama_three_day/zero_shot/raw/audit_4e2006ff9c730ed33c23b8f580d2e49e1d6d8a4a643806a24ef48fe689147292.json",
+      "bytes": 14941,
+      "sha256": "bdc629ca25b0d1e957081444cc87af4a87eed3c717f11e086dc301d910bea355",
+      "original_path": "results/fe_walter_ollama_2016_01/zero_shot/raw/audit_4e2006ff9c730ed33c23b8f580d2e49e1d6d8a4a643806a24ef48fe689147292.json"
+    },
+    {
+      "path": "examples/fe_walter/reference_outputs/ollama_three_day/zero_shot/raw/audit_8b6b32b16eb12e9cd580ac748e04c6ab20981006c19e4ea2e55f32651f3636c2.json",
+      "bytes": 15370,
+      "sha256": "a792cb419aea0a8dee71beff2bca8369e7e4332a78543a58d127af4cd1869372",
+      "original_path": "results/fe_walter_ollama_2016_01/zero_shot/raw/audit_8b6b32b16eb12e9cd580ac748e04c6ab20981006c19e4ea2e55f32651f3636c2.json"
+    },
+    {
+      "path": "examples/fe_walter/reference_outputs/ollama_three_day/zero_shot/raw/audit_b32bc5738ff8f890b5950aab3f5203ab31c224527ff6be8b3f5daf50bdb3dcc5.json",
+      "bytes": 16683,
+      "sha256": "d6678a5d0d453b2a614aef215675d92cc6009e4c0072f664be62d884573877fc",
+      "original_path": "results/fe_walter_ollama_2016_01/zero_shot/raw/audit_b32bc5738ff8f890b5950aab3f5203ab31c224527ff6be8b3f5daf50bdb3dcc5.json"
+    },
+    {
+      "path": "examples/fe_walter/reference_outputs/ollama_three_day/zero_shot/raw/policy_4e2006ff9c730ed33c23b8f580d2e49e1d6d8a4a643806a24ef48fe689147292.json",
+      "bytes": 10093,
+      "sha256": "ea42262195306557eeacc492f40fe84753ca2e5857b7aa23f4b5283753d0c346",
+      "original_path": "results/fe_walter_ollama_2016_01/zero_shot/raw/policy_4e2006ff9c730ed33c23b8f580d2e49e1d6d8a4a643806a24ef48fe689147292.json"
+    },
+    {
+      "path": "examples/fe_walter/reference_outputs/ollama_three_day/zero_shot/raw/policy_8b6b32b16eb12e9cd580ac748e04c6ab20981006c19e4ea2e55f32651f3636c2.json",
+      "bytes": 10500,
+      "sha256": "86628dd69e5b03906c52cb5b1d2f553c098f0ee487992a25253b507e4535d2f3",
+      "original_path": "results/fe_walter_ollama_2016_01/zero_shot/raw/policy_8b6b32b16eb12e9cd580ac748e04c6ab20981006c19e4ea2e55f32651f3636c2.json"
+    },
+    {
+      "path": "examples/fe_walter/reference_outputs/ollama_three_day/zero_shot/raw/policy_b32bc5738ff8f890b5950aab3f5203ab31c224527ff6be8b3f5daf50bdb3dcc5.json",
+      "bytes": 10894,
+      "sha256": "811146dc5c04e370dc33b04b4206fc20ab611e58725044a2c5dcdfa48c23ae34",
+      "original_path": "results/fe_walter_ollama_2016_01/zero_shot/raw/policy_b32bc5738ff8f890b5950aab3f5203ab31c224527ff6be8b3f5daf50bdb3dcc5.json"
+    },
+    {
+      "path": "examples/fe_walter/reference_outputs/ollama_three_day/zero_shot/reach_volume_trace.json",
+      "bytes": 825,
+      "sha256": "684ffc1524159c7b69703b5e8b4c850501808ec5aae0da3579be86cf427a78eb",
+      "original_path": "results/fe_walter_ollama_2016_01/zero_shot/reach_volume_trace.json"
+    },
+    {
+      "path": "examples/fe_walter/reference_outputs/ollama_three_day/zero_shot/reservoir_trajectory.csv",
+      "bytes": 660,
+      "sha256": "02587e39aad86eafcf1b9e10bb9a87391c7b0e1e53427cb7b128811f5728d539",
+      "original_path": "results/fe_walter_ollama_2016_01/zero_shot/reservoir_trajectory.csv"
+    },
+    {
+      "path": "examples/fe_walter/reference_outputs/ollama_three_day/zero_shot/summary.json",
+      "bytes": 2507,
+      "sha256": "d3e0e4e58ced8d641cc9dd5a3b30b2bf469cf21dd0385da462a9fff3d55a5ad4",
+      "original_path": "results/fe_walter_ollama_2016_01/zero_shot/summary.json"
+    },
+    {
+      "path": "examples/fe_walter/reference_outputs/README.md",
+      "bytes": 806,
+      "sha256": "e657e40f65d2b87a10593ffab94e912ee87625a7da07ebd41790029f83355f04",
+      "original_path": null
+    },
+    {
+      "path": "examples/fe_walter/reference_outputs/rule_three_day/audit.jsonl",
+      "bytes": 21471,
+      "sha256": "b95abc6cb89aecc57f662130272a2fd0a563c25331eb569dc5cd6e8e31a2fb96",
+      "original_path": "results/fe_walter_tutorial_benchmark_2016_01/audit.jsonl"
+    },
+    {
+      "path": "examples/fe_walter/reference_outputs/rule_three_day/backend_events.jsonl",
+      "bytes": 2943,
+      "sha256": "464ea4efb72a9d3c167b85fa93b55232e4eaa934d964ae72023e3c8da43293a5",
+      "original_path": "results/fe_walter_tutorial_benchmark_2016_01/backend_events.jsonl"
+    },
+    {
+      "path": "examples/fe_walter/reference_outputs/rule_three_day/decisions.jsonl",
+      "bytes": 22795,
+      "sha256": "182cb2cc78b27809a8b7612279982210b60f173db64a502fadbb79fa58cd67e0",
+      "original_path": "results/fe_walter_tutorial_benchmark_2016_01/decisions.jsonl"
+    },
+    {
+      "path": "examples/fe_walter/reference_outputs/rule_three_day/experiment.json",
+      "bytes": 7389,
+      "sha256": "71780d1a353f406db13214264fe75b69d144639dc38255b853c1849bf702a02e",
+      "original_path": "results/fe_walter_tutorial_benchmark_2016_01/experiment.json"
+    },
+    {
+      "path": "examples/fe_walter/reference_outputs/rule_three_day/index.json",
+      "bytes": 2497,
+      "sha256": "4b9ef753d9bb7d1e6434db426a6484f588a07ec02229ccea497e34cc451412cd",
+      "original_path": "results/fe_walter_tutorial_benchmark_2016_01/index.json"
+    },
+    {
+      "path": "examples/fe_walter/reference_outputs/rule_three_day/network_balance.csv",
+      "bytes": 394,
+      "sha256": "bdd224119cebc9179c0df41d05ed538641d73f4ce18df82f17a08d7817d0fd60",
+      "original_path": "results/fe_walter_tutorial_benchmark_2016_01/network_balance.csv"
+    },
+    {
+      "path": "examples/fe_walter/reference_outputs/rule_three_day/network_flows.csv",
+      "bytes": 484,
+      "sha256": "fefc3fde3bcdc054127e673b9d7d0ecd6b9e13aa30a87bc179fac0aba078cc5b",
+      "original_path": "results/fe_walter_tutorial_benchmark_2016_01/network_flows.csv"
+    },
+    {
+      "path": "examples/fe_walter/reference_outputs/rule_three_day/physics.jsonl",
+      "bytes": 3680,
+      "sha256": "ed047313603266b70248bd7871673219e951772f812ddff70c82f46a63c2f093",
+      "original_path": "results/fe_walter_tutorial_benchmark_2016_01/physics.jsonl"
+    },
+    {
+      "path": "examples/fe_walter/reference_outputs/rule_three_day/progress.json",
+      "bytes": 181,
+      "sha256": "8a93eb5a7a4838c1624785725421c9288a69c7ac39ef542722305fc834c110d5",
+      "original_path": "results/fe_walter_tutorial_benchmark_2016_01/progress.json"
+    },
+    {
+      "path": "examples/fe_walter/reference_outputs/rule_three_day/raw/audit_212d1114bd88811e825758c5d8a385d6026f450b586e4b809acf609fbb804f36.json",
+      "bytes": 3640,
+      "sha256": "30bbfae74862d6f6ccae9f40320eecd0e1faaacead5d2f6da37b0956431ac807",
+      "original_path": "results/fe_walter_tutorial_benchmark_2016_01/raw/audit_212d1114bd88811e825758c5d8a385d6026f450b586e4b809acf609fbb804f36.json"
+    },
+    {
+      "path": "examples/fe_walter/reference_outputs/rule_three_day/raw/audit_a55e8402dabaa06d6127816db201078ccaff0234147efb071c505797a92cdd3a.json",
+      "bytes": 3636,
+      "sha256": "940c729749fc39ccc9a92e212092c22d0e0f821b8509ebf05dd4b08399b8141f",
+      "original_path": "results/fe_walter_tutorial_benchmark_2016_01/raw/audit_a55e8402dabaa06d6127816db201078ccaff0234147efb071c505797a92cdd3a.json"
+    },
+    {
+      "path": "examples/fe_walter/reference_outputs/rule_three_day/raw/audit_f0cd7e1920b1d0f0b63f3376df7332709961af0b5f00287d0a65cfc1c2dd6723.json",
+      "bytes": 3635,
+      "sha256": "c6f3b0bafc3a9c9322bcb0cbc319f97465fe222f708a1e33663d54938e8c4cab",
+      "original_path": "results/fe_walter_tutorial_benchmark_2016_01/raw/audit_f0cd7e1920b1d0f0b63f3376df7332709961af0b5f00287d0a65cfc1c2dd6723.json"
+    },
+    {
+      "path": "examples/fe_walter/reference_outputs/rule_three_day/raw/policy_212d1114bd88811e825758c5d8a385d6026f450b586e4b809acf609fbb804f36.json",
+      "bytes": 745,
+      "sha256": "619381855b07a9c682e1bd671a42f8b1a316f02f8d4cc989c416e712e63acc5c",
+      "original_path": "results/fe_walter_tutorial_benchmark_2016_01/raw/policy_212d1114bd88811e825758c5d8a385d6026f450b586e4b809acf609fbb804f36.json"
+    },
+    {
+      "path": "examples/fe_walter/reference_outputs/rule_three_day/raw/policy_a55e8402dabaa06d6127816db201078ccaff0234147efb071c505797a92cdd3a.json",
+      "bytes": 742,
+      "sha256": "9722828a0a236b3092d8e4587e5c1169d3875be46a14be8bd23520c52a687a85",
+      "original_path": "results/fe_walter_tutorial_benchmark_2016_01/raw/policy_a55e8402dabaa06d6127816db201078ccaff0234147efb071c505797a92cdd3a.json"
+    },
+    {
+      "path": "examples/fe_walter/reference_outputs/rule_three_day/raw/policy_f0cd7e1920b1d0f0b63f3376df7332709961af0b5f00287d0a65cfc1c2dd6723.json",
+      "bytes": 742,
+      "sha256": "398940a5f0ca7da1de95d4ae2457c0085a81251b005a11df762794a04afb03c6",
+      "original_path": "results/fe_walter_tutorial_benchmark_2016_01/raw/policy_f0cd7e1920b1d0f0b63f3376df7332709961af0b5f00287d0a65cfc1c2dd6723.json"
+    },
+    {
+      "path": "examples/fe_walter/reference_outputs/rule_three_day/reach_volume_trace.json",
+      "bytes": 827,
+      "sha256": "767dbfa57b661451926b345fbddf7cfb6748115821d3cfa551718726c6f4eaf5",
+      "original_path": "results/fe_walter_tutorial_benchmark_2016_01/reach_volume_trace.json"
+    },
+    {
+      "path": "examples/fe_walter/reference_outputs/rule_three_day/reservoir_trajectory.csv",
+      "bytes": 674,
+      "sha256": "04bd74cab56e8e6b1fcaa89b2a93b844ca38a04a4e6912b3bd0892b1f525d709",
+      "original_path": "results/fe_walter_tutorial_benchmark_2016_01/reservoir_trajectory.csv"
+    },
+    {
+      "path": "examples/fe_walter/reference_outputs/rule_three_day/summary.json",
+      "bytes": 2497,
+      "sha256": "4b9ef753d9bb7d1e6434db426a6484f588a07ec02229ccea497e34cc451412cd",
+      "original_path": "results/fe_walter_tutorial_benchmark_2016_01/summary.json"
+    }
+  ]
+}

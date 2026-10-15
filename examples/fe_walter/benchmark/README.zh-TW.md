@@ -55,7 +55,7 @@ release、spill 與 ending storage。總出流是 controlled release 加 spill�
 
 此基準在 release-bounds auditor 下保留 **3 PASS**。這套檢查與 LLM 操作 audit
 不同，因此不能用計數排名方法。
-[完整的第一日規則紀錄](../../../results/fe_walter_tutorial_benchmark_2016_01/raw/policy_a55e8402dabaa06d6127816db201078ccaff0234147efb071c505797a92cdd3a.json)
+[完整的第一日規則紀錄](../../../examples/fe_walter/reference_outputs/rule_three_day/raw/policy_a55e8402dabaa06d6127816db201078ccaff0234147efb071c505797a92cdd3a.json)
 保存輸入、每日規則 provenance、請求放流與來源 hash。
 
 [查看主教學](../../../tutorials/main.ipynb) ·
@@ -77,8 +77,8 @@ in global hydrological models.” *Geoscientific Model Development*, 16, 5449–
 固定在 commit `6c3dc532d712af55db1f4a1d8e018c86249ce7a8`（函式 hash `c11a81…`）。
 該函式不同於為 LLM prompt 與 audit 相容性保留、未變更的 V3.7 vendor source。
 只有決策函式經過調整；所有方法皆使用 HydroOpsLM simulation driver。
-[來源與 162-vector 比較紀錄](../../../results/technical_note_offline/README.md)
-保存來源身分與數值比較。
+[流程測試原始碼](../../../tests/test_benchmark_workflow.py)
+檢查統計輸入、設定，以及共同模擬介面的使用。
 
 (benchmark-files-and-commands)=
 ## 檔案與執行命令
@@ -105,7 +105,7 @@ in global hydrological models.” *Geoscientific Model Development*, 16, 5449–
 schema_version: llm-reservoir-experiment.v1
 run_id: fe-walter-tutorial-benchmark-2016-01
 case: ../../cases/fe_walter_ollama_demo/case.json
-output: ../../results/fe_walter_tutorial_benchmark_2016_01
+output: ../../runs/fe-walter-tutorial-benchmark
 start_date: '2016-01-01'
 end_date: '2016-01-03'
 max_calls: 0
@@ -151,7 +151,7 @@ python run_experiment.py check examples/fe_walter/benchmark/my-run.yaml
 
 ### 執行新的實驗
 
-[保存的三日結果](../../../results/fe_walter_tutorial_benchmark_2016_01/)已可使用。
+[保存的三日結果](../../../examples/fe_walter/reference_outputs/rule_three_day/)已可使用。
 只有在確定要啟動新 simulation 時，才執行以下命令：
 
 ```powershell
@@ -165,7 +165,7 @@ python run_experiment.py run examples/fe_walter/benchmark/my-run.yaml
 驗證現有的保存結果，不重跑 simulation：
 
 ```powershell
-python run_experiment.py verify results/fe_walter_tutorial_benchmark_2016_01 --require-offline
+python run_experiment.py verify examples/fe_walter/reference_outputs/rule_three_day --require-offline
 ```
 
 完成新執行後，改用 `runs/fe-walter-benchmark-my-run`。驗證會檢查執行證據，
@@ -174,7 +174,7 @@ python run_experiment.py verify results/fe_walter_tutorial_benchmark_2016_01 --r
 檢查保存的決策：
 
 ```powershell
-python tutorials/inspect_decision_flow.py results/fe_walter_tutorial_benchmark_2016_01 --require-offline
+python tutorials/inspect_decision_flow.py examples/fe_walter/reference_outputs/rule_three_day --require-offline
 ```
 
 `decisions.jsonl`、`raw/`、`audit.jsonl`、`physics.jsonl` 與

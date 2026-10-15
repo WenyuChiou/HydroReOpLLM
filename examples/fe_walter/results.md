@@ -9,7 +9,7 @@ Use this full year to follow seasonal reservoir behaviour: **2020-01-01–12-31,
 It is an excerpt of the saved retrieved-knowledge experiment below, using `gemma4:12b`, temperature **0.7**.
 January storage and release history continue from December 2019; this is not a new run initialized in January 2020.
 
-![FE Walter: one year of daily operation, 2020](../../results/fe_walter_dkp_2016_2020/figures/fe_walter_2020_detail.png)
+![FE Walter: one year of daily operation, 2020](../../examples/fe_walter/reference_outputs/long_term_dkp/figures/fe_walter_2020_detail.png)
 
 | Recorded check | 2020 result |
 |---|---:|
@@ -21,7 +21,7 @@ This annual example shows one method. The rule-based and available-information t
 
 ## Full daily trajectory
 
-![FE Walter: all 1,827 daily records](../../results/fe_walter_dkp_2016_2020/figures/fe_walter_2016_2020_daily.png)
+![FE Walter: all 1,827 daily records](../../examples/fe_walter/reference_outputs/long_term_dkp/figures/fe_walter_2016_2020_daily.png)
 
 Read the panels from top to bottom: **inflow and actual outflow → pool elevation and target → ending storage → operation audit**.
 Pool elevation is measured at the **start** of the simulated day; storage is recorded at its **end**.
@@ -212,7 +212,7 @@ Apply these DKP rules to decide the mean release for this interval (cfs).
 
 ## Read the audit over the full period
 
-![Recorded operation audits by year](../../results/fe_walter_dkp_2016_2020/figures/fe_walter_audit_by_year.png)
+![Recorded operation audits by year](../../examples/fe_walter/reference_outputs/long_term_dkp/figures/fe_walter_audit_by_year.png)
 
 FAIL means a configured operating criterion failed; it does not mean the water-balance calculation stopped.
 Audit messages and rationale are part of the evidence, including contradictory classifications or incomplete operating guidance.

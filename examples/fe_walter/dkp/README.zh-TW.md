@@ -22,7 +22,7 @@
 
 閱讀 [system prompt](../../../prompts/fe_walter_reference/dkp_system.txt)與
 [builder 閱讀預覽](prompt_preview.txt)。此預覽不是保存的模型回覆。
-[完整的第一日保存紀錄](../../../results/fe_walter_ollama_2016_01/dkp/raw/policy_87d975aee46dea6d4818b1f090efec8cc79b1e29a0fc31132d62799f2f3741b6.json)
+[完整的第一日保存紀錄](../../../examples/fe_walter/reference_outputs/ollama_three_day/dkp/raw/policy_87d975aee46dea6d4818b1f090efec8cc79b1e29a0fc31132d62799f2f3741b6.json)
 包含實際 rendered prompt、檢索摘錄、response schema 與完整 Ollama 回覆。
 System template 固定不變。Host 會追蹤起始 storage 並轉換成 pool elevation；
 rendered model message 會顯示目前 pool elevation、inflow 與實際執行的 release
@@ -298,7 +298,7 @@ Prompt 顯示水位；數值蓄水保留於 host，並未送入此版本的模�
 
 Audit FAIL 是操作診斷；本次保存的執行未因此替換放流。 蓄水變化為 **2,653,298.76 m³**。實際放流加 spill 只注入 routing 一次，下一日歷史使用已執行值。
 
-[完整 prompt／回覆](../../../results/fe_walter_ollama_2016_01/dkp/raw/policy_87d975aee46dea6d4818b1f090efec8cc79b1e29a0fc31132d62799f2f3741b6.json) · [原始 audit](../../../results/fe_walter_ollama_2016_01/dkp/raw/audit_87d975aee46dea6d4818b1f090efec8cc79b1e29a0fc31132d62799f2f3741b6.json) · [執行紀錄](../../../results/fe_walter_ollama_2016_01/dkp/physics.jsonl)
+[完整 prompt／回覆](../../../examples/fe_walter/reference_outputs/ollama_three_day/dkp/raw/policy_87d975aee46dea6d4818b1f090efec8cc79b1e29a0fc31132d62799f2f3741b6.json) · [原始 audit](../../../examples/fe_walter/reference_outputs/ollama_three_day/dkp/raw/audit_87d975aee46dea6d4818b1f090efec8cc79b1e29a0fc31132d62799f2f3741b6.json) · [執行紀錄](../../../examples/fe_walter/reference_outputs/ollama_three_day/dkp/physics.jsonl)
 
 
 [完整 2016–2020 結果與決策紀錄](../results.zh-TW.md)
@@ -397,7 +397,7 @@ python run_experiment.py check examples/fe_walter/dkp/my-run.yaml
 
 ### 執行新的實驗
 
-[保存的三日結果](../../../results/fe_walter_ollama_2016_01/dkp/)已可使用。
+[保存的三日結果](../../../examples/fe_walter/reference_outputs/ollama_three_day/dkp/)已可使用。
 只有在確定要啟動新 simulation 時，才執行以下命令：
 
 ```powershell
@@ -413,7 +413,7 @@ Ollama 必須已在執行，且可使用 `gemma3:4b`。`--allow-network` 允許�
 驗證現有的保存結果，不重跑 simulation：
 
 ```powershell
-python run_experiment.py verify results/fe_walter_ollama_2016_01/dkp
+python run_experiment.py verify examples/fe_walter/reference_outputs/ollama_three_day/dkp
 ```
 
 完成新執行後，改用 `runs/fe-walter-dkp-my-run`。驗證會檢查執行證據，
@@ -422,7 +422,7 @@ python run_experiment.py verify results/fe_walter_ollama_2016_01/dkp
 檢查保存的決策：
 
 ```powershell
-python tutorials/inspect_decision_flow.py results/fe_walter_ollama_2016_01/dkp
+python tutorials/inspect_decision_flow.py examples/fe_walter/reference_outputs/ollama_three_day/dkp
 ```
 
 `decisions.jsonl`、`raw/`、`audit.jsonl`、`physics.jsonl` 與

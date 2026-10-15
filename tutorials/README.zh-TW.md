@@ -27,9 +27,9 @@ python tutorials/build_notebooks.py --check
 
 Builder 不需 Jupyter kernel；它依序執行 cells、封鎖 socket／urllib，並嵌入
 pandas HTML 與 matplotlib PNG。資料來自
-`results/fe_walter_ollama_2016_01`、
-`results/fe_walter_tutorial_benchmark_2016_01` 及
-`results/three_reservoir_month_2016_01`，不依賴被忽略的 `runs/`。
+`examples/fe_walter/reference_outputs/ollama_three_day`、
+`examples/fe_walter/reference_outputs/rule_three_day` 及
+`examples/fe_walter/reference_outputs/multi_reservoir_month`，不依賴被忽略的 `runs/`。
 
 ## 選用的本機 Ollama 重跑
 

@@ -11,7 +11,7 @@ import tempfile
 from unittest import mock
 
 ROOT = Path(__file__).resolve().parents[1]
-DATA = ROOT / "results/fe_walter_dkp_2016_2020"
+DATA = ROOT / "examples/fe_walter/reference_outputs/long_term_dkp"
 
 
 def test_full_period_evidence_pins():
@@ -52,7 +52,7 @@ def test_manual_prepare_copies_original_downloads_without_network():
     spec.loader.exec_module(module)
     with tempfile.TemporaryDirectory() as folder, mock.patch("socket.socket", side_effect=AssertionError("network prohibited")):
         output = Path(folder)
-        module.prepare(output)
+        module.prepare(output, source_ref="codex/manual-book-v1")
         for name in ("main", "advanced"):
             assert (output / f"_notebook_downloads/{name}.ipynb").read_bytes() == (ROOT / f"tutorials/{name}.ipynb").read_bytes()
         published = output / "_case_downloads/dkp_2016_2020"
@@ -62,3 +62,7 @@ def test_manual_prepare_copies_original_downloads_without_network():
         config = (output / "conf.py").read_text()
         assert 'nb_execution_mode = "off"' in config
         assert (output / "examples/fe_walter/results.md").exists()
+        assert not (output / "paper").exists(), "Research drafts must not be published"
+        assert not (output / "results").exists(), "Manual assets must come from curated examples"
+        method = (output / "examples/fe_walter/zero_shot/README.md").read_text(encoding="utf-8")
+        assert "/blob/codex%2Fmanual-book-v1/" in method

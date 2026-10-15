@@ -24,7 +24,7 @@ agent: at most three requests, with no retries.
 
 Read the [system prompt](../../../prompts/fe_walter_reference/dkp_system.txt)
 and [builder reading preview](prompt_preview.txt). The preview is not the saved
-model reply. The [complete saved day-one record](../../../results/fe_walter_ollama_2016_01/dkp/raw/policy_87d975aee46dea6d4818b1f090efec8cc79b1e29a0fc31132d62799f2f3741b6.json)
+model reply. The [complete saved day-one record](../../../examples/fe_walter/reference_outputs/ollama_three_day/dkp/raw/policy_87d975aee46dea6d4818b1f090efec8cc79b1e29a0fc31132d62799f2f3741b6.json)
 contains the actual rendered prompt, retrieved excerpts, response schema and
 full Ollama reply. The system template is fixed. The host tracks starting storage and converts it
 to pool elevation; the rendered model message exposes the current pool elevation,
@@ -301,7 +301,7 @@ Saved audit reasons:
 
 Audit FAIL is an operating diagnosis; this saved run did not replace the release because of it. Storage changed by **2,653,298.76 m³**. Implemented release plus spill enters routing once; the next daily history uses the implemented value.
 
-[Full prompt and response](../../../results/fe_walter_ollama_2016_01/dkp/raw/policy_87d975aee46dea6d4818b1f090efec8cc79b1e29a0fc31132d62799f2f3741b6.json) · [Raw audit](../../../results/fe_walter_ollama_2016_01/dkp/raw/audit_87d975aee46dea6d4818b1f090efec8cc79b1e29a0fc31132d62799f2f3741b6.json) · [Execution records](../../../results/fe_walter_ollama_2016_01/dkp/physics.jsonl)
+[Full prompt and response](../../../examples/fe_walter/reference_outputs/ollama_three_day/dkp/raw/policy_87d975aee46dea6d4818b1f090efec8cc79b1e29a0fc31132d62799f2f3741b6.json) · [Raw audit](../../../examples/fe_walter/reference_outputs/ollama_three_day/dkp/raw/audit_87d975aee46dea6d4818b1f090efec8cc79b1e29a0fc31132d62799f2f3741b6.json) · [Execution records](../../../examples/fe_walter/reference_outputs/ollama_three_day/dkp/physics.jsonl)
 
 
 [Full 2016–2020 results and decision records](../results.md)
@@ -402,7 +402,7 @@ and no calls during `check`.
 
 ### Execute a new run
 
-The [saved three-day result](../../../results/fe_walter_ollama_2016_01/dkp/) is already available.
+The [saved three-day result](../../../examples/fe_walter/reference_outputs/ollama_three_day/dkp/) is already available.
 Only execute the following if you intend to start a new simulation:
 
 ```powershell
@@ -418,7 +418,7 @@ limit and no automatic retries. An invalid reply stops before release is applied
 Verify the existing saved result without rerunning its simulation:
 
 ```powershell
-python run_experiment.py verify results/fe_walter_ollama_2016_01/dkp
+python run_experiment.py verify examples/fe_walter/reference_outputs/ollama_three_day/dkp
 ```
 
 After your new run, use `runs/fe-walter-dkp-my-run` instead. Verification checks execution
@@ -427,7 +427,7 @@ evidence; it does not establish that the operating policy is good.
 Inspect the saved decision:
 
 ```powershell
-python tutorials/inspect_decision_flow.py results/fe_walter_ollama_2016_01/dkp
+python tutorials/inspect_decision_flow.py examples/fe_walter/reference_outputs/ollama_three_day/dkp
 ```
 
 `decisions.jsonl`, `raw/`, `audit.jsonl`, `physics.jsonl` and `backend_events.jsonl`

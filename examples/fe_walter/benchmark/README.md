@@ -57,7 +57,7 @@ to a separate retrieved-knowledge experiment, not a five-year comparison of all 
 
 The benchmark retains **3 PASS** under its release-bounds auditor. This suite
 differs from the LLM operating audit, so the counts cannot rank the methods.
-The [complete saved day-one rule record](../../../results/fe_walter_tutorial_benchmark_2016_01/raw/policy_a55e8402dabaa06d6127816db201078ccaff0234147efb071c505797a92cdd3a.json)
+The [complete saved day-one rule record](../../../examples/fe_walter/reference_outputs/rule_three_day/raw/policy_a55e8402dabaa06d6127816db201078ccaff0234147efb071c505797a92cdd3a.json)
 records the input, daily-rule provenance, requested release and source hashes.
 
 [View the main tutorial](../../../tutorials/main.ipynb) ·
@@ -80,8 +80,8 @@ at commit `6c3dc532d712af55db1f4a1d8e018c86249ce7a8` (function hash `c11a81…`)
 That function is distinct from the unchanged V3.7 vendor source used for LLM
 prompt and audit compatibility. Only the decision function is adapted; all
 methods use the HydroOpsLM simulation driver. The
-[source and 162-vector comparison logs](../../../results/technical_note_offline/README.md)
-record the source identities and numerical comparisons.
+[workflow test source](../../../tests/test_benchmark_workflow.py)
+checks statistics inputs, configuration and use of the common simulation interfaces.
 
 ## Files and commands
 
@@ -105,7 +105,7 @@ before the demonstration period. It needs no model or prompt.
 schema_version: llm-reservoir-experiment.v1
 run_id: fe-walter-tutorial-benchmark-2016-01
 case: ../../cases/fe_walter_ollama_demo/case.json
-output: ../../results/fe_walter_tutorial_benchmark_2016_01
+output: ../../runs/fe-walter-tutorial-benchmark
 start_date: '2016-01-01'
 end_date: '2016-01-03'
 max_calls: 0
@@ -151,7 +151,7 @@ Expect three daily steps, one controlled reservoir, `planned_llm_calls: 0`,
 
 ### Execute a new run
 
-The [saved three-day result](../../../results/fe_walter_tutorial_benchmark_2016_01/) is already available.
+The [saved three-day result](../../../examples/fe_walter/reference_outputs/rule_three_day/) is already available.
 Only execute the following if you intend to start a new simulation:
 
 ```powershell
@@ -165,7 +165,7 @@ The benchmark is deterministic and makes no model request.
 Verify the existing saved result without rerunning its simulation:
 
 ```powershell
-python run_experiment.py verify results/fe_walter_tutorial_benchmark_2016_01 --require-offline
+python run_experiment.py verify examples/fe_walter/reference_outputs/rule_three_day --require-offline
 ```
 
 After your new run, use `runs/fe-walter-benchmark-my-run` instead. Verification checks execution
@@ -174,7 +174,7 @@ evidence; it does not establish that the operating policy is good.
 Inspect the saved decision:
 
 ```powershell
-python tutorials/inspect_decision_flow.py results/fe_walter_tutorial_benchmark_2016_01 --require-offline
+python tutorials/inspect_decision_flow.py examples/fe_walter/reference_outputs/rule_three_day --require-offline
 ```
 
 `decisions.jsonl`, `raw/`, `audit.jsonl`, `physics.jsonl` and `backend_events.jsonl`

@@ -24,7 +24,7 @@ agent: at most three requests, with no retries.
 
 Read the [system prompt](../../../prompts/fe_walter_reference/zeroshot_system.txt)
 and [builder reading preview](prompt_preview.txt). The preview is not the saved
-model reply. The [complete saved day-one record](../../../results/fe_walter_ollama_2016_01/zero_shot/raw/policy_4e2006ff9c730ed33c23b8f580d2e49e1d6d8a4a643806a24ef48fe689147292.json)
+model reply. The [complete saved day-one record](../../../examples/fe_walter/reference_outputs/ollama_three_day/zero_shot/raw/policy_4e2006ff9c730ed33c23b8f580d2e49e1d6d8a4a643806a24ef48fe689147292.json)
 contains the actual rendered user prompt, response schema and full Ollama reply.
 The system template is fixed. The host tracks starting storage and converts it
 to pool elevation; the rendered model message exposes the current pool elevation,
@@ -180,7 +180,7 @@ Saved audit reasons:
 
 Audit FAIL is an operating diagnosis; this saved run did not replace the release because of it. Storage changed by **-704,971.09 m³**. Implemented release plus spill enters routing once; the next daily history uses the implemented value.
 
-[Full prompt and response](../../../results/fe_walter_ollama_2016_01/zero_shot/raw/policy_b32bc5738ff8f890b5950aab3f5203ab31c224527ff6be8b3f5daf50bdb3dcc5.json) · [Raw audit](../../../results/fe_walter_ollama_2016_01/zero_shot/raw/audit_b32bc5738ff8f890b5950aab3f5203ab31c224527ff6be8b3f5daf50bdb3dcc5.json) · [Execution records](../../../results/fe_walter_ollama_2016_01/zero_shot/physics.jsonl)
+[Full prompt and response](../../../examples/fe_walter/reference_outputs/ollama_three_day/zero_shot/raw/policy_b32bc5738ff8f890b5950aab3f5203ab31c224527ff6be8b3f5daf50bdb3dcc5.json) · [Raw audit](../../../examples/fe_walter/reference_outputs/ollama_three_day/zero_shot/raw/audit_b32bc5738ff8f890b5950aab3f5203ab31c224527ff6be8b3f5daf50bdb3dcc5.json) · [Execution records](../../../examples/fe_walter/reference_outputs/ollama_three_day/zero_shot/physics.jsonl)
 
 
 [Full 2016–2020 results and decision records](../results.md)
@@ -279,7 +279,7 @@ and no calls during `check`.
 
 ### Execute a new run
 
-The [saved three-day result](../../../results/fe_walter_ollama_2016_01/zero_shot/) is already available.
+The [saved three-day result](../../../examples/fe_walter/reference_outputs/ollama_three_day/zero_shot/) is already available.
 Only execute the following if you intend to start a new simulation:
 
 ```powershell
@@ -295,7 +295,7 @@ limit and no automatic retries. An invalid reply stops before release is applied
 Verify the existing saved result without rerunning its simulation:
 
 ```powershell
-python run_experiment.py verify results/fe_walter_ollama_2016_01/zero_shot
+python run_experiment.py verify examples/fe_walter/reference_outputs/ollama_three_day/zero_shot
 ```
 
 After your new run, use `runs/fe-walter-zero-shot-my-run` instead. Verification checks execution
@@ -304,7 +304,7 @@ evidence; it does not establish that the operating policy is good.
 Inspect the saved decision:
 
 ```powershell
-python tutorials/inspect_decision_flow.py results/fe_walter_ollama_2016_01/zero_shot
+python tutorials/inspect_decision_flow.py examples/fe_walter/reference_outputs/ollama_three_day/zero_shot
 ```
 
 `decisions.jsonl`, `raw/`, `audit.jsonl`, `physics.jsonl` and `backend_events.jsonl`

@@ -29,8 +29,6 @@ Resources Planning and Management*, 148(12), 06022005.
 [DOI](https://doi.org/10.1061/(ASCE)WR.1943-5452.0001630).
 
 Record the HydroOpsLM Git commit, input hashes and experiment settings separately.
-The [Technical Note draft](../paper/technical_note.md) is a draft, not a published
-citation or evidence that submission requirements have been met.
 
 ## Cite the rule-based benchmark
 
