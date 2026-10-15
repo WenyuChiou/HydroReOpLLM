@@ -5,7 +5,7 @@ HydroOpsLM 將水庫操作決策接到 HydroCNHS 水文與河川 routing。
 
 ![HydroOpsLM 概念圖](figures/hydrocnhs-coupling-framework-en.png)
 
-[查看完整尺寸概念圖](https://wenyuchiou.github.io/LLM_reservoir_agent/_images/hydrocnhs-coupling-framework-en.png)。
+[查看完整尺寸概念圖](https://wenyuchiou.github.io/HydroOpsLM/_images/hydrocnhs-coupling-framework-en.png)。
 
 藍色箭頭傳遞水流，黑色箭頭傳遞資訊與提案。兩種操作方法使用原生 Dam API。
 HydroOpsLM 加入共同蓄水、放流與 spill 計算。回覆檢查與操作 audit
@@ -59,4 +59,4 @@ HydroOpsLM 加入共同蓄水、放流與 spill 計算。回覆檢查與操作 a
 框架與 benchmark 的來源見[引用說明](REFERENCE.md)。
 
 [English](index.md) | [繁體中文](index.zh-TW.md) ·
-[Repository](https://github.com/WenyuChiou/LLM_reservoir_agent)
+[Repository](https://github.com/WenyuChiou/HydroOpsLM)

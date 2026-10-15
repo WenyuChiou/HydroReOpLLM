@@ -8,7 +8,7 @@ myst_enable_extensions = ["colon_fence", "deflist"]
 myst_heading_anchors = 4
 html_theme = "alabaster"
 html_title = "HydroOpsLM documentation"
-html_baseurl = "https://wenyuchiou.github.io/LLM_reservoir_agent/"
+html_baseurl = "https://wenyuchiou.github.io/HydroOpsLM/"
 # Sharing services need public absolute URLs, separate from the private repo.
 html_context = {
     "site_url": html_baseurl,

@@ -111,7 +111,11 @@ div.sphinxsidebar .navigation-icon {
 
 .manual-brand { border-bottom: 2px solid #245e83; padding-bottom: 12px; }
 .manual-brand a { display: flex; align-items: center; gap: 12px; font-size: 22px; font-weight: 700; text-decoration: none; }
-.manual-brand .brand-logo { width: 48px; height: 48px; flex-shrink: 0; }
+.manual-brand .brand-logo {
+  width: 48px; height: 48px; flex-shrink: 0; box-sizing: border-box;
+  border-radius: 50%; padding: 2px; object-fit: contain;
+  background: #fff; border: 1px solid #cad8e1;
+}
 .manual-brand span { display: block; margin-top: 4px; color: #536875; font-size: 14px; }
 .manual-utility { display: flex; flex-wrap: wrap; gap: 12px; }
 .manual-reference { font-size: 15px; }

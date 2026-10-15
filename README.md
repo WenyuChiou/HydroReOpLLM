@@ -1,10 +1,10 @@
-![HydroOpsLM logo](docs/figures/assets/branding/logo-64.png)
-
 # HydroOpsLM
 
 [English](README.md) | [繁體中文](README.zh-TW.md)
 
-[![Read the user manual](docs/_static/docs-badge-en.svg)](https://wenyuchiou.github.io/LLM_reservoir_agent/)
+[![Read the user manual](docs/_static/docs-badge-en.svg)](https://wenyuchiou.github.io/HydroOpsLM/)
+
+![HydroOpsLM cover](docs/figures/hydroopslm-cover.png)
 
 **HydroOpsLM** connects configurable language-model reservoir operations to
 [HydroCNHS](https://github.com/cylin928/HydroCNHS). Researchers choose the
@@ -49,7 +49,7 @@ which policy performs best.
 
 ## Documentation
 
-- [**User manual**](https://wenyuchiou.github.io/LLM_reservoir_agent/): inputs, prompts, single/multiple reservoirs and audit/trace.
+- [**User manual**](https://wenyuchiou.github.io/HydroOpsLM/): inputs, prompts, single/multiple reservoirs and audit/trace.
 - [Notebooks](tutorials/README.md): main walkthrough and advanced network tutorial.
 - [Running and maintenance](docs/RUNNING.md): CPU/GPU, storage and interrupted runs.
 
@@ -67,6 +67,6 @@ Lin, C. Y., Yang, Y. C. E., and Wi, S. (2022).
 
 ## Project
 
-[Repository](https://github.com/WenyuChiou/LLM_reservoir_agent) ·
+[Repository](https://github.com/WenyuChiou/HydroOpsLM) ·
 [Build the manual](docs/BUILDING.md) ·
 [Source and licensing](third_party/hydrocnhs/SOURCE.json)

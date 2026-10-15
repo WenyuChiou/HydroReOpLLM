@@ -12,7 +12,7 @@ import tempfile
 from urllib.parse import unquote, urlsplit
 
 ROOT = Path(__file__).resolve().parents[1]
-REMOTE = "https://github.com/WenyuChiou/LLM_reservoir_agent"
+REMOTE = "https://github.com/WenyuChiou/HydroOpsLM"
 PAGES = {
     "docs/index.md": "index.md",
     "docs/index.zh-TW.md": "index.zh-TW.md",
