@@ -1,0 +1,76 @@
+{
+  "schema_version": "saved-fe-walter-doc-evidence.v1",
+  "source_run_id": "fe-anik-dkp-daily-2016-2020-temp0.7-20261010",
+  "original_source_hashes": {
+    "trajectory.csv": "83c2e8c3f82a708485ca58ab3207a0aef2e88cf37f5061de9b57cfb3ded885b7",
+    "operations.jsonl": "4cf4a4b259cd57d904787c3d046565ea9c45b1cf235a379fc51571aa348a3ab4",
+    "experiment.json": "bd66d43d4bb56d2248288782a2ade9ec739ad6886b03f2dfc7bb9221dd3565e4",
+    "summary.json": "413294cd8b2579426fb3e32b5d62463b9b48bac5d8b25db32779c40a215b477a",
+    "acceptance.json": "6204d144ebbfccd5cdfc7ed52eba3d71b903f19ef4421a32f07c18ef3c7976c3",
+    "anik_logs/F.E._Walter_Dam_dkp_gemma4_daily_2016_2020_temp0.7_trace.jsonl": "a9a722f520452298f3d2a67396be825b536b390ccf080b855dd9eaa95bb3dd9e",
+    "recovery_20190630/anik_logs/F.E._Walter_Dam_dkp_gemma4_daily_suffix_20190630_20201231_trace.jsonl": "7f7da568203a775dc9156598053c751cf272d82e475c7dc22d54f5d506f0714d"
+  },
+  "copied_file_hashes": {
+    "plotted_daily.csv": "bb160b638cba382854e4091da08cbdf8056375b3fec6fdd97bff494e3357fe81",
+    "annual_summary.csv": "f3e7f3e1175585814f4cd435931dbdf6199a575e5cd8e09855a0b79349a48c6f",
+    "figures/fe_walter_2016_2020_daily.png": "46794859b534f17fa4a7534fff9af53bbe96c5aad1b0ed15d38f938f03aeb2c9",
+    "figures/fe_walter_2016_2020_daily.svg": "3d4f8d69202671f9d1b6be2a4041e880ff11a89333814c08a470ba99cf07ab49",
+    "figures/fe_walter_2016_2020_daily.pdf": "fc4a4121676e14474d2b229abd72afff80366a310de3957efb278ddd9e7bd54f",
+    "figures/fe_walter_2020_detail.png": "fbbb96c23ea5ae1e794828e4ab6681ccdf05c9e8c6a2dcddd837519ab15210f2",
+    "figures/fe_walter_2020_detail.svg": "f4cc772ae68ea1263557c4cccece78f679fdfe164189710bea5ec6755efab261",
+    "figures/fe_walter_2020_detail.pdf": "9d08dac73a0d876a0636521cea9b7d2a743d63c19996557d449819f890e58449",
+    "figures/fe_walter_audit_by_year.png": "060a16b4e4fb99bb414f959e6337c6dd62b06a0ccb7936f4a676ea1ccef790b1",
+    "figures/fe_walter_audit_by_year.svg": "d17b7a633cbc543d2b7ba809e8c56e3227e1ec275ad25431f7b79085d89fdcc5",
+    "figures/fe_walter_audit_by_year.pdf": "6d3cc2742532288085dcd21fbf67fbec39f2ab7650ac963561732e8f242be9a6",
+    "trajectory.csv": "83c2e8c3f82a708485ca58ab3207a0aef2e88cf37f5061de9b57cfb3ded885b7",
+    "trace_2020-05-02.json": "b43f2b78b97ac067f77ad5d1aafd8d6e0854f51803ccd7c46d7800b072cfff6a",
+    "trace_2020-06-15.json": "f827e2dd84f7c8124af5713b482c5fa80dfe554c6267f64f846cac940af11688",
+    "operation_2020-05-02.json": "3b546863bf21597074067e45f4eeeed0bd2c634d2c2ac43b8c4f9793fe31e6ca",
+    "operation_2020-06-15.json": "c7c8cf486b3e31816e721e0110f8ef718c430203f2b58334da3a74bb8b1a2827"
+  },
+  "selected_trace_records": {
+    "trace_2020-05-02.json": {
+      "source_file": "recovery_20190630/anik_logs/F.E._Walter_Dam_dkp_gemma4_daily_suffix_20190630_20201231_trace.jsonl",
+      "line": 309,
+      "offset": 3269131,
+      "bytes": 11742
+    },
+    "trace_2020-06-15.json": {
+      "source_file": "recovery_20190630/anik_logs/F.E._Walter_Dam_dkp_gemma4_daily_suffix_20190630_20201231_trace.jsonl",
+      "line": 353,
+      "offset": 3921304,
+      "bytes": 11541
+    },
+    "operation_2020-05-02.json": {
+      "source_file": "operations.jsonl",
+      "line": 1584,
+      "offset": 1497549,
+      "bytes": 931
+    },
+    "operation_2020-06-15.json": {
+      "source_file": "operations.jsonl",
+      "line": 1628,
+      "offset": 1539211,
+      "bytes": 939
+    }
+  },
+  "days": 1827,
+  "model": "gemma4:12b",
+  "temperature": 0.7,
+  "initial_storage_m3": 2457848.279729185,
+  "audit": {
+    "PASS": 946,
+    "FAIL": 711,
+    "WARN": 170
+  },
+  "strategy_acceptance": "FAIL",
+  "routing_scope": "identityUH fixture; native suffix551 final assertion complete; prefix1276 final assertion unavailable",
+  "date_range": [
+    "2016-01-01",
+    "2020-12-31"
+  ],
+  "daily_mass_balance_residual_m3": 0.0,
+  "new_model_requests": 0,
+  "new_simulations": 0,
+  "unknown_attempt_and_cost_retained": true
+}

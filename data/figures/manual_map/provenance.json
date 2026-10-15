@@ -1,0 +1,109 @@
+{
+  "schema": "hydroopslm.native_arcgis_map_source.v2",
+  "method": "Native ArcGIS project adapted to FE Walter only; original project unchanged; no reference-PNG crop",
+  "original_project": {
+    "bytes": 50893,
+    "sha256": "3d7d96c2c0cddade63f9494f612c2bf147e5844785fdd2f88c0ad5fbb61a4329"
+  },
+  "original_project_name": "DRB_four_reservoirs.aprx",
+  "original_reference_png_sha256": "eac9fd260fd86ca4e11fa9d9566db6e86f412873f099a439df2871047996d67e",
+  "package": {
+    "file": "fe-walter-arcgis-source.zip",
+    "bytes": 2517171,
+    "sha256": "4c2e4d678d4c5e94a075e1b4557b6d61f10e52128ea0c06bf14ad805686639a3",
+    "aprx": "p30/FE_Walter_DRB_manual_v9.aprx",
+    "picture_source": "../commondata/pictures/layout_overlay.svg (relative to APRX)"
+  },
+  "exports": {
+    "fe-walter-catchment.png": {
+      "bytes": 2763284,
+      "sha256": "8ef5ab586041ef9fcb02aa5e563264bba6cecf57130042367de52c3c2a773eb8"
+    },
+    "fe-walter-catchment.svg": {
+      "bytes": 16546933,
+      "sha256": "bab8bb81ce1eaae43aa345aa7397048232f6c6c40fea8db986a3ea185b6aeb80"
+    },
+    "fe-walter-catchment.pdf": {
+      "bytes": 1949086,
+      "sha256": "f5397ded732ad03d69b25c4aaab41f0e2f185c9b4cdbe5599b869a96219e692a"
+    }
+  },
+  "exporter": {
+    "bytes": 3605,
+    "sha256": "b4df390c0bbb5b2ccfc32e7d534782256ce80544c8e2563a0e465bf1aa9a47d6"
+  },
+  "map_content": {
+    "layout_inches": [
+      16,
+      9
+    ],
+    "panels": [
+      "CONUS Locator",
+      "Delaware River Basin Overview",
+      "F. E. Walter Detail"
+    ],
+    "hierarchy": "Separate CONUS and DRB frames with geometry-derived location/extent leaders to the enlarged FE detail",
+    "station": "USGS 01447500",
+    "reservoir_markers": "F. E. Walter only",
+    "precipitation": {
+      "source": "Frozen Daymet V4 R1 mean annual precipitation",
+      "period": "1996-2025",
+      "units": "mm/year",
+      "actual_min": 1318.8409423828,
+      "actual_max": 1539.0002441406,
+      "display_min": 1300,
+      "display_max": 1550,
+      "colorizer": "RasterStretchColorizer MinimumMaximum with custom min/max",
+      "ramp_samples": 256,
+      "stops": [
+        "#fbf3d0",
+        "#a8d5ba",
+        "#47b5b2",
+        "#2e7fae",
+        "#253b8f"
+      ]
+    },
+    "services": [
+      {
+        "identity": "Esri World Terrain Base",
+        "transparency_percent": 60
+      },
+      {
+        "identity": "Esri World Hillshade",
+        "transparency_percent": 68
+      },
+      {
+        "identity": "Esri World Terrain Reference",
+        "transparency_percent": 78
+      }
+    ],
+    "service_attribution": "Esri service attribution is retained in the native layout/export; source package requires network access to refresh online basemap layers."
+  },
+  "scale_and_extent_checks": {
+    "detail": {
+      "frame_width_in": 10.5,
+      "frame_height_in": 7.1,
+      "actual_camera_width_m": 59155.132988325786,
+      "bar_distance_m": 10000,
+      "bar_length_in": 1.7749938964843788,
+      "equation_error_m": 0
+    },
+    "overview": {
+      "frame_width_in": 4.4,
+      "frame_height_in": 4.65,
+      "actual_camera_width_m": 431869.3923912565,
+      "bar_distance_m": 100000,
+      "bar_length_in": 1.0188265428205607,
+      "equation_error_m": 0
+    },
+    "zoom_polygon": "Created from detail_frame.camera.getExtent() after setExtent/aspect adjustment"
+  },
+  "limitations": [
+    "Online Esri basemap layers remain service-backed; local vectors and Daymet rasters are packaged.",
+    "No graticule was added; coordinate decoration was omitted rather than approximated.",
+    "Original master APRX was not modified.",
+    "Saved exports have fixed hashes. Re-exported live Esri basemaps may differ as service content changes.",
+    "The exporter resolves packaged editable picture sources relative to the APRX before export.",
+    "Map export uses a short-lived ArcPy child; extraction cleanup occurs after that process exits and releases Windows layer locks."
+  ]
+}

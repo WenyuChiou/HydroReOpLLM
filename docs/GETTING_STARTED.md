@@ -42,11 +42,6 @@ python run_experiment.py verify results/fe_walter_ollama_2016_01/zero_shot
 Keep model execution for [Check, run and verify](USER_GUIDE.md#6-check-run-and-verify),
 after you understand the files and output safeguards.
 
-## Continue with one decision
+## Build your simulation
 
-Read [Your first reservoir decision](FIRST_DECISION.md). It follows a single
-saved actual Ollama decision through information, messages, native reply,
-normalized proposal, checks, audit, physics and next-day history. The worked
-method comparison comes later.
-
-[Previous: Introduction](README.md) · [Next: Your first reservoir decision](FIRST_DECISION.md)
+Continue with [Design your simulation](BUILD_SIMULATION.md): define the physical case, select information and configure the operation method.

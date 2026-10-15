@@ -2,7 +2,8 @@
 
 [English](USER_GUIDE.md) | [繁體中文](USER_GUIDE.zh-TW.md)
 
-Start with the [FE Walter example](../examples/fe_walter/README.md), then adapt its YAML.
+Start with [Build a simulation](BUILD_SIMULATION.md), then use the
+[FE Walter case](../examples/fe_walter/README.md) to see these settings in practice.
 This is the formal guide for the generic `configured` strategy.
 [LLM modules](LLM_MODULES.md) explains the decision interfaces; method-specific
 settings remain with the [FE Walter examples](../examples/fe_walter/README.md).

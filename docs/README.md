@@ -23,10 +23,5 @@ Response checks validate a model reply before release is applied. An operating
 audit evaluates configured criteria and retains PASS, FAIL, WARN or UNKNOWN. Trace records link
 the available information and decision to what was actually executed.
 
-Continue with [Installation](GETTING_STARTED.md), then follow
-[one complete saved decision](FIRST_DECISION.md). The
-[three F.E. Walter methods](../examples/fe_walter/README.md) come after the shared
-decision cycle. For catchment setup,
-parameters, meteorology and C&V, use the
-[original HydroCNHS documentation](https://cylin928.github.io/HydroCNHS/) and
-[native setup guidance](HYDROLOGY_SETUP.md).
+Continue with [Build a simulation](BUILD_SIMULATION.md), then the [FE Walter case study](../examples/fe_walter/README.md).
+For catchment setup, parameters and C&V, use the [original HydroCNHS documentation](https://cylin928.github.io/HydroCNHS/) and [native setup guidance](HYDROLOGY_SETUP.md).

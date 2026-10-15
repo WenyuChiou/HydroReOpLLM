@@ -2,7 +2,8 @@
 
 [English](USER_GUIDE.md) | [繁體中文](USER_GUIDE.zh-TW.md)
 
-先完成 [FE Walter 範例](../examples/fe_walter/README.zh-TW.md)，再修改其 YAML。
+先閱讀[建立模擬](BUILD_SIMULATION.zh-TW.md)，再透過
+[FE Walter 案例](../examples/fe_walter/README.zh-TW.md)查看這些設定的實際用法。
 本頁是通用 `configured` 策略的正式手冊。
 [LLM 模組](LLM_MODULES.zh-TW.md)解釋決策介面；方法專用設定放在
 [FE Walter 範例](../examples/fe_walter/README.zh-TW.md)。
@@ -17,6 +18,7 @@
 | Prompt TXT | 獨立 UTF-8 指示模板 |
 | Knowledge TXT／MD，選填 | 有 ID 與版本的局部文件 |
 | Context JSON，選填 | 固定的補充資料 |
+| Information CSV，選填 | 依 profile 選取、附時間戳的觀測或預報 |
 
 將 Excel 匯出成不含 BOM 的 UTF-8 CSV。cfs 乘 `0.028316846592` 轉為 m³/s。
 每天須包含全部 routing nodes，包括零流量節點。

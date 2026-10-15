@@ -13,6 +13,11 @@ from urllib.parse import unquote, urlsplit
 
 ROOT = Path(__file__).resolve().parents[1]
 REMOTE = "https://github.com/WenyuChiou/HydroOpsLM"
+MAP_DOWNLOADS = {
+    **{f"docs/figures/fe-walter-catchment.{ext}": f"fe-walter-catchment.{ext}"
+       for ext in ("png", "svg", "pdf")},
+    "data/figures/manual_map/fe-walter-arcgis-source.zip": "fe-walter-arcgis-source.zip",
+}
 PAGES = {
     "docs/index.md": "index.md",
     "docs/index.zh-TW.md": "index.zh-TW.md",
@@ -20,6 +25,8 @@ PAGES = {
     "README.zh-TW.md": "repository.zh-TW.md",
     "examples/fe_walter/README.md": "examples/fe_walter/README.md",
     "examples/fe_walter/README.zh-TW.md": "examples/fe_walter/README.zh-TW.md",
+    "examples/fe_walter/results.md": "examples/fe_walter/results.md",
+    "examples/fe_walter/results.zh-TW.md": "examples/fe_walter/results.zh-TW.md",
     **{f"examples/fe_walter/{method}/{name}": f"examples/fe_walter/{method}/{name}"
        for method in ("benchmark", "zero_shot", "dkp")
        for name in ("README.md", "README.zh-TW.md")},
@@ -33,7 +40,7 @@ PAGES = {
         "README.md", "README.zh-TW.md", "LLM_MODULES.md", "LLM_MODULES.zh-TW.md",
         "USER_GUIDE.md", "USER_GUIDE.zh-TW.md", "HYDROLOGY_SETUP.md",
         "LIVE_READINESS.md", "auditor_plugins.md", "PROJECT_INVENTORY.md", "BUILDING.md",
-        "GETTING_STARTED.md", "FIRST_DECISION.md", "INFORMATION.md", "INFORMATION.zh-TW.md",
+        "GETTING_STARTED.md", "BUILD_SIMULATION.md", "BUILD_SIMULATION.zh-TW.md", "FIRST_DECISION.md", "INFORMATION.md", "INFORMATION.zh-TW.md",
         "PARAMETER_REFERENCE.md", "RESULTS_GUIDE.md", "REFERENCE.md", "RUNNING.md",
     )},
 }
@@ -56,6 +63,10 @@ def prepare(source: Path) -> None:
             if relative in PAGES:
                 import os
                 value = Path(os.path.relpath(source / PAGES[relative], (source / destination).parent)).as_posix()
+            elif not match[1].startswith("!") and relative in MAP_DOWNLOADS:
+                import os
+                output = source / "_map_downloads" / MAP_DOWNLOADS[relative]
+                value = Path(os.path.relpath(output, (source / destination).parent)).as_posix()
             elif match[1].startswith("!"):
                 output = source / relative
                 output.parent.mkdir(parents=True, exist_ok=True)
@@ -86,13 +97,27 @@ def prepare(source: Path) -> None:
     downloads.mkdir()
     for name in ("main", "advanced"):
         shutil.copyfile(ROOT / f"tutorials/{name}.ipynb", downloads / f"{name}.ipynb")
+    # Only the named map exports and editable project are downloadable; no service reads.
+    map_downloads = source / "_map_downloads"
+    map_downloads.mkdir()
+    for relative, name in MAP_DOWNLOADS.items():
+        shutil.copyfile(ROOT / relative, map_downloads / name)
+    # Publish selected original-byte case evidence for local viewing and downloads.
+    case_downloads = source / "_case_downloads/dkp_2016_2020"
+    case_downloads.mkdir(parents=True)
+    # Explicit publication list: never sweep future raw logs or configuration into the public site.
+    selected = ["plotted_daily.csv", "trajectory.csv", "annual_summary.csv", "source_manifest.json",
+                *[f"{kind}_{day}.json" for kind in ("trace", "operation") for day in ("2020-05-02", "2020-06-15")]]
+    selected += [f"figures/fe_walter_{figure}.{ext}" for figure in ("2016_2020_daily", "2020_detail", "audit_by_year") for ext in ("pdf", "svg")]
+    for relative in selected:
+        item = ROOT / "results/fe_walter_dkp_2016_2020" / relative
+        shutil.copyfile(item, case_downloads / item.name)
     groups = {
-        "Getting started": ["docs/README", "docs/GETTING_STARTED", "docs/FIRST_DECISION"],
-        "Worked examples": ["examples/fe_walter/README", *[f"examples/fe_walter/{method}/README"
-                          for method in ("benchmark", "zero_shot", "dkp")]],
-        "Build your experiment": ["docs/USER_GUIDE", "docs/INFORMATION", "docs/LLM_MODULES",
-                                  "tutorials/advanced", "docs/RESULTS_GUIDE", "docs/RUNNING"],
-        "Reference": ["docs/PARAMETER_REFERENCE", "docs/REFERENCE", "docs/HYDROLOGY_SETUP",
+        "Overview": ["docs/README"],
+        "Build a simulation": ["docs/GETTING_STARTED", "docs/BUILD_SIMULATION", "docs/USER_GUIDE", "docs/INFORMATION", "docs/LLM_MODULES"],
+        "FE Walter case study": ["examples/fe_walter/README", *[f"examples/fe_walter/{method}/README" for method in ("benchmark", "zero_shot", "dkp")], "examples/fe_walter/results"],
+        "Further configuration": ["tutorials/advanced", "docs/RESULTS_GUIDE", "docs/RUNNING"],
+        "Reference": ["docs/PARAMETER_REFERENCE", "docs/REFERENCE", "docs/FIRST_DECISION", "docs/HYDROLOGY_SETUP",
                       "tutorials/README", "tutorials/main", "paper/technical_note",
                                     "docs/PROJECT_INVENTORY", "archive/README", "repository",
                                     "docs/BUILDING", "docs/auditor_plugins", "docs/LIVE_READINESS"],

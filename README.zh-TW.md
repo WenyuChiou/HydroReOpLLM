@@ -26,14 +26,14 @@ python -m venv .venv
 python -m pip install -e . -c environment/requirements-bundled.txt
 ```
 
-依[安裝指南](docs/GETTING_STARTED.md)檢查設定，不需推論。LLM 範例使用
+依[安裝指南](docs/GETTING_STARTED.md)檢查設定，不需推論。三日 LLM 設定範例使用
 本機 Ollama `gemma3:4b`，temperature **0.7**。讀取已保存結果不需要模型；
 框架不會下載或啟動模型。
 
-## 三個完整範例
+## FE Walter：一個案例、三種方法
 
-先看[一個完整水庫決策](docs/FIRST_DECISION.md)，再依
-[FE Walter 教學](examples/fe_walter/README.zh-TW.md)操作。
+先看[建立模擬](docs/BUILD_SIMULATION.zh-TW.md)，再依
+[FE Walter 案例](examples/fe_walter/README.zh-TW.md)操作。
 
 | 方法 | 決策來源 | 逐步教學 |
 |---|---|---|
@@ -41,14 +41,8 @@ python -m pip install -e . -c environment/requirements-bundled.txt
 | 使用可用資訊的 LLM | Prompt 與可用水庫資訊 | [可用資訊](examples/fe_walter/zero_shot/README.zh-TW.md) |
 | 使用檢索知識的 LLM | 相同介面加上有來源的操作知識 | [檢索知識](examples/fe_walter/dkp/README.zh-TW.md) |
 
-每份教學依序涵蓋 input → YAML → prompt／規則 → check → run → verify → 結果。
-保存的紀錄展示執行流程；三日範例不能證明哪個策略較好。
-
-## 文件
-
-- [**使用手冊**](https://wenyuchiou.github.io/HydroOpsLM/)：input、prompt、單／多水庫與 audit／trace。
-- [Notebooks](tutorials/README.zh-TW.md)：主教學與進階河網教學。
-- [執行與維護](docs/RUNNING.md)：CPU／GPU、儲存空間與中斷處理。
+案例共用物理設定，再依序教授設定、操作方法、執行及保存決策。
+結果章節包含完整歷史 2016–2020 檢索知識實驗軌跡。
 
 ## 研究與引用
 
@@ -65,5 +59,4 @@ Lin, C. Y., Yang, Y. C. E., and Wi, S. (2022).
 ## 專案
 
 [Repository](https://github.com/WenyuChiou/HydroOpsLM) ·
-[建置文件站](docs/BUILDING.md) ·
 [來源與授權](third_party/hydrocnhs/SOURCE.json)

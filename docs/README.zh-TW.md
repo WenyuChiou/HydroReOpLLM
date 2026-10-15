@@ -19,8 +19,5 @@ HydroCNHS 計算降雨逕流與河川 routing。操作方法提出 release 請�
 回覆檢查會在套用 release 前驗證模型回覆。操作 audit 會依設定的準則評估，
 並保留 PASS、FAIL、WARN 或 UNKNOWN。Trace 紀錄則把可用資訊與決策連結至實際執行內容。
 
-接著閱讀[安裝](GETTING_STARTED.md)，再逐步查看[一個完整保存的決策](FIRST_DECISION.md)。
-了解共用決策週期後，再閱讀[三種 F.E. Walter 方法](../examples/fe_walter/README.zh-TW.md)。
-集水區設定、參數、氣象與 C&V 請參考
-[HydroCNHS 官方文件](https://cylin928.github.io/HydroCNHS/)與
-[原生設定指南](HYDROLOGY_SETUP.md)。
+接著閱讀[建立模擬](BUILD_SIMULATION.zh-TW.md)，再依 [FE Walter 案例](../examples/fe_walter/README.zh-TW.md)操作。
+集水區設定、參數及 C&V 請依 [HydroCNHS 官方文件](https://cylin928.github.io/HydroCNHS/)與[原生設定指南](HYDROLOGY_SETUP.md)。

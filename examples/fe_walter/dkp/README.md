@@ -1,96 +1,22 @@
 # F.E. Walter: LLM operation with retrieved knowledge
 
-[English](README.md) | [繁體中文](README.zh-TW.md) · [Three examples](../README.md)
+[English](README.md) | [繁體中文](README.zh-TW.md) · [FE Walter case](../README.md)
 
 This method adds conditionally retrieved, source-bound operating knowledge to
 the same LLM interface used by the available-information method. The difference
 is the information supplied to the model; it does not imply better policy performance.
 
-The `dkp` directory and provenance value are historical machine IDs kept
-unchanged for reproducibility. In the preserved implementation, DKP names the
-document-knowledge-prompting workflow and its pinned retrieval contract.
+Shared input and physical assumptions are defined in the [common case setup](../README.md#common-case-setup).
 
-## 1. Prepare input
+## 1. Configure the method
 
-Inspect the [daily inflow](../../../cases/fe_walter_reference/inflows.csv) and
-[reservoir case](../../../cases/fe_walter_ollama_demo/case.json).
+Use local Ollama **gemma3:4b**, temperature **0.7**.
+This tutorial covers three daily steps, one controlled reservoir and one independent
+agent: at most three requests, with no retries.
 
-| Setting | Shared demonstration condition |
-|---|---|
-| Dates | 2016-01-01 through 2016-01-03, daily |
-| Inflow | Frozen simulated inflow, m³/s |
-| Initial storage | 2,457,848.279729185 m³ (1,992.61 acre-ft) |
-| Losses | Zero |
-| Downstream routing | Identity unit hydrograph, `UH=[1.0]` |
+[Full settings and commands are at the end](#files-and-commands). Use a new run ID and output location for a new simulation.
 
-Initial storage and identity routing are integration assumptions, not field
-validation. The bounded Ollama diagnostic does not remove the original case's
-readiness gate. Read the saved example without starting a model.
-
-## 2. Configure YAML
-
-Open [experiment.ollama.yaml](experiment.ollama.yaml). The YAML selects local Ollama `gemma3:4b`, **temperature 0.7**, daily steps,
-**at most three requests**, and **no retries**. Each controlled reservoir is
-assigned one independent agent; this case has one.
-
-<details>
-<summary>Exact saved run YAML (expand)</summary>
-
-```yaml
-# User-requested three-day local Ollama diagnostic; check performs no provider call.
-schema_version: llm-reservoir-experiment.v1
-case: ../../../cases/fe_walter_ollama_demo/case.json
-start_date: "2016-01-01"
-end_date: "2016-01-03"
-run_id: hydroopslm-fe-walter-dkp-ollama-gemma3-4b-20261012
-output: ../../../runs/hydroopslm-fe-walter-dkp-ollama-gemma3-4b-20261012
-max_calls: 3
-models:
-  reservoir_model:
-    provider: ollama
-    model: gemma3:4b
-    base_url: http://localhost:11434
-    temperature: 0.7
-    max_tokens: 2048
-    seed: null
-    timeout_seconds: 120
-    api_key_env: null
-auditors:
-  release_limits:
-    type: release_bounds
-    version: "1"
-agents:
-  fe_operator:
-    reservoir: FEWalter
-    mode: llm
-    model: reservoir_model
-    strategy: reference_v3_7
-    reference:
-      profile: fe_walter
-      method: dkp
-      system_prompt: ../../../prompts/fe_walter_reference/dkp_system.txt
-      system_prompt_mode: original
-      dkp: ../../../data/anik_v3_7/DKP_FEWalter_Dam_v1.2.md
-      prompt_storage: false
-      hide_availability_line: true
-      dkp_no_missing_inputs: true
-      zeroshot_knowledge: target
-    auditors: [release_limits]
-```
-
-</details>
-
-For a new run, copy it beside its original:
-
-```powershell
-Copy-Item examples/fe_walter/dkp/experiment.ollama.yaml examples/fe_walter/dkp/my-run.yaml
-```
-
-In `my-run.yaml`, set `run_id: fe-walter-dkp-my-run` and
-`output: ../../../runs/fe-walter-dkp-my-run`. Keep the remaining settings for this first
-demonstration. An existing output folder must not be reused.
-
-## 3. Review the prompt or rule
+## 2. Understand the operation method
 
 Read the [system prompt](../../../prompts/fe_walter_reference/dkp_system.txt)
 and [builder reading preview](prompt_preview.txt). The preview is not the saved
@@ -304,7 +230,111 @@ checks → actual release → next-day information** in the
 [main tutorial](../../../tutorials/main.ipynb). It displays complete saved prompts
 and replies, including the rationale; release is not the only response field.
 
-## 4. Check
+## 3. Run the simulation
+
+1. **Check** the dates, reservoirs, units and planned requests. This makes no model request.
+2. **Run** local Ollama only when starting a new simulation. Reading saved results makes no request.
+3. **Verify** saved trajectories, water balance and execution evidence. This does not certify a passing policy audit.
+
+[Open the execution and verification commands](#files-and-commands).
+
+## 4. Inspect saved decisions
+
+The saved trajectory records requested release, implemented controlled
+release, spill and ending storage. Total outflow is controlled release plus spill
+and enters routing once. Next-day history uses implemented release.
+
+| Date | Inflow (m³/s) | Requested (m³/s) | Implemented (m³/s) | Spill (m³/s) | Ending storage (m³) |
+|---|---:|---:|---:|---:|---:|
+| 2016-01-01 | 32.125319 | 1.415842 | 1.415842 | 0.000000 | 5,111,147.04 |
+| 2016-01-02 | 22.353047 | 1.415842 | 1.415842 | 0.000000 | 6,920,121.54 |
+| 2016-01-03 | 14.193931 | 1.415842 | 1.415842 | 0.000000 | 8,024,148.43 |
+
+[Full 2016–2020 results and decision records](../results.md)
+
+The table shows this method's saved three-day trajectory, not a policy-performance
+assessment. Downloads retain full precision. The linked five-year results belong
+to a separate retrieved-knowledge experiment, not a five-year comparison of all three methods.
+
+The saved operating audit retains **0 PASS / 3 FAIL**.
+Its strategy acceptance remains unset. A valid reply and feasible release do not
+imply a passing operating audit.
+
+[View the main tutorial](../../../tutorials/main.ipynb) ·
+[Module reference](../../../docs/LLM_MODULES.md) ·
+[Multiple reservoirs](../../../tutorials/advanced.ipynb)
+
+## Files and commands
+
+<details>
+<summary>Expand settings, file locations and commands</summary>
+
+Open [experiment.ollama.yaml](experiment.ollama.yaml). The YAML selects local Ollama `gemma3:4b`, **temperature 0.7**, daily steps,
+**at most three requests**, and **no retries**. Each controlled reservoir is
+assigned one independent agent; this case has one.
+
+<details>
+<summary>Exact saved run YAML (expand)</summary>
+
+```yaml
+# User-requested three-day local Ollama diagnostic; check performs no provider call.
+schema_version: llm-reservoir-experiment.v1
+case: ../../../cases/fe_walter_ollama_demo/case.json
+start_date: "2016-01-01"
+end_date: "2016-01-03"
+run_id: hydroopslm-fe-walter-dkp-ollama-gemma3-4b-20261012
+output: ../../../runs/hydroopslm-fe-walter-dkp-ollama-gemma3-4b-20261012
+max_calls: 3
+models:
+  reservoir_model:
+    provider: ollama
+    model: gemma3:4b
+    base_url: http://localhost:11434
+    temperature: 0.7
+    max_tokens: 2048
+    seed: null
+    timeout_seconds: 120
+    api_key_env: null
+auditors:
+  release_limits:
+    type: release_bounds
+    version: "1"
+agents:
+  fe_operator:
+    reservoir: FEWalter
+    mode: llm
+    model: reservoir_model
+    strategy: reference_v3_7
+    reference:
+      profile: fe_walter
+      method: dkp
+      system_prompt: ../../../prompts/fe_walter_reference/dkp_system.txt
+      system_prompt_mode: original
+      dkp: ../../../data/anik_v3_7/DKP_FEWalter_Dam_v1.2.md
+      prompt_storage: false
+      hide_availability_line: true
+      dkp_no_missing_inputs: true
+      zeroshot_knowledge: target
+    auditors: [release_limits]
+```
+
+</details>
+
+For a new run, copy it beside its original:
+
+```powershell
+Copy-Item examples/fe_walter/dkp/experiment.ollama.yaml examples/fe_walter/dkp/my-run.yaml
+```
+
+In `my-run.yaml`, set `run_id: fe-walter-dkp-my-run` and
+`output: ../../../runs/fe-walter-dkp-my-run`. Keep the remaining settings for this first
+demonstration. An existing output folder must not be reused.
+
+The `dkp` directory and provenance value are historical machine IDs kept
+unchanged for reproducibility. In the preserved implementation, DKP names the
+document-knowledge-prompting workflow and its pinned retrieval contract.
+
+### Check the configuration
 
 Validate your copied configuration from the repository folder:
 
@@ -316,7 +346,7 @@ This checks the configuration without inference or a model request.
 Expect three daily steps, one agent, `planned_llm_calls: 3`, `max_calls: 3`,
 and no calls during `check`.
 
-## 5. Run
+### Execute a new run
 
 The [saved three-day result](../../../results/fe_walter_ollama_2016_01/dkp/) is already available.
 Only execute the following if you intend to start a new simulation:
@@ -329,7 +359,7 @@ Ollama must already be running with `gemma3:4b` available. `--allow-network`
 permits the configured local model requests. This example has a three-request
 limit and no automatic retries. An invalid reply stops before release is applied.
 
-## 6. Verify
+### Verify saved outputs
 
 Verify the existing saved result without rerunning its simulation:
 
@@ -339,28 +369,6 @@ python run_experiment.py verify results/fe_walter_ollama_2016_01/dkp
 
 After your new run, use `runs/fe-walter-dkp-my-run` instead. Verification checks execution
 evidence; it does not establish that the operating policy is good.
-
-## 7. Read results and audit/trace
-
-Read `reservoir_trajectory.csv` for requested release, implemented controlled
-release, spill and ending storage. Total outflow is controlled release plus spill
-and enters routing once. Next-day history uses implemented release.
-
-| Date | Inflow (m³/s) | Requested (m³/s) | Implemented (m³/s) | Spill (m³/s) | Ending storage (m³) |
-|---|---:|---:|---:|---:|---:|
-| 2016-01-01 | 32.125319 | 1.415842 | 1.415842 | 0.000000 | 5,111,147.04 |
-| 2016-01-02 | 22.353047 | 1.415842 | 1.415842 | 0.000000 | 6,920,121.54 |
-| 2016-01-03 | 14.193931 | 1.415842 | 1.415842 | 0.000000 | 8,024,148.43 |
-
-![Three-method daily trajectories](../../../tutorials/assets/fe_walter_three_method.png)
-
-The plot compares the shared three-day demonstration conditions. It is not a
-policy-performance assessment. The table above displays this method's saved
-trajectory; stored CSVs retain full precision.
-
-The saved operating audit retains **0 PASS / 3 FAIL**.
-Its strategy acceptance remains unset. A valid reply and feasible release do not
-imply a passing operating audit.
 
 Inspect the saved decision:
 
@@ -373,6 +381,4 @@ link the information and proposal to checks and execution. The notebook separate
 the recorded checker result from a current contract recheck. The inspector makes
 no model request. See [results and troubleshooting](../../../docs/RESULTS_GUIDE.md).
 
-[View the main tutorial](../../../tutorials/main.ipynb) ·
-[Module reference](../../../docs/LLM_MODULES.md) ·
-[Multiple reservoirs](../../../tutorials/advanced.ipynb)
+</details>

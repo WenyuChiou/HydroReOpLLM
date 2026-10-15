@@ -29,13 +29,13 @@ python -m pip install -e . -c environment/requirements-bundled.txt
 ```
 
 Follow [Installation](docs/GETTING_STARTED.md) to check the setup without inference.
-The LLM examples use local Ollama `gemma3:4b`, temperature **0.7**. Reading saved
+The three-day LLM setup examples use local Ollama `gemma3:4b`, temperature **0.7**. Reading saved
 results requires no model; the framework does not download or start one.
 
-## Three worked examples
+## FE Walter: one case, three methods
 
-Start with [one complete reservoir decision](docs/FIRST_DECISION.md), then follow
-the [FE Walter walkthrough](examples/fe_walter/README.md).
+Start with [Build a simulation](docs/BUILD_SIMULATION.md), then follow
+the [FE Walter case study](examples/fe_walter/README.md).
 
 | Method | Decision source | Step-by-step guide |
 |---|---|---|
@@ -43,15 +43,8 @@ the [FE Walter walkthrough](examples/fe_walter/README.md).
 | LLM with available information | Prompt and available reservoir information | [Available information](examples/fe_walter/zero_shot/README.md) |
 | LLM with retrieved knowledge | Same interface with sourced operating knowledge | [Retrieved knowledge](examples/fe_walter/dkp/README.md) |
 
-Each guide covers input → YAML → prompt/rule → check → run → verify → results.
-Saved records demonstrate execution; the three-day example does not establish
-which policy performs best.
-
-## Documentation
-
-- [**User manual**](https://wenyuchiou.github.io/HydroOpsLM/): inputs, prompts, single/multiple reservoirs and audit/trace.
-- [Notebooks](tutorials/README.md): main walkthrough and advanced network tutorial.
-- [Running and maintenance](docs/RUNNING.md): CPU/GPU, storage and interrupted runs.
+The case shares its physical setup across methods. Follow configuration, the operation method, execution and saved decisions.
+The results chapter includes the full historical 2016–2020 retrieved-knowledge trajectory.
 
 ## Research and citation
 
@@ -68,5 +61,4 @@ Lin, C. Y., Yang, Y. C. E., and Wi, S. (2022).
 ## Project
 
 [Repository](https://github.com/WenyuChiou/HydroOpsLM) ·
-[Build the manual](docs/BUILDING.md) ·
 [Source and licensing](third_party/hydrocnhs/SOURCE.json)
