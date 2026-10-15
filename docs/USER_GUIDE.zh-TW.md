@@ -2,7 +2,8 @@
 
 [English](USER_GUIDE.md) | [繁體中文](USER_GUIDE.zh-TW.md)
 
-先完成 [FE Walter 範例](../examples/fe_walter/README.zh-TW.md)，再修改其 YAML。
+先閱讀[建立模擬](BUILD_SIMULATION.zh-TW.md)，再透過
+[FE Walter 案例](../examples/fe_walter/README.zh-TW.md)查看這些設定的實際用法。
 本頁是通用 `configured` 策略的正式手冊。
 [LLM 模組](LLM_MODULES.zh-TW.md)解釋決策介面；方法專用設定放在
 [FE Walter 範例](../examples/fe_walter/README.zh-TW.md)。
@@ -17,6 +18,7 @@
 | Prompt TXT | 獨立 UTF-8 指示模板 |
 | Knowledge TXT／MD，選填 | 有 ID 與版本的局部文件 |
 | Context JSON，選填 | 固定的補充資料 |
+| Information CSV，選填 | 依 profile 選取、附時間戳的觀測或預報 |
 
 將 Excel 匯出成不含 BOM 的 UTF-8 CSV。cfs 乘 `0.028316846592` 轉為 m³/s。
 每天須包含全部 routing nodes，包括零流量節點。
@@ -65,6 +67,58 @@ agents:
     auditors: [release_limits]            # 此 agent 啟用的檢查。
 ```
 
+### 設定如何相連
+
+**Experiment → case → 水庫。** Case 提供水量、蓄水與河網。
+`agents` 的每個項目對應一座受控水庫及一種決策方法。
+Agent 的 `model` 與 `auditors` 連到同份 YAML 中的具名定義。
+Prompt 取得本次選用的資訊；它不能改寫 host 的入流、蓄水或物理限制。
+
+#### 實驗與輸出
+
+| 欄位 | 本例中的意義 |
+|---|---|
+| `schema_version` | 執行器支援的設定格式；保留支援的值。 |
+| `case` | Case JSON，包含水庫 ID、物理、初始狀態與入流來源。 |
+| `run_id` | 保存於每份紀錄的名稱；新實驗使用新名稱。 |
+| `output` | 結果與 trace 的新目錄；既有輸出會被拒絕。 |
+| `max_calls` | 整次模擬的模型請求上限，不是每個 agent 的上限。本例為三日 × 一個 LLM agent。 |
+
+#### 模型與操作檢查
+
+| 欄位 | 本例中的意義 |
+|---|---|
+| `models.reservoir_model` | 自訂 profile 名稱，供 agent 引用；不會建立 agent。 |
+| `provider` | Provider 介面；`ollama` 使用指定的 Ollama 服務。 |
+| Profile 內的 `model` | 已安裝的模型 ID，本例為 `gemma3:4b`；不自動下載。 |
+| `base_url` | 模型服務位址，本例指向本機 Ollama port。 |
+| `temperature` | 取樣設定；本設計維持 **0.7**，不保證每次回覆相同。 |
+| `max_tokens` | 每次回覆的生成 token 上限；不完整回覆會被拒絕。 |
+| `timeout_seconds` | 單次請求允許時間；逾時停止，不自動重試。 |
+| `auditors.release_limits` | 具名 audit 定義，只有列出它的 agent 才啟用。 |
+| `type: release_bounds` | 比較請求放流與 host observation 中的可行上限。 |
+| `version` | Audit 版本，與規格及實作 hash 一起保存。 |
+
+#### Agent、prompt 與資訊
+
+| 欄位 | 本例中的意義 |
+|---|---|
+| `agents.operator_1` | 此獨立決策單元的自訂 ID。 |
+| `reservoir` | Case 中受控水庫的精確 ID，本例為 `R1`。 |
+| `strategy: configured` | 通用 prompt 與正規化 action 介面；參考方法有自己的選項。 |
+| `mode: llm` | 明確允許執行後，渲染 prompt 並請求模型回覆。 |
+| `model: reservoir_model` | 引用上面的模型 profile；不是另一個模型 ID。 |
+| `prompt` | 獨立 UTF-8 模板，包含操作指示與支援的 placeholder。 |
+| `prompt_version` | 操作指示版本；修改模板時更新。 |
+| `knowledge` | 選填的文件 ID 與路徑對應；通用模式加入全文，參考檢索由方法處理。 |
+| `context` | 選填的固定資料，與受保護的當期 observation 分開。 |
+| `response_schema` | 預期的正規化 action；本例是含 `release_cms` 的 `reservoir-action.v1`。 |
+| `auditors: [release_limits]` | 對此 agent 啟用具名 audit；判定不會覆寫決策。 |
+
+下游測站或預報需另行宣告資訊來源與 profile，見[決策資訊](INFORMATION.md)。
+本例空白的 `context` 與 `knowledge` 不會自動讀取那些序列。
+
+
 若使用已安裝的 wheel，且輸入分散在不同 case 資料夾，請將 `case_root` 設為它們共同的資料根目錄。
 
 所有路徑以 YAML 所在目錄為基準。`case_root` 可指定允許的 case bundle 根目錄。
@@ -74,28 +128,30 @@ agents:
 
 ## 3. 決定 LLM 看見什麼
 
-教學中的 **info** 指給定的 observation，不是 YAML 欄位。
-通用模板的 `$observation` 包含 `observed_hydrology`
-（時間、入流、state、放流上限及 context）與 `static_context`。
-Static context 不能取代 host 的蓄水或入流。
+`$observation` 是受保護的 host observation：時間、當期局部入流、
+狀態、放流上限與 context。`$information` 是獨立且選用的
+`decision-information.v1` 快照，由具名 profile 組成。
+固定 context 與選取資訊都不能取代 host 的蓄水、入流或物理。
 
 | Placeholder | 內容 |
 |---|---|
 | `$agent_id` | JSON 編碼的 agent ID |
-| `$observation` | 當次 observation 與分開的 static context |
+| `$observation` | 當期 observation 與分開的 static context |
 | `$knowledge` | 選用 package ID 對應完整文件文字 |
 | `$previous_transition` | 前一次已提交的 observation／action／physics；第一天 null |
+| `$information` | 此 agent 資訊 profile 選取的 aliases |
 
 模板使用 Python `string.Template`；正文美元符號寫成 `$$`。
-未知 placeholder 會在檢查時停止。通用 backend 使用固定 system message
-約束 JSON；`prompt` 的操作指示形成 user message，沒有通用 YAML
-`system_prompt` 欄位。局部 knowledge 以全文加入；
-自動檢索、任意動態 CSV 特徵、預報及 agent 對話不是內建通用 YAML 選項。
-需要時，以 Python backend 擴充具有時間戳與因果有效性的輸入。
+未知 placeholder 會在檢查時停止。通用 backend 的固定 system message
+約束 JSON；`prompt` 中的操作指示形成 user message，沒有通用 YAML
+`system_prompt` 欄位。局部 knowledge 以全文加入；通用 YAML 沒有內建
+自動檢索或 agent 對話。附時間戳的觀測及預報需宣告
+[資訊來源與 profiles](INFORMATION.md)。擴充來源指定已在 Python 註冊的
+provider；YAML 不能匯入任意程式。
 
 通用 `mode: offline` 直接回傳 `release_cms`，不渲染或執行 prompt。
-參考案例的 offline 則渲染保留的 prompt 並解析給定的合成回覆。
-兩者驗證的內容不同。
+參考範例的 offline 模式則渲染保存的 prompt，並解析提供的合成回覆；
+兩者是不同測試。
 
 ## 4. 為未來實驗設定模型
 
@@ -141,12 +197,16 @@ FAIL > UNKNOWN > WARN > PASS；原 backend audit 保留。
 專用 response schema 與參考檢索屬於各自[範例](../examples/fe_walter/README.zh-TW.md)，
 不作為所有水庫的操作規則。
 
-## 6. 執行與閱讀證據
+## 6. 檢查、執行與驗證
 
 使用 `check → run → verify`；`check` 不呼叫 provider。執行模型另需
 `run --allow-network` 及 ready case。只有給定回覆的無 provider 測試
 才使用 `verify --require-offline`。
 已有 output 會拒絕；請用新 run ID／output，不覆寫。此 runner 沒有自動續跑。
+
+選用的 `outcome_checks` 在 routing 後執行，寫入 `outcome_audit.jsonl`。
+它比較控制點流量與明確的常數或選取資訊門檻，只作診斷；
+不會修正放流、最佳化 routing 或保證安全。見[決策資訊](INFORMATION.md#control-point-outcome-checks)。
 
 | 輸出 | 查看什麼 |
 |---|---|
@@ -157,6 +217,7 @@ FAIL > UNKNOWN > WARN > PASS；原 backend audit 保留。
 | `reservoir_trajectory.csv` | 請求／實際放流、spill、蓄水與平衡 |
 | `network_flows.csv`、`network_balance.csv` | Routed flow 與水庫／河段水量平衡 |
 | `reach_volume_trace.json` | 各河段入流、出流及 channel storage |
+| `outcome_audit.jsonl` | 選用的 routing 後控制點診斷 |
 
 依[完整決策流程檢視](../tutorials/main.ipynb)
 展示 info、實際 prompt、回覆、proposal、checker、audit、physics 與 feedback。

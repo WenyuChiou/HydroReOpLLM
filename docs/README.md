@@ -2,7 +2,9 @@
 
 [English](README.md) | [繁體中文](README.zh-TW.md)
 
-HydroOpsLM connects reservoir operation methods to HydroCNHS through its Dam API.
+HydroOpsLM (Hydrological Simulation with Large Language Model Reservoir Operations)
+connects reservoir operation methods to HydroCNHS through its Dam API.
+Here, LLM means large language model.
 Choose each reservoir's information, prompt, operation method and audit criteria.
 The same interfaces support a single reservoir or a connected network. The
 F.E. Walter examples demonstrate three methods using common reservoir accounting.
@@ -23,10 +25,10 @@ Response checks validate a model reply before release is applied. An operating
 audit evaluates configured criteria and retains PASS, FAIL, WARN or UNKNOWN. Trace records link
 the available information and decision to what was actually executed.
 
-Continue with [Installation](GETTING_STARTED.md), then follow
-[one complete saved decision](FIRST_DECISION.md). The
-[three F.E. Walter methods](../examples/fe_walter/README.md) come after the shared
-decision cycle. For catchment setup,
-parameters, meteorology and C&V, use the
-[original HydroCNHS documentation](https://cylin928.github.io/HydroCNHS/) and
-[native setup guidance](HYDROLOGY_SETUP.md).
+Read the [FE Walter hydrological setting](../examples/fe_walter/hydrology.md),
+then the [coupled daily workflow](../examples/fe_walter/coupling.md).
+The case uses previously simulated inflow; the workflow explains weather-driven native wiring.
+Continue to the three operation methods and saved results.
+
+For your own study, begin with [Build a simulation](BUILD_SIMULATION.md).
+For catchment setup, parameters and C&V, use the [original HydroCNHS documentation](https://cylin928.github.io/HydroCNHS/) and [native setup guidance](HYDROLOGY_SETUP.md).

@@ -73,3 +73,10 @@ notices. CI installs it separately and runs
 network blocked. It does not establish operating-policy performance. Keep the
 repository checkout for the complete examples and tutorials; an external shared
 data bundle needs an explicit YAML `case_root`.
+
+
+## Branch previews
+
+For source links to follow a preview branch, build with `python docs/build.py --source-ref codex/manual-book-v1`. The default is `main` for the published manual.
+
+分支預覽可用 `--source-ref` 指定原始碼連結的版本；正式文件預設使用 `main`。

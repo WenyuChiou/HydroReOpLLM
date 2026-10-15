@@ -13,26 +13,26 @@ from pathlib import Path
 
 def verify(root: Path) -> dict:
     root = root.resolve()
-    manifest = json.loads((root / "results/manifest.json").read_text(encoding="utf-8"))
-    if manifest.get("schema_version") != "curated-results.v1":
+    manifest = json.loads((root / "examples/fe_walter/reference_outputs/manifest.json").read_text(encoding="utf-8"))
+    if manifest.get("schema_version") != "curated-example-outputs.v1":
         raise ValueError("unsupported results manifest")
     seen = set()
     for entry in manifest["files"]:
         relative = Path(entry["path"])
         path = (root / relative).resolve()
-        if relative.is_absolute() or not path.is_relative_to(root / "results"):
-            raise ValueError("artifact path must stay within results")
+        if relative.is_absolute() or not path.is_relative_to(root / "examples/fe_walter/reference_outputs"):
+            raise ValueError("artifact path must stay within reference_outputs")
         if entry["path"] in seen:
             raise ValueError("duplicate artifact path")
         seen.add(entry["path"])
         content = path.read_bytes()
         if len(content) != entry["bytes"] or hashlib.sha256(content).hexdigest() != entry["sha256"]:
             raise ValueError(f"artifact mismatch: {entry['path']}")
-    required = {"results/fe_walter_2016_2020/" + name for name in
-                ("trajectory.csv", "summary.json", "acceptance.json", "experiment.json", "figures/plotted_daily.csv")}
+    required = {"examples/fe_walter/reference_outputs/long_term_dkp/" + name for name in
+                ("trajectory.csv", "source_manifest.json", "plotted_daily.csv")}
     if not required.issubset(seen):
         raise ValueError("manifest omits required FE Walter artifacts")
-    base = root / "results/fe_walter_2016_2020"
+    base = root / "examples/fe_walter/reference_outputs/long_term_dkp"
     with (base / "trajectory.csv").open(encoding="utf-8", newline="") as stream:
         rows = list(csv.DictReader(stream))
     expected = [(dt.date(2016, 1, 1) + dt.timedelta(days=i)).isoformat() for i in range(1827)]
@@ -54,16 +54,15 @@ def verify(root: Path) -> dict:
             raise ValueError("water-balance mismatch")
         max_balance = max(max_balance, balance)
         previous = end
-    with (base / "figures/plotted_daily.csv").open(encoding="utf-8", newline="") as stream:
+    with (base / "plotted_daily.csv").open(encoding="utf-8", newline="") as stream:
         plotted = list(csv.DictReader(stream))
     if [row["date"] for row in plotted] != expected:
         raise ValueError("plotted dates differ from trajectory")
     counts = dict(collections.Counter(row["audit_status"] for row in plotted))
     if counts != {"PASS": 946, "WARN": 170, "FAIL": 711}:
         raise ValueError("audit counts differ from the accepted experiment")
-    summary = json.loads((base / "summary.json").read_text(encoding="utf-8"))
-    acceptance = json.loads((base / "acceptance.json").read_text(encoding="utf-8"))
-    if summary["temperature"] != 0.7 or acceptance["operating_strategy_acceptance"] != "FAIL":
+    source = json.loads((base / "source_manifest.json").read_text(encoding="utf-8"))
+    if source["temperature"] != 0.7 or source["strategy_acceptance"] != "FAIL":
         raise ValueError("accepted temperature or strategy verdict changed")
     return {"published_artifacts_verification": "PASS", "files_verified": len(seen),
             "fe_days": len(rows), "max_recomputed_daily_balance_m3": max_balance,

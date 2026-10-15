@@ -19,11 +19,7 @@ is implemented controlled release plus spill. The total is injected into routing
 once. The next step begins with the previous step's ending storage and uses the
 release that was actually implemented.
 
-![Three-day FE Walter trajectories](../tutorials/assets/fe_walter_three_method.png)
-
-The saved examples share inflow and initial conditions. The plot illustrates
-the resulting reservoir trajectories, not a validated ranking of operation
-methods. Detailed tables are embedded in the [main tutorial](../tutorials/main.ipynb).
+The [FE Walter results chapter](../examples/fe_walter/results.md) displays the complete saved 2016–2020 daily trajectory and follows selected decisions into their physical outcomes.
 
 ## Follow a decision in the trace
 

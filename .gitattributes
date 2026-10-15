@@ -46,3 +46,15 @@ third_party/hydrocnhs/** -text whitespace=blank-at-eol,blank-at-eof,space-before
 docs/figures/fe-walter-study-map.svg -text whitespace=-blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol
 docs/figures/hydrocnhs-upgrade-*.svg -text whitespace=-blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol
 results/technical_note_offline/logs/** -text whitespace=-blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol
+
+# Preserve exported ArcGIS figure bytes and their recorded hashes.
+docs/figures/fe-walter-catchment.* -text
+docs/figures/source/render_fe_catchment.py -text
+docs/figures/fe-walter-catchment.svg -text whitespace=-blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol
+
+# Original accepted plot exports retain their generated SVG whitespace.
+results/fe_walter_dkp_2016_2020/figures/*.svg -text whitespace=-blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol
+
+# Curated teaching snapshots retain original bytes after relocation.
+examples/fe_walter/reference_outputs/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+examples/fe_walter/reference_outputs/**/figures/*.svg -text whitespace=-blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol

@@ -11,17 +11,22 @@ Clone or download the repository first, then open its root directory. Repository
 access is required while this project is private; the published manual is public.
 
 ```powershell
+git clone https://github.com/WenyuChiou/HydroOpsLM.git
+cd HydroOpsLM
 python -m venv .venv
 .venv\Scripts\Activate.ps1
 python -m pip install -e . -c environment/requirements-bundled.txt
 ```
 
-The two LLM examples use local Ollama with `gemma3:4b` already available and
-temperature **0.7**. HydroOpsLM does not download or start the model. Reading
-the saved records and building this manual make no model request.
+Installation does not download or start a language model. Choose the provider
+and model when configuring your operation method. Reading saved records and
+building this manual make no model request.
 
 For CPU/GPU, disk space and interruptions, see
 [Running and maintenance](RUNNING.md).
+
+On Linux/macOS, activate the environment with `source .venv/bin/activate`;
+use the same installation command afterward.
 
 ## Verify the installation without inference
 
@@ -36,17 +41,12 @@ calls. It does not contact the configured provider. To verify existing execution
 evidence without rerunning it:
 
 ```powershell
-python run_experiment.py verify results/fe_walter_ollama_2016_01/zero_shot
+python run_experiment.py verify examples/fe_walter/reference_outputs/ollama_three_day/zero_shot
 ```
 
 Keep model execution for [Check, run and verify](USER_GUIDE.md#6-check-run-and-verify),
 after you understand the files and output safeguards.
 
-## Continue with one decision
+## Build your simulation
 
-Read [Your first reservoir decision](FIRST_DECISION.md). It follows a single
-saved actual Ollama decision through information, messages, native reply,
-normalized proposal, checks, audit, physics and next-day history. The worked
-method comparison comes later.
-
-[Previous: Introduction](README.md) · [Next: Your first reservoir decision](FIRST_DECISION.md)
+Continue with [Design your simulation](BUILD_SIMULATION.md): define the physical case, select information and configure the operation method.

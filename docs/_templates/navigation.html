@@ -1,50 +1,47 @@
 <nav aria-label="HydroOpsLM user manual">
   <div class="manual-brand">
-    <a href="{{ pathto('index') }}"><img class="brand-logo" src="{{ pathto('_static/logo-64.png', 1) }}" alt="" width="48" height="48">HydroOpsLM</a>
+    <a href="{{ pathto('index') }}"><img class="brand-logo" src="{{ pathto('_static/hydroopslm-logo.svg', 1) }}" alt="" width="52" height="52">HydroOpsLM</a>
     <span>User manual</span>
   </div>
-  <p class="manual-utility">
-    <a href="{{ pathto('index.zh-TW') }}" lang="zh-Hant">繁體中文</a>
-    <a href="https://github.com/WenyuChiou/HydroOpsLM">Repository</a>
-  </p>
+  <p class="manual-utility"><a href="{{ pathto('index.zh-TW') }}" lang="zh-Hant">繁體中文</a><a href="https://github.com/WenyuChiou/HydroOpsLM">Repository ↗</a></p>
+  {% include "searchbox.html" %}
   {% set chapters %}
-  {% macro chapter(page, label) -%}
-    <li><a href="{{ pathto(page) }}"{% if pagename == page %} aria-current="page"{% endif %}>{{ label }}</a></li>
+  {% macro chapter(page, label, method=false) -%}
+    <li{% if method %} class="method"{% endif %}><a href="{{ pathto(page) }}"{% if pagename == page %} aria-current="page"{% endif %}>{{ label }}</a></li>
   {%- endmacro %}
-  <h3>Getting started</h3>
+  <h3>01 · Overview</h3>
+  <ul class="manual-navigation">{{ chapter('docs/README', 'Overview') }}</ul>
+  <h3>02 · Build a simulation</h3>
   <ul class="manual-navigation">
-    {{ chapter('docs/README', 'Overview') }}
     {{ chapter('docs/GETTING_STARTED', 'Installation') }}
-    {{ chapter('docs/FIRST_DECISION', 'Your first reservoir decision') }}
+    {{ chapter('docs/BUILD_SIMULATION', 'Build your case') }}
+    {{ chapter('docs/USER_GUIDE', 'Configure inputs and YAML') }}
   </ul>
-  <h3>Worked examples</h3>
+  <h3>03 · FE Walter case study</h3>
   <ul class="manual-navigation">
-    {{ chapter('examples/fe_walter/README', 'FE Walter: common setup') }}
-    {{ chapter('examples/fe_walter/benchmark/README', 'Rule-based benchmark') }}
-    {{ chapter('examples/fe_walter/zero_shot/README', 'LLM with available information') }}
-    {{ chapter('examples/fe_walter/dkp/README', 'LLM with retrieved knowledge') }}
+    {{ chapter('examples/fe_walter/README', 'Site and shared setup') }}
+    {{ chapter('examples/fe_walter/hydrology', 'Hydrology, parameters and C&V') }}
+    {{ chapter('examples/fe_walter/coupling', 'Coupled daily workflow') }}
+    {{ chapter('examples/fe_walter/benchmark/README', 'Rule-based operation', true) }}
+    {{ chapter('examples/fe_walter/zero_shot/README', 'LLM · available information', true) }}
+    {{ chapter('examples/fe_walter/dkp/README', 'LLM · retrieved knowledge', true) }}
+    {{ chapter('examples/fe_walter/results', 'Daily results and decisions') }}
   </ul>
-  <h3>Build your experiment</h3>
-  <ul class="manual-navigation">
-    {{ chapter('docs/USER_GUIDE', 'Inputs and YAML') }}
-    {{ chapter('docs/INFORMATION', 'Choose decision information') }}
-    {{ chapter('docs/LLM_MODULES', 'Prompts and modules') }}
-    {{ chapter('tutorials/advanced', 'Multiple reservoirs') }}
-    {{ chapter('docs/RESULTS_GUIDE', 'Results, audit and trace') }}
-    {{ chapter('docs/RUNNING', 'Running and maintenance') }}
-  </ul>
-  <h3>Reference</h3>
-  <ul class="manual-navigation manual-reference">
-    {{ chapter('docs/PARAMETER_REFERENCE', 'Full parameter reference') }}
-    {{ chapter('docs/auditor_plugins', 'Auditor extensions') }}
-    {{ chapter('docs/HYDROLOGY_SETUP', 'Native HydroCNHS setup') }}
-    {{ chapter('docs/REFERENCE', 'Sources and citation') }}
-    {{ chapter('docs/BUILDING', 'Build the manual') }}
-  </ul>
+  <details class="manual-reference"{% if pagename in ['docs/INFORMATION','docs/LLM_MODULES','tutorials/advanced','docs/RESULTS_GUIDE','docs/RUNNING','docs/PARAMETER_REFERENCE','docs/REFERENCE','docs/HYDROLOGY_SETUP'] %} open{% endif %}>
+    <summary>Reference</summary>
+    <ul class="manual-navigation">
+      {{ chapter('docs/INFORMATION', 'Decision information') }}
+      {{ chapter('docs/LLM_MODULES', 'Prompts and modules') }}
+      {{ chapter('tutorials/advanced', 'Multiple reservoirs') }}
+      {{ chapter('docs/RESULTS_GUIDE', 'Audit, trace and debugging') }}
+      {{ chapter('docs/RUNNING', 'Resources and interruptions') }}
+      {{ chapter('docs/PARAMETER_REFERENCE', 'Parameter reference') }}
+      {{ chapter('docs/HYDROLOGY_SETUP', 'Native HydroCNHS setup') }}
+      {{ chapter('docs/REFERENCE', 'Sources and citation') }}
+      {{ chapter('docs/BUILDING', 'Build the manual') }}
+    </ul>
+  </details>
   {% endset %}
   <div class="desktop-chapters">{{ chapters }}</div>
-  <details class="mobile-chapters">
-    <summary>Contents</summary>
-    {{ chapters }}
-  </details>
+  <details class="mobile-chapters"><summary>Contents</summary>{{ chapters }}</details>
 </nav>

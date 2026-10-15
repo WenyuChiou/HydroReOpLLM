@@ -8,3 +8,12 @@ dist/
 runs/
 .env
 .env.*
+
+# Private research work and generated runs stay outside the distributed source.
+/paper/
+/papers/
+/manuscripts/
+/results/
+/research/
+/prompt_preview/
+.ipynb_checkpoints/

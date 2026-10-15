@@ -86,7 +86,7 @@ Decide the mean release for this interval (cfs).
 ```
 
 The same unchanged messages are also retained in the saved
-[`raw/policy_…json`](../results/fe_walter_ollama_2016_01/zero_shot/raw/policy_4e2006ff9c730ed33c23b8f580d2e49e1d6d8a4a643806a24ef48fe689147292.json).
+[`raw/policy_…json`](../examples/fe_walter/reference_outputs/ollama_three_day/zero_shot/raw/policy_4e2006ff9c730ed33c23b8f580d2e49e1d6d8a4a643806a24ef48fe689147292.json).
 The fixed system message is also stored as
 [`zeroshot_system.txt`](../prompts/fe_walter_reference/zeroshot_system.txt).
 

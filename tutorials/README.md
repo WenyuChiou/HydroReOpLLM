@@ -30,9 +30,9 @@ python tutorials/build_notebooks.py --check
 
 The builder executes ordered cells without a Jupyter kernel, blocks socket and
 urllib access, and embeds pandas HTML plus matplotlib PNG output. It reads
-`results/fe_walter_ollama_2016_01`,
-`results/fe_walter_tutorial_benchmark_2016_01`, and
-`results/three_reservoir_month_2016_01`; it has no dependency on ignored `runs/`.
+`examples/fe_walter/reference_outputs/ollama_three_day`,
+`examples/fe_walter/reference_outputs/rule_three_day`, and
+`examples/fe_walter/reference_outputs/multi_reservoir_month`; it has no dependency on ignored `runs/`.
 
 ## Optional local Ollama rerun
 

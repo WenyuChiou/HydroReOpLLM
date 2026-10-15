@@ -2,7 +2,8 @@
 
 [English](USER_GUIDE.md) | [繁體中文](USER_GUIDE.zh-TW.md)
 
-Start with the [FE Walter example](../examples/fe_walter/README.md), then adapt its YAML.
+Start with [Build a simulation](BUILD_SIMULATION.md), then use the
+[FE Walter case](../examples/fe_walter/README.md) to see these settings in practice.
 This is the formal guide for the generic `configured` strategy.
 [LLM modules](LLM_MODULES.md) explains the decision interfaces; method-specific
 settings remain with the [FE Walter examples](../examples/fe_walter/README.md).
@@ -66,6 +67,60 @@ agents:
     response_schema: reservoir-action.v1  # Standard normalized action.
     auditors: [release_limits]            # Checks enabled for this agent.
 ```
+
+### How the settings connect
+
+**Experiment → case → reservoir.** The case supplies water, storage and river
+connections. Each entry in `agents` selects one reservoir and one decision method.
+Its `model` and `auditors` values refer to named definitions in the same YAML.
+The prompt receives the information selected for that decision; it cannot change
+the host's inflow, storage or physical limits.
+
+#### Experiment and output
+
+| Field | Meaning in this example |
+|---|---|
+| `schema_version` | Configuration format understood by the runner; keep the supported value. |
+| `case` | Case JSON containing reservoir IDs, physics, initial state and inflow source. |
+| `run_id` | Name saved with every record; use a new name for a new experiment. |
+| `output` | New folder for results and trace; an existing output is refused. |
+| `max_calls` | Maximum model requests for the whole run, not per agent. Here: three days × one LLM agent. |
+
+#### Model and operating checks
+
+| Field | Meaning in this example |
+|---|---|
+| `models.reservoir_model` | A user-chosen profile name; agents refer to this name. It does not create an agent. |
+| `provider` | Provider interface; `ollama` uses the configured Ollama service. |
+| `model` inside the profile | Installed model ID, here `gemma3:4b`. No automatic download. |
+| `base_url` | Address of that service, here the local Ollama port. |
+| `temperature` | Sampling setting; keep **0.7** for this design. It does not guarantee identical replies. |
+| `max_tokens` | Maximum generated output tokens per request; an incomplete reply is rejected. |
+| `timeout_seconds` | Time allowed for one request. Timeout stops the run; no automatic retry. |
+| `auditors.release_limits` | A named audit definition, enabled only by agents that list it. |
+| `type: release_bounds` | Compares requested release with the feasible bound in the host observation. |
+| `version` | Audit version recorded with its specification and implementation hashes. |
+
+#### Agent, prompt and information
+
+| Field | Meaning in this example |
+|---|---|
+| `agents.operator_1` | User-chosen ID for this independent decision unit. |
+| `reservoir` | Exact controlled-reservoir ID from the case, here `R1`. |
+| `strategy: configured` | Generic prompt and normalized-action interface. Reference methods have their own options. |
+| `mode: llm` | Renders the prompt and requests a model reply when execution is explicitly enabled. |
+| `model: reservoir_model` | Selects the model profile above; this is a reference, not another model ID. |
+| `prompt` | Independent UTF-8 template containing operating instructions and supported placeholders. |
+| `prompt_version` | Version of those instructions; update when changing the template. |
+| `knowledge` | Optional document-ID-to-file mapping. Generic mode inserts full documents; reference retrieval is method-specific. |
+| `context` | Optional static facts, separate from the protected current observation. |
+| `response_schema` | Expected normalized action, here `reservoir-action.v1` with requested `release_cms`. |
+| `auditors: [release_limits]` | Enables the named audit for this agent. Audit results do not overwrite a decision. |
+
+For downstream gauges or forecasts, add a declared information source and profile
+as shown in [Decision information](INFORMATION.md). The example's empty
+`context` and `knowledge` mappings do not read those series automatically.
+
 
 For an installed wheel with inputs shared across case folders, set `case_root` to their common data-bundle directory.
 

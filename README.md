@@ -1,4 +1,8 @@
+<img src="docs/figures/assets/branding/hydroopslm-logo.png" align="right" width="64" height="64" alt="HydroOpsLM logo">
+
 # HydroOpsLM
+
+**Hydrological Simulation with Large Language Model Reservoir Operations**
 
 [English](README.md) | [繁體中文](README.zh-TW.md)
 
@@ -6,67 +10,25 @@
 
 ![HydroOpsLM cover](docs/figures/hydroopslm-cover.png)
 
-**HydroOpsLM** connects configurable language-model reservoir operations to
-[HydroCNHS](https://github.com/cylin928/HydroCNHS). Researchers choose the
-information, prompts and operating checks for each reservoir. HydroCNHS provides
-the hydrology and river routing; HydroOpsLM adds reservoir accounting and records
-each proposal, audit and implemented release.
+**HydroOpsLM** is a framework for large language model (LLM) reservoir operations coupled
+with [HydroCNHS](https://github.com/cylin928/HydroCNHS). Configure each reservoir's
+decision information, prompt, operation method and checks. HydroCNHS provides
+hydrology and river routing; HydroOpsLM adds reservoir accounting and links
+proposals, audits and implemented releases.
 
 ![HydroOpsLM concept](docs/figures/hydrocnhs-coupling-framework-en.png)
 
-Blue arrows carry water; black arrows carry information and proposals. Each
-reservoir uses one operation method through the native Dam API. HydroOpsLM adds
-the common storage, release and spill calculations.
-
 ## Install
 
-Use Python 3.12. From the repository root:
+Use Python 3.12. Clone the repository, create a virtual environment, then install:
 
 ```powershell
+git clone https://github.com/WenyuChiou/HydroOpsLM.git
+cd HydroOpsLM
 python -m venv .venv
 .venv\Scripts\Activate.ps1
 python -m pip install -e . -c environment/requirements-bundled.txt
 ```
 
-Follow [Installation](docs/GETTING_STARTED.md) to check the setup without inference.
-The LLM examples use local Ollama `gemma3:4b`, temperature **0.7**. Reading saved
-results requires no model; the framework does not download or start one.
-
-## Three worked examples
-
-Start with [one complete reservoir decision](docs/FIRST_DECISION.md), then follow
-the [FE Walter walkthrough](examples/fe_walter/README.md).
-
-| Method | Decision source | Step-by-step guide |
-|---|---|---|
-| Rule-based benchmark | Published reservoir rules adapted to daily flood control | [Rule-based](examples/fe_walter/benchmark/README.md) |
-| LLM with available information | Prompt and available reservoir information | [Available information](examples/fe_walter/zero_shot/README.md) |
-| LLM with retrieved knowledge | Same interface with sourced operating knowledge | [Retrieved knowledge](examples/fe_walter/dkp/README.md) |
-
-Each guide covers input → YAML → prompt/rule → check → run → verify → results.
-Saved records demonstrate execution; the three-day example does not establish
-which policy performs best.
-
-## Documentation
-
-- [**User manual**](https://wenyuchiou.github.io/HydroOpsLM/): inputs, prompts, single/multiple reservoirs and audit/trace.
-- [Notebooks](tutorials/README.md): main walkthrough and advanced network tutorial.
-- [Running and maintenance](docs/RUNNING.md): CPU/GPU, storage and interrupted runs.
-
-## Research and citation
-
-Hydrological setup, catchment parameters and calibration/validation follow the
-[original HydroCNHS manual](https://cylin928.github.io/HydroCNHS/).
-Please credit its authors:
-
-Lin, C. Y., Yang, Y. C. E., and Wi, S. (2022).
-[HydroCNHS: A Python Package of Hydrological Model for Coupled Natural Human Systems](https://doi.org/10.1061/(ASCE)WR.1943-5452.0001630).
-*Journal of Water Resources Planning and Management*, 148(12), 06022005.
-
-[Method sources and citation](docs/REFERENCE.md) · [Technical Note draft](paper/technical_note.md)
-
-## Project
-
-[Repository](https://github.com/WenyuChiou/HydroOpsLM) ·
-[Build the manual](docs/BUILDING.md) ·
-[Source and licensing](third_party/hydrocnhs/SOURCE.json)
+The [User Manual](https://wenyuchiou.github.io/HydroOpsLM/) covers installation on
+other platforms, case setup, operation methods, examples, audit/trace and references.

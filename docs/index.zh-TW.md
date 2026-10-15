@@ -1,62 +1,55 @@
 # HydroOpsLM 使用手冊
 
-HydroOpsLM 將水庫操作決策接到 HydroCNHS 水文與河川 routing。
-為每座水庫設定資訊、prompt 與檢查，再追查提案如何成為實際放流。
+**Hydrological Simulation with Large Language Model Reservoir Operations**
 
-![HydroOpsLM 概念圖](figures/hydrocnhs-coupling-framework-en.png)
+在耦合水文模擬中設定水庫操作。先了解框架、建立模擬，再以一個 FE Walter 案例學習三種操作方法。
 
-[查看完整尺寸概念圖](https://wenyuchiou.github.io/HydroOpsLM/_images/hydrocnhs-coupling-framework-en.png)。
+![HydroOpsLM 封面](figures/hydroopslm-cover.png)
 
-藍色箭頭傳遞水流，黑色箭頭傳遞資訊與提案。兩種操作方法使用原生 Dam API。
-HydroOpsLM 加入共同蓄水、放流與 spill 計算。回覆檢查與操作 audit
-回答不同問題，紀錄分開保留。
+:::: {container} reading-route
 
-## 從這裡開始
+::: {container} route-step
 
-先[安裝 HydroOpsLM](GETTING_STARTED.md)，再看
-[第一個水庫決策](FIRST_DECISION.md)。教學開啟已保存的真實 Ollama 回覆，
-依序展示檢查、audit、實際放流與下一日資訊。閱讀手冊不會呼叫模型。
+[01 · 了解框架](README.zh-TW.md)
 
-## 三個完整範例
+水文、水庫決策，以及連結它們的紀錄。
 
-三種方法使用相同 FE Walter input 與初始條件。
-[案例概覽](../examples/fe_walter/README.zh-TW.md)說明共同設定。
-
-::: {container} method-list
-
-### [規則式基準](../examples/fe_walter/benchmark/README.zh-TW.md)
-
-已發表的水庫規則，調整為每日防洪操作。
-
-### [使用可用資訊的 LLM](../examples/fe_walter/zero_shot/README.zh-TW.md)
-
-獨立 prompt、水庫資訊與本機模型。
-
-### [使用檢索知識的 LLM](../examples/fe_walter/dkp/README.zh-TW.md)
-
-相同決策介面，加上有來源的操作知識。
 
 :::
 
-每份教學依序涵蓋 **input → YAML → prompt／規則 → check → run → verify → 結果**。
-三日紀錄展示整合流程，不能證明策略優劣。
+::: {container} route-step
 
-## 建立自己的實驗
+[02 · 建立模擬](BUILD_SIMULATION.zh-TW.md)
 
-接著閱讀[input 與 YAML](USER_GUIDE.zh-TW.md)、[決策資訊](INFORMATION.zh-TW.md)
-及[prompt 與模組](LLM_MODULES.zh-TW.md)，再看
-[多水庫](../tutorials/advanced.ipynb)、
-[結果與 audit／trace](RESULTS_GUIDE.md)及[執行與維護](RUNNING.md)。
+準備案例、選擇決策資訊，再設定操作方法。
 
-## Notebooks 與來源
 
-{download}`主 notebook <_notebook_downloads/main.ipynb>` ·
-{download}`進階 notebook <_notebook_downloads/advanced.ipynb>`
+:::
 
-下載檔保留原始 notebook 與已保存輸出。
-集水區設定、水文參數與校正／驗證請依
-[HydroCNHS 手冊](https://cylin928.github.io/HydroCNHS/)。
-框架與 benchmark 的來源見[引用說明](REFERENCE.md)。
+::: {container} route-step
 
-[English](index.md) | [繁體中文](index.zh-TW.md) ·
-[Repository](https://github.com/WenyuChiou/HydroOpsLM)
+[03 · FE Walter 案例](../examples/fe_walter/README.zh-TW.md)
+
+同一地點、共用 input 與三種方法。先閱讀一年每日操作，再查看完整保存紀錄。
+
+:::
+
+::::
+
+## 框架概念
+
+![HydroOpsLM 概念圖](figures/hydrocnhs-coupling-framework-en.png)
+
+HydroCNHS 提供降雨逕流與河川 routing；HydroOpsLM 透過原生 Dam API 接入規則式或語言模型操作，並記錄實際放流。
+
+[查看完整尺寸概念圖](https://wenyuchiou.github.io/HydroOpsLM/_images/hydrocnhs-coupling-framework-en.png)。
+
+## 配套 notebooks
+
+{download}`主教學 <_notebook_downloads/main.ipynb>` ·
+{download}`多水庫 <_notebook_downloads/advanced.ipynb>`
+
+下載檔保留原始 notebooks 與已保存輸出。集水區建模與校正／驗證請依 [HydroCNHS 手冊](https://cylin928.github.io/HydroCNHS/)。
+[來源與引用](REFERENCE.md)說明原框架及新增操作方法。
+
+[English](index.md)

@@ -1,4 +1,8 @@
+<img src="docs/figures/assets/branding/hydroopslm-logo.png" align="right" width="64" height="64" alt="HydroOpsLM logo">
+
 # HydroOpsLM
+
+**Hydrological Simulation with Large Language Model Reservoir Operations**
 
 [English](README.md) | [繁體中文](README.zh-TW.md)
 
@@ -6,64 +10,25 @@
 
 ![HydroOpsLM 封面](docs/figures/hydroopslm-cover.png)
 
-**HydroOpsLM** 將可設定的語言模型水庫操作接到
-[HydroCNHS](https://github.com/cylin928/HydroCNHS)。研究者可為每座水庫選擇
-資訊、prompt 與操作檢查。HydroCNHS 提供水文與河川 routing；HydroOpsLM
-加入水庫收支計算，記錄每次提案、audit 與實際放流。
+**HydroOpsLM** 是以大型語言模型（LLM）進行水庫操作、耦合
+[HydroCNHS](https://github.com/cylin928/HydroCNHS) 的模擬框架。
+研究者可為每座水庫設定決策資訊、prompt、操作方法與檢查。
+HydroCNHS 提供水文與河川 routing；HydroOpsLM 加入水庫收支計算，
+連結放流提案、audit 與實際執行結果。
 
 ![HydroOpsLM 概念圖](docs/figures/hydrocnhs-coupling-framework-en.png)
 
-藍色箭頭傳遞水流，黑色箭頭傳遞資訊與提案。每座水庫透過原生 Dam API
-選用一種操作方法。共同蓄水、放流及 spill 計算由 HydroOpsLM 加入。
-
 ## 安裝
 
-使用 Python 3.12，在 repo 根目錄執行：
+使用 Python 3.12。先 clone repo、建立虛擬環境，再安裝：
 
 ```powershell
+git clone https://github.com/WenyuChiou/HydroOpsLM.git
+cd HydroOpsLM
 python -m venv .venv
 .venv\Scripts\Activate.ps1
 python -m pip install -e . -c environment/requirements-bundled.txt
 ```
 
-依[安裝指南](docs/GETTING_STARTED.md)檢查設定，不需推論。LLM 範例使用
-本機 Ollama `gemma3:4b`，temperature **0.7**。讀取已保存結果不需要模型；
-框架不會下載或啟動模型。
-
-## 三個完整範例
-
-先看[一個完整水庫決策](docs/FIRST_DECISION.md)，再依
-[FE Walter 教學](examples/fe_walter/README.zh-TW.md)操作。
-
-| 方法 | 決策來源 | 逐步教學 |
-|---|---|---|
-| Rule-based benchmark | 已發表的水庫規則，調整為每日防洪操作 | [規則式](examples/fe_walter/benchmark/README.zh-TW.md) |
-| 使用可用資訊的 LLM | Prompt 與可用水庫資訊 | [可用資訊](examples/fe_walter/zero_shot/README.zh-TW.md) |
-| 使用檢索知識的 LLM | 相同介面加上有來源的操作知識 | [檢索知識](examples/fe_walter/dkp/README.zh-TW.md) |
-
-每份教學依序涵蓋 input → YAML → prompt／規則 → check → run → verify → 結果。
-保存的紀錄展示執行流程；三日範例不能證明哪個策略較好。
-
-## 文件
-
-- [**使用手冊**](https://wenyuchiou.github.io/HydroOpsLM/)：input、prompt、單／多水庫與 audit／trace。
-- [Notebooks](tutorials/README.zh-TW.md)：主教學與進階河網教學。
-- [執行與維護](docs/RUNNING.md)：CPU／GPU、儲存空間與中斷處理。
-
-## 研究與引用
-
-水文設定、集水區參數及校正／驗證請依
-[原始 HydroCNHS 手冊](https://cylin928.github.io/HydroCNHS/)。
-請引用原作者的工作：
-
-Lin, C. Y., Yang, Y. C. E., and Wi, S. (2022).
-[HydroCNHS: A Python Package of Hydrological Model for Coupled Natural Human Systems](https://doi.org/10.1061/(ASCE)WR.1943-5452.0001630).
-*Journal of Water Resources Planning and Management*, 148(12), 06022005。
-
-[方法來源與引用](docs/REFERENCE.md) · [Technical Note 草稿](paper/technical_note.md)
-
-## 專案
-
-[Repository](https://github.com/WenyuChiou/HydroOpsLM) ·
-[建置文件站](docs/BUILDING.md) ·
-[來源與授權](third_party/hydrocnhs/SOURCE.json)
+[User Manual](https://wenyuchiou.github.io/HydroOpsLM/) 提供其他平台的安裝方式、
+案例建立、操作方法、範例、audit／trace 與引用來源。
