@@ -109,6 +109,8 @@ release 不是唯一的回覆欄位。
 
 ## 4. 查看保存決策
 
+![保存的教學放流與蓄水結果](../../../docs/figures/fe-walter-available-information-tutorial.png)
+
 保存的軌跡會列出 requested release、實際執行的 controlled
 release、spill 與 ending storage。總出流是 controlled release 加 spill，且只會
 進入 routing 一次。次日歷史使用實際執行的 release。
@@ -118,6 +120,61 @@ release、spill 與 ending storage。總出流是 controlled release 加 spill�
 | 2016-01-01 | 32.125319 | 32.125463 | 32.125463 | 0.000000 | 2,457,835.82 |
 | 2016-01-02 | 22.353047 | 22.353319 | 22.353319 | 0.000000 | 2,457,812.34 |
 | 2016-01-03 | 14.193931 | 22.353319 | 22.353319 | 0.000000 | 1,752,841.25 |
+
+### 一個實際決策：2016-01-03
+
+依序查看模型收到的數值、完整回覆、檢查與執行結果。以下全部來自已保存的紀錄，沒有新增模型請求。
+
+| 資訊 | 值 |
+|---|---:|
+| 入流 (m³/s) | 14.193931 |
+| 期初水位 (ft NGVD29) | 1299.999706 |
+| Host 期初蓄水 (m³) | 2,457,812.34 |
+
+Prompt 顯示水位；數值蓄水保留於 host，並未送入此版本的模型文字。
+
+**完整的原始 assistant 回覆**
+
+```json
+{
+  "applicable_target_ft": 1300.00,
+  "pool_position": "at_target",
+  "intended_storage_direction": "hold",
+  "release_relation_to_inflow": "equal_to_inflow",
+  "reasoning": "The water level is already at the target and inflow is relatively high. Maintaining the current release rate will help to hold the pool elevation steady and account for the incoming water. ",
+  "release_cfs": 789.4
+}
+```
+
+**格式檢查與操作 audit**
+
+| 檢查 | 規則／保存證據 | 判定 |
+|---|---|---|
+| 完成回覆 | `done: true`, `done_reason: stop` | **COMPLETE** |
+| 回覆格式 | JSON, required target / direction / rationale / release fields; 必要欄位見連結的原始 schema | **RECORDED REPLY** |
+| 正規化 action | 本次重新檢查有限、非負的 `release_cms`；不是歷史 checker event | **PASS** |
+| 放流可行範圍 | 具名 `release_limits` auditor 的保存結果 | **PASS** |
+| 操作一致性 | 目標／水位、放流與入流關係、預期蓄水方向及適用規則 | **FAIL** |
+
+保存的 audit 原因：
+
+- `release_relation_to_inflow 'equal_to_inflow' contradicts release 789.4 vs inflow 501.3 cfs`
+- `intended_storage_direction 'hold' contradicts the water balance (storage will decrease)`
+
+**實際執行與水量平衡**
+
+| 結果 | 值 |
+|---|---:|
+| 請求放流 (m³/s) | 22.353319 |
+| 實際受控放流 (m³/s) | 22.353319 |
+| 溢流 (m³/s) | 0.000000 |
+| 期末蓄水 (m³) | 1,752,841.246484 |
+| 水量平衡殘差 (m³) | 0.000000 |
+
+Audit FAIL 是操作診斷；本次保存的執行未因此替換放流。 蓄水變化為 **-704,971.09 m³**。實際放流加 spill 只注入 routing 一次，下一日歷史使用已執行值。
+
+[完整 prompt／回覆](../../../results/fe_walter_ollama_2016_01/zero_shot/raw/policy_b32bc5738ff8f890b5950aab3f5203ab31c224527ff6be8b3f5daf50bdb3dcc5.json) · [原始 audit](../../../results/fe_walter_ollama_2016_01/zero_shot/raw/audit_b32bc5738ff8f890b5950aab3f5203ab31c224527ff6be8b3f5daf50bdb3dcc5.json) · [執行紀錄](../../../results/fe_walter_ollama_2016_01/zero_shot/physics.jsonl)
+
 
 [完整 2016–2020 結果與決策紀錄](../results.zh-TW.md)
 

@@ -237,6 +237,8 @@ release 不是唯一的回覆欄位。
 
 ## 4. 查看保存決策
 
+![保存的教學放流與蓄水結果](../../../docs/figures/fe-walter-retrieved-knowledge-tutorial.png)
+
 保存的軌跡會列出 requested release、實際執行的 controlled
 release、spill 與 ending storage。總出流是 controlled release 加 spill，且只會
 進入 routing 一次。次日歷史使用實際執行的 release。
@@ -246,6 +248,54 @@ release、spill 與 ending storage。總出流是 controlled release 加 spill�
 | 2016-01-01 | 32.125319 | 1.415842 | 1.415842 | 0.000000 | 5,111,147.04 |
 | 2016-01-02 | 22.353047 | 1.415842 | 1.415842 | 0.000000 | 6,920,121.54 |
 | 2016-01-03 | 14.193931 | 1.415842 | 1.415842 | 0.000000 | 8,024,148.43 |
+
+### 一個實際決策：2016-01-01
+
+依序查看模型收到的數值、完整回覆、檢查與執行結果。以下全部來自已保存的紀錄，沒有新增模型請求。
+
+| 資訊 | 值 |
+|---|---:|
+| 入流 (m³/s) | 32.125319 |
+| 期初水位 (ft NGVD29) | 1300.000000 |
+| Host 期初蓄水 (m³) | 2,457,848.28 |
+
+Prompt 顯示水位；數值蓄水保留於 host，並未送入此版本的模型文字。
+
+**完整的原始 assistant 回覆**
+
+```json
+{"applicable_target_ft": 1300.00, "pool_position": "at_target", "intended_storage_direction": "hold", "release_relation_to_inflow": "equal_to_inflow", "operating_mode": "minimum_release", "rules_applied": ["R-RELEASE", "R-MINNORM", "R-ZONE"], "reasoning": "Today is January 1st, and the operation target is 1300.0 ft. The DKP excerpt 2 states that R-MINNORM is applied unless a drought warning is declared. Since there is no drought warning declared, we apply R-MINNORM which specifies a minimum release of 50 cfs. The DKP excerpt 4 dictates that the target pool is 1300.0 ft and we are holding the pool at this level, so the release is equal to the inflow. The inflow is 1134.5 cfs. Therefore, the release should be 50 cfs plus 1134.5 cfs = 1139.5 cfs. However, the DKP excerpt 3 states that the maximum release is 10000 cfs. Since 1139.5 cfs < 10000 cfs, we will apply R-MINNORM. The release will be 50 cfs.", "release_cfs": 50}
+```
+
+**格式檢查與操作 audit**
+
+| 檢查 | 規則／保存證據 | 判定 |
+|---|---|---|
+| 完成回覆 | `done: true`, `done_reason: stop` | **COMPLETE** |
+| 回覆格式 | JSON, required target / direction / rationale / release fields; 必要欄位見連結的原始 schema | **RECORDED REPLY** |
+| 正規化 action | 本次重新檢查有限、非負的 `release_cms`；不是歷史 checker event | **PASS** |
+| 放流可行範圍 | 具名 `release_limits` auditor 的保存結果 | **PASS** |
+| 操作一致性 | 目標／水位、放流與入流關係、預期蓄水方向及適用規則 | **FAIL** |
+
+保存的 audit 原因：
+
+- `release_relation_to_inflow 'equal_to_inflow' contradicts release 50.0 vs inflow 1,134.5 cfs`
+- `intended_storage_direction 'hold' contradicts the water balance (storage will increase)`
+
+**實際執行與水量平衡**
+
+| 結果 | 值 |
+|---|---:|
+| 請求放流 (m³/s) | 1.415842 |
+| 實際受控放流 (m³/s) | 1.415842 |
+| 溢流 (m³/s) | 0.000000 |
+| 期末蓄水 (m³) | 5,111,147.036945 |
+| 水量平衡殘差 (m³) | 0.000000 |
+
+Audit FAIL 是操作診斷；本次保存的執行未因此替換放流。 蓄水變化為 **2,653,298.76 m³**。實際放流加 spill 只注入 routing 一次，下一日歷史使用已執行值。
+
+[完整 prompt／回覆](../../../results/fe_walter_ollama_2016_01/dkp/raw/policy_87d975aee46dea6d4818b1f090efec8cc79b1e29a0fc31132d62799f2f3741b6.json) · [原始 audit](../../../results/fe_walter_ollama_2016_01/dkp/raw/audit_87d975aee46dea6d4818b1f090efec8cc79b1e29a0fc31132d62799f2f3741b6.json) · [執行紀錄](../../../results/fe_walter_ollama_2016_01/dkp/physics.jsonl)
+
 
 [完整 2016–2020 結果與決策紀錄](../results.zh-TW.md)
 

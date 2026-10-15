@@ -240,6 +240,8 @@ and replies, including the rationale; release is not the only response field.
 
 ## 4. Inspect saved decisions
 
+![Saved tutorial release and storage](../../../docs/figures/fe-walter-retrieved-knowledge-tutorial.png)
+
 The saved trajectory records requested release, implemented controlled
 release, spill and ending storage. Total outflow is controlled release plus spill
 and enters routing once. Next-day history uses implemented release.
@@ -249,6 +251,54 @@ and enters routing once. Next-day history uses implemented release.
 | 2016-01-01 | 32.125319 | 1.415842 | 1.415842 | 0.000000 | 5,111,147.04 |
 | 2016-01-02 | 22.353047 | 1.415842 | 1.415842 | 0.000000 | 6,920,121.54 |
 | 2016-01-03 | 14.193931 | 1.415842 | 1.415842 | 0.000000 | 8,024,148.43 |
+
+### A recorded decision: 2016-01-01
+
+Follow the supplied values, complete model reply, checks and executed result. Everything below comes from saved records; no new model request is needed.
+
+| Information | Value |
+|---|---:|
+| Inflow (m³/s) | 32.125319 |
+| Starting pool elevation (ft NGVD29) | 1300.000000 |
+| Host starting storage (m³) | 2,457,848.28 |
+
+The prompt exposes pool elevation; numeric storage remains with the host and is absent from this version’s model message.
+
+**Complete raw assistant reply**
+
+```json
+{"applicable_target_ft": 1300.00, "pool_position": "at_target", "intended_storage_direction": "hold", "release_relation_to_inflow": "equal_to_inflow", "operating_mode": "minimum_release", "rules_applied": ["R-RELEASE", "R-MINNORM", "R-ZONE"], "reasoning": "Today is January 1st, and the operation target is 1300.0 ft. The DKP excerpt 2 states that R-MINNORM is applied unless a drought warning is declared. Since there is no drought warning declared, we apply R-MINNORM which specifies a minimum release of 50 cfs. The DKP excerpt 4 dictates that the target pool is 1300.0 ft and we are holding the pool at this level, so the release is equal to the inflow. The inflow is 1134.5 cfs. Therefore, the release should be 50 cfs plus 1134.5 cfs = 1139.5 cfs. However, the DKP excerpt 3 states that the maximum release is 10000 cfs. Since 1139.5 cfs < 10000 cfs, we will apply R-MINNORM. The release will be 50 cfs.", "release_cfs": 50}
+```
+
+**Response checks and operation audit**
+
+| Check | Rule / saved evidence | Result |
+|---|---|---|
+| Complete generation | `done: true`, `done_reason: stop` | **COMPLETE** |
+| Reply format | JSON, required target / direction / rationale / release fields; required fields are defined in the linked raw record | **RECORDED REPLY** |
+| Normalized action | Current recheck of finite, nonnegative `release_cms`; not a historical checker event | **PASS** |
+| Feasible release bound | Saved named `release_limits` auditor | **PASS** |
+| Operating consistency | Target / pool, release–inflow relation, intended storage direction and applicable rules | **FAIL** |
+
+Saved audit reasons:
+
+- `release_relation_to_inflow 'equal_to_inflow' contradicts release 50.0 vs inflow 1,134.5 cfs`
+- `intended_storage_direction 'hold' contradicts the water balance (storage will increase)`
+
+**Implemented operation and water balance**
+
+| Outcome | Value |
+|---|---:|
+| Requested release (m³/s) | 1.415842 |
+| Implemented release (m³/s) | 1.415842 |
+| Spill (m³/s) | 0.000000 |
+| Ending storage (m³) | 5,111,147.036945 |
+| Balance residual (m³) | 0.000000 |
+
+Audit FAIL is an operating diagnosis; this saved run did not replace the release because of it. Storage changed by **2,653,298.76 m³**. Implemented release plus spill enters routing once; the next daily history uses the implemented value.
+
+[Full prompt and response](../../../results/fe_walter_ollama_2016_01/dkp/raw/policy_87d975aee46dea6d4818b1f090efec8cc79b1e29a0fc31132d62799f2f3741b6.json) · [Raw audit](../../../results/fe_walter_ollama_2016_01/dkp/raw/audit_87d975aee46dea6d4818b1f090efec8cc79b1e29a0fc31132d62799f2f3741b6.json) · [Execution records](../../../results/fe_walter_ollama_2016_01/dkp/physics.jsonl)
+
 
 [Full 2016–2020 results and decision records](../results.md)
 

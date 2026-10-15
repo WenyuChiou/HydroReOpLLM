@@ -18,6 +18,13 @@ MAP_DOWNLOADS = {
        for ext in ("png", "svg", "pdf")},
     "data/figures/manual_map/fe-walter-arcgis-source.zip": "fe-walter-arcgis-source.zip",
 }
+HYDROLOGY_DOWNLOADS = {
+    **{f"examples/fe_walter/hydrology_data/{name}": name for name in (
+        "calibration_validation_metrics.csv", "subcatchments.csv", "provenance.json",
+    )},
+    "data/accepted/fe_walter_hydrology.yaml": "fe_walter_hydrology.yaml",
+    "data/accepted/historical_manifest.json": "historical_manifest.json",
+}
 PAGES = {
     "docs/index.md": "index.md",
     "docs/index.zh-TW.md": "index.zh-TW.md",
@@ -25,6 +32,8 @@ PAGES = {
     "README.zh-TW.md": "repository.zh-TW.md",
     "examples/fe_walter/README.md": "examples/fe_walter/README.md",
     "examples/fe_walter/README.zh-TW.md": "examples/fe_walter/README.zh-TW.md",
+    "examples/fe_walter/hydrology.md": "examples/fe_walter/hydrology.md",
+    "examples/fe_walter/hydrology.zh-TW.md": "examples/fe_walter/hydrology.zh-TW.md",
     "examples/fe_walter/results.md": "examples/fe_walter/results.md",
     "examples/fe_walter/results.zh-TW.md": "examples/fe_walter/results.zh-TW.md",
     **{f"examples/fe_walter/{method}/{name}": f"examples/fe_walter/{method}/{name}"
@@ -66,6 +75,10 @@ def prepare(source: Path) -> None:
             elif not match[1].startswith("!") and relative in MAP_DOWNLOADS:
                 import os
                 output = source / "_map_downloads" / MAP_DOWNLOADS[relative]
+                value = Path(os.path.relpath(output, (source / destination).parent)).as_posix()
+            elif not match[1].startswith("!") and relative in HYDROLOGY_DOWNLOADS:
+                import os
+                output = source / "_hydrology_downloads" / HYDROLOGY_DOWNLOADS[relative]
                 value = Path(os.path.relpath(output, (source / destination).parent)).as_posix()
             elif match[1].startswith("!"):
                 output = source / relative
@@ -109,6 +122,11 @@ def prepare(source: Path) -> None:
     map_downloads.mkdir()
     for relative, name in MAP_DOWNLOADS.items():
         shutil.copyfile(ROOT / relative, map_downloads / name)
+    # Only these named, accepted hydrological inputs/evidence are published.
+    hydrology_downloads = source / "_hydrology_downloads"
+    hydrology_downloads.mkdir()
+    for relative, name in HYDROLOGY_DOWNLOADS.items():
+        shutil.copyfile(ROOT / relative, hydrology_downloads / name)
     # Publish selected original-byte case evidence for local viewing and downloads.
     case_downloads = source / "_case_downloads/dkp_2016_2020"
     case_downloads.mkdir(parents=True)
@@ -122,7 +140,7 @@ def prepare(source: Path) -> None:
     groups = {
         "Overview": ["docs/README"],
         "Build a simulation": ["docs/GETTING_STARTED", "docs/BUILD_SIMULATION", "docs/USER_GUIDE", "docs/INFORMATION", "docs/LLM_MODULES"],
-        "FE Walter case study": ["examples/fe_walter/README", *[f"examples/fe_walter/{method}/README" for method in ("benchmark", "zero_shot", "dkp")], "examples/fe_walter/results"],
+        "FE Walter case study": ["examples/fe_walter/README", "examples/fe_walter/hydrology", *[f"examples/fe_walter/{method}/README" for method in ("benchmark", "zero_shot", "dkp")], "examples/fe_walter/results"],
         "Further configuration": ["tutorials/advanced", "docs/RESULTS_GUIDE", "docs/RUNNING"],
         "Reference": ["docs/PARAMETER_REFERENCE", "docs/REFERENCE", "docs/FIRST_DECISION", "docs/HYDROLOGY_SETUP",
                       "tutorials/README", "tutorials/main", "paper/technical_note",

@@ -1,0 +1,55 @@
+{
+  "accepted_demo_commit": "8d59dcac2f9d06fe16030f68826b425d492c9529",
+  "hydrocnhs_commit": "fdd5097a3fcabb312c6c3739efc71da2d67c47da",
+  "sources": {
+    "metrics": {
+      "original_path": "results/current/four_reservoir_hydrocnhs_native/tables/calibration_validation_metrics.csv",
+      "sha256": "77674ddae6c7f3bc65425d174bfc14a7597f0acfaa6c2821c8d324c7842491b6",
+      "selection": "header and original lines4-5 only; numerictext and lineends unchanged"
+    },
+    "model": {
+      "path": "data/accepted/fe_walter_hydrology.yaml",
+      "sha256": "1f4878ee4ff49e09b0b6f7bbf5e1d005620c4e380906671dd93ae12fa9400377",
+      "selection": "7real GWLF units,9parameters and4shared routingparameters; aggregation placeholder excluded fromphysicalunit count"
+    },
+    "metric_definitions": {
+      "original_path": "docs/METRICS.md",
+      "sha256": "d29dd5da3d484b58aac70b8a23d656dc156b85e01d217fbb1c91df9fd72ba8fa",
+      "note": "PFE storedfraction; displaypercent=100*fraction; eventmeans include unmatchedpenalties"
+    },
+    "parameter_definitions": {
+      "original_path": "docs/parameter_initialization/README.md",
+      "sha256": "fddb5d5236ab399fd672600dc449a495188868e916e5d77444790b973e063219",
+      "lines": "3\u20135,9\u201328,53,57"
+    },
+    "weather_provenance": {
+      "original_path": "tutorials/data/fe_walter_source_inventory.csv",
+      "sha256": "2dc081fab2951c2e1848dd0085478b798c886b734a74e62b80bb5daedfa90301",
+      "lines": "4\u20135"
+    },
+    "forcing_provenance": {
+      "original_path": "tutorials/data/fe_walter_data_provenance.json",
+      "sha256": "609162055909ff9dfda1335f3570cbe81374acdb9d5a0b2bda2073103da2cd44"
+    }
+  },
+  "periods": {
+    "warm_up": "1989",
+    "calibration": "1990\u20132010",
+    "validation": "2011\u20132020",
+    "forward_simulation": "2021\u20132025"
+  },
+  "derived_files": {
+    "calibration_validation_metrics.csv": {
+      "sha256": "1dc641964fdb105429a5c288c8fa495dd837dfadeeff73780fb5499e04591c66",
+      "bytes": 704
+    },
+    "subcatchments.csv": {
+      "sha256": "6c9fcaf49575fd2436f9157bf7e41cf603e73234211e485ee2850ce23391d919",
+      "bytes": 744
+    }
+  },
+  "limits": [
+    "USGS01447500 covers2of7realunits;5ungaugedunits notindependentlyvalidated",
+    "No recalibration or hydrological simulation performed for this documentation"
+  ]
+}

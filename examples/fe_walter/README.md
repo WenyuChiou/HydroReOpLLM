@@ -17,7 +17,7 @@ The frozen simulation supplies reservoir inflow; operation experiments do not re
 The accepted hydrological calibration uses **1990–2010** and validation uses **2011–2020**.
 USGS 01447500 covers two of the seven units; the remaining five are not independently gauged validation units.
 
-Hydrological parameters and C&V belong to the [native HydroCNHS workflow](../../docs/HYDROLOGY_SETUP.md).
+See [Hydrology, parameters and C&V](hydrology.md) for this case; the [native HydroCNHS workflow](../../docs/HYDROLOGY_SETUP.md) explains how to build another catchment.
 This case focuses on how operating rules, information and language-model proposals affect reservoir operation.
 
 ## Common case setup
@@ -33,6 +33,13 @@ This case focuses on how operating rules, information and language-model proposa
 
 Initial storage is an integration assumption, not an observed January 2016 state.
 Identity downstream routing tests the coupling interface; it is not calibrated river travel time.
+
+The reservoir inflow is **simulated by HydroCNHS**, not supplied by the LLM:
+subcatchment weather → GWLF runoff → Lohmann upstream routing → summed inflow
+at the dam. The operations runner reads that frozen daily series; it does not
+rerun rainfall–runoff at each decision. The [case hydrology chapter](hydrology.md)
+lists weather, observed flow, the seven subcatchments, accepted parameters and
+calibration/validation results.
 
 Prepare these files before changing the operation method:
 
@@ -78,13 +85,3 @@ The three-day tutorial and the historical run have different model versions and 
 
 The [main notebook](../../tutorials/main.ipynb) preserves the three-day tutorial.
 The [advanced notebook](../../tutorials/advanced.ipynb) explains multiple reservoirs.
-
-<details>
-<summary>Map downloads</summary>
-
-[PNG](../../docs/figures/fe-walter-catchment.png) · [SVG](../../docs/figures/fe-walter-catchment.svg) · [PDF](../../docs/figures/fe-walter-catchment.pdf) · [Editable ArcGIS project](../../data/figures/manual_map/fe-walter-arcgis-source.zip)
-
-The editable project requires ArcGIS Pro. Its Esri basemap layers need an internet connection.
-The manual displays the saved figure without contacting a map service.
-
-</details>

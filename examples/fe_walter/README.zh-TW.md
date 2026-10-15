@@ -16,7 +16,7 @@ F.E. Walter Reservoir 位於 Delaware River Basin 的 Lehigh River。
 已接受的水文校正期間為 **1990–2010**，驗證期間為 **2011–2020**。
 USGS 01447500 涵蓋七區中的兩區；其餘五區不是各自有測站的獨立驗證單元。
 
-水文參數與 C&V 請依[原生 HydroCNHS 流程](../../docs/HYDROLOGY_SETUP.md)。
+本案例的資料與數值見[水文、參數與 C&V](hydrology.zh-TW.md)；建立其他集水區請依[原生 HydroCNHS 流程](../../docs/HYDROLOGY_SETUP.md)。
 本案例聚焦操作規則、資訊與語言模型提案如何影響水庫操作。
 
 ## 共用案例設定
@@ -32,6 +32,12 @@ USGS 01447500 涵蓋七區中的兩區；其餘五區不是各自有測站的獨
 
 初始蓄水是整合假設，不是 2016 年一月的觀測值。
 Identity 下游 routing 用於耦合介面測試，不是已校正河川旅行時間。
+
+水庫入流是 **HydroCNHS 模擬值**，不是 LLM 產生的：
+各子集水區氣象 → GWLF 產流 → Lohmann 上游 routing → 壩址匯總入流。
+操作執行器讀取這份凍結的每日序列，不會每次決策都重算降雨產流。
+[本案例水文章節](hydrology.zh-TW.md)列出氣象、觀測流量、七個子集水區、
+已接受的參數與校正／驗證結果。
 
 改變操作方法前，準備以下檔案：
 
@@ -75,13 +81,3 @@ Identity 下游 routing 用於耦合介面測試，不是已校正河川旅行�
 
 [主 notebook](../../tutorials/main.ipynb)保留三日教學；
 [進階 notebook](../../tutorials/advanced.ipynb)說明多水庫。
-
-<details>
-<summary>地圖下載</summary>
-
-[PNG](../../docs/figures/fe-walter-catchment.png) · [SVG](../../docs/figures/fe-walter-catchment.svg) · [PDF](../../docs/figures/fe-walter-catchment.pdf) · [可編輯 ArcGIS 專案](../../data/figures/manual_map/fe-walter-arcgis-source.zip)
-
-可編輯專案需要 ArcGIS Pro，Esri 底圖圖層需要網路連線。
-文件站顯示已保存的圖片，不會連線讀取地圖服務。
-
-</details>

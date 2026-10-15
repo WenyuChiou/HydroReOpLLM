@@ -112,6 +112,8 @@ and replies, including the rationale; release is not the only response field.
 
 ## 4. Inspect saved decisions
 
+![Saved tutorial release and storage](../../../docs/figures/fe-walter-available-information-tutorial.png)
+
 The saved trajectory records requested release, implemented controlled
 release, spill and ending storage. Total outflow is controlled release plus spill
 and enters routing once. Next-day history uses implemented release.
@@ -121,6 +123,61 @@ and enters routing once. Next-day history uses implemented release.
 | 2016-01-01 | 32.125319 | 32.125463 | 32.125463 | 0.000000 | 2,457,835.82 |
 | 2016-01-02 | 22.353047 | 22.353319 | 22.353319 | 0.000000 | 2,457,812.34 |
 | 2016-01-03 | 14.193931 | 22.353319 | 22.353319 | 0.000000 | 1,752,841.25 |
+
+### A recorded decision: 2016-01-03
+
+Follow the supplied values, complete model reply, checks and executed result. Everything below comes from saved records; no new model request is needed.
+
+| Information | Value |
+|---|---:|
+| Inflow (m³/s) | 14.193931 |
+| Starting pool elevation (ft NGVD29) | 1299.999706 |
+| Host starting storage (m³) | 2,457,812.34 |
+
+The prompt exposes pool elevation; numeric storage remains with the host and is absent from this version’s model message.
+
+**Complete raw assistant reply**
+
+```json
+{
+  "applicable_target_ft": 1300.00,
+  "pool_position": "at_target",
+  "intended_storage_direction": "hold",
+  "release_relation_to_inflow": "equal_to_inflow",
+  "reasoning": "The water level is already at the target and inflow is relatively high. Maintaining the current release rate will help to hold the pool elevation steady and account for the incoming water. ",
+  "release_cfs": 789.4
+}
+```
+
+**Response checks and operation audit**
+
+| Check | Rule / saved evidence | Result |
+|---|---|---|
+| Complete generation | `done: true`, `done_reason: stop` | **COMPLETE** |
+| Reply format | JSON, required target / direction / rationale / release fields; required fields are defined in the linked raw record | **RECORDED REPLY** |
+| Normalized action | Current recheck of finite, nonnegative `release_cms`; not a historical checker event | **PASS** |
+| Feasible release bound | Saved named `release_limits` auditor | **PASS** |
+| Operating consistency | Target / pool, release–inflow relation, intended storage direction and applicable rules | **FAIL** |
+
+Saved audit reasons:
+
+- `release_relation_to_inflow 'equal_to_inflow' contradicts release 789.4 vs inflow 501.3 cfs`
+- `intended_storage_direction 'hold' contradicts the water balance (storage will decrease)`
+
+**Implemented operation and water balance**
+
+| Outcome | Value |
+|---|---:|
+| Requested release (m³/s) | 22.353319 |
+| Implemented release (m³/s) | 22.353319 |
+| Spill (m³/s) | 0.000000 |
+| Ending storage (m³) | 1,752,841.246484 |
+| Balance residual (m³) | 0.000000 |
+
+Audit FAIL is an operating diagnosis; this saved run did not replace the release because of it. Storage changed by **-704,971.09 m³**. Implemented release plus spill enters routing once; the next daily history uses the implemented value.
+
+[Full prompt and response](../../../results/fe_walter_ollama_2016_01/zero_shot/raw/policy_b32bc5738ff8f890b5950aab3f5203ab31c224527ff6be8b3f5daf50bdb3dcc5.json) · [Raw audit](../../../results/fe_walter_ollama_2016_01/zero_shot/raw/audit_b32bc5738ff8f890b5950aab3f5203ab31c224527ff6be8b3f5daf50bdb3dcc5.json) · [Execution records](../../../results/fe_walter_ollama_2016_01/zero_shot/physics.jsonl)
+
 
 [Full 2016–2020 results and decision records](../results.md)
 

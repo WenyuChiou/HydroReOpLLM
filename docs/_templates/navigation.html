@@ -4,6 +4,7 @@
     <span>User manual</span>
   </div>
   <p class="manual-utility"><a href="{{ pathto('index.zh-TW') }}" lang="zh-Hant">繁體中文</a><a href="https://github.com/WenyuChiou/HydroOpsLM">Repository ↗</a></p>
+  {% include "searchbox.html" %}
   {% set chapters %}
   {% macro chapter(page, label, method=false) -%}
     <li{% if method %} class="method"{% endif %}><a href="{{ pathto(page) }}"{% if pagename == page %} aria-current="page"{% endif %}>{{ label }}</a></li>
@@ -19,6 +20,7 @@
   <h3>03 · FE Walter case study</h3>
   <ul class="manual-navigation">
     {{ chapter('examples/fe_walter/README', 'Site and shared setup') }}
+    {{ chapter('examples/fe_walter/hydrology', 'Hydrology, parameters and C&V') }}
     {{ chapter('examples/fe_walter/benchmark/README', 'Rule-based operation', true) }}
     {{ chapter('examples/fe_walter/zero_shot/README', 'LLM · available information', true) }}
     {{ chapter('examples/fe_walter/dkp/README', 'LLM · retrieved knowledge', true) }}
