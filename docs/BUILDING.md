@@ -1,6 +1,6 @@
 # Publish or build the HTML manual
 
-Read the [online manual](https://wenyuchiou.github.io/LLM_reservoir_agent/). The repository README documentation
+Read the [online manual](https://wenyuchiou.github.io/HydroOpsLM/). The repository README documentation
 badge and About website link lead to this site. GitHub Pages serves the HTML,
 figures and original notebook downloads; source/data links still require access
 to the private repository.
@@ -19,9 +19,9 @@ environment. The source repository stays private; the rendered manual is public.
 ## Sharing preview
 
 The manual publishes Open Graph and Twitter image metadata on each page.
-The 1280 × 640 [preview](https://wenyuchiou.github.io/LLM_reservoir_agent/_static/hydroopslm-social-preview.png)
+The 1280 × 640 [preview](https://wenyuchiou.github.io/HydroOpsLM/_static/hydroopslm-social-preview.png)
 uses the selected cover without cropping. Its
-[editable SVG](https://wenyuchiou.github.io/LLM_reservoir_agent/_static/hydroopslm-social-preview.svg)
+[editable SVG](https://wenyuchiou.github.io/HydroOpsLM/_static/hydroopslm-social-preview.svg)
 retains the original vector artwork and HydroCNHS credit. These settings apply
 to links to the public manual; they do not change the private repository's
 social preview. For a fork, update `html_baseurl` in `docs/conf.py` to your own
@@ -62,7 +62,7 @@ remain unchanged.
 文件站提供中英文首頁、章節目錄、三個範例、單／多水庫教學及 notebook 下載，
 直接顯示保存的表格／圖片；下載檔保留已提交 notebook 的原始 bytes。
 MyST-NB 不執行 cells；建置不啟動 Ollama、呼叫 provider 或執行模擬。
-[線上文件站](https://wenyuchiou.github.io/LLM_reservoir_agent/)由 GitHub Pages 提供；README 的文件 badge 可直接進入。
+[線上文件站](https://wenyuchiou.github.io/HydroOpsLM/)由 GitHub Pages 提供；README 的文件 badge 可直接進入。
 原始碼／資料連結仍需私人 repo 權限。部署僅發布建置後的 HTML、圖片與 notebook，
 不執行 notebook cells，也不啟動模型；repo 維持私人。
 另用 `--execute --check` 更新保存資料的圖表時，網路會被封鎖，

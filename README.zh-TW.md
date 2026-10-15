@@ -1,10 +1,10 @@
-![HydroOpsLM logo](docs/figures/assets/branding/logo-64.png)
-
 # HydroOpsLM
 
 [English](README.md) | [繁體中文](README.zh-TW.md)
 
-[![閱讀使用手冊](docs/_static/docs-badge-zh-TW.svg)](https://wenyuchiou.github.io/LLM_reservoir_agent/)
+[![閱讀使用手冊](docs/_static/docs-badge-zh-TW.svg)](https://wenyuchiou.github.io/HydroOpsLM/)
+
+![HydroOpsLM 封面](docs/figures/hydroopslm-cover.png)
 
 **HydroOpsLM** 將可設定的語言模型水庫操作接到
 [HydroCNHS](https://github.com/cylin928/HydroCNHS)。研究者可為每座水庫選擇
@@ -46,7 +46,7 @@ python -m pip install -e . -c environment/requirements-bundled.txt
 
 ## 文件
 
-- [**使用手冊**](https://wenyuchiou.github.io/LLM_reservoir_agent/)：input、prompt、單／多水庫與 audit／trace。
+- [**使用手冊**](https://wenyuchiou.github.io/HydroOpsLM/)：input、prompt、單／多水庫與 audit／trace。
 - [Notebooks](tutorials/README.zh-TW.md)：主教學與進階河網教學。
 - [執行與維護](docs/RUNNING.md)：CPU／GPU、儲存空間與中斷處理。
 
@@ -64,6 +64,6 @@ Lin, C. Y., Yang, Y. C. E., and Wi, S. (2022).
 
 ## 專案
 
-[Repository](https://github.com/WenyuChiou/LLM_reservoir_agent) ·
+[Repository](https://github.com/WenyuChiou/HydroOpsLM) ·
 [建置文件站](docs/BUILDING.md) ·
 [來源與授權](third_party/hydrocnhs/SOURCE.json)

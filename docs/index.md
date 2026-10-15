@@ -6,7 +6,7 @@ inspect how a proposal becomes an implemented release.
 
 ![HydroOpsLM concept](figures/hydrocnhs-coupling-framework-en.png)
 
-[View the concept at full size](https://wenyuchiou.github.io/LLM_reservoir_agent/_images/hydrocnhs-coupling-framework-en.png).
+[View the concept at full size](https://wenyuchiou.github.io/HydroOpsLM/_images/hydrocnhs-coupling-framework-en.png).
 
 Blue arrows carry water; black arrows carry information and proposals. Both
 operation methods use the native Dam API. HydroOpsLM adds common storage,
@@ -63,4 +63,4 @@ For catchment setup, hydrological parameters and calibration/validation, use the
 See [sources and citation](REFERENCE.md) for the framework and benchmark.
 
 [繁體中文](index.zh-TW.md) ·
-[Repository](https://github.com/WenyuChiou/LLM_reservoir_agent)
+[Repository](https://github.com/WenyuChiou/HydroOpsLM)

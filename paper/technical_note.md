@@ -408,7 +408,7 @@ physical representation.
 
 Code, source manifests, case settings, prompts, frozen input references, editable
 figures, tutorial sources, and saved result records are maintained in
-[LLM_reservoir_agent](https://github.com/WenyuChiou/LLM_reservoir_agent). The
+[HydroOpsLM](https://github.com/WenyuChiou/HydroOpsLM). The
 repository is currently private, and a public archive with a persistent DOI has
 not yet been designated. The tutorial describes how to reconstruct reported
 results from the saved actions without making a model request.
