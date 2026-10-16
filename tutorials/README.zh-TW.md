@@ -1,4 +1,4 @@
-# HydroOpsLM 教學
+# HydroOpsLLM 教學
 
 [English](README.md) | [繁體中文](README.zh-TW.md)
 

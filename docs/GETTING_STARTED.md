@@ -11,8 +11,8 @@ Clone or download the repository first, then open its root directory. Repository
 access is required while this project is private; the published manual is public.
 
 ```powershell
-git clone https://github.com/WenyuChiou/HydroOpsLM.git
-cd HydroOpsLM
+git clone https://github.com/WenyuChiou/HydroOpsLLM.git
+cd HydroOpsLLM
 python -m venv .venv
 .venv\Scripts\Activate.ps1
 python -m pip install -e . -c environment/requirements-bundled.txt

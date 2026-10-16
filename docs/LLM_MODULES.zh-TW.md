@@ -1,4 +1,4 @@
-# HydroOpsLM LLM 模組
+# HydroOpsLLM LLM 模組
 
 [English](LLM_MODULES.md) | [繁體中文](LLM_MODULES.zh-TW.md)
 

@@ -1,10 +1,10 @@
-# HydroOpsLM 使用手冊
+# HydroOpsLLM 使用手冊
 
 **Hydrological Simulation with Large Language Model Reservoir Operations**
 
 在耦合水文模擬中設定水庫操作。先了解框架、建立模擬，再以一個 FE Walter 案例學習三種操作方法。
 
-![HydroOpsLM 封面](figures/hydroopslm-cover.png)
+![HydroOpsLLM 封面](figures/hydroopslm-cover.png)
 
 :::: {container} reading-route
 
@@ -38,11 +38,11 @@
 
 ## 框架概念
 
-![HydroOpsLM 概念圖](figures/hydrocnhs-coupling-framework-en.png)
+![HydroOpsLLM 概念圖](figures/hydrocnhs-coupling-framework-en.png)
 
-HydroCNHS 提供降雨逕流與河川 routing；HydroOpsLM 透過原生 Dam API 接入規則式或語言模型操作，並記錄實際放流。
+HydroCNHS 提供降雨逕流與河川 routing；HydroOpsLLM 透過原生 Dam API 接入規則式或語言模型操作，並記錄實際放流。
 
-[查看完整尺寸概念圖](https://wenyuchiou.github.io/HydroOpsLM/_images/hydrocnhs-coupling-framework-en.png)。
+[查看完整尺寸概念圖](https://wenyuchiou.github.io/HydroOpsLLM/_images/hydrocnhs-coupling-framework-en.png)。
 
 ## 配套 notebooks
 

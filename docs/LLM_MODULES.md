@@ -1,4 +1,4 @@
-# HydroOpsLM LLM modules
+# HydroOpsLLM LLM modules
 
 [English](LLM_MODULES.md) | [繁體中文](LLM_MODULES.zh-TW.md)
 

@@ -1,9 +1,9 @@
 # HydroOpsLLM
 
-[![User manual](docs/_static/docs-badge-en.svg)](https://wenyuchiou.github.io/HydroOpsLM/)
+[![User manual](docs/_static/docs-badge-en.svg)](https://wenyuchiou.github.io/HydroOpsLLM/)
 ![Python 3.12 setup](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)
 
-[English](README.md) | [繁體中文](README.zh-TW.md) · [User manual](https://wenyuchiou.github.io/HydroOpsLM/) · [Quick start](#installation)
+[English](README.md) | [繁體中文](README.zh-TW.md) · [User manual](https://wenyuchiou.github.io/HydroOpsLLM/) · [Quick start](#installation)
 
 HydroOpsLLM is a HydroCNHS-based Python package for coupling LLM-driven decision-making with hydrological simulation, with applications to reservoir operations and water management.
 
@@ -14,8 +14,8 @@ HydroOpsLLM is a HydroCNHS-based Python package for coupling LLM-driven decision
 Use Python 3.12. Repository access is required while this project is private.
 
 ```sh
-git clone https://github.com/WenyuChiou/HydroOpsLM.git
-cd HydroOpsLM
+git clone https://github.com/WenyuChiou/HydroOpsLLM.git
+cd HydroOpsLLM
 ```
 
 On Linux/macOS, with Python 3.12 installed:
@@ -103,7 +103,7 @@ These modules belong to `llm_reservoir_agent`. The bundled `hydrocnhs` namespace
 
 ## Documentation and research use
 
-[User manual](https://wenyuchiou.github.io/HydroOpsLM/) · [Design a simulation](docs/BUILD_SIMULATION.md) · [Model configuration](docs/USER_GUIDE.md) · [Read results](docs/RESULTS_GUIDE.md)
+[User manual](https://wenyuchiou.github.io/HydroOpsLLM/) · [Design a simulation](docs/BUILD_SIMULATION.md) · [Model configuration](docs/USER_GUIDE.md) · [Read results](docs/RESULTS_GUIDE.md)
 
 The current CLI uses supplied daily inflows and native HydroCNHS routing/Dam coupling. The F.E. Walter examples read frozen hydrological outputs. Weather-driven integration requires explicit native model and policy wiring; see [hydrological setup](docs/HYDROLOGY_SETUP.md) and [daily coupling](examples/fe_walter/coupling.md).
 
