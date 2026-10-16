@@ -1,0 +1,91 @@
+{
+  "status": "PARTIAL: annual LLM acceptance failed",
+  "planned_days": 366,
+  "model": "gemma3:4b",
+  "temperature": 0.7,
+  "model_requests": 170,
+  "request_cap": 366,
+  "unused_budget": 196,
+  "automatic_retry": false,
+  "failed_date": "2016-06-18",
+  "failed_reply_done_reason": "length",
+  "failed_reply_eval_count": 2048,
+  "invalid_json_error": "Unterminated string starting at: line 1 column 256 (char 255)",
+  "methods": {
+    "Rule-based": {
+      "status": "COMPLETED",
+      "committed_days": 366,
+      "first_date": "2016-01-01",
+      "last_date": "2016-12-31",
+      "max_storage_continuity_error_m3": 0.0,
+      "max_balance_residual_m3": 7.450580596923828e-09,
+      "max_total_outflow_error_cms": 0.0,
+      "max_implemented_history_error_cms": null,
+      "requested_vs_total_outflow_difference_days": 0,
+      "original_audit_counts": {
+        "PASS": 366
+      },
+      "seasonal_pool_counts": {
+        "PASS": 1,
+        "FAIL": 365
+      },
+      "decision_started_count": 366,
+      "source_hashes": {
+        "summary.json": "0ba046805b4e7cf8ffbdae1c062d69e19e6c8273e9bd536b9953edc482e20492",
+        "experiment.json": "8379fb0e91b6b81697e622f37fb12dfb978b92d4502f9a34f5785d2338b51cb5",
+        "decisions.jsonl": "24388b3aa4cfb15d2397f7afe622e6ccdeae6182131733600e8d9edad04b3288",
+        "physics.jsonl": "378fba22ae5b3289ce1734c706a38d998e506c5155fcdfade730997691d51c56",
+        "audit.jsonl": "38df8d3653bc2c2b6c20dc378576dcdad58b5694c03f4652a9c32456f1cc8c3c"
+      }
+    },
+    "LLM": {
+      "status": "FAILED",
+      "committed_days": 169,
+      "first_date": "2016-01-01",
+      "last_date": "2016-06-17",
+      "max_storage_continuity_error_m3": 0.0,
+      "max_balance_residual_m3": 2.9802322387695312e-08,
+      "max_total_outflow_error_cms": 5.200104669783601e-15,
+      "max_implemented_history_error_cms": 7.105427357601002e-15,
+      "requested_vs_total_outflow_difference_days": 75,
+      "original_audit_counts": {
+        "FAIL": 169
+      },
+      "seasonal_pool_counts": {
+        "PASS": 1,
+        "FAIL": 168
+      },
+      "decision_started_count": 170,
+      "source_hashes": {
+        "summary.json": "db0e17b7a0fc572e7cca04cdd4b7e7ac7d5f164b15cbf4a40986b7cbbf37b599",
+        "experiment.json": "20021846fdf9edbc326e6d499d5d6ddd321158dc6ec92c1a312fa8cfce57fd06",
+        "decisions.jsonl": "ede4e9ae7c30931616dd978d9703ef16e357fd9e4bc60e96ec09631766577e5c",
+        "physics.jsonl": "a226dd1ab277df5eb6fc8a243067b829abd3f6a641b858512c02c0efdcb782d8",
+        "audit.jsonl": "19f957c4c58a15d5c652fe334f6e8c25592cda727363c721e36ee3f5e4fb4222"
+      }
+    }
+  },
+  "provider_reported_token_counts": {
+    "prompt_eval_count": 553843,
+    "eval_count": 46547
+  },
+  "live_run_bytes": 15913939,
+  "runtime_base_commit": "7c0b5e6070ac089d316230ee1bb05265fa021625",
+  "python": "3.14.0",
+  "failure_raw_sha256": "2d363c896d0fdfae75a6811f1318be570467af367eb91c3ffba9a727b06c9d2f",
+  "analysis_script_sha256": "c2a074bdbd6a249ce7d5d9cda005aec4c17c1015268716f6a772b4f4a64692bf",
+  "files": {
+    "daily.csv": "3eba394909aec83b74e0cc338a23ec1e7134c4f23a9894ebc033434a7c8fce93",
+    "failed_reply_2016_06_18.txt": "f425ec914b905f7ea7ffab08296d0dcbc58ffd3da86487569632484e55e2873f"
+  },
+  "limits": [
+    "No LLM values after 17 June; no imputation or extrapolation.",
+    "Aborted LLM run has no final network_flows/trajectory CSV; journal prefix only.",
+    "Original audit suites differ by method; their PASS rates are not a matched policy comparison.",
+    "Common seasonal checks use beginning-of-day pool; fall decline is tested separately from band bounds.",
+    "Reference initial reservoir storage and identity downstream routing remain demonstration assumptions."
+  ],
+  "report_corrections": [
+    "Independent review: Rule-based implemented-history error changed from unmeasured default 0 to null. Prompt-history comparison was measured only for LLM; raw evidence and original analysis script are unchanged."
+  ]
+}

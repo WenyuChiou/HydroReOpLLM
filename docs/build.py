@@ -30,6 +30,12 @@ HYDROLOGY_DOWNLOADS = {
     "data/accepted/fe_walter_hydrology.yaml": "fe_walter_hydrology.yaml",
     "data/accepted/historical_manifest.json": "historical_manifest.json",
 }
+ANNUAL_DOWNLOADS = {
+    f"examples/fe_walter/annual/outputs/{name}": name for name in (
+        "daily.csv", "attempt_summary.json", "failed_reply_2016_06_18.txt",
+        "annual_attempt.pdf", "annual_attempt.svg",
+    )
+}
 PAGES = {
     "docs/index.md": "index.md",
     "docs/index.zh-TW.md": "index.zh-TW.md",
@@ -38,6 +44,9 @@ PAGES = {
     "examples/fe_walter/README.md": "examples/fe_walter/README.md",
     "examples/fe_walter/README.zh-TW.md": "examples/fe_walter/README.zh-TW.md",
     "examples/fe_walter/hydrology.md": "examples/fe_walter/hydrology.md",
+    "examples/fe_walter/annual/README.md": "examples/fe_walter/annual/README.md",
+    "examples/fe_walter/annual/results.md": "examples/fe_walter/annual/results.md",
+    "examples/fe_walter/annual/decision_2016_01_01.md": "examples/fe_walter/annual/decision_2016_01_01.md",
     "examples/fe_walter/hydrology.zh-TW.md": "examples/fe_walter/hydrology.zh-TW.md",
     "examples/fe_walter/coupling.md": "examples/fe_walter/coupling.md",
     "examples/fe_walter/coupling.zh-TW.md": "examples/fe_walter/coupling.zh-TW.md",
@@ -90,6 +99,10 @@ def prepare(source: Path, *, source_ref: str = "main") -> None:
                 import os
                 output = source / "_hydrology_downloads" / HYDROLOGY_DOWNLOADS[relative]
                 value = Path(os.path.relpath(output, (source / destination).parent)).as_posix()
+            elif not match[1].startswith("!") and relative in ANNUAL_DOWNLOADS:
+                import os
+                output = source / "_annual_downloads" / ANNUAL_DOWNLOADS[relative]
+                value = Path(os.path.relpath(output, (source / destination).parent)).as_posix()
             elif match[1].startswith("!"):
                 output = source / relative
                 output.parent.mkdir(parents=True, exist_ok=True)
@@ -141,6 +154,11 @@ def prepare(source: Path, *, source_ref: str = "main") -> None:
     hydrology_downloads.mkdir()
     for relative, name in HYDROLOGY_DOWNLOADS.items():
         shutil.copyfile(ROOT / relative, hydrology_downloads / name)
+    # Publish only the selected annual teaching evidence, including the failed reply.
+    annual_downloads = source / "_annual_downloads"
+    annual_downloads.mkdir()
+    for relative, name in ANNUAL_DOWNLOADS.items():
+        shutil.copyfile(ROOT / relative, annual_downloads / name)
     # Publish selected original-byte case evidence for local viewing and downloads.
     case_downloads = source / "_case_downloads/dkp_2016_2020"
     case_downloads.mkdir(parents=True)
@@ -154,9 +172,10 @@ def prepare(source: Path, *, source_ref: str = "main") -> None:
     groups = {
         "Overview": ["docs/README"],
         "Build a simulation": ["docs/GETTING_STARTED", "docs/BUILD_SIMULATION", "docs/USER_GUIDE", "docs/INFORMATION", "docs/LLM_MODULES"],
-        "FE Walter case study": ["examples/fe_walter/README", "examples/fe_walter/hydrology", "examples/fe_walter/coupling", *[f"examples/fe_walter/{method}/README" for method in ("benchmark", "zero_shot", "dkp")], "examples/fe_walter/results"],
+        "FE Walter case study": ["examples/fe_walter/README", "examples/fe_walter/hydrology", "examples/fe_walter/coupling", "examples/fe_walter/annual/README", *[f"examples/fe_walter/{method}/README" for method in ("benchmark", "zero_shot", "dkp")], "examples/fe_walter/results"],
         "Further configuration": ["tutorials/advanced", "docs/RESULTS_GUIDE", "docs/RUNNING"],
         "Reference": ["docs/PARAMETER_REFERENCE", "docs/REFERENCE", "docs/FIRST_DECISION", "docs/HYDROLOGY_SETUP",
+                      "examples/fe_walter/annual/decision_2016_01_01", "examples/fe_walter/annual/results",
                       "tutorials/README", "tutorials/main",
                                     "docs/PROJECT_INVENTORY", "archive/README", "repository",
                                     "docs/BUILDING", "docs/auditor_plugins", "docs/LIVE_READINESS"],

@@ -134,3 +134,8 @@ Start the [FE Walter shared case](../examples/fe_walter/README.md), then compare
 rule-based operation, LLM operation with available information, and operation with
 retrieved guidance. The [settings guide](USER_GUIDE.md#6-check-run-and-verify)
 provides the supported check, run and verify commands.
+
+For a complete calendar-year exercise, follow
+[Run a full year](../examples/fe_walter/annual/README.md). It walks through data,
+C&V evidence, annual preparation, method selection, execution and the source code
+responsible for each connection.

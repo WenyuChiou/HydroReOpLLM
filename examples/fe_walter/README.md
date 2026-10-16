@@ -14,7 +14,10 @@ The upstream model is **semi-distributed**: seven geographic subcatchments retai
 
 ![FE Walter catchment, rivers and gauges](../../docs/figures/fe-walter-catchment.png)
 
-The frozen simulation supplies reservoir inflow; operation experiments do not recalibrate or recompute it.
+The short tutorials read preserved simulated inflow. The
+[annual walkthrough](annual/README.md) first recomputes the accepted upstream
+hydrology, then supplies the selected year to daily operation/routing. Neither
+path recalibrates hydrology while comparing operation methods.
 The accepted hydrological calibration uses **1990–2010** and validation uses **2011–2020**.
 USGS 01447500 covers two of the seven units; the remaining five are not independently gauged validation units.
 

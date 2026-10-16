@@ -20,12 +20,44 @@ Operation experiments read the frozen daily inflow. The LLM proposes release; co
 
 | Input | Use in this case |
 |---|---|
-| Weather | Daymet V4 R1 daily precipitation and minimum/maximum temperature; polygon-area weighting. NOAA nClimGrid-Daily supplements only the documented leap-year December 31 entries, not general missing values. |
-| Model input units | Temperature °C; precipitation and PET cm/day. The stored forcing precipitation is mm/day and is converted before GWLF. PET is preserved as supplied; its separate derivation is not documented in the retained source manifest. |
+| Weather | Daymet V4 R1, 1-km daily precipitation and minimum/maximum temperature, weighted by polygon–grid overlap area in the Daymet projection. NOAA nClimGrid-Daily supplements only the documented leap-year December 31 entries, not general missing values. |
+| Model input units | Temperature °C; precipitation and PET cm/day. The stored forcing precipitation is mm/day and is converted before GWLF. Mean temperature is `(Tmin + Tmax) / 2`; the preparation code derives PET with HydroCNHS Hamon using that temperature and polygon-centroid latitude. |
 | Flow observations | USGS 01447500 daily streamflow for C&V. It covers two of the seven units; the other five have no separate gauge validation. |
-| Land and soil | Annual NLCD 2021 and NRCS Soil Data Access map units/attributes. Hydrologic soil group and upper-100-cm available water inform CN2 and Ur; these are not a downloaded gSSURGO raster. |
+| Land and soil | Annual NLCD 2021 from MRLC WMS, summarized on a 60-m grid; SSURGO map-unit polygons joined to NRCS Soil Data Access `muaggatt` attributes. Soil group and upper-100-cm available water inform CN2 and Ur. No gSSURGO raster was used; the retained soil-retrieval date is unknown. |
 | Geometry | Mapped subcatchment area, latitude and river-path length; native FlowLength is in metres. |
 | Periods | Warm-up: 1989; calibration: 1990–2010; validation: 2011–2020; frozen forward simulation: 2021–2025. Native continuous run: 1989–2025; reservoir reference reports 1996–2025. |
+
+### Preparation order used for this case
+
+1. **Delineate and connect the catchment.** Retain the unsimplified NLDI basin
+   boundaries for 01447500, 01447720 and 01447800. Partition NHDPlus HR catchments
+   into donor, diagnostic and residual units, retaining their river paths. Geometry
+   checks use EPSG:5070; a 10 mi² minimum-unit rule has explicit terminal exceptions.
+2. **Build daily weather by unit.** Intersect each polygon with Daymet cells and
+   normalize the overlap weights. The retained leap-day convention supplies
+   December 31 in leap years from next-day-labelled nClimGrid data; it does not
+   replace February 29. Preserve the source/date inventory rather than filling
+   arbitrary gaps. Calculate mean temperature and Hamon PET, then write the common
+   forcing table with declared units.
+3. **Map physical attributes.** Summarize land-cover fractions and soil attributes.
+   Derive initial CN2 and soil-water capacity as described below. The static 2021
+   land-cover map is used across the historical simulation; this is an assumption,
+   not a reconstruction of annual land-use change.
+4. **Evaluate hydrology before operation.** Run the 1989 warm-up, use 1990–2010
+   for calibration and 2011–2020 for held-out validation at 01447500. Freeze the
+   accepted parameters before comparing decision methods. The 2021–2025 extension
+   is a forward simulation, not additional gauge validation in this C&V record.
+5. **Hand over inlet flow.** Keep the continuous hydrological state and routing
+   history, select the operation year, and initialize reservoir storage separately.
+   Follow the [annual walkthrough](annual/README.md) to prepare inputs and use the
+   formal experiment CLI. Operation methods share the inlet and physical settings.
+
+The retained preparation sources are `src/forcing_grid.py` (weather weights and
+PET), `src/tutorial_workflow.py` (native Hamon call) and
+`scripts/prepare_frozen_extension.py` (2021–2025), at the companion source commit
+listed below. The native [Hamon implementation](../../src/hydrocnhs/rainfall_runoff_model/pet_hamon.py)
+is included in this repository. Source code establishes the PET derivation;
+the accepted forcing bytes remain unchanged.
 
 ## 3. Seven subcatchments
 
