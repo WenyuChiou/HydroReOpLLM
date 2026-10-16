@@ -25,8 +25,23 @@ def implementation_provenance(project_root, engine):
         sources["examples/fe_walter_abm.py"] = sha256(project_root / "examples/fe_walter_abm.py")
     runtime = {"python": sys.version, "platform": sys.platform}
     if engine == "hydrocnhs":
-        from importlib.metadata import version
-        runtime["packages"] = {name: version(name) for name in ("hydrocnhs", "numpy", "pandas", "scipy", "joblib")}
+        from importlib.metadata import PackageNotFoundError, version
+        import hydrocnhs
+
+        runtime["packages"] = {}
+        for name in ("hydrocnhs", "numpy", "pandas", "scipy", "joblib"):
+            try:
+                runtime["packages"][name] = version(name)
+            except PackageNotFoundError:
+                if name != "hydrocnhs":
+                    raise
+                # The framework bundles HydroCNHS sources without a separate
+                # hydrocnhs distribution. Record unavailable metadata honestly.
+                runtime["packages"][name] = None
+        source = Path(hydrocnhs.__file__).resolve()
+        runtime["module_sources"] = {
+            "hydrocnhs": {"file": str(source), "sha256": sha256(source)}
+        }
     return {"implementation_sha256": hashlib.sha256(json.dumps(sources, sort_keys=True).encode()).hexdigest(),
             "implementation_files": sources, "runtime": runtime}
 

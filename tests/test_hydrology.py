@@ -52,6 +52,38 @@ class HydrologyInputTests(unittest.TestCase):
             self.assertEqual(list(Path(folder).iterdir()), [])
 
 
+class HydrologyProvenanceTests(unittest.TestCase):
+    def test_bundled_hydrocnhs_without_separate_distribution_has_source_pin(self):
+        from importlib.metadata import PackageNotFoundError
+        import hydrocnhs
+        from examples.fe_walter.legacy.cli import implementation_provenance
+
+        def version(name):
+            if name == "hydrocnhs":
+                raise PackageNotFoundError(name)
+            return "fixture-version"
+
+        with patch("importlib.metadata.version", side_effect=version):
+            report = implementation_provenance(ROOT, "hydrocnhs")
+        self.assertIsNone(report["runtime"]["packages"]["hydrocnhs"])
+        source = report["runtime"]["module_sources"]["hydrocnhs"]
+        self.assertEqual(source["file"], str(Path(hydrocnhs.__file__).resolve()))
+        self.assertEqual(source["sha256"], sha256(Path(source["file"])))
+
+    def test_missing_required_dependency_metadata_is_not_suppressed(self):
+        from importlib.metadata import PackageNotFoundError
+        from examples.fe_walter.legacy.cli import implementation_provenance
+
+        def version(name):
+            if name == "numpy":
+                raise PackageNotFoundError(name)
+            return "fixture-version"
+
+        with patch("importlib.metadata.version", side_effect=version):
+            with self.assertRaises(PackageNotFoundError):
+                implementation_provenance(ROOT, "hydrocnhs")
+
+
 @unittest.skipUnless(importlib.util.find_spec("hydrocnhs"), "optional HydroCNHS runtime is not installed")
 class NativeHydrologyTests(unittest.TestCase):
     def test_all_seven_units_run_accepted_gwlf_with_real_lagged_routing(self):

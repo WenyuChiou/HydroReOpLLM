@@ -245,7 +245,6 @@ def prepare_recovery(case_path, output):
 
 
 def acquire_lock(output):
-    import msvcrt
     lock = (output / "recovery.lock").open("a+b")
     try:
         lock.seek(0)
@@ -253,11 +252,16 @@ def acquire_lock(output):
             lock.write(b"0")
             lock.flush()
         lock.seek(0)
-        msvcrt.locking(lock.fileno(), msvcrt.LK_NBLCK, 1)
+        if os.name == "nt":
+            import msvcrt
+            msvcrt.locking(lock.fileno(), msvcrt.LK_NBLCK, 1)
+        else:
+            import fcntl
+            fcntl.flock(lock.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
         return lock
     except BaseException:
         lock.close()
-        raise RuntimeError("another recovery process holds the run lock")
+        raise RuntimeError("another recovery process holds the run lock") from None
 
 
 def run_recovery(case_path, output, plan):

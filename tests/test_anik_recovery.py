@@ -1,5 +1,8 @@
 import json
+import os
 from pathlib import Path
+import subprocess
+import sys
 import tempfile
 import unittest
 from unittest.mock import patch
@@ -50,13 +53,23 @@ class RecoveryTests(unittest.TestCase):
 
     def test_second_process_cannot_acquire_run_lock(self):
         with tempfile.TemporaryDirectory() as tmp:
-            first = acquire_lock(Path(tmp))
+            output = Path(tmp)
+            command = [sys.executable, '-c',
+                       ('import sys; from pathlib import Path; '
+                        'from examples.fe_walter.legacy.anik_recovery import acquire_lock; '
+                        'acquire_lock(Path(sys.argv[1])).close()'), str(output)]
+            # Source-checkout test bootstraps live in sys.path, not necessarily
+            # PYTHONPATH. Give the second interpreter the same import roots.
+            child_env = {**os.environ, 'PYTHONPATH': os.pathsep.join(sys.path)}
+            first = acquire_lock(output)
             try:
-                with self.assertRaisesRegex(RuntimeError, 'holds the run lock'):
-                    acquire_lock(Path(tmp))
+                blocked = subprocess.run(command, capture_output=True, text=True, check=False, env=child_env)
+                self.assertNotEqual(blocked.returncode, 0)
+                self.assertIn('holds the run lock', blocked.stderr)
             finally:
                 first.close()
-            acquire_lock(Path(tmp)).close()
+            released = subprocess.run(command, capture_output=True, text=True, check=False, env=child_env)
+            self.assertEqual(released.returncode, 0, released.stderr)
 
     def test_offset_changes_only_global_clock_and_never_calls_prefix(self):
         class Policy:
