@@ -76,6 +76,30 @@ Its `model` and `auditors` values refer to named definitions in the same YAML.
 The prompt receives the information selected for that decision; it cannot change
 the host's inflow, storage or physical limits.
 
+### Where to select rule-based or LLM operation
+
+Select the method in `agents.<id>`, separately for each controlled reservoir.
+
+| Strategy | Mode | Decision source |
+|---|---|---|
+| `benchmark` | `offline` | The implemented deterministic rule and its declared statistics |
+| `configured` | `llm` | Your prompt and the referenced `models` profile |
+| `configured` | `offline` | A fixed `release_cms` for interface testing |
+| `reference_v3_7` | `llm` or `offline` | A preserved example strategy with live or fixture replies |
+
+`mode` controls model execution; `strategy` selects the decision implementation.
+The benchmark takes its own parameters and no prompt/model. Another custom rule
+requires a Python policy; the current YAML does not import arbitrary rule code.
+See [the benchmark example](../examples/fe_walter/benchmark/README.md) for the full
+supported rule configuration. The generic LLM configuration above remains the
+starting point for a new prompt.
+
+Keep hydrological parameters in the native model and reservoir physics in the
+case. Rule/LLM settings select decisions; they do not replace those physical
+parameters. Selected information and audit criteria have separate definitions.
+Follow [the complete preparation and verification sequence](BUILD_SIMULATION.md)
+before enabling model requests.
+
 #### Experiment and output
 
 | Field | Meaning in this example |

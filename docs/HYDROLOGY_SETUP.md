@@ -4,6 +4,12 @@
 
 ## English
 
+HydroOpsLLM focuses on reservoir decisions. Use this chapter to establish the
+hydrological inputs they depend on, then return to
+[Build a coupled simulation](BUILD_SIMULATION.md) to select and test a rule or LLM.
+An already accepted hydrological model does not need recalibration just because
+the decision method changes.
+
 This repository bundles the complete, unchanged HydroCNHS v1.2.1 core at commit `fdd5097a3fcabb312c6c3739efc71da2d67c47da`. Its model configuration, simulation, calibration and evaluation APIs remain available. The bundled source does not include every dataset or a ready-made calibration/validation workflow for every catchment.
 
 There are two configuration layers:
@@ -50,6 +56,24 @@ The bundled core calculates runoff at the start, then advances routing and agent
 5. Save the configuration, periods, observations, parameter bounds, random seed, metrics and input/output provenance. Only then prepare the inflow dataset for reservoir operations.
 
 The current `run_experiment.py check/run/verify` commands verify reservoir experiments; they do not perform a new C&V. Existing FE Walter parameters, C&V results and accepted inflows remain fixed.
+
+### 4. Hand over an accepted model to reservoir operation
+
+Retain the native model, forcing, parameter values, observation source, periods
+and validation evidence as one versioned input bundle. Record the subcatchments
+covered by each gauge; transferring parameters to ungauged units does not create
+independent validation there.
+
+Set reservoir initial storage separately from hydrological warm-up. A coupled
+host must preserve antecedent hydrological state and routing history at the first
+operation day, and must not request LLM decisions during warm-up. Check that
+boundary with a deterministic policy before enabling inference.
+
+The current CLI accepts the supplied-inflow handoff. A native weather-driven
+integration additionally binds the same policy, information and evidence writers
+to the native Dam loop. Follow the
+[coupling recipe](../examples/fe_walter/coupling.md#3-connect-a-weather-driven-native-run);
+it is not activated by changing a rainfall-runoff parameter in an experiment YAML.
 
 ## 繁體中文
 

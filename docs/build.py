@@ -25,6 +25,7 @@ MAP_DOWNLOADS = {
 HYDROLOGY_DOWNLOADS = {
     **{f"examples/fe_walter/hydrology_data/{name}": name for name in (
         "calibration_validation_metrics.csv", "subcatchments.csv", "provenance.json",
+        "reproduced_cv_metrics_20261016.csv", "reproduction_20261016.json",
     )},
     "data/accepted/fe_walter_hydrology.yaml": "fe_walter_hydrology.yaml",
     "data/accepted/historical_manifest.json": "historical_manifest.json",
