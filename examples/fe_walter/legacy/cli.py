@@ -19,7 +19,7 @@ from .replay import run_replay
 
 def implementation_provenance(project_root, engine):
     package_root = Path(__file__).resolve().parent
-    sources = {f"delaware_operations/{path.name}": sha256(path)
+    sources = {f"examples/fe_walter/legacy/{path.name}": sha256(path)
                for path in sorted(package_root.glob("*.py"))}
     if engine == "hydrocnhs":
         sources["examples/fe_walter_abm.py"] = sha256(project_root / "examples/fe_walter_abm.py")

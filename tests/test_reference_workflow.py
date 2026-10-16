@@ -12,7 +12,7 @@ from unittest.mock import patch
 import pandas as pd
 import yaml
 
-from delaware_operations.anik_adapter import load_anik
+from llm_reservoir_agent.plugins.anik_v3_7 import load_anik
 from llm_reservoir_agent.network import PROJECT_ROOT
 from llm_reservoir_agent.reference_backend import ReferenceBackend, _FixtureTransport
 from llm_reservoir_agent.verification import verify_run

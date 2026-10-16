@@ -3,7 +3,7 @@
 Role: Expose the pinned reference policy through the common decision boundary.
 
 Connections and data: Delegates unit conversion and native policy bookkeeping to
-delaware_operations.anik_adapter. Captures the original emitted audit without
+plugins.anik_v3_7. Captures the original emitted audit without
 recomputing it. policy_adapter supplies strict decision/commit sequencing; the reference
 policy receives actual physical feedback.
 """
@@ -30,7 +30,7 @@ class DKPPolicyAdapter:
 
     def __init__(self, cfg: Any, policy: Any, *, consult_every_day: bool = True,
                  on_commit: Callable[[Mapping[str, Any]], None] | None = None) -> None:
-        from delaware_operations.anik_adapter import AnikPolicyAdapter
+        from .plugins.anik_v3_7 import AnikPolicyAdapter
 
         self._policy = policy
         self._latest_audit: dict[str, Any] | None = None

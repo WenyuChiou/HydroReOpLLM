@@ -4,12 +4,12 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-from delaware_operations.anik_experiment import RunJournal, JournalBackend, append_json, digest
-from delaware_operations.anik_recovery import OffsetPolicy, validate_prefix, acquire_lock, run_recovery
-from delaware_operations.anik_adapter import load_anik
-from delaware_operations.anik_experiment import native_config, prepare_case
-from delaware_operations.case import PROJECT_ROOT
-from delaware_operations.hydrocnhs_bridge import run_hydrocnhs
+from examples.fe_walter.legacy.anik_experiment import RunJournal, JournalBackend, append_json, digest
+from examples.fe_walter.legacy.anik_recovery import OffsetPolicy, validate_prefix, acquire_lock, run_recovery
+from examples.fe_walter.legacy.anik_adapter import load_anik
+from examples.fe_walter.legacy.anik_experiment import native_config, prepare_case
+from examples.fe_walter.legacy.case import PROJECT_ROOT
+from examples.fe_walter.legacy.hydrocnhs_bridge import run_hydrocnhs
 from test_anik_experiment import FakeBackend
 
 
@@ -17,7 +17,7 @@ class RecoveryTests(unittest.TestCase):
     def test_failed_worker_receipt_is_terminal_and_releases_lock(self):
         with tempfile.TemporaryDirectory() as tmp:
             output = Path(tmp)
-            with patch('delaware_operations.anik_recovery.prepare_recovery', side_effect=ValueError('drift')):
+            with patch('examples.fe_walter.legacy.anik_recovery.prepare_recovery', side_effect=ValueError('drift')):
                 with self.assertRaisesRegex(ValueError, 'drift'):
                     run_recovery(Path('unused'), output, {})
             receipt = json.loads((output / 'recovery_process.json').read_text())

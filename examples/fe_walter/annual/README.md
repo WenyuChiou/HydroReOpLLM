@@ -1,5 +1,7 @@
 # Run a full year, step by step
 
+> This page preserves the earlier partial attempt. See the [completed 2016 demonstration](../coupled/README.md#completed-2016-demonstration) for the later full-year records.
+
 This walkthrough connects the accepted FE Walter hydrology to reservoir decisions
 and downstream flow. Begin here after [installation](../../../docs/GETTING_STARTED.md)
 and the [shared case](../README.md). Run commands from the repository root.
@@ -213,7 +215,7 @@ the entry point, module boundaries and the order of one simulated day.
 | Reader's step | Code responsibility |
 |---|---|
 | Prepare one year | [prepare.py](prepare.py): select dates, prepare shared case and method YAMLs |
-| Recompute accepted upstream inflow | [historical.py](../../../src/delaware_operations/historical.py): `run_historical`, pinned GWLF/Lohmann and convolution check |
+| Recompute accepted upstream inflow | [historical.py](../legacy/historical.py): `run_historical`, pinned GWLF/Lohmann and convolution check |
 | Validate settings and choose the method | [workflow.py](../../../src/llm_reservoir_agent/workflow.py): `load_settings`, `run_settings` |
 | Construct the LLM prompt, retrieve knowledge and retain the reply | [reference_backend.py](../../../src/llm_reservoir_agent/reference_backend.py): retained example backend |
 | Run native Dam/routing and common physical updates | [network.py](../../../src/llm_reservoir_agent/network.py), [agent.py](../../../src/llm_reservoir_agent/agent.py) |

@@ -81,7 +81,7 @@ def load_settings(path, *, runtime_root=PROJECT_ROOT, information_providers=None
     data = yaml.load(raw.decode("utf-8-sig"), Loader=UniqueLoader)
     _mapping(data, {"schema_version", "case", "case_root", "run_id", "output", "start_date", "end_date",
                     "models", "agents", "auditors", "max_calls", "information_sources",
-                    "information_profiles", "outcome_checks"}, "experiment")
+                    "information_profiles", "outcome_checks", "source_dependencies"}, "experiment")
     if data.get("schema_version") != "llm-reservoir-experiment.v1":
         raise ValueError("unsupported YAML experiment version")
     _text(data.get("run_id"), "run_id")
@@ -131,6 +131,15 @@ def load_settings(path, *, runtime_root=PROJECT_ROOT, information_providers=None
         else:
             ConfiguredAudit(identifier, settings)
     files = {str(path): hashlib.sha256(raw).hexdigest()}
+    dependencies = data.get("source_dependencies", {})
+    if not isinstance(dependencies, dict):
+        raise ValueError("source_dependencies must map file paths to SHA256 values")
+    for source, expected in dependencies.items():
+        dependency = _path(path.parent, source, "source dependency")
+        actual = hashlib.sha256(dependency.read_bytes()).hexdigest()
+        if not isinstance(expected, str) or actual != expected:
+            raise ValueError("source dependency checksum mismatch: " + dependency.name)
+        files[str(dependency)] = actual
     files.update({str((case_root / p).resolve()): h for p, h in network.get("source_files", {}).items()})
     files[str(case)] = hashlib.sha256(case.read_bytes()).hexdigest()
     if catalog is not None:
@@ -394,8 +403,8 @@ def verify_settings_output(settings, *, runtime_root=PROJECT_ROOT, information_p
     experiment = json.loads((output / "experiment.json").read_bytes())
     first = json.loads((output / "decisions.jsonl").read_text(encoding="utf-8").splitlines()[0])
     provenance = first.get("provenance", {})
-    implementations = {p.name: hashlib.sha256(p.read_bytes()).hexdigest()
-                       for p in Path(__file__).parent.glob("*.py")}
+    from .experiment import _implementation_files
+    implementations = _implementation_files()
     root = Path(runtime_root)
     # Bind declarations to current trusted inputs before inspecting saved consistency.
     expected_information = None
@@ -430,7 +439,7 @@ def verify_settings_output(settings, *, runtime_root=PROJECT_ROOT, information_p
 def main(argv=None):
     parser = argparse.ArgumentParser(description="Configure and run daily HydroCNHS reservoir agents")
     sub = parser.add_subparsers(dest="command", required=True)
-    for name in ("check", "run"):
+    for name in ("check", "prepare", "run"):
         command = sub.add_parser(name)
         command.add_argument("config", type=Path)
         if name == "run":
@@ -450,14 +459,33 @@ def main(argv=None):
         result = verify_run(args.output, require_offline=args.require_offline)
     elif args.command == "resume":
         from .recovery import resume_settings
-        _, result = resume_settings(load_settings(args.config), args.from_run,
+        document = yaml.load(args.config.read_text(encoding="utf-8-sig"), Loader=UniqueLoader)
+        if isinstance(document, dict) and document.get("schema_version") == "hydroops-coupled-simulation.v1":
+            from .coupled import load_coupled_settings, prepared_experiment
+            source = prepared_experiment(load_coupled_settings(args.config))
+        else:
+            source = args.config
+        _, result = resume_settings(load_settings(source), args.from_run,
                                     output=args.output, run_id=args.run_id,
                                     allow_network=args.allow_network)
     else:
-        settings = load_settings(args.config)
-        if args.command == "check":
-            result = settings.report
+        document = yaml.load(args.config.read_text(encoding="utf-8-sig"), Loader=UniqueLoader)
+        if isinstance(document, dict) and document.get("schema_version") == "hydroops-coupled-simulation.v1":
+            from .coupled import load_coupled_settings, prepare_coupled, run_coupled
+            settings = load_coupled_settings(args.config)
+            if args.command == "check":
+                result = settings.report
+            elif args.command == "prepare":
+                result = prepare_coupled(settings)
+            else:
+                _, result = run_coupled(settings, allow_network=args.allow_network)
         else:
-            _, result = run_settings(settings, allow_network=args.allow_network)
+            if args.command == "prepare":
+                raise ValueError("prepare requires a hydroops-coupled-simulation.v1 configuration")
+            settings = load_settings(args.config)
+            if args.command == "check":
+                result = settings.report
+            else:
+                _, result = run_settings(settings, allow_network=args.allow_network)
     print(json.dumps(result, ensure_ascii=False, allow_nan=False, indent=2))
     return 0

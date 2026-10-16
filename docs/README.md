@@ -13,7 +13,5 @@ A rule-based agent can use the same reservoir calculation for comparison.
 
 ![HydroOpsLLM core workflow](figures/hydrocnhs-coupling-framework-en.png)
 
-[Full-resolution PNG](figures/hydrocnhs-coupling-framework-en.png) · [Vector PDF, 180 mm](figures/hydrocnhs-coupling-framework-en.pdf).
-
 Start with [Installation](GETTING_STARTED.md), then [build a simulation](BUILD_SIMULATION.md)
 and follow the [FE Walter case](../examples/fe_walter/README.md).

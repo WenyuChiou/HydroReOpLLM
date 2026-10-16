@@ -33,7 +33,7 @@ use the same installation command afterward.
 Validate a saved configuration:
 
 ```powershell
-python run_experiment.py check examples/fe_walter/zero_shot/experiment.ollama.yaml
+reservoir-experiment check examples/fe_walter/coupled/rule.yaml
 ```
 
 `check` reads and validates inputs, pins source hashes and reports the planned

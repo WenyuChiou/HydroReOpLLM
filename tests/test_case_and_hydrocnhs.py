@@ -12,13 +12,13 @@ from unittest.mock import patch
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from delaware_operations.case import load_case
-from delaware_operations.replay import run_replay
+from examples.fe_walter.legacy.case import load_case
+from examples.fe_walter.legacy.replay import run_replay
 
 # Exercise the preserved fe-walter-demo callable after the root launcher archive.
 LEGACY_CLI = [sys.executable, "-c",
-              f"import sys; sys.path.insert(0, {str(ROOT / 'src')!r}); "
-              "from delaware_operations.cli import main; raise SystemExit(main())"]
+              f"import sys; sys.path[:0] = [{str(ROOT / 'src')!r}, {str(ROOT)!r}]; "
+              "from examples.fe_walter.legacy.cli import main; raise SystemExit(main())"]
 
 
 class CaseTests(unittest.TestCase):
@@ -63,14 +63,14 @@ class CaseTests(unittest.TestCase):
             self.assertEqual(result.returncode, 0, result.stderr)
             summary = json.loads((output / "summary.json").read_text())
             self.assertEqual(len(summary["implementation_sha256"]), 64)
-            self.assertIn("delaware_operations/dam_agent.py", summary["implementation_files"])
+            self.assertIn("examples/fe_walter/legacy/dam_agent.py", summary["implementation_files"])
             self.assertIn("python", summary["runtime"])
 
 
 @unittest.skipUnless(importlib.util.find_spec("hydrocnhs"), "optional HydroCNHS runtime is not installed")
 class NativeDamTests(unittest.TestCase):
     def test_real_hydrocnhs_dam_loop_matches_replay(self):
-        from delaware_operations.hydrocnhs_bridge import run_hydrocnhs
+        from examples.fe_walter.legacy.hydrocnhs_bridge import run_hydrocnhs
         config, rows = load_case(ROOT / "cases/fe_walter.json")
         expected, _ = run_replay(config, rows)
         with patch.object(socket, "create_connection", side_effect=AssertionError("network forbidden")):
@@ -79,7 +79,7 @@ class NativeDamTests(unittest.TestCase):
         self.assertLess(summary["simulation_sequence"].index("FEW_INFLOW"), summary["simulation_sequence"].index("FEWalter"))
 
     def test_real_dam_zero_and_spill_reach_downstream(self):
-        from delaware_operations.hydrocnhs_bridge import run_hydrocnhs
+        from examples.fe_walter.legacy.hydrocnhs_bridge import run_hydrocnhs
         config, rows = load_case(ROOT / "cases/fe_walter.json")
         config = copy.deepcopy(config)
         physical = config["agent_config"]["Attributes"]["Physical"]

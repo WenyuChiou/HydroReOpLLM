@@ -46,22 +46,23 @@ HydroOpsLLM advances the coupled system **one day at a time**: read inflow and s
 Run the F.E. Walter rule-based example without a language model or API key:
 
 ```sh
-python run_experiment.py check examples/fe_walter/benchmark/experiment.hydroopslm.offline.yaml
-python run_experiment.py run examples/fe_walter/benchmark/experiment.hydroopslm.offline.yaml
-python run_experiment.py verify runs/hydroopslm-fe-walter-benchmark --require-offline
+reservoir-experiment check examples/fe_walter/coupled/rule.yaml
+reservoir-experiment prepare examples/fe_walter/coupled/rule.yaml
+reservoir-experiment run examples/fe_walter/coupled/rule.yaml
+reservoir-experiment verify runs/fe-walter-coupled-rule/operation --require-offline
 ```
 
-This example computes daily releases for January 1–3, 2016; it uses an operating rule, not fixed actions. Start with a fresh output location; see the [run guide](docs/USER_GUIDE.md) for configuration, longer periods and repeat runs.
+This example prepares weather-derived inflow with the accepted HydroCNHS model, then simulates daily reservoir operation and downstream routing for 2016. `prepare` makes no LLM request. Follow [Build a simulation](docs/BUILD_SIMULATION.md) for the settings and [the complete case walkthrough](examples/fe_walter/coupled/README.md) to change the operation method.
 
-### Explore Rule-based, Zero-shot and DKP
+### One case, three operation methods
 
 The [F.E. Walter tutorial](examples/fe_walter/README.md) follows three methods through the same daily coupling workflow:
 
 | Method | Daily decision | Example |
 |---|---|---|
 | Rule-based | Flood-control rule using inflow, storage and historical statistics | [Run and inspect](examples/fe_walter/benchmark/README.md) |
-| Zero-shot | LLM uses instructions and available reservoir information | [Prompt, reply and operation](examples/fe_walter/zero_shot/README.md) |
-| DKP | LLM also uses retrieved document knowledge | [Retrieval, reply and operation](examples/fe_walter/dkp/README.md) |
+| LLM with available information | Instructions and available reservoir information | [Prompt, reply and operation](examples/fe_walter/zero_shot/README.md) |
+| LLM with retrieved knowledge | Also uses retrieved document knowledge | [Retrieval, reply and operation](examples/fe_walter/dkp/README.md) |
 
 The LLM examples preserve the Anik V3.7 reference-method integration. Inspect actual saved daily prompts, replies, release and storage in the [main notebook](tutorials/main.ipynb), without making a model request. Check both LLM configurations before execution:
 
@@ -92,20 +93,20 @@ The LLM sees the information in its messages; storage and routing remain under h
 
 | Component | Current modules | Responsibility |
 |---|---|---|
-| Setup and orchestration | `workflow`, `case`, `experiment` | Validate inputs, assemble methods, enforce execution gates and coordinate runs |
+| Setup and orchestration | `weather`, `coupled`, `workflow`, `case`, `experiment` | Prepare weather-derived inflow, validate inputs, assemble methods and coordinate runs |
 | Native simulation coupling | `network`, `agent` | Bind policies to HydroCNHS Dam agents, routing and committed feedback |
 | Physical accounting | `physics`, `passive`, `balance` | Implement release, spill, storage and reservoir/network accounting |
 | Decision information | `information`, `information_runtime` | Select timestamp-eligible data and bind simulation information |
 | Policies and providers | `configured_backend`, `benchmark`, `reference_backend`, `policy_adapter` | Generate and normalize proposals; preserve method-specific behavior |
 | Audits and evidence | `auditor`, `configured_audit`, `outcome`, `trace`, `verification` | Assess configured criteria, diagnose routed outcomes and verify saved records |
 
-These modules belong to `llm_reservoir_agent`. The bundled `hydrocnhs` namespace retains upstream APIs. `delaware_operations` preserves historical and compatibility code, including adapters still used by reference methods. See [LLM modules](docs/LLM_MODULES.md) for interfaces and extension boundaries.
+These modules belong to `llm_reservoir_agent`. The bundled `hydrocnhs` namespace retains upstream APIs. Case preparation and historical compatibility code live in `examples/fe_walter/legacy`. Optional reference adapters live in `llm_reservoir_agent.plugins`; the installed core does not import example code. See [LLM modules](docs/LLM_MODULES.md) for interfaces and extension boundaries.
 
 ## Documentation and research use
 
 [User manual](https://wenyuchiou.github.io/HydroOpsLLM/) · [Design a simulation](docs/BUILD_SIMULATION.md) · [Model configuration](docs/USER_GUIDE.md) · [Read results](docs/RESULTS_GUIDE.md)
 
-The current CLI uses supplied daily inflows and native HydroCNHS routing/Dam coupling. The F.E. Walter examples read frozen hydrological outputs. Weather-driven integration requires explicit native model and policy wiring; see [hydrological setup](docs/HYDROLOGY_SETUP.md) and [daily coupling](examples/fe_walter/coupling.md).
+The configured entry prepares the accepted weather-driven hydrology first, then advances native Dam operations and downstream routing each day. Supply hydrology and reservoir parameters, then select Rule-based or LLM operation in YAML. This two-stage execution does not feed reservoir decisions back into upstream runoff. The prepared-inflow entry remains available.
 
 Record the code commit, environment, inputs, prompts, model settings and complete run evidence. Physical assumptions, audit interpretation and extension requirements are documented in the [case guide](examples/fe_walter/README.md), [module guide](docs/LLM_MODULES.md) and [running guide](docs/RUNNING.md). This is research software; operating audits do not certify dam safety.
 

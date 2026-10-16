@@ -8,8 +8,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from delaware_operations.anik_adapter import AnikPolicyAdapter, load_anik
-from delaware_operations.physics import PhysicalConfig, apply_transition
+from llm_reservoir_agent.plugins.anik_v3_7 import AnikPolicyAdapter, load_anik
+from examples.fe_walter.legacy.physics import PhysicalConfig, apply_transition
 
 
 ANIK = load_anik(ROOT)

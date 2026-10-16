@@ -9,9 +9,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from delaware_operations import FEWalterDamAgent, PhysicalConfig, apply_transition
-from delaware_operations.contracts import ReservoirObservation, parse_action
-from delaware_operations.replay import ReplayDataCollector
+from examples.fe_walter.legacy import FEWalterDamAgent, PhysicalConfig, apply_transition
+from examples.fe_walter.legacy.contracts import ReservoirObservation, parse_action
+from examples.fe_walter.legacy.replay import ReplayDataCollector
 
 
 def make_agent(policy=None, *, inflow=(1.0, 1.0), initial=100000.0):

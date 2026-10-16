@@ -1,5 +1,5 @@
 """HydroCNHS module exporting the generic reservoir Dam class."""
 
-from delaware_operations.reservoir_agent import ReservoirDamAgent
+from examples.fe_walter.legacy.reservoir_agent import ReservoirDamAgent
 
 __all__ = ["ReservoirDamAgent"]

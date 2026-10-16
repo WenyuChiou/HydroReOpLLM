@@ -12,8 +12,8 @@ from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
-from delaware_operations.case import sha256
-from delaware_operations.hydrology import AGGREGATE, CORE, MANIFEST, MODEL, UNITS, WEATHER, load_smoke_inputs, main, run_smoke
+from examples.fe_walter.legacy.case import sha256
+from examples.fe_walter.legacy.hydrology import AGGREGATE, CORE, MANIFEST, MODEL, UNITS, WEATHER, load_smoke_inputs, main, run_smoke
 
 
 class HydrologyInputTests(unittest.TestCase):
@@ -46,7 +46,7 @@ class HydrologyInputTests(unittest.TestCase):
 
     def test_existing_output_rejected_before_hydrology_runs(self):
         with tempfile.TemporaryDirectory() as folder:
-            with patch("delaware_operations.hydrology.run_smoke") as execute:
+            with patch("examples.fe_walter.legacy.hydrology.run_smoke") as execute:
                 with self.assertRaises(FileExistsError): main(["--output", folder])
                 execute.assert_not_called()
             self.assertEqual(list(Path(folder).iterdir()), [])

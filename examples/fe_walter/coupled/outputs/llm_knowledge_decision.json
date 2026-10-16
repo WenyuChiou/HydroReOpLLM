@@ -1,0 +1,857 @@
+{
+  "schema_version": "fe-walter-teaching-decision.v1",
+  "date": "2016-01-01",
+  "source_raw_policy_sha256": "140efbc3e6ff802b289a0248abefab0c25b52e9efc936129d345564cf469ecaf",
+  "decision": {
+    "action": {
+      "release_cms": 1.41584235,
+      "schema_version": "reservoir-action.v1"
+    },
+    "audit_binding_sha256": "1068934a6516da9fcc165fcca964dae7c69b43a18e00791404859843351c31d9",
+    "audit_contract": {
+      "aggregation": "all_required.v1",
+      "auditors": [
+        {
+          "auditor_id": "release_limits",
+          "implementation_sha256": "07519674dff3183872cf54331457cf5b963823a373d634dec52be27422e1dc5b",
+          "rubric_sha256": "69b5ef3b8c5a00737731d347b4b2189cd32653c6d87b33e1bb895927213cbc44",
+          "spec_sha256": "2bc8446297837e6321008a9f6967855afea6af2f662f08bcb66811d28e693a8e",
+          "version": "1"
+        }
+      ],
+      "input_sha256": "40c5e5dd989810d5cf941c1d9bcc6d5993ec03cdeb88dcee3aaa93c728c74617",
+      "schema_version": "reservoir-audit-suite.v1",
+      "suite_sha256": "cebdd73893c3d959763cdab5bdb2e31d8bd050931a03c2c37a9ac98d0f0c4392"
+    },
+    "decision_id": "0a4d78e107089bfb46a2eec4fd9997fc3cf657ba070320c024f8c4cf58deca64",
+    "event_type": "decision",
+    "observation": {
+      "context": {
+        "evaporation_m3": 0.0,
+        "reservoir_id": "fe_walter",
+        "seepage_m3": 0.0
+      },
+      "inflow_cms": 32.12531870666855,
+      "release_upper_bound_cms": 60.572065702675175,
+      "schema_version": "reservoir-observation.v1",
+      "state": {
+        "capacity_m3": 135532852.33895192,
+        "dead_storage_m3": 49.3392742128,
+        "dt_seconds": 86400.0,
+        "maximum_release_cms": 283.16847,
+        "minimum_release_cms": 1.41584235,
+        "storage_m3": 2457848.279729185
+      },
+      "timestamp": "2016-01-01T00:00:00",
+      "timestep": 0
+    },
+    "provenance": {
+      "audit_suite_sha256": "cebdd73893c3d959763cdab5bdb2e31d8bd050931a03c2c37a9ac98d0f0c4392",
+      "auditor_id": "reservoir_audit_suite",
+      "auditor_specs": [
+        {
+          "auditor_id": "release_limits",
+          "implementation_sha256": "07519674dff3183872cf54331457cf5b963823a373d634dec52be27422e1dc5b",
+          "rubric_sha256": "69b5ef3b8c5a00737731d347b4b2189cd32653c6d87b33e1bb895927213cbc44",
+          "spec_sha256": "2bc8446297837e6321008a9f6967855afea6af2f662f08bcb66811d28e693a8e",
+          "version": "1"
+        }
+      ],
+      "auditor_version": "1",
+      "automatic_retry": true,
+      "backend": "reference_v3_7",
+      "backend_auditor_id": "original-v3.7-dkp",
+      "knowledge_package_ids": null,
+      "knowledge_package_sha256": null,
+      "matches_original_system_prompt": false,
+      "method": "dkp",
+      "mode": "llm",
+      "model": {
+        "api_key_env": null,
+        "base_url": "http://localhost:11434",
+        "max_attempts": 2,
+        "max_tokens": 2048,
+        "model": "gemma3:4b",
+        "provider": "ollama",
+        "retry_delay_seconds": 2.0,
+        "seed": null,
+        "temperature": 0.7,
+        "timeout_seconds": 120.0
+      },
+      "model_used": true,
+      "original_prompt_sha256": "c018043ce34a6e47024024ce63622d837dffa686a15523eb97d4bdd4ae678352",
+      "plan": {
+        "agent_count": 1,
+        "agent_reservoirs": {
+          "fe_operator": "FEWalter"
+        },
+        "agent_strategies": {
+          "fe_operator": "reference_v3_7"
+        },
+        "case": "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\_qa\\fe-walter-paired-2016-20261016T1946Z\\case.json",
+        "case_root": "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\_qa\\fe-walter-paired-2016-20261016T1946Z",
+        "data_kind": "simulated_local_inflow",
+        "days": 366,
+        "end_date": "2016-12-31",
+        "live_readiness": {
+          "blockers": [],
+          "rationale": [
+            "Annual interface diagnostic; not an accepted operating policy.",
+            "Initial reservoir storage is the retained 1992.61 acre-foot assumption, not a measurement.",
+            "Downstream UH=[1] is identity routing, not calibrated travel time."
+          ],
+          "ready": true
+        },
+        "live_ready": true,
+        "llm_agent_count": 1,
+        "max_calls": null,
+        "model_profile_count": 1,
+        "network_calls": 0,
+        "output": "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\_qa\\fe-walter-paired-2016-20261016T1946Z\\run-llm_knowledge",
+        "passive_reservoir_count": 0,
+        "planned_llm_calls": 366,
+        "run_id": "fe-walter-paired-2016-llm_knowledge",
+        "schema_version": "llm-reservoir-plan.v1",
+        "settings_sha256": "257d7ad4a5f35bb09db70fccc75a22486f463c0af5a049b1ca062e3c8b2914f9",
+        "source_files": {
+          "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\HydroCNHS-Delaware-Operations\\data\\anik_v3_7\\DKP_FEWalter_Dam_v1.2.md": "7fb3b9e75c1d6a52168049afa80c527a49e606f1c0889e5d14b31f874502b206",
+          "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\HydroCNHS-Delaware-Operations\\examples\\fe_walter\\prompt.txt": "0af507a55e42daffb5b49cc3870d3c6247292b0435f80882b7b7a5f2302c6c7c",
+          "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\HydroCNHS-Delaware-Operations\\third_party\\anik_v3_7\\README.txt": "3b8914fca36281b7fdd0da44605f92d826e610a5cebf30e53be0e8941f6f407b",
+          "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\HydroCNHS-Delaware-Operations\\third_party\\anik_v3_7\\benchmark_release.py": "f47500e3ccad55929d4069a6800ee24cb50e7605641c9ec8f03c4767d2cafc0a",
+          "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\HydroCNHS-Delaware-Operations\\third_party\\anik_v3_7\\dkp_llm_release.py": "0045f524f55cc39551ae4eec26b69d64d8758fcbe470016ad36e6e7ed8a54203",
+          "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\HydroCNHS-Delaware-Operations\\third_party\\anik_v3_7\\reservoir_model.py": "eb159daa1437bdad5d093873fa97eedfc7daa7e482f023b6a5070c1d67ea01c8",
+          "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\HydroCNHS-Delaware-Operations\\third_party\\anik_v3_7\\source_manifest.json": "44efb02245a6023c1eceb6541667c102323d9f00339acb3552cf4f2b9754153c",
+          "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\HydroCNHS-Delaware-Operations\\third_party\\anik_v3_7\\zeroshot_llm_release.py": "e17ce6310b20902c0f6f4e11bce877e90a1ddd9bf128a7ecc0e50b5d18481dff",
+          "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\_qa\\fe-walter-paired-2016-20261016T1946Z\\case.json": "242115406cfe5b658d2e3baa6fb0a85d8af3727fa66ae4f985c8bbb6894da29f",
+          "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\_qa\\fe-walter-paired-2016-20261016T1946Z\\inflows.csv": "1088d3b3d024f7dc0ba7c4460ac00263aab344f3255cfa4ebaeba5585f17e042",
+          "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\_qa\\fe-walter-paired-2016-20261016T1946Z\\llm_knowledge.yaml": "257d7ad4a5f35bb09db70fccc75a22486f463c0af5a049b1ca062e3c8b2914f9"
+        },
+        "start_date": "2016-01-01"
+      },
+      "prompt_id": null,
+      "prompt_sha256": "0af507a55e42daffb5b49cc3870d3c6247292b0435f80882b7b7a5f2302c6c7c",
+      "prompt_strategy_id": "reference_v3_7_dkp_custom_system",
+      "prompt_version": "3.7+custom-system",
+      "reference_options": {
+        "dkp": "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\HydroCNHS-Delaware-Operations\\data\\anik_v3_7\\DKP_FEWalter_Dam_v1.2.md",
+        "dkp_no_missing_inputs": true,
+        "hide_availability_line": true,
+        "method": "dkp",
+        "profile": "fe_walter",
+        "prompt_storage": false,
+        "system_prompt": "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\HydroCNHS-Delaware-Operations\\examples\\fe_walter\\prompt.txt",
+        "system_prompt_mode": "custom",
+        "system_prompt_sha256": "0af507a55e42daffb5b49cc3870d3c6247292b0435f80882b7b7a5f2302c6c7c",
+        "zeroshot_knowledge": "target"
+      },
+      "reference_source_sha256": {
+        "dkp": "7fb3b9e75c1d6a52168049afa80c527a49e606f1c0889e5d14b31f874502b206",
+        "system_prompt": "0af507a55e42daffb5b49cc3870d3c6247292b0435f80882b7b7a5f2302c6c7c"
+      },
+      "reservoir_profile": {
+        "configuration_sha256": "fb3c192de833f10656337a870441f0a7a837d842c0a38e49e8ce04f04a9c1076",
+        "native_model_sha256": "eb159daa1437bdad5d093873fa97eedfc7daa7e482f023b6a5070c1d67ea01c8",
+        "profile_id": "fe_walter",
+        "profile_source": "pinned_builtin"
+      },
+      "response_parser_id": "original-v3.7-cfs",
+      "schema_version": "yaml-experiment-provenance.v1",
+      "settings": {
+        "agents": {
+          "fe_operator": {
+            "auditors": [
+              "release_limits"
+            ],
+            "mode": "llm",
+            "model": "reservoir_model",
+            "reference": {
+              "dkp": "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\HydroCNHS-Delaware-Operations\\data\\anik_v3_7\\DKP_FEWalter_Dam_v1.2.md",
+              "dkp_no_missing_inputs": true,
+              "hide_availability_line": true,
+              "method": "dkp",
+              "profile": "fe_walter",
+              "prompt_storage": false,
+              "system_prompt": "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\HydroCNHS-Delaware-Operations\\examples\\fe_walter\\prompt.txt",
+              "system_prompt_mode": "custom",
+              "zeroshot_knowledge": "target"
+            },
+            "reservoir": "FEWalter",
+            "strategy": "reference_v3_7"
+          }
+        },
+        "auditors": {
+          "release_limits": {
+            "type": "release_bounds",
+            "version": "1"
+          }
+        },
+        "case": "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\_qa\\fe-walter-paired-2016-20261016T1946Z\\case.json",
+        "case_root": "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\_qa\\fe-walter-paired-2016-20261016T1946Z",
+        "end_date": "2016-12-31",
+        "max_calls": null,
+        "models": {
+          "reservoir_model": {
+            "api_key_env": null,
+            "base_url": "http://localhost:11434",
+            "max_attempts": 2,
+            "max_tokens": 2048,
+            "model": "gemma3:4b",
+            "provider": "ollama",
+            "retry_delay_seconds": 2,
+            "seed": null,
+            "temperature": 0.7,
+            "timeout_seconds": 120
+          }
+        },
+        "output": "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\_qa\\fe-walter-paired-2016-20261016T1946Z\\run-llm_knowledge",
+        "run_id": "fe-walter-paired-2016-llm_knowledge",
+        "schema_version": "llm-reservoir-experiment.v1",
+        "start_date": "2016-01-01"
+      },
+      "source_files": {
+        "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\HydroCNHS-Delaware-Operations\\data\\anik_v3_7\\DKP_FEWalter_Dam_v1.2.md": "7fb3b9e75c1d6a52168049afa80c527a49e606f1c0889e5d14b31f874502b206",
+        "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\HydroCNHS-Delaware-Operations\\examples\\fe_walter\\prompt.txt": "0af507a55e42daffb5b49cc3870d3c6247292b0435f80882b7b7a5f2302c6c7c",
+        "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\HydroCNHS-Delaware-Operations\\third_party\\anik_v3_7\\README.txt": "3b8914fca36281b7fdd0da44605f92d826e610a5cebf30e53be0e8941f6f407b",
+        "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\HydroCNHS-Delaware-Operations\\third_party\\anik_v3_7\\benchmark_release.py": "f47500e3ccad55929d4069a6800ee24cb50e7605641c9ec8f03c4767d2cafc0a",
+        "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\HydroCNHS-Delaware-Operations\\third_party\\anik_v3_7\\dkp_llm_release.py": "0045f524f55cc39551ae4eec26b69d64d8758fcbe470016ad36e6e7ed8a54203",
+        "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\HydroCNHS-Delaware-Operations\\third_party\\anik_v3_7\\reservoir_model.py": "eb159daa1437bdad5d093873fa97eedfc7daa7e482f023b6a5070c1d67ea01c8",
+        "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\HydroCNHS-Delaware-Operations\\third_party\\anik_v3_7\\source_manifest.json": "44efb02245a6023c1eceb6541667c102323d9f00339acb3552cf4f2b9754153c",
+        "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\HydroCNHS-Delaware-Operations\\third_party\\anik_v3_7\\zeroshot_llm_release.py": "e17ce6310b20902c0f6f4e11bce877e90a1ddd9bf128a7ecc0e50b5d18481dff",
+        "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\_qa\\fe-walter-paired-2016-20261016T1946Z\\case.json": "242115406cfe5b658d2e3baa6fb0a85d8af3727fa66ae4f985c8bbb6894da29f",
+        "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\_qa\\fe-walter-paired-2016-20261016T1946Z\\inflows.csv": "1088d3b3d024f7dc0ba7c4460ac00263aab344f3255cfa4ebaeba5585f17e042",
+        "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\_qa\\fe-walter-paired-2016-20261016T1946Z\\llm_knowledge.yaml": "257d7ad4a5f35bb09db70fccc75a22486f463c0af5a049b1ca062e3c8b2914f9"
+      },
+      "system_prompt_mode": "custom",
+      "system_prompt_source": "file"
+    },
+    "raw_policy_ref": {
+      "path": "raw/policy_0a4d78e107089bfb46a2eec4fd9997fc3cf657ba070320c024f8c4cf58deca64.json",
+      "sha256": "140efbc3e6ff802b289a0248abefab0c25b52e9efc936129d345564cf469ecaf"
+    },
+    "request_id": null,
+    "reservoir_id": "fe_walter",
+    "run_id": "fe-walter-paired-2016-llm_knowledge",
+    "schema_version": "reservoir-trace.v1",
+    "status": "RECORDED",
+    "timestamp": "2016-01-01",
+    "timestep": 0
+  },
+  "raw_policy": {
+    "audit_execution": {
+      "input_sha256": "40c5e5dd989810d5cf941c1d9bcc6d5993ec03cdeb88dcee3aaa93c728c74617",
+      "status": "COMPLETED"
+    },
+    "backend_trace": {
+      "attempts": [
+        {
+          "attempt": 1,
+          "elapsed_seconds": 4.881472900044173,
+          "error_class": null,
+          "provider_reply": {
+            "created_at": "2026-10-16T20:11:10.8826936Z",
+            "done": true,
+            "done_reason": "stop",
+            "eval_count": 192,
+            "eval_duration": 1975193000,
+            "load_duration": 16733800,
+            "message": {
+              "content": "{\"applicable_target_ft\": 1300.0, \"pool_position\": \"above_target\", \"intended_storage_direction\": \"hold\", \"release_relation_to_inflow\": \"equal_to_inflow\", \"operating_mode\": \"minimum_release\", \"rules_applied\": [\"R-MINNORM\"], \"reasoning\": \"The current date is January 1st, and we are in the November 1\u2013March 14 period, where the target pool elevation is near 1300.0 ft. According to DKP excerpt 2, R-MINNORM applies, specifying a minimum release of 50 cfs to maintain normal regulation. Given the inflow of 1134.5 cfs, the release will be set equal to the inflow.\", \"release_cfs\": 50}",
+              "role": "assistant"
+            },
+            "model": "gemma3:4b",
+            "prompt_eval_cached_count": 479,
+            "prompt_eval_count": 2211,
+            "prompt_eval_duration": 423312000,
+            "total_duration": 2826748500
+          },
+          "raw_reply": {
+            "applicable_target_ft": 1300.0,
+            "intended_storage_direction": "hold",
+            "operating_mode": "minimum_release",
+            "pool_position": "above_target",
+            "reasoning": "The current date is January 1st, and we are in the November 1\u2013March 14 period, where the target pool elevation is near 1300.0 ft. According to DKP excerpt 2, R-MINNORM applies, specifying a minimum release of 50 cfs to maintain normal regulation. Given the inflow of 1134.5 cfs, the release will be set equal to the inflow.",
+            "release_cfs": 50,
+            "release_relation_to_inflow": "equal_to_inflow",
+            "rules_applied": [
+              "R-MINNORM"
+            ]
+          },
+          "request_id": null,
+          "request_sha256": "b78d4b9e5d53489e7a00914002465933370090c7a14a13292091bc95cb0b488d",
+          "success": true,
+          "usage": {
+            "eval_count": 192,
+            "prompt_eval_count": 2211
+          }
+        }
+      ],
+      "error_class": null,
+      "input_variables": {
+        "date": "2016-01-01",
+        "history_semantics": "prior requested and implemented outflows; appended after physical commit",
+        "inflow_cfs": 1134.4949071013646,
+        "inflow_cms": 32.12531870666855,
+        "native_history": [],
+        "pool_elevation_start_ft": 1300.0,
+        "reservoir_profile": "fe_walter",
+        "schema_version": "reservoir-daily-inputs.v1",
+        "storage_start_af": 1992.61,
+        "storage_start_m3": 2457848.279729185,
+        "timestep": 0
+      },
+      "latest_attempt": {
+        "attempt": 1,
+        "elapsed_seconds": 4.881472900044173,
+        "error_class": null,
+        "provider_reply": {
+          "created_at": "2026-10-16T20:11:10.8826936Z",
+          "done": true,
+          "done_reason": "stop",
+          "eval_count": 192,
+          "eval_duration": 1975193000,
+          "load_duration": 16733800,
+          "message": {
+            "content": "{\"applicable_target_ft\": 1300.0, \"pool_position\": \"above_target\", \"intended_storage_direction\": \"hold\", \"release_relation_to_inflow\": \"equal_to_inflow\", \"operating_mode\": \"minimum_release\", \"rules_applied\": [\"R-MINNORM\"], \"reasoning\": \"The current date is January 1st, and we are in the November 1\u2013March 14 period, where the target pool elevation is near 1300.0 ft. According to DKP excerpt 2, R-MINNORM applies, specifying a minimum release of 50 cfs to maintain normal regulation. Given the inflow of 1134.5 cfs, the release will be set equal to the inflow.\", \"release_cfs\": 50}",
+            "role": "assistant"
+          },
+          "model": "gemma3:4b",
+          "prompt_eval_cached_count": 479,
+          "prompt_eval_count": 2211,
+          "prompt_eval_duration": 423312000,
+          "total_duration": 2826748500
+        },
+        "raw_reply": {
+          "applicable_target_ft": 1300.0,
+          "intended_storage_direction": "hold",
+          "operating_mode": "minimum_release",
+          "pool_position": "above_target",
+          "reasoning": "The current date is January 1st, and we are in the November 1\u2013March 14 period, where the target pool elevation is near 1300.0 ft. According to DKP excerpt 2, R-MINNORM applies, specifying a minimum release of 50 cfs to maintain normal regulation. Given the inflow of 1134.5 cfs, the release will be set equal to the inflow.",
+          "release_cfs": 50,
+          "release_relation_to_inflow": "equal_to_inflow",
+          "rules_applied": [
+            "R-MINNORM"
+          ]
+        },
+        "request_id": null,
+        "request_sha256": "b78d4b9e5d53489e7a00914002465933370090c7a14a13292091bc95cb0b488d",
+        "success": true,
+        "usage": {
+          "eval_count": 192,
+          "prompt_eval_count": 2211
+        }
+      },
+      "model": {
+        "api_key_env": null,
+        "base_url": "http://localhost:11434",
+        "max_attempts": 2,
+        "max_tokens": 2048,
+        "model": "gemma3:4b",
+        "provider": "ollama",
+        "retry_delay_seconds": 2.0,
+        "seed": null,
+        "temperature": 0.7,
+        "timeout_seconds": 120.0
+      },
+      "model_used": true,
+      "prompt": "Date: 2016-01-01 (January, day 1 of the year)\n1. Today's inflow: 1,134.5 cfs (= 98,020,360 cubic feet (= 2,250 acre-feet) over 1 days)\n2. Water level at beginning of interval: 1300.00 ft NGVD29\n3. Previous simulated release decisions (and what was actually released):\n   None (first simulated step).\n4. Number of days in this decision interval: 1\n5. Release limits for this interval (water control manual): 50-10,000 cfs (= 4,320,000-864,000,000 cubic feet over 1 days)\n\nRetrieved DKP sections relevant to current conditions:\n\n--- DKP excerpt 1: R-RELEASE (composite per-timestep decision; WCM Table 7-1 Parts A and B; \u00a77-01, \u00a77-03, \u00a77-05) ---\n```pseudo\nplan = R-PLAN(pool_elevation, stages, season)\n\nactive_min = R-MINFC       if plan in {C, D} or impounding_for_flood_emergency   # 100 cfs\n           | R-MINDROUGHT  if drbc_drought_declared                              #  43 cfs\n           | R-MINNORM                                                           #  50 cfs\n\nCASE plan OF\n  A:  release = inflow_cfs, holding pool at or near target_pool_ft;\n        obligations = Minimum Release Schedule + Water Quality Release Schedule (R-TEMP)\n\n  B:  release_combined = MaxReleaseSchedule_Rising(stages)      # \u00a72.4.5 \u2014 MOST RESTRICTIVE gage governs\n        release_walter  = R-BALANCE(release_combined, pct_fc_storage_used,\n                                    beltzville_state.pct_fc_storage_used)\n        summer: defer to Exhibit D Recreation Plan (NOT SUPPLIED)\n        apply R-FILLING whenever pool exceeds any previously attained elevation\n\n  C:  release = active_min                                       # store all inflow at BOTH projects\n        on stages_trend == falling_after_peak, switch to MaxReleaseSchedule_Falling (\u00a72.4.5)\n\n  D:  release = pass inflow (hourly or finer), gates incrementally to full open;\n        once outlet capacity exceeded, HOLD full open until pool < EL_SPILLWAY;\n        then outflow = inflow until MaxReleaseSchedule_Rising (Plan B) can be resumed\n\nrelease = clip(release, lower = active_min,\n                        upper = min( Q_CHANNEL_CAP,            # conditional \u2014 see R-ATSITE\n                                     outlet_capacity(pool_elevation),\n                                     R-DOWNSTREAM limit ) )\n\nsubject to R-ROC (gate-position limits, NOT a discharge-rate limit)\n\nIF pool_elevation > EL_SPILLWAY:\n    total_outflow = release + spillway_discharge(pool_elevation)   # uncontrolled, \u00a72.4.3\n```\n\n--- DKP excerpt 2: R-MINNORM, R-MINFC, R-MINDROUGHT (Minimum Release Schedule; WCM Table 7-1 Part B; \u00a77-01, \u00a77-05,c,3, \u00a78-04) ---\n```pseudo\nFlows maintained at the reservoir OUTFLOW gaging station (White Haven for Walter):\n\n   Regulation purpose                     Walter (cfs)   Beltzville (cfs)\n   1. Flood control regulation (storing)      100              35     -> R-MINFC\n   2. Normal regulation                        50              35     -> R-MINNORM\n   3. Drought warning and drought               43              15     -> R-MINDROUGHT\n\nPrecedence: R-MINFC applies whenever storing under Plans C/D; R-MINDROUGHT relaxes\nR-MINNORM under a declared DRBC drought warning or emergency; R-MINNORM otherwise.\nThe 50 cfs is a Commonwealth of Pennsylvania Fish Commission requirement set to protect\ndownstream brook trout habitat (Table 7-1 Part B).\n```\n\n--- DKP excerpt 3: R-ATSITE (maximum release; WCM \u00a74-09, \u00a77-02a, \u00a77-05,c,1, Table 7-2 notes 1\u20132) ---\n```pseudo\nrelease \u2264 10,000 cfs  \"during non-spillway flow conditions ... should not be exceeded IF POSSIBLE\"\n   equivalently: stage_WhiteHaven \u2264 8.4 ft (Table 7-1 Part B note 5)\nrelease \u2264 outlet_capacity(pool_elevation)   [\u224817,000 cfs at EL_SPILLWAY]\n\nEXCEPTION (Table 7-2 note 1): during FALLING stages after a peak, releases in excess of\n10,000 cfs MAY be considered, provided the release \u2014 combined with Beltzville's \u2014 does not\ncause any key Lehigh station to exceed max(event_peak_stage, flood stage), whichever governs.\nCONFIRMED BY RECORD: the WY1996 maximum discharge of 11,452 cfs (Table 8-1, 29 Jan 1996)\nexceeds 10,000 cfs -- the exception is exercised in practice, not merely permitted.\n=> the 10,000 cfs cap is a CONDITIONAL constraint, not a physical invariant.\n```\n\n--- DKP excerpt 4: R-ZONE (seasonal rule curve \u2014 the normal operating target; WCM \u00a77-01, Plate 7-2) ---\n```pseudo\ntarget_pool_ft = 1300.0   # winter normal pool\nStorage for recreation begins on/about 1 April; target date mid-May to reach 1370.0;\n1370.0 is held and drawn on to make releases through mid-October; thereafter any\nremaining water is released and the pool returns to 1300.0.\n\nRATIONALE (\u00a73-05,b,2(b)): 1370 is \"the limit imposed to keep adequate flood control space\navailable since this volume can be quickly evacuated in advance of an oncoming storm event.\"\n\n=> Recreation storage is ALWAYS subordinate and pre-releasable; it is NOT protected storage.\n```\n\nThe simulated year is 2016. Check the year of every dated DKP instruction before applying it.\nApply these DKP rules to decide the mean release for this interval (cfs).",
+      "provider_reply": {
+        "created_at": "2026-10-16T20:11:10.8826936Z",
+        "done": true,
+        "done_reason": "stop",
+        "eval_count": 192,
+        "eval_duration": 1975193000,
+        "load_duration": 16733800,
+        "message": {
+          "content": "{\"applicable_target_ft\": 1300.0, \"pool_position\": \"above_target\", \"intended_storage_direction\": \"hold\", \"release_relation_to_inflow\": \"equal_to_inflow\", \"operating_mode\": \"minimum_release\", \"rules_applied\": [\"R-MINNORM\"], \"reasoning\": \"The current date is January 1st, and we are in the November 1\u2013March 14 period, where the target pool elevation is near 1300.0 ft. According to DKP excerpt 2, R-MINNORM applies, specifying a minimum release of 50 cfs to maintain normal regulation. Given the inflow of 1134.5 cfs, the release will be set equal to the inflow.\", \"release_cfs\": 50}",
+          "role": "assistant"
+        },
+        "model": "gemma3:4b",
+        "prompt_eval_cached_count": 479,
+        "prompt_eval_count": 2211,
+        "prompt_eval_duration": 423312000,
+        "total_duration": 2826748500
+      },
+      "raw_reply": {
+        "applicable_target_ft": 1300.0,
+        "intended_storage_direction": "hold",
+        "operating_mode": "minimum_release",
+        "pool_position": "above_target",
+        "reasoning": "The current date is January 1st, and we are in the November 1\u2013March 14 period, where the target pool elevation is near 1300.0 ft. According to DKP excerpt 2, R-MINNORM applies, specifying a minimum release of 50 cfs to maintain normal regulation. Given the inflow of 1134.5 cfs, the release will be set equal to the inflow.",
+        "release_cfs": 50,
+        "release_relation_to_inflow": "equal_to_inflow",
+        "rules_applied": [
+          "R-MINNORM"
+        ]
+      },
+      "request": {
+        "format": {
+          "additionalProperties": false,
+          "properties": {
+            "applicable_target_ft": {
+              "description": "Operation-target water level (ft NGVD29) that applies to this interval, read from the operation target",
+              "type": "number"
+            },
+            "intended_storage_direction": {
+              "description": "How you intend storage to change over this interval",
+              "enum": [
+                "increase",
+                "hold",
+                "decrease"
+              ],
+              "type": "string"
+            },
+            "operating_mode": {
+              "enum": [
+                "pass_inflow",
+                "store_toward_target",
+                "draw_toward_target",
+                "minimum_release",
+                "flood_control",
+                "post_flood_drawdown",
+                "recreation_plan"
+              ],
+              "type": "string"
+            },
+            "pool_position": {
+              "description": "Beginning water level compared with applicable_target_ft",
+              "enum": [
+                "below_target",
+                "at_target",
+                "above_target"
+              ],
+              "type": "string"
+            },
+            "reasoning": {
+              "description": "Brief rule citation and water-balance explanation: the storage change the release will cause",
+              "type": "string"
+            },
+            "release_cfs": {
+              "description": "Target mean release for the interval in cfs",
+              "type": "number"
+            },
+            "release_relation_to_inflow": {
+              "description": "How your release will compare with this interval's inflow",
+              "enum": [
+                "below_inflow",
+                "equal_to_inflow",
+                "above_inflow"
+              ],
+              "type": "string"
+            },
+            "rules_applied": {
+              "description": "Exact retrieved DKP section headings used",
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            }
+          },
+          "required": [
+            "applicable_target_ft",
+            "pool_position",
+            "intended_storage_direction",
+            "release_relation_to_inflow",
+            "operating_mode",
+            "rules_applied",
+            "reasoning",
+            "release_cfs"
+          ],
+          "type": "object"
+        },
+        "messages": [
+          {
+            "content": "You are operating F. E. Walter Reservoir on the Lehigh River, Pennsylvania.\nMake one mean release decision per day from the information supplied.\n\nReservoir purpose: flood control, water storage and recreation.\nCatchment area: 289 square miles.\nPublicly reported total capacity: 110,700 acre-feet.\nThe simulation's storage at the 1450.0 ft spillway crest is 109,878 acre-feet.\nThe controlled-release limits in this reduced simulation are 50\u201310,000 cfs.\n\nOperation target:\n- November 1\u2013March 14: keep the pool near 1300.0 ft NGVD29,\n  within 1297.0\u20131303.0 ft.\n- March 15\u2013May 9: keep the pool between 1300.0 and 1370.0 ft;\n  when conditions allow, fill toward 1370.0 ft by May 10.\n- May 10\u2013October 14: keep the pool at or below 1370.0 ft.\n- October 15\u2013October 31: keep the pool between 1300.0 and 1370.0 ft\n  and lower it toward 1300.0 ft by November 1.\n\nAvailable information:\nThe decision-time message supplies the date, simulated mean inlet, beginning pool\nand previous requested/implemented releases. Use supplied values and units.\nCurrent-day mean inlet is a simulation input, not a forecast.\nDo not invent downstream observations, another reservoir's state or missing schedules.\n\nOperating guidance:\nUse the available information and general reservoir-operation principles.\nWhen retrieved operating guidance is included, apply its relevant rules within\nthis simulation's scope. Cite supplied headings when the response schema requires\nrules_applied; do not invent rule identifiers. A dated recreation calendar applies\nonly to its stated year. Gate-position rate limits are not discharge-rate limits.\nThe reduced 50\u201310,000 cfs range does not represent the manual's conditional\ndrought or post-flood exceptions; identify those conditions as outside scope.\n\nPhysical accounting:\nBefore spill, volume change in cubic feet equals\n(inflow_cfs - controlled_release_cfs) \u00d7 86,400 \u00d7 interval_days.\nDivide cubic feet by 43,560 for acre-feet, or multiply by 0.028316846592 for m\u00b3.\nActual storage change also subtracts uncontrolled spill volume. Below-inflow\ncontrolled release retains water unless capacity forces spill; above-inflow\nrelease draws storage down. Passing inflow does not refill a reservoir.\nUse the implemented total-outflow history supplied at the next step.\n\nReturn one complete JSON object matching the supplied response schema, with no\nMarkdown. Give release_cfs as a number and reasoning in one or two sentences.\nKeep any target, pool-position, storage-direction and release/inlet-relation\nfields consistent with the raw values and your proposed action.\n",
+            "role": "system"
+          },
+          {
+            "content": "Date: 2016-01-01 (January, day 1 of the year)\n1. Today's inflow: 1,134.5 cfs (= 98,020,360 cubic feet (= 2,250 acre-feet) over 1 days)\n2. Water level at beginning of interval: 1300.00 ft NGVD29\n3. Previous simulated release decisions (and what was actually released):\n   None (first simulated step).\n4. Number of days in this decision interval: 1\n5. Release limits for this interval (water control manual): 50-10,000 cfs (= 4,320,000-864,000,000 cubic feet over 1 days)\n\nRetrieved DKP sections relevant to current conditions:\n\n--- DKP excerpt 1: R-RELEASE (composite per-timestep decision; WCM Table 7-1 Parts A and B; \u00a77-01, \u00a77-03, \u00a77-05) ---\n```pseudo\nplan = R-PLAN(pool_elevation, stages, season)\n\nactive_min = R-MINFC       if plan in {C, D} or impounding_for_flood_emergency   # 100 cfs\n           | R-MINDROUGHT  if drbc_drought_declared                              #  43 cfs\n           | R-MINNORM                                                           #  50 cfs\n\nCASE plan OF\n  A:  release = inflow_cfs, holding pool at or near target_pool_ft;\n        obligations = Minimum Release Schedule + Water Quality Release Schedule (R-TEMP)\n\n  B:  release_combined = MaxReleaseSchedule_Rising(stages)      # \u00a72.4.5 \u2014 MOST RESTRICTIVE gage governs\n        release_walter  = R-BALANCE(release_combined, pct_fc_storage_used,\n                                    beltzville_state.pct_fc_storage_used)\n        summer: defer to Exhibit D Recreation Plan (NOT SUPPLIED)\n        apply R-FILLING whenever pool exceeds any previously attained elevation\n\n  C:  release = active_min                                       # store all inflow at BOTH projects\n        on stages_trend == falling_after_peak, switch to MaxReleaseSchedule_Falling (\u00a72.4.5)\n\n  D:  release = pass inflow (hourly or finer), gates incrementally to full open;\n        once outlet capacity exceeded, HOLD full open until pool < EL_SPILLWAY;\n        then outflow = inflow until MaxReleaseSchedule_Rising (Plan B) can be resumed\n\nrelease = clip(release, lower = active_min,\n                        upper = min( Q_CHANNEL_CAP,            # conditional \u2014 see R-ATSITE\n                                     outlet_capacity(pool_elevation),\n                                     R-DOWNSTREAM limit ) )\n\nsubject to R-ROC (gate-position limits, NOT a discharge-rate limit)\n\nIF pool_elevation > EL_SPILLWAY:\n    total_outflow = release + spillway_discharge(pool_elevation)   # uncontrolled, \u00a72.4.3\n```\n\n--- DKP excerpt 2: R-MINNORM, R-MINFC, R-MINDROUGHT (Minimum Release Schedule; WCM Table 7-1 Part B; \u00a77-01, \u00a77-05,c,3, \u00a78-04) ---\n```pseudo\nFlows maintained at the reservoir OUTFLOW gaging station (White Haven for Walter):\n\n   Regulation purpose                     Walter (cfs)   Beltzville (cfs)\n   1. Flood control regulation (storing)      100              35     -> R-MINFC\n   2. Normal regulation                        50              35     -> R-MINNORM\n   3. Drought warning and drought               43              15     -> R-MINDROUGHT\n\nPrecedence: R-MINFC applies whenever storing under Plans C/D; R-MINDROUGHT relaxes\nR-MINNORM under a declared DRBC drought warning or emergency; R-MINNORM otherwise.\nThe 50 cfs is a Commonwealth of Pennsylvania Fish Commission requirement set to protect\ndownstream brook trout habitat (Table 7-1 Part B).\n```\n\n--- DKP excerpt 3: R-ATSITE (maximum release; WCM \u00a74-09, \u00a77-02a, \u00a77-05,c,1, Table 7-2 notes 1\u20132) ---\n```pseudo\nrelease \u2264 10,000 cfs  \"during non-spillway flow conditions ... should not be exceeded IF POSSIBLE\"\n   equivalently: stage_WhiteHaven \u2264 8.4 ft (Table 7-1 Part B note 5)\nrelease \u2264 outlet_capacity(pool_elevation)   [\u224817,000 cfs at EL_SPILLWAY]\n\nEXCEPTION (Table 7-2 note 1): during FALLING stages after a peak, releases in excess of\n10,000 cfs MAY be considered, provided the release \u2014 combined with Beltzville's \u2014 does not\ncause any key Lehigh station to exceed max(event_peak_stage, flood stage), whichever governs.\nCONFIRMED BY RECORD: the WY1996 maximum discharge of 11,452 cfs (Table 8-1, 29 Jan 1996)\nexceeds 10,000 cfs -- the exception is exercised in practice, not merely permitted.\n=> the 10,000 cfs cap is a CONDITIONAL constraint, not a physical invariant.\n```\n\n--- DKP excerpt 4: R-ZONE (seasonal rule curve \u2014 the normal operating target; WCM \u00a77-01, Plate 7-2) ---\n```pseudo\ntarget_pool_ft = 1300.0   # winter normal pool\nStorage for recreation begins on/about 1 April; target date mid-May to reach 1370.0;\n1370.0 is held and drawn on to make releases through mid-October; thereafter any\nremaining water is released and the pool returns to 1300.0.\n\nRATIONALE (\u00a73-05,b,2(b)): 1370 is \"the limit imposed to keep adequate flood control space\navailable since this volume can be quickly evacuated in advance of an oncoming storm event.\"\n\n=> Recreation storage is ALWAYS subordinate and pre-releasable; it is NOT protected storage.\n```\n\nThe simulated year is 2016. Check the year of every dated DKP instruction before applying it.\nApply these DKP rules to decide the mean release for this interval (cfs).",
+            "role": "user"
+          }
+        ],
+        "model": "gemma3:4b",
+        "options": {
+          "num_predict": 2048,
+          "temperature": 0.7
+        },
+        "stream": false
+      },
+      "request_id": null,
+      "request_sha256": "b78d4b9e5d53489e7a00914002465933370090c7a14a13292091bc95cb0b488d",
+      "schema": {
+        "additionalProperties": false,
+        "properties": {
+          "applicable_target_ft": {
+            "description": "Operation-target water level (ft NGVD29) that applies to this interval, read from the operation target",
+            "type": "number"
+          },
+          "intended_storage_direction": {
+            "description": "How you intend storage to change over this interval",
+            "enum": [
+              "increase",
+              "hold",
+              "decrease"
+            ],
+            "type": "string"
+          },
+          "operating_mode": {
+            "enum": [
+              "pass_inflow",
+              "store_toward_target",
+              "draw_toward_target",
+              "minimum_release",
+              "flood_control",
+              "post_flood_drawdown",
+              "recreation_plan"
+            ],
+            "type": "string"
+          },
+          "pool_position": {
+            "description": "Beginning water level compared with applicable_target_ft",
+            "enum": [
+              "below_target",
+              "at_target",
+              "above_target"
+            ],
+            "type": "string"
+          },
+          "reasoning": {
+            "description": "Brief rule citation and water-balance explanation: the storage change the release will cause",
+            "type": "string"
+          },
+          "release_cfs": {
+            "description": "Target mean release for the interval in cfs",
+            "type": "number"
+          },
+          "release_relation_to_inflow": {
+            "description": "How your release will compare with this interval's inflow",
+            "enum": [
+              "below_inflow",
+              "equal_to_inflow",
+              "above_inflow"
+            ],
+            "type": "string"
+          },
+          "rules_applied": {
+            "description": "Exact retrieved DKP section headings used",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "applicable_target_ft",
+          "pool_position",
+          "intended_storage_direction",
+          "release_relation_to_inflow",
+          "operating_mode",
+          "rules_applied",
+          "reasoning",
+          "release_cfs"
+        ],
+        "type": "object"
+      },
+      "system": "You are operating F. E. Walter Reservoir on the Lehigh River, Pennsylvania.\nMake one mean release decision per day from the information supplied.\n\nReservoir purpose: flood control, water storage and recreation.\nCatchment area: 289 square miles.\nPublicly reported total capacity: 110,700 acre-feet.\nThe simulation's storage at the 1450.0 ft spillway crest is 109,878 acre-feet.\nThe controlled-release limits in this reduced simulation are 50\u201310,000 cfs.\n\nOperation target:\n- November 1\u2013March 14: keep the pool near 1300.0 ft NGVD29,\n  within 1297.0\u20131303.0 ft.\n- March 15\u2013May 9: keep the pool between 1300.0 and 1370.0 ft;\n  when conditions allow, fill toward 1370.0 ft by May 10.\n- May 10\u2013October 14: keep the pool at or below 1370.0 ft.\n- October 15\u2013October 31: keep the pool between 1300.0 and 1370.0 ft\n  and lower it toward 1300.0 ft by November 1.\n\nAvailable information:\nThe decision-time message supplies the date, simulated mean inlet, beginning pool\nand previous requested/implemented releases. Use supplied values and units.\nCurrent-day mean inlet is a simulation input, not a forecast.\nDo not invent downstream observations, another reservoir's state or missing schedules.\n\nOperating guidance:\nUse the available information and general reservoir-operation principles.\nWhen retrieved operating guidance is included, apply its relevant rules within\nthis simulation's scope. Cite supplied headings when the response schema requires\nrules_applied; do not invent rule identifiers. A dated recreation calendar applies\nonly to its stated year. Gate-position rate limits are not discharge-rate limits.\nThe reduced 50\u201310,000 cfs range does not represent the manual's conditional\ndrought or post-flood exceptions; identify those conditions as outside scope.\n\nPhysical accounting:\nBefore spill, volume change in cubic feet equals\n(inflow_cfs - controlled_release_cfs) \u00d7 86,400 \u00d7 interval_days.\nDivide cubic feet by 43,560 for acre-feet, or multiply by 0.028316846592 for m\u00b3.\nActual storage change also subtracts uncontrolled spill volume. Below-inflow\ncontrolled release retains water unless capacity forces spill; above-inflow\nrelease draws storage down. Passing inflow does not refill a reservoir.\nUse the implemented total-outflow history supplied at the next step.\n\nReturn one complete JSON object matching the supplied response schema, with no\nMarkdown. Give release_cfs as a number and reasoning in one or two sentences.\nKeep any target, pool-position, storage-direction and release/inlet-relation\nfields consistent with the raw values and your proposed action.\n",
+      "usage": {
+        "eval_count": 192,
+        "prompt_eval_count": 2211
+      }
+    }
+  },
+  "implemented_physics": {
+    "decision_id": "0a4d78e107089bfb46a2eec4fd9997fc3cf657ba070320c024f8c4cf58deca64",
+    "event_type": "physics",
+    "record": {
+      "action": {
+        "release_cms": 1.41584235,
+        "schema_version": "reservoir-action.v1"
+      },
+      "observation": {
+        "context": {
+          "evaporation_m3": 0.0,
+          "reservoir_id": "fe_walter",
+          "seepage_m3": 0.0
+        },
+        "inflow_cms": 32.12531870666855,
+        "release_upper_bound_cms": 60.572065702675175,
+        "schema_version": "reservoir-observation.v1",
+        "state": {
+          "capacity_m3": 135532852.33895192,
+          "dead_storage_m3": 49.3392742128,
+          "dt_seconds": 86400.0,
+          "maximum_release_cms": 283.16847,
+          "minimum_release_cms": 1.41584235,
+          "storage_m3": 2457848.279729185
+        },
+        "timestamp": "2016-01-01T00:00:00",
+        "timestep": 0
+      },
+      "policy_id": "reference_v3_7_dkp_custom_system",
+      "transition": {
+        "adjustments": [],
+        "controlled_release_cms": 1.41584235,
+        "inflow_cms": 32.12531870666855,
+        "mass_balance_residual_m3": 0.0,
+        "minimum_release_shortfall_cms": 0.0,
+        "spill_cms": 0.0,
+        "storage_end_m3": 5111147.036945348,
+        "storage_start_m3": 2457848.279729185,
+        "target_release_cms": 1.41584235,
+        "total_outflow_cms": 1.41584235
+      }
+    },
+    "request_id": null,
+    "reservoir_id": "fe_walter",
+    "run_id": "fe-walter-paired-2016-llm_knowledge",
+    "schema_version": "reservoir-trace.v1",
+    "status": "RECORDED",
+    "timestamp": "2016-01-01",
+    "timestep": 0
+  },
+  "next_day_observation": {
+    "context": {
+      "evaporation_m3": 0.0,
+      "reservoir_id": "fe_walter",
+      "seepage_m3": 0.0
+    },
+    "inflow_cms": 22.353047216043645,
+    "release_upper_bound_cms": 81.50927056871882,
+    "schema_version": "reservoir-observation.v1",
+    "state": {
+      "capacity_m3": 135532852.33895192,
+      "dead_storage_m3": 49.3392742128,
+      "dt_seconds": 86400.0,
+      "maximum_release_cms": 283.16847,
+      "minimum_release_cms": 1.41584235,
+      "storage_m3": 5111147.036945348
+    },
+    "timestamp": "2016-01-02T00:00:00",
+    "timestep": 1
+  },
+  "operation_audit": {
+    "audit_binding_sha256": "1068934a6516da9fcc165fcca964dae7c69b43a18e00791404859843351c31d9",
+    "audit_contract": {
+      "aggregation": "all_required.v1",
+      "auditors": [
+        {
+          "auditor_id": "release_limits",
+          "implementation_sha256": "07519674dff3183872cf54331457cf5b963823a373d634dec52be27422e1dc5b",
+          "rubric_sha256": "69b5ef3b8c5a00737731d347b4b2189cd32653c6d87b33e1bb895927213cbc44",
+          "spec_sha256": "2bc8446297837e6321008a9f6967855afea6af2f662f08bcb66811d28e693a8e",
+          "version": "1"
+        }
+      ],
+      "input_sha256": "40c5e5dd989810d5cf941c1d9bcc6d5993ec03cdeb88dcee3aaa93c728c74617",
+      "schema_version": "reservoir-audit-suite.v1",
+      "suite_sha256": "cebdd73893c3d959763cdab5bdb2e31d8bd050931a03c2c37a9ac98d0f0c4392"
+    },
+    "audit_schema_version": "reservoir-audit.v1",
+    "citations": [
+      "R-MINNORM"
+    ],
+    "decision_id": "0a4d78e107089bfb46a2eec4fd9997fc3cf657ba070320c024f8c4cf58deca64",
+    "event_type": "audit",
+    "hits": [
+      "R-RELEASE (composite per-timestep decision; WCM Table 7-1 Parts A and B; \u00a77-01, \u00a77-03, \u00a77-05)",
+      "R-MINNORM, R-MINFC, R-MINDROUGHT (Minimum Release Schedule; WCM Table 7-1 Part B; \u00a77-01, \u00a77-05,c,3, \u00a78-04)",
+      "R-ATSITE (maximum release; WCM \u00a74-09, \u00a77-02a, \u00a77-05,c,1, Table 7-2 notes 1\u20132)",
+      "R-ZONE (seasonal rule curve \u2014 the normal operating target; WCM \u00a77-01, Plate 7-2)"
+    ],
+    "original_payload_ref": {
+      "path": "raw/audit_0a4d78e107089bfb46a2eec4fd9997fc3cf657ba070320c024f8c4cf58deca64.json",
+      "sha256": "01848cd62932530eb44f44dd6244e593d2bb7231ac20fc5f0e08216643e8b14d"
+    },
+    "provenance": {
+      "audit_suite_sha256": "cebdd73893c3d959763cdab5bdb2e31d8bd050931a03c2c37a9ac98d0f0c4392",
+      "auditor_id": "reservoir_audit_suite",
+      "auditor_specs": [
+        {
+          "auditor_id": "release_limits",
+          "implementation_sha256": "07519674dff3183872cf54331457cf5b963823a373d634dec52be27422e1dc5b",
+          "rubric_sha256": "69b5ef3b8c5a00737731d347b4b2189cd32653c6d87b33e1bb895927213cbc44",
+          "spec_sha256": "2bc8446297837e6321008a9f6967855afea6af2f662f08bcb66811d28e693a8e",
+          "version": "1"
+        }
+      ],
+      "auditor_version": "1",
+      "automatic_retry": true,
+      "backend": "reference_v3_7",
+      "backend_auditor_id": "original-v3.7-dkp",
+      "knowledge_package_ids": null,
+      "knowledge_package_sha256": null,
+      "matches_original_system_prompt": false,
+      "method": "dkp",
+      "mode": "llm",
+      "model": {
+        "api_key_env": null,
+        "base_url": "http://localhost:11434",
+        "max_attempts": 2,
+        "max_tokens": 2048,
+        "model": "gemma3:4b",
+        "provider": "ollama",
+        "retry_delay_seconds": 2.0,
+        "seed": null,
+        "temperature": 0.7,
+        "timeout_seconds": 120.0
+      },
+      "model_used": true,
+      "original_prompt_sha256": "c018043ce34a6e47024024ce63622d837dffa686a15523eb97d4bdd4ae678352",
+      "plan": {
+        "agent_count": 1,
+        "agent_reservoirs": {
+          "fe_operator": "FEWalter"
+        },
+        "agent_strategies": {
+          "fe_operator": "reference_v3_7"
+        },
+        "case": "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\_qa\\fe-walter-paired-2016-20261016T1946Z\\case.json",
+        "case_root": "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\_qa\\fe-walter-paired-2016-20261016T1946Z",
+        "data_kind": "simulated_local_inflow",
+        "days": 366,
+        "end_date": "2016-12-31",
+        "live_readiness": {
+          "blockers": [],
+          "rationale": [
+            "Annual interface diagnostic; not an accepted operating policy.",
+            "Initial reservoir storage is the retained 1992.61 acre-foot assumption, not a measurement.",
+            "Downstream UH=[1] is identity routing, not calibrated travel time."
+          ],
+          "ready": true
+        },
+        "live_ready": true,
+        "llm_agent_count": 1,
+        "max_calls": null,
+        "model_profile_count": 1,
+        "network_calls": 0,
+        "output": "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\_qa\\fe-walter-paired-2016-20261016T1946Z\\run-llm_knowledge",
+        "passive_reservoir_count": 0,
+        "planned_llm_calls": 366,
+        "run_id": "fe-walter-paired-2016-llm_knowledge",
+        "schema_version": "llm-reservoir-plan.v1",
+        "settings_sha256": "257d7ad4a5f35bb09db70fccc75a22486f463c0af5a049b1ca062e3c8b2914f9",
+        "source_files": {
+          "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\HydroCNHS-Delaware-Operations\\data\\anik_v3_7\\DKP_FEWalter_Dam_v1.2.md": "7fb3b9e75c1d6a52168049afa80c527a49e606f1c0889e5d14b31f874502b206",
+          "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\HydroCNHS-Delaware-Operations\\examples\\fe_walter\\prompt.txt": "0af507a55e42daffb5b49cc3870d3c6247292b0435f80882b7b7a5f2302c6c7c",
+          "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\HydroCNHS-Delaware-Operations\\third_party\\anik_v3_7\\README.txt": "3b8914fca36281b7fdd0da44605f92d826e610a5cebf30e53be0e8941f6f407b",
+          "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\HydroCNHS-Delaware-Operations\\third_party\\anik_v3_7\\benchmark_release.py": "f47500e3ccad55929d4069a6800ee24cb50e7605641c9ec8f03c4767d2cafc0a",
+          "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\HydroCNHS-Delaware-Operations\\third_party\\anik_v3_7\\dkp_llm_release.py": "0045f524f55cc39551ae4eec26b69d64d8758fcbe470016ad36e6e7ed8a54203",
+          "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\HydroCNHS-Delaware-Operations\\third_party\\anik_v3_7\\reservoir_model.py": "eb159daa1437bdad5d093873fa97eedfc7daa7e482f023b6a5070c1d67ea01c8",
+          "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\HydroCNHS-Delaware-Operations\\third_party\\anik_v3_7\\source_manifest.json": "44efb02245a6023c1eceb6541667c102323d9f00339acb3552cf4f2b9754153c",
+          "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\HydroCNHS-Delaware-Operations\\third_party\\anik_v3_7\\zeroshot_llm_release.py": "e17ce6310b20902c0f6f4e11bce877e90a1ddd9bf128a7ecc0e50b5d18481dff",
+          "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\_qa\\fe-walter-paired-2016-20261016T1946Z\\case.json": "242115406cfe5b658d2e3baa6fb0a85d8af3727fa66ae4f985c8bbb6894da29f",
+          "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\_qa\\fe-walter-paired-2016-20261016T1946Z\\inflows.csv": "1088d3b3d024f7dc0ba7c4460ac00263aab344f3255cfa4ebaeba5585f17e042",
+          "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\_qa\\fe-walter-paired-2016-20261016T1946Z\\llm_knowledge.yaml": "257d7ad4a5f35bb09db70fccc75a22486f463c0af5a049b1ca062e3c8b2914f9"
+        },
+        "start_date": "2016-01-01"
+      },
+      "prompt_id": null,
+      "prompt_sha256": "0af507a55e42daffb5b49cc3870d3c6247292b0435f80882b7b7a5f2302c6c7c",
+      "prompt_strategy_id": "reference_v3_7_dkp_custom_system",
+      "prompt_version": "3.7+custom-system",
+      "reference_options": {
+        "dkp": "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\HydroCNHS-Delaware-Operations\\data\\anik_v3_7\\DKP_FEWalter_Dam_v1.2.md",
+        "dkp_no_missing_inputs": true,
+        "hide_availability_line": true,
+        "method": "dkp",
+        "profile": "fe_walter",
+        "prompt_storage": false,
+        "system_prompt": "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\HydroCNHS-Delaware-Operations\\examples\\fe_walter\\prompt.txt",
+        "system_prompt_mode": "custom",
+        "system_prompt_sha256": "0af507a55e42daffb5b49cc3870d3c6247292b0435f80882b7b7a5f2302c6c7c",
+        "zeroshot_knowledge": "target"
+      },
+      "reference_source_sha256": {
+        "dkp": "7fb3b9e75c1d6a52168049afa80c527a49e606f1c0889e5d14b31f874502b206",
+        "system_prompt": "0af507a55e42daffb5b49cc3870d3c6247292b0435f80882b7b7a5f2302c6c7c"
+      },
+      "reservoir_profile": {
+        "configuration_sha256": "fb3c192de833f10656337a870441f0a7a837d842c0a38e49e8ce04f04a9c1076",
+        "native_model_sha256": "eb159daa1437bdad5d093873fa97eedfc7daa7e482f023b6a5070c1d67ea01c8",
+        "profile_id": "fe_walter",
+        "profile_source": "pinned_builtin"
+      },
+      "response_parser_id": "original-v3.7-cfs",
+      "schema_version": "yaml-experiment-provenance.v1",
+      "settings": {
+        "agents": {
+          "fe_operator": {
+            "auditors": [
+              "release_limits"
+            ],
+            "mode": "llm",
+            "model": "reservoir_model",
+            "reference": {
+              "dkp": "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\HydroCNHS-Delaware-Operations\\data\\anik_v3_7\\DKP_FEWalter_Dam_v1.2.md",
+              "dkp_no_missing_inputs": true,
+              "hide_availability_line": true,
+              "method": "dkp",
+              "profile": "fe_walter",
+              "prompt_storage": false,
+              "system_prompt": "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\HydroCNHS-Delaware-Operations\\examples\\fe_walter\\prompt.txt",
+              "system_prompt_mode": "custom",
+              "zeroshot_knowledge": "target"
+            },
+            "reservoir": "FEWalter",
+            "strategy": "reference_v3_7"
+          }
+        },
+        "auditors": {
+          "release_limits": {
+            "type": "release_bounds",
+            "version": "1"
+          }
+        },
+        "case": "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\_qa\\fe-walter-paired-2016-20261016T1946Z\\case.json",
+        "case_root": "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\_qa\\fe-walter-paired-2016-20261016T1946Z",
+        "end_date": "2016-12-31",
+        "max_calls": null,
+        "models": {
+          "reservoir_model": {
+            "api_key_env": null,
+            "base_url": "http://localhost:11434",
+            "max_attempts": 2,
+            "max_tokens": 2048,
+            "model": "gemma3:4b",
+            "provider": "ollama",
+            "retry_delay_seconds": 2,
+            "seed": null,
+            "temperature": 0.7,
+            "timeout_seconds": 120
+          }
+        },
+        "output": "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\_qa\\fe-walter-paired-2016-20261016T1946Z\\run-llm_knowledge",
+        "run_id": "fe-walter-paired-2016-llm_knowledge",
+        "schema_version": "llm-reservoir-experiment.v1",
+        "start_date": "2016-01-01"
+      },
+      "source_files": {
+        "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\HydroCNHS-Delaware-Operations\\data\\anik_v3_7\\DKP_FEWalter_Dam_v1.2.md": "7fb3b9e75c1d6a52168049afa80c527a49e606f1c0889e5d14b31f874502b206",
+        "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\HydroCNHS-Delaware-Operations\\examples\\fe_walter\\prompt.txt": "0af507a55e42daffb5b49cc3870d3c6247292b0435f80882b7b7a5f2302c6c7c",
+        "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\HydroCNHS-Delaware-Operations\\third_party\\anik_v3_7\\README.txt": "3b8914fca36281b7fdd0da44605f92d826e610a5cebf30e53be0e8941f6f407b",
+        "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\HydroCNHS-Delaware-Operations\\third_party\\anik_v3_7\\benchmark_release.py": "f47500e3ccad55929d4069a6800ee24cb50e7605641c9ec8f03c4767d2cafc0a",
+        "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\HydroCNHS-Delaware-Operations\\third_party\\anik_v3_7\\dkp_llm_release.py": "0045f524f55cc39551ae4eec26b69d64d8758fcbe470016ad36e6e7ed8a54203",
+        "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\HydroCNHS-Delaware-Operations\\third_party\\anik_v3_7\\reservoir_model.py": "eb159daa1437bdad5d093873fa97eedfc7daa7e482f023b6a5070c1d67ea01c8",
+        "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\HydroCNHS-Delaware-Operations\\third_party\\anik_v3_7\\source_manifest.json": "44efb02245a6023c1eceb6541667c102323d9f00339acb3552cf4f2b9754153c",
+        "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\HydroCNHS-Delaware-Operations\\third_party\\anik_v3_7\\zeroshot_llm_release.py": "e17ce6310b20902c0f6f4e11bce877e90a1ddd9bf128a7ecc0e50b5d18481dff",
+        "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\_qa\\fe-walter-paired-2016-20261016T1946Z\\case.json": "242115406cfe5b658d2e3baa6fb0a85d8af3727fa66ae4f985c8bbb6894da29f",
+        "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\_qa\\fe-walter-paired-2016-20261016T1946Z\\inflows.csv": "1088d3b3d024f7dc0ba7c4460ac00263aab344f3255cfa4ebaeba5585f17e042",
+        "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\_qa\\fe-walter-paired-2016-20261016T1946Z\\llm_knowledge.yaml": "257d7ad4a5f35bb09db70fccc75a22486f463c0af5a049b1ca062e3c8b2914f9"
+      },
+      "system_prompt_mode": "custom",
+      "system_prompt_source": "file"
+    },
+    "reasons": [
+      "pool_position 'above_target' contradicts the water level (1300.00 ft vs target 1300.0 ft)",
+      "release_relation_to_inflow 'equal_to_inflow' contradicts release 50.0 vs inflow 1,134.5 cfs",
+      "intended_storage_direction 'hold' contradicts the water balance (storage will increase)"
+    ],
+    "request_id": null,
+    "reservoir_id": "fe_walter",
+    "run_id": "fe-walter-paired-2016-llm_knowledge",
+    "schema_version": "reservoir-trace.v1",
+    "status": "FAIL",
+    "timestamp": "2016-01-01",
+    "timestep": 0,
+    "warnings": []
+  }
+}

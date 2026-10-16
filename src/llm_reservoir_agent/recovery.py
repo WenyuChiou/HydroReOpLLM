@@ -37,8 +37,8 @@ class RecoveryTape:
         self._incomplete_tails = {}
         experiment = _object(self.source / "experiment.json")
         self.source_run_id = experiment["run_id"]
-        implementations = {p.name: _sha(p) for p in Path(__file__).parent.glob("*.py")}
-        from .experiment import _adapter_implementation_files
+        from .experiment import _adapter_implementation_files, _implementation_files
+        implementations = _implementation_files()
         root = Path(runtime_root)
         if (experiment.get("implementation_files") != implementations
                 or experiment.get("adapter_implementation_files") != _adapter_implementation_files()

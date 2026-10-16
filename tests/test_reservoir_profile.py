@@ -8,7 +8,7 @@ from types import SimpleNamespace
 
 import pytest
 
-from delaware_operations.anik_adapter import load_anik
+from llm_reservoir_agent.plugins.anik_v3_7 import load_anik
 from llm_reservoir_agent import reservoir_profile
 
 

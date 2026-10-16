@@ -1,110 +1,98 @@
-# Code structure and the daily simulation loop
+# Code structure and the daily operation loop
 
-Start with the [installation](GETTING_STARTED.md), then the
-[annual FE Walter walkthrough](../examples/fe_walter/annual/README.md).
-You configure files; the existing experiment CLI connects the modules.
+The installed code separates reusable hydrology and reservoir operation from
+regional data preparation and teaching cases. Start with
+[Build a weather-to-operation simulation](BUILD_SIMULATION.md) before reading the
+modules below.
 
-## 1. Keep three kinds of settings separate
-
-| Settings | What you decide | FE Walter example |
-|---|---|---|
-| Hydrology | Weather, subcatchments, runoff parameters and upstream routing | [Accepted native YAML](../data/accepted/fe_walter_hydrology.yaml) |
-| Physical case | Reservoir capacity, initial storage, release bounds and river connections | Generated `case.json` |
-| Experiment | Dates, operation method, model, prompt, optional knowledge and checks | Generated `rule.yaml`, `llm_available.yaml`, `llm_knowledge.yaml` |
-
-Changing the LLM method does not require recalibrating the hydrology. Keep the
-physical case fixed when comparing the operation methods. The
-[hydrology chapter](../examples/fe_walter/hydrology.md) explains the accepted
-weather/GIS preparation, parameter derivation and calibration/validation periods.
-
-## 2. Follow the entry points
+## Installed reusable packages
 
 ```text
-run_experiment.py                  check / run / resume / verify
 src/
-  hydrocnhs/                       Accepted hydrology, routing and Dam API
-  delaware_operations/
-    historical.py                  Accepted continuous weather-to-inlet calculation
+  hydrocnhs/                         Native rainfall-runoff, routing and Dam API
   llm_reservoir_agent/
-    workflow.py                    Validate YAML and choose operation backends
-    experiment.py                  Run orchestration and durable result records
-    network.py                     Connect native Dam agents and river routing
-    agent.py                       Assemble current information and execute a decision
-    physics.py                     Common storage, controlled release and spill
-    reference_backend.py           Retained FE Walter LLM scenario implementation
-    configured_backend.py          General prompt/provider interface and bounded retries
-    auditor.py                     Record configured operating checks
-    trace.py                       Connect decisions, audit and physical records
-    recovery.py                    Rebuild a saved prefix without new model requests
-    verification.py                Check saved execution evidence and water accounting
-examples/fe_walter/
-  prompt.txt                       One shared operator prompt for both LLM scenarios
-  annual/prepare.py                Prepare the common year and method configurations
+    weather.py                       Validate weather and run full-period hydrology
+    coupled.py                       Compile the two-stage coupled simulation
+    workflow.py                      check / prepare / run / verify / resume CLI
+    network.py                       Daily native Dam and downstream routing host
+    physics.py                       Release limits, storage balance and spill
+    configured_backend.py            General prompt, provider and bounded retries
+    information.py                   Causal decision-information selection
+    audit.py                         Normalize, serialize and hash reported audits
+    auditor.py                       Compose explicit diagnostic checks around a backend
+    recovery.py                      Verify and reconstruct an interrupted prefix
 ```
 
-The two LLM scenarios use the retained reference implementation. For your own
-reservoir, the general `configured` method supports your prompt, information and
-auditors; the reference knowledge rules are specific to FE Walter.
+`experiment.py` writes the durable operation records used by verification. The
+console command `reservoir-experiment` enters `workflow.py`; users do not need to
+wire these modules together in a custom script.
 
-## 3. Prepare upstream inflow
+## Optional plugins and example-only sources
 
-`annual/prepare.py` calls `historical.run_historical()`. The accepted continuous
-1989–2025 GWLF/Lohmann simulation reads precipitation, temperature and PET for
-seven hydrological units. Preparation retains the initialization/routing history
-and selects all 366 days of 2016. It writes the routed inlet, shared physical case
-and three experiment YAMLs. This step makes no LLM request.
+`src/llm_reservoir_agent/plugins/anik_v3_7.py` preserves the optional F.E. Walter
+reference prompt and response behavior. It is a decision plugin, not a regional
+weather, GIS or hydrology-preparation module.
 
-The implemented demonstration is a two-stage execution: prepare the natural
-inlet, then run daily coupled reservoir operation and downstream routing. It
-does not yet expose a single generic weather-mode experiment command.
+The former `src/delaware_operations` material now lives under
+`examples/fe_walter/legacy/`. It remains as source-only historical compatibility
+material and is not installed as the common runtime.
 
-## 4. Choose the decision method
+Regional GIS processing, weather extraction, calibration/validation evidence,
+benchmark statistics, F.E. Walter thresholds, prompts and knowledge documents
+belong under `examples/` and `data/`. They are case evidence rather than defaults
+for another basin.
 
-`workflow.load_settings()` checks files, units, dates, hashes and agent bindings.
-It chooses the backend from `agents.fe_operator.strategy` and its settings:
+## The two execution stages
 
-| YAML choice | Who supplies the release request |
+### Stage 1: prepare weather-derived boundaries
+
+`coupled.load_coupled_settings()` validates the coupled YAML, physical case,
+operation method and complete weather inputs without running hydrology or calling
+a model. `weather.simulate_weather()` then runs the accepted agent-free native
+model over its complete start/end period. `coupled.prepare_coupled()` selects the
+requested operation dates and compiles a pinned ordinary reservoir experiment.
+
+Preparation writes no reservoir decisions. It records `model_requests: 0` and
+keeps hydrological warm-up separate from the physical case's initial storage.
+
+### Stage 2: operate and route daily
+
+For each operation day:
+
+1. `network.py` supplies the prepared incremental local flows to the native host.
+2. The selected backend receives the current inlet, beginning storage and allowed history.
+3. A rule or LLM returns a requested controlled release.
+4. Response parsing and configured audits record their evidence.
+5. `physics.py` limits the request by operating bounds and available water, then computes spill and ending storage.
+6. `network.py` injects total outflow—implemented controlled release plus spill—into native downstream routing once.
+7. The journals commit the action, physics and routing results before the next day can use them.
+
+This is causal daily operation over a prepared natural-flow boundary. Weather is
+not recomputed in response to the reservoir decision, and same-day downstream
+flow is not returned to that day's agent.
+
+## Configuration ownership
+
+| File or section | Responsibility |
 |---|---|
-| `strategy: benchmark` | The deterministic rule-based benchmark |
-| `strategy: reference_v3_7`, `reference.method: zeroshot` | LLM using available information |
-| `strategy: reference_v3_7`, `reference.method: dkp` | LLM with retrieved operating guidance |
+| Native HydroCNHS YAML | Full hydrology period, subbasins, GWLF/ABCD parameters and Lohmann routing |
+| Weather CSV | Complete daily precipitation, temperature and PET for every weather-driven unit |
+| `reservoir-physical-case.v1` | Reservoir physics, initial storage and operation-network connections |
+| Coupled YAML `hydrology` | Model/forcing paths, zero-flow nodes and non-overlapping inlet bindings |
+| Coupled YAML `agents` | Rule, general configured LLM, or optional preserved example method |
+| Prompt/information/auditors | Operating instructions, causal fields and explicit diagnostics |
 
-For both LLM scenarios, `reference.system_prompt` points to the same file.
-The method controls whether operating guidance is retrieved into the daily
-message. Model settings are separate from water-balance parameters.
+Changing only the operation method does not require hydrology recalibration. Use
+`hydrology.prepared_from` to reuse verified boundaries when all hydrology inputs,
+dates, bindings, code and runtime still match.
 
-## 5. Walk through one simulated day
+## Failure and recovery boundaries
 
-1. **Route the water arriving at the reservoir.** Native HydroCNHS supplies the
-   day's simulated inlet. The annual demonstration uses the prepared upstream
-   inlet and an identity downstream reach.
-2. **Build decision information.** `agent.py` supplies the date, inlet, beginning
-   storage/pool and committed prior releases.
-3. **Request a release.** The selected backend builds the daily prompt, optionally
-   retrieves knowledge and obtains the model response.
-4. **Check the response.** Parse complete JSON, required fields, units and finite
-   numeric values. Bounded retries use the same information without advancing
-   reservoir storage.
-5. **Record operating checks.** The auditor records its verdict. A target miss or
-   diagnostic audit FAIL does not resample the decision or stop the daily loop.
-6. **Implement and route.** `physics.apply_transition()` calculates controlled
-   release, spill and ending storage. Native routing receives controlled release
-   plus spill once.
-7. **Commit feedback.** The journals save the decision, audit and physical result.
-   The next day begins with ending storage and the implemented release history.
+An invalid response or retry does not advance reservoir physics. A committed day
+contains the implemented outcome used by the next day. If execution stops,
+`recovery.py` checks and reconstructs the saved prefix in a new output directory;
+it never modifies the interrupted run.
 
-Repeat this daily loop to December 31. The [captured decision example](../examples/fe_walter/annual/decision_2016_01_01.md)
-shows actual inputs, full messages, response, audit and next-day feedback from
-the earlier diagnostic.
-
-## 6. Separate completion from reservoir performance
-
-A complete annual run has 366 committed days and passes saved-evidence and
-water-accounting verification. That does not establish an acceptable operating
-policy. Plot **pool elevation** and **water release**, then assess seasonal
-performance separately. Keep the original raw responses and audit labels.
-
-If the process is interrupted, `resume` reconstructs the saved prefix in a new
-directory. It checks request hashes and physical state before asking for a new
-decision. Read the [recovery instructions](../examples/fe_walter/annual/README.md#7-continue-an-interrupted-run)
-before using it.
+Read [Weather and inflow inputs](WEATHER_INPUTS.md) for the binding contract and
+the [F.E. Walter coupled example](../examples/fe_walter/coupled/README.md) for a
+concrete configuration.

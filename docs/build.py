@@ -39,6 +39,15 @@ ANNUAL_DOWNLOADS = {
     )
     },
 }
+CONFIG_DOWNLOADS = {
+    f"examples/fe_walter/coupled/{name}": name
+    for name in ("rule.yaml", "llm_available.yaml", "llm_knowledge.yaml", "reservoirs.json")
+}
+COMPLETED_DOWNLOADS = {
+    f"examples/fe_walter/coupled/outputs/{name}": name
+    for name in ("daily.csv", "summary.json", "pool_release.svg", "pool_release.pdf",
+                 "llm_available_decision.json", "llm_knowledge_decision.json")
+}
 PAGES = {
     "docs/index.md": "index.md",
     "docs/index.zh-TW.md": "index.zh-TW.md",
@@ -48,6 +57,7 @@ PAGES = {
     "examples/fe_walter/README.zh-TW.md": "examples/fe_walter/README.zh-TW.md",
     "examples/fe_walter/hydrology.md": "examples/fe_walter/hydrology.md",
     "examples/fe_walter/annual/README.md": "examples/fe_walter/annual/README.md",
+    "examples/fe_walter/coupled/README.md": "examples/fe_walter/coupled/README.md",
     "examples/fe_walter/annual/results.md": "examples/fe_walter/annual/results.md",
     "examples/fe_walter/annual/decision_2016_01_01.md": "examples/fe_walter/annual/decision_2016_01_01.md",
     "examples/fe_walter/hydrology.zh-TW.md": "examples/fe_walter/hydrology.zh-TW.md",
@@ -68,7 +78,7 @@ PAGES = {
         "USER_GUIDE.md", "USER_GUIDE.zh-TW.md", "HYDROLOGY_SETUP.md",
         "LIVE_READINESS.md", "auditor_plugins.md", "PROJECT_INVENTORY.md", "BUILDING.md",
         "GETTING_STARTED.md", "BUILD_SIMULATION.md", "BUILD_SIMULATION.zh-TW.md", "FIRST_DECISION.md", "INFORMATION.md", "INFORMATION.zh-TW.md",
-        "PARAMETER_REFERENCE.md", "RESULTS_GUIDE.md", "REFERENCE.md", "RUNNING.md", "CODE_STRUCTURE.md",
+        "PARAMETER_REFERENCE.md", "RESULTS_GUIDE.md", "REFERENCE.md", "RUNNING.md", "CODE_STRUCTURE.md", "WEATHER_INPUTS.md",
     )},
 }
 # Match the inner image in a linked badge before its enclosing Markdown link.
@@ -105,6 +115,14 @@ def prepare(source: Path, *, source_ref: str = "main") -> None:
             elif not match[1].startswith("!") and relative in ANNUAL_DOWNLOADS:
                 import os
                 output = source / "_annual_downloads" / ANNUAL_DOWNLOADS[relative]
+                value = Path(os.path.relpath(output, (source / destination).parent)).as_posix()
+            elif not match[1].startswith("!") and relative in CONFIG_DOWNLOADS:
+                import os
+                output = source / "_config_downloads" / CONFIG_DOWNLOADS[relative]
+                value = Path(os.path.relpath(output, (source / destination).parent)).as_posix()
+            elif not match[1].startswith("!") and relative in COMPLETED_DOWNLOADS:
+                import os
+                output = source / "_completed_downloads" / COMPLETED_DOWNLOADS[relative]
                 value = Path(os.path.relpath(output, (source / destination).parent)).as_posix()
             elif match[1].startswith("!"):
                 output = source / relative
@@ -162,6 +180,23 @@ def prepare(source: Path, *, source_ref: str = "main") -> None:
     annual_downloads.mkdir()
     for relative, name in ANNUAL_DOWNLOADS.items():
         shutil.copyfile(ROOT / relative, annual_downloads / name)
+    config_downloads = source / "_config_downloads"
+    config_downloads.mkdir()
+    for relative, name in CONFIG_DOWNLOADS.items():
+        shutil.copyfile(ROOT / relative, config_downloads / name)
+        # Canonical files also support copyable literalinclude blocks in tutorials.
+        target = source / relative
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(ROOT / relative, target)
+    completed_downloads = source / "_completed_downloads"
+    completed_downloads.mkdir()
+    for relative, name in COMPLETED_DOWNLOADS.items():
+        shutil.copyfile(ROOT / relative, completed_downloads / name)
+    for name in ("llm_available_reply.txt", "llm_knowledge_reply.txt"):
+        relative = "examples/fe_walter/coupled/outputs/" + name
+        target = source / relative
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(ROOT / relative, target)
     # One canonical prompt supplies both the copyable manual and the two scenarios.
     shared_prompt = source / "examples/fe_walter/prompt.txt"
     shared_prompt.parent.mkdir(parents=True, exist_ok=True)
@@ -178,8 +213,8 @@ def prepare(source: Path, *, source_ref: str = "main") -> None:
         shutil.copyfile(item, case_downloads / item.name)
     groups = {
         "Overview": ["docs/README"],
-        "Build a simulation": ["docs/GETTING_STARTED", "docs/BUILD_SIMULATION", "docs/USER_GUIDE", "docs/INFORMATION", "docs/LLM_MODULES"],
-        "FE Walter case study": ["examples/fe_walter/README", "examples/fe_walter/hydrology", "examples/fe_walter/coupling", "examples/fe_walter/annual/README", *[f"examples/fe_walter/{method}/README" for method in ("benchmark", "zero_shot", "dkp")], "examples/fe_walter/results"],
+        "Build a simulation": ["docs/GETTING_STARTED", "docs/BUILD_SIMULATION", "docs/WEATHER_INPUTS", "docs/USER_GUIDE", "docs/INFORMATION", "docs/LLM_MODULES"],
+        "FE Walter case study": ["examples/fe_walter/README", "examples/fe_walter/hydrology", "examples/fe_walter/coupled/README", "examples/fe_walter/coupling", "examples/fe_walter/annual/README", *[f"examples/fe_walter/{method}/README" for method in ("benchmark", "zero_shot", "dkp")], "examples/fe_walter/results"],
         "Further configuration": ["tutorials/advanced", "docs/RESULTS_GUIDE", "docs/RUNNING"],
         "Reference": ["docs/PARAMETER_REFERENCE", "docs/REFERENCE", "docs/FIRST_DECISION", "docs/HYDROLOGY_SETUP",
                       "examples/fe_walter/annual/decision_2016_01_01", "examples/fe_walter/annual/results", "docs/CODE_STRUCTURE",

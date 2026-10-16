@@ -30,9 +30,16 @@ from .trace import TraceJournal
 
 def _adapter_implementation_files():
     """Pin host adapters as well as the separately pinned upstream/vendor core."""
-    folder = Path(__file__).resolve().parents[1] / "delaware_operations"
+    folder = Path(__file__).resolve().parent / "plugins"
     return {p.name: hashlib.sha256(p.read_bytes()).hexdigest()
             for p in folder.glob("*.py")}
+
+
+def _implementation_files():
+    """Pin package Python sources, including optional installed plugins."""
+    folder = Path(__file__).resolve().parent
+    return {p.relative_to(folder).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest()
+            for p in folder.rglob("*.py")}
 
 
 def write_json(path, value):
@@ -183,8 +190,7 @@ def run_experiment(config, rows, backends, *, output, run_id, project_root=PROJE
             "network": config, "inflow_records": rows, "backend_provenance": metadata,
             "python": platform.python_version(),
             "hydrocnhs_core": json.loads((root / "environment/hydrocnhs-core.json").read_text(encoding="utf-8")),
-            "implementation_files": {p.name: hashlib.sha256(p.read_bytes()).hexdigest()
-                                     for p in Path(__file__).parent.glob("*.py")},
+            "implementation_files": _implementation_files(),
             "adapter_implementation_files": _adapter_implementation_files(),
             "abm_module_sha256": hashlib.sha256((root / "examples/llm_reservoir_abm.py").read_bytes()).hexdigest(),
             "automatic_retry": bool((provenance or {}).get("automatic_retry", False)),

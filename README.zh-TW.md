@@ -46,22 +46,23 @@ HydroOpsLLM 以**一天為時間步長**推進耦合系統：讀取入流與狀�
 先執行不需語言模型或 API key 的 F.E. Walter 規則式範例：
 
 ```sh
-python run_experiment.py check examples/fe_walter/benchmark/experiment.hydroopslm.offline.yaml
-python run_experiment.py run examples/fe_walter/benchmark/experiment.hydroopslm.offline.yaml
-python run_experiment.py verify runs/hydroopslm-fe-walter-benchmark --require-offline
+reservoir-experiment check examples/fe_walter/coupled/rule.yaml
+reservoir-experiment prepare examples/fe_walter/coupled/rule.yaml
+reservoir-experiment run examples/fe_walter/coupled/rule.yaml
+reservoir-experiment verify runs/fe-walter-coupled-rule/operation --require-offline
 ```
 
-此範例依操作規則計算 2016 年 1 月 1–3 日的逐日放流，並非固定動作。請使用尚不存在的輸出位置；設定、延長期間與再次執行方式見[執行指南](docs/USER_GUIDE.md)。
+此範例先用既有 HydroCNHS 模型從氣象計算入流，再模擬 2016 年逐日水庫操作與下游演算。`prepare` 不發送 LLM 請求。設定順序見[建立模擬](docs/BUILD_SIMULATION.md)；更換操作方法見[完整案例教學](examples/fe_walter/coupled/README.md)。
 
-### 探索 Rule-based、Zero-shot 與 DKP
+### 同一案例，三種操作方法
 
 [F.E. Walter 教學](examples/fe_walter/README.md)以同一套逐日耦合流程說明三種方法：
 
 | 方法 | 逐日決策 | 範例 |
 |---|---|---|
 | Rule-based | 依入流、蓄水與歷史統計執行防洪規則 | [執行與檢視](examples/fe_walter/benchmark/README.md) |
-| Zero-shot | LLM 使用操作指示與可用水庫資訊 | [提示詞、回覆與操作](examples/fe_walter/zero_shot/README.md) |
-| DKP | LLM 另使用檢索的文件知識 | [檢索、回覆與操作](examples/fe_walter/dkp/README.md) |
+| LLM 與可用資訊 | 使用操作指示與可用水庫資訊 | [提示詞、回覆與操作](examples/fe_walter/zero_shot/README.md) |
+| LLM 與檢索知識 | 另使用檢索的文件知識 | [檢索、回覆與操作](examples/fe_walter/dkp/README.md) |
 
 LLM 範例保留 Anik V3.7 reference 方法的整合。[主教學 notebook](tutorials/main.ipynb)可直接查看已保存的逐日提示詞、回覆、放流與蓄水，不需發送模型請求。執行前先檢查兩份 LLM 設定：
 
@@ -92,20 +93,20 @@ LLM 接收訊息中提供的資訊；蓄水與河川演算仍由主程式掌管�
 
 | 元件 | 現行模組 | 責任 |
 |---|---|---|
-| 設定與編排 | `workflow`、`case`、`experiment` | 驗證輸入、組合方法、執行條件管制與協調實驗 |
+| 設定與編排 | `weather`、`coupled`、`workflow`、`case`、`experiment` | 從氣象準備入流、驗證輸入、組合方法與協調實驗 |
 | 原生模擬耦合 | `network`、`agent` | 將策略接至 HydroCNHS Dam agents、演算與已提交結果回饋 |
 | 物理收支 | `physics`、`passive`、`balance` | 實施放流、溢流、蓄水與水庫／河網水量收支 |
 | 決策資訊 | `information`、`information_runtime` | 選取時間條件合格的資料並接入模擬資訊 |
 | 策略與 provider | `configured_backend`、`benchmark`、`reference_backend`、`policy_adapter` | 產生及標準化提案，保留各方法的特定行為 |
 | 稽核與證據 | `auditor`、`configured_audit`、`outcome`、`trace`、`verification` | 評估設定的準則、診斷演算結果並驗證保存紀錄 |
 
-上述模組屬於 `llm_reservoir_agent`。隨附的 `hydrocnhs` 命名空間保留上游 API；`delaware_operations` 保留歷史與相容程式，其中部分 adapters 仍被 reference 方法使用。介面與擴充界線見 [LLM 模組](docs/LLM_MODULES.md)。
+上述模組屬於 `llm_reservoir_agent`。隨附的 `hydrocnhs` 命名空間保留上游 API；案例準備與歷史相容程式位於 `examples/fe_walter/legacy`。選用的 reference adapters 位於 `llm_reservoir_agent.plugins`；安裝套件不會匯入案例程式。介面與擴充界線見 [LLM 模組](docs/LLM_MODULES.md)。
 
 ## 文件與研究使用
 
 [使用手冊](https://wenyuchiou.github.io/HydroOpsLLM/) · [設計模擬](docs/BUILD_SIMULATION.md) · [模型設定](docs/USER_GUIDE.md) · [閱讀結果](docs/RESULTS_GUIDE.md)
 
-目前 CLI 使用給定的逐日入流，搭配原生 HydroCNHS 河川演算與 Dam 耦合。F.E. Walter 範例讀取固定保存的水文輸出；氣象驅動整合需要明確設定原生模型與策略接線，見[水文設定](docs/HYDROLOGY_SETUP.md)與[逐日耦合](examples/fe_walter/coupling.md)。
+正式入口先執行氣象驅動的水文計算，再逐日推進原生 Dam 操作與下游演算。使用者提供水文與水庫參數，再於 YAML 選 Rule-based 或 LLM。這個兩階段流程不會把水庫決策回饋至上游逕流；原有的預先計算入流入口仍可使用。
 
 請記錄程式 commit、環境、輸入、提示詞、模型設定及完整執行證據。物理假設、稽核解讀與擴充需求見[案例指南](examples/fe_walter/README.md)、[模組指南](docs/LLM_MODULES.md)與[執行指南](docs/RUNNING.md)。本套件為研究軟體；操作稽核不構成水壩安全認證。
 

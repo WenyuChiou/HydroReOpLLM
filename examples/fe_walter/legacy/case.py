@@ -15,7 +15,7 @@ import math
 from datetime import date, timedelta
 from pathlib import Path
 
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
+PROJECT_ROOT = Path(__file__).resolve().parents[3]
 HYDROCNHS_COMMIT = "fdd5097a3fcabb312c6c3739efc71da2d67c47da"
 CFS_TO_CMS = 0.028316846592
 

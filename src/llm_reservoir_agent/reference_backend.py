@@ -76,7 +76,7 @@ def validate_reference(spec, base, runtime_root, *, mode="offline"):
         raise ValueError("custom system_prompt_mode requires a system_prompt file")
     manifest = Path(runtime_root) / "third_party/anik_v3_7/source_manifest.json"
     metadata = read_json(manifest)
-    from delaware_operations.anik_adapter import _ANIK_SHA256
+    from .plugins.anik_v3_7 import _ANIK_SHA256
     if any(metadata["files"].get(name) != expected for name, expected in _ANIK_SHA256.items()):
         raise ValueError("reference manifest does not match fixed V3.7 source contract")
     pins[str(manifest)] = hashlib.sha256(manifest.read_bytes()).hexdigest()
@@ -254,7 +254,7 @@ class ReferenceBackend(DKPPolicyAdapter):
             raise ValueError("reference profile must match physical reservoir_id")
         self._mode = mode
         provider_model = model
-        from delaware_operations.anik_adapter import load_anik
+        from .plugins.anik_v3_7 import load_anik
         model = load_anik(runtime_root)
         from .reservoir_profile import load_profile_config
         if 'profile_file' in settings and hashlib.sha256(Path(settings['profile_file']).read_bytes()).hexdigest()!=settings['profile_file_sha256']:

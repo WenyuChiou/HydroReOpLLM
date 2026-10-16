@@ -13,11 +13,11 @@ from unittest.mock import Mock, patch
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from delaware_operations.contracts import ReservoirAction, ReservoirObservation
-from delaware_operations.dkp_policy_adapter import DKPPolicyAdapter
-from delaware_operations.llm_policy_adapter import LLMPolicyAdapter
-from delaware_operations.physics import PhysicalConfig, apply_transition
-from delaware_operations.policies import ConstantPolicy
+from examples.fe_walter.legacy.contracts import ReservoirAction, ReservoirObservation
+from examples.fe_walter.legacy.dkp_policy_adapter import DKPPolicyAdapter
+from examples.fe_walter.legacy.llm_policy_adapter import LLMPolicyAdapter
+from examples.fe_walter.legacy.physics import PhysicalConfig, apply_transition
+from examples.fe_walter.legacy.policies import ConstantPolicy
 
 
 def physical():
@@ -71,8 +71,8 @@ class NeutralAdapterTests(unittest.TestCase):
         self.assertEqual(adapter.policy_id, "alternate_provider")
 
     def test_generic_import_does_not_load_provider_modules(self):
-        command = [sys.executable, "-c", "import sys; import delaware_operations.llm_policy_adapter; "
-                   "assert 'delaware_operations.anik_adapter' not in sys.modules; "
+        command = [sys.executable, "-c", "import sys; import examples.fe_walter.legacy.llm_policy_adapter; "
+                   "assert 'llm_reservoir_agent.plugins.anik_v3_7' not in sys.modules; "
                    "assert 'reservoir_model' not in sys.modules"]
         environment = os.environ.copy()
         module_paths = [str(ROOT / "src")]
@@ -280,7 +280,7 @@ class DKPCompositionTests(unittest.TestCase):
         fake_adapter.decide.return_value = {"schema_version": "reservoir-action.v1", "release_cms": 2.0}
         callback = Mock()
         cfg, policy = object(), object()
-        with patch("delaware_operations.anik_adapter.AnikPolicyAdapter", return_value=fake_adapter) as factory:
+        with patch("examples.fe_walter.legacy.anik_adapter.AnikPolicyAdapter", return_value=fake_adapter) as factory:
             adapter = DKPPolicyAdapter(cfg, policy, consult_every_day=False, on_commit=callback)
         factory.assert_called_once_with(cfg, policy, consult_every_day=False, on_commit=callback)
         obs = observation()
@@ -293,14 +293,14 @@ class DKPCompositionTests(unittest.TestCase):
         self.assertEqual(adapter.network_calls, 4)
 
     def test_dkp_module_import_does_not_construct_backend(self):
-        with patch("delaware_operations.anik_adapter.AnikPolicyAdapter") as factory:
-            importlib.reload(sys.modules["delaware_operations.dkp_policy_adapter"])
+        with patch("examples.fe_walter.legacy.anik_adapter.AnikPolicyAdapter") as factory:
+            importlib.reload(sys.modules["examples.fe_walter.legacy.dkp_policy_adapter"])
             factory.assert_not_called()
 
     def test_generic_adapter_wraps_dkp_composition(self):
         fake_adapter = AlternateBackend()
         fake_adapter.network_calls = 0
-        with patch("delaware_operations.anik_adapter.AnikPolicyAdapter", return_value=fake_adapter):
+        with patch("examples.fe_walter.legacy.anik_adapter.AnikPolicyAdapter", return_value=fake_adapter):
             adapter = LLMPolicyAdapter(DKPPolicyAdapter(object(), object()))
         obs = observation()
         completed = record(obs, adapter.decide(obs), "dkp_v3_7")
@@ -310,7 +310,7 @@ class DKPCompositionTests(unittest.TestCase):
         self.assertEqual(adapter.network_calls, 0)
 
     def test_actual_dkp_layer_keeps_bounded_decision_and_spill_feedback(self):
-        from delaware_operations.anik_adapter import load_anik
+        from examples.fe_walter.legacy.anik_adapter import load_anik
 
         vendor = load_anik(ROOT)
         cfg = next(value for value in vendor.RESERVOIRS if value.name == "F.E. Walter Dam")

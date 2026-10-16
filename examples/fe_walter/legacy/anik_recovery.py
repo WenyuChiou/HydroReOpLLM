@@ -34,7 +34,7 @@ PREFIX_DAYS = 1276
 SUFFIX_DAYS = 551
 FIRST_DAY = "2019-06-30"
 ORIGINAL_TREE = "04927d798e24c4c0906633f35cc77ccbc67b7938"
-RUNNER_PATH = "src/delaware_operations/anik_experiment.py"
+RUNNER_PATH = "examples/fe_walter/legacy/anik_experiment.py"
 AUTHORIZATION = ("User: diagnose/fix interruption; resume from 2019-06-30 for remaining "
                  "551 days; do not rerun completed days; temperature remains 0.7.")
 
@@ -201,7 +201,7 @@ def prepare_recovery(case_path, output):
                 raise ValueError("original runner source is not the accepted version")
         elif current.get(path) != expected:
             raise ValueError(f"accepted implementation drift: {path}")
-    if set(current) != set(metadata["implementation"]) | {"src/delaware_operations/anik_recovery.py"}:
+    if set(current) != set(metadata["implementation"]) | {"examples/fe_walter/legacy/anik_recovery.py"}:
         raise ValueError("unregistered implementation modules")
     receipt = json.loads((output / "interruption_receipt.json").read_text(encoding="utf-8"))
     preserved = {}

@@ -136,7 +136,7 @@ class DKPStrategyAudit:
             raise ValueError("positive storage values must be strictly increasing")
         self.profile = json_snapshot(profile)
         self.file_pins = {str(p): hashlib.sha256(p.read_bytes()).hexdigest() for p in (self.dkp_path, profile_path, curve_path)}
-        from delaware_operations.anik_adapter import _ANIK_SHA256, load_anik
+        from .plugins.anik_v3_7 import _ANIK_SHA256, load_anik
         load_anik(self.project_root)  # Pinned local modules only; constructs no backend.
         for name, digest in _ANIK_SHA256.items():
             self.file_pins[str(self.project_root / "third_party/anik_v3_7" / name)] = digest
@@ -191,7 +191,7 @@ class DKPStrategyAudit:
             runtime["target_source"] = target["source"]
         runtime["runtime_missing_inputs"] = sorted(set(missing))
         policy = self._policy(observation)
-        from delaware_operations.anik_adapter import load_anik
+        from .plugins.anik_v3_7 import load_anik
         model = load_anik(self.project_root)
         policy._retrieve_operational_sections(model.pd.Timestamp(observation["timestamp"]), "", runtime)
         runtime["eligible_citation_headings"] = list(policy._last_retrieved_headings)
@@ -229,7 +229,7 @@ class DKPStrategyAudit:
             raise ValueError("DKP metadata release differs from normalized action")
         if supplied is None:
             return {"status": "UNKNOWN", "reasons": missing, "runtime_context": runtime, "legacy_audit": None}
-        from delaware_operations.anik_adapter import load_anik
+        from .plugins.anik_v3_7 import load_anik
         model = load_anik(self.project_root)
         state = observation["state"]
         policy = self._policy(observation)

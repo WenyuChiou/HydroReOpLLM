@@ -8,6 +8,11 @@ This is the formal guide for the generic `configured` strategy.
 [LLM modules](LLM_MODULES.md) explains the decision interfaces; method-specific
 settings remain with the [FE Walter examples](../examples/fe_walter/README.md).
 
+For the complete weather-to-operation entry, follow [Build a simulation](BUILD_SIMULATION.md).
+It accepts native hydrology settings, weather and a physical reservoir case.
+The reference below also covers the existing prepared-inflow entry; the new
+entry generates its Case JSON and Inflow CSV for you.
+
 ## 1. Prepare your files
 
 | File | Responsibility |

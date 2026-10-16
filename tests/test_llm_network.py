@@ -325,7 +325,7 @@ class MultiReservoirAcceptance(Base):
         self.assertFalse(shared.decisions)
 
     def test_wrapped_policy_isolation_at_both_entrypoints(self):
-        from delaware_operations.anik_adapter import AnikPolicyAdapter, load_anik
+        from llm_reservoir_agent.plugins.anik_v3_7 import AnikPolicyAdapter, load_anik
         vendor = load_anik(PROJECT_ROOT)
         cfg = next(value for value in vendor.RESERVOIRS if value.name == "F.E. Walter Dam")
         config, rows = network(count=2, days=1)

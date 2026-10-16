@@ -1,0 +1,51 @@
+schema_version: hydroops-coupled-simulation.v1
+case: reservoirs.json
+start_date: '2016-01-01'
+end_date: '2016-12-31'
+run_id: fe-walter-coupled-llm_knowledge
+output: ../../../runs/fe-walter-coupled-llm_knowledge
+max_calls: null
+models:
+  reservoir_model:
+    provider: ollama
+    model: gemma3:4b
+    base_url: http://localhost:11434
+    temperature: 0.7
+    max_tokens: 2048
+    seed: null
+    timeout_seconds: 120
+    api_key_env: null
+    max_attempts: 2
+    retry_delay_seconds: 2
+auditors:
+  release_limits:
+    type: release_bounds
+    version: '1'
+agents:
+  fe_operator:
+    reservoir: FEWalter
+    mode: llm
+    model: reservoir_model
+    strategy: reference_v3_7
+    reference:
+      profile: fe_walter
+      method: dkp
+      system_prompt: ../prompt.txt
+      system_prompt_mode: custom
+      dkp: ../../../data/anik_v3_7/DKP_FEWalter_Dam_v1.2.md
+      prompt_storage: false
+      hide_availability_line: true
+      dkp_no_missing_inputs: true
+      zeroshot_knowledge: target
+    auditors:
+    - release_limits
+hydrology:
+  model: ../../../data/accepted/fe_walter_hydrology.yaml
+  forcing: ../../../data/accepted/fe_walter_forcing_1989_2025.csv.gz
+  zero_flow_nodes:
+  - __AGGREGATION_OUTLET__
+  inflow_bindings:
+    FEW_INFLOW:
+      routed: __AGGREGATION_OUTLET__
+    Downstream:
+      constant: 0

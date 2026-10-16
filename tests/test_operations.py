@@ -13,9 +13,9 @@ from unittest.mock import patch
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from delaware_operations.case import CFS_TO_CMS, sha256
-from delaware_operations.operations import MANIFEST, REFERENCE, load_frozen_window, load_recorded_policy, main
-from delaware_operations.replay import run_replay
+from examples.fe_walter.legacy.case import CFS_TO_CMS, sha256
+from examples.fe_walter.legacy.operations import MANIFEST, REFERENCE, load_frozen_window, load_recorded_policy, main
+from examples.fe_walter.legacy.replay import run_replay
 
 FIXTURE = ROOT / "data/fixtures/fe_walter_synthetic_responses.json"
 
@@ -92,8 +92,8 @@ class OperationsTests(unittest.TestCase):
             self.assertFalse(summary["catchment_feedback"])
             self.assertFalse(summary["recorded_actions_respond_to_current_state"])
             self.assertEqual(summary["response_data_kind"], "synthetic_fixture")
-            self.assertEqual(summary["implementation_files"]["delaware_operations/operations.py"],
-                             sha256(ROOT / "src/delaware_operations/operations.py"))
+            self.assertEqual(summary["implementation_files"]["examples/fe_walter/legacy/operations.py"],
+                             sha256(ROOT / "examples/fe_walter/legacy/operations.py"))
             for name, digest in summary["output_sha256"].items():
                 self.assertEqual(digest, sha256(output / name))
             audits = [json.loads(line) for line in (output / "response_audit.jsonl").read_text().splitlines()]
@@ -123,7 +123,7 @@ class OperationsTests(unittest.TestCase):
 @unittest.skipUnless(importlib.util.find_spec("hydrocnhs"), "optional HydroCNHS runtime is not installed")
 class NativeOperationsTests(unittest.TestCase):
     def test_recorded_legacy_actions_match_replay_and_reach_downstream(self):
-        from delaware_operations.hydrocnhs_bridge import run_hydrocnhs
+        from examples.fe_walter.legacy.hydrocnhs_bridge import run_hydrocnhs
         config, rows, _ = load_frozen_window(ROOT, "2015-10-01", 7)
         replay_policy, _ = load_recorded_policy(FIXTURE, rows)
         native_policy, _ = load_recorded_policy(FIXTURE, rows)

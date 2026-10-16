@@ -13,8 +13,8 @@ from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
-from delaware_operations.case import CFS_TO_CMS, load_case
-from delaware_operations.historical import (
+from examples.fe_walter.legacy.case import CFS_TO_CMS, load_case
+from examples.fe_walter.legacy.historical import (
     DAYS, OFFSET, REPORT_DAYS, UNITS, load_inputs, main, read_reference, read_weather,
 )
 
@@ -66,7 +66,7 @@ class HistoricalInputTests(unittest.TestCase):
 
     def test_existing_output_rejected_before_full_execution(self):
         with tempfile.TemporaryDirectory() as folder:
-            with patch("delaware_operations.historical.run_historical") as run:
+            with patch("examples.fe_walter.legacy.historical.run_historical") as run:
                 with self.assertRaises(FileExistsError): main(["--output", folder, "--couple"])
                 run.assert_not_called()
 
@@ -83,7 +83,7 @@ class HistoricalInputTests(unittest.TestCase):
 @unittest.skipUnless(importlib.util.find_spec("hydrocnhs"), "optional HydroCNHS runtime is not installed")
 class JSONDamCouplingTests(unittest.TestCase):
     def test_injected_provider_accounting_unknown_without_a_counter(self):
-        from delaware_operations.hydrocnhs_bridge import run_hydrocnhs
+        from examples.fe_walter.legacy.hydrocnhs_bridge import run_hydrocnhs
         config, rows = load_case(ROOT / "cases/fe_walter.json")
         class UncountedJSONFixture:
             def decide(self, observation): return {"release_cms": observation["inflow_cms"]}
@@ -91,7 +91,7 @@ class JSONDamCouplingTests(unittest.TestCase):
         self.assertIsNone(summary["provider_network_calls"])
 
     def test_json_controlled_release_enforced_and_spill_injected_once(self):
-        from delaware_operations.hydrocnhs_bridge import run_hydrocnhs
+        from examples.fe_walter.legacy.hydrocnhs_bridge import run_hydrocnhs
         config, original = load_case(ROOT / "cases/fe_walter.json")
         config = copy.deepcopy(config)
         physical = config["agent_config"]["Attributes"]["Physical"]
@@ -123,8 +123,8 @@ class JSONDamCouplingTests(unittest.TestCase):
         self.assertTrue(all(r["transition"]["mass_balance_residual_m3"] == 0 for r in records))
 
     def test_raw_cfs_reasoning_response_rejected_without_storage_change(self):
-        from delaware_operations.dam_agent import FEWalterDamAgent
-        from delaware_operations.replay import ReplayDataCollector
+        from examples.fe_walter.legacy.dam_agent import FEWalterDamAgent
+        from examples.fe_walter.legacy.replay import ReplayDataCollector
         from datetime import datetime
         config, _ = load_case(ROOT / "cases/fe_walter.json")
         class RawLLMFixture:

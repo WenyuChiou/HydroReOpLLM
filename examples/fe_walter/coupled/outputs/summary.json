@@ -1,0 +1,109 @@
+{
+  "schema_version": "fe-walter-completed-year-teaching.v1",
+  "original_llm_commit": "5ee498e9516db7a58565c13bf5ee4ef4f33948b1",
+  "methods": {
+    "rule": {
+      "label": "Rule-based",
+      "days": 366,
+      "execution_status": "COMPLETED",
+      "verification": {
+        "status": "PASS",
+        "days": 366,
+        "reservoir_count": 1,
+        "reservoir_days": 366,
+        "date_start": "2016-01-01",
+        "date_end": "2016-12-31",
+        "audit_counts": {
+          "PASS": 366
+        },
+        "max_reservoir_balance_residual_m3": 7.2177499532699585e-09,
+        "max_system_balance_residual_m3": 7.2177499532699585e-09,
+        "max_routing_difference_cms": 0.0,
+        "final_channel_storage_m3": 0.0,
+        "observed_network_calls": 0,
+        "operating_strategy_accepted": null,
+        "audit_binding_counts": {
+          "versioned_suite": 366,
+          "legacy_unbound": 0
+        },
+        "external_audit_pins_checked": []
+      },
+      "directory_bytes": 18448522
+    },
+    "llm_available": {
+      "label": "LLM with available information",
+      "days": 366,
+      "execution_status": "COMPLETED",
+      "verification": {
+        "status": "PASS",
+        "days": 366,
+        "reservoir_count": 1,
+        "reservoir_days": 366,
+        "date_start": "2016-01-01",
+        "date_end": "2016-12-31",
+        "audit_counts": {
+          "PASS": 12,
+          "FAIL": 354
+        },
+        "max_reservoir_balance_residual_m3": 2.8759572501257935e-09,
+        "max_system_balance_residual_m3": 2.7939677238464355e-09,
+        "max_routing_difference_cms": 0.0,
+        "final_channel_storage_m3": 0.0,
+        "observed_network_calls": 366,
+        "operating_strategy_accepted": null,
+        "audit_binding_counts": {
+          "versioned_suite": 366,
+          "legacy_unbound": 0
+        },
+        "external_audit_pins_checked": []
+      },
+      "directory_bytes": 21269700
+    },
+    "llm_knowledge": {
+      "label": "LLM with retrieved knowledge",
+      "days": 366,
+      "execution_status": "COMPLETED",
+      "verification": {
+        "status": "PASS",
+        "days": 366,
+        "reservoir_count": 1,
+        "reservoir_days": 366,
+        "date_start": "2016-01-01",
+        "date_end": "2016-12-31",
+        "audit_counts": {
+          "FAIL": 366
+        },
+        "max_reservoir_balance_residual_m3": 2.922024577856064e-08,
+        "max_system_balance_residual_m3": 2.922024577856064e-08,
+        "max_routing_difference_cms": 0.0,
+        "final_channel_storage_m3": 0.0,
+        "observed_network_calls": 366,
+        "operating_strategy_accepted": null,
+        "audit_binding_counts": {
+          "versioned_suite": 366,
+          "legacy_unbound": 0
+        },
+        "external_audit_pins_checked": []
+      },
+      "directory_bytes": 33516583
+    }
+  },
+  "source_hashes": {
+    "rule": {
+      "reservoir_trajectory.csv": "50cd9f2fdb15c511dd75c734a6fd7b7601a1097708aa54a3c99193aebb65255c",
+      "experiment.json": "70890db7c59a4cbe122bf9a76950b85b717da59fc5b4fa62fec3d43cbb3c1d80",
+      "summary.json": "1706f26d5e1fd68c32f5ee72f30f803cb313ce7287f4d1df89d88ecd0f07bde8"
+    },
+    "llm_available": {
+      "reservoir_trajectory.csv": "6ebe467e494f6f0cde562ab045269410d1dc8bc5a0b902025c654e04147358ef",
+      "experiment.json": "67a8d387448c777385f15fd1df453011e9084707c0dc61acdd62181ec8eb9e5f",
+      "summary.json": "28d60105a9f7bb5603b9aa02a68285a7a02f0d3064ee96268afeb4961984aaf6"
+    },
+    "llm_knowledge": {
+      "reservoir_trajectory.csv": "e9458ec8cad32e29956449f1e9f998ebdec4e0ea335ce651182089ba8e16d88b",
+      "experiment.json": "5f2fb0c4884846ffd66285068f351e8cae09d0e64463f277d30005c1a47b6838",
+      "summary.json": "ca7ab0485eaf622c629ed29218c4156366268c7fad110fc2555a251e79d947bf"
+    }
+  },
+  "note": "Execution/water balance PASS is separate from retained operation audit FAIL. One realization per LLM method; no controlled performance ranking. Controlled release shown; spill and total outflow retained in daily.csv."
+}

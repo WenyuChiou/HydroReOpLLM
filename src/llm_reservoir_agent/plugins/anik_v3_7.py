@@ -16,7 +16,7 @@ from datetime import date, timedelta
 from pathlib import Path
 from typing import Any, Callable, Mapping
 
-from .contracts import ACTION_SCHEMA_VERSION, OBSERVATION_SCHEMA_VERSION
+from ..contracts import ACTION_SCHEMA_VERSION, OBSERVATION_SCHEMA_VERSION
 
 
 _ANIK_SHA256 = {

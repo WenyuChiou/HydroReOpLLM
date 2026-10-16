@@ -58,7 +58,7 @@ def prepare(year, directory, run_id, *, live_diagnostic=False, hydrology_runner=
         raise ValueError("year must lie in the accepted 1996–2025 inflow interval")
     import yaml
     if hydrology_runner is None:
-        from delaware_operations.historical import run_historical
+        from examples.fe_walter.legacy.historical import run_historical
         hydrology_runner = run_historical
     rows, hydrology = hydrology_runner()
     selected = select_year(rows, year)
