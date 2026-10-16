@@ -198,7 +198,7 @@ schema 為 `control-point-audit.v1`，內容包括 check ID、time、node、rout
 計數分開。同一 timestep 的控制點結果是 system result，不會把因果責任歸給
 單一 agent。
 
-應根據流域目標與上游優先順序明確選擇準則。HydroOpsLM 不提供依水庫類型自動
+應根據流域目標與上游優先順序明確選擇準則。HydroOpsLLM 不提供依水庫類型自動
 指定的下游界限。完整的用水分配及 turbine/head/energy 求解不在目前範圍內；
 水文輸入測試不是水力發電驗證。已註冊的 extensions 自行控制來源存取；LLM
 請求額度不管理這些 provider calls。已存檔案驗證會檢查捕獲的 extension 時間

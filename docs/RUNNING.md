@@ -37,7 +37,7 @@ initial reservoir and routing state; it does not inherit an earlier run.
 Agent count does not by itself establish parallel inference.
 Full controls and defaults are in the [parameter reference](PARAMETER_REFERENCE.md).
 Provider concurrency and context limits are provider settings, not extra
-HydroOpsLM YAML fields.
+HydroOpsLLM YAML fields.
 
 ## 3. Reserve storage and preserve evidence
 

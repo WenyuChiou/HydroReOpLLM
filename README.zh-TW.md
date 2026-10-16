@@ -1,9 +1,9 @@
 # HydroOpsLLM
 
-[![使用手冊](docs/_static/docs-badge-zh-TW.svg)](https://wenyuchiou.github.io/HydroOpsLM/)
+[![使用手冊](docs/_static/docs-badge-zh-TW.svg)](https://wenyuchiou.github.io/HydroOpsLLM/)
 ![Python 3.12 setup](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)
 
-[English](README.md) | [繁體中文](README.zh-TW.md) · [使用手冊](https://wenyuchiou.github.io/HydroOpsLM/) · [快速入門](#安裝)
+[English](README.md) | [繁體中文](README.zh-TW.md) · [使用手冊](https://wenyuchiou.github.io/HydroOpsLLM/) · [快速入門](#安裝)
 
 HydroOpsLLM 是以 HydroCNHS 為基礎的 Python 套件，將 LLM 驅動的決策與水文模擬耦合，應用於水庫操作與水資源管理。
 
@@ -14,8 +14,8 @@ HydroOpsLLM 是以 HydroCNHS 為基礎的 Python 套件，將 LLM 驅動的決�
 使用 Python 3.12。專案維持私有期間需要 repo 存取權。
 
 ```sh
-git clone https://github.com/WenyuChiou/HydroOpsLM.git
-cd HydroOpsLM
+git clone https://github.com/WenyuChiou/HydroOpsLLM.git
+cd HydroOpsLLM
 ```
 
 Linux/macOS 已安裝 Python 3.12 時：
@@ -103,7 +103,7 @@ LLM 接收訊息中提供的資訊；蓄水與河川演算仍由主程式掌管�
 
 ## 文件與研究使用
 
-[使用手冊](https://wenyuchiou.github.io/HydroOpsLM/) · [設計模擬](docs/BUILD_SIMULATION.md) · [模型設定](docs/USER_GUIDE.md) · [閱讀結果](docs/RESULTS_GUIDE.md)
+[使用手冊](https://wenyuchiou.github.io/HydroOpsLLM/) · [設計模擬](docs/BUILD_SIMULATION.md) · [模型設定](docs/USER_GUIDE.md) · [閱讀結果](docs/RESULTS_GUIDE.md)
 
 目前 CLI 使用給定的逐日入流，搭配原生 HydroCNHS 河川演算與 Dam 耦合。F.E. Walter 範例讀取固定保存的水文輸出；氣象驅動整合需要明確設定原生模型與策略接線，見[水文設定](docs/HYDROLOGY_SETUP.md)與[逐日耦合](examples/fe_walter/coupling.md)。
 
