@@ -120,7 +120,7 @@ before enabling model requests.
 | `base_url` | Address of that service, here the local Ollama port. |
 | `temperature` | Sampling setting; keep **0.7** for this design. It does not guarantee identical replies. |
 | `max_tokens` | Maximum generated output tokens per request; an incomplete reply is rejected. |
-| `timeout_seconds` | Time allowed for one request. Timeout stops the run; no automatic retry. |
+| `timeout_seconds` | Time allowed for one provider attempt. Default `max_attempts: 1`; configure bounded retries in the model profile. |
 | `auditors.release_limits` | A named audit definition, enabled only by agents that list it. |
 | `type: release_bounds` | Compares requested release with the feasible bound in the host observation. |
 | `version` | Audit version recorded with its specification and implementation hashes. |

@@ -50,6 +50,21 @@ class AnnualCaseTests(unittest.TestCase):
             with self.assertRaises(FileExistsError):
                 self.example.prepare(2016, Path(folder), "test", hydrology_runner=forbidden)
 
+    def test_llm_arms_share_one_prompt_and_explicit_retry_settings(self):
+        import yaml
+        with tempfile.TemporaryDirectory() as folder:
+            target = Path(folder) / "paired"
+            self.example.prepare(2016, target, "paired",
+                                 hydrology_runner=lambda: (self.rows, {"fixture": True}))
+            settings = [yaml.safe_load((target / f"{name}.yaml").read_text())
+                        for name in ("llm_available", "llm_knowledge")]
+            prompts = [s["agents"]["fe_operator"]["reference"]["system_prompt"] for s in settings]
+            self.assertEqual(prompts[0], prompts[1])
+            self.assertEqual(Path(prompts[0]), ROOT / "examples/fe_walter/prompt.txt")
+            for spec in settings:
+                self.assertIsNone(spec["max_calls"])
+                self.assertEqual(spec["models"]["reservoir_model"]["max_attempts"], 2)
+
     def test_prepared_case_passes_the_formal_cli_contract(self):
         from llm_reservoir_agent.workflow import load_settings
         with tempfile.TemporaryDirectory() as folder:

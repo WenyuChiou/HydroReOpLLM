@@ -276,8 +276,8 @@ def load_settings(path, *, runtime_root=PROJECT_ROOT, information_providers=None
     llm_count = sum(a["mode"] == "llm" for a in agents.values())
     planned = llm_count * len(rows)
     maximum = data.get("max_calls", 0)
-    if isinstance(maximum, bool) or not isinstance(maximum, int) or maximum < planned:
-        raise ValueError("max_calls must be an integer covering the planned LLM requests")
+    if maximum is not None and (isinstance(maximum, bool) or not isinstance(maximum, int) or maximum < planned):
+        raise ValueError("max_calls must be an integer covering planned requests, or explicit null for no total cap")
     readiness = original_case.get("live_readiness", {})
     report = dict(schema_version="llm-reservoir-plan.v1", run_id=data["run_id"], case=str(case),
                   case_root=str(case_root), output=str(output), days=len(rows), start_date=start, end_date=end,
@@ -301,27 +301,50 @@ def load_settings(path, *, runtime_root=PROJECT_ROOT, information_providers=None
     return ExperimentSettings(path, json_snapshot(data), network, rows, agents, files, report, catalog, outcome_checks)
 
 
-def run_settings(settings, *, allow_network=False, runtime_root=PROJECT_ROOT, transport=None, information_providers=None):
+def run_settings(settings, *, allow_network=False, runtime_root=PROJECT_ROOT, transport=None, information_providers=None,
+                 recovery=None, output=None, run_id=None):
     from .configured_backend import ConfiguredBackend, http_json_transport
     from .experiment import run_experiment
+    from .experiment import record_provider_attempt
     # Re-read rather than trusting mutable plans or changed files from an earlier check.
     current = load_settings(settings.path, runtime_root=runtime_root, information_providers=information_providers)
     if canonical_sha256(current.report) != canonical_sha256(settings.report):
         raise ValueError("experiment inputs changed after configuration check")
-    plan = current.report
+    plan = dict(current.report)
+    if recovery is not None:
+        plan.update(output=str(output), run_id=run_id)
     if Path(plan["output"]).exists():
         raise FileExistsError("output already exists; choose a new run_id/output, never overwrite or implicitly resume")
     if plan["planned_llm_calls"] and (not allow_network or not plan["live_ready"]):
         raise ValueError("LLM run requires --allow-network, max_calls, and a live-ready case (synthetic cases are diagnostic only)")
-    attempts = 0
-    def bounded_transport(url, payload, headers, timeout):
-        nonlocal attempts
-        if not allow_network or attempts >= plan["max_calls"]:
-            raise RuntimeError("network permission or request budget exhausted")
-        attempts += 1
-        return (transport or http_json_transport)(url, payload, headers, timeout)
+    attempts = recovery.prior_network_calls if recovery is not None else 0
+    def transport_for(reservoir_id):
+        def bounded_transport(url, payload, headers, timeout):
+            nonlocal attempts
+            if recovery is not None:
+                replayed, saved = recovery.next_reply(reservoir_id, url, payload)
+                if replayed:
+                    return saved
+            if not allow_network or (plan["max_calls"] is not None and attempts >= plan["max_calls"]):
+                raise RuntimeError("network permission or request budget exhausted")
+            attempts += 1
+            event = dict(run_id=plan["run_id"], reservoir_id=reservoir_id,
+                         attempt=attempts, request_sha256=canonical_sha256({"url": url, "payload": payload}))
+            ledger = Path(plan["output"]) / "provider_attempts.jsonl"
+            record_provider_attempt(ledger, dict(event, status="STARTED"))
+            bounded_transport.network_calls += 1
+            try:
+                reply = (transport or http_json_transport)(url, payload, headers, timeout)
+            except Exception as exc:
+                record_provider_attempt(ledger, dict(event, status="FAILED", error_class=type(exc).__name__))
+                raise
+            record_provider_attempt(ledger, dict(event, status="RETURNED", provider_reply=json_snapshot(reply)))
+            return reply
+        bounded_transport.network_calls = 0
+        return bounded_transport
     backends = {}
     for identifier, agent in current.agents.items():
+        bounded_transport = transport_for(current.network["reservoirs"][agent["reservoir"]]["physical"]["reservoir_id"])
         if agent.get('strategy') == 'benchmark':
             from .benchmark import BenchmarkBackend
             backends[agent['reservoir']]=AuditedBackend(BenchmarkBackend(**agent['benchmark']),agent['audit_plugins'])
@@ -340,7 +363,8 @@ def run_settings(settings, *, allow_network=False, runtime_root=PROJECT_ROOT, tr
                                      audit_context_builders={p.identifier: p.prepare_context for p in agent["audit_plugins"] if isinstance(p, DKPStrategyAudit)})
         backends[agent["reservoir"]] = AuditedBackend(backend, agent["audit_plugins"])
     provenance = {"schema_version": "yaml-experiment-provenance.v1", "plan": plan,
-                  "settings": current.data, "source_files": current.files, "automatic_retry": False}
+                  "settings": current.data, "source_files": current.files,
+                  "automatic_retry": any(a.get("model") and a["model"].get("max_attempts", 1) > 1 for a in current.agents.values())}
     information_runtime = None
     if current.information_catalog is not None:
         from .information_runtime import InformationRuntime
@@ -353,7 +377,7 @@ def run_settings(settings, *, allow_network=False, runtime_root=PROJECT_ROOT, tr
     return run_experiment(current.network, current.rows, backends, output=plan["output"],
                           run_id=plan["run_id"], project_root=runtime_root, provenance=provenance,
                           information_runtime=information_runtime, outcome_checks=current.outcome_checks,
-                          information_agents=current.agents)
+                          information_agents=current.agents, recovery=recovery)
 
 
 def verify_settings_output(settings, *, runtime_root=PROJECT_ROOT, information_providers=None):
@@ -414,10 +438,21 @@ def main(argv=None):
     verify = sub.add_parser("verify")
     verify.add_argument("output", type=Path)
     verify.add_argument("--require-offline", action="store_true")
+    resume = sub.add_parser("resume")
+    resume.add_argument("config", type=Path)
+    resume.add_argument("--from-run", type=Path, required=True)
+    resume.add_argument("--output", type=Path, required=True)
+    resume.add_argument("--run-id", required=True)
+    resume.add_argument("--allow-network", action="store_true")
     args = parser.parse_args(argv)
     if args.command == "verify":
         from .verification import verify_run
         result = verify_run(args.output, require_offline=args.require_offline)
+    elif args.command == "resume":
+        from .recovery import resume_settings
+        _, result = resume_settings(load_settings(args.config), args.from_run,
+                                    output=args.output, run_id=args.run_id,
+                                    allow_network=args.allow_network)
     else:
         settings = load_settings(args.config)
         if args.command == "check":

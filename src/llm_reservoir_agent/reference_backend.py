@@ -157,7 +157,7 @@ def _validate_native_shape(value, schema):
 
 
 class _ReferenceChatTransport:
-    """Native policy transport with shared provider wire format and no retries."""
+    """Native policy transport with bounded provider-response retries."""
 
     def __init__(self, model, transport):
         from .configured_backend import validate_model_settings
@@ -166,14 +166,29 @@ class _ReferenceChatTransport:
             raise ValueError("LLM reference requires an explicitly bounded transport")
         self._transport = transport
         self.name = "reference-chat:" + self.model["provider"]
-        self.network_calls = 0
+        self._network_calls = 0
         self.latest_trace = None
+        self.last_call_stats = None
+
+    @property
+    def network_calls(self):
+        from .configured_backend import _authoritative_network_calls
+        observed = _authoritative_network_calls(self._transport)
+        return self._network_calls if observed is None else observed
+
+    def _note_transport_call(self):
+        from .configured_backend import _authoritative_network_calls
+        if _authoritative_network_calls(self._transport) is None:
+            self._network_calls += 1
 
     def provenance(self):
         return {"backend": self.name, "model": json_snapshot(self.model), "model_used": True}
 
     def decide(self, system, prompt, schema=None):
-        from .configured_backend import chat_request, chat_headers, chat_reply, _strict_json
+        from .configured_backend import (
+            _provider_attempts, _provider_usage, chat_request, chat_headers,
+            chat_reply, _strict_json,
+        )
         from .audit import canonical_sha256
         schema = schema if schema is not None else sys.modules["zeroshot_llm_release"].DECISION_SCHEMA
         messages = [{"role": "system", "content": system}, {"role": "user", "content": prompt}]
@@ -181,27 +196,52 @@ class _ReferenceChatTransport:
         self.latest_trace = dict(model_used=True, system=system, prompt=prompt, schema=json_snapshot(schema),
                                  model=json_snapshot(self.model), request=json_snapshot(payload),
                                  request_sha256=canonical_sha256({"url": url, "payload": payload}),
-                                 raw_reply=None, provider_reply=None, usage=None, request_id=None)
+                                 raw_reply=None, provider_reply=None, usage=None, request_id=None,
+                                 attempts=[], latest_attempt=None)
+        network_calls_before = self.network_calls
         headers = chat_headers(self.model)
-        self.network_calls += 1
-        try:
-            raw = json_snapshot(self._transport(url, payload, headers, self.model["timeout_seconds"]))
-            if not isinstance(raw, dict):
-                raise ValueError("provider response must be a JSON object")
-            self.latest_trace["provider_reply"] = raw
-            self.latest_trace["request_id"] = raw.get("id")
-            content, usage = chat_reply(raw, self.model["provider"], require_complete=True)
-            self.latest_trace["usage"] = usage
+
+        def parse_provider_reply(raw, attempt):
+            attempt["request_id"] = raw.get("id")
+            attempt["usage"] = _provider_usage(raw, self.model["provider"])
+            content, usage = chat_reply(
+                raw, self.model["provider"], require_complete=True
+            )
+            attempt["usage"] = usage
             reply = _strict_json(content)
             if not isinstance(reply, dict):
                 raise ValueError("reference decision must be a JSON object")
-            self.latest_trace["raw_reply"] = reply
             _validate_native_shape(reply, schema)
+            return reply, {"raw_reply": reply, "usage": usage,
+                           "request_id": raw.get("id")}
+
+        try:
+            reply = _provider_attempts(
+                settings=self.model, transport=self._transport, url=url, payload=payload,
+                headers=headers, request_sha256=self.latest_trace["request_sha256"],
+                parse_reply=parse_provider_reply, attempts=self.latest_trace["attempts"],
+                note_call=self._note_transport_call,
+            )
             return reply
         except Exception as exc:
-            # Do not persist provider exception text: it may contain credentials.
-            self.latest_trace["error_class"] = type(exc).__name__
             raise RuntimeError("reference provider request or response failed") from None
+        finally:
+            latest = self.latest_trace["attempts"][-1]
+            self.latest_trace["latest_attempt"] = json_snapshot(latest)
+            self.latest_trace["provider_reply"] = latest["provider_reply"]
+            self.latest_trace["raw_reply"] = latest["raw_reply"]
+            self.latest_trace["usage"] = latest["usage"]
+            self.latest_trace["request_id"] = latest["request_id"]
+            self.latest_trace["error_class"] = latest["error_class"]
+            usage = latest["usage"] or {}
+            self.last_call_stats = {
+                "wall_seconds": sum(a["elapsed_seconds"] for a in self.latest_trace["attempts"]),
+                "prompt_tokens": usage.get("prompt_tokens", usage.get("prompt_eval_count")),
+                "response_tokens": usage.get("completion_tokens", usage.get("eval_count")),
+                "backend_attempts": self.network_calls - network_calls_before,
+                "retry_errors": [a["error_class"] for a in self.latest_trace["attempts"]
+                                 if a["error_class"]],
+            }
 
 
 class ReferenceBackend(DKPPolicyAdapter):

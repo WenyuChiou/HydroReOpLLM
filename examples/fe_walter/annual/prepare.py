@@ -98,11 +98,16 @@ def prepare(year, directory, run_id, *, live_diagnostic=False, hydrology_runner=
         settings.update(case=str(directory / "case.json"), case_root=str(directory),
                         run_id=f"{run_id}-{method}", output=str(directory / f"run-{method}"),
                         start_date=selected[0]["date"], end_date=selected[-1]["date"],
-                        max_calls=0 if method == "rule" else len(selected))
+                        max_calls=0 if method == "rule" else None)
         agent = settings["agents"]["fe_operator"]
         if method == "rule":
             agent["benchmark"]["statistics"] = str((template.parent / agent["benchmark"]["statistics"]).resolve())
         else:
+            # Both scenarios share one operator instruction; retrieval is selected
+            # by reference.method and the optional knowledge document alone.
+            settings["models"]["reservoir_model"].update(max_attempts=2, retry_delay_seconds=2)
+            agent["reference"].update(system_prompt=str(ROOT / "examples/fe_walter/prompt.txt"),
+                                      system_prompt_mode="custom")
             for key in ("system_prompt", "dkp"):
                 if key in agent["reference"]:
                     agent["reference"][key] = str((template.parent / agent["reference"][key]).resolve())

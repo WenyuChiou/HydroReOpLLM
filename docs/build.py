@@ -31,10 +31,13 @@ HYDROLOGY_DOWNLOADS = {
     "data/accepted/historical_manifest.json": "historical_manifest.json",
 }
 ANNUAL_DOWNLOADS = {
+    "examples/fe_walter/prompt.txt": "fe-walter-operator-prompt.txt",
+    **{
     f"examples/fe_walter/annual/outputs/{name}": name for name in (
         "daily.csv", "attempt_summary.json", "failed_reply_2016_06_18.txt",
         "annual_attempt.pdf", "annual_attempt.svg",
     )
+    },
 }
 PAGES = {
     "docs/index.md": "index.md",
@@ -65,7 +68,7 @@ PAGES = {
         "USER_GUIDE.md", "USER_GUIDE.zh-TW.md", "HYDROLOGY_SETUP.md",
         "LIVE_READINESS.md", "auditor_plugins.md", "PROJECT_INVENTORY.md", "BUILDING.md",
         "GETTING_STARTED.md", "BUILD_SIMULATION.md", "BUILD_SIMULATION.zh-TW.md", "FIRST_DECISION.md", "INFORMATION.md", "INFORMATION.zh-TW.md",
-        "PARAMETER_REFERENCE.md", "RESULTS_GUIDE.md", "REFERENCE.md", "RUNNING.md",
+        "PARAMETER_REFERENCE.md", "RESULTS_GUIDE.md", "REFERENCE.md", "RUNNING.md", "CODE_STRUCTURE.md",
     )},
 }
 # Match the inner image in a linked badge before its enclosing Markdown link.
@@ -159,6 +162,10 @@ def prepare(source: Path, *, source_ref: str = "main") -> None:
     annual_downloads.mkdir()
     for relative, name in ANNUAL_DOWNLOADS.items():
         shutil.copyfile(ROOT / relative, annual_downloads / name)
+    # One canonical prompt supplies both the copyable manual and the two scenarios.
+    shared_prompt = source / "examples/fe_walter/prompt.txt"
+    shared_prompt.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(ROOT / "examples/fe_walter/prompt.txt", shared_prompt)
     # Publish selected original-byte case evidence for local viewing and downloads.
     case_downloads = source / "_case_downloads/dkp_2016_2020"
     case_downloads.mkdir(parents=True)
@@ -175,7 +182,7 @@ def prepare(source: Path, *, source_ref: str = "main") -> None:
         "FE Walter case study": ["examples/fe_walter/README", "examples/fe_walter/hydrology", "examples/fe_walter/coupling", "examples/fe_walter/annual/README", *[f"examples/fe_walter/{method}/README" for method in ("benchmark", "zero_shot", "dkp")], "examples/fe_walter/results"],
         "Further configuration": ["tutorials/advanced", "docs/RESULTS_GUIDE", "docs/RUNNING"],
         "Reference": ["docs/PARAMETER_REFERENCE", "docs/REFERENCE", "docs/FIRST_DECISION", "docs/HYDROLOGY_SETUP",
-                      "examples/fe_walter/annual/decision_2016_01_01", "examples/fe_walter/annual/results",
+                      "examples/fe_walter/annual/decision_2016_01_01", "examples/fe_walter/annual/results", "docs/CODE_STRUCTURE",
                       "tutorials/README", "tutorials/main",
                                     "docs/PROJECT_INVENTORY", "archive/README", "repository",
                                     "docs/BUILDING", "docs/auditor_plugins", "docs/LIVE_READINESS"],

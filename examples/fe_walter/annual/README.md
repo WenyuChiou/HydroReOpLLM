@@ -4,14 +4,15 @@ This walkthrough connects the accepted FE Walter hydrology to reservoir decision
 and downstream flow. Begin here after [installation](../../../docs/GETTING_STARTED.md)
 and the [shared case](../README.md). Run commands from the repository root.
 
-**Observed test:** the rule-based method completed all 366 days. The real LLM
+**Previous diagnostic:** the rule-based method completed all 366 days. The real LLM
 attempt committed 169 days, then stopped on June 18 because its reply was invalid
-JSON. No automatic retry was made. Read the [results and stopping point](results.md)
-before launching another inference run; this is not a passed annual LLM example.
+JSON. That run used a single-attempt transport. Its [results and stopping point](results.md)
+remain unchanged. The paired configuration below uses explicit bounded retries
+and one shared operator prompt; its execution results are reported separately.
 
-The same case supports a rule-based method, an LLM with available information,
-and an LLM with retrieved guidance. Choose one method to run; do not launch all
-LLM configurations just to check the files.
+One case supports a rule-based baseline and two LLM scenarios: available
+information, and available information plus retrieved guidance. Both LLM scenarios
+use the same [operator prompt](../prompt.txt), physical case and daily inlet.
 
 ## 1. Understand the inputs
 
@@ -21,7 +22,7 @@ LLM configurations just to check the files.
 | Catchments and soil | Seven units; NHDPlus HR routes, Annual NLCD 2021, SSURGO/SDA attributes | [Subcatchments and parameter derivation](../hydrology.md#3-seven-subcatchments) |
 | Hydrological parameters | Accepted semi-distributed GWLF and Lohmann settings | [Native model YAML](../../../data/accepted/fe_walter_hydrology.yaml) |
 | Water at the start | Continuous hydrological initialization from 1989; separate assumed initial reservoir storage | [Initial conditions](../hydrology.md#4-shared-gwlf-and-routing-parameters) |
-| Operating instructions | Seasonal-pool v1 prompt for LLM methods; independent rule configuration for the benchmark | [Seasonal target](../../../docs/USER_GUIDE.md) |
+| Operating instructions | One shared seasonal-pool prompt for both LLM scenarios; independent benchmark rules | [Operator prompt](../prompt.txt) |
 
 For another catchment, prepare and evaluate its hydrological model first. This
 walkthrough starts from the accepted FE Walter input bundle; it does not download
@@ -86,7 +87,7 @@ performance.
 Rule coefficients and pre-experiment statistics are specified under the YAML's
 `benchmark` section. See the [rule source and interpretation](../benchmark/README.md).
 
-## 5. Configure and run one LLM method
+## 5. Configure and run the two LLM scenarios
 
 For a live diagnostic, prepare a **new** directory with the explicit readiness
 flag. This flag makes no model request; execution still needs `--allow-network`.
@@ -94,6 +95,7 @@ flag. This flag makes no model request; execution still needs `--allow-network`.
 ```bash
 python examples/fe_walter/annual/prepare.py --year 2016 --directory runs/fe-walter-2016-live --run-id fe-walter-2016-live --live-diagnostic
 python run_experiment.py check runs/fe-walter-2016-live/llm_knowledge.yaml
+python run_experiment.py check runs/fe-walter-2016-live/llm_available.yaml
 ```
 
 Inspect these settings before executing:
@@ -103,10 +105,12 @@ Inspect these settings before executing:
 | `agents.fe_operator.reservoir` | The physical reservoir controlled by this independent operator |
 | `strategy: reference_v3_7` | The retained example implementation, not the name of a general LLM method |
 | `reference.method` | Available-information or retrieved-guidance behavior |
-| `reference.system_prompt` | Fixed seasonal operating instructions |
+| `reference.system_prompt` | The single shared operator prompt; inspect or edit this file before a new experiment |
 | `reference.dkp` | Identified knowledge document for the retrieved-guidance method |
 | `models.reservoir_model` | Ollama, `gemma3:4b`, temperature 0.7, token limit and timeout |
-| `max_calls: 366` | At most one request per reservoir-day; no automatic retry |
+| `max_calls: null` | Explicitly no total request cap; set an integer if a bounded experiment is preferred |
+| `models.reservoir_model.max_attempts: 2` | At most two attempts for one decision, using the same request and unchanged reservoir state |
+| `models.reservoir_model.retry_delay_seconds: 2` | Delay before a retry of a transient provider or invalid-response failure |
 | `auditors` | Release-bound checks; separate from the model's response-format checks |
 
 The current tutorial uses the complete current-day simulated mean inlet as a
@@ -114,16 +118,35 @@ hindcast input. It is not a real-time forecast. Information changes each day;
 fixed instructions do not. [Prompt construction and raw outputs](../dkp/README.md)
 show the retained example fields.
 
-Once the model is installed locally and the configuration is checked:
+Once the model is installed locally and both configurations are checked, run
+the scenarios serially. These commands make real model requests:
 
 ```bash
+python run_experiment.py run runs/fe-walter-2016-live/llm_available.yaml --allow-network
+python run_experiment.py verify runs/fe-walter-2016-live/run-llm_available
 python run_experiment.py run runs/fe-walter-2016-live/llm_knowledge.yaml --allow-network
 python run_experiment.py verify runs/fe-walter-2016-live/run-llm_knowledge
 ```
 
-This requests new model decisions. To choose the available-information method,
-use `llm_available.yaml` instead. Running both methods requires a separate budget
-for each. Do not add `--require-offline` when verifying a real-inference run.
+The method differs under `reference.method`: `zeroshot` uses the available
+information; `dkp` also retrieves the selected knowledge document. Both point to
+the same instruction file. Do not add `--require-offline` for real-inference runs.
+
+The response check retries incomplete or invalid replies and transient connection
+failures. Operating audit FAIL, or pool above/below the target, does not trigger
+a retry or replace the action. Those are operating diagnostics and results.
+
+### Read or copy the shared operator prompt
+
+The same fixed text is used for both scenarios. The daily message adds current
+information and, for the retrieved-guidance scenario, selected knowledge.
+The retained scenario response schemas differ; each request supplies its schema.
+
+```{literalinclude} ../prompt.txt
+:language: text
+```
+
+[Download the complete prompt](../prompt.txt).
 
 ## 6. Inspect one decision, then the whole year
 
@@ -133,6 +156,7 @@ the model's full reply, original audit reasons and the next day's feedback.
 | Inspect | What it tells you |
 |---|---|
 | `progress.json` and `backend_events.jsonl` | Last completed step and visible decision/feedback events |
+| `provider_attempts.jsonl` | Durably recorded request starts, captured responses and transport failures, including retries |
 | `decisions.jsonl` and referenced `raw/` files | Information, fixed/rendered prompt, model reply, requested release and response checks |
 | `physics.jsonl` | Implemented controlled release, spill, ending storage and feedback for the next step |
 | `reservoir_trajectory.csv` | Full-period inlet, requested/implemented release and storage |
@@ -156,11 +180,35 @@ annual plot. Check all 366 dates, balances, next-day continuity and request coun
 Keep **response validity**, **successful execution** and **operating performance**
 as separate conclusions. Audit FAIL must remain visible even if execution completes.
 
-If a model call or write fails, retain the run and its partial evidence. The
-runner does not silently retry, switch methods or resume. See
+The primary result figure shows **pool elevation** and **water release** over the
+whole year. Storage and audit data remain in the saved records for inspection.
+
+## 7. Continue an interrupted run
+
+If both attempts fail or the process crashes, keep its original directory.
+Continue in a new directory using the same configuration and unchanged runtime:
+
+```bash
+python run_experiment.py resume runs/fe-walter-2016-live/llm_knowledge.yaml --from-run runs/fe-walter-2016-live/run-llm_knowledge --output runs/fe-walter-2016-live/run-llm_knowledge-continued --run-id fe-walter-2016-knowledge-continued --allow-network
+python run_experiment.py verify runs/fe-walter-2016-live/run-llm_knowledge-continued
+```
+
+Recovery replays saved replies to rebuild the native routing and reservoir/policy
+history, checks the reconstructed physical records, then requests the missing
+decision. It does not resample completed decisions or overwrite their source run.
+An in-flight request whose response was not journaled can be requested again;
+its earlier attempt remains visible. A finite `max_calls` includes earlier
+attempts across recovery. With `null`, the total is uncapped.
+
+Changed prompts, model settings, inputs, code or Python runtime require a new
+experiment. Recovery currently requires static case information; dynamic external
+information providers need a separate replay contract. See
 [resources and interruption handling](../../../docs/RUNNING.md).
 
-## 7. Follow the code
+## 8. Follow the code
+
+Read the [code structure and daily loop](../../../docs/CODE_STRUCTURE.md) for
+the entry point, module boundaries and the order of one simulated day.
 
 | Reader's step | Code responsibility |
 |---|---|
@@ -171,6 +219,7 @@ runner does not silently retry, switch methods or resume. See
 | Run native Dam/routing and common physical updates | [network.py](../../../src/llm_reservoir_agent/network.py), [agent.py](../../../src/llm_reservoir_agent/agent.py) |
 | Keep committed decisions, audits and physical evidence together | [experiment.py](../../../src/llm_reservoir_agent/experiment.py), [trace.py](../../../src/llm_reservoir_agent/trace.py) |
 | Verify the saved run | [verification.py](../../../src/llm_reservoir_agent/verification.py) |
+| Rebuild an interrupted prefix and continue | [recovery.py](../../../src/llm_reservoir_agent/recovery.py) |
 
 This is an executable **two-stage chain**: weather-derived inlet preparation,
 then daily coupled operation/routing. A single weather-mode CLI and feedback that

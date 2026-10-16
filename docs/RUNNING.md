@@ -1,8 +1,9 @@
-# Running and maintenance
+# Resources and interruption handling
 
 Start with the saved examples. Before a new model run, check the configuration,
-available resources and output path. This page describes the current runner;
-automatic retry, checkpoint restore and policy fallback are not provided.
+available resources and output path. Retries are explicit model settings;
+`resume` reconstructs an interrupted run in a new directory. Neither mechanism
+substitutes a rule-based decision for an LLM decision.
 
 ## 1. Plan CPU, GPU and memory
 
@@ -27,9 +28,11 @@ separately in your system monitor before choosing a longer experiment.
 | Setting | Purpose |
 |---|---|
 | `start_date`, `end_date` | Inclusive daily interval within the case's continuous input |
-| `max_calls` | At least days × LLM agents; request allowance, not a cost or memory limit |
+| `max_calls` | Integer allowance covering planned requests, or explicit `null` for no total cap; retries count |
 | `max_tokens` | Positive response-length limit; too small can yield an incomplete reply |
-| `timeout_seconds` | Single-request timeout; timeout stops execution without retry |
+| `timeout_seconds` | Timeout for one provider attempt |
+| `max_attempts` | Maximum attempts for one decision; default 1, annual example 2 |
+| `retry_delay_seconds` | Delay between retryable attempts; default 2 seconds |
 | Information profile | Select fields/history actually needed by the prompt |
 
 Keep temperature **0.7** for these examples. A new start date needs verified
@@ -65,29 +68,39 @@ before moving model files.
    another run.
 2. **Preserve the output directory.** Copy it for diagnosis; retain the failed or
    partial records and original configuration.
-3. **Verify existing evidence.** Run `verify` against that directory. A missing
-   summary, truncated file or failed binding is incomplete evidence, not a pass.
-4. **Find the last fully committed transition.** Match the decision, audit,
-   physics and feedback records. A raw reply alone does not prove release was
-   applied.
-5. **Resolve the cause before another experiment.** Use a new run ID/output.
-   Do not overwrite the interrupted run or rerun completed dates as recovery.
+3. **Inspect the failure.** Match `backend_events.jsonl`, `provider_attempts.jsonl`
+   and the last decision/physics records. A raw reply alone does not prove that
+   release was applied. An interrupted run is incomplete evidence.
+4. **Resume unchanged inputs.** Use the original YAML, code and Python runtime,
+   with a new run ID and output directory. Saved replies reconstruct routing,
+   storage and operator history; completed decisions need no new model request.
+5. **Verify the continued run.** Check all expected dates, saved evidence and
+   water accounting. Keep its source run beside it.
+
+```bash
+python run_experiment.py resume experiment.yaml --from-run runs/interrupted --output runs/continued --run-id continued --allow-network
+python run_experiment.py verify runs/continued
+```
 
 A timeout or lost connection can leave the provider outcome and cost unknown.
 A system crash can leave a partial record. Preserve uncertainty; do not infer
 success from a returned fragment.
 
-**This runner has no general resume command.** Continuing from a later date
-requires an explicitly reviewed reconstruction of reservoir storage, routing
-memory and agent history. Changing only `start_date` is not a recovery method.
+Recovery rejects changed inputs, prompt/model settings, code or Python version.
+It currently supports static case information; dynamic external information
+providers need a separate replay contract. An in-flight request without a
+journaled decision can be requested again. A finite allowance includes earlier
+attempts across recovery. Changing only `start_date` is not a recovery method.
 
 ## 5. Checks, fallback and outcome
 
 | Event | Current behavior |
 |---|---|
-| Incomplete reply, invalid schema/unit/value or provider error | Stop before applying that proposal; no automatic retry |
+| Incomplete reply or invalid response fields | Retry up to `max_attempts` with the same inputs; never advance physics for an invalid response |
+| Timeout or transient connection failure | Retry within that decision's attempt limit; retain failed attempts |
+| Authentication/HTTP error, exhausted attempts or evidence-write failure | Stop and preserve diagnostics; do not silently substitute a policy |
 | Valid requested release exceeds feasible water/limits | Common physical calculation determines implemented release and spill |
-| Operation audit FAIL/WARN/UNKNOWN | Preserve the diagnostic verdict; it is not a silent replacement policy |
+| Pool outside its seasonal target or operation audit FAIL/WARN/UNKNOWN | Preserve the diagnostic; do not retry, replace the action or stop for this verdict |
 | Storage/process failure or incomplete evidence | Preserve partial files; diagnose before another run |
 
 Physical clipping is not a fallback operating policy. To compare a rule policy

@@ -28,11 +28,12 @@
     {{ chapter('examples/fe_walter/dkp/README', 'LLM · retrieved knowledge', true) }}
     {{ chapter('examples/fe_walter/results', 'Daily results and decisions') }}
   </ul>
-  <details class="manual-reference"{% if pagename in ['docs/INFORMATION','docs/LLM_MODULES','tutorials/advanced','docs/RESULTS_GUIDE','docs/RUNNING','docs/PARAMETER_REFERENCE','docs/REFERENCE','docs/HYDROLOGY_SETUP'] %} open{% endif %}>
+  <details class="manual-reference"{% if pagename in ['docs/INFORMATION','docs/LLM_MODULES','docs/CODE_STRUCTURE','tutorials/advanced','docs/RESULTS_GUIDE','docs/RUNNING','docs/PARAMETER_REFERENCE','docs/REFERENCE','docs/HYDROLOGY_SETUP'] %} open{% endif %}>
     <summary>Reference</summary>
     <ul class="manual-navigation">
       {{ chapter('docs/INFORMATION', 'Decision information') }}
       {{ chapter('docs/LLM_MODULES', 'Prompts and modules') }}
+      {{ chapter('docs/CODE_STRUCTURE', 'Code and daily loop') }}
       {{ chapter('tutorials/advanced', 'Multiple reservoirs') }}
       {{ chapter('docs/RESULTS_GUIDE', 'Audit, trace and debugging') }}
       {{ chapter('docs/RUNNING', 'Resources and interruptions') }}

@@ -16,7 +16,7 @@ Unknown keys, duplicate YAML keys and nonfinite numbers are rejected.
 | `run_id` | yes; nonempty text | no default | Trace identity; choose a new value per run | `my-run-01` | `workflow.load_settings` |
 | `output` | yes; path | no default | New output directory; existing output is refused | `../runs/my-run-01` | `workflow.load_settings` |
 | `start_date`, `end_date` | no; quoted ISO date | case extent | Inclusive continuous daily subset; no automatic warm-up | `"2016-01-01"` | `workflow.load_settings` |
-| `max_calls` | no; integer | `0` | Must be at least the planned LLM request count; offline runs need no positive allowance | `3` | `workflow.load_settings` |
+| `max_calls` | no; integer or null | `0` | Integer must cover planned LLM requests, including retries across recovery; explicit `null` removes the total cap | `null` | `workflow.load_settings` |
 | `models` | conditional; mapping | `{}` when no LLM | Named model profiles | see below | `workflow.load_settings` |
 | `agents` | yes; mapping | no default | One entry per controlled reservoir; passive outlets have none | `operator_1: …` | `workflow.load_settings` |
 | `auditors` | no; mapping | `{}` | Named request/decision diagnostic checks | `release_limits: …` | `workflow.load_settings` |
@@ -24,8 +24,10 @@ Unknown keys, duplicate YAML keys and nonfinite numbers are rejected.
 | `information_profiles` | no; mapping | `{}` | Named selections from the source catalog | `operator_view: …` | `information.InformationCatalog` |
 | `outcome_checks` | no; mapping | `{}` | Post-routing control-point diagnostics | `downstream_minimum: …` | outcome-check loader |
 
-The current runner is daily. It does not automatically resume or retry a model
-request. A live run also requires `--allow-network` and a live-ready case.
+The runner is daily. Model profiles explicitly configure retries; `resume`
+reconstructs unchanged interrupted runs in a new directory. A live run also
+requires `--allow-network` and a live-ready case. Read
+[interruption handling](RUNNING.md) before continuing a partial run.
 
 ## Model profile
 
@@ -37,6 +39,8 @@ request. A live run also requires `--allow-network` and a live-ready case.
 | `temperature` | no; finite number | `0.7` | 0 through 2; current F.E. Walter examples explicitly use 0.7 | `0.7` | same |
 | `max_tokens` | no; integer | `512` | Positive output limit | `2048` | same |
 | `timeout_seconds` | no; number | `60` | Positive single-request timeout | `120` | same |
+| `max_attempts` | no; integer | `1` | Positive attempt limit for one decision; retries reuse inputs and do not advance physics | `2` | same |
+| `retry_delay_seconds` | no; finite number | `2` | Nonnegative delay between retryable attempts | `2` | same |
 | `seed` | no; integer or null | `null` | Passed when supported; does not guarantee reproducibility | `7` | same |
 | `api_key_env` | no; text or null | `null` | Environment-variable name, never a credential value | `MODEL_API_KEY` | same |
 

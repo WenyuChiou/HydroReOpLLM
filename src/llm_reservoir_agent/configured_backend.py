@@ -19,9 +19,11 @@ import json
 import math
 import os
 import re
+import time
 from collections.abc import Callable, Mapping
 from string import Template
 from typing import Any, Literal
+from urllib.error import HTTPError, URLError
 from urllib.parse import urlsplit
 from urllib.request import HTTPRedirectHandler, Request, build_opener
 
@@ -33,7 +35,7 @@ from .prompt import PromptSpec
 Transport = Callable[[str, Mapping[str, Any], Mapping[str, str], float], dict[str, Any]]
 _MODEL_KEYS = {
     "provider", "model", "base_url", "temperature", "max_tokens", "seed",
-    "timeout_seconds", "api_key_env",
+    "timeout_seconds", "api_key_env", "max_attempts", "retry_delay_seconds",
 }
 _PROVIDERS = {"ollama", "openai_compatible"}
 _ENV_NAME = re.compile(r"[A-Za-z_][A-Za-z0-9_]*\Z")
@@ -126,6 +128,16 @@ def validate_model_settings(mapping: Mapping[str, Any]) -> dict[str, Any]:
     timeout = _finite_number(supplied.get("timeout_seconds", 60.0), "model.timeout_seconds")
     if timeout <= 0.0:
         raise ValueError("model.timeout_seconds must be positive")
+    max_attempts = supplied.get("max_attempts", 1)
+    if isinstance(max_attempts, bool) or not isinstance(max_attempts, int):
+        raise TypeError("model.max_attempts must be an integer")
+    if max_attempts <= 0:
+        raise ValueError("model.max_attempts must be positive")
+    retry_delay = _finite_number(
+        supplied.get("retry_delay_seconds", 2.0), "model.retry_delay_seconds"
+    )
+    if retry_delay < 0.0:
+        raise ValueError("model.retry_delay_seconds must be non-negative")
     api_key_env = supplied.get("api_key_env")
     if api_key_env is not None:
         if not isinstance(api_key_env, str) or _ENV_NAME.fullmatch(api_key_env) is None:
@@ -140,7 +152,94 @@ def validate_model_settings(mapping: Mapping[str, Any]) -> dict[str, Any]:
         "seed": seed,
         "timeout_seconds": timeout,
         "api_key_env": api_key_env,
+        "max_attempts": max_attempts,
+        "retry_delay_seconds": retry_delay,
     }
+
+
+def _authoritative_network_calls(transport: Any) -> int | None:
+    value = getattr(transport, "network_calls", None)
+    if isinstance(value, int) and not isinstance(value, bool) and value >= 0:
+        return value
+    return None
+
+
+def _retryable_transport_error(exc: BaseException) -> bool:
+    if isinstance(exc, HTTPError):
+        return False
+    if isinstance(exc, (TimeoutError, ConnectionError)):
+        return True
+    if isinstance(exc, URLError):
+        return isinstance(exc.reason, (TimeoutError, ConnectionError))
+    return False
+
+
+def _provider_attempts(
+    *,
+    settings: Mapping[str, Any],
+    transport: Transport,
+    url: str,
+    payload: Mapping[str, Any],
+    headers: Mapping[str, str],
+    request_sha256: str,
+    parse_reply: Callable[
+        [dict[str, Any], dict[str, Any]], tuple[Any, Mapping[str, Any]]
+    ],
+    attempts: list[dict[str, Any]],
+    note_call: Callable[[], None],
+) -> Any:
+    """Execute one fixed provider request with narrow response-level retries."""
+
+    for attempt_number in range(1, settings["max_attempts"] + 1):
+        attempt: dict[str, Any] = {
+            "attempt": attempt_number,
+            "request_sha256": request_sha256,
+            "provider_reply": None,
+            "raw_reply": None,
+            "usage": None,
+            "request_id": None,
+            "error_class": None,
+            "elapsed_seconds": None,
+            "success": False,
+        }
+        attempts.append(attempt)
+        started = time.perf_counter()
+        note_call()
+        try:
+            try:
+                returned = transport(
+                    url,
+                    json_snapshot(payload, label="request"),
+                    dict(headers),
+                    settings["timeout_seconds"],
+                )
+            except Exception as exc:
+                attempt["error_class"] = type(exc).__name__
+                if not _retryable_transport_error(exc) or attempt_number == settings["max_attempts"]:
+                    raise
+            else:
+                try:
+                    raw = json_snapshot(returned, label="provider_reply")
+                    if not isinstance(raw, dict):
+                        raise TypeError("transport must return a mapping")
+                    attempt["provider_reply"] = raw
+                    result, metadata = parse_reply(raw, attempt)
+                except (json.JSONDecodeError, TypeError, ValueError) as exc:
+                    attempt["error_class"] = type(exc).__name__
+                    if attempt_number == settings["max_attempts"]:
+                        raise
+                else:
+                    metadata = json_snapshot(dict(metadata), label="attempt metadata")
+                    for key in ("raw_reply", "usage", "request_id", "dkp_decision"):
+                        if key in metadata:
+                            attempt[key] = metadata[key]
+                    attempt["success"] = True
+                    return result
+        finally:
+            attempt["elapsed_seconds"] = time.perf_counter() - started
+        if settings["retry_delay_seconds"]:
+            time.sleep(settings["retry_delay_seconds"])
+    raise AssertionError("provider attempt loop terminated without a result")
 
 
 def http_json_transport(
@@ -231,6 +330,16 @@ def chat_reply(raw, provider, *, require_complete=False):
     return message["content"], json_snapshot(usage, label="usage")
 
 
+def _provider_usage(raw: Mapping[str, Any], provider: str) -> Any:
+    """Capture usage even when completion or content validation later fails."""
+
+    if provider == "ollama":
+        usage = {key: raw[key] for key in ("prompt_eval_count", "eval_count") if key in raw}
+    else:
+        usage = raw.get("usage")
+    return json_snapshot(usage, label="usage")
+
+
 class ConfiguredBackend:
     """Neutral backend with an explicit offline fixture and strict LLM mode."""
 
@@ -281,11 +390,20 @@ class ConfiguredBackend:
         except (KeyError, ValueError) as exc:
             raise ValueError("prompt template contains an invalid or unsupported placeholder") from exc
 
-        self.network_calls = 0
+        self._network_calls = 0
         self.latest_trace: dict[str, Any] | None = None
         self.latest_audit = None
         self.last_request_id = None
         self._previous_transition: dict[str, Any] | None = None
+
+    @property
+    def network_calls(self) -> int:
+        observed = _authoritative_network_calls(self._transport)
+        return self._network_calls if observed is None else observed
+
+    def _note_transport_call(self) -> None:
+        if _authoritative_network_calls(self._transport) is None:
+            self._network_calls += 1
 
     def _validate_knowledge(self, knowledge_texts: Mapping[str, str]) -> dict[str, str]:
         if not isinstance(knowledge_texts, Mapping):
@@ -377,27 +495,50 @@ class ConfiguredBackend:
             "usage": None,
             "parsed_action": None,
             "previous_feedback": json_snapshot(self._previous_transition, label="previous_transition"),
+            "attempts": [],
+            "latest_attempt": None,
+            "request_id": None,
         }
         self.latest_trace = trace
-        self.network_calls += 1
-        reply = self._transport(url, json_snapshot(payload, label="request"), dict(headers), self.model["timeout_seconds"])
-        raw = json_snapshot(reply, label="provider_reply")
-        if not isinstance(raw, dict):
-            raise TypeError("transport must return a mapping")
-        trace["raw_reply"] = raw
-        self.last_request_id = raw.get("id")
+        def parse_provider_reply(raw, attempt):
+            attempt["request_id"] = raw.get("id")
+            attempt["usage"] = _provider_usage(raw, self.model["provider"])
+            content, usage = chat_reply(
+                raw,
+                self.model["provider"],
+                require_complete="information" in Template(self.prompt_spec.template).get_identifiers(),
+            )
+            attempt["usage"] = usage
+            candidate = _strict_json(content)
+            decision = None
+            if self.response_schema != ACTION_SCHEMA_VERSION:
+                from .dkp_audit import validate_dkp_decision
+                decision = validate_dkp_decision(candidate)
+                candidate = {"schema_version": ACTION_SCHEMA_VERSION,
+                             "release_cms": decision["release_cms"]}
+            if not isinstance(candidate, dict) or set(candidate) != {"schema_version", "release_cms"}:
+                raise ValueError("model action must explicitly contain only schema_version and release_cms")
+            parsed = parse_action(candidate)
+            return parsed, {"raw_reply": candidate, "usage": usage,
+                            "request_id": raw.get("id"), "dkp_decision": decision}
 
-        content, trace["usage"] = chat_reply(raw, self.model["provider"],
-            require_complete="information" in Template(self.prompt_spec.template).get_identifiers())
-        candidate = _strict_json(content)
-        if self.response_schema != ACTION_SCHEMA_VERSION:
-            from .dkp_audit import validate_dkp_decision
-            decision = validate_dkp_decision(candidate)
-            trace["dkp_decision"] = decision
-            candidate = {"schema_version": ACTION_SCHEMA_VERSION, "release_cms": decision["release_cms"]}
-        if not isinstance(candidate, dict) or set(candidate) != {"schema_version", "release_cms"}:
-            raise ValueError("model action must explicitly contain only schema_version and release_cms")
-        action = parse_action(candidate)
+        try:
+            action = _provider_attempts(
+                settings=self.model, transport=self._transport, url=url, payload=payload,
+                headers=headers, request_sha256=trace["request_sha256"],
+                parse_reply=parse_provider_reply, attempts=trace["attempts"],
+                note_call=self._note_transport_call,
+            )
+        finally:
+            latest = trace["attempts"][-1]
+            trace["latest_attempt"] = json_snapshot(latest)
+            trace["raw_reply"] = latest["provider_reply"]
+            trace["usage"] = latest["usage"]
+            trace["request_id"] = latest["request_id"]
+            trace["error_class"] = latest["error_class"]
+            self.last_request_id = latest["request_id"]
+        if trace["latest_attempt"].get("dkp_decision") is not None:
+            trace["dkp_decision"] = trace["latest_attempt"]["dkp_decision"]
         trace["parsed_action"] = action.to_dict()
         return action
 
