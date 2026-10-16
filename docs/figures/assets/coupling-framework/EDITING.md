@@ -1,64 +1,49 @@
-# HydroOpsLM editable coupling figure
+# HydroOpsLLM Figure 1
 
-The outer boundary is HydroOpsLM. Each reservoir selects one policy: user
-operating rules or the checked LLM route. The LLM route is Prompt → Language
-model → Operation proposal → Response checks. Both alternatives feed one shared
-reservoir operation. Requested release is proposal data; optional rationale is
-retained in trace records rather than becoming a second operation engine.
+The [native draw.io source](../../hydrocnhs-coupling-framework-en.drawio) is canonical.
+Text, boundaries, icon placement and connectors are separate editable objects.
+Raster illustrations are embedded; the project logo uses the existing SVG mark.
 
-Native HydroCNHS supplies GWLF/ABCD rainfall-runoff, Lohmann routing, and the
-native Dam API. Inside that shared reservoir-operation node, HydroOpsLM adds the
-storage balance, release, and spill responsibilities. The LLM information profile
-selects simulation feedback plus external records such as river observations,
-demands, forecasts, operating targets, and executed history. Native downstream
-simulation values come only from completed steps. The rule example retains its
-original reservoir observation; the tutorial gives fields, time availability,
-and units.
+## Meaning and appearance
 
-Decision audit evaluates the current observation and requested action against
-configured operating criteria before physical storage, release, and spill
-calculations. The upward “Requested release” connector refers to proposal data
-at the shared operation interface.
-An audit failure is
-retained and does not automatically block a diagnostic trajectory; this caveat
-belongs in the surrounding documentation rather than inside the diagram. Trace
-records are finalized after physics and bind the decision-audit verdict to
-implemented release, storage, and spill, without acting as a gate. Rule-based and
-LLM policies share these audit and execution-trace responsibilities;
-checker-specific fields apply only to the LLM route.
+HydroCNHS supplies rainfall-runoff, routing and the original Dam API.
+HydroOpsLLM adds decision integrations and the shared reservoir calculation.
+The pale left area shows coupling context, not original source ownership.
+Rule-based and LLM-based agents are alternatives. Both request release;
+implemented controlled release plus spill enters routing once.
 
-Blue solid arrows carry water or implemented outflow. Black solid arrows carry
-information, proposals, audit evidence, and trace records. Blue outlines mark
-hydrology/physics, orange rules, purple LLM modules, teal checks/records, and gray
-external data and optional knowledge. Pale fills use the same roles as the outlines. Color does not
-encode pass/fail. Main water and LLM sequences are horizontal; feedback and
-policy connections use straight segments with right-angle turns.
+Prompt construction receives selected information and optional knowledge.
+Response validation checks the reply's structure and values.
+Operating-rule audit assesses configured criteria and does not replace release.
+Enabled auditors complete before the physical transition.
+Trace receives decision, audit and execution records. Rule methods can use it too.
+
+Neutral-gray data cards replace the stark white cards. Blue identifies physical
+calculation, warm tones decision generation, and sage checks/assessment/recording.
+The warmer right scope emphasizes the expanded LLM path. The agent's pale warm
+fill groups its three required steps. The canvas is transparent; the package
+uses a neutral paper fill. Colors do not encode strategy quality or code origin.
+Dashed card borders mean configurable augmentation; a method may require its auditor.
+All arrows remain solid and directed: blue water, dark decision information/requests,
+sage records. No module, arrow label or route changed in the v15 fill correction.
 
 ## Edit and export
 
-Text, cards, native vector symbols, and connectors are editable draw.io objects.
-Raster illustrations are embedded as independently movable image objects. The
-policy-specific hooks are `rule-operation.png`, `operation-proposal.png`,
-`response-checks.png`, and `trace-records.png`; replacing one and running the
-producer refreshes that illustration. Rebuilding overwrites manual layout edits,
-so use a copy for GUI experiments.
+Edit the native source. The historical source/build_coupling_drawio.py generator
+does not reproduce the reviewed layout. Run it only in a separate candidate directory.
 
-```powershell
-python docs/figures/source/build_coupling_drawio.py
-draw.io --export --format png --output docs/figures/hydrocnhs-coupling-framework-en.png docs/figures/hydrocnhs-coupling-framework-en.drawio
-draw.io --export --format svg --output docs/figures/hydrocnhs-coupling-framework-en.svg docs/figures/hydrocnhs-coupling-framework-en.drawio
-draw.io --export --format pdf --output docs/figures/hydrocnhs-coupling-framework-en.pdf docs/figures/hydrocnhs-coupling-framework-en.drawio
+```sh
+draw.io --export --format svg --embed-svg-images --output docs/figures/hydrocnhs-coupling-framework-en.svg docs/figures/hydrocnhs-coupling-framework-en.drawio
+draw.io --export --format png --width 4252 --output docs/figures/hydrocnhs-coupling-framework-en.png docs/figures/hydrocnhs-coupling-framework-en.drawio
+draw.io --export --format pdf --crop --output docs/figures/hydrocnhs-coupling-framework-en.pdf docs/figures/hydrocnhs-coupling-framework-en.drawio
 ```
 
-To inspect a candidate before replacing the figure, pass
-`--output-dir build/figure-candidate` to the producer and export that copy.
-Wait for each export command to finish before starting the next one.
+Wait for each export. --crop prevents paper-size pagination from cutting the figure.
+The supplied PDF is one page, normalized to 180 mm width; place a fresh native-size
+export at the same width in the manuscript. The supplied PNG is 4252 x 2492 at 600 dpi.
+This is a proposed full-width layout, not a verified journal requirement.
+Inspect actual manuscript placement; single-column reduction is unsuitable.
 
-For a paper, use the vector SVG or PDF at **180 mm width**: the smallest label
-is approximately **8.25 pt**. The supplied PDF uses the native draw.io canvas
-size; place it at 180 mm in the manuscript.
-This overview is intended for a full-width figure, not a single-column reduction.
-The four water-process cards are equally sized; colors identify roles, not verdicts.
-
-`relationship-map.json` records bounds, connector endpoints, line semantics, and
-responsibility notes for review and regression checks.
+The manual embeds the current PNG and offers local, original-byte PNG/PDF downloads.
+Documentation builds do not execute models. relationship-map.json describes the
+current graph; quality.json separates historical review from current checks.

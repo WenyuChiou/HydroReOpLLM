@@ -54,6 +54,57 @@ Prepare these files before changing the operation method:
 
 The [simulation design chapter](../../docs/BUILD_SIMULATION.md) explains how to adapt these components to your own reservoir.
 
+## Seasonal pool levels
+
+The current case uses four **study-defined** compliance windows, in ft N.G.V.D.
+The two new prompt variants use the same windows. These are study settings, not an official annual operating schedule.
+
+| Season | Dates, inclusive | Pool-level check |
+|---|---|---|
+| Winter hold | November 1–March 14 | 1297–1303 ft, near the 1300 ft conservation pool |
+| Spring fill | March 15–May 9 | 1300–1370 ft |
+| Summer | May 10–October 14 | At or below 1370 ft; no lower bound in this check |
+| Fall drawdown | October 15–October 31 | 1300–1370 ft and falling |
+
+March 15, May 10 and October 15 belong to the later season. Height limits include both endpoints.
+The [versioned criteria](seasonal_pool_criteria.json) contain the dates, bands and shared instruction:
+
+```text
+Operation target: Your goal is to keep the water level within the designated seasonal pool levels.
+From November 1 through March 14, keep the pool near the conservation pool at
+1300.0 ft N.G.V.D., within 1297.0 to 1303.0 ft.
+From March 15 through May 9, keep the pool between 1300.0 and 1370.0 ft and,
+when hydrologic conditions allow, fill toward 1370.0 ft by May 10.
+From May 10 through October 14, keep the pool at or below 1370.0 ft.
+From October 15 through October 31, keep the pool between 1300.0 and 1370.0 ft
+and lower it toward 1300.0 ft by November 1.
+```
+
+For a new experiment, use the [available-information YAML](zero_shot/experiment.seasonal.ollama.yaml)
+or [retrieved-knowledge YAML](dkp/experiment.seasonal.ollama.yaml).
+Both select `system_prompt_mode: custom`, separate prompt files and new output locations.
+Only the operation-target paragraph changes; response fields and reference-method code stay the same.
+These variants have been checked without a provider request; no new LLM results are supplied.
+Saved exchanges retain their original winter/summer instruction and audit verdicts.
+
+### Check a saved pool-level series
+
+```sh
+python examples/fe_walter/check_pool_levels.py examples/fe_walter/reference_outputs/long_term_dkp/plotted_daily.csv --output runs/fe-walter-seasonal-pool-v1.csv
+```
+
+Run from the repository root and use a new output filename. The script writes a separate CSV
+with input/criteria hashes and refuses to overwrite an existing file.
+It does not run a model, simulation or policy audit.
+
+The supplied series contains **beginning-of-day** `pool_elevation_start_ft` values.
+This checks daily snapshots, not subdaily peaks or end-of-day compliance.
+In fall, “falling” means strictly lower than the immediately preceding calendar day's snapshot;
+a flat day fails, including at 1300 ft. Missing/nonfinite levels or missing fall history produce
+`UNKNOWN`; an observed band violation remains `FAIL`. No extra numeric tolerance is applied.
+Reference decision audits keep their original target logic and remain separate from this
+new pool-level assessment. The saved trajectory was not generated with the revised prompt.
+
 ## Follow the coupled daily workflow
 
 Read [the daily coupling chapter](coupling.md) before selecting a method.

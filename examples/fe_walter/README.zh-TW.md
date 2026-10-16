@@ -52,6 +52,45 @@ Identity 下游 routing 用於耦合介面測試，不是已校正河川旅行�
 
 [建立模擬](../../docs/BUILD_SIMULATION.zh-TW.md)說明如何將這些元件套用到自己的水庫。
 
+## 季節水位
+
+目前案例使用以下**研究自訂**的水位合規窗口，單位為 ft N.G.V.D.。
+兩個新版 prompt 使用同一規格；這不是官方逐年操作計畫。
+
+| 季節 | 日期，含首尾日 | 水位檢查 |
+|---|---|---|
+| 冬季維持 | 11 月 1 日–3 月 14 日 | 1297–1303 ft，接近 1300 ft 保育水位 |
+| 春季蓄水 | 3 月 15 日–5 月 9 日 | 1300–1370 ft |
+| 夏季 | 5 月 10 日–10 月 14 日 | 不高於 1370 ft；此檢查不設下限 |
+| 秋季降水位 | 10 月 15 日–10 月 31 日 | 1300–1370 ft，且水位下降 |
+
+3/15、5/10、10/15 歸後一季；水位上下限均含端點。
+[季節規格](seasonal_pool_criteria.json)保存共同英文指令：
+冬季維持 1300 ft 附近，春季在水文條件允許時向 1370 ft 蓄水，
+夏季不超過 1370 ft，秋季於 10/15 起降水位，朝 11/1 回到 1300 ft。
+
+新實驗改用[可用資訊 YAML](zero_shot/experiment.seasonal.ollama.yaml)或
+[檢索知識 YAML](dkp/experiment.seasonal.ollama.yaml)。
+兩者使用 `system_prompt_mode: custom`、獨立 prompt 與新輸出位置。
+僅修改操作目標段落，回覆欄位與原版 reference 程式不變。
+目前僅完成無模型請求的設定檢查，尚未產生新版 LLM 結果。
+既有範例中的完整交換仍是原始指令與原始 audit 判定。
+
+### 檢查保存的水位序列
+
+```sh
+python examples/fe_walter/check_pool_levels.py examples/fe_walter/reference_outputs/long_term_dkp/plotted_daily.csv --output runs/fe-walter-seasonal-pool-v1.csv
+```
+
+在 repo 根目錄執行，輸出檔名必須是新的。程式僅讀取資料，
+另存包含輸入／規格 hash 的 CSV；不執行模型、模擬或策略 audit。
+保存序列的 `pool_elevation_start_ft` 是**每日起始水位**，不代表日內最高或日末水位。
+
+秋季「下降」指低於前一個連續日的水位；持平會判 FAIL，包含已到 1300 ft 的情況。
+缺少水位、非有限值或缺少秋季前一日資訊時判 UNKNOWN；已觀察到超出水位帶仍判 FAIL。
+不額外加入數值容差。原版策略 audit 的目標邏輯維持原樣，
+與本次新增的水位合規結果分開。保存軌跡並非使用新版 prompt 產生。
+
 ## 跟著每日耦合流程
 
 選方法前，先閱讀[每日耦合章節](coupling.zh-TW.md)。

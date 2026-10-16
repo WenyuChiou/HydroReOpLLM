@@ -12,6 +12,11 @@ First review [the case hydrology](../hydrology.md) and [the coupled daily workfl
 This method uses the same daily Dam/routing loop with precomputed inflow; the operation run does not recalculate GWLF.
 Each implemented operation advances storage; LLM methods retain implemented release history.
 
+**Current seasonal case:** use the [seasonal YAML](experiment.seasonal.ollama.yaml)
+and [seasonal prompt](../../../prompts/fe_walter_reference/dkp_seasonal_v1_system.txt).
+Read the [shared windows and pool checks](../README.md#seasonal-pool-levels).
+This is an unexecuted prompt variant. Saved exchanges on this page retain their original instructions and audit verdicts.
+
 ## 1. Configure the method
 
 Use local Ollama **gemma3:4b**, temperature **0.7**.

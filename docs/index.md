@@ -1,11 +1,11 @@
-# HydroOpsLM User Manual
+# HydroOpsLLM User Manual
 
 **Hydrological Simulation with Large Language Model Reservoir Operations**
 
 Configure reservoir operations within a coupled hydrological simulation.
 Start with the framework, build your simulation, then follow one FE Walter case through three operation methods.
 
-![HydroOpsLM cover](figures/hydroopslm-cover.png)
+![HydroOpsLLM cover](figures/hydroopslm-cover.png)
 
 :::: {container} reading-route
 
@@ -39,11 +39,11 @@ One site, common inputs and three methods. Read one year of daily operation, the
 
 ## The framework
 
-![HydroOpsLM concept](figures/hydrocnhs-coupling-framework-en.png)
+![HydroOpsLLM concept](figures/hydrocnhs-coupling-framework-en.png)
 
-HydroCNHS provides rainfall–runoff and river routing. HydroOpsLM connects rule-based or language-model operation through the native Dam API and records the implemented release.
+HydroCNHS provides rainfall–runoff and river routing. HydroOpsLLM connects rule-based or language-model operation through the native Dam API and records the implemented release.
 
-[View the concept at full size](https://wenyuchiou.github.io/HydroOpsLM/_images/hydrocnhs-coupling-framework-en.png).
+[Full-resolution PNG](figures/hydrocnhs-coupling-framework-en.png) · [Vector PDF, 180 mm](figures/hydrocnhs-coupling-framework-en.pdf).
 
 ## Companion notebooks
 
