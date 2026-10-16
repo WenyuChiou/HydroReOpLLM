@@ -1,4 +1,10 @@
-"""Fixed 59-day weather-driven FE Walter GWLF and Lohmann smoke test."""
+"""Fixed 59-day weather-driven FE Walter GWLF and Lohmann smoke test.
+
+Example/compatibility connections: Loads pinned FE Walter weather/model inputs for the
+fixed GWLF and Lohmann smoke window. The explicit run_smoke entry point executes
+hydrology and compares its output; it does not recalibrate parameters or request LLM
+decisions.
+"""
 
 import argparse
 import csv

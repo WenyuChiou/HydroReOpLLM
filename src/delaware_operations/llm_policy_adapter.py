@@ -4,6 +4,11 @@ The supplied backend owns prompts, providers, and any network access. This
 module imports only the shared reservoir contracts. Releases are requested
 controlled flow in cms; the physics result separately reports controlled flow,
 spill, total outflow in cms, and storage in m3.
+
+Example/compatibility connections: Checks example observations and requested actions,
+then requires matching completed physics feedback before the next decision. It leaves
+release limits/spill to physics and stops after backend/callback failure. The generic
+equivalent is llm_reservoir_agent.policy_adapter.
 """
 
 from __future__ import annotations

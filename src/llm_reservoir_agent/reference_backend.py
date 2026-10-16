@@ -2,6 +2,13 @@
 
 The reference implementation is an optional example plugin. Generic hydrology,
 physics, routing and audit interfaces remain independent of this vendor.
+
+Role: Construct the pinned example decision strategies.
+
+Connections and data: workflow validates reference settings and artifact hashes before
+construction. ReferenceBackend connects a reservoir profile, unchanged native prompt
+builders and fixture/explicit chat transport to DKPPolicyAdapter. Generic network,
+physics and custom prompts do not depend on choosing this example strategy.
 """
 from dataclasses import replace
 import hashlib

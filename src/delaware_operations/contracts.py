@@ -2,6 +2,10 @@
 
 The shape is adapted from the candidate HydroCNHS ``policy.contracts`` module
 at fde3baf. That extension is separate from the fixed core revision fdd5097.
+
+Example/compatibility connections: Retains the example observation/action types consumed
+by dam_agent and legacy adapters. Requests are controlled release in m3/s; state/context
+carry detached JSON. Use llm_reservoir_agent.contracts for the generic package boundary.
 """
 
 from __future__ import annotations
@@ -38,9 +42,18 @@ def finite_nonnegative(value: Any, label: str) -> float:
 
 @dataclass(frozen=True)
 class ReservoirObservation:
+    """Decision-time snapshot shared by rule-based and LLM policies.
+
+    timestep is a zero-based host index; timestamp is its supplied clock.
+    state holds physical conditions; context holds supplemental information.
+    Neither mapping gives a backend permission to change host storage.
+    """
+
     timestep: int
     timestamp: str
+    # Current routed inlet (m3/s), before this reservoir's decision.
     inflow_cms: float
+    # Host-supplied feasible controlled-release bound (m3/s), not a target.
     release_upper_bound_cms: float
     state: Mapping[str, Any] = field(default_factory=dict)
     context: Mapping[str, Any] = field(default_factory=dict)
@@ -82,6 +95,7 @@ class ReservoirObservation:
 class ReservoirAction:
     """A requested controlled release; spill is calculated by the kernel."""
 
+    # Requested controlled flow (m3/s); the physical result may differ.
     release_cms: float
     schema_version: str = ACTION_SCHEMA_VERSION
 

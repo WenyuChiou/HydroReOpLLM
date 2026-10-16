@@ -4,6 +4,13 @@ The daily backward-Euler balance uses a monotone storage/discharge rating.
 No extrapolation is permitted. Capacity overflow uses the common spill kernel.
 The action-shaped result is a transport envelope for the existing Dam interface;
 it is a physical discharge calculation, not an LLM decision.
+
+Role: Calculate discharge for an ungated reservoir outlet.
+
+Connections and data: network validates the storage-discharge rating; complete_backends
+supplies a physical backend for passive nodes. The backward-Euler solver returns outlet
+discharge and ending storage within the rating domain. The common Dam/physics path
+handles capacity spill; no LLM is involved.
 """
 from bisect import bisect_right
 from collections.abc import Mapping

@@ -1,4 +1,12 @@
-"""Validated YAML experiment setup, with explicit and bounded network opt-in."""
+"""Validated YAML experiment setup, with explicit and bounded network opt-in.
+
+Role: Translate experiment YAML into validated execution components.
+
+Connections and data: run_experiment.py and the installed CLI call main. load_settings
+resolves files, pins inputs and checks agents/models/prompts/auditors without network
+calls; run_settings constructs backends and invokes experiment. The check, run and
+verify commands have distinct effects; live transport requires explicit opt-in.
+"""
 import argparse
 from dataclasses import dataclass
 from datetime import date

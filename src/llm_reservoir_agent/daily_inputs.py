@@ -2,6 +2,13 @@
 
 These values are trace metadata. The native builder determines which fields reach
 the LLM, preserving original text and excluding hidden availability information.
+
+Role: Describe daily variables retained by reference-strategy traces.
+
+Connections and data: reference_backend supplies the observation, reservoir profile and
+committed native history. reference_variables returns beginning storage, inflow in
+SI/native units and history metadata. This trace inventory does not imply every field is
+inserted into the actual native prompt.
 """
 from .audit import json_snapshot
 from .contracts import ReservoirObservation

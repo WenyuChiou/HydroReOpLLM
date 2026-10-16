@@ -1,4 +1,12 @@
-"""Causal, provider-independent decision information catalogs."""
+"""Causal, provider-independent decision information catalogs.
+
+Role: Select available information at the decision time.
+
+Connections and data: workflow declares sources and named profiles; information_runtime
+supplies native simulation records. InformationCatalog builds detached fields with
+values, units, valid times, availability times and provenance. Supplemental information
+does not replace the physical inlet or storage ledger.
+"""
 
 from __future__ import annotations
 

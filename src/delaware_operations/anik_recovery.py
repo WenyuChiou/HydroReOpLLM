@@ -2,6 +2,11 @@
 
 Read accepted outcomes to restore policy bookkeeping. Only the remaining rows
 enter the native Dam loop; completed days never enter a simulation or provider.
+
+Example/compatibility connections: Validates an accepted prefix, restores policy
+bookkeeping and verifies the interrupted prompt before suffix execution through
+anik_experiment. The explicit recovery command may contact a provider for remaining
+days. It is a bounded FE Walter recovery path, not generic automatic crash recovery.
 """
 from __future__ import annotations
 

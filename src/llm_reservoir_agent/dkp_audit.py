@@ -2,6 +2,13 @@
 
 The legacy rubric is retained verbatim. Coverage gaps are reported separately;
 its target-tracking semantics are not a certificate of WCM compliance.
+
+Role: Apply the explicit reference-strategy diagnostic rubric.
+
+Connections and data: workflow selects DKPStrategyAudit as an auditor plugin. It
+validates the rich decision fields and compares reported targets against the declared
+rubric. Findings are diagnostic; this module neither calls the model nor enforces
+reservoir physics.
 """
 from bisect import bisect_left
 import csv

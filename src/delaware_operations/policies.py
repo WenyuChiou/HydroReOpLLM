@@ -1,4 +1,9 @@
-"""Deterministic offline policies for the reservoir interface."""
+"""Deterministic offline policies for the reservoir interface.
+
+Example/compatibility connections: Supplies constant and pass-through requested actions
+to the FE Walter Dam agent. These policies read the common observation; the
+agent/physics kernel calculates actual storage and total outflow.
+"""
 
 from __future__ import annotations
 

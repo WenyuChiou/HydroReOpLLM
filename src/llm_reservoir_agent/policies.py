@@ -1,4 +1,11 @@
-"""Deterministic offline policies for the reservoir interface."""
+"""Deterministic offline policies for the reservoir interface.
+
+Role: Supply small deterministic policies for interface checks.
+
+Connections and data: ConstantPolicy and PassThroughPolicy accept the common observation
+and return a requested ReservoirAction. They do not calculate storage, spill or routing;
+agent and physics perform those steps.
+"""
 
 from __future__ import annotations
 

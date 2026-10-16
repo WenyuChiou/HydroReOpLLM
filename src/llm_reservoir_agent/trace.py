@@ -1,4 +1,12 @@
-"""Durable, causally scoped JSONL traces for a single experiment orchestrator."""
+"""Durable, causally scoped JSONL traces for a single experiment orchestrator.
+
+Role: Persist decision, audit, physical and backend-event evidence.
+
+Connections and data: experiment owns one TraceJournal. Each record is scoped by run,
+reservoir, timestep and timestamp; raw payload files are linked by hash. Writes are
+flushed and fsynced, and errors propagate. Trace records report what occurred; they do
+not select releases or repair failed runs.
+"""
 
 from __future__ import annotations
 

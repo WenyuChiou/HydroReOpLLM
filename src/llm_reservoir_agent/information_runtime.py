@@ -3,6 +3,13 @@
 Information changes the decision inputs, never the water ledger. Downstream
 flows are read only from completed steps; the current routed inlet remains the
 prescribed boundary used by the existing reservoir kernel.
+
+Role: Read causal decision information from the HydroCNHS clock.
+
+Connections and data: network binds a builder to each selected reservoir. The catalog
+receives the acting reservoir's current inlet/beginning storage and completed records
+from other locations. The returned snapshot enters observation.context; it cannot write
+routed flows or reservoir storage.
 """
 from datetime import timedelta
 
@@ -16,6 +23,7 @@ class InformationRuntime:
         self.configuration = catalog.export_configuration()
         self.configuration["bindings"] = dict(bindings)
         self.sources = json_snapshot(self.configuration["sources"])
+        # Per-source sample counts, not elapsed days or physical flow/storage.
         self.history = {}
         self.bound_fields = dict(bound_fields or {})
         for profile in profiles.values():

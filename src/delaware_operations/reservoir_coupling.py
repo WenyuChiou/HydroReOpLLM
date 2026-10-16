@@ -2,6 +2,11 @@
 
 This single-reservoir identity-routing fixture verifies the Dam interface;
 it does not add calibrated river travel time or recalculate upstream runoff.
+
+Example/compatibility connections: Builds the example single-reservoir native Dam
+fixture from explicitly supplied SI inflow. Calls the reservoir agent and returns
+physical records/host metadata. Identity routing tests the coupling contract; it is not
+a rainfall-runoff simulation or a multi-reach calibration.
 """
 
 from copy import deepcopy

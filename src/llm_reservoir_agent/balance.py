@@ -1,13 +1,23 @@
-"""Independent daily reservoir and in-transit routing volume accounting."""
+"""Independent daily reservoir and in-transit routing volume accounting.
+
+Role: Account independently for reservoir and channel water volumes.
+
+Connections and data: network supplies local inflows, routed node flows, reservoir
+transitions and routing weights. Returns daily system and reach ledgers. Flow rates in
+m3/s are multiplied by dt_seconds; in-transit water remains storage, not unexplained
+loss.
+"""
 import math
 
 
 def network_balance(topology, local, flows, records, dates, *, dt_seconds=86400.0):
     n = len(dates)
+    # End-of-day water still travelling through all reaches, in m3.
     stocks = [0.0] * n
     reaches = []
     for edge in topology["edges"]:
         source = flows[edge["source"]]
+        # Dimensionless daily travel-time weights and the routed flow fraction.
         weights, fraction = edge["unit_hydrograph"], edge["fraction"]
         incoming_total = arriving_total = 0.0
         daily = []

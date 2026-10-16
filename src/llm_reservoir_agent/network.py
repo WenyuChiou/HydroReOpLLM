@@ -3,6 +3,13 @@
 Natural local inflows are assigned unchanged. Reservoir decisions change routed
 downstream inflows. Supplied unit hydrographs are explicit fixtures unless the
 caller provides separately verified routing parameters and provenance.
+
+Role: Connect reservoir operations through native daily river routing.
+
+Connections and data: experiment supplies incremental local inflow in m3/s and one
+backend per controlled reservoir. Builds native Dam links, runs the host and checks
+routed flows and network_balance ledgers. Upstream total outflow enters downstream
+routing once; local inflow must not already include it.
 """
 from collections import deque
 from collections.abc import Mapping, Sequence

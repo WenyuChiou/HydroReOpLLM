@@ -3,6 +3,13 @@
 The equations and operating-year convention follow ``benchmark_release.py``
 at Anik commit 6c3dc532d712af55db1f4a1d8e018c86249ce7a8 (Abeshu et al., 2023,
 Sect. 2.3.3). Invalid numeric inputs fail instead of becoming environmental flow.
+
+Role: Generate deterministic rule-based release requests for comparison.
+
+Connections and data: workflow supplies pre-experiment inflow statistics and each
+current reservoir observation. BenchmarkBackend returns a requested release to the same
+policy/physics path used by LLM methods. The coefficient uses operating-year beginning
+storage; physical clipping and spill belong to physics.
 """
 
 from __future__ import annotations

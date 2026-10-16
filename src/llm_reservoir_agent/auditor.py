@@ -2,6 +2,13 @@
 
 Plugins receive detached decision inputs. They return reported audit mappings;
 they never replace a release, alter physics, or receive hidden target rules.
+
+Role: Attach explicit operating-rule checks to a decision backend.
+
+Connections and data: workflow constructs AuditedBackend around a supplied backend.
+Plugins inspect detached observation/action context and produce diagnostic audit
+records. The requested release continues unchanged to policy_adapter and physical
+enforcement.
 """
 from __future__ import annotations
 

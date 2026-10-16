@@ -3,6 +3,11 @@
 The accepted implementation already obtains physical limits and node names
 from configuration. Reusing it keeps historical runs reproducible while new
 models register the neutral class name.
+
+Example/compatibility connections: Retains the reservoir-neutral import alias for the
+accepted example Dam implementation. Configuration supplies node names and physical
+limits; the current general-purpose agent is
+llm_reservoir_agent.agent.ReservoirDamAgent.
 """
 
 from .dam_agent import FEWalterDamAgent as _AcceptedDamAgent

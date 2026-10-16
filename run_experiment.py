@@ -1,4 +1,9 @@
-"""Source-checkout entry point; see docs/USER_GUIDE.md for configuration."""
+"""Source-checkout entry point; see docs/USER_GUIDE.md for configuration.
+
+Delegates to llm_reservoir_agent.workflow.main. The selected check/run/verify command
+determines whether files are only validated, an experiment executes, or saved output is
+verified. This shim adds no separate simulation driver.
+"""
 from pathlib import Path
 import sys
 

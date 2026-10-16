@@ -1,4 +1,12 @@
-"""Pinned, pre-experiment inflow statistics for the deterministic benchmark."""
+"""Pinned, pre-experiment inflow statistics for the deterministic benchmark.
+
+Role: Validate the benchmark statistics and their original inflow source.
+
+Connections and data: Called during workflow configuration checks. Reads the declared
+reference window, verifies source hashes and recomputes statistics, then returns
+BenchmarkBackend settings and file pins. Reference dates must precede the experiment; no
+release or model call occurs here.
+"""
 import csv
 from datetime import date,timedelta
 import gzip

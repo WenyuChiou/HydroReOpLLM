@@ -1,4 +1,11 @@
-"""Provider-independent reservoir policies and HydroCNHS Dam integration."""
+"""Provider-independent reservoir policies and HydroCNHS Dam integration.
+
+Role: Public imports for the reservoir decision package.
+
+Connections and data: Exports the Dam agent, contracts, physical calculation and policy
+composition classes. Importing this namespace does not start a simulation or contact a
+model.
+"""
 
 from .agent import LLMReservoirAgent, ReservoirDamAgent
 from .auditor import AuditPlugin, AuditSpec, AuditedBackend

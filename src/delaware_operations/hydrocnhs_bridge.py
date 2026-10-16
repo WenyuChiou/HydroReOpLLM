@@ -1,4 +1,10 @@
-"""Optional real Dam-loop contract fixture; uses assigned flow, no rainfall runoff."""
+"""Optional real Dam-loop contract fixture; uses assigned flow, no rainfall runoff.
+
+Example/compatibility connections: Builds a native HydroCNHS Dam-loop fixture from
+prescribed FE Walter inflow and a supplied policy. Returns operation records and host
+metadata. Assigned flow verifies the interface; this fixture does not generate rainfall-
+runoff or establish calibrated downstream routing.
+"""
 
 from copy import deepcopy
 from datetime import date, timedelta
