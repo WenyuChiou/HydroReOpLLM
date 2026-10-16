@@ -33,6 +33,7 @@ class RecoveryTape:
         self._checked_physics = set()
         self._physics = {}
         self._replies = []
+        self._contexts = {}
         self._hashes = {}
         self._incomplete_tails = {}
         experiment = _object(self.source / "experiment.json")
@@ -49,8 +50,8 @@ class RecoveryTape:
         if experiment["network"] != settings.network or experiment["inflow_records"] != settings.rows:
             raise ValueError("recovery network or inflow differs from the saved run")
         # Dynamic external information needs its own durable replay contract.
-        if settings.information_catalog is not None:
-            raise ValueError("recovery currently requires static case information")
+        if any(source.get("type") == "extension" for source in settings.data.get("information_sources", {}).values()):
+            raise ValueError("recovery of numeric extension information requires a durable provider replay contract")
         summary = None
         if (self.source / "summary.json").exists():
             summary = _object(self.source / "summary.json")
@@ -122,16 +123,35 @@ class RecoveryTape:
             trace = raw.get("backend_trace", raw)
             if not trace or trace.get("model_used") is False:
                 continue
+            contexts = trace.get("context_provenance", {})
+            if contexts:
+                self._contexts[key] = json_snapshot(contexts)
+            requests = trace.get("requests")
+            if requests and isinstance(trace.get("attempts"), list):
+                by_request = {request["request_sha256"]: request for request in requests}
+                for attempt in trace["attempts"]:
+                    request = by_request.get(attempt["request_sha256"])
+                    if request is None:
+                        raise ValueError("saved attempt has no matching provider request")
+                    response = attempt.get("provider_reply")
+                    if response is None and not attempt.get("error_class"):
+                        raise ValueError("saved attempt has neither response nor error evidence")
+                    self._replies.append(dict(reservoir_id=event["reservoir_id"],
+                        request_sha256=canonical_sha256({"url": request["url"], "payload": request["payload"]}),
+                        provider=request["provider"], response=response,
+                        error_class=attempt.get("error_class"), http_status=attempt.get("http_status"),
+                        hash_with_provider=False))
+                continue
             provider = trace.get("provider") or trace.get("model", {}).get("provider")
             response = trace.get("provider_reply")
             if response is None and isinstance(trace.get("raw_reply"), dict):
                 response = trace["raw_reply"]
-            if provider not in ("ollama", "openai_compatible") or response is None:
+            if provider not in ("ollama", "openai_compatible", "openai", "anthropic", "gemini") or response is None:
                 raise ValueError("saved decision has no replayable provider response")
             self._replies.append(dict(reservoir_id=event["reservoir_id"],
                                       request_sha256=trace["request_sha256"],
                                       provider=provider, response=response,
-                                      reference="request" in trace))
+                                      hash_with_provider=None))
         for event in streams["physics"]:
             key = (event["reservoir_id"], event["timestep"])
             decision = by_id.get(key)
@@ -158,13 +178,38 @@ class RecoveryTape:
             return False, None
         item = self._replies[self._cursor]
         request = {"url": url, "payload": payload}
-        if not item["reference"]:
-            request["provider"] = item["provider"]
-        if (item["reservoir_id"] != reservoir_id
-                or canonical_sha256(request) != item["request_sha256"]):
+        hashes = {canonical_sha256(request)}
+        # Legacy traces used both hash conventions. Compare their actual bytes,
+        # rather than guessing the convention from a compatibility alias.
+        if item.get("hash_with_provider") is not False:
+            hashes.add(canonical_sha256(dict(request, provider=item["provider"])))
+        if item["reservoir_id"] != reservoir_id or item["request_sha256"] not in hashes:
             raise ValueError("reconstructed provider request differs from recovery evidence")
         self._cursor += 1
+        if item["response"] is None:
+            from urllib.error import HTTPError, URLError
+            error = item.get("error_class")
+            if error == "HTTPError" and isinstance(item.get("http_status"), int):
+                raise HTTPError(url, item["http_status"], "recorded provider failure", {}, None)
+            if error == "TimeoutError":
+                raise TimeoutError("recorded provider timeout")
+            if error == "ConnectionError":
+                raise ConnectionError("recorded provider connection failure")
+            if error == "URLError":
+                raise URLError(ConnectionError("recorded provider connection failure"))
+            raise ValueError("saved provider failure cannot be reconstructed safely")
         return True, json_snapshot(item["response"])
+
+    def context_value(self, reservoir_id, timestep, alias):
+        """Reuse a committed prompt input without calling its retrieval provider."""
+        values = self._contexts.get((reservoir_id, timestep), {})
+        if alias not in values:
+            return False, None
+        from .context import ContextValue
+        value = values[alias]
+        if not isinstance(value, dict) or set(value) != {"value", "provenance", "available"}:
+            raise ValueError("saved prompt context has an unsupported replay contract")
+        return True, ContextValue(**value)
 
     def check_physics(self, reservoir_id, record):
         key = (reservoir_id, record["observation"]["timestep"])

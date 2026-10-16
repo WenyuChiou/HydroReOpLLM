@@ -44,7 +44,7 @@ evidence without rerunning it:
 python run_experiment.py verify examples/fe_walter/reference_outputs/ollama_three_day/zero_shot
 ```
 
-Keep model execution for [Check, run and verify](USER_GUIDE.md#6-check-run-and-verify),
+Keep model execution for [Check, run and verify](USER_GUIDE.md#check-run-and-verify),
 after you understand the files and output safeguards.
 
 ## Build your simulation

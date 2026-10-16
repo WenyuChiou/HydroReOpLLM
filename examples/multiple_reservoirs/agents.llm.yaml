@@ -1,0 +1,29 @@
+operator_a:
+  reservoir: lake_a
+  mode: llm
+  strategy: configured
+  model: local
+  prompt:
+    system: prompts/system.txt
+    user: prompts/operator.txt
+  prompt_version: '1'
+  prompt_variables:
+    purpose: demonstrate an independently configured operator
+  context_providers:
+    guidance:
+      extension: local_retrieval
+      config:
+        documents: knowledge/guidance.json
+      preview: 'Offline preview: use only the supplied state and local operating guidance.'
+  auditors:
+  - bounds
+operator_b:
+  reservoir: lake_b
+  mode: offline
+  strategy: benchmark
+  benchmark:
+    purpose: flood_control
+    alpha: 0.85
+    statistics: statistics_b.json
+  auditors:
+  - bounds

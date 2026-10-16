@@ -278,7 +278,7 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description="Daily HydroCNHS LLM reservoir networks; offline responses only")
     parser.add_argument("--project-root", type=Path, default=PROJECT_ROOT)
     parser.add_argument("--case-root", type=Path, default=None, help="Case/data bundle root, independent of the runtime checkout")
-    parser.add_argument("--case", default="cases/fe_walter_llm_fixture.json")
+    parser.add_argument("--case", required=True)
     parser.add_argument("--responses", required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--run-id", default=None)

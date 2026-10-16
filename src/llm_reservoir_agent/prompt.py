@@ -79,11 +79,14 @@ class PromptSpec:
     template: str
     knowledge_package_ids: Sequence[str] = ()
     knowledge_package_sha256: Mapping[str, str] = field(default_factory=dict)
+    system_template: str = ""
 
     def __post_init__(self) -> None:
         _text(self.strategy_id, "strategy_id")
         _text(self.version, "version")
         _text(self.template, "template")
+        if not isinstance(self.system_template, str):
+            raise TypeError("system_template must be a string")
         if isinstance(self.knowledge_package_ids, (str, bytes)) or not isinstance(self.knowledge_package_ids, Sequence):
             raise TypeError("knowledge_package_ids must be a sequence of IDs")
         metadata = validate_provenance({
@@ -100,6 +103,7 @@ class PromptSpec:
     def to_dict(self) -> dict[str, Any]:
         return {
             "strategy_id": self.strategy_id, "version": self.version, "template": self.template,
+            "system_template": self.system_template,
             "knowledge_package_ids": list(self.knowledge_package_ids),
             "knowledge_package_sha256": dict(self.knowledge_package_sha256),
         }
@@ -148,6 +152,32 @@ class PromptRequest:
     @property
     def content_sha256(self) -> str:
         return _hash(self.to_dict())
+
+
+@dataclass(frozen=True)
+class RenderedPromptContext:
+    """Detached inputs supplied to a custom message builder."""
+
+    observation: Mapping[str, Any]
+    knowledge: Mapping[str, str]
+    previous_transition: Mapping[str, Any] | None
+    variables: Mapping[str, Any]
+    rendered_user: str
+    rendered_system: str = ""
+
+    def __post_init__(self) -> None:
+        copied = _json_mapping_copy({
+            "observation": self.observation,
+            "knowledge": self.knowledge,
+            "previous_transition": self.previous_transition,
+            "variables": self.variables,
+        }, "rendered prompt context")
+        object.__setattr__(self, "observation", copied["observation"])
+        object.__setattr__(self, "knowledge", copied["knowledge"])
+        object.__setattr__(self, "previous_transition", copied["previous_transition"])
+        object.__setattr__(self, "variables", copied["variables"])
+        if not isinstance(self.rendered_user, str) or not isinstance(self.rendered_system, str):
+            raise TypeError("rendered prompt text must be strings")
 
 
 class PromptStrategy(Protocol):

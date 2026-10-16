@@ -17,7 +17,7 @@ from llm_reservoir_agent.configured_backend import (
 )
 from llm_reservoir_agent.contracts import ReservoirObservation
 from llm_reservoir_agent.prompt import PromptSpec
-from llm_reservoir_agent.reference_backend import _ReferenceChatTransport
+from examples.fe_walter.extensions.reference_backend import _ReferenceChatTransport
 
 
 ACTION_TEXT = '{"schema_version":"reservoir-action.v1","release_cms":4}'

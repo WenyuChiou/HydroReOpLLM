@@ -23,6 +23,8 @@ EXAMPLES = (
 def test_canonical_example_runs_native_model_and_shared_physics(example, tmp_path):
     source = ROOT / example
     data = yaml.safe_load(source.read_text(encoding="utf-8"))
+    data["extensions"] = {key: str((source.parent / value).resolve())
+                          for key, value in data.get("extensions", {}).items()}
     # Resolve source-relative assets; change only output location for isolation.
     data["case"] = str((source.parent / data["case"]).resolve())
     data["output"] = str(tmp_path / "output")

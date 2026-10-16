@@ -29,10 +29,13 @@ agents:
     reference:
       profile: fe_walter
       method: zeroshot
-      system_prompt: ../../../prompts/fe_walter_reference/zeroshot_system.txt
+      system_prompt: ../prompts/reference/zeroshot_system.txt
       system_prompt_mode: original
       prompt_storage: false
       hide_availability_line: true
       dkp_no_missing_inputs: true
       zeroshot_knowledge: target
     auditors: [release_limits]
+
+extensions:
+  reference_v3_7: ../extensions/__init__.py

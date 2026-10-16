@@ -72,7 +72,7 @@ class NeutralAdapterTests(unittest.TestCase):
 
     def test_generic_import_does_not_load_provider_modules(self):
         command = [sys.executable, "-c", "import sys; import examples.fe_walter.legacy.llm_policy_adapter; "
-                   "assert 'llm_reservoir_agent.plugins.anik_v3_7' not in sys.modules; "
+                   "assert 'examples.fe_walter.extensions.anik_v3_7' not in sys.modules; "
                    "assert 'reservoir_model' not in sys.modules"]
         environment = os.environ.copy()
         module_paths = [str(ROOT / "src")]

@@ -46,6 +46,9 @@ def _operation_document(settings, folder):
     data.pop("hydrology")
     data["schema_version"] = "llm-reservoir-experiment.v1"
     base = settings.path.parent
+    from .extensions import extension_registry
+    extensions, _ = extension_registry(data.get("extensions", {}), base_path=base)
+    data["extensions"] = {key: str((base/value).resolve()) for key, value in data.get("extensions", {}).items()}
     def rebase_fields(mapping, keys):
         if isinstance(mapping, dict):
             for key in keys:
@@ -54,21 +57,15 @@ def _operation_document(settings, folder):
 
     # Rebase only contract-owned file fields. Audit paths and supplemental
     # JSON (including keys called "path" or "prompt") retain their meaning.
+    from .configuration import rebase_agent
     for agent in data.get("agents", {}).values():
-        if not isinstance(agent, dict):
-            continue
-        rebase_fields(agent, ("prompt", "context_file"))
-        rebase_fields(agent.get("benchmark"), ("statistics",))
-        rebase_fields(agent.get("reference"), ("system_prompt", "profile_file", "dkp", "responses"))
-        knowledge = agent.get("knowledge")
-        if isinstance(knowledge, dict):
-            rebase_fields(knowledge, tuple(knowledge))
+        rebase_agent(agent, base, extensions)
     for source in data.get("information_sources", {}).values():
         if isinstance(source, dict) and source.get("type") == "csv":
             rebase_fields(source, ("path",))
     for auditor in data.get("auditors", {}).values():
-        if isinstance(auditor, dict) and auditor.get("type") == "dkp_strategy":
-            rebase_fields(auditor, ("profile",))
+        if isinstance(auditor, dict) and auditor.get("type") in extensions:
+            extensions[auditor["type"]].rebase_auditor(auditor, base_path=base)
     data.update(case=str(folder/"case.json"), case_root=str(folder),
                 output=str(Path(settings.report["output"])/"operation"),
                 source_dependencies=dict(settings.files))
@@ -100,16 +97,18 @@ def load_coupled_settings(path, *, runtime_root=PROJECT_ROOT):
     """Check all resources and method settings without running hydrology or an LLM."""
     from .workflow import UniqueLoader, _mapping, _text, load_settings
     path = Path(path).resolve()
-    data = yaml.load(path.read_text(encoding="utf-8-sig"), Loader=UniqueLoader)
+    from .configuration import read_configuration
+    data, section_pins = read_configuration(path)
     _mapping(data, {"schema_version", "hydrology", "case", "run_id", "output", "start_date", "end_date",
                     "models", "agents", "auditors", "max_calls", "information_sources", "information_profiles",
-                    "outcome_checks"}, "coupled simulation")
+                    "outcome_checks", "extensions", "source_dependencies"}, "coupled simulation")
     if data.get("schema_version") != SCHEMA:
         raise ValueError("unsupported coupled simulation schema")
     _text(data.get("run_id"), "run_id")
     output = (path.parent/_text(data.get("output"), "output")).resolve()
     case_path = (path.parent/_text(data.get("case"), "case")).resolve()
-    case = read_json(case_path)
+    case = (yaml.load(case_path.read_text(encoding="utf-8-sig"), Loader=UniqueLoader)
+            if case_path.suffix.lower() in (".yaml", ".yml") else read_json(case_path))
     _mapping(case, {"schema_version", "network", "data_kind", "live_readiness"}, "physical case")
     if case.get("schema_version") != "reservoir-physical-case.v1":
         raise ValueError("weather entry needs a reservoir-physical-case.v1 case, without an inflow file")
@@ -126,6 +125,7 @@ def load_coupled_settings(path, *, runtime_root=PROJECT_ROOT):
         raise ValueError("operation dates must lie inside the full native hydrology period")
     days = [d for d in weather["dates"] if first <= d <= last]
     files = {str(p): _sha(p) for p in (path, case_path, *weather["paths"].values())}
+    files.update(section_pins)
     files.update({str(p): _sha(p) for p in (Path(__file__).resolve(),
                                            Path(__file__).resolve().with_name("weather.py"))})
     # Model-only code dependencies are pinned as well as the configuration/data.
@@ -143,7 +143,7 @@ def load_coupled_settings(path, *, runtime_root=PROJECT_ROOT):
         checked = load_settings(folder/"experiment.yaml", runtime_root=runtime_root)
         files.update({p: h for p, h in checked.files.items() if not Path(p).is_relative_to(folder)})
         report = {k: checked.report[k] for k in ("agent_count", "llm_agent_count", "planned_llm_calls",
-                                                  "max_calls", "live_ready", "agent_strategies")}
+                                                  "max_calls", "live_ready", "agent_strategies", "prompt_previews")}
     settings.report.update(report, schema_version=SCHEMA, run_id=data["run_id"],
                            start_date=first, end_date=last, hydrology_start=weather["dates"][0],
                            hydrology_end=weather["dates"][-1], unused_weather_units=unused,

@@ -16,7 +16,7 @@ agents:
     reference:
       profile: fe_walter                 # This reference profile is FE-specific.
       method: zeroshot                   # Original zero-shot or DKP policy.
-      system_prompt: ../../../prompts/fe_walter_reference/zeroshot_system.txt # Actual system instructions, read at runtime.
+      system_prompt: ../prompts/reference/zeroshot_system.txt # Actual system instructions, read at runtime.
       system_prompt_mode: original       # Exact original text; use custom for an intentional variant.
       responses: ../../../cases/fe_walter_reference/zeroshot_responses.json
       prompt_storage: false             # Matches saved five-year prompt condition.
@@ -24,3 +24,6 @@ agents:
       dkp_no_missing_inputs: true        # Original V3.7 DKP condition.
       zeroshot_knowledge: target         # Original public facts + seasonal target.
     auditors: [release_limits]           # Preserve native audit plus generic bounds.
+
+extensions:
+  reference_v3_7: ../extensions/__init__.py

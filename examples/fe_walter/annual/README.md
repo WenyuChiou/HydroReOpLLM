@@ -1,6 +1,8 @@
 # Run a full year, step by step
 
-> This page preserves the earlier partial attempt. See the [completed 2016 demonstration](../coupled/README.md#completed-2016-demonstration) for the later full-year records.
+> This page preserves earlier diagnostic runs. For a new reproduction, use the
+> [current coupled configurations](../coupled/README.md), their method-specific
+> native system messages, and the explicit case extension.
 
 This walkthrough connects the accepted FE Walter hydrology to reservoir decisions
 and downstream flow. Begin here after [installation](../../../docs/GETTING_STARTED.md)
@@ -9,12 +11,14 @@ and the [shared case](../README.md). Run commands from the repository root.
 **Previous diagnostic:** the rule-based method completed all 366 days. The real LLM
 attempt committed 169 days, then stopped on June 18 because its reply was invalid
 JSON. That run used a single-attempt transport. Its [results and stopping point](results.md)
-remain unchanged. The paired configuration below uses explicit bounded retries
-and one shared operator prompt; its execution results are reported separately.
+remain unchanged. The later paired diagnostic used explicit bounded retries and
+one shared custom system prompt, preserved at
+[`outputs/custom_system_prompt_20261016.txt`](outputs/custom_system_prompt_20261016.txt).
 
 One case supports a rule-based baseline and two LLM scenarios: available
-information, and available information plus retrieved guidance. Both LLM scenarios
-use the same [operator prompt](../prompt.txt), physical case and daily inlet.
+information, and available information plus retrieved guidance. The current
+configurations use separate native system messages and the same physical case and
+daily inlet.
 
 ## 1. Understand the inputs
 
@@ -24,7 +28,7 @@ use the same [operator prompt](../prompt.txt), physical case and daily inlet.
 | Catchments and soil | Seven units; NHDPlus HR routes, Annual NLCD 2021, SSURGO/SDA attributes | [Subcatchments and parameter derivation](../hydrology.md#3-seven-subcatchments) |
 | Hydrological parameters | Accepted semi-distributed GWLF and Lohmann settings | [Native model YAML](../../../data/accepted/fe_walter_hydrology.yaml) |
 | Water at the start | Continuous hydrological initialization from 1989; separate assumed initial reservoir storage | [Initial conditions](../hydrology.md#4-shared-gwlf-and-routing-parameters) |
-| Operating instructions | One shared seasonal-pool prompt for both LLM scenarios; independent benchmark rules | [Operator prompt](../prompt.txt) |
+| Operating instructions | Method-specific native messages with only the approved seasonal-target edit; independent benchmark rules | [Current coupled example](../coupled/README.md#files) |
 
 For another catchment, prepare and evaluate its hydrological model first. This
 walkthrough starts from the accepted FE Walter input bundle; it does not download
@@ -107,12 +111,15 @@ Inspect these settings before executing:
 | `agents.fe_operator.reservoir` | The physical reservoir controlled by this independent operator |
 | `strategy: reference_v3_7` | The retained example implementation, not the name of a general LLM method |
 | `reference.method` | Available-information or retrieved-guidance behavior |
-| `reference.system_prompt` | The single shared operator prompt; inspect or edit this file before a new experiment |
+| `reference.system_prompt` | Method-specific native system message with only the approved seasonal-target edit |
 | `reference.dkp` | Identified knowledge document for the retrieved-guidance method |
 | `models.reservoir_model` | Ollama, `gemma3:4b`, temperature 0.7, token limit and timeout |
 | `max_calls: null` | Explicitly no total request cap; set an integer if a bounded experiment is preferred |
 | `models.reservoir_model.max_attempts: 2` | At most two attempts for one decision, using the same request and unchanged reservoir state |
 | `models.reservoir_model.retry_delay_seconds: 2` | Delay before a retry of a transient provider or invalid-response failure |
+| `models.reservoir_model.num_ctx`, `.think`, `.keep_alive` | Current explicit Ollama controls: `16384`, `false`, `30m` |
+| `reference.consultation_mode` | `daily` in the current example; `native_threshold` restores the native 10% consultation trigger |
+| `reference.response_validation: policy` | Original policy parser validates required response fields |
 | `auditors` | Release-bound checks; separate from the model's response-format checks |
 
 The current tutorial uses the complete current-day simulated mean inlet as a
@@ -130,25 +137,29 @@ python run_experiment.py run runs/fe-walter-2016-live/llm_knowledge.yaml --allow
 python run_experiment.py verify runs/fe-walter-2016-live/run-llm_knowledge
 ```
 
-The method differs under `reference.method`: `zeroshot` uses the available
-information; `dkp` also retrieves the selected knowledge document. Both point to
-the same instruction file. Do not add `--require-offline` for real-inference runs.
+The method differs under `reference.method`: `zeroshot` uses available
+information; `dkp` also retrieves the selected knowledge document. Each points to
+its own native system message. Do not add `--require-offline` for real-inference runs.
 
-The response check retries incomplete or invalid replies and transient connection
-failures. Operating audit FAIL, or pool above/below the target, does not trigger
-a retry or replace the action. Those are operating diagnostics and results.
+The bounded provider layer retries only its configured transport conditions.
+With `response_validation: policy`, the original policy parser handles required
+fields and preserves its native failure behavior. Operating audit FAIL, or pool
+above/below the target, does not trigger a retry or replace the action. Those are
+operating diagnostics and results.
 
-### Read or copy the shared operator prompt
+### Read the current method-specific system messages
 
-The same fixed text is used for both scenarios. The daily message adds current
-information and, for the retrieved-guidance scenario, selected knowledge.
-The retained scenario response schemas differ; each request supplies its schema.
+The [available-information message](../prompts/zeroshot_seasonal_v1_system.txt)
+and [operating-knowledge message](../prompts/dkp_seasonal_v1_system.txt) preserve
+their respective native instructions and response-field order. Only the approved
+seasonal-target paragraph differs from the pinned original. The DKP request keeps
+the full native `missing_inputs` field.
 
-```{literalinclude} ../prompt.txt
-:language: text
-```
-
-[Download the complete prompt](../prompt.txt).
+The completed 732-request annual records predate this correction. They used the
+[preserved shared custom message](outputs/custom_system_prompt_20261016.txt),
+omitted `num_ctx`, `think`, and `keep_alive`, and configured
+`dkp_no_missing_inputs: true`. Treat them as a diagnostic variant, not current
+reproduction evidence; their saved results and raw history remain unchanged.
 
 ## 6. Inspect one decision, then the whole year
 
@@ -217,7 +228,7 @@ the entry point, module boundaries and the order of one simulated day.
 | Prepare one year | [prepare.py](prepare.py): select dates, prepare shared case and method YAMLs |
 | Recompute accepted upstream inflow | [historical.py](../legacy/historical.py): `run_historical`, pinned GWLF/Lohmann and convolution check |
 | Validate settings and choose the method | [workflow.py](../../../src/llm_reservoir_agent/workflow.py): `load_settings`, `run_settings` |
-| Construct the LLM prompt, retrieve knowledge and retain the reply | [reference_backend.py](../../../src/llm_reservoir_agent/reference_backend.py): retained example backend |
+| Construct the native prompt, retrieve knowledge and retain the reply | [reference_backend.py](../extensions/reference_backend.py): explicit case extension |
 | Run native Dam/routing and common physical updates | [network.py](../../../src/llm_reservoir_agent/network.py), [agent.py](../../../src/llm_reservoir_agent/agent.py) |
 | Keep committed decisions, audits and physical evidence together | [experiment.py](../../../src/llm_reservoir_agent/experiment.py), [trace.py](../../../src/llm_reservoir_agent/trace.py) |
 | Verify the saved run | [verification.py](../../../src/llm_reservoir_agent/verification.py) |

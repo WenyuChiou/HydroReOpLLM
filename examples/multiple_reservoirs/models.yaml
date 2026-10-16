@@ -1,0 +1,30 @@
+local:
+  provider: ollama
+  model: gemma3:4b
+  base_url: http://localhost:11434
+  temperature: 0.7
+  max_tokens: 2048
+  max_attempts: 2
+  retry_delay_seconds: 0
+  timeout_seconds: 120
+openai:
+  provider: openai
+  model: YOUR_OPENAI_MODEL
+  api_key_env: OPENAI_API_KEY
+  max_tokens: 2048
+  max_attempts: 2
+  base_url: https://api.openai.com/v1
+anthropic:
+  provider: anthropic
+  model: YOUR_ANTHROPIC_MODEL
+  api_key_env: ANTHROPIC_API_KEY
+  max_tokens: 2048
+  max_attempts: 2
+  base_url: https://api.anthropic.com
+gemini:
+  provider: gemini
+  model: YOUR_GEMINI_MODEL
+  api_key_env: GEMINI_API_KEY
+  max_tokens: 2048
+  max_attempts: 2
+  base_url: https://generativelanguage.googleapis.com/v1beta

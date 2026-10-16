@@ -22,3 +22,6 @@ agents:
       dkp_no_missing_inputs: true        # Original V3.7 DKP condition.
       zeroshot_knowledge: target         # Original public facts + seasonal target.
     auditors: [release_limits]           # Preserve native audit plus generic bounds.
+
+extensions:
+  reference_v3_7: ../examples/fe_walter/extensions/__init__.py

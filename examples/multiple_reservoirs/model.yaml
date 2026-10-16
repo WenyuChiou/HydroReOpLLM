@@ -1,0 +1,71 @@
+Path:
+  WD: .
+  Modules: ''
+WaterSystem:
+  StartDate: 2020/02/27
+  EndDate: 2020/03/02
+  DataLength: 5
+  NumSubbasins: 2
+  Outlets:
+  - basin_a
+  - basin_b
+  NodeGroups: []
+  RainfallRunoff: GWLF
+  Routing: Lohmann
+  ABM: null
+RainfallRunoff:
+  basin_a:
+    Inputs:
+      Area: 4118.429479142502
+      Latitude: 41.175861513154125
+      S0: 2.0
+      U0: 10.0
+      SnowS: 5.0
+    Pars:
+      CN2: 33.59888849552719
+      IS: 0.39231949899005636
+      Res: 0.31124074061913504
+      Sep: 0.2083763352177614
+      Alpha: 0.008265514706237301
+      Beta: 0.0546837045692684
+      Ur: 8.12653020081903
+      Kc: 0.8493605974017071
+      Df: 0.5050611615107022
+  basin_b:
+    Inputs:
+      Area: 4118.429479142502
+      Latitude: 41.175861513154125
+      S0: 2.0
+      U0: 10.0
+      SnowS: 5.0
+    Pars:
+      CN2: 33.59888849552719
+      IS: 0.39231949899005636
+      Res: 0.31124074061913504
+      Sep: 0.2083763352177614
+      Alpha: 0.008265514706237301
+      Beta: 0.0546837045692684
+      Ur: 8.12653020081903
+      Kc: 0.8493605974017071
+      Df: 0.5050611615107022
+Routing:
+  basin_a:
+    basin_a:
+      Inputs:
+        FlowLength: 0.0
+        InstreamControl: false
+      Pars:
+        GShape: 0.4680630977276321
+        GScale: 4.998998848063884
+        Velo: null
+        Diff: null
+  basin_b:
+    basin_b:
+      Inputs:
+        FlowLength: 0.0
+        InstreamControl: false
+      Pars:
+        GShape: 0.4680630977276321
+        GScale: 4.998998848063884
+        Velo: null
+        Diff: null

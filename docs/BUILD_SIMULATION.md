@@ -1,144 +1,226 @@
 # Build a weather-to-operation simulation
 
-Build the simulation in three layers: accept the hydrology and complete weather
-record, define the reservoir and river network, then choose a rule or LLM decision
-method. The supported entry point is one `hydroops-coupled-simulation.v1` YAML.
+This tutorial takes one accepted HydroCNHS model through reservoir operation.
+Start with the rule-based configuration. It exercises the full hydrology,
+reservoir, routing and evidence path without contacting a model provider.
 
-The execution has **two stages**. Preparation first runs native HydroCNHS over the
-model's complete period, including its warm-up, and writes daily inlet boundaries
-for the selected operation dates. Operation then advances the reservoir agents,
-physical storage and native downstream routing one day at a time. It is not an
-interleaved weather-feedback loop or a runoff callback inside each decision.
+The runnable teaching case is in
+[`examples/multiple_reservoirs`](../examples/multiple_reservoirs/experiment.yaml).
+It contains two independent river systems. Its short forcing record and
+synthetic parameters test software connections; they are not a calibrated
+hydrological model or a validated operating policy.
 
-## 1. Start from accepted hydrology and complete weather
+## 1. Install the project
 
-Supply an agent-free HydroCNHS model using GWLF or ABCD rainfall-runoff with
-Lohmann routing. Establish its warm-up, calibration and validation before using
-its flow as an operating boundary. The weather table must contain every model day
-for every weather-driven subbasin:
+Create an environment, install the repository, and confirm the command is
+available:
+
+```powershell
+git clone https://github.com/WenyuChiou/HydroOpsLLM.git
+cd HydroOpsLLM
+py -3.12 -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install -e . -c environment/requirements-bundled.txt
+reservoir-experiment --help
+```
+
+Hydrology and orchestration run on the CPU. A GPU is relevant only when a local
+inference server uses it. Remote providers do not use your local GPU.
+
+## 2. Accept the HydroCNHS model first
+
+Use an agent-free HydroCNHS model with GWLF or ABCD rainfall-runoff and Lohmann
+routing. Establish warm-up, calibration and validation before treating its flow
+as an operating boundary. Keep the accepted model, forcing bytes, metrics,
+periods and provenance together.
+
+The weather table contains every model day for every weather-driven subbasin:
 
 ```text
 date,subbasin_id,precipitation_mm,temperature_c,pet_cm
+2020-02-27,basin_a,10,10,0.1
 ```
 
-Precipitation is millimetres per day, temperature is degrees Celsius and PET is
-centimetres per day. Preparation converts precipitation to the centimetres per
-day expected by native HydroCNHS. Missing days, duplicate samples, unknown
-subbasins, non-finite values, or negative precipitation/PET stop validation.
+Preparation runs native HydroCNHS over the complete continuous period, including
+warm-up. It then selects the daily boundaries for reservoir operation. Reservoir
+decisions do not feed back into the weather-to-runoff calculation.
 
-See [Weather and inflow inputs](WEATHER_INPUTS.md) for the complete contract and
-[HydroCNHS setup and C&V](HYDROLOGY_SETUP.md) for model acceptance.
+See [HydroCNHS setup and calibration/validation](HYDROLOGY_SETUP.md) and
+[weather inputs](WEATHER_INPUTS.md) before adapting the teaching files.
 
-## 2. Define reservoir physics and the operation network
+## 3. Bind hydrology to the reservoir network
 
-The coupled YAML points to a separate `reservoir-physical-case.v1` JSON. It holds
-the `llm-reservoir-network.v1` network, including:
-
-- reservoir capacity, dead storage, initial storage and release limits;
-- one local inflow node for each reservoir;
-- downstream connections and unit hydrographs; and
-- one common outlet.
-
-Use m³ for storage, m³/s for flow and `86400` seconds for the daily step. The
-initial reservoir storage is an explicit operation assumption; hydrological
-warm-up does not create it.
-
-Every operation routing node needs one `hydrology.inflow_bindings` entry. A
-binding can select a routed native outlet, direct subbasin runoff, or explicit
-zero lateral flow. Bindings that contain overlapping upstream catchments are
-rejected. In a series of reservoirs, supply only the incremental lateral flow at
-the downstream local node; the operation network routes the upstream reservoir's
-release and spill exactly once.
-
-## 3. Choose the decision method
-
-Each controlled reservoir has one agent. Passive outlets use physical discharge
-and have no agent.
-
-| Purpose | Agent setting | Model request |
-|---|---|---|
-| Rule-based benchmark | `strategy: benchmark`, `mode: offline` | None |
-| General LLM operator | `strategy: configured`, `mode: llm` | Uses your prompt, selected information and model profile |
-| Preserved F.E. Walter teaching methods | optional `strategy: reference_v3_7` plugin | Uses the example's available-information or operating-knowledge prompt builder |
-
-For a new reservoir, use `configured`. The F.E. Walter plugin preserves a named
-historical method; it does not turn “DKP” into a generic operation method.
-
-The LLM or rule requests a controlled release. The shared physical kernel applies
-release limits and water availability, computes spill and ending storage, and
-passes controlled release plus spill to native routing.
-
-## 4. Check, prepare, run and verify
-
-From the repository environment, use the same coupled YAML for all four steps:
-
-```powershell
-reservoir-experiment check simulation.yaml
-reservoir-experiment prepare simulation.yaml
-reservoir-experiment run simulation.yaml
-reservoir-experiment verify OUTPUT/operation
-```
-
-`check` validates paths, hashes, dates, weather completeness, bindings, physics,
-agents and model settings. It runs neither hydrology nor an LLM.
-
-`prepare` runs only native hydrology, writes the selected daily boundaries and
-makes **zero model requests**. Its output contains `inflows.csv`, `case.json`,
-`experiment.yaml`, `hydrology.json` and `preparation.json`.
-
-`run` verifies that preparation still matches the inputs, then creates
-`OUTPUT/operation`. A rule-based run needs no network flag. An LLM run requires
-the explicit network gate:
-
-```powershell
-reservoir-experiment run simulation.yaml --allow-network
-```
-
-`max_calls: null` means no total call cap; it does not alter the per-decision
-`models.<id>.max_attempts` retry limit. Use a finite `max_calls` when the study
-requires a total cap.
-
-`verify OUTPUT/operation` checks saved records, hashes, request linkage and water
-accounting. Completion establishes a reproducible execution, not acceptable
-reservoir performance.
-
-## 5. Follow one operation day
-
-1. The prepared local boundary supplies the day's reservoir inlet.
-2. The selected agent sees its allowed information and requests controlled release.
-3. The physical kernel implements a feasible controlled release, spill and ending storage.
-4. Native HydroCNHS routes controlled release plus spill downstream once.
-5. The trace commits the decision, audit, physics and routing evidence.
-6. The next day begins with committed ending storage and implemented-release history.
-
-No same-day downstream result feeds back into the decision that produced it.
-
-## 6. Reuse hydrology or resume an interrupted operation
-
-When only the operation method changes, give the new configuration a new
-`run_id` and `output`, then set:
+The top-level file points to `hydrology.yaml` and `reservoirs.yaml`:
 
 ```yaml
-hydrology:
-  prepared_from: ../previous-output
+schema_version: hydroops-coupled-simulation.v2
+case: reservoirs.yaml
+start_date: '2020-02-28'
+end_date: '2020-03-02'
+hydrology: {file: hydrology.yaml}
 ```
 
-Reuse is accepted only when the hydrology model and forcing bytes, full model
-period, selected operation dates, bindings, zero-flow nodes, relevant code and
-numeric runtime match. The new preparation copies the verified boundaries and
-records their checksums without rerunning hydrology.
+Each hydrology binding supplies incremental local flow to one operation node:
 
-Resume an interrupted operation into another new directory:
+```yaml
+model: model.yaml
+forcing: forcing.csv
+zero_flow_nodes: []
+inflow_bindings:
+  inlet_a: {runoff: basin_a}
+  inlet_b: {runoff: basin_b}
+  river_a: {constant: 0}
+  river_b: {constant: 0}
+```
+
+Do not add already routed upstream flow as local inflow again. The operation
+network routes controlled release plus spill exactly once.
+
+The physical case uses `reservoir-physical-case.v1`. Every water ID is explicit.
+New networks use `llm-reservoir-network.v2` and an `outlets` list:
+
+```yaml
+schema_version: reservoir-physical-case.v1
+data_kind: synthetic_fixture
+network:
+  schema_version: llm-reservoir-network.v2
+  start_date: '2020-02-28'
+  reservoirs:
+    lake_a:
+      inflow_node: inlet_a
+      physical:
+        reservoir_id: lake_a
+        capacity_m3: 1000000
+        dead_storage_m3: 0
+        initial_storage_m3: 500000
+        minimum_release_cms: 0
+        maximum_release_cms: 20
+        dt_seconds: 86400
+  connections:
+    - source: lake_a
+      target: river_a
+      unit_hydrograph: [0, 1]
+  outlets: [river_a]
+```
+
+Every item in `outlets` is an exact terminal node. Independent systems can share
+one experiment and remain independent; do not invent a common outlet. Information
+sources describe what an agent may see. They never create water connections.
+
+## 4. Choose an agent for every controlled reservoir
+
+Each controlled reservoir has exactly one agent. Passive reservoirs have no
+agent. Start with a deterministic benchmark:
+
+```yaml
+operator_a:
+  reservoir: lake_a
+  mode: offline
+  strategy: benchmark
+  benchmark:
+    purpose: flood_control
+    alpha: 0.85
+    statistics: statistics_a.json
+  auditors: [bounds]
+```
+
+Use `mode: offline` with `strategy: benchmark` for rule-based operation. Use
+`mode: llm` with `strategy: configured` for a general model-backed operator.
+The F.E. Walter Anik teaching methods are an active case extension with their
+own native message formatting. They do not define the generic configured prompt.
+
+Continue with [Agents, prompts and context](CONFIGURATION.md) and
+[model providers](MODEL_PROVIDERS.md) before enabling an LLM agent.
+
+## 5. Check without running anything
+
+From the repository root:
 
 ```powershell
-reservoir-experiment resume simulation.yaml `
-  --from-run OUTPUT/operation `
-  --output NEW_OUTPUT `
-  --run-id NEW_RUN_ID
+reservoir-experiment check examples/multiple_reservoirs/experiment.yaml
 ```
 
-Add `--allow-network` only when continuation must make new LLM requests. Resume
-replays and checks the committed prefix; it never overwrites the source run.
+`check` reads and validates every referenced section, path, model profile,
+prompt, extension, date, binding and physical setting. It runs neither hydrology
+nor a provider request. Each path is relative to the file that declares it.
 
-Continue with the [F.E. Walter coupled example](../examples/fe_walter/coupled/README.md)
-or inspect the [code structure](CODE_STRUCTURE.md).
+## 6. Prepare hydrology
+
+```powershell
+reservoir-experiment prepare examples/multiple_reservoirs/experiment.yaml
+```
+
+`prepare` runs the full continuous hydrology period and writes the selected
+operation boundaries. It makes zero model requests. The preparation contains
+`inflows.csv`, `case.json`, `experiment.yaml`, `hydrology.json` and
+`preparation.json`, with hashes that bind the generated files to their sources.
+
+## 7. Run the rule-based case
+
+```powershell
+reservoir-experiment run examples/multiple_reservoirs/experiment.yaml
+```
+
+The operation period is four days: 2020-02-28 through 2020-03-02. Each day the
+agent requests controlled release, the physical kernel implements a feasible
+release and spill, and native routing advances downstream. The next decision
+uses the committed ending state. Same-day downstream flow does not feed back
+into the decision that produced it.
+
+To run the LLM variant later, use `experiment.llm.yaml`. It selects
+`agents.llm.yaml`, gives the run a separate identity and keeps `lake_b` on its
+benchmark. Add the explicit network gate:
+
+```powershell
+reservoir-experiment run examples/multiple_reservoirs/experiment.llm.yaml --allow-network
+```
+
+`max_calls: null` removes the total request cap. It does not remove each model
+profile's `max_attempts` limit.
+
+## 8. Verify and read the result
+
+```powershell
+reservoir-experiment verify runs/independent-rivers-rule/operation
+```
+
+Read `summary.json` first, then inspect:
+
+| Evidence | Question it answers |
+|---|---|
+| `decisions.jsonl` | What observation and proposal were bound to each decision? |
+| `raw/` and provider ledger | What messages, requests, replies, usage and attempt metadata were retained? |
+| `audit.jsonl` | Which configured decision checks passed, warned, failed or remained unknown? |
+| `physics.jsonl` | What release and spill were implemented, and did storage balance? |
+| `network_flows.csv` | What flow reached each routing node? |
+| `reservoir_trajectory.csv` | How did each reservoir state change? |
+
+Evidence-write failure stops execution. Audit FAIL and physical failure do not
+trigger another model attempt. A completed run establishes reproducible
+execution and water accounting; it does not establish policy quality.
+
+## 9. Resume after an interruption
+
+Resume into a new output directory:
+
+```powershell
+reservoir-experiment resume examples/multiple_reservoirs/experiment.yaml `
+  --from-run runs/interrupted/operation `
+  --output runs/resumed `
+  --run-id resumed-01
+```
+
+Resume verifies and replays the committed prefix. It skips committed decisions
+and reuses captured replies when available. It does not overwrite the source run.
+Add `--allow-network` only if unfinished decisions need new provider requests.
+All five provider adapters can replay committed attempts, including retries and
+fallbacks. Committed custom context values are reused without rerunning retrieval.
+Dynamic numeric information sources with `type: extension` need a durable
+replay contract and are currently rejected by `resume`; use pinned CSV/static
+information for resumable studies.
+
+The ledger prevents silent duplicate decisions inside the recovered trace, but
+it cannot promise exactly-once behavior at an external network service.
+
+Next, use the [complete two-reservoir walkthrough](MULTI_RESERVOIR.md) or the
+[parameter reference](PARAMETER_REFERENCE.md).

@@ -2,7 +2,7 @@
 
 Example/compatibility connections: Delegates decision and committed-feedback calls to
 anik_adapter without changing the native policy. Retains the example import path;
-llm_reservoir_agent.dkp_adapter supplies the generic optional composition.
+examples.fe_walter.extensions.dkp_adapter supplies the generic optional composition.
 """
 
 from __future__ import annotations

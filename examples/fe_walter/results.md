@@ -65,7 +65,7 @@ The June reply calls 1,367.06 ft “at target”. The configured audit records t
 5. **Actual operation:** controlled release 12.1847392641 m³/s, zero spill, and ending storage 23,695,577.3604956 m³.
 6. **Next day:** that ending storage becomes starting storage; history uses the implemented release.
 
-The fixed [system prompt](../../prompts/fe_walter_reference/dkp_system.txt) matches the hash in this saved trace.
+The fixed [system prompt](prompts/reference/dkp_system.txt) matches the hash in this saved trace.
 Expand the complete messages below to see exactly what the model received and returned.
 
 <details>

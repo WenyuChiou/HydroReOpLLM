@@ -1,98 +1,93 @@
-# Code structure and the daily operation loop
+# Code structure and execution flow
 
-The installed code separates reusable hydrology and reservoir operation from
-regional data preparation and teaching cases. Start with
-[Build a weather-to-operation simulation](BUILD_SIMULATION.md) before reading the
-modules below.
+Users normally enter through `reservoir-experiment`. The modules below explain
+where configuration, model requests, physics and evidence remain separated.
 
-## Installed reusable packages
+## Reusable installed modules
 
 ```text
 src/
-  hydrocnhs/                         Native rainfall-runoff, routing and Dam API
+  hydrocnhs/                         GWLF/ABCD, Lohmann routing and Dam API
   llm_reservoir_agent/
-    weather.py                       Validate weather and run full-period hydrology
-    coupled.py                       Compile the two-stage coupled simulation
-    workflow.py                      check / prepare / run / verify / resume CLI
-    network.py                       Daily native Dam and downstream routing host
-    physics.py                       Release limits, storage balance and spill
-    configured_backend.py            General prompt, provider and bounded retries
-    information.py                   Causal decision-information selection
-    audit.py                         Normalize, serialize and hash reported audits
-    auditor.py                       Compose explicit diagnostic checks around a backend
-    recovery.py                      Verify and reconstruct an interrupted prefix
+    configuration.py                v1/v2 sections, declaring-file paths and pins
+    weather.py                      full-period forcing validation and simulation
+    coupled.py                      check and compile the two-stage simulation
+    workflow.py                     check / prepare / run / verify / resume CLI
+    network.py                      daily reservoir and downstream routing host
+    physics.py                      release bounds, storage balance and spill
+    prompt.py                       explicit PromptSpec system/user artifacts
+    context.py                      immutable DecisionContext and ContextValue
+    information.py                  causal information sources and profiles
+    providers.py                    five native request/response adapters
+    configured_backend.py           prompt rendering, attempts and fallback profiles
+    extensions.py                   explicit source-pinned extension registry
+    audit.py / auditor.py           normalized diagnostic checks
+    experiment.py                   durable decision and provider evidence
+    recovery.py                     verified interrupted-prefix reconstruction
 ```
 
-`experiment.py` writes the durable operation records used by verification. The
-console command `reservoir-experiment` enters `workflow.py`; users do not need to
-wire these modules together in a custom script.
+Regional calibration evidence, prompts, statistics and extension code live under
+`examples/` and `data/`. They are study inputs, not defaults for another basin.
 
-## Optional plugins and example-only sources
+## Stage 1: prepare hydrological boundaries
 
-`src/llm_reservoir_agent/plugins/anik_v3_7.py` preserves the optional F.E. Walter
-reference prompt and response behavior. It is a decision plugin, not a regional
-weather, GIS or hydrology-preparation module.
+`configuration.read_configuration()` resolves explicit section files. Every
+resource path is rebased against the file that declares it. Section references
+replace the whole section and are pinned by hash.
 
-The former `src/delaware_operations` material now lives under
-`examples/fe_walter/legacy/`. It remains as source-only historical compatibility
-material and is not installed as the common runtime.
+`coupled.load_coupled_settings()` then validates all hydrology, physical network,
+agent, prompt, information, extension and provider settings. `check` performs no
+hydrology simulation, retrieval callback or provider request.
 
-Regional GIS processing, weather extraction, calibration/validation evidence,
-benchmark statistics, F.E. Walter thresholds, prompts and knowledge documents
-belong under `examples/` and `data/`. They are case evidence rather than defaults
-for another basin.
+`weather.simulate_weather()` runs the accepted agent-free HydroCNHS model across
+its complete continuous period. `coupled.prepare_coupled()` selects operation
+dates and writes an ordinary pinned reservoir experiment with daily local inlet
+boundaries. Preparation makes zero model requests.
 
-## The two execution stages
-
-### Stage 1: prepare weather-derived boundaries
-
-`coupled.load_coupled_settings()` validates the coupled YAML, physical case,
-operation method and complete weather inputs without running hydrology or calling
-a model. `weather.simulate_weather()` then runs the accepted agent-free native
-model over its complete start/end period. `coupled.prepare_coupled()` selects the
-requested operation dates and compiles a pinned ordinary reservoir experiment.
-
-Preparation writes no reservoir decisions. It records `model_requests: 0` and
-keeps hydrological warm-up separate from the physical case's initial storage.
-
-### Stage 2: operate and route daily
+## Stage 2: decide, implement and route
 
 For each operation day:
 
-1. `network.py` supplies the prepared incremental local flows to the native host.
-2. The selected backend receives the current inlet, beginning storage and allowed history.
-3. A rule or LLM returns a requested controlled release.
-4. Response parsing and configured audits record their evidence.
-5. `physics.py` limits the request by operating bounds and available water, then computes spill and ending storage.
-6. `network.py` injects total outflow—implemented controlled release plus spill—into native downstream routing once.
-7. The journals commit the action, physics and routing results before the next day can use them.
+1. `network.py` supplies prepared incremental local flows.
+2. The agent receives its current immutable observation and committed history.
+3. A benchmark returns a rule action, or `configured_backend.py` renders explicit
+   system/user templates and calls the selected adapter in `providers.py`.
+4. Response checking yields a requested controlled release or stops the step.
+5. Auditors record diagnostic results without changing the proposal.
+6. `physics.py` applies water availability and release limits, then computes
+   spill and ending storage.
+7. `network.py` routes implemented release plus spill downstream once.
+8. `experiment.py` commits provider, decision, audit, physics and routing evidence
+   before the next day can use the transition.
 
-This is causal daily operation over a prepared natural-flow boundary. Weather is
-not recomputed in response to the reservoir decision, and same-day downstream
-flow is not returned to that day's agent.
+Hydrology is precomputed before daily operation. Same-day downstream flow is not
+returned to the decision that produced it.
 
-## Configuration ownership
+## Extension boundary
 
-| File or section | Responsibility |
-|---|---|
-| Native HydroCNHS YAML | Full hydrology period, subbasins, GWLF/ABCD parameters and Lohmann routing |
-| Weather CSV | Complete daily precipitation, temperature and PET for every weather-driven unit |
-| `reservoir-physical-case.v1` | Reservoir physics, initial storage and operation-network connections |
-| Coupled YAML `hydrology` | Model/forcing paths, zero-flow nodes and non-overlapping inlet bindings |
-| Coupled YAML `agents` | Rule, general configured LLM, or optional preserved example method |
-| Prompt/information/auditors | Operating instructions, causal fields and explicit diagnostics |
+Top-level `extensions` maps an ID to an explicit package `__init__.py`. The
+registry pins source and exposes only declared contracts.
 
-Changing only the operation method does not require hydrology recalibration. Use
-`hydrology.prepared_from` to reuse verified boundaries when all hydrology inputs,
-dates, bindings, code and runtime still match.
+The two-reservoir example uses `build_context(config)` for local retrieval. It
+returns a callback on immutable `DecisionContext`. The F.E. Walter example uses a
+backend extension that preserves its native Anik message formatting and response
+contract through the common configured provider transport.
 
-## Failure and recovery boundaries
+Extensions can also provide auditors, information sources and response schemas.
+Changing physics or routing is outside these decision-extension contracts and
+requires separate physical acceptance.
 
-An invalid response or retry does not advance reservoir physics. A committed day
-contains the implemented outcome used by the next day. If execution stops,
-`recovery.py` checks and reconstructs the saved prefix in a new output directory;
-it never modifies the interrupted run.
+## Failure and recovery
 
-Read [Weather and inflow inputs](WEATHER_INPUTS.md) for the binding contract and
-the [F.E. Walter coupled example](../examples/fe_walter/coupled/README.md) for a
-concrete configuration.
+Provider attempts do not advance physics until a checked action exists. Each
+attempt records the actual provider, model, request, response and failure class.
+Authentication and configuration errors are terminal. Audit FAIL and physical
+failure do not rerun the model. Evidence-write failure stops execution.
+
+`recovery.py` verifies the durable prefix, reconstructs committed state and writes
+continuation to a new directory. It skips committed decisions and can reuse
+captured replies. It cannot guarantee exactly-once delivery at an external
+service across every crash boundary.
+
+[Build a simulation](BUILD_SIMULATION.md) · [LLM modules](LLM_MODULES.md) ·
+[Parameter reference](PARAMETER_REFERENCE.md)

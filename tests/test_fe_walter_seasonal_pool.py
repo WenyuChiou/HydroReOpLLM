@@ -84,9 +84,9 @@ class SeasonalPoolTests(unittest.TestCase):
     def test_prompt_variants_share_the_versioned_target(self):
         target = pool.load_criteria()["operation_target"]
         for method in ["zeroshot", "dkp"]:
-            text = (ROOT / f"prompts/fe_walter_reference/{method}_seasonal_v1_system.txt").read_text(encoding="utf-8")
+            text = (ROOT / f"examples/fe_walter/prompts/reference/{method}_seasonal_v1_system.txt").read_text(encoding="utf-8")
             self.assertIn("- Operation target: " + target, text)
-            original = (ROOT / f"prompts/fe_walter_reference/{method}_system.txt").read_text(encoding="utf-8")
+            original = (ROOT / f"examples/fe_walter/prompts/reference/{method}_system.txt").read_text(encoding="utf-8")
             old_line = next(line for line in original.splitlines() if line.startswith("- Operation target:"))
             self.assertEqual(text, original.replace(old_line, "- Operation target: " + target))
 
@@ -101,10 +101,11 @@ class FigureManualTests(unittest.TestCase):
             build.prepare(target, source_ref="codex/figure1-readme33-preview")
             home = (target / "index.md").read_text(encoding="utf-8")
             overview = (target / "docs/README.md").read_text(encoding="utf-8")
+            for page in (home, overview):
+                self.assertIn("hydrocnhs-coupling-framework-en.png", page)
+                self.assertNotIn("_figure_downloads/", page)
             for ext in ["png", "pdf"]:
                 name = "hydroopsllm-figure1." + ext
-                self.assertIn("_figure_downloads/" + name, home)
-                self.assertIn("_figure_downloads/" + name, overview)
                 self.assertEqual((target / "_figure_downloads" / name).read_bytes(),
                                  (ROOT / ("docs/figures/hydrocnhs-coupling-framework-en." + ext)).read_bytes())
 

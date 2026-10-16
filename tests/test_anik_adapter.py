@@ -8,7 +8,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from llm_reservoir_agent.plugins.anik_v3_7 import AnikPolicyAdapter, load_anik
+from examples.fe_walter.extensions.anik_v3_7 import AnikPolicyAdapter, load_anik
 from examples.fe_walter.legacy.physics import PhysicalConfig, apply_transition
 
 

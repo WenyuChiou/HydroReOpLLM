@@ -9,6 +9,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import zipfile
 from urllib.parse import quote, unquote, urlsplit
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -31,7 +32,7 @@ HYDROLOGY_DOWNLOADS = {
     "data/accepted/historical_manifest.json": "historical_manifest.json",
 }
 ANNUAL_DOWNLOADS = {
-    "examples/fe_walter/prompt.txt": "fe-walter-operator-prompt.txt",
+    "examples/fe_walter/annual/outputs/custom_system_prompt_20261016.txt": "custom_system_prompt_20261016.txt",
     **{
     f"examples/fe_walter/annual/outputs/{name}": name for name in (
         "daily.csv", "attempt_summary.json", "failed_reply_2016_06_18.txt",
@@ -47,6 +48,17 @@ COMPLETED_DOWNLOADS = {
     f"examples/fe_walter/coupled/outputs/{name}": name
     for name in ("daily.csv", "summary.json", "pool_release.svg", "pool_release.pdf",
                  "llm_available_decision.json", "llm_knowledge_decision.json")
+}
+MULTI_RESERVOIR_FILES = (
+    "agents.llm.yaml", "agents.rule.yaml", "auditors.yaml", "experiment.llm.yaml",
+    "experiment.yaml", "forcing.csv", "hydrology.yaml", "information.yaml",
+    "model.yaml", "models.yaml", "reference_a.csv", "reference_b.csv",
+    "reservoirs.yaml", "statistics_a.json", "statistics_b.json",
+    "extensions/__init__.py", "knowledge/guidance.json", "prompts/operator.txt",
+    "prompts/system.txt",
+)
+MULTI_RESERVOIR_DOWNLOADS = {
+    f"examples/multiple_reservoirs/{name}": name for name in MULTI_RESERVOIR_FILES
 }
 PAGES = {
     "docs/index.md": "index.md",
@@ -78,6 +90,7 @@ PAGES = {
         "USER_GUIDE.md", "USER_GUIDE.zh-TW.md", "HYDROLOGY_SETUP.md",
         "LIVE_READINESS.md", "auditor_plugins.md", "PROJECT_INVENTORY.md", "BUILDING.md",
         "GETTING_STARTED.md", "BUILD_SIMULATION.md", "BUILD_SIMULATION.zh-TW.md", "FIRST_DECISION.md", "INFORMATION.md", "INFORMATION.zh-TW.md",
+        "CONFIGURATION.md", "MODEL_PROVIDERS.md", "MULTI_RESERVOIR.md",
         "PARAMETER_REFERENCE.md", "RESULTS_GUIDE.md", "REFERENCE.md", "RUNNING.md", "CODE_STRUCTURE.md", "WEATHER_INPUTS.md",
     )},
 }
@@ -123,6 +136,10 @@ def prepare(source: Path, *, source_ref: str = "main") -> None:
             elif not match[1].startswith("!") and relative in COMPLETED_DOWNLOADS:
                 import os
                 output = source / "_completed_downloads" / COMPLETED_DOWNLOADS[relative]
+                value = Path(os.path.relpath(output, (source / destination).parent)).as_posix()
+            elif not match[1].startswith("!") and relative in MULTI_RESERVOIR_DOWNLOADS:
+                import os
+                output = source / "_multiple_reservoir_downloads" / MULTI_RESERVOIR_DOWNLOADS[relative]
                 value = Path(os.path.relpath(output, (source / destination).parent)).as_posix()
             elif match[1].startswith("!"):
                 output = source / relative
@@ -192,15 +209,36 @@ def prepare(source: Path, *, source_ref: str = "main") -> None:
     completed_downloads.mkdir()
     for relative, name in COMPLETED_DOWNLOADS.items():
         shutil.copyfile(ROOT / relative, completed_downloads / name)
+    # Publish one complete, explicit teaching bundle. Keep paths inside the bundle
+    # so split YAML, prompts, provenance inputs and extension code remain runnable.
+    multiple_downloads = source / "_multiple_reservoir_downloads"
+    multiple_downloads.mkdir()
+    archive = multiple_downloads / "hydroopslm-multiple-reservoirs.zip"
+    with zipfile.ZipFile(archive, "w", compression=zipfile.ZIP_DEFLATED) as bundle:
+        for relative, name in MULTI_RESERVOIR_DOWNLOADS.items():
+            item = ROOT / relative
+            bundle.write(item, arcname=f"multiple_reservoirs/{name}")
+            download = multiple_downloads / name
+            download.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(item, download)
+            canonical = source / relative
+            canonical.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(item, canonical)
     for name in ("llm_available_reply.txt", "llm_knowledge_reply.txt"):
         relative = "examples/fe_walter/coupled/outputs/" + name
         target = source / relative
         target.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(ROOT / relative, target)
-    # One canonical prompt supplies both the copyable manual and the two scenarios.
-    shared_prompt = source / "examples/fe_walter/prompt.txt"
-    shared_prompt.parent.mkdir(parents=True, exist_ok=True)
-    shutil.copyfile(ROOT / "examples/fe_walter/prompt.txt", shared_prompt)
+    # Active method-specific prompts and the rejected historical variant stay distinct.
+    for name in ("zeroshot_seasonal_v1_system.txt", "dkp_seasonal_v1_system.txt"):
+        relative = "examples/fe_walter/prompts/" + name
+        target = source / relative
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(ROOT / relative, target)
+    relative = "examples/fe_walter/annual/outputs/custom_system_prompt_20261016.txt"
+    target = source / relative
+    target.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(ROOT / relative, target)
     # Publish selected original-byte case evidence for local viewing and downloads.
     case_downloads = source / "_case_downloads/dkp_2016_2020"
     case_downloads.mkdir(parents=True)
@@ -212,11 +250,13 @@ def prepare(source: Path, *, source_ref: str = "main") -> None:
         item = ROOT / "examples/fe_walter/reference_outputs/long_term_dkp" / relative
         shutil.copyfile(item, case_downloads / item.name)
     groups = {
-        "Overview": ["docs/README"],
-        "Build a simulation": ["docs/GETTING_STARTED", "docs/BUILD_SIMULATION", "docs/WEATHER_INPUTS", "docs/USER_GUIDE", "docs/INFORMATION", "docs/LLM_MODULES"],
+        "Overview and installation": ["docs/README", "docs/USER_GUIDE", "docs/GETTING_STARTED"],
+        "Build a simulation": ["docs/BUILD_SIMULATION", "docs/HYDROLOGY_SETUP", "docs/WEATHER_INPUTS",
+                               "docs/MULTI_RESERVOIR", "docs/CONFIGURATION", "docs/MODEL_PROVIDERS",
+                               "docs/LLM_MODULES", "docs/INFORMATION", "docs/RESULTS_GUIDE", "docs/RUNNING"],
         "FE Walter case study": ["examples/fe_walter/README", "examples/fe_walter/hydrology", "examples/fe_walter/coupled/README", "examples/fe_walter/coupling", "examples/fe_walter/annual/README", *[f"examples/fe_walter/{method}/README" for method in ("benchmark", "zero_shot", "dkp")], "examples/fe_walter/results"],
-        "Further configuration": ["tutorials/advanced", "docs/RESULTS_GUIDE", "docs/RUNNING"],
-        "Reference": ["docs/PARAMETER_REFERENCE", "docs/REFERENCE", "docs/FIRST_DECISION", "docs/HYDROLOGY_SETUP",
+        "Further configuration": ["tutorials/advanced"],
+        "Reference": ["docs/PARAMETER_REFERENCE", "docs/REFERENCE", "docs/FIRST_DECISION",
                       "examples/fe_walter/annual/decision_2016_01_01", "examples/fe_walter/annual/results", "docs/CODE_STRUCTURE",
                       "tutorials/README", "tutorials/main",
                                     "docs/PROJECT_INVENTORY", "archive/README", "repository",

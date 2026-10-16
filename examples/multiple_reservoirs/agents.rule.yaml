@@ -1,0 +1,20 @@
+operator_a:
+  reservoir: lake_a
+  mode: offline
+  strategy: benchmark
+  benchmark:
+    purpose: flood_control
+    alpha: 0.85
+    statistics: statistics_a.json
+  auditors:
+  - bounds
+operator_b:
+  reservoir: lake_b
+  mode: offline
+  strategy: benchmark
+  benchmark:
+    purpose: flood_control
+    alpha: 0.85
+    statistics: statistics_b.json
+  auditors:
+  - bounds

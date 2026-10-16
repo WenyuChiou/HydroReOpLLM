@@ -30,9 +30,9 @@
 | `mode: offline`、`max_calls: 0` | 使用測試回覆，不建立 provider、不下載、不重試 |
 | `reference.profile: fe_walter` | 保留原版 FE Walter 物理／策略設定 |
 | `reference.method` | `zeroshot` 或 `dkp` |
-| `reference.system_prompt`／`system_prompt_mode` | 選用的 UTF-8 system 檔；`original` 核對原版文字，`custom` 標記變體。每日狀態／schema／檢索仍由 adapter 處理，見 [prompt 檔設定](../../prompts/fe_walter_reference/README.md)。 |
+| `reference.system_prompt`／`system_prompt_mode` | 選用的 UTF-8 system 檔；`original` 核對原版文字，`custom` 標記變體。每日狀態／schema／檢索仍由 adapter 處理，見 [prompt 檔設定](../../examples/fe_walter/prompts/reference/README.md)。 |
 | `reference.responses` | 原版格式的合成回覆檔，每個選定日期恰好一筆 |
-| `reference.dkp` | 僅 DKP：固定版本的 `data/anik_v3_7/DKP_FEWalter_Dam_v1.2.md` |
+| `reference.dkp` | 僅 DKP：固定版本的 `examples/fe_walter/knowledge/DKP_FEWalter_Dam_v1.2.md` |
 | `prompt_storage: false` | 隱藏數值蓄水，與保存的五年 prompt 條件相同 |
 | `hide_availability_line: true` | 隱藏數值可用水量上限；物理程式仍限制放流 |
 | `dkp_no_missing_inputs: true` | 使用原版不含 missing-input 欄位的 DKP 變體 |

@@ -48,15 +48,18 @@ assert not any(name == "examples" or name.startswith("examples.") for name in sy
         self.assertEqual(result.returncode, 0, result.stderr)
 
     def test_optional_anik_plugin_imports(self):
-        from llm_reservoir_agent.plugins.anik_v3_7 import AnikPolicyAdapter, load_anik
+        from examples.fe_walter.extensions.anik_v3_7 import AnikPolicyAdapter, load_anik
         from llm_reservoir_agent.experiment import _adapter_implementation_files, _implementation_files
 
         self.assertTrue(callable(load_anik))
         self.assertEqual(AnikPolicyAdapter.policy_id, "anik_v3_7_dkp")
-        self.assertIn("anik_v3_7.py", _adapter_implementation_files())
+        from llm_reservoir_agent.extensions import extension_registry
+        _, pins = extension_registry({"reference": str(ROOT/"examples/fe_walter/extensions/__init__.py")}, base_path=ROOT)
+        self.assertIn(str(ROOT/"examples/fe_walter/extensions/anik_v3_7.py"), pins)
         implementation = _implementation_files()
         self.assertIn("experiment.py", implementation)
-        self.assertIn("plugins/anik_v3_7.py", implementation)
+        self.assertNotIn("plugins/anik_v3_7.py", implementation)
+        self.assertTrue(all("anik" not in path for path in implementation))
 
     def test_legacy_historical_and_annual_helper_imports(self):
         from examples.fe_walter.annual.prepare import prepare

@@ -103,14 +103,12 @@ def prepare(year, directory, run_id, *, live_diagnostic=False, hydrology_runner=
         if method == "rule":
             agent["benchmark"]["statistics"] = str((template.parent / agent["benchmark"]["statistics"]).resolve())
         else:
-            # Both scenarios share one operator instruction; retrieval is selected
-            # by reference.method and the optional knowledge document alone.
+            # Retain each Anik method-specific system and the approved target edit.
             settings["models"]["reservoir_model"].update(max_attempts=2, retry_delay_seconds=2)
-            agent["reference"].update(system_prompt=str(ROOT / "examples/fe_walter/prompt.txt"),
-                                      system_prompt_mode="custom")
             for key in ("system_prompt", "dkp"):
                 if key in agent["reference"]:
                     agent["reference"][key] = str((template.parent / agent["reference"][key]).resolve())
+        settings["extensions"] = {key: str((template.parent / value).resolve()) for key, value in settings.get("extensions", {}).items()}
         with (directory / f"{method}.yaml").open("x", encoding="utf-8") as stream:
             yaml.safe_dump(settings, stream, sort_keys=False)
     manifest = {"year": year, "operation_days": len(selected), "prepared_only": True,

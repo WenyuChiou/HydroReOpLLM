@@ -50,7 +50,7 @@ class AnnualCaseTests(unittest.TestCase):
             with self.assertRaises(FileExistsError):
                 self.example.prepare(2016, Path(folder), "test", hydrology_runner=forbidden)
 
-    def test_llm_arms_share_one_prompt_and_explicit_retry_settings(self):
+    def test_llm_arms_use_native_method_prompts_and_explicit_retry_settings(self):
         import yaml
         with tempfile.TemporaryDirectory() as folder:
             target = Path(folder) / "paired"
@@ -59,8 +59,10 @@ class AnnualCaseTests(unittest.TestCase):
             settings = [yaml.safe_load((target / f"{name}.yaml").read_text())
                         for name in ("llm_available", "llm_knowledge")]
             prompts = [s["agents"]["fe_operator"]["reference"]["system_prompt"] for s in settings]
-            self.assertEqual(prompts[0], prompts[1])
-            self.assertEqual(Path(prompts[0]), ROOT / "examples/fe_walter/prompt.txt")
+            self.assertNotEqual(prompts[0], prompts[1])
+            self.assertEqual([Path(p).name for p in prompts],
+                             ["zeroshot_seasonal_v1_system.txt", "dkp_seasonal_v1_system.txt"])
+            self.assertTrue(all(Path(p).is_file() for p in prompts))
             for spec in settings:
                 self.assertIsNone(spec["max_calls"])
                 self.assertEqual(spec["models"]["reservoir_model"]["max_attempts"], 2)

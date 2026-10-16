@@ -1,0 +1,48 @@
+{
+  "schema_version": "anik-case-profile.v1",
+  "profile_id": "fe_walter",
+  "name": "F.E. Walter Dam",
+  "river": "Lehigh River, Pennsylvania",
+  "purpose": "flood control",
+  "capacity_af": 109878.27,
+  "initial_storage_af": 1992.61,
+  "dead_storage_af": 0.04,
+  "normal_pool_af": 1992.61,
+  "minimum_release_cfs": 50.0,
+  "maximum_release_cfs": 10000.0,
+  "public_capacity_af": 110700.0,
+  "public_profile": [
+    "Location: Bear Creek Township, Luzerne County and Kidder Township, Carbon County, Pennsylvania",
+    "Purpose: flood control, water storage, recreation",
+    "Opened: 1961; operated by the U.S. Army Corps of Engineers",
+    "Type: earth-fill embankment with rock shell, impounding the Lehigh River",
+    "Dam height (foundation): 234 ft; length: 3,000 ft",
+    "Spillway type: concrete",
+    "Catchment area: 289 square miles"
+  ],
+  "operation_target_description": "Your goal is to keep the water level within the designated seasonal pool levels. From November 1 through March 14, keep the pool near the conservation pool at 1300.0 ft N.G.V.D., within 1297.0 to 1303.0 ft. From March 15 through May 9, keep the pool between 1300.0 and 1370.0 ft and, when hydrologic conditions allow, fill toward 1370.0 ft by May 10. From May 10 through October 14, keep the pool at or below 1370.0 ft. From October 15 through October 31, keep the pool between 1300.0 and 1370.0 ft and lower it toward 1300.0 ft by November 1.",
+  "target_periods": [
+    {"id": "winter", "start": "11-01", "end": "03-14", "target_ft": 1300.0, "lower_ft": 1297.0, "upper_ft": 1303.0},
+    {"id": "spring_fill", "start": "03-15", "end": "05-09", "target_ft": 1370.0, "lower_ft": 1300.0, "upper_ft": 1370.0},
+    {"id": "summer", "start": "05-10", "end": "10-14", "target_ft": 1370.0, "lower_ft": null, "upper_ft": 1370.0},
+    {"id": "fall_drawdown", "start": "10-15", "end": "10-31", "target_ft": 1300.0, "lower_ft": 1300.0, "upper_ft": 1370.0}
+  ],
+  "flood_pool_bottom_ft": 1300.0,
+  "flood_pool_top_ft": 1450.0,
+  "runtime_missing_inputs": [
+    "downstream stages and trends",
+    "active drought declaration",
+    "approved annual recreation plan",
+    "ice, gate-outage, and emergency status"
+  ],
+  "elevation_storage_csv": "../../../cases/fe_belt_prompton_offline/fe_walter_storage_elevation.csv",
+  "elevation_storage_sha256": "baa89b33023c23002b94ac48e68c69278c384d15a64a72d2587a1e6ad458999d",
+  "default_system_prompts": {
+    "zeroshot": {"path": "../prompts/reference/zeroshot_system.txt", "sha256": "f0999945b989cf1a97e8e7239d78c774baf9c7e82c342ae27551baf56ca45133"},
+    "dkp": {"path": "../prompts/reference/dkp_system.txt", "sha256": "c018043ce34a6e47024024ce63622d837dffa686a15523eb97d4bdd4ae678352"}
+  },
+  "source_attribution": {
+    "formatter": "Pure prompt formatting and retrieval behavior ported from Anik V3.7 for the FE Walter example.",
+    "vendor_manifest": "../../../third_party/anik_v3_7/source_manifest.json"
+  }
+}

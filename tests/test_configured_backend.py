@@ -78,10 +78,17 @@ def test_model_rejects_invalid_settings(bad):
 
 def test_model_defaults_are_normalized_without_network():
     settings = validate_model_settings(model())
-    assert settings["temperature"] == 0.7
-    assert settings["max_tokens"] == 512
+    assert "temperature" not in settings
+    assert "max_tokens" not in settings
     assert settings["timeout_seconds"] == 60.0
-    assert settings["seed"] is None
+    assert "seed" not in settings
+
+
+def test_model_normalization_is_idempotent_and_treats_legacy_null_options_as_absent():
+    legacy = model(temperature=None, max_tokens=None, seed=None)
+    once = validate_model_settings(legacy)
+    assert validate_model_settings(once) == once
+    assert not {"temperature", "max_tokens", "seed"} & set(once)
 
 
 def test_openai_request_trace_and_secret_redaction(monkeypatch):
@@ -92,6 +99,7 @@ def test_openai_request_trace_and_secret_redaction(monkeypatch):
         return {
             "choices": [{"message": {"content": '{"schema_version":"reservoir-action.v1","release_cms":4}'}}],
             "usage": {"prompt_tokens": 10, "completion_tokens": 8},
+            "debug_echo": headers.get("Authorization"),
         }
 
     monkeypatch.setenv("BACKEND_FIXTURE_KEY", "top-secret")
@@ -111,6 +119,7 @@ def test_openai_request_trace_and_secret_redaction(monkeypatch):
     assert timeout == 60.0
     assert "top-secret" not in json.dumps(item.latest_trace)
     assert "Authorization" not in json.dumps(item.latest_trace)
+    assert item.latest_trace["raw_reply"]["debug_echo"] == "[REDACTED]"
     assert item.network_calls == 1
 
 
@@ -126,7 +135,7 @@ def test_ollama_request_parameters():
     url, payload = calls[0]
     assert url == "http://localhost:11434/v1/api/chat"
     assert payload["stream"] is False
-    assert payload["options"] == {"temperature": 0.7, "num_predict": 512}
+    assert "options" not in payload
     assert item.latest_trace["usage"] == {"eval_count": 4}
 
 
@@ -134,7 +143,7 @@ def test_prompt_namespaces_knowledge_context_and_feedback_are_causal():
     contents = []
 
     def transport(url, payload, headers, timeout):
-        contents.append(payload["messages"][1]["content"])
+        contents.append(payload["messages"][0]["content"])
         return {"choices": [{"message": {"content": '{"schema_version":"reservoir-action.v1","release_cms":1}'}}]}
 
     item = backend(transport=transport)

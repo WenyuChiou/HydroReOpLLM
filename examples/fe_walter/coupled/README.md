@@ -17,13 +17,17 @@ water balance verification do not establish acceptable reservoir performance.
 | [`rule.yaml`](rule.yaml) | Rule-based benchmark; no model request |
 | [`llm_available.yaml`](llm_available.yaml) | LLM operation with available information |
 | [`llm_knowledge.yaml`](llm_knowledge.yaml) | LLM operation with retrieved operating knowledge |
-| [`../prompt.txt`](../prompt.txt) | One shared operating prompt for both LLM configurations |
+| [`../prompts/zeroshot_seasonal_v1_system.txt`](../prompts/zeroshot_seasonal_v1_system.txt) | Native available-information system message with the approved seasonal-target edit |
+| [`../prompts/dkp_seasonal_v1_system.txt`](../prompts/dkp_seasonal_v1_system.txt) | Native operating-knowledge system message with the same target edit |
+| [`../extensions/`](../extensions/) | Explicit case extension: backend, native bridge, profile/history, and DKP audit |
 
-Both LLM files use the optional preserved `reference_v3_7` plugin because this
+Both LLM files register the case-owned `reference_v3_7` extension because this
 example reproduces the F.E. Walter teaching interface. The available-information
 configuration uses its `zeroshot` machine ID. The operating-knowledge
 configuration uses its `dkp` machine ID and the existing vendor knowledge file.
-Those IDs are provenance, not names for generic methods. For another basin, use
+The extension reuses pinned native policies; it does not reconstruct their prompt
+or retrieval behavior with the generic prompt engine. Those IDs are provenance,
+not names for generic methods. For another basin, use
 the general `strategy: configured` example in
 [Weather and inflow inputs](../../../docs/WEATHER_INPUTS.md#a-generic-configured-llm-simulation).
 
@@ -72,7 +76,7 @@ operation days. It makes zero model requests.
 
 ## Run an LLM method
 
-Choose one configuration and review its model settings and shared prompt first:
+Choose one configuration and review its model settings and method-specific prompt first:
 
 ```powershell
 reservoir-experiment check examples/fe_walter/coupled/llm_available.yaml
@@ -84,6 +88,9 @@ reservoir-experiment verify runs/fe-walter-coupled-llm_available/operation
 For retrieved operating knowledge, substitute `llm_knowledge.yaml` and its output
 directory. Both configurations set `max_calls: null`, meaning no total call cap,
 and `max_attempts: 2`, meaning at most two attempts for one daily decision.
+Both explicitly set `num_ctx: 16384`, `think: false`, and `keep_alive: 30m`.
+They use `consultation_mode: daily` and `response_validation: policy`, so every
+day is requested and the original policy parser checks its required fields.
 
 ## Reuse the prepared hydrology
 
@@ -103,9 +110,14 @@ physical initial state.
 ## Completed 2016 demonstration
 
 All three methods completed **366 daily reservoir decisions**. The LLM records
-come from the original pinned runner at commit `5ee498e`, using the same
+are a preserved diagnostic variant from the original pinned runner at commit
+`5ee498e`, using the same
 prepared inflow that the new weather entry reproduced byte for byte. They were
-not requested again through the new entry.
+not requested again through the new entry. Its 732 requests used the former
+shared custom prompt, omitted the current provider controls, and suppressed the
+native `missing_inputs` field. The saved tables, raw records, history and figure
+remain immutable evidence, but they are not a run of the current reproduction
+configuration.
 
 ![Daily pool elevation and controlled release for 2016](outputs/pool_release.png)
 

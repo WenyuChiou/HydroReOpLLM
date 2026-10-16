@@ -21,7 +21,7 @@ from .audit import canonical_sha256, json_snapshot
 from .auditor import AuditedBackend
 from .case import load_case
 from .configured_audit import ConfiguredAudit
-from .dkp_audit import DKPStrategyAudit, DKP_RESPONSE_SCHEMA
+from .extensions import extension_registry
 from .contracts import finite_nonnegative
 from .network import PROJECT_ROOT, validate_inflows
 from .prompt import PromptSpec
@@ -78,10 +78,11 @@ def load_settings(path, *, runtime_root=PROJECT_ROOT, information_providers=None
     from .configured_backend import validate_model_settings
     path = Path(path).resolve()
     raw = path.read_bytes()
-    data = yaml.load(raw.decode("utf-8-sig"), Loader=UniqueLoader)
+    from .configuration import read_configuration
+    data, section_pins = read_configuration(path)
     _mapping(data, {"schema_version", "case", "case_root", "run_id", "output", "start_date", "end_date",
                     "models", "agents", "auditors", "max_calls", "information_sources",
-                    "information_profiles", "outcome_checks", "source_dependencies"}, "experiment")
+                    "information_profiles", "outcome_checks", "source_dependencies", "extensions"}, "experiment")
     if data.get("schema_version") != "llm-reservoir-experiment.v1":
         raise ValueError("unsupported YAML experiment version")
     _text(data.get("run_id"), "run_id")
@@ -121,16 +122,17 @@ def load_settings(path, *, runtime_root=PROJECT_ROOT, information_providers=None
     if not isinstance(models, dict):
         raise ValueError("models must be a mapping")
     models = {_text(k, "model profile ID"): validate_model_settings(v) for k, v in models.items()}
+    extensions, extension_pins = extension_registry(data.get("extensions", {}), base_path=path.parent)
     auditors = data.get("auditors", {})
     if not isinstance(auditors, dict):
         raise ValueError("auditors must be a mapping")
     for identifier, settings in auditors.items():
         _text(identifier, "auditor ID")
-        if isinstance(settings, dict) and settings.get("type") == "dkp_strategy":
-            DKPStrategyAudit.validate_settings(settings)
+        if isinstance(settings, dict) and settings.get("type") in extensions:
+            extensions[settings["type"]].validate_auditor(settings)
         else:
             ConfiguredAudit(identifier, settings)
-    files = {str(path): hashlib.sha256(raw).hexdigest()}
+    files = {str(path): hashlib.sha256(raw).hexdigest(), **extension_pins, **section_pins}
     dependencies = data.get("source_dependencies", {})
     if not isinstance(dependencies, dict):
         raise ValueError("source_dependencies must map file paths to SHA256 values")
@@ -151,9 +153,13 @@ def load_settings(path, *, runtime_root=PROJECT_ROOT, information_providers=None
     controlled = {n for n, s in network["reservoirs"].items() if s.get("operation_mode", "controlled") == "controlled"}
     for identifier, spec in configured.items():
         _text(identifier, "agent ID")
-        _mapping(spec, {"reservoir", "mode", "model", "prompt", "prompt_version", "knowledge", "context",
-                         "context_file", "release_cms", "auditors", "response_schema", "strategy", "reference", "benchmark",
-                         "information"}, "agent " + identifier)
+        if not isinstance(spec, dict):
+            raise ValueError("agent settings must be a mapping")
+        strategy = spec.get("strategy", "configured")
+        if strategy not in extensions:
+            _mapping(spec, {"reservoir", "mode", "model", "prompt", "prompt_version", "knowledge", "context",
+                            "context_file", "release_cms", "auditors", "response_schema", "strategy", "benchmark",
+                            "information", "prompt_variables", "context_providers", "fallback_models"}, "agent " + identifier)
         name = spec.get("reservoir")
         if name not in controlled or name in assigned:
             raise ValueError("each controlled reservoir needs exactly one unique agent; passive nodes cannot have agents")
@@ -162,7 +168,7 @@ def load_settings(path, *, runtime_root=PROJECT_ROOT, information_providers=None
         if mode not in ("offline", "llm"):
             raise ValueError("agent mode must explicitly be offline or llm")
         strategy = spec.get("strategy", "configured")
-        if strategy not in ("configured", "reference_v3_7", "benchmark"):
+        if strategy not in ("configured", "benchmark") and strategy not in extensions:
             raise ValueError("unknown agent strategy")
         if strategy == "benchmark":
             from .benchmark_config import load_benchmark
@@ -174,59 +180,93 @@ def load_settings(path, *, runtime_root=PROJECT_ROOT, information_providers=None
             checks=spec.get('auditors',[])
             if not isinstance(checks,list) or len(checks)!=len(set(checks)) or any(a not in auditors for a in checks):
                 raise ValueError("benchmark auditors must be unique configured IDs")
-            if any(auditors[a].get('type')=='dkp_strategy' for a in checks):
-                raise ValueError("DKP reasoning audit requires a DKP decision, not a benchmark action")
+            if any(auditors[a].get('type') in extensions for a in checks):
+                raise ValueError("custom reasoning audit requires a configured response, not a benchmark action")
             agents[identifier]=dict(reservoir=name,mode=mode,strategy=strategy,benchmark=benchmark,
                                     audit_plugins=[ConfiguredAudit(a,auditors[a]) for a in checks])
             continue
         if 'benchmark' in spec:
             raise ValueError("benchmark settings require benchmark strategy")
-        if strategy == "reference_v3_7":
-            from .reference_backend import validate_reference
-            allowed = {"reservoir", "mode", "strategy", "reference", "auditors"}
-            if mode == "llm":
-                allowed.add("model")
-            if set(spec) - allowed:
-                raise ValueError("reference_v3_7 requires native reference settings; no generic prompt/context override")
+        if strategy in extensions:
+            extension = extensions[strategy]
             model_id = spec.get("model")
             if mode == "llm" and model_id not in models:
-                raise ValueError("LLM reference requires a known model profile")
-            reference, pins, count = validate_reference(spec.get("reference"), path.parent, runtime_root, mode=mode)
-            if network["reservoirs"][name]["physical"]["reservoir_id"] != reference["profile"]:
-                raise ValueError("reference profile must match physical reservoir_id")
-            if mode == "offline" and count != len(rows):
-                raise ValueError("reference fixture requires exactly one response for each selected day")
+                raise ValueError("LLM extension requires a known model profile")
+            physical = network["reservoirs"][name]["physical"]
+            normalized, pins = extension.validate_backend(
+                spec, base_path=path.parent, runtime_root=runtime_root,
+                physical=physical, mode=mode, days=len(rows), model=models.get(model_id),
+                auditor_settings=auditors)
             files.update(pins)
             checks = spec.get("auditors", [])
-            if not isinstance(checks, list) or not all(isinstance(a, str) and a in auditors for a in checks) or len(checks) != len(set(checks)):
-                raise ValueError("reference auditors must be unique configured IDs")
-            if any(auditors[a].get("type") == "dkp_strategy" for a in checks):
-                raise ValueError("reference preserves its native audit; generic DKP audit context must not modify its prompt")
-            agents[identifier] = dict(reservoir=name, mode=mode, strategy=strategy, reference=reference,
-                                      model=models.get(model_id),
+            if not isinstance(checks, list) or len(checks) != len(set(checks)) or any(a not in auditors for a in checks):
+                raise ValueError("extension auditors must be unique configured IDs")
+            agents[identifier] = dict(reservoir=name, mode=mode, strategy=strategy,
+                                     **normalized, model=models.get(model_id),
+                                     extension_runtime=extension,
                                      audit_plugins=[ConfiguredAudit(a, auditors[a]) for a in checks])
             continue
-        if "reference" in spec:
-            raise ValueError("reference settings require reference_v3_7 strategy")
         model_id = spec.get("model")
         if model_id is not None and model_id not in models or mode == "llm" and model_id is None:
             raise ValueError("agent references an unknown or missing model profile")
         if mode == "offline" and "release_cms" not in spec or mode == "llm" and "release_cms" in spec:
             raise ValueError("offline agents require release_cms; LLM agents cannot have a fallback release")
         release = finite_nonnegative(spec.get("release_cms", 0), "offline release")
-        prompt_path = _path(path.parent, spec.get("prompt"), "prompt")
-        prompt_bytes = prompt_path.read_bytes()
-        template = prompt_bytes.decode("utf-8")
-        # Validate every placeholder before running, including malformed dollar expressions.
-        Template(template).substitute(observation="{}", knowledge="{}", agent_id=identifier,
-                                      previous_transition="null", information="{}")
+        prompt_setting = spec.get("prompt")
+        if isinstance(prompt_setting, str):
+            prompt_setting = {"user": prompt_setting}
+        _mapping(prompt_setting, {"user", "system"}, "prompt")
+        templates = {}
+        for role in ("user", "system"):
+            if role not in prompt_setting:
+                templates[role] = ""
+                continue
+            resource = _path(path.parent, prompt_setting[role], "prompt." + role)
+            blob = resource.read_bytes()
+            templates[role] = blob.decode("utf-8")
+            files[str(resource)] = hashlib.sha256(blob).hexdigest()
+        if not templates["user"].strip():
+            raise ValueError("prompt.user must contain text")
+        variables = json_snapshot(spec.get("prompt_variables", {}), label="prompt_variables")
+        provider_specs = spec.get("context_providers", {})
+        if not isinstance(provider_specs, dict):
+            raise ValueError("context_providers must map aliases to extension configurations")
+        preview_context, context_factories = {}, {}
+        for alias, provider_spec in provider_specs.items():
+            _text(alias, "context alias")
+            _mapping(provider_spec, {"extension", "config", "preview"}, "context provider")
+            plugin = extensions.get(provider_spec.get("extension"))
+            if plugin is None or not callable(getattr(plugin, "build_context", None)):
+                raise ValueError("context provider requires a registered build_context extension")
+            if "preview" not in provider_spec:
+                raise ValueError("context provider requires an explicit offline preview value")
+            config = json_snapshot(provider_spec.get("config", {}), label="context configuration")
+            if callable(getattr(plugin, "validate_context", None)):
+                config, context_pins = plugin.validate_context(config, base_path=path.parent)
+                files.update(context_pins)
+            preview_context[alias] = json_snapshot(provider_spec["preview"], label="context preview")
+            context_factories[alias] = (plugin, config)
+        if not isinstance(variables, dict):
+            raise ValueError("prompt_variables must be a mapping")
+        if set(variables) & set(preview_context):
+            raise ValueError("prompt variables and context aliases must be unique")
+        placeholders = set()
+        for template in templates.values():
+            identifiers = Template(template).get_identifiers()
+            placeholders.update(identifiers)
+            Template(template).substitute(**{key: "{}" for key in
+                ["observation", "knowledge", "agent_id", "previous_transition", "information",
+                 *variables, *preview_context]})
         selected = spec.get("information")
-        placeholders = Template(template).get_identifiers()
         if selected is not None and (not isinstance(selected, str) or selected not in profiles):
             raise ValueError("agent references an unknown information profile")
         if (selected is not None) != ("information" in placeholders):
             raise ValueError("information profile and $information placeholder must be configured together")
-        files[str(prompt_path)] = hashlib.sha256(prompt_bytes).hexdigest()
+        fallback_ids = spec.get("fallback_models", [])
+        if (not isinstance(fallback_ids, list) or len(fallback_ids) != len(set(fallback_ids))
+                or any(key not in models or key == model_id for key in fallback_ids)):
+            raise ValueError("fallback_models must be unique configured profiles, excluding the primary")
+        template = templates["user"]
         knowledge = spec.get("knowledge", {})
         if not isinstance(knowledge, dict):
             raise ValueError("knowledge must map stable package IDs to text file paths")
@@ -253,29 +293,30 @@ def load_settings(path, *, runtime_root=PROJECT_ROOT, information_providers=None
         if not isinstance(checks, list) or not all(isinstance(a, str) and a in auditors for a in checks) or len(checks) != len(set(checks)):
             raise ValueError("agent auditors must be unique configured IDs")
         prompt = PromptSpec(identifier, _text(spec.get("prompt_version", "1"), "prompt_version"), template,
-                            tuple(texts), pins)
+                            tuple(texts), pins, system_template=templates["system"])
         plugins = []
         for audit_id in checks:
             rule = auditors[audit_id]
-            if rule.get("type") == "dkp_strategy":
-                plugin = DKPStrategyAudit(audit_id, rule, base_path=path.parent,
-                                          knowledge_paths=knowledge_paths, project_root=runtime_root)
+            if rule.get("type") in extensions:
+                plugin = extensions[rule["type"]].build_auditor(
+                    audit_id, rule, base_path=path.parent, knowledge_paths=knowledge_paths, runtime_root=runtime_root)
                 files.update(plugin.file_pins)
             else:
                 plugin = ConfiguredAudit(audit_id, rule)
             plugins.append(plugin)
         response_schema = spec.get("response_schema", "reservoir-action.v1")
-        if response_schema not in ("reservoir-action.v1", DKP_RESPONSE_SCHEMA):
-            raise ValueError("unsupported response_schema")
-        if response_schema == DKP_RESPONSE_SCHEMA:
-            if not any(isinstance(p, DKPStrategyAudit) for p in plugins):
-                raise ValueError("DKP response_schema requires a configured DKP strategy auditor")
-            if not {"observation", "knowledge"}.issubset(Template(template).get_identifiers()):
-                raise ValueError("DKP prompt must include observation and knowledge placeholders")
+        response_extension = None
+        if response_schema != "reservoir-action.v1":
+            response_extension = extensions.get(response_schema)
+            if response_extension is None:
+                raise ValueError("unsupported response_schema; register a response extension")
+            response_extension.validate_response_configuration(spec, plugins, template=template)
         agents[identifier] = dict(reservoir=name, mode=mode, prompt=prompt, knowledge=texts, context=context,
                                  model=models.get(model_id), release_cms=release,
+                                 prompt_variables=variables, context_factories=context_factories,
+                                 preview_context=preview_context, fallback_models=[models[key] for key in fallback_ids],
                                   auditors={a: auditors[a] for a in checks}, audit_plugins=plugins,
-                                  response_schema=response_schema)
+                                  response_schema=response_schema, response_extension=response_extension)
         if selected is not None:
             agents[identifier]["information"] = selected
     if assigned != controlled:
@@ -307,6 +348,27 @@ def load_settings(path, *, runtime_root=PROJECT_ROOT, information_providers=None
         }
     if outcome_checks:
         report["outcome_checks"] = outcome_checks
+    from .configured_backend import ConfiguredBackend
+    from .contracts import ReservoirObservation
+    previews = {}
+    for identifier, agent in agents.items():
+        if "prompt" not in agent:
+            preview_builder = getattr(agent.get("extension_runtime"), "preview_backend", None)
+            if callable(preview_builder):
+                previews[identifier] = preview_builder(agent, physical=network["reservoirs"][agent["reservoir"]]["physical"],
+                                                      runtime_root=runtime_root)
+            continue
+        physical = network["reservoirs"][agent["reservoir"]]["physical"]
+        observation = ReservoirObservation(0, start + "T00:00:00", 0.0,
+            physical["maximum_release_cms"], state={"storage_m3": physical["initial_storage_m3"]},
+            context={"decision_information": {"preview": True}} if "information" in agent else {})
+        backend = ConfiguredBackend(agent_id=identifier, mode=agent["mode"], prompt_spec=agent["prompt"],
+            knowledge_texts=agent["knowledge"], model=agent["model"], release_cms=0,
+            context=agent["context"], prompt_variables=agent["prompt_variables"],
+            context_providers=agent["preview_context"], response_schema=agent["response_schema"],
+            response_extension=agent.get("response_extension"), fallback_models=agent["fallback_models"])
+        previews[identifier] = dict(kind="configuration_preview_not_simulated", **backend.preview(observation))
+    report["prompt_previews"] = previews
     return ExperimentSettings(path, json_snapshot(data), network, rows, agents, files, report, catalog, outcome_checks)
 
 
@@ -327,7 +389,7 @@ def run_settings(settings, *, allow_network=False, runtime_root=PROJECT_ROOT, tr
     if plan["planned_llm_calls"] and (not allow_network or not plan["live_ready"]):
         raise ValueError("LLM run requires --allow-network, max_calls, and a live-ready case (synthetic cases are diagnostic only)")
     attempts = recovery.prior_network_calls if recovery is not None else 0
-    def transport_for(reservoir_id):
+    def transport_for(reservoir_id, agent_id):
         def bounded_transport(url, payload, headers, timeout):
             nonlocal attempts
             if recovery is not None:
@@ -337,7 +399,8 @@ def run_settings(settings, *, allow_network=False, runtime_root=PROJECT_ROOT, tr
             if not allow_network or (plan["max_calls"] is not None and attempts >= plan["max_calls"]):
                 raise RuntimeError("network permission or request budget exhausted")
             attempts += 1
-            event = dict(run_id=plan["run_id"], reservoir_id=reservoir_id,
+            event = dict(run_id=plan["run_id"], agent_id=agent_id, reservoir_id=reservoir_id,
+                         url=url, request=json_snapshot(payload, label="provider request"),
                          attempt=attempts, request_sha256=canonical_sha256({"url": url, "payload": payload}))
             ledger = Path(plan["output"]) / "provider_attempts.jsonl"
             record_provider_attempt(ledger, dict(event, status="STARTED"))
@@ -347,29 +410,51 @@ def run_settings(settings, *, allow_network=False, runtime_root=PROJECT_ROOT, tr
             except Exception as exc:
                 record_provider_attempt(ledger, dict(event, status="FAILED", error_class=type(exc).__name__))
                 raise
-            record_provider_attempt(ledger, dict(event, status="RETURNED", provider_reply=json_snapshot(reply)))
+            from .configured_backend import _redact_header_secrets
+            safe_reply = _redact_header_secrets(json_snapshot(reply), headers)
+            record_provider_attempt(ledger, dict(event, status="RETURNED", provider_reply=safe_reply,
+                provider_reply_sha256=canonical_sha256(reply), credentials_redacted=safe_reply != reply))
             return reply
         bounded_transport.network_calls = 0
         return bounded_transport
+    def contexts_for(agent, reservoir_id):
+        result = {}
+        for alias, (plugin, config) in agent["context_factories"].items():
+            # Each agent/alias owns its lazily constructed callback. Committed
+            # context is replayed before a retriever is instantiated.
+            state = {}
+            def context_value(context, *, name=alias, module=plugin, options=config, state=state):
+                if recovery is not None:
+                    found, saved = recovery.context_value(reservoir_id, context.observation["timestep"], name)
+                    if found:
+                        return saved
+                if "provider" not in state:
+                    state["provider"] = module.build_context(options)
+                return state["provider"](context)
+            result[alias] = context_value
+        return result
     backends = {}
     for identifier, agent in current.agents.items():
-        bounded_transport = transport_for(current.network["reservoirs"][agent["reservoir"]]["physical"]["reservoir_id"])
+        bounded_transport = transport_for(current.network["reservoirs"][agent["reservoir"]]["physical"]["reservoir_id"], identifier)
         if agent.get('strategy') == 'benchmark':
             from .benchmark import BenchmarkBackend
             backends[agent['reservoir']]=AuditedBackend(BenchmarkBackend(**agent['benchmark']),agent['audit_plugins'])
             continue
-        if agent.get("strategy") == "reference_v3_7":
-            from .reference_backend import ReferenceBackend
+        if "extension_runtime" in agent:
             physical = current.network["reservoirs"][agent["reservoir"]]["physical"]
-            backend = ReferenceBackend(agent["reference"], physical, runtime_root=runtime_root,
-                                       mode=agent["mode"], model=agent["model"], transport=bounded_transport)
+            backend = agent["extension_runtime"].build_backend(
+                agent, physical=physical, runtime_root=runtime_root,
+                mode=agent["mode"], model=agent["model"], transport=bounded_transport)
             backends[agent["reservoir"]] = AuditedBackend(backend, agent["audit_plugins"])
             continue
         backend = ConfiguredBackend(agent_id=identifier, mode=agent["mode"], prompt_spec=agent["prompt"],
-                                    knowledge_texts=agent["knowledge"], model=agent["model"],
-                                     release_cms=agent["release_cms"], context=agent["context"], transport=bounded_transport,
-                                     response_schema=agent["response_schema"],
-                                     audit_context_builders={p.identifier: p.prepare_context for p in agent["audit_plugins"] if isinstance(p, DKPStrategyAudit)})
+            knowledge_texts=agent["knowledge"], model=agent["model"],
+            release_cms=agent["release_cms"], context=agent["context"], transport=bounded_transport,
+            prompt_variables=agent["prompt_variables"], fallback_models=agent["fallback_models"],
+            context_providers=contexts_for(agent, current.network["reservoirs"][agent["reservoir"]]["physical"]["reservoir_id"]),
+            response_schema=agent["response_schema"], response_extension=agent.get("response_extension"),
+            audit_context_builders={p.identifier: p.prepare_context for p in agent["audit_plugins"]
+                                    if callable(getattr(p, "prepare_context", None))})
         backends[agent["reservoir"]] = AuditedBackend(backend, agent["audit_plugins"])
     provenance = {"schema_version": "yaml-experiment-provenance.v1", "plan": plan,
                   "settings": current.data, "source_files": current.files,
@@ -460,7 +545,7 @@ def main(argv=None):
     elif args.command == "resume":
         from .recovery import resume_settings
         document = yaml.load(args.config.read_text(encoding="utf-8-sig"), Loader=UniqueLoader)
-        if isinstance(document, dict) and document.get("schema_version") == "hydroops-coupled-simulation.v1":
+        if isinstance(document, dict) and document.get("schema_version") in ("hydroops-coupled-simulation.v1", "hydroops-coupled-simulation.v2"):
             from .coupled import load_coupled_settings, prepared_experiment
             source = prepared_experiment(load_coupled_settings(args.config))
         else:
@@ -470,7 +555,7 @@ def main(argv=None):
                                     allow_network=args.allow_network)
     else:
         document = yaml.load(args.config.read_text(encoding="utf-8-sig"), Loader=UniqueLoader)
-        if isinstance(document, dict) and document.get("schema_version") == "hydroops-coupled-simulation.v1":
+        if isinstance(document, dict) and document.get("schema_version") in ("hydroops-coupled-simulation.v1", "hydroops-coupled-simulation.v2"):
             from .coupled import load_coupled_settings, prepare_coupled, run_coupled
             settings = load_coupled_settings(args.config)
             if args.command == "check":

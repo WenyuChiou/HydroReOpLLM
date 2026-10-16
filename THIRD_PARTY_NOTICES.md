@@ -12,7 +12,7 @@ Selected source hashes and explicit prototype assumptions are recorded in
 `data/accepted/manifest.json`.
 
 The user-supplied Anik V3.7 `Code.zip` is preserved byte-for-byte in
-`third_party/anik_v3_7/`. DKP v1.2 is preserved in `data/anik_v3_7/`.
+`third_party/anik_v3_7/`. DKP v1.2 is preserved in `examples/fe_walter/knowledge/`.
 `source_manifest.json` records actual attachment hashes and discrepancies with
 README-declared hashes. No license was included in that attachment; this is a
 user-authorized local research integration, without a redistribution claim.

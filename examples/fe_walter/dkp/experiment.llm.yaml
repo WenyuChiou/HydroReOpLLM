@@ -27,12 +27,15 @@ agents:
     reference:
       profile: fe_walter # This optional original-policy example is FE Walter-specific.
       method: dkp
-      system_prompt: ../../../prompts/fe_walter_reference/dkp_system.txt
+      system_prompt: ../prompts/reference/dkp_system.txt
       system_prompt_mode: original # Preserve original text, daily builder and native schema.
-      dkp: ../../../data/anik_v3_7/DKP_FEWalter_Dam_v1.2.md # Original conditional retrieval.
+      dkp: ../knowledge/DKP_FEWalter_Dam_v1.2.md # Original conditional retrieval.
       prompt_storage: false
       hide_availability_line: true
       dkp_no_missing_inputs: true
       zeroshot_knowledge: target
       # No responses file in llm mode; transport failure stops before physics.
     auditors: [release_limits] # Original native audit is retained automatically.
+
+extensions:
+  reference_v3_7: ../extensions/__init__.py

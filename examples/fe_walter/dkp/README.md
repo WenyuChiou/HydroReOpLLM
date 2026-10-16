@@ -13,7 +13,7 @@ This method uses the same daily Dam/routing loop with precomputed inflow; the op
 Each implemented operation advances storage; LLM methods retain implemented release history.
 
 **Current seasonal case:** use the [seasonal YAML](experiment.seasonal.ollama.yaml)
-and [seasonal prompt](../../../prompts/fe_walter_reference/dkp_seasonal_v1_system.txt).
+and [seasonal prompt](../prompts/reference/dkp_seasonal_v1_system.txt).
 Read the [shared windows and pool checks](../README.md#seasonal-pool-levels).
 This is an unexecuted prompt variant. Saved exchanges on this page retain their original instructions and audit verdicts.
 
@@ -27,7 +27,7 @@ agent: at most three requests, with no retries.
 
 ## 2. Understand the operation method
 
-Read the [system prompt](../../../prompts/fe_walter_reference/dkp_system.txt)
+Read the [system prompt](../prompts/reference/dkp_system.txt)
 and [builder reading preview](prompt_preview.txt). The preview is not the saved
 model reply. The [complete saved day-one record](../../../examples/fe_walter/reference_outputs/ollama_three_day/dkp/raw/policy_87d975aee46dea6d4818b1f090efec8cc79b1e29a0fc31132d62799f2f3741b6.json)
 contains the actual rendered prompt, retrieved excerpts, response schema and
@@ -231,7 +231,7 @@ Apply these DKP rules to decide the mean release for this interval (cfs).
 
 </details>
 
-The [DKP document](../../../data/anik_v3_7/DKP_FEWalter_Dam_v1.2.md) supplies
+The [DKP document](../knowledge/DKP_FEWalter_Dam_v1.2.md) supplies
 applicable excerpts. The trace preserves the retrieval and its source.
 
 Follow **info → rendered prompt → full reply → operation proposal → response
@@ -367,9 +367,9 @@ agents:
     reference:
       profile: fe_walter
       method: dkp
-      system_prompt: ../../../prompts/fe_walter_reference/dkp_system.txt
+      system_prompt: ../prompts/reference/dkp_system.txt
       system_prompt_mode: original
-      dkp: ../../../data/anik_v3_7/DKP_FEWalter_Dam_v1.2.md
+      dkp: ../knowledge/DKP_FEWalter_Dam_v1.2.md
       prompt_storage: false
       hide_availability_line: true
       dkp_no_missing_inputs: true

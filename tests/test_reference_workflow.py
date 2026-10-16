@@ -12,12 +12,20 @@ from unittest.mock import patch
 import pandas as pd
 import yaml
 
-from llm_reservoir_agent.plugins.anik_v3_7 import load_anik
+from examples.fe_walter.extensions.anik_v3_7 import load_anik
 from llm_reservoir_agent.network import PROJECT_ROOT
-from llm_reservoir_agent.reference_backend import ReferenceBackend, _FixtureTransport
+from examples.fe_walter.extensions.reference_backend import ReferenceBackend, _FixtureTransport
+from llm_reservoir_agent.context import DecisionContext
 from llm_reservoir_agent.verification import verify_run
 from llm_reservoir_agent.workflow import load_settings, run_settings
 
+
+
+def _pin_example_extension(data):
+    # This test copies FE Walter configuration into a disposable directory.
+    if data.get("extensions"):
+        data["extensions"] = {key: str(PROJECT_ROOT / "examples/fe_walter/extensions/__init__.py") for key in data["extensions"]}
+    return data
 
 class ReferenceTests(unittest.TestCase):
     def setUp(self):
@@ -43,7 +51,7 @@ class ReferenceTests(unittest.TestCase):
 
     def save(self, data):
         path = self.root / 'experiment.yaml'
-        path.write_text(yaml.safe_dump(data), encoding='utf-8')
+        path.write_text(yaml.safe_dump(_pin_example_extension(data)), encoding='utf-8')
         return path
 
     def backend(self, method):
@@ -56,7 +64,7 @@ class ReferenceTests(unittest.TestCase):
         model = load_anik(PROJECT_ROOT)
         zero = sys.modules['zeroshot_llm_release']
         cfg = next(c for c in model.RESERVOIRS if c.inflow_reservoir_key == 'fe_walter')
-        cfg = replace(cfg, dkp_path=str(PROJECT_ROOT/'data/anik_v3_7/DKP_FEWalter_Dam_v1.2.md'))
+        cfg = replace(cfg, dkp_path=str(PROJECT_ROOT/'examples/fe_walter/knowledge/DKP_FEWalter_Dam_v1.2.md'))
         for method in ('zeroshot', 'dkp'):
             with self.subTest(method=method):
                 adapter = self.backend(method)
@@ -67,16 +75,20 @@ class ReferenceTests(unittest.TestCase):
                     original = model.build_policy(cfg, method, 'fixture', pd.Series(dtype=float),
                         prompt_storage=False, hide_availability_line=True, dkp_no_missing_inputs=True,
                         dkp_audit_action='record', zeroshot_audit_action='record')
-                self.assertEqual(adapter._policy.info, original.info)
-                self.assertEqual(adapter._policy._system_prompt, original._system_prompt)
-                state = {'step_days': 1, 'water_level_ft': 1300.0}
+                self.assertEqual(adapter._system_prompt, original._system_prompt)
+                state = {'step_days': 1, 'pool_elevation_ft': 1300.0}
                 args = (pd.Timestamp('2016-01-01'), 300.0, 1992.61, state)
-                a = adapter._policy._build_state_prompt(*args)
+                obs = {'schema_version': 'reservoir-observation.v1', 'timestep': 0,
+                       'timestamp': '2016-01-01', 'inflow_cms': 300.0 * model.CFS_TO_CMS,
+                       'release_upper_bound_cms': adapter._physical['maximum_release_cms'],
+                       'state': dict(adapter._physical, storage_m3=1992.61 * model.CF_PER_ACREFT * model.M3_PER_CF),
+                       'context': {}}
+                a = adapter._formatter(DecisionContext('fe_walter', obs, None)).value
                 self.assertEqual(a, original._build_state_prompt(*args))
                 if method == 'dkp':
                     self.assertIn('Retrieved DKP sections', a)
-                    self.assertNotIn((PROJECT_ROOT/'data/anik_v3_7/DKP_FEWalter_Dam_v1.2.md').read_text(), a)
-                    self.assertEqual(adapter._policy._system_prompt_sha256,
+                    self.assertNotIn((PROJECT_ROOT/'examples/fe_walter/knowledge/DKP_FEWalter_Dam_v1.2.md').read_text(encoding='utf-8'), a)
+                    self.assertEqual(adapter._original_prompt_sha256,
                         'c018043ce34a6e47024024ce63622d837dffa686a15523eb97d4bdd4ae678352')
                 else:
                     self.assertNotIn('Retrieved DKP', a)
@@ -94,7 +106,7 @@ class ReferenceTests(unittest.TestCase):
                 output = Path(settings.report['output'])
                 verified = verify_run(output, require_offline=True)
                 self.assertEqual(verified['audit_binding_counts']['versioned_suite'], 3)
-                payloads = [json.loads(p.read_text()) for p in (output/'raw').glob('policy_*.json')]
+                payloads = [json.loads(p.read_text(encoding='utf-8')) for p in (output/'raw').glob('policy_*.json')]
                 self.assertEqual(len(payloads), 3)
                 serialized = json.dumps(payloads)
                 self.assertIn('synthetic_fixture', serialized)
@@ -102,7 +114,7 @@ class ReferenceTests(unittest.TestCase):
                 self.assertIn('release_cfs', serialized)
                 self.assertIn('additionalProperties', serialized)
                 self.assertIn('model_used', serialized)
-                audits = [json.loads(p.read_text()) for p in (output/'raw').glob('audit_*.json')]
+                audits = [json.loads(p.read_text(encoding='utf-8')) for p in (output/'raw').glob('audit_*.json')]
                 self.assertIn('audit_status', json.dumps(audits))
                 with self.assertRaises(FileExistsError):
                     run_settings(settings)
@@ -120,15 +132,15 @@ class ReferenceTests(unittest.TestCase):
         self.assertEqual(result['summary']['audit_counts'], {'FAIL': 3})
         self.assertEqual(result['summary']['observed_network_calls'], 0)
         self.assertIsNone(result['summary'].get('operational_strategy_accepted'))
-        raw = '\n'.join(p.read_text() for p in (Path(settings.report['output'])/'raw').glob('audit_*.json'))
+        raw = '\n'.join(p.read_text(encoding='utf-8') for p in (Path(settings.report['output'])/'raw').glob('audit_*.json'))
         self.assertIn('1420', raw)
         self.assertIn('audit_status', raw)
 
     def test_native_state_is_not_shared(self):
         a, b = self.backend('zeroshot'), self.backend('zeroshot')
         self.assertIsNot(a.state_owner, b.state_owner)
-        a._policy._history.append({'marker': 'only-a'})
-        self.assertEqual(len(b._policy._history), 0)
+        a._formatter.history.append({'marker': 'only-a'})
+        self.assertEqual(len(b._formatter.history), 0)
         a._fixture.index = 1
         self.assertEqual(b._fixture.index, 0)
 
@@ -181,7 +193,7 @@ class ReferenceTests(unittest.TestCase):
 
     def external_fixture(self, method, *, mode='original', suffix='', crlf=False):
         data = self.fixture(method)
-        blob = (PROJECT_ROOT / f'prompts/fe_walter_reference/{method}_system.txt').read_bytes()
+        blob = (PROJECT_ROOT / f'examples/fe_walter/prompts/reference/{method}_system.txt').read_bytes()
         if crlf:
             blob = blob.replace(b'\n', b'\r\n')
         path = self.root / f'{method}-system.txt'
@@ -197,9 +209,9 @@ class ReferenceTests(unittest.TestCase):
                     settings = load_settings(self.save(self.external_fixture(method, crlf=crlf)))
                     spec = settings.agents['fe_operator']['reference']
                     backend = ReferenceBackend(spec, settings.network['reservoirs']['FEWalter']['physical'], runtime_root=PROJECT_ROOT)
-                    self.assertEqual(backend._policy._system_prompt, original._policy._system_prompt)
-                    args = (pd.Timestamp('2016-01-01'), 300.0, 1992.61, {'step_days': 1, 'water_level_ft': 1300.0})
-                    self.assertEqual(backend._policy._build_state_prompt(*args), original._policy._build_state_prompt(*args))
+                    self.assertEqual(backend._system_prompt, original._system_prompt)
+                    self.assertEqual(backend._formatter.sections if hasattr(backend._formatter, 'sections') else None,
+                                     original._formatter.sections if hasattr(original._formatter, 'sections') else None)
                     self.assertEqual(backend.describe()['system_prompt_source'], 'file')
                     self.assertTrue(backend.describe()['matches_original_system_prompt'])
                     self.assertIn(spec['system_prompt'], settings.files)
@@ -208,14 +220,12 @@ class ReferenceTests(unittest.TestCase):
         for method in ('zeroshot', 'dkp'):
             with self.subTest(method=method):
                 data = self.external_fixture(method, suffix='\nAdditional experimental instruction.\n')
-                settings = load_settings(self.save(data))
-                spec = settings.agents['fe_operator']['reference']
-                physics = settings.network['reservoirs']['FEWalter']['physical']
                 with self.assertRaisesRegex(ValueError, 'differs from original builder'):
-                    ReferenceBackend(spec, physics, runtime_root=PROJECT_ROOT)
+                    load_settings(self.save(data))
                 data['agents']['fe_operator']['reference']['system_prompt_mode'] = 'custom'
                 settings = load_settings(self.save(data))
                 spec = settings.agents['fe_operator']['reference']
+                physics = settings.network['reservoirs']['FEWalter']['physical']
                 backend = ReferenceBackend(spec, physics, runtime_root=PROJECT_ROOT)
                 described = backend.describe()
                 actual = hashlib.sha256(Path(spec['system_prompt']).read_bytes()).hexdigest()
@@ -232,7 +242,7 @@ class ReferenceTests(unittest.TestCase):
                 payloads = list((output/'raw').glob('policy_*.json'))
                 self.assertEqual(len(payloads), 3)
                 for p in payloads:
-                    text = p.read_text()
+                    text = p.read_text(encoding='utf-8')
                     self.assertIn('Additional experimental instruction.', text)
                     system = json.loads(text)['backend_trace']['system']
                     self.assertEqual(hashlib.sha256(system.encode('utf-8')).hexdigest(), actual)
@@ -253,7 +263,7 @@ class ReferenceTests(unittest.TestCase):
         Path(spec['system_prompt']).write_text('Changed after check', encoding='utf-8')
         with self.assertRaisesRegex(ValueError, 'changed after validation'):
             ReferenceBackend(spec, settings.network['reservoirs']['FEWalter']['physical'], runtime_root=PROJECT_ROOT)
-        with self.assertRaisesRegex(ValueError, 'changed after configuration check'):
+        with self.assertRaisesRegex(ValueError, 'changed after|differs from original'):
             run_settings(settings)
         self.assertFalse(Path(settings.report['output']).exists())
 

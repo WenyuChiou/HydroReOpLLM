@@ -1,0 +1,19 @@
+schema_version: hydroops-coupled-simulation.v2
+run_id: independent-rivers-mixed
+output: ../../runs/independent-rivers-mixed
+case: reservoirs.yaml
+start_date: '2020-02-28'
+end_date: '2020-03-02'
+max_calls: null
+hydrology:
+  file: hydrology.yaml
+agents:
+  file: agents.llm.yaml
+models:
+  file: models.yaml
+information:
+  file: information.yaml
+auditors:
+  file: auditors.yaml
+extensions:
+  local_retrieval: extensions/__init__.py

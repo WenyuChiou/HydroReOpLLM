@@ -297,9 +297,11 @@ class WeatherEntryTests(unittest.TestCase):
     def test_optional_auditor_profile_file_is_rebased_but_reference_profile_id_is_not(self):
         from llm_reservoir_agent.coupled import load_coupled_settings, _operation_document
         settings = load_coupled_settings(self.root/"simulation.yaml")
+        settings.data["extensions"] = {"reference": str(ROOT/"examples/fe_walter/extensions/__init__.py"),
+                                       "dkp_strategy": str(ROOT/"examples/fe_walter/extensions/__init__.py")}
         settings.data["auditors"] = {"strategy": {"type": "dkp_strategy", "profile": "profile.json",
                                                   "version": "1", "knowledge_id": "operations"}}
-        settings.data["agents"]["operator"] = {"reference": {"profile": "custom-reservoir",
+        settings.data["agents"]["operator"] = {"strategy": "reference", "reference": {"profile": "custom-reservoir",
                                                 "profile_file": "native-profile.json"}}
         compiled = _operation_document(settings, self.root/"generated")
         self.assertEqual(compiled["auditors"]["strategy"]["profile"], str(self.root/"profile.json"))

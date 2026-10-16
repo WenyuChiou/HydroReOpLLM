@@ -12,7 +12,7 @@ Ollama；逐步指南會先讀取保存的回覆，再說明如何啟動新執�
 每次實際操作更新蓄水；LLM 方法保留實際放流歷史。
 
 **新版季節案例：**使用[季節 YAML](experiment.seasonal.ollama.yaml)與
-[季節 prompt](../../../prompts/fe_walter_reference/zeroshot_seasonal_v1_system.txt)。
+[季節 prompt](../prompts/reference/zeroshot_seasonal_v1_system.txt)。
 [共用窗口與水位檢查](../README.zh-TW.md#季節水位)說明日期與判定。
 新版尚未執行；本頁保存的完整交換仍保留原始指令與 audit 判定。
 
@@ -25,7 +25,7 @@ Ollama；逐步指南會先讀取保存的回覆，再說明如何啟動新執�
 
 ## 2. 了解操作方法
 
-閱讀 [system prompt](../../../prompts/fe_walter_reference/zeroshot_system.txt)與
+閱讀 [system prompt](../prompts/reference/zeroshot_system.txt)與
 [builder 閱讀預覽](prompt_preview.txt)。此預覽不是保存的模型回覆。
 [完整的第一日保存紀錄](../../../examples/fe_walter/reference_outputs/ollama_three_day/zero_shot/raw/policy_4e2006ff9c730ed33c23b8f580d2e49e1d6d8a4a643806a24ef48fe689147292.json)
 包含實際 rendered user prompt、response schema 與完整 Ollama 回覆。
@@ -242,7 +242,7 @@ agents:
     reference:
       profile: fe_walter
       method: zeroshot
-      system_prompt: ../../../prompts/fe_walter_reference/zeroshot_system.txt
+      system_prompt: ../prompts/reference/zeroshot_system.txt
       system_prompt_mode: original
       prompt_storage: false
       hide_availability_line: true

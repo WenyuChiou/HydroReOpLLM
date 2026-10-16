@@ -28,5 +28,5 @@ hydrocnhs = ["Config_logging.yaml"]
 "share/llm-reservoir-agent/hydrocnhs" = ["third_party/hydrocnhs/LICENSE", "third_party/hydrocnhs/SOURCE.json", "third_party/hydrocnhs/upstream-pyproject.toml"]
 "share/llm-reservoir-agent/environment" = ["environment/hydrocnhs-core.json"]
 "share/llm-reservoir-agent/examples" = ["examples/llm_reservoir_abm.py"]
-"share/llm-reservoir-agent/third_party/anik_v3_7" = ["third_party/anik_v3_7/benchmark_release.py", "third_party/anik_v3_7/dkp_llm_release.py", "third_party/anik_v3_7/reservoir_model.py", "third_party/anik_v3_7/zeroshot_llm_release.py", "third_party/anik_v3_7/source_manifest.json", "third_party/anik_v3_7/README.txt"]
+# The Anik source oracle is repository-only; case extensions live in examples.
 "share/llm-reservoir-agent" = ["THIRD_PARTY_NOTICES.md"]

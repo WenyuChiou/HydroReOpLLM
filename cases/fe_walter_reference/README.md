@@ -30,9 +30,9 @@ Use `experiments/fe_walter_reference_zeroshot.yaml` or `experiments/fe_walter_re
 | `mode: offline`, `max_calls: 0` | Fixture transport; no provider, download or retry |
 | `reference.profile: fe_walter` | Preserve the original FE Walter physical/policy profile |
 | `reference.method` | `zeroshot` or `dkp` |
-| `reference.system_prompt` / `system_prompt_mode` | Optional UTF-8 system file; `original` checks parity, `custom` marks a variant. Daily state/schema/retrieval stay in the adapter. See [prompt files](../../prompts/fe_walter_reference/README.md). |
+| `reference.system_prompt` / `system_prompt_mode` | Optional UTF-8 system file; `original` checks parity, `custom` marks a variant. Daily state/schema/retrieval stay in the adapter. See [prompt files](../../examples/fe_walter/prompts/reference/README.md). |
 | `reference.responses` | Native-format synthetic reply file; exactly one reply per selected day |
-| `reference.dkp` | DKP method only: pinned `data/anik_v3_7/DKP_FEWalter_Dam_v1.2.md` |
+| `reference.dkp` | DKP method only: pinned `examples/fe_walter/knowledge/DKP_FEWalter_Dam_v1.2.md` |
 | `prompt_storage: false` | Hide numeric storage; match the saved five-year prompt condition |
 | `hide_availability_line: true` | Hide the numeric availability ceiling; physics still limits release |
 | `dkp_no_missing_inputs: true` | Original DKP variant without missing-input fields |
