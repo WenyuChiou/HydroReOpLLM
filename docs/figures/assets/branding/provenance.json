@@ -1,9 +1,9 @@
 {
-  "project": "HydroOpsLM",
-  "status": "visual_candidate_pending_user_selection",
+  "project": "HydroOpsLLM",
+  "status": "user_approved_cover_typography_pending_repository_integration",
   "attribution": "Built on HydroCNHS",
   "master": "docs/figures/hydroopslm-cover.svg",
-  "authoring": "native SVG paths/groups/text; CairoSVG PNG exports; Pillow preview assembly",
+  "authoring": "native SVG paths/groups/text; original CairoSVG exports; current cover Inkscape 1.4 exports",
   "logo": "Existing reservoir\u2013dam\u2013river project mark; placement scale removed for independent use",
   "scientific_scope": "Conceptual illustration; gate openings and flow widths do not represent measured or simulated data",
   "fonts": [
@@ -16,18 +16,18 @@
   "files": [
     {
       "file": "docs/figures/hydroopslm-cover.svg",
-      "sha256": "3f20ef7c55684e334f356b4b3c48618e84d63eee2c100f61d4081bd1dbbc923a",
-      "bytes": 157423
+      "sha256": "a18b0defa628aab5c6a749ed605412739d9b8b0a18494be621083eb35316d850",
+      "bytes": 156968
     },
     {
       "file": "docs/figures/hydroopslm-cover.png",
-      "sha256": "d98bcbf3c9a962832022bd8ccfcfd9d462aced356fe3ddcc3cb0d37840cefe52",
-      "bytes": 263747
+      "sha256": "9834ecfc17eb13e6a02d3d02d03672eb2a40a68f6c931dff4b841db4d5006f20",
+      "bytes": 311893
     },
     {
       "file": "docs/figures/assets/branding/hydroopslm-cover-3600.png",
-      "sha256": "fd156b4830f2c4159969ace7143931b980923d2ab6dc7c9b68ab9f0fc7bd2188",
-      "bytes": 638771
+      "sha256": "c3b05fc19dd474549cd2fee4a114d82bb3955fce6aca5d51c59885743e492b42",
+      "bytes": 748091
     },
     {
       "file": "docs/figures/assets/branding/hydroopslm-logo.svg",
@@ -89,5 +89,17 @@
       "sha256": "3f2e6f45097613070a24c7ae312bada4fe858aedfe8d34d80e7d255a3b8cae10",
       "bytes": 3184
     }
-  ]
+  ],
+  "typography_revision": {
+    "title_px": 100,
+    "subtitle_px": 40,
+    "credit_px": 32,
+    "all_non_text_geometry_unchanged": true,
+    "rendered_font_fallbacks": [
+      "Noto Serif",
+      "OpenAI Sans"
+    ],
+    "historical_drawio": "Embedded PNG plus two labels; not current illustration master"
+  },
+  "typography_approved_on": "2026-10-16"
 }

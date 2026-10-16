@@ -1,7 +1,9 @@
-# HydroOpsLM visual candidate
+# HydroOpsLLM editable cover
 
-This illustrative cover is a visual candidate for review; the user has not
-approved it as final branding. Gate openings and release widths are illustrative,
+The existing illustrative cover was selected and merged in PR #26. This revision
+updates its displayed name to HydroOpsLLM and enlarges all four text nodes;
+the revised cover typography was approved by the user on 2026-10-16.
+Repository integration remains subject to PR review and separate merge approval. Gate openings and release widths are illustrative,
 not measurements or simulation results. The cover retains **Built on HydroCNHS**.
 The existing project mark is retained, without introducing a new logo design.
 
@@ -39,7 +41,23 @@ import/drag behavior has not been tested.
 
 ## Provenance
 
-Artwork is authored as native SVG geometry and text, rendered with CairoSVG.
+Artwork is authored as native SVG geometry and text. The original exports used
+CairoSVG; this typography revision uses Inkscape 1.4.
 Pillow assembles previews only. No image-generation service was used. The SVGs
 contain no raster image embeds, scripts or external resource references.
-[provenance.json](provenance.json) records SHA-256 hashes and the visual-candidate scope.
+[provenance.json](provenance.json) records SHA-256 hashes and the revision scope.
+
+
+## Typography revision
+
+Title: 100 px (previously 86); subtitles: 40 px (previously 32);
+credit: 32 px (previously 24). Positions and line spacing avoid overlap.
+All terrain, reservoir, robot, logo and other non-text geometry is unchanged.
+SVG text remains editable. The renderer used Noto Serif/OpenAI Sans fallbacks
+because Georgia/Segoe UI were unavailable; original font-family declarations
+remain in the SVG. Rendering can vary on machines with different fonts.
+
+The older `hydroopslm-cover.drawio` is historical: it contains an embedded PNG
+and two editable labels, and does not regenerate the current illustration.
+Use the cover SVG as the editable master. Existing asset paths are retained
+for link compatibility; repository, package and API names are unchanged.
