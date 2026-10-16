@@ -5,6 +5,13 @@ importing its model or providers. Custom profiles must supply the native require
 fields (including ``inflow_csv`` and ``initial_storage_af``), public facts, and
 release limits. Native optional defaults remain generic; no reservoir facts are
 copied from a built-in configuration.
+
+Role: Validate reservoir facts for the pinned native prompt builders.
+
+Connections and data: reference_backend selects a built-in profile or explicit JSON
+document. Validation checks required native fields without importing providers;
+load_profile_config constructs the native configuration and provenance. Native suffixes
+such as _af and _cfs retain acre-feet and ft3/s, not SI units.
 """
 
 from __future__ import annotations

@@ -42,7 +42,7 @@
 
 HydroCNHS 提供降雨逕流與河川 routing；HydroOpsLLM 透過原生 Dam API 接入規則式或語言模型操作，並記錄實際放流。
 
-[查看完整尺寸概念圖](https://wenyuchiou.github.io/HydroOpsLLM/_images/hydrocnhs-coupling-framework-en.png)。
+[高清 PNG](figures/hydrocnhs-coupling-framework-en.png) · [180 mm 向量 PDF](figures/hydrocnhs-coupling-framework-en.pdf)。
 
 ## 配套 notebooks
 

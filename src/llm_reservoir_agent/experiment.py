@@ -2,6 +2,13 @@
 
 Python callers supply already constructed backends; the CLI only reads offline
 responses. No provider is constructed and no retries or resume are implicit.
+
+Role: Coordinate one daily network experiment and durable evidence.
+
+Connections and data: workflow supplies validated configuration, local inflow rows and
+reservoir-local backends. The orchestrator connects policy_adapter, network and
+TraceJournal, then writes summaries and optional routed-outcome checks. Audit status and
+successful execution are separate results.
 """
 import argparse
 from collections import Counter

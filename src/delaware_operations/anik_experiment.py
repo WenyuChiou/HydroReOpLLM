@@ -1,4 +1,10 @@
-"""Anik policy in the native Dam loop, with durable generation and state logs."""
+"""Anik policy in the native Dam loop, with durable generation and state logs.
+
+Example/compatibility connections: Connects the FE Walter case, pinned native policy,
+hydrocnhs_bridge and durable generation/state journals. The explicit experiment entry
+point may contact the configured provider; imports and documentation are not execution
+permission. Saved decisions and completed physical records remain separate.
+"""
 from __future__ import annotations
 
 import argparse

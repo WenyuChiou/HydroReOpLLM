@@ -1,4 +1,10 @@
-"""Adapter for the frozen Anik V3.7 reservoir-policy implementation."""
+"""Adapter for the frozen Anik V3.7 reservoir-policy implementation.
+
+Example/compatibility connections: Bridges common SI observations to the pinned Anik
+policy and back to SI requested actions. anik_experiment and the generic reference
+adapter use it; completed physical records update the native history. Native cfs and
+acre-feet conversions are explicit at this boundary.
+"""
 
 from __future__ import annotations
 

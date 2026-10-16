@@ -2,33 +2,18 @@
 
 [English](README.md) | [繁體中文](README.zh-TW.md)
 
-HydroOpsLLM (Hydrological Simulation with Large Language Model Reservoir Operations)
-connects reservoir operation methods to HydroCNHS through its Dam API.
-Here, LLM means large language model.
-Choose each reservoir's information, prompt, operation method and audit criteria.
-The same interfaces support a single reservoir or a connected network. The
-F.E. Walter examples demonstrate three methods using common reservoir accounting.
+HydroOpsLLM couples reservoir decisions to hydrological simulation with HydroCNHS.
+The hydrological model supplies streamflow to the reservoir. At each time step,
+the LLM uses available information to propose a release.
 
-![HydroOpsLLM concept](figures/hydrocnhs-coupling-framework-en.png)
+The reservoir calculation determines implemented release, spill and storage,
+then routes outflow downstream. Updated conditions inform the next decision,
+forming a repeated simulation cycle. The current case uses daily time steps.
+A rule-based agent can use the same reservoir calculation for comparison.
 
-HydroCNHS computes rainfall–runoff and river routing. An operation method requests
-a release; the shared reservoir calculations determine implemented release,
-spill and storage. The LLM does not change hydrological equations. Its decisions
-change storage and the water passed to downstream reaches.
+![HydroOpsLLM core workflow](figures/hydrocnhs-coupling-framework-en.png)
 
-For one reservoir with fixed upstream inflow, different decisions change the
-reservoir trajectory and downstream flow. In a river network, routed upstream
-releases can also change a downstream reservoir's inflow. Each controlled
-reservoir has its own decision unit and history. Passive outlets need no LLM.
+[Full-resolution PNG](figures/hydrocnhs-coupling-framework-en.png) · [Vector PDF, 180 mm](figures/hydrocnhs-coupling-framework-en.pdf).
 
-Response checks validate a model reply before release is applied. An operating
-audit evaluates configured criteria and retains PASS, FAIL, WARN or UNKNOWN. Trace records link
-the available information and decision to what was actually executed.
-
-Read the [FE Walter hydrological setting](../examples/fe_walter/hydrology.md),
-then the [coupled daily workflow](../examples/fe_walter/coupling.md).
-The case uses previously simulated inflow; the workflow explains weather-driven native wiring.
-Continue to the three operation methods and saved results.
-
-For your own study, begin with [Build a simulation](BUILD_SIMULATION.md).
-For catchment setup, parameters and C&V, use the [original HydroCNHS documentation](https://cylin928.github.io/HydroCNHS/) and [native setup guidance](HYDROLOGY_SETUP.md).
+Start with [Installation](GETTING_STARTED.md), then [build a simulation](BUILD_SIMULATION.md)
+and follow the [FE Walter case](../examples/fe_walter/README.md).

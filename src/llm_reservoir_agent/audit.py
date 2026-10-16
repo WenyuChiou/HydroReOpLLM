@@ -1,4 +1,11 @@
-"""Strict serialization of caller-supplied audits, without re-auditing decisions."""
+"""Strict serialization of caller-supplied audits, without re-auditing decisions.
+
+Role: Represent and retain reported decision audits.
+
+Connections and data: Used by auditor, trace and verification. Inputs are declared
+rubrics and reported audit payloads; outputs are detached JSON, hashes and normalized
+status records. Normalization does not rerun a rule or turn missing evidence into PASS.
+"""
 
 from __future__ import annotations
 

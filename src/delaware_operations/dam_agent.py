@@ -1,4 +1,10 @@
-"""HydroCNHS Dam-API-compatible FE Walter reservoir agent."""
+"""HydroCNHS Dam-API-compatible FE Walter reservoir agent.
+
+Example/compatibility connections: Reads the native routed inlet and beginning storage,
+requests a policy action and calls this example package's physics kernel. Returns
+controlled release plus spill to HydroCNHS and commits feedback once. Generic users
+should start with llm_reservoir_agent.agent.
+"""
 
 from __future__ import annotations
 
@@ -78,8 +84,10 @@ class FEWalterDamAgent:
         self.policy_errors = getattr(self.dc, error_field)
         if not isinstance(self.policy_errors, list):
             raise TypeError("policy error field must be a list")
+        # Readiness is explicit: a zero/positive inlet alone proves no ordering.
         self._ready_timesteps: set[int] = set()
         self._topology_verified = False
+        # Cache the completed step so repeated Dam calls do not operate twice.
         self._last_committed_t: int | None = None
         self._cached_outflow_cms: float | None = None
 
@@ -188,6 +196,7 @@ class FEWalterDamAgent:
             if hasattr(self.current_date, "isoformat")
             else str(self.current_date)
         )
+        # This observation uses beginning storage, before today's release/spill.
         observation = ReservoirObservation(
             timestep=timestep,
             timestamp=timestamp,

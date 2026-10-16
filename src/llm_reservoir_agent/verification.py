@@ -1,4 +1,12 @@
-"""Independent saved-file acceptance for a completed reservoir-network run."""
+"""Independent saved-file acceptance for a completed reservoir-network run.
+
+Role: Verify a completed experiment from saved files.
+
+Connections and data: workflow.verify_settings_output checks current input/runtime
+compatibility before verify_run checks hashes, event ordering, physical records, routing
+and information. Returns acceptance evidence without rerunning the controller or
+simulation. A file-consistency pass does not override a strategy FAIL, WARN or UNKNOWN.
+"""
 from collections import Counter
 from collections.abc import Mapping
 import csv

@@ -1,4 +1,9 @@
-"""Bounded offline FE Walter example with explicit output provenance."""
+"""Bounded offline FE Walter example with explicit output provenance.
+
+Example/compatibility connections: Selects the offline replay or native Dam-interface
+fixture, then writes example results and source provenance. Uses case.load_case and
+replay/hydrocnhs_bridge; it does not calibrate hydrology or generate model replies.
+"""
 
 import argparse
 import csv

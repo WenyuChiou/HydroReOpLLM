@@ -1,4 +1,10 @@
-"""Continuous accepted 1989–2025 hydrology; report 1996–2025 without resetting states."""
+"""Continuous accepted 1989–2025 hydrology; report 1996–2025 without resetting states.
+
+Example/compatibility connections: Loads pinned weather, parameters and reference
+inflow, runs continuous GWLF/Lohmann hydrology and reports the accepted reporting window
+without resetting antecedent states. Optional offline coupling uses hydrocnhs_bridge;
+this is a case-specific scientific execution entry point.
+"""
 
 import argparse
 from copy import deepcopy

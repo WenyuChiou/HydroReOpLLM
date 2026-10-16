@@ -2,6 +2,14 @@
 
 Provider configuration is validated without performing discovery or network I/O.
 Model replies must contain one strict JSON object in the selected response schema.
+
+Role: Build configurable prompts and parse one decision response.
+
+Connections and data: workflow supplies a PromptSpec, optional knowledge, a model
+configuration and an offline fixture or transport. decide renders current information
+and committed prior feedback, validates the response and returns a release request. The
+Dam agent performs physical implementation; record_transition supplies the next prompt
+history.
 """
 
 from __future__ import annotations

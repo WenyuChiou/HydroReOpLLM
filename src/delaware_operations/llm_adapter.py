@@ -1,4 +1,10 @@
-"""Strict offline adapter for previously recorded Delaware LLM responses."""
+"""Strict offline adapter for previously recorded Delaware LLM responses.
+
+Example/compatibility connections: Normalizes previously saved Delaware model responses
+into the example requested-action contract. RecordedResponsePolicy matches replies to
+the observation clock; the host retains completed physical records. Replay reads
+saved evidence rather than generating a new response.
+"""
 
 from __future__ import annotations
 

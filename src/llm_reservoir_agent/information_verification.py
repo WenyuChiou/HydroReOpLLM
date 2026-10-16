@@ -1,4 +1,11 @@
-"""Check information against frozen sources and completed simulation, without I/O."""
+"""Check information against frozen sources and completed simulation, without I/O.
+
+Role: Independently check a saved decision-information snapshot.
+
+Connections and data: verification supplies frozen source records, the saved observation
+and completed simulation reader. Returns consistency findings for timing, selection,
+values and provenance without calling a provider or modifying the saved snapshot.
+"""
 from copy import deepcopy
 import math
 

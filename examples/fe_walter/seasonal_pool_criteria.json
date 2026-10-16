@@ -1,0 +1,15 @@
+{
+  "criteria_id": "fe-walter-seasonal-pool.v1",
+  "source": "Study-defined seasonal compliance windows, confirmed by the project author on 2026-10-16; not an official daily operating schedule.",
+  "unit": "ft",
+  "vertical_datum": "N.G.V.D. (NGVD29 in the preserved case data)",
+  "boundary_convention": "Start inclusive, end exclusive; March 15, May 10 and October 15 belong to the later season.",
+  "assessment": "Daily pool snapshots. Fall requires a strictly lower level than on the immediately preceding calendar day; missing history is UNKNOWN. Bands are inclusive. No additional numerical tolerance.",
+  "operation_target": "Your goal is to keep the water level within the designated seasonal pool levels. From November 1 through March 14, keep the pool near the conservation pool at 1300.0 ft N.G.V.D., within 1297.0 to 1303.0 ft. From March 15 through May 9, keep the pool between 1300.0 and 1370.0 ft and, when hydrologic conditions allow, fill toward 1370.0 ft by May 10. From May 10 through October 14, keep the pool at or below 1370.0 ft. From October 15 through October 31, keep the pool between 1300.0 and 1370.0 ft and lower it toward 1300.0 ft by November 1.",
+  "seasons": [
+    {"id": "winter_hold", "start": "11-01", "end_exclusive": "03-15", "minimum_ft": 1297.0, "maximum_ft": 1303.0, "require_falling": false},
+    {"id": "spring_fill", "start": "03-15", "end_exclusive": "05-10", "minimum_ft": 1300.0, "maximum_ft": 1370.0, "require_falling": false},
+    {"id": "summer", "start": "05-10", "end_exclusive": "10-15", "minimum_ft": null, "maximum_ft": 1370.0, "require_falling": false},
+    {"id": "fall_drawdown", "start": "10-15", "end_exclusive": "11-01", "minimum_ft": 1300.0, "maximum_ft": 1370.0, "require_falling": true}
+  ]
+}

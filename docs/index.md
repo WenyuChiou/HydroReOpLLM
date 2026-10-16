@@ -43,7 +43,7 @@ One site, common inputs and three methods. Read one year of daily operation, the
 
 HydroCNHS provides rainfall–runoff and river routing. HydroOpsLLM connects rule-based or language-model operation through the native Dam API and records the implemented release.
 
-[View the concept at full size](https://wenyuchiou.github.io/HydroOpsLLM/_images/hydrocnhs-coupling-framework-en.png).
+[Full-resolution PNG](figures/hydrocnhs-coupling-framework-en.png) · [Vector PDF, 180 mm](figures/hydrocnhs-coupling-framework-en.pdf).
 
 ## Companion notebooks
 

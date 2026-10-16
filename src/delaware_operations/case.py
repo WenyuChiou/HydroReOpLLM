@@ -1,4 +1,10 @@
-"""Read and verify the small, frozen FE Walter case without network access."""
+"""Read and verify the small, frozen FE Walter case without network access.
+
+Example/compatibility connections: Supplies hash-verified FE Walter configuration and
+daily inflow rows to the example hosts. Historical source inflow in ft3/s is converted
+with CFS_TO_CMS at the host boundary; file access is local and constrained to the
+project.
+"""
 
 from __future__ import annotations
 

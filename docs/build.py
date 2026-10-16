@@ -13,6 +13,10 @@ from urllib.parse import quote, unquote, urlsplit
 
 ROOT = Path(__file__).resolve().parents[1]
 REMOTE = "https://github.com/WenyuChiou/HydroOpsLLM"
+FIGURE_DOWNLOADS = {
+    f"docs/figures/hydrocnhs-coupling-framework-en.{ext}": f"hydroopsllm-figure1.{ext}"
+    for ext in ("png", "pdf")
+}
 MAP_DOWNLOADS = {
     **{f"docs/figures/fe-walter-catchment.{ext}": f"fe-walter-catchment.{ext}"
        for ext in ("png", "svg", "pdf")},
@@ -73,6 +77,10 @@ def prepare(source: Path, *, source_ref: str = "main") -> None:
             if relative in PAGES:
                 import os
                 value = Path(os.path.relpath(source / PAGES[relative], (source / destination).parent)).as_posix()
+            elif not match[1].startswith("!") and relative in FIGURE_DOWNLOADS:
+                import os
+                output = source / "_figure_downloads" / FIGURE_DOWNLOADS[relative]
+                value = Path(os.path.relpath(output, (source / destination).parent)).as_posix()
             elif not match[1].startswith("!") and relative in MAP_DOWNLOADS:
                 import os
                 output = source / "_map_downloads" / MAP_DOWNLOADS[relative]
@@ -118,6 +126,10 @@ def prepare(source: Path, *, source_ref: str = "main") -> None:
     downloads.mkdir()
     for name in ("main", "advanced"):
         shutil.copyfile(ROOT / f"tutorials/{name}.ipynb", downloads / f"{name}.ipynb")
+    figure_downloads = source / "_figure_downloads"
+    figure_downloads.mkdir()
+    for relative, name in FIGURE_DOWNLOADS.items():
+        shutil.copyfile(ROOT / relative, figure_downloads / name)
     # Only the named map exports and editable project are downloadable; no service reads.
     map_downloads = source / "_map_downloads"
     map_downloads.mkdir()

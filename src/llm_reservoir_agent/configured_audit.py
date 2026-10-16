@@ -1,4 +1,12 @@
-"""Small declarative decision checks; physical enforcement remains separate."""
+"""Small declarative decision checks; physical enforcement remains separate.
+
+Role: Evaluate small YAML-selected operating checks.
+
+Connections and data: workflow constructs ConfiguredAudit plugins; auditor supplies
+decision context. release_bounds uses m3/s; field_range uses the units of the selected
+field. Missing or nonnumeric fields return UNKNOWN. These checks report findings without
+changing release or reservoir storage.
+"""
 import hashlib
 import math
 from pathlib import Path

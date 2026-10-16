@@ -1,4 +1,12 @@
-"""HydroCNHS Dam-API-compatible reservoir agent."""
+"""HydroCNHS Dam-API-compatible reservoir agent.
+
+Role: Connect HydroCNHS Dam calls to one reservoir decision and physical update.
+
+Connections and data: Reads the routed inlet and beginning storage, calls
+policy.decide(observation), then passes the requested release to
+physics.apply_transition. Returns implemented controlled release plus spill to the
+native host; record_transition receives the completed outcome once.
+"""
 
 from __future__ import annotations
 
@@ -81,8 +89,10 @@ class LLMReservoirAgent:
         self.policy_errors = getattr(self.dc, error_field)
         if not isinstance(self.policy_errors, list):
             raise TypeError("policy error field must be a list")
+        # Readiness is explicit: a zero/positive inlet alone proves no ordering.
         self._ready_timesteps: set[int] = set()
         self._topology_verified = False
+        # Cache the completed step so repeated Dam calls do not operate twice.
         self._last_committed_t: int | None = None
         self._cached_outflow_cms: float | None = None
 
@@ -191,6 +201,7 @@ class LLMReservoirAgent:
             if hasattr(self.current_date, "isoformat")
             else str(self.current_date)
         )
+        # This observation uses beginning storage, before today's release/spill.
         observation = ReservoirObservation(
             timestep=timestep,
             timestamp=timestamp,

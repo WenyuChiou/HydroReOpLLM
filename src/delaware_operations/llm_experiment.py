@@ -2,6 +2,11 @@
 
 Python callers inject a backend implementing decide(observation). Backend
 construction, prompts and provider access belong to the caller/provider layer.
+
+Example/compatibility connections: Connects an injected backend through
+llm_policy_adapter to reservoir_coupling and writes causal example records. Its CLI
+reads supplied response files; Python callers own any network capability of an injected
+backend.
 """
 
 import argparse

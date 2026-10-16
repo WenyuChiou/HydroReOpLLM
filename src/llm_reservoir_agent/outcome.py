@@ -1,4 +1,12 @@
-"""Diagnostic control-point checks after routing, separate from request audits."""
+"""Diagnostic control-point checks after routing, separate from request audits.
+
+Role: Check completed routed flow at configured control points.
+
+Connections and data: workflow validates bounds; experiment supplies completed records
+and routed flows. Returns per-day diagnostic statuses with limit sources and decision
+references. These are downstream outcome checks, distinct from response parsing and
+requested-action audits.
+"""
 import hashlib
 import json
 

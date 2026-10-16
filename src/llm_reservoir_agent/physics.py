@@ -2,6 +2,13 @@
 
 Prototype assumption: evaporation and seepage are zero. All outflow consists of
 controlled release plus spill, and every policy uses this same transition.
+
+Role: Implement a requested release with a daily reservoir water balance.
+
+Connections and data: agent supplies PhysicalConfig, beginning storage, current inlet
+and requested controlled release. apply_transition returns implemented release, spill,
+ending storage and the balance residual. All policies share this calculation;
+evaporation and seepage are zero in this kernel.
 """
 
 from __future__ import annotations
@@ -15,6 +22,14 @@ from .contracts import finite_nonnegative
 
 @dataclass(frozen=True)
 class PhysicalConfig:
+    """Fixed physical limits in m3, m3/s and seconds.
+
+    capacity_m3 is the maximum stored volume; dead_storage_m3 is the
+    protected minimum. initial_storage_m3 applies only at initialization.
+    Release bounds constrain controlled flow; spill is calculated separately.
+    dt_seconds converts the supplied mean rates into timestep volumes.
+    """
+
     reservoir_id: str
     capacity_m3: float
     dead_storage_m3: float
@@ -49,6 +64,16 @@ class PhysicalConfig:
 
 @dataclass(frozen=True)
 class Transition:
+    """One completed physical step; storage is volume and flow is m3/s.
+
+    target_release_cms retains the policy request. controlled_release_cms
+    is the implemented release after operating/water-availability limits.
+    spill_cms is capacity overflow; total_outflow_cms is their sum.
+    storage_end_m3 becomes the next step's beginning storage. The residual
+    is input minus output minus storage change, in m3; adjustments explain
+    physical limiting and shortfall reports unmet minimum release in m3/s.
+    """
+
     storage_start_m3: float
     inflow_cms: float
     target_release_cms: float
@@ -87,6 +112,7 @@ def apply_transition(
     if bounded != target:
         adjustments.append("target_clipped_to_operating_bounds")
 
+    # Add the current inlet volume before limiting controlled withdrawal.
     water_before_outflow = storage + inflow * config.dt_seconds
     if not math.isfinite(water_before_outflow):
         raise ValueError("available water volume overflowed")
@@ -96,6 +122,7 @@ def apply_transition(
         adjustments.append("controlled_release_limited_by_dead_storage")
 
     after_controlled = water_before_outflow - controlled * config.dt_seconds
+    # Spill is the volume still above capacity after controlled release.
     spill = max(0.0, after_controlled - config.capacity_m3) / config.dt_seconds
     if spill > 0.0:
         adjustments.append("spill_above_capacity")
@@ -123,6 +150,7 @@ def apply_transition(
             raise ArithmeticError("storage_end_m3 exceeded capacity_m3")
         storage_end = config.capacity_m3
         adjustments.append("storage_snapped_to_capacity_within_tolerance")
+    # S_start + Q_in*dt - (Q_controlled + Q_spill)*dt - S_end, in m3.
     residual = storage + inflow * config.dt_seconds - total_outflow * config.dt_seconds - storage_end
     if abs(residual) > tolerance:
         raise ArithmeticError(

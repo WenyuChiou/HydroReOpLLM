@@ -1,4 +1,11 @@
-"""Locate pinned runtime assets in a checkout or an installed distribution."""
+"""Locate pinned runtime assets in a checkout or an installed distribution.
+
+Role: Locate packaged runtime assets for checkout and installed use.
+
+Connections and data: network and reservoir_profile use default_runtime_root to resolve
+the distribution asset root. This helper returns a filesystem location; it does not load
+a model, download data or start a simulation.
+"""
 from pathlib import Path
 import sysconfig
 

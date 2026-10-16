@@ -1,545 +1,1106 @@
 {
-  "scope": "HydroOpsLM: one selected policy feeds one shared reservoir operation in the native HydroCNHS chain.",
-  "canvas": [
-    1880,
-    1090
-  ],
+  "revision": "v15",
+  "source": "docs/figures/hydrocnhs-coupling-framework-en.drawio",
+  "source_sha256": "cdc75f87ffccbee20663bab9815d6a71d5940cf55138b96d094c5da4774bf187",
+  "scope": "Framework data dependencies; not an asynchronous execution schedule.",
   "nodes": [
     {
-      "id": "rule-policy",
-      "bounds": [
-        78,
-        210,
-        392,
-        220
-      ],
-      "outline": "#C46A28",
-      "fill": "#FBE7D2"
+      "id": "package",
+      "label": "",
+      "parent": "1",
+      "geometry": {
+        "x": "12",
+        "y": "12",
+        "width": "1640",
+        "height": "960",
+        "as": "geometry"
+      },
+      "style": {
+        "fillColor": "#F4F1EA",
+        "strokeColor": "#34474B"
+      }
     },
     {
-      "id": "information",
-      "bounds": [
-        555,
-        205,
-        180,
-        220
-      ],
-      "outline": "#765780",
-      "fill": "#EDE2F3"
+      "id": "brand",
+      "label": "HydroOpsLLM",
+      "parent": "package",
+      "geometry": {
+        "x": "108",
+        "y": "10",
+        "width": "680",
+        "height": "64",
+        "as": "geometry"
+      },
+      "style": {
+        "strokeColor": "none",
+        "fillColor": "none",
+        "fontSize": "46",
+        "fontStyle": "1"
+      }
     },
     {
-      "id": "external-data",
-      "bounds": [
-        555,
-        480,
-        180,
-        140
-      ],
-      "outline": "#7B858C",
-      "fill": "#EEF1F4"
+      "id": "hydro",
+      "label": "",
+      "parent": "package",
+      "geometry": {
+        "x": "18",
+        "y": "88",
+        "width": "720",
+        "height": "840",
+        "as": "geometry"
+      },
+      "style": {
+        "fillColor": "#F0F3F2",
+        "strokeColor": "#ADBAB7"
+      }
     },
     {
-      "id": "knowledge",
-      "bounds": [
-        780,
-        480,
-        180,
-        140
-      ],
-      "outline": "#7B858C",
-      "fill": "#EEF1F4"
+      "id": "hydro-header",
+      "label": "HydroCNHS",
+      "parent": "hydro",
+      "geometry": {
+        "x": "22",
+        "y": "16",
+        "width": "500",
+        "height": "42",
+        "as": "geometry"
+      },
+      "style": {
+        "strokeColor": "none",
+        "fillColor": "none",
+        "fontSize": "28",
+        "fontStyle": "1"
+      }
     },
     {
-      "id": "prompt",
-      "bounds": [
-        765,
-        205,
-        210,
-        220
-      ],
-      "outline": "#765780",
-      "fill": "#EDE2F3"
+      "id": "weather",
+      "label": "",
+      "parent": "hydro",
+      "geometry": {
+        "x": "20",
+        "y": "70",
+        "width": "330",
+        "height": "100",
+        "as": "geometry"
+      },
+      "style": {
+        "fillColor": "#E9EAE6",
+        "strokeColor": "#87928A"
+      }
     },
     {
-      "id": "language-model",
-      "bounds": [
-        1015,
-        205,
-        210,
-        220
-      ],
-      "outline": "#765780",
-      "fill": "#EDE2F3"
-    },
-    {
-      "id": "proposal",
-      "bounds": [
-        1265,
-        205,
-        240,
-        220
-      ],
-      "outline": "#765780",
-      "fill": "#EDE2F3"
-    },
-    {
-      "id": "checks",
-      "bounds": [
-        1545,
-        205,
-        270,
-        220
-      ],
-      "outline": "#3F7F78",
-      "fill": "#DDEFEA"
-    },
-    {
-      "id": "operation-audit",
-      "bounds": [
-        970,
-        470,
-        310,
-        155
-      ],
-      "outline": "#3F7F78",
-      "fill": "#DDEFEA"
-    },
-    {
-      "id": "trace",
-      "bounds": [
-        1300,
-        500,
-        350,
-        125
-      ],
-      "outline": "#3F7F78",
-      "fill": "#DDEFEA"
+      "id": "weather-title",
+      "label": "Input data",
+      "parent": "weather",
+      "geometry": {
+        "x": "104",
+        "y": "3",
+        "width": "214",
+        "height": "34",
+        "as": "geometry"
+      },
+      "style": {
+        "strokeColor": "none",
+        "fillColor": "none",
+        "fontSize": "26",
+        "fontStyle": "1"
+      }
     },
     {
       "id": "runoff",
-      "bounds": [
-        65,
-        775,
-        300,
-        260
-      ],
-      "outline": "#4F7F9C",
-      "fill": "#DEEDF5"
+      "label": "",
+      "parent": "hydro",
+      "geometry": {
+        "x": "20",
+        "y": "190",
+        "width": "330",
+        "height": "100",
+        "as": "geometry"
+      },
+      "style": {
+        "fillColor": "#E3EDF0",
+        "strokeColor": "#527B86"
+      }
+    },
+    {
+      "id": "runoff-title",
+      "label": "Rainfall–runoff",
+      "parent": "runoff",
+      "geometry": {
+        "x": "104",
+        "y": "8",
+        "width": "214",
+        "height": "84",
+        "as": "geometry"
+      },
+      "style": {
+        "strokeColor": "none",
+        "fillColor": "none",
+        "fontSize": "28",
+        "fontStyle": "1"
+      }
     },
     {
       "id": "upstream",
-      "bounds": [
-        435,
-        775,
-        300,
-        260
-      ],
-      "outline": "#4F7F9C",
-      "fill": "#DEEDF5"
+      "label": "",
+      "parent": "hydro",
+      "geometry": {
+        "x": "20",
+        "y": "330",
+        "width": "330",
+        "height": "100",
+        "as": "geometry"
+      },
+      "style": {
+        "fillColor": "#E3EDF0",
+        "strokeColor": "#527B86"
+      }
     },
     {
-      "id": "reservoir-operation",
-      "bounds": [
-        805,
-        775,
-        300,
-        260
-      ],
-      "outline": "#4F7F9C",
-      "fill": "#DEEDF5"
+      "id": "upstream-title",
+      "label": "Upstream routing",
+      "parent": "upstream",
+      "geometry": {
+        "x": "104",
+        "y": "8",
+        "width": "214",
+        "height": "84",
+        "as": "geometry"
+      },
+      "style": {
+        "strokeColor": "none",
+        "fillColor": "none",
+        "fontSize": "28",
+        "fontStyle": "1"
+      }
+    },
+    {
+      "id": "reservoir",
+      "label": "",
+      "parent": "hydro",
+      "geometry": {
+        "x": "20",
+        "y": "490",
+        "width": "330",
+        "height": "160",
+        "as": "geometry"
+      },
+      "style": {
+        "fillColor": "#E3EDF0",
+        "strokeColor": "#527B86"
+      }
+    },
+    {
+      "id": "reservoir-title",
+      "label": "Reservoir operation",
+      "parent": "reservoir",
+      "geometry": {
+        "x": "140",
+        "y": "8",
+        "width": "178",
+        "height": "144",
+        "as": "geometry"
+      },
+      "style": {
+        "strokeColor": "none",
+        "fillColor": "none",
+        "fontSize": "28",
+        "fontStyle": "1"
+      }
     },
     {
       "id": "downstream",
-      "bounds": [
-        1175,
-        775,
-        300,
-        260
-      ],
-      "outline": "#4F7F9C",
-      "fill": "#DEEDF5"
+      "label": "",
+      "parent": "hydro",
+      "geometry": {
+        "x": "20",
+        "y": "710",
+        "width": "330",
+        "height": "100",
+        "as": "geometry"
+      },
+      "style": {
+        "fillColor": "#E3EDF0",
+        "strokeColor": "#527B86"
+      }
+    },
+    {
+      "id": "downstream-title",
+      "label": "Downstream routing",
+      "parent": "downstream",
+      "geometry": {
+        "x": "104",
+        "y": "8",
+        "width": "214",
+        "height": "84",
+        "as": "geometry"
+      },
+      "style": {
+        "strokeColor": "none",
+        "fillColor": "none",
+        "fontSize": "28",
+        "fontStyle": "1"
+      }
+    },
+    {
+      "id": "information",
+      "label": "",
+      "parent": "hydro",
+      "geometry": {
+        "x": "420",
+        "y": "130",
+        "width": "280",
+        "height": "120",
+        "as": "geometry"
+      },
+      "style": {
+        "fillColor": "#E9EAE6",
+        "strokeColor": "#87928A"
+      }
+    },
+    {
+      "id": "information-title",
+      "label": "Available information",
+      "parent": "information",
+      "geometry": {
+        "x": "104",
+        "y": "8",
+        "width": "164",
+        "height": "104",
+        "as": "geometry"
+      },
+      "style": {
+        "strokeColor": "none",
+        "fillColor": "none",
+        "fontSize": "26",
+        "fontStyle": "1"
+      }
+    },
+    {
+      "id": "rule",
+      "label": "",
+      "parent": "hydro",
+      "geometry": {
+        "x": "420",
+        "y": "390",
+        "width": "280",
+        "height": "120",
+        "as": "geometry"
+      },
+      "style": {
+        "fillColor": "#F2E5D6",
+        "strokeColor": "#A7744D"
+      }
+    },
+    {
+      "id": "rule-title",
+      "label": "Rule-based agent",
+      "parent": "rule",
+      "geometry": {
+        "x": "104",
+        "y": "8",
+        "width": "164",
+        "height": "104",
+        "as": "geometry"
+      },
+      "style": {
+        "strokeColor": "none",
+        "fillColor": "none",
+        "fontSize": "26",
+        "fontStyle": "1"
+      }
+    },
+    {
+      "id": "llm-module",
+      "label": "",
+      "parent": "package",
+      "geometry": {
+        "x": "768",
+        "y": "88",
+        "width": "840",
+        "height": "840",
+        "as": "geometry"
+      },
+      "style": {
+        "fillColor": "#F8E5D4",
+        "strokeColor": "#AF805D"
+      }
+    },
+    {
+      "id": "llm-module-header",
+      "label": "LLM decision module",
+      "parent": "llm-module",
+      "geometry": {
+        "x": "22",
+        "y": "16",
+        "width": "740",
+        "height": "48",
+        "as": "geometry"
+      },
+      "style": {
+        "strokeColor": "none",
+        "fillColor": "none",
+        "fontSize": "34",
+        "fontStyle": "1"
+      }
+    },
+    {
+      "id": "llm-agent",
+      "label": "",
+      "parent": "llm-module",
+      "geometry": {
+        "x": "20",
+        "y": "80",
+        "width": "409",
+        "height": "570",
+        "as": "geometry"
+      },
+      "style": {
+        "fillColor": "#F6E8D8",
+        "strokeColor": "#BE9C7F"
+      }
+    },
+    {
+      "id": "llm-agent-header",
+      "label": "LLM-based agent",
+      "parent": "llm-agent",
+      "geometry": {
+        "x": "20",
+        "y": "12",
+        "width": "352",
+        "height": "36",
+        "as": "geometry"
+      },
+      "style": {
+        "strokeColor": "none",
+        "fillColor": "none",
+        "fontSize": "28",
+        "fontStyle": "1"
+      }
+    },
+    {
+      "id": "prompt",
+      "label": "",
+      "parent": "llm-agent",
+      "geometry": {
+        "x": "20",
+        "y": "50",
+        "width": "350",
+        "height": "120",
+        "as": "geometry"
+      },
+      "style": {
+        "fillColor": "#F2D7B8",
+        "strokeColor": "#A7744D"
+      }
+    },
+    {
+      "id": "prompt-title",
+      "label": "Prompt construction",
+      "parent": "prompt",
+      "geometry": {
+        "x": "112",
+        "y": "8",
+        "width": "226",
+        "height": "104",
+        "as": "geometry"
+      },
+      "style": {
+        "strokeColor": "none",
+        "fillColor": "none",
+        "fontSize": "30",
+        "fontStyle": "1"
+      }
+    },
+    {
+      "id": "llm",
+      "label": "",
+      "parent": "llm-agent",
+      "geometry": {
+        "x": "20",
+        "y": "230",
+        "width": "350",
+        "height": "120",
+        "as": "geometry"
+      },
+      "style": {
+        "fillColor": "#F2D7B8",
+        "strokeColor": "#A7744D"
+      }
+    },
+    {
+      "id": "llm-title",
+      "label": "Large Language Model",
+      "parent": "llm",
+      "geometry": {
+        "x": "112",
+        "y": "8",
+        "width": "226",
+        "height": "104",
+        "as": "geometry"
+      },
+      "style": {
+        "strokeColor": "none",
+        "fillColor": "none",
+        "fontSize": "30",
+        "fontStyle": "1"
+      }
+    },
+    {
+      "id": "checks",
+      "label": "",
+      "parent": "llm-agent",
+      "geometry": {
+        "x": "20",
+        "y": "430",
+        "width": "350",
+        "height": "120",
+        "as": "geometry"
+      },
+      "style": {
+        "fillColor": "#E1EADF",
+        "strokeColor": "#5B7B69"
+      }
+    },
+    {
+      "id": "checks-title",
+      "label": "Response validation",
+      "parent": "checks",
+      "geometry": {
+        "x": "112",
+        "y": "8",
+        "width": "226",
+        "height": "104",
+        "as": "geometry"
+      },
+      "style": {
+        "strokeColor": "none",
+        "fillColor": "none",
+        "fontSize": "30",
+        "fontStyle": "1"
+      }
+    },
+    {
+      "id": "knowledge",
+      "label": "",
+      "parent": "llm-module",
+      "geometry": {
+        "x": "510",
+        "y": "130",
+        "width": "300",
+        "height": "120",
+        "as": "geometry"
+      },
+      "style": {
+        "fillColor": "#F1F1EB",
+        "strokeColor": "#87928A",
+        "dashed": "1"
+      }
+    },
+    {
+      "id": "knowledge-title",
+      "label": "Optional knowledge",
+      "parent": "knowledge",
+      "geometry": {
+        "x": "104",
+        "y": "8",
+        "width": "184",
+        "height": "104",
+        "as": "geometry"
+      },
+      "style": {
+        "strokeColor": "none",
+        "fillColor": "none",
+        "fontSize": "26",
+        "fontStyle": "1"
+      }
+    },
+    {
+      "id": "trace",
+      "label": "",
+      "parent": "llm-module",
+      "geometry": {
+        "x": "320",
+        "y": "720",
+        "width": "400",
+        "height": "100",
+        "as": "geometry"
+      },
+      "style": {
+        "fillColor": "#E1EADF",
+        "strokeColor": "#5B7B69"
+      }
+    },
+    {
+      "id": "trace-title",
+      "label": "Trace records",
+      "parent": "trace",
+      "geometry": {
+        "x": "104",
+        "y": "8",
+        "width": "284",
+        "height": "84",
+        "as": "geometry"
+      },
+      "style": {
+        "strokeColor": "none",
+        "fillColor": "none",
+        "fontSize": "28",
+        "fontStyle": "1"
+      }
+    },
+    {
+      "id": "audit",
+      "label": "",
+      "parent": "llm-module",
+      "geometry": {
+        "x": "510",
+        "y": "370",
+        "width": "300",
+        "height": "120",
+        "as": "geometry"
+      },
+      "style": {
+        "fillColor": "#E1EADF",
+        "strokeColor": "#5B7B69",
+        "dashed": "1"
+      }
+    },
+    {
+      "id": "audit-title",
+      "label": "Operating-rule audit",
+      "parent": "audit",
+      "geometry": {
+        "x": "104",
+        "y": "8",
+        "width": "184",
+        "height": "104",
+        "as": "geometry"
+      },
+      "style": {
+        "strokeColor": "none",
+        "fillColor": "none",
+        "fontSize": "26",
+        "fontStyle": "1"
+      }
+    },
+    {
+      "id": "input-examples",
+      "label": "Precipitation Temperature · PET",
+      "parent": "weather",
+      "geometry": {
+        "x": "104",
+        "y": "38",
+        "width": "218",
+        "height": "58",
+        "as": "geometry"
+      },
+      "style": {
+        "fontSize": "24",
+        "strokeColor": "none",
+        "fillColor": "none"
+      }
+    },
+    {
+      "id": "project-logo-badge",
+      "label": "",
+      "parent": "package",
+      "geometry": {
+        "x": "26",
+        "y": "8",
+        "width": "70",
+        "height": "70",
+        "as": "geometry"
+      },
+      "style": {
+        "fillColor": "#EDF2EF",
+        "strokeColor": "#D0DBD5"
+      }
     }
   ],
   "edges": [
     {
-      "id": "information-prompt",
-      "source": "information",
-      "target": "prompt",
-      "color": "#1F2933",
-      "exit": [
-        1,
-        0.42
-      ],
-      "entry": [
-        0,
-        0.42
-      ],
-      "via": []
-    },
-    {
-      "id": "external-information",
-      "source": "external-data",
-      "target": "information",
-      "color": "#1F2933",
-      "exit": [
-        0.5,
-        0
-      ],
-      "entry": [
-        0.5,
-        1
-      ],
-      "via": []
-    },
-    {
-      "id": "knowledge-prompt",
-      "source": "knowledge",
-      "target": "prompt",
-      "color": "#1F2933",
-      "exit": [
-        0.5,
-        0
-      ],
-      "entry": [
-        0.5,
-        1
-      ],
-      "via": []
-    },
-    {
-      "id": "prompt-model",
-      "source": "prompt",
-      "target": "language-model",
-      "color": "#1F2933",
-      "exit": [
-        1,
-        0.42
-      ],
-      "entry": [
-        0,
-        0.42
-      ],
-      "via": []
-    },
-    {
-      "id": "model-proposal",
-      "source": "language-model",
-      "target": "proposal",
-      "color": "#1F2933",
-      "exit": [
-        1,
-        0.42
-      ],
-      "entry": [
-        0,
-        0.42
-      ],
-      "via": []
-    },
-    {
-      "id": "proposal-checks",
-      "source": "proposal",
-      "target": "checks",
-      "color": "#1F2933",
-      "exit": [
-        1,
-        0.42
-      ],
-      "entry": [
-        0,
-        0.42
-      ],
-      "via": []
-    },
-    {
-      "id": "rule-reservoir",
-      "source": "rule-policy",
-      "target": "reservoir-operation",
-      "color": "#1F2933",
-      "exit": [
-        0.5,
-        1
-      ],
-      "entry": [
-        0.15,
-        0
-      ],
-      "via": [
-        [
-          274,
-          650
-        ],
-        [
-          850,
-          650
-        ]
-      ]
-    },
-    {
-      "id": "checks-reservoir",
-      "source": "checks",
-      "target": "reservoir-operation",
-      "color": "#1F2933",
-      "exit": [
-        0.87,
-        1
-      ],
-      "entry": [
-        1,
-        0.2230769230769231
-      ],
-      "via": [
-        [
-          1779.9,
-          725
-        ],
-        [
-          1130,
-          725
-        ],
-        [
-          1130,
-          833
-        ]
-      ]
-    },
-    {
-      "id": "simulation-information",
-      "source": "hydrocnhs-boundary",
-      "target": "information",
-      "color": "#1F2933",
-      "exit": [
-        0.4666666666666667,
-        0
-      ],
-      "entry": [
-        1,
-        0.78
-      ],
-      "via": [
-        [
-          880,
-          635
-        ],
-        [
-          755,
-          635
-        ],
-        [
-          755,
-          376.6
-        ]
-      ]
-    },
-    {
-      "id": "information-rule",
-      "source": "reservoir-operation",
-      "target": "rule-policy",
-      "color": "#1F2933",
-      "exit": [
-        0.05,
-        0
-      ],
-      "entry": [
-        0.3112244897959184,
-        1
-      ],
-      "via": [
-        [
-          820,
-          695
-        ],
-        [
-          200,
-          695
-        ]
-      ]
-    },
-    {
-      "id": "proposal-trace",
-      "source": "proposal",
-      "target": "trace",
-      "color": "#1F2933",
-      "exit": [
-        0.45,
-        1
-      ],
-      "entry": [
-        0.20857142857142857,
-        0
-      ],
-      "via": []
-    },
-    {
-      "id": "checks-trace",
-      "source": "checks",
-      "target": "trace",
-      "color": "#1F2933",
-      "exit": [
-        0.18,
-        1
-      ],
-      "entry": [
-        0.838857142857143,
-        0
-      ],
-      "via": []
-    },
-    {
-      "id": "request-audit",
-      "source": "reservoir-operation",
-      "target": "operation-audit",
-      "color": "#1F2933",
-      "exit": [
-        0.75,
-        0
-      ],
-      "entry": [
-        0.1935483870967742,
-        1
-      ],
-      "via": []
-    },
-    {
-      "id": "audit-trace",
-      "source": "operation-audit",
-      "target": "trace",
-      "color": "#1F2933",
-      "exit": [
-        1,
-        0.6
-      ],
-      "entry": [
-        0,
-        0.504
-      ],
-      "via": []
-    },
-    {
-      "id": "execution-trace",
-      "source": "reservoir-operation",
-      "target": "trace",
-      "color": "#1F2933",
-      "exit": [
-        0.95,
-        0
-      ],
-      "entry": [
-        0.42857142857142855,
-        1
-      ],
-      "via": [
-        [
-          1090,
-          645
-        ],
-        [
-          1450,
-          645
-        ]
-      ]
+      "id": "forcing-runoff",
+      "source": "weather",
+      "target": "runoff",
+      "label": "",
+      "geometry": "<mxGeometry relative=\"1\" as=\"geometry\" />\n        ",
+      "style": {
+        "edgeStyle": "none",
+        "rounded": "0",
+        "html": "1",
+        "strokeColor": "#283C40",
+        "strokeWidth": "2.2",
+        "endArrow": "block",
+        "endFill": "1",
+        "startArrow": "none",
+        "exitX": "0.5",
+        "exitY": "1.0",
+        "entryX": "0.5",
+        "entryY": "0.0",
+        "exitPerimeter": "0",
+        "entryPerimeter": "0",
+        "dashed": "0"
+      }
     },
     {
       "id": "runoff-upstream",
       "source": "runoff",
       "target": "upstream",
-      "color": "#4F7F9C",
-      "exit": [
-        1,
-        0.5
-      ],
-      "entry": [
-        0,
-        0.5
-      ],
-      "via": []
+      "label": "Runoff",
+      "geometry": "<mxGeometry relative=\"1\" as=\"geometry\" x=\"0\" y=\"0\"><mxPoint x=\"85.0\" y=\"0.0\" as=\"offset\" /></mxGeometry>\n        ",
+      "style": {
+        "edgeStyle": "none",
+        "rounded": "0",
+        "html": "1",
+        "strokeColor": "#3D7483",
+        "strokeWidth": "3.2",
+        "endArrow": "block",
+        "endFill": "1",
+        "startArrow": "none",
+        "exitX": "0.5",
+        "exitY": "1.0",
+        "entryX": "0.5",
+        "entryY": "0.0",
+        "exitPerimeter": "0",
+        "entryPerimeter": "0",
+        "dashed": "0",
+        "fontFamily": "Arial",
+        "fontSize": "24",
+        "fontStyle": "2",
+        "fontColor": "#405054",
+        "labelBackgroundColor": "none",
+        "align": "center",
+        "verticalAlign": "middle"
+      }
     },
     {
       "id": "upstream-reservoir",
       "source": "upstream",
-      "target": "reservoir-operation",
-      "color": "#4F7F9C",
-      "exit": [
-        1,
-        0.5
-      ],
-      "entry": [
-        0,
-        0.5
-      ],
-      "via": []
+      "target": "reservoir",
+      "label": "Inflow",
+      "geometry": "<mxGeometry relative=\"1\" as=\"geometry\" x=\"0\" y=\"0\"><mxPoint x=\"90.0\" y=\"0.0\" as=\"offset\" /></mxGeometry>\n        ",
+      "style": {
+        "edgeStyle": "none",
+        "rounded": "0",
+        "html": "1",
+        "strokeColor": "#3D7483",
+        "strokeWidth": "3.2",
+        "endArrow": "block",
+        "endFill": "1",
+        "startArrow": "none",
+        "exitX": "0.5",
+        "exitY": "1.0",
+        "entryX": "0.5",
+        "entryY": "0.0",
+        "exitPerimeter": "0",
+        "entryPerimeter": "0",
+        "dashed": "0",
+        "fontFamily": "Arial",
+        "fontSize": "24",
+        "fontStyle": "2",
+        "fontColor": "#405054",
+        "labelBackgroundColor": "none",
+        "align": "center",
+        "verticalAlign": "middle"
+      }
     },
     {
       "id": "reservoir-downstream",
-      "source": "reservoir-operation",
+      "source": "reservoir",
       "target": "downstream",
-      "color": "#4F7F9C",
-      "exit": [
-        1,
-        0.5
-      ],
-      "entry": [
-        0,
-        0.5
-      ],
-      "via": []
+      "label": "Release + spill",
+      "geometry": "<mxGeometry relative=\"1\" as=\"geometry\" x=\"0\" y=\"0\"><mxPoint x=\"100.0\" y=\"0.0\" as=\"offset\" /></mxGeometry>\n        ",
+      "style": {
+        "edgeStyle": "none",
+        "rounded": "0",
+        "html": "1",
+        "strokeColor": "#3D7483",
+        "strokeWidth": "3.2",
+        "endArrow": "block",
+        "endFill": "1",
+        "startArrow": "none",
+        "exitX": "0.5",
+        "exitY": "1.0",
+        "entryX": "0.5",
+        "entryY": "0.0",
+        "exitPerimeter": "0",
+        "entryPerimeter": "0",
+        "dashed": "0",
+        "fontFamily": "Arial",
+        "fontSize": "24",
+        "fontStyle": "2",
+        "fontColor": "#405054",
+        "labelBackgroundColor": "none",
+        "align": "center",
+        "verticalAlign": "middle"
+      }
     },
     {
-      "id": "downstream-outlet",
-      "source": "downstream",
-      "target": "outlet-anchor",
-      "color": "#4F7F9C",
-      "exit": [
-        1,
-        0.5
-      ],
-      "entry": [
-        0,
-        0.5
-      ],
-      "via": []
+      "id": "information-rule",
+      "source": "information",
+      "target": "rule",
+      "label": "Rule inputs",
+      "geometry": "<mxGeometry relative=\"1\" as=\"geometry\" x=\"0\" y=\"0\"><mxPoint x=\"75.0\" y=\"0.0\" as=\"offset\" /></mxGeometry>\n        ",
+      "style": {
+        "edgeStyle": "none",
+        "rounded": "0",
+        "html": "1",
+        "strokeColor": "#283C40",
+        "strokeWidth": "2.2",
+        "endArrow": "block",
+        "endFill": "1",
+        "startArrow": "none",
+        "exitX": "0.5",
+        "exitY": "1.0",
+        "entryX": "0.5",
+        "entryY": "0.0",
+        "exitPerimeter": "0",
+        "entryPerimeter": "0",
+        "dashed": "0",
+        "fontFamily": "Arial",
+        "fontSize": "24",
+        "fontStyle": "2",
+        "fontColor": "#405054",
+        "labelBackgroundColor": "none",
+        "align": "center",
+        "verticalAlign": "middle"
+      }
+    },
+    {
+      "id": "information-prompt",
+      "source": "information",
+      "target": "prompt",
+      "label": "",
+      "geometry": "<mxGeometry relative=\"1\" as=\"geometry\" />\n        ",
+      "style": {
+        "edgeStyle": "none",
+        "rounded": "0",
+        "html": "1",
+        "strokeColor": "#283C40",
+        "strokeWidth": "3",
+        "endArrow": "block",
+        "endFill": "1",
+        "startArrow": "none",
+        "exitX": "1.0",
+        "exitY": "0.5",
+        "entryX": "0.0",
+        "entryY": "0.5",
+        "exitPerimeter": "0",
+        "entryPerimeter": "0",
+        "dashed": "0"
+      }
+    },
+    {
+      "id": "knowledge-prompt",
+      "source": "knowledge",
+      "target": "prompt",
+      "label": "",
+      "geometry": "<mxGeometry relative=\"1\" as=\"geometry\" />\n        ",
+      "style": {
+        "edgeStyle": "none",
+        "rounded": "0",
+        "html": "1",
+        "strokeColor": "#283C40",
+        "strokeWidth": "2.2",
+        "endArrow": "block",
+        "endFill": "1",
+        "startArrow": "none",
+        "exitX": "0.0",
+        "exitY": "0.5",
+        "entryX": "1.0",
+        "entryY": "0.5",
+        "exitPerimeter": "0",
+        "entryPerimeter": "0",
+        "dashed": "0"
+      }
+    },
+    {
+      "id": "prompt-model",
+      "source": "prompt",
+      "target": "llm",
+      "label": "Prompt",
+      "geometry": "<mxGeometry relative=\"1\" as=\"geometry\" x=\"0\" y=\"0\"><mxPoint x=\"85.0\" y=\"0.0\" as=\"offset\" /></mxGeometry>\n        ",
+      "style": {
+        "edgeStyle": "none",
+        "rounded": "0",
+        "html": "1",
+        "strokeColor": "#283C40",
+        "strokeWidth": "3",
+        "endArrow": "block",
+        "endFill": "1",
+        "startArrow": "none",
+        "exitX": "0.5",
+        "exitY": "1.0",
+        "entryX": "0.5",
+        "entryY": "0.0",
+        "exitPerimeter": "0",
+        "entryPerimeter": "0",
+        "dashed": "0",
+        "fontFamily": "Arial",
+        "fontSize": "24",
+        "fontStyle": "2",
+        "fontColor": "#405054",
+        "labelBackgroundColor": "none",
+        "align": "center",
+        "verticalAlign": "middle"
+      }
+    },
+    {
+      "id": "model-checks",
+      "source": "llm",
+      "target": "checks",
+      "label": "Proposal",
+      "geometry": "<mxGeometry relative=\"1\" as=\"geometry\" x=\"0\" y=\"0\"><mxPoint x=\"85.0\" y=\"0.0\" as=\"offset\" /></mxGeometry>\n        ",
+      "style": {
+        "edgeStyle": "none",
+        "rounded": "0",
+        "html": "1",
+        "strokeColor": "#283C40",
+        "strokeWidth": "3",
+        "endArrow": "block",
+        "endFill": "1",
+        "startArrow": "none",
+        "exitX": "0.5",
+        "exitY": "1.0",
+        "entryX": "0.5",
+        "entryY": "0.0",
+        "exitPerimeter": "0",
+        "entryPerimeter": "0",
+        "dashed": "0",
+        "fontFamily": "Arial",
+        "fontSize": "24",
+        "fontStyle": "2",
+        "fontColor": "#405054",
+        "labelBackgroundColor": "none",
+        "align": "center",
+        "verticalAlign": "middle"
+      }
+    },
+    {
+      "id": "rule-reservoir",
+      "source": "rule",
+      "target": "reservoir",
+      "label": "Requested release",
+      "geometry": "<mxGeometry relative=\"1\" as=\"geometry\" x=\"0.25\" y=\"0\">\n            <Array as=\"points\"><mxPoint x=\"578\" y=\"668\" /></Array><mxPoint x=\"0.0\" y=\"-37.0\" as=\"offset\" /></mxGeometry>\n        ",
+      "style": {
+        "edgeStyle": "none",
+        "rounded": "0",
+        "html": "1",
+        "strokeColor": "#283C40",
+        "strokeWidth": "2.2",
+        "endArrow": "block",
+        "endFill": "1",
+        "startArrow": "none",
+        "exitX": "0.5",
+        "exitY": "1.0",
+        "entryX": "1.0",
+        "entryY": "0.5625",
+        "exitPerimeter": "0",
+        "entryPerimeter": "0",
+        "dashed": "0",
+        "fontFamily": "Arial",
+        "fontSize": "24",
+        "fontStyle": "2",
+        "fontColor": "#405054",
+        "labelBackgroundColor": "none",
+        "align": "center",
+        "verticalAlign": "middle"
+      }
+    },
+    {
+      "id": "checks-reservoir",
+      "source": "checks",
+      "target": "reservoir",
+      "label": "Requested release",
+      "geometry": "<mxGeometry relative=\"1\" as=\"geometry\" x=\"-0.36363636363636365\" y=\"0\"><mxPoint x=\"-55.0\" y=\"35.0\" as=\"offset\" /></mxGeometry>\n        ",
+      "style": {
+        "edgeStyle": "none",
+        "rounded": "0",
+        "html": "1",
+        "strokeColor": "#283C40",
+        "strokeWidth": "3",
+        "endArrow": "block",
+        "endFill": "1",
+        "startArrow": "none",
+        "exitX": "0.0",
+        "exitY": "0.9166666666666666",
+        "entryX": "1.0",
+        "entryY": "0.8125",
+        "exitPerimeter": "0",
+        "entryPerimeter": "0",
+        "dashed": "0",
+        "fontFamily": "Arial",
+        "fontSize": "24",
+        "fontStyle": "2",
+        "fontColor": "#405054",
+        "labelBackgroundColor": "none",
+        "align": "center",
+        "verticalAlign": "middle"
+      }
+    },
+    {
+      "id": "committed-history",
+      "source": "reservoir",
+      "target": "information",
+      "label": "Reservoir data",
+      "geometry": "<mxGeometry relative=\"1\" as=\"geometry\" x=\"0.6\" y=\"0\">\n            <Array as=\"points\"><mxPoint x=\"388\" y=\"598\" /><mxPoint x=\"388\" y=\"188\" /><mxPoint x=\"578\" y=\"188\" /></Array><mxPoint x=\"0.0\" y=\"-20.0\" as=\"offset\" /></mxGeometry>\n        ",
+      "style": {
+        "edgeStyle": "none",
+        "rounded": "0",
+        "html": "1",
+        "strokeColor": "#283C40",
+        "strokeWidth": "3",
+        "endArrow": "block",
+        "endFill": "1",
+        "startArrow": "none",
+        "exitX": "1.0",
+        "exitY": "0.125",
+        "entryX": "0.5",
+        "entryY": "0.0",
+        "exitPerimeter": "0",
+        "entryPerimeter": "0",
+        "dashed": "0",
+        "dashPattern": "7 5",
+        "fontFamily": "Arial",
+        "fontSize": "24",
+        "fontStyle": "2",
+        "fontColor": "#405054",
+        "labelBackgroundColor": "none",
+        "align": "center",
+        "verticalAlign": "middle"
+      }
+    },
+    {
+      "id": "proposal-audit",
+      "source": "checks",
+      "target": "audit",
+      "label": "Proposal + context",
+      "geometry": "<mxGeometry relative=\"1\" as=\"geometry\" x=\"0\" y=\"0\"><Array as=\"points\"><mxPoint x=\"1218\" y=\"658\" /><mxPoint x=\"1218\" y=\"518\" /></Array><mxPoint x=\"72.0\" y=\"25.0\" as=\"offset\" /></mxGeometry>\n        ",
+      "style": {
+        "edgeStyle": "none",
+        "rounded": "0",
+        "html": "1",
+        "strokeColor": "#52745B",
+        "strokeWidth": "1.8",
+        "endArrow": "block",
+        "endFill": "1",
+        "startArrow": "none",
+        "exitX": "1.0",
+        "exitY": "0.5",
+        "entryX": "0.0",
+        "entryY": "0.5",
+        "exitPerimeter": "0",
+        "entryPerimeter": "0",
+        "dashed": "0",
+        "fontFamily": "Arial",
+        "fontSize": "24",
+        "fontStyle": "2",
+        "fontColor": "#405054",
+        "labelBackgroundColor": "none",
+        "align": "center",
+        "verticalAlign": "middle"
+      }
+    },
+    {
+      "id": "agent-trace",
+      "source": "llm-agent",
+      "target": "trace",
+      "label": "Decision record",
+      "geometry": "<mxGeometry relative=\"1\" as=\"geometry\" x=\"0.36\" y=\"0\">\n            <Array as=\"points\"><mxPoint x=\"1008\" y=\"788\" /><mxPoint x=\"1188\" y=\"788\" /></Array><mxPoint x=\"-15.0\" y=\"-25.0\" as=\"offset\" /></mxGeometry>\n        ",
+      "style": {
+        "edgeStyle": "none",
+        "rounded": "0",
+        "html": "1",
+        "strokeColor": "#52745B",
+        "strokeWidth": "1.8",
+        "endArrow": "block",
+        "endFill": "1",
+        "startArrow": "none",
+        "exitX": "0.5378973105134475",
+        "exitY": "1.0",
+        "entryX": "0.25",
+        "entryY": "0.0",
+        "exitPerimeter": "0",
+        "entryPerimeter": "0",
+        "dashed": "0",
+        "fontFamily": "Arial",
+        "fontSize": "24",
+        "fontStyle": "2",
+        "fontColor": "#405054",
+        "labelBackgroundColor": "none",
+        "align": "center",
+        "verticalAlign": "middle"
+      }
+    },
+    {
+      "id": "audit-trace",
+      "source": "audit",
+      "target": "trace",
+      "label": "Audit results",
+      "geometry": "<mxGeometry relative=\"1\" as=\"geometry\" x=\"-0.2413793103448276\" y=\"0\">\n            <Array as=\"points\"><mxPoint x=\"1428\" y=\"778\" /><mxPoint x=\"1368\" y=\"778\" /></Array><mxPoint x=\"85.0\" y=\"0.0\" as=\"offset\" /></mxGeometry>\n        ",
+      "style": {
+        "edgeStyle": "none",
+        "rounded": "0",
+        "html": "1",
+        "strokeColor": "#52745B",
+        "strokeWidth": "1.8",
+        "endArrow": "block",
+        "endFill": "1",
+        "startArrow": "none",
+        "exitX": "0.5",
+        "exitY": "1.0",
+        "entryX": "0.7",
+        "entryY": "0.0",
+        "exitPerimeter": "0",
+        "entryPerimeter": "0",
+        "dashed": "0",
+        "fontFamily": "Arial",
+        "fontSize": "24",
+        "fontStyle": "2",
+        "fontColor": "#405054",
+        "labelBackgroundColor": "none",
+        "align": "center",
+        "verticalAlign": "middle"
+      }
+    },
+    {
+      "id": "executed-trace",
+      "source": "reservoir",
+      "target": "trace",
+      "label": "Execution record",
+      "geometry": "<mxGeometry relative=\"1\" as=\"geometry\" x=\"0.5853658536585367\" y=\"0\">\n            <Array as=\"points\">\n              <mxPoint x=\"488\" y=\"718\" />\n              <mxPoint x=\"488\" y=\"858\" />\n            </Array>\n          <mxPoint x=\"8.29268292682923\" y=\"25.0\" as=\"offset\" /></mxGeometry>\n        ",
+      "style": {
+        "edgeStyle": "none",
+        "rounded": "0",
+        "html": "1",
+        "strokeColor": "#52745B",
+        "strokeWidth": "1.8",
+        "endArrow": "block",
+        "endFill": "1",
+        "startArrow": "none",
+        "exitX": "1.0",
+        "exitY": "0.875",
+        "entryX": "0.0",
+        "entryY": "0.5",
+        "exitPerimeter": "0",
+        "entryPerimeter": "0",
+        "dashed": "0",
+        "fontFamily": "Arial",
+        "fontSize": "24",
+        "fontStyle": "2",
+        "fontColor": "#405054",
+        "labelBackgroundColor": "none",
+        "align": "center",
+        "verticalAlign": "middle"
+      }
     }
   ],
-  "line_semantics": {
-    "blue": "solid water and implemented outflow",
-    "black": "solid information, release requests, audit evidence, and trace records",
-    "dashed_or_dotted": "not used",
-    "crossings_or_jump_arcs": "not used"
-  },
-  "color_semantics": {
-    "blue": "Hydrology, routing and reservoir calculation; pale fill shares the role of its border.",
-    "orange": "Rule-based operation.",
-    "purple": "LLM information and decision modules; teal checks remain distinct within the LLM region.",
-    "teal": "Response checks, operation audit and trace recording; never PASS or FAIL.",
-    "gray": "External data and optional knowledge sources."
-  },
-  "responsibilities": {
-    "Rule-based operation": "Selectable user operating rules produce a requested release.",
-    "LLM modules": "Selected decision information, prompt, language model, operation proposal, and response checks form the alternative policy.",
-    "Native HydroCNHS": "Provides GWLF/ABCD rainfall-runoff, Lohmann routing, and the native Dam API.",
-    "Reservoir operation": "HydroOpsLM adds storage balance, release, and spill through the native Dam API.",
-    "Operation audit": "Records configured decision criteria before physical storage, release, and spill calculations; it is not a PASS gate.",
-    "Trace records": "Binds policy records and decision-audit verdicts to implemented release, storage, and spill after physical execution."
-  },
-  "policy_choice": "Each reservoir chooses exactly one policy: user operating rules or a checked LLM proposal.",
-  "prompt_inputs": {
-    "source": "A configured selection from simulation feedback and external records",
-    "types": "Reservoir conditions, river/gauge conditions, executed history, demand, forecasts, and operating targets",
-    "causality": "Downstream simulated flow uses completed steps; external records must be available by the decision clock",
-    "legacy_examples": "The preserved FE Walter examples retain their original inflow, pool and release-history inputs",
-    "optional": "optional knowledge"
-  },
-  "execution_contract": "Only a requested release enters reservoir operation; LLM rationale is retained in trace records.",
-  "record_flow": "The shared operation interface supplies the release request to decision audit before physics. Trace later binds its verdict to committed physical execution; LLM proposal and checker records are retained separately.",
-  "asset_hooks": {
-    "rule": "docs/figures/assets/coupling-framework/rule-operation.png",
-    "proposal": "docs/figures/assets/coupling-framework/operation-proposal.png",
-    "checks": "docs/figures/assets/coupling-framework/response-checks.png",
-    "trace": "docs/figures/assets/coupling-framework/trace-records.png"
-  },
   "notes": [
-    "Color identifies role, never verdict.",
-    "All labels and connectors are native editable draw.io objects; illustrations are independently movable raster objects.",
-    "The FAIL diagnostic caveat belongs in the external caption, not inside the diagram."
+    "Agent methods are alternatives; requested release is not implemented outflow.",
+    "Audit combines the validated proposal and bound decision context; enabled audits complete before physics.",
+    "Audit verdicts do not automatically replace or veto release; execution exceptions still stop.",
+    "Saved FE Walter examples replay pre-simulated hydrological inflow.",
+    "Colors identify function, not source ownership or PASS/FAIL."
   ]
 }

@@ -30,3 +30,5 @@ and two residual units. All seven supply the frozen FE model; the eighth YAML
 subbasin is a dummy aggregation node, not a geographic footprint. Dam/outlet
 coordinates are a project record; the inlet is a derived river/lake boundary
 crossing, not a surveyed point. See [exact sources](../../../data/figures/SOURCES.md).
+
+The current HydroOpsLLM Figure 1 is edited in the native draw.io source. The historical generator does not reproduce its reviewed layout; see [current editing/export instructions](../assets/coupling-framework/EDITING.md).

@@ -1,4 +1,11 @@
-"""Hash-pinned input loaders and explicitly offline response fixtures."""
+"""Hash-pinned input loaders and explicitly offline response fixtures.
+
+Role: Load a network case, pinned inflows and saved response fixtures.
+
+Connections and data: workflow uses load_case to obtain configuration and ordered daily
+rows. RecordedResponseBackend returns supplied actions for offline tests; it is not
+evidence of a newly generated model response. Network validation remains in network.py.
+"""
 from collections.abc import Mapping
 import csv
 import hashlib

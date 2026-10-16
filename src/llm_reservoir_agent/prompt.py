@@ -2,6 +2,14 @@
 
 Backends may inject any PromptStrategy, ResponseParser, and Auditor independently.
 These contracts never call a model, choose a release, or manufacture an audit.
+
+Role: Define replaceable prompt, parser and auditor contracts.
+
+Connections and data: configured_backend and custom backends use
+PromptSpec/PromptRequest to retain template, rendered messages and provenance.
+PromptStrategy builds a request; ResponseParser returns an action; Auditor returns
+diagnostic findings. Defining these contracts performs no inference or physical
+operation.
 """
 
 from __future__ import annotations
@@ -60,6 +68,12 @@ def validate_provenance(value: Mapping[str, Any]) -> dict[str, Any]:
 
 @dataclass(frozen=True)
 class PromptSpec:
+    """Fixed template identity plus explicit optional knowledge IDs/hashes.
+
+    The version identifies a chosen template revision; the hashes identify its
+    exact text and declared knowledge. No retrieval or generation happens here.
+    """
+
     strategy_id: str
     version: str
     template: str
@@ -106,6 +120,12 @@ class PromptSpec:
 
 @dataclass(frozen=True)
 class PromptRequest:
+    """Rendered role/content messages for one decision, with provenance.
+
+    messages contain the actual request text; metadata identifies its sources.
+    This request is separate from both the raw reply and the parsed action.
+    """
+
     messages: Sequence[Mapping[str, Any]]
     metadata: Mapping[str, Any] = field(default_factory=dict)
 

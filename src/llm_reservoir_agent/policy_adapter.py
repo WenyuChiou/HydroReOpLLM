@@ -4,6 +4,13 @@ The supplied backend owns prompts, providers, and any network access. This
 module imports only the shared reservoir contracts. Releases are requested
 controlled flow in cms; the physics result separately reports controlled flow,
 spill, total outflow in cms, and storage in m3.
+
+Role: Enforce the decision-to-physical-feedback sequence.
+
+Connections and data: agent calls decide with an observation, then record_transition
+with the matching completed outcome. The wrapper validates the backend action and
+retains committed ending storage for the next observation. It does not clip release;
+callback failures stop further decisions rather than retrying side effects.
 """
 
 from __future__ import annotations
@@ -107,9 +114,11 @@ class LLMPolicyAdapter:
         self.policy_id = selected_id
         self.on_commit = on_commit
         self._next_timestep = 0
+        # Pending = a request awaiting its one matching completed physics record.
         self._pending: dict[str, Any] | None = None
         self._previous_timestamp: datetime | None = None
         self._previous_dt_seconds: float | None = None
+        # Last committed end volume; validates continuity at the next decision.
         self._previous_storage_end_m3: float | None = None
         self._terminal_error: Exception | None = None
         self._active_call: str | None = None

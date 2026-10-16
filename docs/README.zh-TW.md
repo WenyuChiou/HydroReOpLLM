@@ -2,27 +2,16 @@
 
 [English](README.md) | [繁體中文](README.zh-TW.md)
 
-HydroOpsLLM（Hydrological Simulation with Large Language Model Reservoir Operations）
-是結合大型語言模型（LLM）水庫操作的水文模擬框架，透過 HydroCNHS 的 Dam API
-將水庫操作方法與水文模擬連接。
-可為每座水庫選擇資訊、prompt、操作方法與 audit 準則。相同介面支援單一水庫
-或連接的河網；F.E. Walter 範例使用共同水庫收支計算展示三種方法。
+HydroOpsLLM 將水庫決策接入 HydroCNHS 水文模擬。
+水文模型產生河川流量並送入水庫；每個時間步，LLM 根據可用資訊提出放流建議。
 
-![HydroOpsLLM 概念圖](figures/hydrocnhs-coupling-framework-en.png)
+共同水庫計算決定實際放流、溢流與蓄水，再將出流送往下游。
+更新後的條件提供給下一次決策，形成持續循環。
+目前案例採每日時間步；規則式 agent 也可使用相同水庫計算進行比較。
 
-HydroCNHS 計算降雨逕流與河川 routing。操作方法提出 release 請求；共用的
-水庫計算則決定實際執行的 release、spill 與 storage。LLM 不會改變水文方程式；
-它的決策會改變蓄水量，以及傳至下游河段的水量。
+![HydroOpsLLM 核心流程](figures/hydrocnhs-coupling-framework-en.png)
 
-若單一水庫的上游入流固定，不同決策會改變水庫軌跡與下游流量。在河川網路中，
-經 routing 的上游 release 也可能改變下游水庫的 inflow。每座受控水庫都有
-自己的決策單元與歷史紀錄；被動出口不需要 LLM。
+[高清 PNG](figures/hydrocnhs-coupling-framework-en.png) · [180 mm 向量 PDF](figures/hydrocnhs-coupling-framework-en.pdf)。
 
-回覆檢查會在套用 release 前驗證模型回覆。操作 audit 會依設定的準則評估，
-並保留 PASS、FAIL、WARN 或 UNKNOWN。Trace 紀錄則把可用資訊與決策連結至實際執行內容。
-
-先閱讀 [FE Walter 水文設定](../examples/fe_walter/hydrology.zh-TW.md)，再看[每日耦合流程](../examples/fe_walter/coupling.zh-TW.md)。
-案例使用預先模擬入流；流程說明氣象驅動的原生接法，再進入三種操作方法與保存結果。
-
-建立自己的研究時，從[建立模擬](BUILD_SIMULATION.zh-TW.md)開始。
-集水區設定、參數及 C&V 請依 [HydroCNHS 官方文件](https://cylin928.github.io/HydroCNHS/)與[原生設定指南](HYDROLOGY_SETUP.md)。
+先從[安裝](GETTING_STARTED.md)開始，再[建立模擬](BUILD_SIMULATION.zh-TW.md)，
+接著進入 [FE Walter 案例](../examples/fe_walter/README.zh-TW.md)。

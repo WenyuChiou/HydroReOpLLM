@@ -1,4 +1,9 @@
-"""FE Walter single-reservoir operations on an immutable historical inflow."""
+"""FE Walter single-reservoir operations on an immutable historical inflow.
+
+Example/compatibility connections: Loads a hash-pinned historical inflow window and
+deterministic or recorded-response policy for the offline FE Walter host. Writes
+operation/evidence files; it does not regenerate accepted hydrology or call an LLM.
+"""
 
 from __future__ import annotations
 

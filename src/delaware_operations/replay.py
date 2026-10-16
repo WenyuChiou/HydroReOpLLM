@@ -1,4 +1,10 @@
-"""A small offline host for the same agent called by the HydroCNHS Dam loop."""
+"""A small offline host for the same agent called by the HydroCNHS Dam loop.
+
+Example/compatibility connections: Supplies a small local clock/data collector to the
+same FE Walter Dam agent used by the native fixture. Converts saved cfs inflow to m3/s,
+marks each inlet ready and returns committed operations without hydrological
+recalculation.
+"""
 
 from copy import deepcopy
 from datetime import datetime, timedelta
