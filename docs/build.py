@@ -12,7 +12,7 @@ import tempfile
 from urllib.parse import quote, unquote, urlsplit
 
 ROOT = Path(__file__).resolve().parents[1]
-REMOTE = "https://github.com/WenyuChiou/HydroOpsLM"
+REMOTE = "https://github.com/WenyuChiou/HydroOpsLLM"
 MAP_DOWNLOADS = {
     **{f"docs/figures/fe-walter-catchment.{ext}": f"fe-walter-catchment.{ext}"
        for ext in ("png", "svg", "pdf")},

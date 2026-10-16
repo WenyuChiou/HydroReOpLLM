@@ -2,13 +2,13 @@
 
 [English](README.md) | [繁體中文](README.zh-TW.md)
 
-HydroOpsLM（Hydrological Simulation with Large Language Model Reservoir Operations）
+HydroOpsLLM（Hydrological Simulation with Large Language Model Reservoir Operations）
 是結合大型語言模型（LLM）水庫操作的水文模擬框架，透過 HydroCNHS 的 Dam API
 將水庫操作方法與水文模擬連接。
 可為每座水庫選擇資訊、prompt、操作方法與 audit 準則。相同介面支援單一水庫
 或連接的河網；F.E. Walter 範例使用共同水庫收支計算展示三種方法。
 
-![HydroOpsLM 概念圖](figures/hydrocnhs-coupling-framework-en.png)
+![HydroOpsLLM 概念圖](figures/hydrocnhs-coupling-framework-en.png)
 
 HydroCNHS 計算降雨逕流與河川 routing。操作方法提出 release 請求；共用的
 水庫計算則決定實際執行的 release、spill 與 storage。LLM 不會改變水文方程式；

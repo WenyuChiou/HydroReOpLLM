@@ -212,7 +212,7 @@ historical request-audit counts. A same-timestep control-point result is a
 system result; it does not assign causal blame to one agent.
 
 Choose a criterion explicitly from the basin objective and upstream priorities.
-HydroOpsLM supplies no reservoir-type-specific downstream limits. Full water-use
+HydroOpsLLM supplies no reservoir-type-specific downstream limits. Full water-use
 allocation and turbine/head/energy solving are outside the current scope;
 hydrological input tests are not hydropower validation. Registered extensions control their own source access; the LLM request budget does not govern those provider calls. Saved-file verification checks captured extension timing and version without contacting that source again.
 

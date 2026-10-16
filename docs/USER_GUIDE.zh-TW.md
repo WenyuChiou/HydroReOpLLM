@@ -1,4 +1,4 @@
-# HydroOpsLM 設定手冊
+# HydroOpsLLM 設定手冊
 
 [English](USER_GUIDE.md) | [繁體中文](USER_GUIDE.zh-TW.md)
 

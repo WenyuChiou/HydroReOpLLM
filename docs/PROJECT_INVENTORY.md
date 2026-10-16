@@ -1,4 +1,4 @@
-# HydroOpsLM project inventory
+# HydroOpsLLM project inventory
 
 Cleanup baseline: **1,026 tracked files**, commit
 `fbd9a993731ce979835dcc46f7a9cbad6aa7387b`.

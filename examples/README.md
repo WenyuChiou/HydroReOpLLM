@@ -1,10 +1,10 @@
-# HydroOpsLM examples
+# HydroOpsLLM examples
 
 [English](README.md) | [繁體中文](README.zh-TW.md)
 
 Start with the [FE Walter walkthrough](fe_walter/README.md). It compares three
 decision methods through native HydroCNHS Dam coupling and routing, with
-HydroOpsLM's added shared reservoir physics and audit/trace.
+HydroOpsLLM's added shared reservoir physics and audit/trace.
 
 For a new catchment, use the local [hydrology setup](../docs/HYDROLOGY_SETUP.md)
 with the [official HydroCNHS documentation](https://cylin928.github.io/HydroCNHS/)
