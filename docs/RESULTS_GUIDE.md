@@ -74,9 +74,9 @@ study objective with its own accepted rubric.
 The [latest 2016 Gemma 4 comparison](../examples/fe_walter/coupled/README.md#verified-2016-results)
 reports water level, controlled release, and seasonal compliance. Its explicit
 current-result files are
-[`models.gemma4.yaml`](../examples/fe_walter/coupled/models.gemma4.yaml),
-[`llm_available.gemma4.yaml`](../examples/fe_walter/coupled/llm_available.gemma4.yaml),
-and [`llm_knowledge.gemma4.yaml`](../examples/fe_walter/coupled/llm_knowledge.gemma4.yaml).
+[`models.yaml`](../examples/fe_walter/coupled/current/models.yaml),
+[`llm_available.yaml`](../examples/fe_walter/coupled/current/llm_available.yaml),
+and [`llm_knowledge.yaml`](../examples/fe_walter/coupled/current/llm_knowledge.yaml).
 The [historical results chapter](../examples/fe_walter/results.md) preserves the
 separate 2016–2020 trajectory and its original targets. Do not use an older
 Gemma 3 profile to claim reproduction of the Gemma 4 comparison.

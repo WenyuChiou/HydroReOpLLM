@@ -18,13 +18,13 @@ performance.
 
 | File | Role |
 |---|---|
-| [`experiment.yaml`](experiment.yaml) | Canonical v2 entry, selecting the rule baseline |
+| [`current/experiment.yaml`](current/experiment.yaml) | Canonical v2 entry, selecting the rule baseline |
 | [`reservoirs.json`](reservoirs.json) | `reservoir-physical-case.v1`: F.E. Walter physics and operation network |
-| [`rule.yaml`](rule.yaml) | Alternative entry for the same rule identity/output; do not run both into that directory |
-| [`llm_available.gemma4.yaml`](llm_available.gemma4.yaml) | Current Gemma 4 operation with available information |
-| [`llm_knowledge.gemma4.yaml`](llm_knowledge.gemma4.yaml) | Current Gemma 4 operation with retrieved operating knowledge |
+| [`rule.yaml`](rule.yaml) | Preserved earlier Rule-based entry and output identity |
+| [`current/llm_available.yaml`](current/llm_available.yaml) | LLM with available information |
+| [`current/llm_knowledge.yaml`](current/llm_knowledge.yaml) | LLM with retrieved knowledge |
 | [`hydrology.yaml`](hydrology.yaml) | Shared accepted native model, forcing and inlet bindings |
-| [`models.gemma4.yaml`](models.gemma4.yaml) | Current model profile; older `models.yaml` retains Gemma 3 |
+| [`current/models.yaml`](current/models.yaml) | Current model profile; choose the model here |
 | [`agents.rule.yaml`](agents.rule.yaml) | Rule operator and its Hanasaki parameters |
 | [`agents.llm_available.yaml`](agents.llm_available.yaml) | Available-information operator and case settings |
 | [`agents.llm_knowledge.yaml`](agents.llm_knowledge.yaml) | Retrieved-knowledge operator and case settings |
@@ -46,8 +46,8 @@ the general `type: llm` example in
 
 ## Read the configuration
 
-The v2 entries select sibling files with section references such as
-`agents: {file: agents.rule.yaml}`. Global run settings belong in the entry;
+The v2 entries reference the shared section files with section references such as
+`agents: {file: ../agents.rule.yaml}`. Global run settings belong in the current entry;
 hydrology and physical coupling belong in `hydrology.yaml`/`reservoirs.json`;
 method behavior belongs in the selected agent file. Paths are relative to the
 file that declares them. The [canonical tutorial](../../../tutorials/fe_walter.md)
@@ -70,10 +70,10 @@ routes implemented release plus spill to `Downstream` once.
 ## Run the rule-based method
 
 ```powershell
-reservoir-experiment check examples/fe_walter/coupled/experiment.yaml
-reservoir-experiment prepare examples/fe_walter/coupled/experiment.yaml
-reservoir-experiment run examples/fe_walter/coupled/experiment.yaml
-reservoir-experiment verify runs/fe-walter-coupled-rule/operation
+reservoir-experiment check examples/fe_walter/coupled/current/experiment.yaml
+reservoir-experiment prepare examples/fe_walter/coupled/current/experiment.yaml
+reservoir-experiment run examples/fe_walter/coupled/current/experiment.yaml
+reservoir-experiment verify runs/fe-walter-current-rule/operation
 ```
 
 `prepare` runs hydrology over the full accepted period and selects the 366
@@ -84,13 +84,13 @@ operation days. It makes zero model requests.
 Choose one configuration and review its model settings and method-specific prompt first:
 
 ```powershell
-reservoir-experiment check examples/fe_walter/coupled/llm_available.gemma4.yaml
-reservoir-experiment prepare examples/fe_walter/coupled/llm_available.gemma4.yaml
-reservoir-experiment run examples/fe_walter/coupled/llm_available.gemma4.yaml --allow-network
-reservoir-experiment verify runs/fe-walter-coupled-gemma4-llm_available/operation
+reservoir-experiment check examples/fe_walter/coupled/current/llm_available.yaml
+reservoir-experiment prepare examples/fe_walter/coupled/current/llm_available.yaml
+reservoir-experiment run examples/fe_walter/coupled/current/llm_available.yaml --allow-network
+reservoir-experiment verify runs/fe-walter-current-llm_available/operation
 ```
 
-For retrieved operating knowledge, substitute `llm_knowledge.gemma4.yaml` and its output
+For retrieved operating knowledge, substitute `current/llm_knowledge.yaml` and its output
 directory. Both configurations set `max_calls: null`, meaning no total call cap,
 and `max_attempts: 2`, meaning at most two attempts for one daily decision.
 Both explicitly set `num_ctx: 16384`, `think: false`, and `keep_alive: 30m`.
@@ -101,21 +101,22 @@ omits `missing_inputs` and the missing-information fallback from its system
 prompt, response schema and retrieval; its reply has the eight configured fields
 documented in the tutorial. No provider fallback is selected.
 
-The unsuffixed LLM entries and `models.yaml` preserve the earlier Gemma 3
-configuration. Use the `.gemma4.yaml` entries for current model controls; the
+Use `current/experiment.yaml` for Rule-based operation, or select the LLM
+method in `current/`. Configure the named provider in `current/models.yaml`.
+Earlier root-level Gemma 3 and explicit Gemma 4 entries remain preserved; the
 saved comparison's separate QA provenance remains in its summary.
 
 ## Reuse the prepared hydrology
 
-When comparing methods, copy the next entry to a new run ID/output. Copy
-`hydrology.yaml` to a sibling `hydrology.reused.yaml`, retain its existing fields,
+When comparing methods, copy the next entry to a new run ID/output. Copy the shared
+`hydrology.yaml` to a sibling `hydrology.reused.yaml` in the coupled directory, retain its existing fields,
 and add this field at the root of that copied section file:
 
 ```yaml
-prepared_from: ../../../runs/fe-walter-coupled-rule
+prepared_from: ../../../runs/fe-walter-current-rule
 ```
 
-Point only the new entry's `hydrology` at `{file: hydrology.reused.yaml}`.
+Point only the new current entry's `hydrology` at `{file: ../hydrology.reused.yaml}`.
 Keep the accepted model, weather, dates, bindings and runtime unchanged. The new
 preparation pins and copies the existing inlet series without rerunning hydrology.
 Each operation method still starts a separate reservoir history from the same
@@ -167,10 +168,10 @@ the seasonal compliance windows.
 
 | Method | Engine | Days / HTTP attempts | Winter within 1297–1303 ft | 1 November end pool (ft) |
 |---|---|---:|---:|---:|
-| Available information | Original Anik | 366 / 366 | 63 / 135 | 1366.87 |
-| Available information | HydroOpsLLM | 366 / 366 | 61 / 135 | 1351.79 |
-| Retrieved knowledge | Original Anik | 366 / 366 | 132 / 135 | 1298.60 |
-| Retrieved knowledge | HydroOpsLLM | 366 / 366 | 135 / 135 | 1297.06 |
+| LLM with available information | Original Anik | 366 / 366 | 63 / 135 | 1366.87 |
+| LLM with available information | HydroOpsLLM | 366 / 366 | 61 / 135 | 1351.79 |
+| LLM with retrieved knowledge | Original Anik | 366 / 366 | 132 / 135 | 1298.60 |
+| LLM with retrieved knowledge | HydroOpsLLM | 366 / 366 | 135 / 135 | 1297.06 |
 
 Winter means 1 January–14 March and 1 November–31 December. Spring begins
 15 March, summer 10 May, and fall 15 October. Fall requires 1300–1370 ft and an
@@ -309,7 +310,7 @@ The replies below are formatted from the saved JSON for readability. The decisio
 downloads retain the recorded response strings and their source hashes.
 
 <details>
-<summary>Available information · saved 15 June reply</summary>
+<summary>LLM with available information · saved 15 June reply</summary>
 
 ```{literalinclude} outputs/2016/llm_available_reply.txt
 :language: json
@@ -318,7 +319,7 @@ downloads retain the recorded response strings and their source hashes.
 </details>
 
 <details>
-<summary>Retrieved knowledge · saved 15 June reply</summary>
+<summary>LLM with retrieved knowledge · saved 15 June reply</summary>
 
 ```{literalinclude} outputs/2016/llm_knowledge_reply.txt
 :language: json
@@ -458,12 +459,12 @@ and verified run does not by itself show that the operating policy is acceptable
 If an operation stops, resume into a new output:
 
 ```powershell
-reservoir-experiment resume examples/fe_walter/coupled/llm_available.gemma4.yaml `
-  --from-run runs/fe-walter-coupled-gemma4-llm_available/operation `
-  --output runs/fe-walter-coupled-gemma4-llm_available-resumed `
-  --run-id fe-walter-coupled-gemma4-llm-available-resumed `
+reservoir-experiment resume examples/fe_walter/coupled/current/llm_available.yaml `
+  --from-run runs/fe-walter-current-llm_available/operation `
+  --output runs/fe-walter-current-llm_available-resumed `
+  --run-id fe-walter-current-llm-available-resumed `
   --allow-network
-reservoir-experiment verify runs/fe-walter-coupled-gemma4-llm_available-resumed
+reservoir-experiment verify runs/fe-walter-current-llm_available-resumed
 ```
 
 The resume output is the operation directory itself; do not append another

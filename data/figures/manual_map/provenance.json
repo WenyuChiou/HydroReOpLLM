@@ -9,23 +9,23 @@
   "original_reference_png_sha256": "eac9fd260fd86ca4e11fa9d9566db6e86f412873f099a439df2871047996d67e",
   "package": {
     "file": "fe-walter-arcgis-source.zip",
-    "bytes": 2715395,
-    "sha256": "e3256d713ba8da7b4fdc242c4989544967ea45a65ef47e51c65712b49d751def",
+    "bytes": 2524329,
+    "sha256": "8c8d4eb312a2f9b5aeec4935042463b7b617543f65279f89d777ecd77f03cd2b",
     "aprx": "p30/FE_Walter_DRB_manual_v9.aprx",
     "picture_source": "../commondata/pictures/layout_overlay.svg (relative to APRX)"
   },
   "exports": {
     "fe-walter-catchment.pdf": {
-      "bytes": 1705018,
-      "sha256": "304a15849ce14a6ab9c7497c535a897588c48d95ce99bb0b3c7e01598964d4d4"
+      "bytes": 1720051,
+      "sha256": "262ca7a28493bfa5bad13bdf62518dd6904e28d8ea07cede48a979fc2ff86618"
     },
     "fe-walter-catchment.png": {
-      "bytes": 2584221,
-      "sha256": "4875fda12524551dc84bf301eb55e6ef3b1f046a8b271ffe95214ac903bb87ae"
+      "bytes": 2638900,
+      "sha256": "d845a23a122e1c0ad03a81977cb48b6ef62026bb1f6a318e564b608d779c979d"
     },
     "fe-walter-catchment.svg": {
-      "bytes": 14937493,
-      "sha256": "6de3765047e3da623550bc69d2abd2c741489608f2183bedaffbc95591c5f67b"
+      "bytes": 15154970,
+      "sha256": "d082442da4fdcde0b038e0d50d0245c6a9ef635ae72931b26cd459ba3add0521"
     }
   },
   "exporter": {
@@ -61,7 +61,30 @@
         "#47b5b2",
         "#2e7fae",
         "#253b8f"
-      ]
+      ],
+      "colorbar_encoding": {
+        "type": "256 solid vector rectangles from native CIMFixedColorRamp",
+        "first": [
+          251,
+          243,
+          208,
+          100
+        ],
+        "last": [
+          37,
+          59,
+          143,
+          100
+        ],
+        "range": [
+          1300,
+          1550
+        ],
+        "border_svg_px": 0.6,
+        "no_white_endpoint": true,
+        "palette_sha256": "1b47a917f09d4bbb8099c388f4f80d56d4c1821325583b37af290ecb41a02930",
+        "swatch_overlap_svg_px": 1.02
+      }
     },
     "services": [
       {
@@ -79,7 +102,7 @@
     ],
     "service_attribution": "Service credits retained off-page in the source layout; all provider names appear in normal-size case captions.",
     "locator_leaders": {
-      "geometry": "Two single straight segments, without arrowheads; original location/extent anchors retained.",
+      "geometry": "Two straight segments without arrowheads; CONUS leader reprojected to the resized frame from its unchanged map coordinate",
       "stroke": "#111111",
       "width_svg_px": 0.9
     },
@@ -89,30 +112,54 @@
         "CONUS",
         "F. E. Walter catchment"
       ],
-      "DRB_title_font_pt": 17,
-      "legend": "opaque white with black border",
-      "colorbar": "full-width lower strip, no unused lower-left panel",
+      "DRB_title_font_pt": 21,
+      "legend": "Compact three-row box separates gauge, dam/outlet and reservoir surface; 252x116 SVG units",
+      "colorbar": "256 solid vector swatches from native raster colorizer, 1300–1550 mm/year; thin neutral border; dark-blue right endpoint",
       "dam_name": "F. E. Walter Reservoir",
-      "dam_name_anchor_projected_map_coordinates": [
-        1676720.8410128264,
-        2191179.5622697035
-      ],
-      "map_frames_and_camera_extents": "unchanged; scale equations remain valid",
+      "map_frames_and_camera_extents": "FE detail/DRB overview unchanged; CONUS resized and its leader recomputed from the original geographic anchor",
       "picture_bounds_inches": [
         0,
         0,
         16,
         8.35
       ],
-      "DRB_title_position": "outside DRB frame, between locator and overview; no basin overlap",
-      "dam_name_background": "White map margin to the left of the dam, with leader to the unchanged dam location.",
+      "DRB_title_position": "Centered in the gap between the smaller CONUS locator and DRB overview",
+      "dam_name_background": "Reservoir name in the white margin without a leader to the dam/outlet",
       "station_label": "USGS 01447500 appears once in the legend; only the station marker remains on the map.",
       "north_arrows": "ArcGIS Compass North 1, centered,0.60inch height; linked to respective native mapframes",
       "dam_label_svg_position": [
         810,
         650
       ],
-      "legend_font_size_svg_px": 30
+      "legend_font_size_svg_px": 24,
+      "dam_name_font_size_svg_px": 28,
+      "point_symbols_pt": {
+        "dam_outlet": 13.5,
+        "usgs_gauge": 14.0,
+        "white_outline": 0.9
+      },
+      "river_symbol": {
+        "blue_width_pt": 1.8,
+        "casing_width_pt": 2.8,
+        "blue_rgb": [
+          23,
+          108,
+          155
+        ],
+        "casing": "Separate white layer of the same features below the blue layer"
+      },
+      "reservoir_label_leader": null,
+      "DRB_rivers": {
+        "mainstem_width_pt": 1.3,
+        "tributary_width_pt": 0.85,
+        "rgb": [
+          23,
+          108,
+          155
+        ],
+        "coastal_bay_thematic_polygon_visible": false,
+        "coastal_geometry_unchanged": true
+      }
     }
   },
   "scale_and_extent_checks": {
@@ -167,6 +214,298 @@
       "legend_font_size_after": 30,
       "scientific_members_unchanged": true,
       "map_frames_and_camera_extents": "unchanged"
+    },
+    {
+      "date": "2026-10-17",
+      "request": "Moderate compact legend; larger reservoir name/points, clearer FE rivers, larger DRB title and smaller CONUS locator",
+      "parent_package_sha256": "e3256d713ba8da7b4fdc242c4989544967ea45a65ef47e51c65712b49d751def",
+      "changed_package_members": [
+        "p30/FE_Walter_DRB_manual_v9.aprx",
+        "commondata/pictures/layout_overlay.svg"
+      ],
+      "scientific_members_unchanged": true,
+      "unchanged_members": 131,
+      "detail_overview_frames_unchanged": true,
+      "native_edit": {
+        "frames_before": {
+          "CONUS locator": {
+            "x": 0.35,
+            "y": 6.05,
+            "width": 4.4,
+            "height": 2.1,
+            "extent": {
+              "xmin": -3084047.836582411,
+              "ymin": 268660.865189489,
+              "xmax": 2986088.5345838815,
+              "ymax": 3165721.6501298063,
+              "spatialReference": {
+                "wkid": 5070,
+                "latestWkid": 5070
+              }
+            },
+            "scale": 54313732.01763044
+          },
+          "Delaware River Basin overview": {
+            "x": 0.35,
+            "y": 1.05,
+            "width": 4.4,
+            "height": 4.65,
+            "extent": {
+              "xmin": 1508553.781154372,
+              "ymin": 1917225.4590000007,
+              "xmax": 1940423.1735456286,
+              "ymax": 2373626.758199999,
+              "spatialReference": {
+                "wkid": 5070,
+                "latestWkid": 5070
+              }
+            },
+            "scale": 3864235.8265433726
+          },
+          "F. E. Walter detail": {
+            "x": 5.15,
+            "y": 1.05,
+            "width": 10.5,
+            "height": 7.1,
+            "extent": {
+              "xmin": 1656272.433505837,
+              "ymin": 2180500,
+              "xmax": 1715427.566494163,
+              "ymax": 2220500,
+              "spatialReference": {
+                "wkid": 5070,
+                "latestWkid": 5070
+              }
+            },
+            "scale": 221804.0232165418
+          }
+        },
+        "frames_after": {
+          "CONUS locator": {
+            "x": 0.7,
+            "y": 6.39,
+            "width": 3.7,
+            "height": 1.76,
+            "extent": {
+              "xmin": -3084047.836582411,
+              "ymin": 268635.9872676919,
+              "xmax": 2986088.5345838815,
+              "ymax": 3165746.5280516036,
+              "spatialReference": {
+                "wkid": 5070,
+                "latestWkid": 5070
+              }
+            },
+            "scale": 64659563.55422674
+          },
+          "Delaware River Basin overview": {
+            "x": 0.35,
+            "y": 1.05,
+            "width": 4.4,
+            "height": 4.65,
+            "extent": {
+              "xmin": 1508553.781154372,
+              "ymin": 1917225.4590000007,
+              "xmax": 1940423.1735456286,
+              "ymax": 2373626.758199999,
+              "spatialReference": {
+                "wkid": 5070,
+                "latestWkid": 5070
+              }
+            },
+            "scale": 3864235.8265433726
+          },
+          "F. E. Walter detail": {
+            "x": 5.15,
+            "y": 1.05,
+            "width": 10.5,
+            "height": 7.1,
+            "extent": {
+              "xmin": 1656272.433505837,
+              "ymin": 2180500,
+              "xmax": 1715427.566494163,
+              "ymax": 2220500,
+              "spatialReference": {
+                "wkid": 5070,
+                "latestWkid": 5070
+              }
+            },
+            "scale": 221804.0232165418
+          }
+        },
+        "detail_overview_frames_unchanged": true,
+        "conus_scale_factor": 0.84,
+        "legend_font_svg_px": 24,
+        "legend_box_svg_px": [
+          252,
+          82
+        ],
+        "reservoir_label_svg_px": 28,
+        "drb_title_pt": 21.0,
+        "drb_title_bounds": [
+          1.07,
+          5.88,
+          2.97,
+          0.33
+        ],
+        "locator_anchor_map_xy": [
+          1676870.4854391515,
+          2191757.405287966
+        ],
+        "locator_anchor_svg_xy": [
+          360.19772727272726,
+          144.1700189527515
+        ],
+        "styles": [
+          {
+            "layer": "F. E. Walter dam / outlet",
+            "size_before": 9.0,
+            "size_after": 13.5,
+            "white_outline_pt": 0.9
+          },
+          {
+            "layer": "USGS gauges",
+            "size_before": 9.0,
+            "size_after": 14.0,
+            "white_outline_pt": 0.9
+          },
+          {
+            "layer": "Reservoir river network",
+            "width_before_pt": 1.2,
+            "width_after_pt": 1.8,
+            "casing_width_pt": 2.8,
+            "rgb": [
+              23,
+              108,
+              155
+            ]
+          }
+        ],
+        "broken_sources": [],
+        "river_casing_separate_layer": true,
+        "river_layer_order": [
+          "Reservoir river network",
+          "Reservoir river network - contrast casing"
+        ],
+        "river_data_source_identical": true
+      }
+    },
+    {
+      "date": "2026-10-17",
+      "request": "Moderate consistent DRB river strokes, separate reservoir surface from outlet, correct colorbar endpoint and border",
+      "parent_package_sha256": "d198de14c9558e07477575673cfdd5dfdb0e1757a502fb5eeea9f9cd2c2c7a1d",
+      "changed_package_members": [
+        "p30/FE_Walter_DRB_manual_v9.aprx",
+        "commondata/pictures/layout_overlay.svg"
+      ],
+      "scientific_members_unchanged": true,
+      "unchanged_members": 131,
+      "native_correction": {
+        "styles": [
+          {
+            "layer": "Delaware River mainstem",
+            "before_width_pt": 2.6,
+            "after_width_pt": 1.3
+          },
+          {
+            "layer": "Selected connected DRB tributary routes (NLDI)",
+            "before_width_pt": 1.2,
+            "after_width_pt": 0.85
+          }
+        ],
+        "bay_thematic_polygon_visible": false,
+        "bay_geometry_preserved": true,
+        "frames_unchanged_from_readability_revision": true,
+        "reservoir_label_leader_removed": true,
+        "reservoir_surface_legend_added": true,
+        "colorbar": {
+          "type": "256 solid vector rectangles from native CIMFixedColorRamp",
+          "first": [
+            251,
+            243,
+            208,
+            100
+          ],
+          "last": [
+            37,
+            59,
+            143,
+            100
+          ],
+          "range": [
+            1300,
+            1550
+          ],
+          "border_svg_px": 0.6,
+          "no_white_endpoint": true,
+          "palette_sha256": "1b47a917f09d4bbb8099c388f4f80d56d4c1821325583b37af290ecb41a02930"
+        },
+        "broken_sources": [],
+        "exports": {
+          "fe-walter-catchment.pdf": "ff911d34ec249fe80b89b7eec16768d61b8ef66b0f818e01dc11bd6572bdd8fc",
+          "fe-walter-catchment.png": "d845a23a122e1c0ad03a81977cb48b6ef62026bb1f6a318e564b608d779c979d",
+          "fe-walter-catchment.svg": "3623f16ce98c0710f5410a5a0b29027858981cf0d1172d5044d0bcd2acae0e06"
+        }
+      }
+    },
+    {
+      "date": "2026-10-17",
+      "request": "Moderate consistent DRB river strokes, separate reservoir surface from outlet, correct colorbar endpoint and border",
+      "parent_package_sha256": "209e5c957dce12a9714f0f32420b132fcd1a0b473d7b7b59216724703a6d449e",
+      "changed_package_members": [
+        "p30/FE_Walter_DRB_manual_v9.aprx",
+        "commondata/pictures/layout_overlay.svg"
+      ],
+      "scientific_members_unchanged": true,
+      "unchanged_members": 131,
+      "native_correction": {
+        "styles": [
+          {
+            "layer": "Delaware River mainstem",
+            "before_width_pt": 2.6,
+            "after_width_pt": 1.3
+          },
+          {
+            "layer": "Selected connected DRB tributary routes (NLDI)",
+            "before_width_pt": 1.2,
+            "after_width_pt": 0.85
+          }
+        ],
+        "bay_thematic_polygon_visible": false,
+        "bay_geometry_preserved": true,
+        "frames_unchanged_from_readability_revision": true,
+        "reservoir_label_leader_removed": true,
+        "reservoir_surface_legend_added": true,
+        "colorbar": {
+          "type": "256 solid vector rectangles from native CIMFixedColorRamp",
+          "first": [
+            251,
+            243,
+            208,
+            100
+          ],
+          "last": [
+            37,
+            59,
+            143,
+            100
+          ],
+          "range": [
+            1300,
+            1550
+          ],
+          "border_svg_px": 0.6,
+          "no_white_endpoint": true,
+          "palette_sha256": "1b47a917f09d4bbb8099c388f4f80d56d4c1821325583b37af290ecb41a02930",
+          "swatch_overlap_svg_px": 1.02
+        },
+        "broken_sources": [],
+        "exports": {
+          "fe-walter-catchment.pdf": "262ca7a28493bfa5bad13bdf62518dd6904e28d8ea07cede48a979fc2ff86618",
+          "fe-walter-catchment.png": "d845a23a122e1c0ad03a81977cb48b6ef62026bb1f6a318e564b608d779c979d",
+          "fe-walter-catchment.svg": "d082442da4fdcde0b038e0d50d0245c6a9ef635ae72931b26cd459ba3add0521"
+        }
+      }
     }
   ]
 }

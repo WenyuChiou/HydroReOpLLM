@@ -7,40 +7,41 @@ the site, data, seasonal targets and modeling assumptions.
 
 Here the hydrology and physical reservoir stay fixed while you choose a
 Rule-based agent, an LLM with available information, or an LLM with retrieved
-operating knowledge. Basin construction, parameter estimation and C&V remain
+knowledge. Basin construction, parameter estimation and C&V remain
 in the [HydroCNHS tutorials](https://github.com/cylin928/HydroCNHS/tree/main/tutorials).
 This walkthrough concentrates on LLM settings and their connections.
 
 ## Step 1. Separate the experiment, physical coupling and agent settings
 
 Run commands from the repository root after [installation](../docs/GETTING_STARTED.md).
-The canonical entry is [experiment.yaml](../examples/fe_walter/coupled/experiment.yaml).
-It selects the deterministic rule as a first connection check. The maintained
-[rule.yaml](../examples/fe_walter/coupled/rule.yaml) is an alternative entry for
-the same rule run identity/output; do not execute both into that directory.
+The canonical entry is [current/experiment.yaml](../examples/fe_walter/coupled/current/experiment.yaml).
+It selects Rule-based operation as a first connection check. Select
+[current/llm_available.yaml](../examples/fe_walter/coupled/current/llm_available.yaml)
+or [current/llm_knowledge.yaml](../examples/fe_walter/coupled/current/llm_knowledge.yaml) for the LLM method;
+choose the model inside `current/models.yaml`.
 
-```{literalinclude} ../examples/fe_walter/coupled/experiment.yaml
+```{literalinclude} ../examples/fe_walter/coupled/current/experiment.yaml
 :language: yaml
 ```
 
 | Scope | Files | Responsibility |
 |---|---|---|
-| Global experiment | `experiment.yaml`, `rule.yaml`, `llm_available.gemma4.yaml`, `llm_knowledge.gemma4.yaml` | Schema, dates, run/output, call gate, section references and explicit extension catalog. |
+| Global experiment | `current/experiment.yaml`, `current/llm_available.yaml`, `current/llm_knowledge.yaml` | Schema, dates, run/output, call gate, section references and explicit extension catalog. |
 | Hydrology and physical coupling | `hydrology.yaml`, `reservoirs.json` | Weather/native model, source-to-inlet bindings, physical state and routing graph. |
 | Per-agent behavior | `agents.rule.yaml`, `agents.llm_available.yaml`, `agents.llm_knowledge.yaml` | Exact reservoir assignment, rule or LLM and its case-specific settings. |
-| Shared model and checks | `models.gemma4.yaml`, `auditors.yaml` | Named provider profile and diagnostic checks selected by each agent. |
+| Shared model and checks | `current/models.yaml`, `auditors.yaml` | Named provider profile and diagnostic checks selected by each agent. |
 
 All entries use `hydroops-coupled-simulation.v2`. A section reference such as
-`hydrology: {file: hydrology.yaml}` loads that section from its sibling file.
+`hydrology: {file: ../hydrology.yaml}` loads the shared hydrology section.
 Resource paths are relative to the file that declares them. Keep copies in the
 same directory unless you deliberately update those paths. For a new study,
 choose a new `run_id` and `output`; source files and prior records remain pinned.
 
-The current Gemma 4 entry selects the same case agent and an explicit model
-profile. Older unsuffixed LLM entries retain Gemma 3 for historical
-reproducibility; use the new entry for the current model controls:
+The current LLM entry selects the case agent and a named model profile.
+Model choice belongs in `current/models.yaml`, so experiment filenames identify
+the method:
 
-```{literalinclude} ../examples/fe_walter/coupled/llm_available.gemma4.yaml
+```{literalinclude} ../examples/fe_walter/coupled/current/llm_available.yaml
 :language: yaml
 ```
 
@@ -53,8 +54,8 @@ bounded attempts.
 `configuration.read_configuration()` resolves split files and
 `agent_configuration.normalize_agent()` translates public agent fields.
 `coupled.load_coupled_settings()` checks the connection without running hydrology
-or contacting a model. The short `zero_shot/experiment.yaml` is a separate
-supplied-inflow tutorial, not the full-weather entry taught here.
+or contacting a model. Earlier supplied-inflow teaching entries remain preserved
+with their original configuration and evidence.
 
 | Change for a new execution | Retain for this comparison | Optional additions |
 |---|---|---|
@@ -153,11 +154,11 @@ The available-information agent lives in its own file:
 
 `reservoir_id: FEWalter` binds `fe_operator` to the graph node.
 `type: llm` selects the general operation class; `model_profile: reservoir_model`
-selects a profile in [models.gemma4.yaml](../examples/fe_walter/coupled/models.gemma4.yaml).
+selects a profile in [current/models.yaml](../examples/fe_walter/coupled/current/models.yaml).
 `customization.backend: reference_v3_7` selects the explicitly registered case
 extension. Its `parameters.reference` mapping belongs to this example.
 
-```{literalinclude} ../examples/fe_walter/coupled/models.gemma4.yaml
+```{literalinclude} ../examples/fe_walter/coupled/current/models.yaml
 :language: yaml
 ```
 
@@ -221,7 +222,7 @@ messages is visible to the model. No shared system instruction is inserted.
 
 The available-information method receives the daily state without retrieved
 document sections. To add retrieved knowledge, select
-[llm_knowledge.gemma4.yaml](../examples/fe_walter/coupled/llm_knowledge.gemma4.yaml).
+[current/llm_knowledge.yaml](../examples/fe_walter/coupled/current/llm_knowledge.yaml).
 It uses this agent file:
 
 ```{literalinclude} ../examples/fe_walter/coupled/agents.llm_knowledge.yaml
@@ -257,9 +258,9 @@ Run commands from the repository root. **Check first**; this previews the
 configuration, prompt and schema without hydrology or model requests:
 
 ```powershell
-reservoir-experiment check examples/fe_walter/coupled/experiment.yaml
-reservoir-experiment check examples/fe_walter/coupled/llm_available.gemma4.yaml
-reservoir-experiment check examples/fe_walter/coupled/llm_knowledge.gemma4.yaml
+reservoir-experiment check examples/fe_walter/coupled/current/experiment.yaml
+reservoir-experiment check examples/fe_walter/coupled/current/llm_available.yaml
+reservoir-experiment check examples/fe_walter/coupled/current/llm_knowledge.yaml
 ```
 
 Expect 366 operation days, zero planned provider decisions for the rule, and
@@ -269,9 +270,9 @@ The preview uses placeholder inflow, not simulated January 1 flow.
 **Prepare and run the rule first** to check the physical connections:
 
 ```powershell
-reservoir-experiment prepare examples/fe_walter/coupled/experiment.yaml
-reservoir-experiment run examples/fe_walter/coupled/experiment.yaml
-reservoir-experiment verify runs/fe-walter-coupled-rule/operation
+reservoir-experiment prepare examples/fe_walter/coupled/current/experiment.yaml
+reservoir-experiment run examples/fe_walter/coupled/current/experiment.yaml
+reservoir-experiment verify runs/fe-walter-current-rule/operation
 ```
 
 Preparation computes the accepted continuous upstream hydrology, then selects
@@ -280,24 +281,24 @@ follow [Reuse the prepared hydrology](../examples/fe_walter/coupled/README.md#re
 before preparing LLM entries. Keep the dates, forcing, model, bindings and
 runtime unchanged. Each method starts its own reservoir state and history.
 
-**When you intend to request real LLM decisions**, use the Gemma 4 entry:
+**When you intend to request real LLM decisions**, use the chosen method entry:
 
 ```powershell
-reservoir-experiment prepare examples/fe_walter/coupled/llm_available.gemma4.yaml
-reservoir-experiment run examples/fe_walter/coupled/llm_available.gemma4.yaml --allow-network
-reservoir-experiment verify runs/fe-walter-coupled-gemma4-llm_available/operation
+reservoir-experiment prepare examples/fe_walter/coupled/current/llm_available.yaml
+reservoir-experiment run examples/fe_walter/coupled/current/llm_available.yaml --allow-network
+reservoir-experiment verify runs/fe-walter-current-llm_available/operation
 ```
 
-For retrieved knowledge, substitute `llm_knowledge.gemma4.yaml` in both
+For retrieved knowledge, substitute `llm_knowledge.yaml` in both
 configuration commands and verify
-`runs/fe-walter-coupled-gemma4-llm_knowledge/operation`.
+`runs/fe-walter-current-llm_knowledge/operation`.
 Choose a new run ID/output when repeating an experiment. The model must already
 be available at the configured service. `--allow-network` permits requests;
 reading this page does not execute them.
 
 | Location | Contents |
 |---|---|
-| Original `examples/fe_walter/coupled/*.yaml` | Editable user inputs; paths resolve relative to their declaring file |
+| Original `examples/fe_walter/coupled/current/*.yaml` and referenced shared files | Editable user inputs; paths resolve relative to their declaring file |
 | Your output root | Prepared `inflows.csv`, `case.json`, generated operation `experiment.yaml`, `hydrology.json` and `preparation.json` |
 | `<output>/operation/` | `summary.json`, `reservoir_trajectory.csv`, `network_flows.csv`, `decisions.jsonl`, `audit.jsonl`, `physics.jsonl` and provider evidence |
 
@@ -318,7 +319,7 @@ The [current Gemma 4 comparison](../examples/fe_walter/coupled/README.md#verifie
 contains four complete 366-day runs: original Anik and HydroOpsLLM, each with
 available information and retrieved knowledge. Each used 366 actual HTTP attempts
 without retry or fallback. The saved comparison used isolated QA run entries;
-the new `.gemma4.yaml` files above expose its model controls as teaching inputs
+the `current/` files above expose its model controls as teaching inputs
 with new output locations.
 
 Read the [water-level and controlled-release plot](../examples/fe_walter/coupled/outputs/gemma4_2016_comparison/pool_release.png),
@@ -332,7 +333,7 @@ not establish seasonal compliance or rank methods. Read the reported winter
 and fall checks alongside engineering verification.
 
 [Earlier Gemma 3 annual results](../examples/fe_walter/coupled/README.md#earlier-2016-configuration-preserved)
-and the [historical five-year DKP study](../examples/fe_walter/results.md) retain
+and the [historical five-year retrieved-knowledge study](../examples/fe_walter/results.md) retain
 their original settings. They are separate experiments.
 
 For the earlier Gemma 3 diagnostic, the preserved files remain downloadable:
@@ -407,7 +408,7 @@ They are not another basin's default reservoir curve or operating targets.
 
 ### Add retrieved operating knowledge
 
-Use [llm_knowledge.gemma4.yaml](../examples/fe_walter/coupled/llm_knowledge.gemma4.yaml);
+Use [current/llm_knowledge.yaml](../examples/fe_walter/coupled/current/llm_knowledge.yaml);
 it selects this complete agent file while sharing the same model and hydrology:
 
 ```{literalinclude} ../examples/fe_walter/coupled/agents.llm_knowledge.yaml
@@ -440,3 +441,14 @@ has exactly eight fields:
 `release_cfs`. It neither requests `missing_inputs` nor invents missing
 downstream observations. The frozen v1 prompt remains only as a reproducibility
 dependency for prior saved output.
+
+
+### Preserved earlier entry
+
+The earlier rule entry remains available with its original run identity and
+output path. The main workflow above uses `current/experiment.yaml` and its
+separate output directory.
+
+```{literalinclude} ../examples/fe_walter/coupled/experiment.yaml
+:language: yaml
+```

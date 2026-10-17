@@ -50,6 +50,10 @@ CONFIG_DOWNLOADS = {
     )
 }
 CONFIG_DOWNLOADS.update({
+    f"examples/fe_walter/coupled/current/{name}": f"current-{name}"
+    for name in ("experiment.yaml", "llm_available.yaml", "llm_knowledge.yaml", "models.yaml")
+})
+CONFIG_DOWNLOADS.update({
     f"examples/fe_walter/prompts/{name}": name
     for name in ("zeroshot_seasonal_v1_system.txt", "dkp_seasonal_v1_system.txt",
                  "dkp_seasonal_v2_system.txt")

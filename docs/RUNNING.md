@@ -48,6 +48,18 @@ stage. For those examples, use the output path documented by that example. Do
 not remove or add `/operation` by analogy; inspect the entry type and resolved
 output path.
 
+## Run the current F.E. Walter example
+
+The [F.E. Walter walkthrough](../tutorials/fe_walter.md) applies this workflow
+to the saved 366-day 2016 comparison. Start with
+[Rule-based operation](../examples/fe_walter/coupled/current/experiment.yaml),
+then select [LLM with available information](../examples/fe_walter/coupled/current/llm_available.yaml)
+or [LLM with retrieved knowledge](../examples/fe_walter/coupled/current/llm_knowledge.yaml).
+Choose the provider and model in [current/models.yaml](../examples/fe_walter/coupled/current/models.yaml).
+Keep each method's output separate and reuse accepted preparation only when its
+input hashes and runtime match. The [main notebook](../tutorials/main.ipynb)
+reads saved annual evidence without requesting a model or running hydrology.
+
 ## Bound a new experiment
 
 | Setting | Purpose |

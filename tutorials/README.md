@@ -2,29 +2,27 @@
 
 [English](README.md) | [繁體中文](README.zh-TW.md)
 
-Start with the English [F.E. Walter configuration tutorial](fe_walter.md) for
-the current split weather-to-operation entry, model settings and daily decision
-contract. It is the single maintained source for that walkthrough.
+Start with the [F.E. Walter configuration walkthrough](fe_walter.md) and
+[main notebook](main.ipynb). Both follow the current 366-day 2016 example:
+**Rule-based**, **LLM with available information**, and **LLM with retrieved
+knowledge**. Choose the method's experiment in
+[`coupled/current/`](../examples/fe_walter/coupled/current/) and configure the
+model inside [`models.yaml`](../examples/fe_walter/coupled/current/models.yaml).
 
-Use the [latest 2016 Gemma 4 results](../examples/fe_walter/coupled/README.md#verified-2016-results)
-as the main annual example. The companion notebooks below preserve older,
-shorter teaching snapshots.
-
-The two companion English notebooks execute from tracked, accepted
-snapshots and save rich table and figure outputs for GitHub and MyST-NB. Their
-default path makes no model, network, download, recalibration, or new simulation
-call.
+The notebooks read committed evidence and save table and figure outputs for
+GitHub and MyST-NB. Their default path makes no model request, network request,
+download, recalibration or new simulation.
 
 | Notebook | Purpose | Saved evidence |
 |---|---|---|
-| [Main walkthrough](main.ipynb) | Input → YAML → rule/prompt → check → saved run → verify → audit/trace | Same three-day FE Walter case for deterministic rule, zero-shot, and DKP |
-| [Advanced workflow](advanced.ipynb) | Topology, passive outlets, state isolation, routing limits, and own-data settings | Accepted 31-day, three-reservoir snapshot |
+| [Main walkthrough](main.ipynb) | Shared inputs → experiment and model settings → actual prompts/replies → annual trajectories → outcomes | Annual Rule-based baseline and current Gemma 4 comparison, including independent Anik runs |
+| [Advanced workflow](advanced.ipynb) | Topology, passive outlets, state isolation, routing limits and own-data settings | Accepted 31-day, three-reservoir snapshot |
 
-The main comparison uses initial storage **2,457,848.279729185 m³
-(1,992.61 acre-ft)**, zero losses, and downstream `UH=[1.0]` identity routing.
-These are bounded integration assumptions. Saved zero-shot audit results are
-2 PASS / 1 FAIL; saved DKP results are 3 FAIL; strategy acceptance remains
-`null` for all methods.
+The main example assumes initial storage **2,457,848.279729185 m³
+(1,992.61 acre-ft)**, zero reservoir losses and downstream `UH=[1.0]` identity
+routing. Each current LLM arm completed 366 days with 366 recorded HTTP attempts.
+Completion and water balance do not establish acceptable operation; inspect the
+seasonal checks in the [current annual results](../examples/fe_walter/coupled/README.md#verified-2016-results).
 
 ## Build and check
 
@@ -37,22 +35,26 @@ python tutorials/build_notebooks.py --check
 ```
 
 The builder executes ordered cells without a Jupyter kernel, blocks socket and
-urllib access, and embeds pandas HTML plus matplotlib PNG output. It reads
-`examples/fe_walter/reference_outputs/ollama_three_day`,
-`examples/fe_walter/reference_outputs/rule_three_day`, and
-`examples/fe_walter/reference_outputs/multi_reservoir_month`; it has no dependency on ignored `runs/`.
+urllib access, and embeds pandas HTML plus matplotlib PNG output. It reads the
+committed `coupled/outputs/gemma4_2016_comparison` export, the Rule-based rows of
+`coupled/outputs/2016`, and `reference_outputs/multi_reservoir_month` under
+`examples/fe_walter/`; it does not depend on ignored `runs/` directories.
+Earlier short teaching snapshots remain preserved in `reference_outputs/`.
 
-## Optional local Ollama rerun
+## Optional new execution
 
-The notebooks only document this path. With the named model already available locally,
-choose a new `run_id` and output path. The supplied YAMLs are bounded to three
-calls and no retry. `--allow-network` must be explicit.
+The notebook documents this path without executing it. Use a new `run_id` and
+output path, keep an experiment copy beside its source and review
+`current/models.yaml`. The current LLM entries have no total call cap and allow
+at most two attempts for each daily decision. `--allow-network` is explicit.
 
 ```powershell
-Copy-Item examples/fe_walter/zero_shot/experiment.ollama.yaml examples/fe_walter/zero_shot/my-run.yaml
+Copy-Item examples/fe_walter/coupled/current/llm_available.yaml examples/fe_walter/coupled/current/my-run.yaml
 # Edit my-run.yaml: choose a new run_id and output before continuing.
-python run_experiment.py check examples/fe_walter/zero_shot/my-run.yaml
-python run_experiment.py run examples/fe_walter/zero_shot/my-run.yaml --allow-network
+reservoir-experiment check examples/fe_walter/coupled/current/my-run.yaml
+reservoir-experiment prepare examples/fe_walter/coupled/current/my-run.yaml
+reservoir-experiment run examples/fe_walter/coupled/current/my-run.yaml --allow-network
+reservoir-experiment verify <new-output-path>/operation
 ```
 
 [FE Walter example guide](../examples/fe_walter/README.md) ·

@@ -80,212 +80,184 @@ def code(source: str) -> dict:
 
 def main_cells() -> list[dict]:
     return [
-        md('''# Main tutorial: one FE Walter decision, end to end
+        md('''# Main tutorial: F.E. Walter weather to daily operation
 
-This walkthrough follows one bounded three-day case from input and YAML through
-the decision method, current checks, saved execution, verification, and bound
-audit/trace evidence. It compares a deterministic Hanasaki-based rule with two
-already-completed local Ollama runs. No model is called while this notebook runs.
+Follow the current 2016 example: **Rule-based**, **LLM with available
+information**, and **LLM with retrieved knowledge**. All methods share the
+accepted hydrology, physical initial state and routing. The model is selected
+inside `current/models.yaml`; the experiment filename identifies the method.
+
+This notebook reads committed annual results and recorded provider messages.
+It makes no model request and runs no hydrology or reservoir simulation.
 
 ![HydroOpsLM coupling concept](../docs/figures/hydrocnhs-coupling-framework-en.png)
 
-The decision path is **info → system/user prompt → saved rule or model output →
-current action-contract recheck → implemented release → next info**. Historical
-events remain historical; a current recheck never becomes a claimed past event.'''),
+[Configuration walkthrough](fe_walter.md) ·
+[Current annual comparison](../examples/fe_walter/coupled/README.md#verified-2016-results)'''),
         md('''## Setup
 
-The notebook reads repository snapshots only. The builder blocks network access
-and records displayed tables and figures as rich notebook outputs.'''),
+The builder blocks socket and urllib access. Tables and plots below are
+recreated from saved files, including the independent Anik engine comparison.'''),
         code(SETUP),
-        md('''## 1. Input: the same inflow, physical state, losses, and routing
+        md('''## 1. Read the shared physical case and accepted inflow
 
-The inflow is simulated, already aggregated and routed to the reservoir node.
-Initial storage **2,457,848.279729185 m³ (1,992.61 acre-ft)** is an integration
-assumption. Losses are zero and `UH=[1.0]` is identity routing, not a calibrated
-downstream reach.
+The native weather model covers 1989–2025 and supplies the selected 366 days of
+2016. Initial storage **2,457,848.279729185 m³ (1,992.61 acre-ft)** is an
+assumption. Reservoir losses are zero; downstream `UH=[1.0]` is identity routing.
 
-![FE Walter study map](../docs/figures/fe-walter-study-map.png)'''),
-        code('''inflow = pd.read_csv(ROOT / "cases/fe_walter_reference/inflows.csv")
-inflow = inflow.loc[inflow["node"] == "FEW_INFLOW", ["date", "local_inflow_cms"]]
-inflow = inflow.rename(columns={"local_inflow_cms": "inflow (m³/s)"})
-case = json.loads((ROOT / "cases/fe_walter_ollama_demo/case.json").read_text(encoding="utf-8"))
+![F.E. Walter catchment](../docs/figures/fe-walter-catchment.png)'''),
+        code('''coupled = ROOT / "examples/fe_walter/coupled"
+annual = coupled / "outputs/gemma4_2016_comparison"
+summary = json.loads((annual / "summary.json").read_text(encoding="utf-8"))
+daily = pd.read_csv(annual / "daily.csv")
+case = json.loads((coupled / "reservoirs.json").read_text(encoding="utf-8"))
 physical = case["network"]["reservoirs"]["FEWalter"]["physical"]
-assumptions = pd.DataFrame([
-    ("initial storage", physical["initial_storage_m3"], "m³"),
-    ("minimum release", physical["minimum_release_cms"], "m³/s"),
-    ("maximum release", physical["maximum_release_cms"], "m³/s"),
-    ("evaporation / seepage", 0.0, "m³/day"),
-    ("downstream unit hydrograph", str(case["network"]["connections"][0]["unit_hydrograph"]), "dimensionless"),
-], columns=["item", "value", "unit"])
-display(inflow)
-display(assumptions)'''),
-        md('''## 2. YAML and local check
+labels = {"rule": "Rule-based", "llm_available": "LLM with available information",
+          "llm_knowledge": "LLM with retrieved knowledge"}
+display(pd.DataFrame([{"field": key, "value": physical[key]}
+                      for key in ("initial_storage_m3", "capacity_m3", "minimum_release_cms",
+                                  "maximum_release_cms", "dt_seconds")]))
+inflow = daily.loc[(daily["engine"] == "framework") & (daily["method"] == "llm_available"),
+                   ["date", "inflow_cms"]]
+display(inflow.head().rename(columns={"inflow_cms": "prepared inflow (m³/s)"}))
+display(pd.DataFrame([summary["period"]]))'''),
+        md('''## 2. Choose an experiment and check its settings
 
-The rule snapshot uses the same Ollama-case file as the LLM snapshots and frozen
-1996–2015 Hanasaki statistics. `load_settings` performs the same local planning
-check as the CLI `check` command and makes no provider request.'''),
-        code('''configs = {
-    "Rule": "tutorials/config/fe_walter_tutorial_benchmark.yaml",
-    "Zero-shot": "examples/fe_walter/zero_shot/experiment.ollama.yaml",
-    "DKP": "examples/fe_walter/dkp/experiment.ollama.yaml",
-}
+Start with `current/experiment.yaml` for Rule-based operation. The LLM entries
+select the same case agent and `current/models.yaml`. A local check validates
+references and previews placeholder observations; it does not simulate inflow
+or contact the provider. The configured model is `gemma4:12b`, temperature 0.7,
+2048 output tokens, context 16384, thinking off and a 120-second timeout.
+Each daily decision allows at most two attempts, with a two-second retry delay.
+The LLM entries have no total call cap (`max_calls: null`).'''),
+        code('''from llm_reservoir_agent.coupled import load_coupled_settings
+import yaml
+configs = {"Rule-based": "experiment.yaml",
+           "LLM with available information": "llm_available.yaml",
+           "LLM with retrieved knowledge": "llm_knowledge.yaml"}
 plans = []
-for method, relative in configs.items():
-    report = load_settings(ROOT / relative).report
-    plans.append({
-        "method": method,
-        "dates": f"{report['start_date']} to {report['end_date']}",
-        "days": report["days"],
-        "planned model calls": report["planned_llm_calls"],
-        "max calls": report["max_calls"],
-        "configuration": relative,
-    })
-display(pd.DataFrame(plans))'''),
-        md('''## 3. Rule or prompt: inspect preserved decision evidence
+for method, name in configs.items():
+    path = coupled / "current" / name
+    report = load_coupled_settings(path).report
+    plans.append({"method": method, "days": report["days"],
+                  "planned daily model decisions": report["planned_llm_calls"],
+                  "max calls": report["max_calls"], "configuration": str(path.relative_to(ROOT))})
+display(pd.DataFrame(plans))
+display(ReadableText("Selected model profile: current/models.yaml",
+                     (coupled / "current/models.yaml").read_text(encoding="utf-8")))'''),
+        md('''## 3. Inspect actual prompts, reply and implemented release
 
-The two LLM paths below read real saved Ollama evidence (`gemma3:4b`, temperature
-0.7, three completed calls per method, no retries). The complete first-day
-system and user prompts are displayed as readable text. DKP adds conditionally
-retrieved knowledge; zero-shot does not. Raw records remain linked below.
+The saved pairs contain complete provider requests and replies from the current
+annual comparison. Both snapshots are from 2 January 2016. The engines differ
+in the available-information pair and agree in the retrieved-knowledge pair.
+The available-information method receives
+daily state and history; the retrieved-knowledge method also receives selected
+operating document sections. The approved seasonal targets and response fields
+remain visible in the actual messages.
 
-[Zero-shot raw traces](../examples/fe_walter/reference_outputs/ollama_three_day/zero_shot/raw/) ·
-[DKP raw traces](../examples/fe_walter/reference_outputs/ollama_three_day/dkp/raw/)'''),
-        code('''saved = ROOT / "examples/fe_walter/reference_outputs/ollama_three_day"
-zero_flow = load_decision_flow(saved / "zero_shot", timestep=0)
-dkp_flow = load_decision_flow(saved / "dkp", timestep=0)
-info = zero_flow["info"]
-display(pd.DataFrame([{
-    "date": zero_flow["prompt_variables"]["date"],
-    "inflow (m³/s)": info["inflow_cms"],
-    "starting storage (m³)": info["state"]["storage_m3"],
-    "method": "Zero-shot saved Ollama",
-}]))
-display(ReadableText("Complete saved system prompt", zero_flow["system_prompt"]))
-display(ReadableText("Complete saved zero-shot user prompt", zero_flow["prompt"]))
-display(ReadableText("Complete saved DKP system prompt", dkp_flow["system_prompt"]))
-display(ReadableText("Complete saved DKP user prompt with retrieved knowledge", dkp_flow["prompt"]))'''),
-        code('''rule_decisions = jsonl(ROOT / "examples/fe_walter/reference_outputs/rule_three_day/decisions.jsonl")
-rule_output = pd.DataFrame([{
-    "date": row["timestamp"],
-    "rule output: requested release (m³/s)": row["action"]["release_cms"],
-    "decision ID": row["decision_id"],
-} for row in rule_decisions])
-llm_outputs = pd.DataFrame([
-    {"method": "Zero-shot",
-     "normalized requested release (m³/s)": zero_flow["proposal"]["release_cms"]},
-    {"method": "DKP",
-     "normalized requested release (m³/s)": dkp_flow["proposal"]["release_cms"]},
-])
-display(rule_output)
-display(llm_outputs)
-for method, slug, flow in (("Zero-shot", "zero_shot", zero_flow), ("DKP", "dkp", dkp_flow)):
-    trace = json.loads((saved / slug / flow["trace_files"]["policy"]).read_text(encoding="utf-8"))["backend_trace"]
-    display(ReadableText(f"Complete saved {method} model reply",
-                         trace["provider_reply"]["message"]["content"]))
-    display(ReadableText(f"{method} common action (m³/s)",
-                         json.dumps(flow["proposal"], indent=2)))'''),
-        md('''## 4. Run and verify: default to saved snapshots
+The parser converts cfs to m³/s; common physics applies water availability,
+release bounds and spill. The implemented outcome updates the next day's state.
+These are preserved execution records, not new provider calls.'''),
+        code('''pairs = {}
+for slug in ("llm_available", "llm_knowledge"):
+    pair = json.loads((annual / f"{slug}_pair.json").read_text(encoding="utf-8"))
+    pairs[slug] = pair
+    record = pair["engines"]["framework"]
+    request = record["provider_request"]
+    display(ReadableText(f"{labels[slug]}: saved date {pair['date']}",
+                         json.dumps({"model": request["model"], "options": request["options"],
+                                     "think": request["think"]}, indent=2)))
+    for message in request["messages"]:
+        display(ReadableText(f"{labels[slug]}: complete {message['role']} message", message["content"]))
+    display(ReadableText(f"{labels[slug]}: complete response schema", json.dumps(request["format"], indent=2)))
+    display(ReadableText(f"{labels[slug]}: actual saved reply",
+                         record["raw_provider_reply"]["message"]["content"]))
+    display(pd.DataFrame([record["physics"]]))'''),
+        md('''## 4. Compare saved annual trajectories
 
-The default tutorial does **not** run a simulation or model. It verifies three
-saved snapshots and reads their committed trajectories. The deterministic rule
-snapshot has zero network calls. Both LLM snapshots retain their original audit
-outcomes: zero-shot has **2 PASS / 1 FAIL**, DKP has **3 FAIL**, and
-`operating_strategy_accepted` is `null` for all three methods.'''),
-        code('''outputs = {
-    "Rule": ROOT / "examples/fe_walter/reference_outputs/rule_three_day",
-    "Zero-shot": saved / "zero_shot",
-    "DKP": saved / "dkp",
-}
-verification_rows = []
-for method, output in outputs.items():
-    result = verify_run(output, require_offline=(method == "Rule"))
-    verification_rows.append({
-        "method": method,
-        "verification": result["status"],
-        "days": result["days"],
-        "audit counts": str(result["audit_counts"]),
-        "historical model calls": result["observed_network_calls"],
-        "max system residual (m³)": result["max_system_balance_residual_m3"],
-        "operating strategy accepted": result["operating_strategy_accepted"],
-    })
-display(pd.DataFrame(verification_rows))'''),
-        code('''frames = []
-for method, output in outputs.items():
-    trajectory = pd.read_csv(output / "reservoir_trajectory.csv")
-    audits = jsonl(output / "audit.jsonl")
-    trajectory["date"] = trajectory["date"].str[:10]
-    trajectory["method"] = method
-    trajectory["audit"] = [row["status"] for row in audits]
-    frames.append(trajectory[["method", "date", "inflow_cms", "target_release_cms",
-                              "controlled_release_cms", "total_outflow_cms", "spill_cms", "storage_end_m3", "audit"]])
-comparison = pd.concat(frames, ignore_index=True).rename(columns={
-    "inflow_cms": "inflow (m³/s)",
-    "target_release_cms": "requested release (m³/s)",
-    "controlled_release_cms": "implemented release (m³/s)",
-    "total_outflow_cms": "total outflow (m³/s)",
-    "spill_cms": "spill (m³/s)",
-    "storage_end_m3": "end storage (m³)",
-})
-display(comparison)'''),
-        code('''fig, ax = plt.subplots()
-for method, group in comparison.groupby("method", sort=False):
-    ax.plot(group["date"], group["total outflow (m³/s)"], marker="o", label=method)
-ax.plot(inflow["date"], inflow["inflow (m³/s)"], color="black", linestyle="--", label="Inflow")
-ax.set(title="Same FE Walter case: implemented outflow", ylabel="Flow (m³/s)", xlabel="Date")
-ax.legend(ncol=2)
-fig.autofmt_xdate(rotation=20)
+The two LLM trajectories below are the HydroOpsLLM arms of the current Gemma 4
+comparison. The Rule-based trajectory is the preserved annual baseline, with
+the same accepted inflow and physical state; it requires zero model calls.
+Older LLM trajectories in that baseline export are excluded. No saved result
+is overwritten or relabeled as a new execution.'''),
+        code('''baseline = pd.read_csv(coupled / "outputs/2016/daily.csv")
+rule = baseline.loc[baseline["method"] == "rule"].copy()
+framework = daily.loc[daily["engine"] == "framework"].copy()
+comparison = pd.concat([rule, framework], ignore_index=True)
+comparison["method label"] = comparison["method"].map(labels)
+for slug, group in comparison.groupby("method"):
+    assert len(group) == 366 and group["date"].nunique() == 366
+    assert group["date"].tolist() == inflow["date"].tolist()
+    assert (abs(group["inflow_cms"].to_numpy() - inflow["inflow_cms"].to_numpy()) < 1e-10).all()
+display(comparison[["method label", "date", "inflow_cms", "controlled_release_cms",
+                    "spill_cms", "pool_elevation_end_ft", "storage_end_m3"]].groupby("method label", sort=False).head(3))'''),
+        code('''fig, axes = plt.subplots(2, 1, figsize=(11, 7), sharex=True)
+for method, group in comparison.groupby("method label", sort=False):
+    dates = pd.to_datetime(group["date"])
+    axes[0].plot(dates, group["pool_elevation_end_ft"], label=method)
+    axes[1].plot(dates, group["controlled_release_cms"], label=method)
+axes[0].axhline(1300, color="gray", linestyle=":")
+axes[0].axhline(1370, color="gray", linestyle=":")
+axes[0].set(ylabel="End-of-day pool (ft NGVD29)", title="Saved 2016 F.E. Walter operation")
+axes[1].set(ylabel="Controlled release (m³/s)", xlabel="2016 date")
+axes[0].legend(loc="upper left", fontsize=8)
+fig.tight_layout()
 export = ROOT / "tutorials/assets/fe_walter_three_method.png"
 export.parent.mkdir(parents=True, exist_ok=True)
 fig.savefig(export, dpi=160, bbox_inches="tight", metadata={"Software": "HydroOpsLM tutorial"})
 display(fig)'''),
-        md('''## 5. Audit and trace: preserved verdicts versus current revalidation
+        md('''## 5. Read completion, physics and operating outcomes separately
 
-`load_decision_flow` binds each decision to its raw provider record, saved audit,
-implemented physics, and next observation. `current_recheck` parses the saved
-action against today’s common action contract. It is explicitly a **current
-recheck**, not evidence that a historical checker event existed.'''),
-        code('''chains = []
-for method, slug, flow in (("Zero-shot", "zero_shot", zero_flow), ("DKP", "dkp", dkp_flow)):
-    stages = [
-        ("info", flow["prompt_variables"]["date"], "historical saved observation"),
-        ("provider completion", str(flow["provider_evidence"]["completion"]), "historical saved provider evidence"),
-        ("requested release", flow["saved_requested_action"]["release_cms"], "historical saved action, m³/s"),
-        ("response checks", flow["current_recheck"]["action_contract"], "current action-contract recheck"),
-        ("operation audit", flow["saved_audit"]["status"], "historical saved verdict"),
-        ("implemented total outflow", flow["saved_implemented_physics"]["total_outflow_cms"], "historical physics, m³/s"),
-        ("next storage", flow["next_info"]["state"]["storage_m3"], "next historical info, m³"),
-    ]
-    chains.extend({"method": method, "stage": stage, "value": value, "evidence meaning": meaning}
-                  for stage, value, meaning in stages)
-    next_flow = load_decision_flow(saved / slug, timestep=1)
-    display(ReadableText(f"{method}: implemented release history in the next prompt",
-                         json.dumps(next_flow["saved_native_history"], indent=2, ensure_ascii=False)))
-display(pd.DataFrame(chains))
-display(pd.DataFrame([{"method": method, **flow["trace_files"]}
-                      for method, flow in (("Zero-shot", zero_flow), ("DKP", dkp_flow))]))'''),
-        md('''## Optional explicit live rerun
+The saved comparison records 366 completed days and 366 actual HTTP attempts
+for each LLM arm, with no retry or fallback. The table reports the saved
+seasonal end-pool checks for each engine. Winter means November 1–March 14,
+within 1297–1303 ft. Completion and water balance do not establish acceptable
+operation: read the November 1 and seasonal results alongside the trajectories.
 
-With the named model already available locally, copy either YAML to a new file
-in the same directory. Edit its `run_id` and `output` to new values;
-keeping the copy beside the original preserves relative input paths.
-The provided YAMLs are bounded to three calls and configure no retry.
-These commands are documentation; the notebook builder never executes them.
+Independent replies at temperature 0.7 can produce different trajectories.
+The same-reply replay in the saved summary isolates engineering equivalence.'''),
+        code('''rows = []
+for name, arm in summary["arms"].items():
+    engine, slug = name.split("-", 1)
+    compliance = arm["seasonal_end_pool_compliance"]
+    rows.append({"method": labels[slug], "engine": engine,
+                 "completed days": arm["completed_days"], "actual HTTP attempts": arm["http_attempts"],
+                 "winter compliant days": compliance["winter"]["compliant_days"],
+                 "winter days": compliance["winter"]["days"],
+                 "November 1 end pool (ft)": compliance["november_1_end_pool_ft"],
+                 "saved max balance residual (m³)": arm["max_mass_balance_residual_m3"]})
+display(pd.DataFrame(rows))
+current_balance = (daily["storage_end_m3"] - daily["storage_start_m3"]
+                   - (daily["inflow_cms"] - daily["controlled_release_cms"] - daily["spill_cms"]) * 86400)
+display(pd.DataFrame([{"check": "current arithmetic recheck of saved CSV water balance",
+                       "max absolute residual (m³)": current_balance.abs().max(),
+                       "saved rows checked": len(daily)}]))
+display(pd.DataFrame([{"method": labels[slug],
+                      "exact native requests replayed": values["same_real_reply_replay"]["native_payloads_exact"],
+                      "exact framework requests replayed": values["same_real_reply_replay"]["framework_payloads_exact"]}
+                     for slug, values in summary["comparisons"].items()]))'''),
+        md('''## Optional new execution
+
+The notebook never executes the commands below. Keep an experiment copy beside
+its source, choose a new `run_id` and `output`, and review the model profile.
+`check` is offline; `prepare` computes hydrology, unless verified preparation is
+explicitly reused. Only the LLM `run` requests decisions with `--allow-network`.
 
 ```powershell
-Copy-Item examples/fe_walter/zero_shot/experiment.ollama.yaml examples/fe_walter/zero_shot/my-run.yaml
-# Edit my-run.yaml: use a new run_id and output before continuing.
-python run_experiment.py check examples/fe_walter/zero_shot/my-run.yaml
-python run_experiment.py run examples/fe_walter/zero_shot/my-run.yaml --allow-network
-python run_experiment.py verify <new-output-path>
-python tutorials/inspect_decision_flow.py <new-output-path>
+Copy-Item examples/fe_walter/coupled/current/llm_available.yaml examples/fe_walter/coupled/current/my-run.yaml
+# Edit my-run.yaml: choose a new run_id and output.
+reservoir-experiment check examples/fe_walter/coupled/current/my-run.yaml
+reservoir-experiment prepare examples/fe_walter/coupled/current/my-run.yaml
+reservoir-experiment run examples/fe_walter/coupled/current/my-run.yaml --allow-network
+reservoir-experiment verify <new-output-path>/operation
 ```
 
-For DKP, use `examples/fe_walter/dkp/experiment.ollama.yaml` as the source and
-`examples/fe_walter/dkp/my-run.yaml` as the copy in the same sequence.
+For LLM with retrieved knowledge, copy `current/llm_knowledge.yaml` instead.
 
-[Formal YAML/module manual](../docs/USER_GUIDE.md) ·
-[Native HydroCNHS hydrology and C&V](../docs/HYDROLOGY_SETUP.md) ·
-[Saved Ollama evidence](../examples/fe_walter/reference_outputs/ollama_three_day/README.md)'''),
+[Full configuration and audit/trace walkthrough](fe_walter.md) ·
+[Saved comparison summary](../examples/fe_walter/coupled/outputs/gemma4_2016_comparison/summary.json) ·
+[Recorded available-information pair](../examples/fe_walter/coupled/outputs/gemma4_2016_comparison/llm_available_pair.json) ·
+[Recorded retrieved-knowledge pair](../examples/fe_walter/coupled/outputs/gemma4_2016_comparison/llm_knowledge_pair.json)'''),
     ]
 
 

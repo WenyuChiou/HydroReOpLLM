@@ -30,7 +30,8 @@ and [flow-management plan and schedule](https://www.nap.usace.army.mil/Missions/
 ![F.E. Walter modeled catchment, rivers, dam, and gauge](../../docs/figures/fe-walter-catchment.png)
 
 **Figure 1.** Modeled subcatchments, dam, gauge, and 1996–2025 mean annual
-precipitation. The seven modeled contributing units total **750.811 km²**. This
+precipitation. The cyan polygon marks the reservoir surface; the diamond marks
+the dam/outlet. The seven modeled contributing units total **750.811 km²**. This
 is modeled watershed area, not official reservoir surface area or project
 property area. The native model's separate 1 ha artificial aggregation outlet
 is excluded. **Source credits:** Esri, CGIAR, USGS, data.pa.gov, TomTom, Garmin,
@@ -100,9 +101,9 @@ entry files:
 
 | Method input | File |
 |---|---|
-| LLM with available information | [`coupled/llm_available.gemma4.yaml`](coupled/llm_available.gemma4.yaml) |
-| LLM with retrieved knowledge | [`coupled/llm_knowledge.gemma4.yaml`](coupled/llm_knowledge.gemma4.yaml) |
-| Shared model profile | [`coupled/models.gemma4.yaml`](coupled/models.gemma4.yaml) |
+| LLM with available information | [`coupled/current/llm_available.yaml`](coupled/current/llm_available.yaml) |
+| LLM with retrieved knowledge | [`coupled/current/llm_knowledge.yaml`](coupled/current/llm_knowledge.yaml) |
+| Shared model profile | [`coupled/current/models.yaml`](coupled/current/models.yaml) |
 | Rule example | [Rule-based operation](benchmark/README.md) |
 
 The older Gemma 3 files remain unchanged as preserved inputs. Do not use them to

@@ -26,6 +26,7 @@ Creek 交會處，橫跨 Carbon 與 Luzerne counties。水壩建於 1961 年。�
 ![F.E. Walter 模式集水區、河流、水壩與測站](../../docs/figures/fe-walter-catchment.png)
 
 **圖 1。** 模式子集水區、水壩、測站與 1996–2025 年平均年降水量。
+青色 polygon 表示水庫水面，菱形表示水壩／出口。
 七個實際模式貢獻單元合計 **750.811 km²**；這是模式集水區面積，不是官方水庫水面
 或專案土地面積。原生模型中另有 1 ha 的人工匯總出口，此面積不計入上述總和。
 **資料來源：** Esri、CGIAR、USGS、data.pa.gov、TomTom、Garmin、SafeGraph、
@@ -87,9 +88,9 @@ LLM 不會提供集水區入流，也不負責水量計算。共用物理核心�
 
 | 方法輸入 | 檔案 |
 |---|---|
-| 使用可用資訊的 LLM | [`coupled/llm_available.gemma4.yaml`](coupled/llm_available.gemma4.yaml) |
-| 使用檢索知識的 LLM | [`coupled/llm_knowledge.gemma4.yaml`](coupled/llm_knowledge.gemma4.yaml) |
-| 共用模型 profile | [`coupled/models.gemma4.yaml`](coupled/models.gemma4.yaml) |
+| 使用可用資訊的 LLM | [`coupled/current/llm_available.yaml`](coupled/current/llm_available.yaml) |
+| 使用檢索知識的 LLM | [`coupled/current/llm_knowledge.yaml`](coupled/current/llm_knowledge.yaml) |
+| 共用模型 profile | [`coupled/current/models.yaml`](coupled/current/models.yaml) |
 | 規則範例 | [規則式操作](benchmark/README.zh-TW.md) |
 
 舊 Gemma 3 檔案保持原樣，作為保存輸入；不能用它們宣稱重現目前 Gemma 4 對照。
