@@ -14,7 +14,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 from llm_reservoir_agent.contracts import ReservoirAction, ReservoirObservation
-from llm_reservoir_agent.dkp_adapter import DKPPolicyAdapter
+from examples.fe_walter.extensions.dkp_adapter import DKPPolicyAdapter
 from llm_reservoir_agent.policy_adapter import LLMPolicyAdapter
 from llm_reservoir_agent.physics import PhysicalConfig, apply_transition
 from llm_reservoir_agent.policies import ConstantPolicy
@@ -72,7 +72,7 @@ class NeutralAdapterTests(unittest.TestCase):
 
     def test_generic_import_does_not_load_provider_modules(self):
         command = [sys.executable, "-c", "import sys; import llm_reservoir_agent.policy_adapter; "
-                   "assert 'delaware_operations.anik_adapter' not in sys.modules; "
+                   "assert 'examples.fe_walter.extensions.anik_v3_7' not in sys.modules; "
                    "assert 'reservoir_model' not in sys.modules"]
         environment = os.environ.copy()
         module_paths = [str(ROOT / "src")]
@@ -280,7 +280,7 @@ class DKPCompositionTests(unittest.TestCase):
         fake_adapter.decide.return_value = {"schema_version": "reservoir-action.v1", "release_cms": 2.0}
         callback = Mock()
         cfg, policy = object(), object()
-        with patch("delaware_operations.anik_adapter.AnikPolicyAdapter", return_value=fake_adapter) as factory:
+        with patch("examples.fe_walter.extensions.anik_v3_7.AnikPolicyAdapter", return_value=fake_adapter) as factory:
             adapter = DKPPolicyAdapter(cfg, policy, consult_every_day=False, on_commit=callback)
         factory.assert_called_once_with(cfg, policy, consult_every_day=False, on_commit=callback)
         obs = observation()
@@ -293,14 +293,14 @@ class DKPCompositionTests(unittest.TestCase):
         self.assertEqual(adapter.network_calls, 4)
 
     def test_dkp_module_import_does_not_construct_backend(self):
-        with patch("delaware_operations.anik_adapter.AnikPolicyAdapter") as factory:
-            importlib.reload(sys.modules["llm_reservoir_agent.dkp_adapter"])
+        with patch("examples.fe_walter.extensions.anik_v3_7.AnikPolicyAdapter") as factory:
+            importlib.reload(sys.modules["examples.fe_walter.extensions.dkp_adapter"])
             factory.assert_not_called()
 
     def test_generic_adapter_wraps_dkp_composition(self):
         fake_adapter = AlternateBackend()
         fake_adapter.network_calls = 0
-        with patch("delaware_operations.anik_adapter.AnikPolicyAdapter", return_value=fake_adapter):
+        with patch("examples.fe_walter.extensions.anik_v3_7.AnikPolicyAdapter", return_value=fake_adapter):
             adapter = LLMPolicyAdapter(DKPPolicyAdapter(object(), object()))
         obs = observation()
         completed = record(obs, adapter.decide(obs), "dkp_v3_7")
@@ -310,7 +310,7 @@ class DKPCompositionTests(unittest.TestCase):
         self.assertEqual(adapter.network_calls, 0)
 
     def test_actual_dkp_layer_keeps_bounded_decision_and_spill_feedback(self):
-        from delaware_operations.anik_adapter import load_anik
+        from examples.fe_walter.extensions.anik_v3_7 import load_anik
 
         vendor = load_anik(ROOT)
         cfg = next(value for value in vendor.RESERVOIRS if value.name == "F.E. Walter Dam")
@@ -377,12 +377,12 @@ class CoreIndependenceAndParityTests(unittest.TestCase):
 import importlib.abc, sys
 class Block(importlib.abc.MetaPathFinder):
     def find_spec(self, fullname, path=None, target=None):
-        if fullname.startswith('delaware_operations') or fullname in ('reservoir_model', 'dkp_llm_release', 'zeroshot_llm_release', 'benchmark_release'):
+        if fullname.startswith('examples') or fullname in ('reservoir_model', 'dkp_llm_release', 'zeroshot_llm_release', 'benchmark_release'):
             raise AssertionError('Unexpected provider dependency: ' + fullname)
 sys.meta_path.insert(0, Block())
 import llm_reservoir_agent as core
 assert core.LLMReservoirAgent is core.ReservoirDamAgent
-assert not any(name.startswith('delaware_operations') for name in sys.modules)
+assert not any(name.startswith('examples') for name in sys.modules)
 assert core.ConstantPolicy(1).decide({}).release_cms == 1
 """
         environment = os.environ.copy()
@@ -393,8 +393,8 @@ assert core.ConstantPolicy(1).decide({}).release_cms == 1
 
     def test_all_transition_fields_match_frozen_kernel_at_adversarial_bounds(self):
         from dataclasses import asdict
-        from delaware_operations.physics import PhysicalConfig as LegacyConfig
-        from delaware_operations.physics import apply_transition as legacy_apply
+        from examples.fe_walter.legacy.physics import PhysicalConfig as LegacyConfig
+        from examples.fe_walter.legacy.physics import apply_transition as legacy_apply
 
         configs = [PhysicalConfig("boundaries", 100.0, 10.0, 80.0, 1.0, 10.0, 10.0),
                    PhysicalConfig("daily", 1e8, 1e7, 8e7, 0.1, 1000.0),
@@ -411,8 +411,8 @@ assert core.ConstantPolicy(1).decide({}).release_cms == 1
 
     def test_invalid_inputs_raise_same_error_as_frozen_kernel(self):
         from dataclasses import asdict
-        from delaware_operations.physics import PhysicalConfig as LegacyConfig
-        from delaware_operations.physics import apply_transition as legacy_apply
+        from examples.fe_walter.legacy.physics import PhysicalConfig as LegacyConfig
+        from examples.fe_walter.legacy.physics import apply_transition as legacy_apply
 
         config = PhysicalConfig("boundary", 100.0, 10.0, 80.0, 1.0, 10.0, 10.0)
         legacy = LegacyConfig(**asdict(config))
@@ -431,7 +431,7 @@ assert core.ConstantPolicy(1).decide({}).release_cms == 1
 
     def test_agent_committed_states_and_cached_calls_match_frozen_agent(self):
         from datetime import date, timedelta
-        from delaware_operations.dam_agent import FEWalterDamAgent
+        from examples.fe_walter.legacy.dam_agent import FEWalterDamAgent
         from llm_reservoir_agent import LLMReservoirAgent, ReservoirDamAgent
 
         class Collector:
@@ -485,7 +485,7 @@ class AuditRetentionTests(unittest.TestCase):
         legacy = Mock()
         legacy.network_calls = 0
         legacy.decide.side_effect = lambda obs: (policy._log(policy.payload), {"release_cms": 2.0})[1]
-        with patch("delaware_operations.anik_adapter.AnikPolicyAdapter", return_value=legacy):
+        with patch("examples.fe_walter.extensions.anik_v3_7.AnikPolicyAdapter", return_value=legacy):
             adapter = DKPPolicyAdapter(object(), policy)
         return adapter, policy, legacy
 

@@ -1,91 +1,142 @@
-# HydroOpsLLM LLM modules
+# LLM decision modules
 
 [English](LLM_MODULES.md) | [繁體中文](LLM_MODULES.zh-TW.md)
 
-Read this before changing a prompt or adding a backend.
-HydroCNHS supplies hydrology, routing and the Dam API. The added decision path is:
+The configured decision path is:
 
-`info + prompt + optional context → LLM → operation proposal → response checks → execution → feedback`
+```text
+immutable decision context
+  → explicit system and user templates
+  → provider request and bounded attempts
+  → strict operation proposal
+  → audit
+  → physical implementation and routing
+  → committed feedback
+```
 
-Audit evaluates the configured operating rules; trace records the complete chain.
-The current operations runner is daily.
+HydroCNHS supplies hydrology, native Dam integration and routing. The model
+requests controlled release; it does not write storage, spill or river flow.
 
-| Module | Input → output | Configuration / extension |
-|---|---|---|
-| Information adapter | Causally available state → observation (`info`) | Case input, host state and backend observation mapping |
-| Prompt | Observation, template, optional knowledge → messages | Independent TXT; `PromptSpec` / `PromptStrategy.build` |
-| Selected information | Causal source catalog + profile → `decision-information.v1` | YAML `information_sources` / `information_profiles`; registered extensions only |
-| Optional context | Local knowledge or supplied extra information → model context | YAML `knowledge`/`context`; custom retrieval belongs to a backend |
-| LLM backend | Messages + sampling settings → raw reply | Model profile; injected decision backend |
-| Operation proposal | Model reply → requested release and available rationale | Native fields stay in trace; normalized action uses m³/s |
-| Response checks | Complete reply → parsed and valid `ReservoirAction` or stop | `ResponseParser.parse` and strict field/unit/value checks, before physical update |
-| Reservoir execution | Request + current water → implemented release, spill, state | Common physics; limits remain under host control |
-| Auditor | Bound observation/decision → PASS/WARN/FAIL/UNKNOWN | `AuditSpec` / reservoir-local `AuditPlugin` |
-| Trace / feedback | Decision and committed outcome → evidence, next-step history | Journal and backend transition feedback |
+## Module responsibilities
 
-These are responsibilities and Python extension contracts. The YAML loader
-supports its declared strategies and auditors; it is not an arbitrary plugin registry.
-Replacing a parser, information mapping or retrieval implementation requires a
-backend that composes it and targeted tests. Replacing physics or routing requires
-separate physical acceptance.
-
-## Fixed settings and changing info
-
-| Fixed for one experiment | Updated each timestep |
+| Module | Input → output |
 |---|---|
-| Prompt template/version and reservoir profile | Timestamp, inflow and beginning storage/state |
-| Model/sampling settings and action schema | Local history of requested and implemented releases |
-| Knowledge source/version and audit rubric | Retrieved excerpts, when the chosen backend retrieves them |
-| Network, physics and initial conditions | Executed transition and routed downstream flow |
+| `configuration.py` | v1/v2 experiment and section files → one normalized configuration with file pins |
+| `agent_configuration.py` | `normalize_agent(spec)` translates the public per-reservoir interface into the existing engine configuration and rejects mixed syntax |
+| `rule_based.py` | `RuleBasedBackend` binds a registered rule's source pins, `rule_id`, `policy_id` and explicit zero-provider-call contract |
+| `prompt.py` | explicit `PromptSpec` templates → provider-independent messages and provenance |
+| `context.py` | immutable `DecisionContext` → available `ContextValue` with provenance |
+| `information.py` | causal catalog and profile → `decision-information.v1` snapshot |
+| `providers.py` | common messages → native provider request; native response → text and metadata |
+| `configured_backend.py` | prompt, context, profiles and reply → checked `ReservoirAction` plus attempt trace |
+| `physics.py` | requested release and current water → implemented release, spill and ending storage |
+| `network.py` | implemented outflow → one downstream routing update |
+| `experiment.py` | decisions, provider evidence, audits and physics → durable journals |
+| `recovery.py` | verified committed prefix → resumable state in a new run |
 
-The host observation contains `timestep`, `timestamp`, `inflow_cms`,
-`release_upper_bound_cms`, `state` and `context`.
-Only content included in the final messages is visible to the LLM.
-A backend may expose additional fields only with explicit meaning, units and
-availability time. The `$information` snapshot implements this selection for the
-generic configured strategy; see [Decision information](INFORMATION.md). A forecast is not future observed truth. Each reservoir keeps
-its own state/history; passive outlets bypass the decision path.
+Case extensions may supply context callbacks, auditors, response contracts or a
+complete backend. They are registered explicitly in YAML and their source bytes
+are pinned. The F.E. Walter extension uses native-matched Anik message formatting
+through the common configured provider transport. It is a scientific case
+adapter. Select it with `customization.backend` and supply its case options in
+`customization.parameters`; it does not supply a common prompt for other agents.
 
-The template stays independent of daily data. In the generic YAML backend,
-`$observation` is a protected hydrology namespace plus separate static context;
-`$previous_transition` is null initially and later the actual committed outcome.
-Knowledge is optional. Generic local knowledge is included in full; automatic
-retrieval/tools are Python extensions. See [settings](USER_GUIDE.md).
+## Prompt ownership
 
-The locked `reference_v3_7` profiles preserve their original messages and reject
-extra information. Use a versioned generic prompt for `$information` examples.
+The public LLM interface names a user template and an optional system template.
+The engine represents these independent inputs with `PromptSpec`:
 
-## Proposal and acceptance
+```yaml
+reservoir_id: lake_a
+type: llm
+model_profile: local
+prompt_file: prompts/operator.txt
+customization:
+  system_prompt_file: prompts/system.txt
+```
 
-A proposal means requested controlled release in m³/s:
+The runtime does not prepend hidden shared system text. It renders built-in
+fields, fixed `customization.prompt_variables` and dynamic
+`customization.context_providers` into these two
+templates. Only rendered message content is visible to the model.
+
+The current observation contains the timestamp, local inflow, beginning storage,
+release upper bound, physical state and declared context. The previous transition
+is `null` on the first step and the actual committed observation/action/physics
+record thereafter.
+
+## Context callbacks
+
+A context extension exposes `build_context(config)`. It returns a callback that
+receives an immutable `DecisionContext(agent_id, observation,
+previous_transition)`. The callback returns `ContextValue(value, provenance,
+available=True)`.
+
+The `preview` value in YAML is used only during validation. `check` never invokes
+the callback or its network dependencies. At run time, availability metadata
+cannot be later than the decision time. Returned values and provenance are copied
+before rendering and retained in the trace.
+
+A project can connect its own retrieval system here. HydroOpsLLM includes a local
+JSON selection example and no bundled vector-database connector.
+
+## Provider adapters
+
+The five adapters preserve the same configured messages while using native API
+shapes:
+
+- OpenAI Responses;
+- Anthropic Messages;
+- Gemini `generateContent`;
+- Ollama Chat; and
+- OpenAI-compatible Chat Completions.
+
+The response adapter requires provider-specific completion evidence and rejects
+refusal, truncation, missing completion status and malformed output. The checked
+proposal is normally:
 
 ```json
 {"schema_version":"reservoir-action.v1","release_cms":5.0}
 ```
 
-It does not set storage or spill. Specialized readers can preserve reasoning,
-citations or native decision fields separately while producing this common action.
-Malformed/incomplete replies stop before physical update; there is no automatic
-rule fallback. Physical limits can make implemented release differ from requested
-release. Next-step history records the implemented outcome.
+Specialized extensions may preserve additional native fields while returning the
+same common action. See [Model providers](MODEL_PROVIDERS.md) for transport
+settings.
 
-Checker PASS means the action contract is valid. Auditor PASS means the configured
-rubric passed. A completed simulation/physical balance does not approve the policy.
-These outcomes must be displayed separately.
+## Retry and fallback boundary
 
-## Follow one decision
+Each profile has an explicit `max_attempts`. Eligible transport and response
+failures retry without advancing physics. `customization.fallback_models` then tries configured
+profiles in declared order. Every attempt records provider, model, request hash,
+reply metadata, usage, error class and elapsed time.
 
-The [tutorials](../tutorials/main.ipynb) display:
-info → full system/user prompt → saved actual Ollama reply → normalized proposal →
-action-contract recheck → original audit → committed physics → next-day info.
+Authentication and configuration errors are terminal. Once a valid action exists,
+later audit FAIL or physical failure never rerolls the decision. Failure to write
+the evidence ledger also stops execution.
 
-The recheck is a current inspection of the normalized action, not a fabricated
-historical checker event. Trace retains the original audit and prompt/reply evidence.
-Generic fixed-release offline mode skips model/prompt execution; the reference
-offline examples exercise prompt assembly and supplied-reply parsing.
-Supplied replies do not demonstrate real LLM decision quality; actual saved
-Ollama replies retain their original policy audit verdicts.
+## Acceptance meanings
 
-[Contracts](../src/llm_reservoir_agent/contracts.py) ·
-[Prompt/parser protocols](../src/llm_reservoir_agent/prompt.py) ·
-[Audit plugins](auditor_plugins.md) · [Settings](USER_GUIDE.md)
+Keep these conclusions separate:
+
+| Evidence | Supported conclusion |
+|---|---|
+| Response check PASS | The provider returned the selected action contract. |
+| Audit PASS | The configured decision rubric passed. |
+| Physical balance PASS | Implemented storage and flow balance under the case physics. |
+| Run verification PASS | Saved records, hashes and links are internally consistent. |
+
+None of these alone establishes operating-policy quality. Synthetic replies are
+not live model results, and result counts do not prove semantic parity with a
+scientific policy.
+
+## Recovery boundary
+
+The durable provider ledger, raw request/response record, physics journal and
+audit journal are recovery inputs. Resume verifies the committed prefix, skips
+committed decisions and reuses captured replies when possible. A crash between an
+external service accepting a request and the local evidence commit can still
+produce a repeated external request; the runtime does not promise network
+exactly-once delivery.
+
+[Configure prompts and context](CONFIGURATION.md) ·
+[Decision information](INFORMATION.md) · [Results and trace](RESULTS_GUIDE.md)

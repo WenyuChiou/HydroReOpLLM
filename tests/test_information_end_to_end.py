@@ -40,7 +40,7 @@ class FixtureServer:
 
             def do_POST(self):
                 payload = json.loads(self.rfile.read(int(self.headers["Content-Length"])))
-                user = json.loads(payload["messages"][1]["content"])
+                user = json.loads(next(m["content"] for m in payload["messages"] if m["role"] == "user"))
                 owner.requests.append({"path": self.path, "payload": payload, "user": user})
                 fields = user["info"]["fields"]
                 selected = fields.get("target", {})
@@ -248,7 +248,7 @@ def test_each_source_reaches_prompt_and_native_results(folder, server, source_ki
     assert len(raw) == 3
     for m, raw_record in zip(messages, raw):
         trace = raw_record["backend_trace"]
-        assert json.loads(trace["messages"][1]["content"])["info"] == m["info"]
+        assert json.loads(next(m["content"] for m in trace["messages"] if m["role"] == "user"))["info"] == m["info"]
         assert trace["raw_reply"] is not None and trace["parsed_action"] is not None
 
 

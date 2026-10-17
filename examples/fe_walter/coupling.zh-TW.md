@@ -93,8 +93,9 @@ LLM 改變蓄水與下游流量，不修改 GWLF 參數或上游氣象。
 | 今日 → 下一次決策 | 日期連續、期末接期初蓄水、實際放流歷史；沒有未來測站資訊 |
 | 決策 → 證據 | Requested／implemented release、原始 audit 與 trace 來源保持連結 |
 
-保存的三日範例驗證給定入流的整合；
-不代表尚未執行的氣象驅動設定或操作策略已通過驗收。
+保存的三日範例僅驗證給定入流的整合。
+氣象到操作的執行證據，請見英文[2016 年耦合結果](coupled/README.md#verified-2016-results)。
+保存檔驗證不代表操作策略已通過驗收。
 
 接著閱讀[規則式操作](benchmark/README.zh-TW.md)、
 [使用可用資訊的 LLM](zero_shot/README.zh-TW.md)，或[使用檢索知識的 LLM](dkp/README.zh-TW.md)。

@@ -5,6 +5,8 @@ results/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 prompts/fe_walter_reference/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 prompt_preview/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 examples/fe_walter/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+# Generic teaching CSVs are pinned by their exact source bytes as well.
+examples/multiple_reservoirs/*.csv -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 examples/llm_reservoir_abm.py -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 data/benchmark/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 data/figures/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol

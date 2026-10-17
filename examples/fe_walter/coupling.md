@@ -94,8 +94,10 @@ Before model requests in a new weather-driven integration, verify these connecti
 | Today → next decision | Continuous dates, ending-to-starting storage and implemented release history; no future gauge information |
 | Decision → evidence | Requested/implemented release, original audit verdicts and trace sources remain linked |
 
-The saved three-day examples validate their supplied-inflow integration.
-They do not establish acceptance of an unexecuted weather-driven configuration or of the operating policy.
+The saved three-day examples validate only their supplied-inflow integration.
+For weather-to-operation execution evidence, read the
+[current 2016 coupled results](coupled/README.md#verified-2016-results).
+Saved-file verification does not establish operating-policy acceptance.
 
 Continue with [rule-based operation](benchmark/README.md),
 [LLM with available information](zero_shot/README.md), or [LLM with retrieved knowledge](dkp/README.md).

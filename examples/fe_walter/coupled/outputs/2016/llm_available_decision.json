@@ -1,0 +1,103 @@
+{
+  "method": "llm_available",
+  "date": "2016-06-15",
+  "source_sha256": "bf0f43a80b7c25d52f0d0aa4a490acac01e42e7f33b3f22b213256fde38b7d2a",
+  "provider": "ollama",
+  "model": "gemma3:4b",
+  "messages": [
+    {
+      "content": "You are the operator of a reservoir, making one release decision per day.\n\nReservoir information (public sources):\n- Name: F.E. Walter Dam on the Lehigh River, Pennsylvania\n- Location: Bear Creek Township, Luzerne County and Kidder Township, Carbon County, Pennsylvania\n- Purpose: flood control, water storage, recreation\n- Opened: 1961; operated by the U.S. Army Corps of Engineers\n- Type: earth-fill embankment with rock shell, impounding the Lehigh River\n- Dam height (foundation): 234 ft; length: 3,000 ft\n- Spillway type: concrete\n- Catchment area: 289 square miles\n- Total capacity (publicly reported): 110,700 acre-feet\n- Operation target: Your goal is to keep the water level within the designated seasonal pool levels. From November 1 through March 14, keep the pool near the conservation pool at 1300.0 ft N.G.V.D., within 1297.0 to 1303.0 ft. From March 15 through May 9, keep the pool between 1300.0 and 1370.0 ft and, when hydrologic conditions allow, fill toward 1370.0 ft by May 10. From May 10 through October 14, keep the pool at or below 1370.0 ft. From October 15 through October 31, keep the pool between 1300.0 and 1370.0 ft and lower it toward 1300.0 ft by November 1.\n\nEach day you will receive the current date, mean inflow,\nwater level at the beginning of the interval, and the previous one or two\nsimulated release decisions.\nFlows are also stated as volumes in cubic feet over their interval, the\nunit of the water balance. Decide the interval's mean release\nin cfs, consistent with the reservoir's purpose. You have no operating\nmanual; use general reservoir-operation principles.\n\nPhysical water balance (not an operating rule):\n- storage_change_cubic_feet = (inflow_cfs - release_cfs) * 86,400 * interval_days.\n- A release below inflow increases storage; a release equal to inflow\n  leaves storage approximately unchanged; a release above inflow decreases\n  storage. Passing inflow cannot refill a reservoir below its target.\n\nConstraints you must respect:\n- Do not plan to release more water than is available (storage + inflow).\n- Avoid letting storage exceed capacity (uncontrolled spill).\n- Avoid abrupt interval-to-interval release changes unless conditions require them.\n\nRespond only with JSON, with the fields in this order:\n  applicable_target_ft (the operation-target water level for this interval),\n  pool_position (below_target | at_target | above_target),\n  intended_storage_direction (increase | hold | decrease),\n  release_relation_to_inflow (below_inflow | equal_to_inflow | above_inflow),\n  reasoning (1-2 sentences), release_cfs (number).\nDecide the first four, then write the reasoning, then choose release_cfs.\nMake release_cfs consistent with the four fields and with your reasoning.",
+      "role": "system"
+    },
+    {
+      "content": "Date: 2016-06-15 (June, day 167 of the year)\n1. Today's inflow: 201.0 cfs (= 17,369,579 cubic feet (= 399 acre-feet) over 1 days)\n2. Water level at beginning of interval: 1398.39 ft NGVD29\n3. Previous simulated release decisions (and what was actually released):\n   2016-06-13: decided 245.6 cfs; actually released 245.6 cfs (= 21,219,840 cubic feet (= 487 acre-feet) over 1 days)\n   2016-06-14: decided 216.2 cfs; actually released 216.2 cfs (= 18,679,680 cubic feet (= 429 acre-feet) over 1 days)\n4. Number of days in this decision interval: 1\n\nDecide the mean release for this interval (cfs).",
+      "role": "user"
+    }
+  ],
+  "raw_response": "{\n  \"applicable_target_ft\": 1370.0,\n  \"pool_position\": \"at_target\",\n  \"intended_storage_direction\": \"hold\",\n  \"release_relation_to_inflow\": \"equal_to_inflow\",\n  \"reasoning\": \"The pool is currently at the target level of 1370.0 ft. With inflow of 201 cfs, releasing the same amount will maintain the storage level. \",\n  \"release_cfs\": 201.0\n}",
+  "response_schema": {
+    "additionalProperties": false,
+    "properties": {
+      "applicable_target_ft": {
+        "description": "Operation-target water level (ft NGVD29) that applies to this interval, read from the operation target",
+        "type": "number"
+      },
+      "intended_storage_direction": {
+        "description": "How you intend storage to change over this interval",
+        "enum": [
+          "increase",
+          "hold",
+          "decrease"
+        ],
+        "type": "string"
+      },
+      "pool_position": {
+        "description": "Beginning water level compared with applicable_target_ft",
+        "enum": [
+          "below_target",
+          "at_target",
+          "above_target"
+        ],
+        "type": "string"
+      },
+      "reasoning": {
+        "description": "One or two sentences: the storage change your release will cause, and why it moves toward the target",
+        "type": "string"
+      },
+      "release_cfs": {
+        "description": "Target mean release for the interval in cubic feet per second",
+        "type": "number"
+      },
+      "release_relation_to_inflow": {
+        "description": "How your release will compare with this interval's inflow",
+        "enum": [
+          "below_inflow",
+          "equal_to_inflow",
+          "above_inflow"
+        ],
+        "type": "string"
+      }
+    },
+    "required": [
+      "applicable_target_ft",
+      "pool_position",
+      "intended_storage_direction",
+      "release_relation_to_inflow",
+      "reasoning",
+      "release_cfs"
+    ],
+    "type": "object"
+  },
+  "parsed_action": {
+    "release_cms": 5.691686247,
+    "schema_version": "reservoir-action.v1"
+  },
+  "audit_execution": {
+    "input_sha256": "99493ea6bb9fa916070e6cb2f626c6d1a3a507de5c5a72dc184ff1738a11b521",
+    "status": "COMPLETED"
+  },
+  "audit": {
+    "status": "FAIL",
+    "hits": [],
+    "citations": [],
+    "audit_schema_version": "reservoir-audit.v1"
+  },
+  "audit_source_sha256": "21520a215cf3e838ed22739c5ddcea9aadd87ca6f9a891103a97a699c3095b09",
+  "action": {
+    "release_cms": 5.691686247,
+    "schema_version": "reservoir-action.v1"
+  },
+  "transition": {
+    "adjustments": [],
+    "controlled_release_cms": 5.691686247,
+    "inflow_cms": 5.692728228467484,
+    "mass_balance_residual_m3": 0.0,
+    "minimum_release_shortfall_cms": 0.0,
+    "spill_cms": 0.0,
+    "storage_end_m3": 51613209.8521027,
+    "storage_start_m3": 51613119.82490391,
+    "target_release_cms": 5.691686247,
+    "total_outflow_cms": 5.691686247
+  },
+  "classification": "PROVIDER_RECORDED"
+}

@@ -134,3 +134,7 @@ div.highlight pre { padding-top:46px; }
 
 /* Full model replies remain readable without horizontal prose scrolling. */
 div.highlight-json pre { white-space:pre-wrap; overflow-wrap:anywhere; }
+
+/* Keep multi-line study captions aligned with the body text. */
+figure.study-area-figure { margin-inline:0; }
+figure.study-area-figure figcaption { text-align:left; }

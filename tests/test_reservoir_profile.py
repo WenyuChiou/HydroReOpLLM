@@ -8,8 +8,8 @@ from types import SimpleNamespace
 
 import pytest
 
-from delaware_operations.anik_adapter import load_anik
-from llm_reservoir_agent import reservoir_profile
+from examples.fe_walter.extensions.anik_v3_7 import load_anik
+from examples.fe_walter.extensions import reservoir_profile
 
 
 ROOT = Path(__file__).resolve().parents[1]

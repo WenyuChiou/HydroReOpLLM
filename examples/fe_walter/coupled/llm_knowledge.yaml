@@ -1,0 +1,17 @@
+schema_version: hydroops-coupled-simulation.v2
+case: reservoirs.json
+start_date: '2016-01-01'
+end_date: '2016-12-31'
+run_id: fe-walter-coupled-llm_knowledge
+output: ../../../runs/fe-walter-coupled-llm_knowledge
+max_calls: null
+models:
+  file: models.yaml
+auditors:
+  file: auditors.yaml
+agents:
+  file: agents.llm_knowledge.yaml
+hydrology:
+  file: hydrology.yaml
+extensions:
+  reference_v3_7: ../extensions/__init__.py

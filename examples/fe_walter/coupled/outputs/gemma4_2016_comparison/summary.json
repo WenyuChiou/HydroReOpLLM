@@ -1,0 +1,398 @@
+{
+  "schema_version": "fe-walter-engine-comparison.v1",
+  "model": "gemma4:12b",
+  "model_digest": "4eb23ef187e2c5462566d6a1d3bbbc2f1346d0b4327cbb66d58fffbcc9b2b05c",
+  "period": {
+    "start": "2016-01-01",
+    "end": "2016-12-31",
+    "days": 366
+  },
+  "model_controls": {
+    "temperature": 0.7,
+    "num_predict": 2048,
+    "num_ctx": 16384,
+    "think": false,
+    "timeout_seconds": 120,
+    "max_attempts": 2,
+    "retry_delay_seconds": 2,
+    "seed": null,
+    "fallback": false
+  },
+  "arms": {
+    "original-llm_available": {
+      "completed_days": 366,
+      "http_attempts": 366,
+      "started_at_utc": "2026-10-17T08:17:11.240668+00:00",
+      "ended_at_utc": "2026-10-17T08:45:35.669992+00:00",
+      "elapsed_seconds": 1704.4681187999668,
+      "max_mass_balance_residual_m3": 0.0,
+      "seasonal_end_pool_compliance": {
+        "winter": {
+          "days": 135,
+          "compliant_days": 63
+        },
+        "spring": {
+          "days": 56,
+          "compliant_days": 56
+        },
+        "summer": {
+          "days": 158,
+          "compliant_days": 158
+        },
+        "fall": {
+          "days": 17,
+          "compliant_days": 9
+        },
+        "november_1_end_pool_ft": 1366.8714573433883
+      }
+    },
+    "framework-llm_available": {
+      "completed_days": 366,
+      "http_attempts": 366,
+      "started_at_utc": "2026-10-17T08:50:28.739749+00:00",
+      "ended_at_utc": "2026-10-17T09:18:13.130805+00:00",
+      "elapsed_seconds": 1664.427359299967,
+      "max_mass_balance_residual_m3": 0.0,
+      "seasonal_end_pool_compliance": {
+        "winter": {
+          "days": 135,
+          "compliant_days": 61
+        },
+        "spring": {
+          "days": 56,
+          "compliant_days": 56
+        },
+        "summer": {
+          "days": 158,
+          "compliant_days": 155
+        },
+        "fall": {
+          "days": 17,
+          "compliant_days": 10
+        },
+        "november_1_end_pool_ft": 1351.7887539756175
+      }
+    },
+    "original-llm_knowledge": {
+      "completed_days": 366,
+      "http_attempts": 366,
+      "started_at_utc": "2026-10-17T09:21:01.608042+00:00",
+      "ended_at_utc": "2026-10-17T10:11:20.745269+00:00",
+      "elapsed_seconds": 3019.2251879000105,
+      "max_mass_balance_residual_m3": 0.0,
+      "seasonal_end_pool_compliance": {
+        "winter": {
+          "days": 135,
+          "compliant_days": 132
+        },
+        "spring": {
+          "days": 56,
+          "compliant_days": 56
+        },
+        "summer": {
+          "days": 158,
+          "compliant_days": 158
+        },
+        "fall": {
+          "days": 17,
+          "compliant_days": 0
+        },
+        "november_1_end_pool_ft": 1298.6042215072175
+      }
+    },
+    "framework-llm_knowledge": {
+      "completed_days": 366,
+      "http_attempts": 366,
+      "started_at_utc": "2026-10-17T10:20:45.029625+00:00",
+      "ended_at_utc": "2026-10-17T11:12:51.777045+00:00",
+      "elapsed_seconds": 3126.828564799973,
+      "max_mass_balance_residual_m3": 0.0,
+      "seasonal_end_pool_compliance": {
+        "winter": {
+          "days": 135,
+          "compliant_days": 135
+        },
+        "spring": {
+          "days": 56,
+          "compliant_days": 55
+        },
+        "summer": {
+          "days": 158,
+          "compliant_days": 158
+        },
+        "fall": {
+          "days": 17,
+          "compliant_days": 0
+        },
+        "november_1_end_pool_ft": 1297.0557961022246
+      }
+    }
+  },
+  "comparisons": {
+    "llm_available": {
+      "first_full_request_difference": {
+        "index": 2,
+        "day_number": 3,
+        "field_paths": [
+          "$.messages[1].content"
+        ],
+        "left_sha256": "9cfa070eb0fc605597837699c024b750a914b36953004ed4b71dd1b864316028",
+        "right_sha256": "8556abc60ea25c8efd51c0b44c8c9eacb8c31bd3538415631f62999c7675c514"
+      },
+      "response_comparison": {
+        "first_content_difference": {
+          "index": 0,
+          "day_number": 1,
+          "original_sha256": "e6f640a2fb97bb0f4a0b86a9739f13420267d51e12f49b650eb1e9c407043795",
+          "framework_sha256": "62caf319384332f18bb065793b7546504ede529a845df928822c9de31681f657",
+          "original_chars": 370,
+          "framework_chars": 364
+        },
+        "first_parsed_difference": {
+          "index": 0,
+          "day_number": 1,
+          "field_paths": [
+            "$.reasoning"
+          ],
+          "left_sha256": "48b226e4b44f15bd46b87ccf06d31cb2555ba9abe4c0a81cfa6ec79d83f05f9d",
+          "right_sha256": "09977cda677a5575a53298250a1faef1c2964489d7581dac69f6c0ebe8fbbb67"
+        },
+        "first_numeric_release_difference": {
+          "index": 1,
+          "day_number": 2,
+          "original_release_cfs": 1000.0,
+          "framework_release_cfs": 789.4
+        }
+      },
+      "real_arm_comparison": {
+        "pool_elevation_start_ft": {
+          "mae": 6.162998020536357,
+          "rmse": 11.457589505756783,
+          "max_abs": 58.32669111554992,
+          "signed_at_first_max": -58.32669111554992,
+          "first_max_abs_date": "2016-01-15",
+          "max_abs_date_count": 1
+        },
+        "pool_elevation_end_ft": {
+          "mae": 6.169057235128454,
+          "rmse": 11.45817588607572,
+          "max_abs": 58.32669111554992,
+          "signed_at_first_max": -58.32669111554992,
+          "first_max_abs_date": "2016-01-14",
+          "max_abs_date_count": 1
+        },
+        "controlled_release_cfs": {
+          "mae": 132.81338797814206,
+          "rmse": 339.95260369581354,
+          "max_abs": 2751.0,
+          "signed_at_first_max": 2751.0,
+          "first_max_abs_date": "2016-01-11",
+          "max_abs_date_count": 1
+        }
+      },
+      "same_real_reply_replay": {
+        "native_payloads_exact": 366,
+        "framework_payloads_exact": 366,
+        "native_vs_framework": {
+          "pool_elevation_start_ft": {
+            "mae": 6.771511099265654e-14,
+            "rmse": 1.2745255897339138e-13,
+            "max_abs": 4.547473508864641e-13,
+            "signed_at_first_max": 4.547473508864641e-13,
+            "first_max_abs_date": "2016-11-15",
+            "max_abs_date_count": 3
+          },
+          "pool_elevation_end_ft": {
+            "mae": 6.833635054304789e-14,
+            "rmse": 1.2800550108791805e-13,
+            "max_abs": 4.547473508864641e-13,
+            "signed_at_first_max": 4.547473508864641e-13,
+            "first_max_abs_date": "2016-11-14",
+            "max_abs_date_count": 3
+          },
+          "controlled_release_cfs": {
+            "mae": 1.59192634787782e-15,
+            "rmse": 1.1142199131114339e-14,
+            "max_abs": 1.1368683772161603e-13,
+            "signed_at_first_max": 1.1368683772161603e-13,
+            "first_max_abs_date": "2016-01-14",
+            "max_abs_date_count": 3
+          }
+        },
+        "analysis_report_sha256": "60c203c66def9165c5edc7d18600cc56f9a63fac21d27bb5f74268855e8ff8a1"
+      }
+    },
+    "llm_knowledge": {
+      "first_full_request_difference": {
+        "index": 71,
+        "day_number": 72,
+        "field_paths": [
+          "$.messages[1].content"
+        ],
+        "left_sha256": "b3f78ff339e23831a57943a7bdd9c307d7c2ed10135adeab744915d8bb117de3",
+        "right_sha256": "850c62c0fdd137f158e3355edf2bd6959134e9d3bb77d301e4ce89e06d3abfe7"
+      },
+      "response_comparison": {
+        "first_content_difference": {
+          "index": 0,
+          "day_number": 1,
+          "original_sha256": "07f3c0acb9aa7d075b637be5b1fb8a00409e2acb312b8108d5d743404deaaeb1",
+          "framework_sha256": "a957d2f7ff9f6bb0d851139751fbdc7180cde704603b976cd7457a33f739acb2",
+          "original_chars": 802,
+          "framework_chars": 903
+        },
+        "first_parsed_difference": {
+          "index": 0,
+          "day_number": 1,
+          "field_paths": [
+            "$.reasoning"
+          ],
+          "left_sha256": "8867c994e695b212817c969840bc7a334283b1cf303112bca3f49d51ede7f4ce",
+          "right_sha256": "59827c8a2e8763f0354ea5c3f8ed01769d3c5d36fd28d7530459caae14e24326"
+        },
+        "first_numeric_release_difference": {
+          "index": 70,
+          "day_number": 71,
+          "original_release_cfs": 300.0,
+          "framework_release_cfs": 396.8
+        }
+      },
+      "real_arm_comparison": {
+        "pool_elevation_start_ft": {
+          "mae": 2.865896512957342,
+          "rmse": 8.489990773203523,
+          "max_abs": 86.55347979306475,
+          "signed_at_first_max": -86.55347979306475,
+          "first_max_abs_date": "2016-10-12",
+          "max_abs_date_count": 1
+        },
+        "pool_elevation_end_ft": {
+          "mae": 2.8723667756970612,
+          "rmse": 8.490893101603156,
+          "max_abs": 86.55347979306475,
+          "signed_at_first_max": -86.55347979306475,
+          "first_max_abs_date": "2016-10-11",
+          "max_abs_date_count": 1
+        },
+        "controlled_release_cfs": {
+          "mae": 53.34701814430937,
+          "rmse": 218.31299808094772,
+          "max_abs": 2293.3,
+          "signed_at_first_max": -2293.3,
+          "first_max_abs_date": "2016-04-09",
+          "max_abs_date_count": 1
+        },
+        "spill_cfs": {
+          "mae": 0.0,
+          "rmse": 0.0,
+          "max_abs": 0.0,
+          "signed_at_first_max": 0.0,
+          "first_max_abs_date": "2016-01-01",
+          "max_abs_date_count": 366
+        },
+        "storage_start_af": {
+          "mae": 760.9404998048749,
+          "rmse": 2194.386200837722,
+          "max_abs": 8704.462809917359,
+          "signed_at_first_max": 8704.462809917359,
+          "first_max_abs_date": "2016-04-20",
+          "max_abs_date_count": 1
+        },
+        "storage_end_af": {
+          "mae": 761.559339307288,
+          "rmse": 2194.418137602699,
+          "max_abs": 8704.462809917359,
+          "signed_at_first_max": 8704.462809917359,
+          "first_max_abs_date": "2016-04-19",
+          "max_abs_date_count": 1
+        }
+      },
+      "same_real_reply_replay": {
+        "native_payloads_exact": 366,
+        "framework_payloads_exact": 366,
+        "native_vs_framework": {
+          "pool_elevation_start_ft": {
+            "mae": 9.93983280626151e-15,
+            "rmse": 1.2236369195859196e-13,
+            "max_abs": 2.2737367544323206e-12,
+            "signed_at_first_max": 2.2737367544323206e-12,
+            "first_max_abs_date": "2016-10-12",
+            "max_abs_date_count": 1
+          },
+          "pool_elevation_end_ft": {
+            "mae": 9.93983280626151e-15,
+            "rmse": 1.2236369195859196e-13,
+            "max_abs": 2.2737367544323206e-12,
+            "signed_at_first_max": 2.2737367544323206e-12,
+            "first_max_abs_date": "2016-10-11",
+            "max_abs_date_count": 1
+          },
+          "controlled_release_cfs": {
+            "mae": 1.8520704096041956e-14,
+            "rmse": 3.4469817648578035e-13,
+            "max_abs": 6.59383658785373e-12,
+            "signed_at_first_max": -6.59383658785373e-12,
+            "first_max_abs_date": "2016-10-11",
+            "max_abs_date_count": 1
+          },
+          "spill_cfs": {
+            "mae": 0.0,
+            "rmse": 0.0,
+            "max_abs": 0.0,
+            "signed_at_first_max": 0.0,
+            "first_max_abs_date": "2016-01-01",
+            "max_abs_date_count": 366
+          },
+          "storage_start_af": {
+            "mae": 2.8623468197959693e-12,
+            "rmse": 5.017053064896756e-12,
+            "max_abs": 1.8189894035458565e-11,
+            "signed_at_first_max": -1.8189894035458565e-11,
+            "first_max_abs_date": "2016-09-18",
+            "max_abs_date_count": 8
+          },
+          "storage_end_af": {
+            "mae": 2.864210538447143e-12,
+            "rmse": 5.017179759353761e-12,
+            "max_abs": 1.8189894035458565e-11,
+            "signed_at_first_max": -1.8189894035458565e-11,
+            "first_max_abs_date": "2016-09-17",
+            "max_abs_date_count": 8
+          }
+        },
+        "analysis_report_sha256": "61dfe5a3cf6dd79c1a04dfd042a4b44cb3326cd99a9dfb4c0c488d19296696cd"
+      }
+    }
+  },
+  "source_sha256": {
+    "original-llm_available-status.json": "b9b48be65ce3749634047cb89096c6c630ef544cbeb2c0932d80ab24004c6883",
+    "original-llm_available/trajectory.csv": "f8d3395520d7643193cef796bbf27846af55c4a25bdfe0ccad236fd2e7b34929",
+    "original-llm_available/attempts.jsonl": "ae23a925237825c96e727533c8c5ca8fd751c72c6e68bd2096915faa9ec7261c",
+    "framework-llm_available-status.json": "c87dc6d35fc9c9368b04364ce3a08329b774721ac135a82fb68a38acd6a411f9",
+    "framework-llm_available/operation/physics.jsonl": "45d6ec702064bb90330e63a557f582d25b656cdc93e816d506b33b703ee64e6b",
+    "framework-llm_available-http/http_attempts.jsonl": "26ab3cf21f2b02b6865e3c91805d036945f979dfc63b0f77a857f97ed07ad1cb",
+    "original-llm_knowledge-status.json": "19cad0f4ad082c0777f78b9d51b2cb99993383f009fd996ba3dc21aaf8abd755",
+    "original-llm_knowledge/trajectory.csv": "8cec69da5dbb02e6595f48e50fbd89745bb72c468857daa7189541e262c2e3d1",
+    "original-llm_knowledge/attempts.jsonl": "a22e0eb3425d4ac73fab885039c2fb215175862d5031b3528d0771c17d67aa40",
+    "framework-llm_knowledge-status.json": "8249ea8b4a8fb4ff3cf31d62532d335390ed088f8dfd62c99fede8262dd5ad08",
+    "framework-llm_knowledge/operation/physics.jsonl": "b580da814100bd7eee01283bb828331e5667db63fa44351accd83d3c1be2c68d",
+    "framework-llm_knowledge-http/http_attempts.jsonl": "c91f2e7a107692cb6f6107a10cdac25f67c2582ddf038f8d6de6ff04a927d5ee"
+  },
+  "export_new_model_requests": 0,
+  "export_new_hydrological_simulations": 0,
+  "figure": {
+    "width_mm": 180,
+    "height_mm": 117,
+    "png_dpi": 600
+  },
+  "interpretation": "Engineering parity under identical saved replies; independent stochastic real trajectories are not an equivalence or performance ranking.",
+  "exporter_sha256": "f698373b4bf515a5453edf3aa59472e6e7a03a399996e57df2d2b9767001d63d",
+  "artifact_sha256": {
+    "daily.csv": "1e5bc33ae6ba3e7782744debb75fddde3371601c85517a49aa62ee2003334330",
+    "llm_available_pair.json": "2cec0640eacc5773a185596ba8c99c6f77b777117cc967ad1d851b83eef2d628",
+    "llm_knowledge_pair.json": "783865ada1eca968f384e87b0eb153933abecbe6fa5c4680931cbb49cf661293",
+    "pool_release.pdf": "bfb9251e4b81e5025b744a7690e396309ba2abcfb954f35953eb1919057ea6e7",
+    "pool_release.png": "7b79ad490dcca8ec2190f8d2b7a10780121a578a4925e7d67302818a6793a31b",
+    "pool_release.svg": "ad002957d47cd4423e4c2c3056ed9609a2dc5c9c0950ba20d5601c5d7861baa1"
+  }
+}

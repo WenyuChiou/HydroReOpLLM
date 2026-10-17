@@ -28,6 +28,20 @@ from .policy_adapter import LLMPolicyAdapter, validate_isolated_backends
 from .trace import TraceJournal
 
 
+def _adapter_implementation_files():
+    """Pin host adapters as well as the separately pinned upstream/vendor core."""
+    folder = Path(__file__).resolve().parent / "plugins"
+    return {p.name: hashlib.sha256(p.read_bytes()).hexdigest()
+            for p in folder.glob("*.py")}
+
+
+def _implementation_files():
+    """Pin package Python sources, including optional installed plugins."""
+    folder = Path(__file__).resolve().parent
+    return {p.relative_to(folder).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest()
+            for p in folder.rglob("*.py")}
+
+
 def write_json(path, value):
     data = (json.dumps(value, ensure_ascii=False, allow_nan=False, indent=2) + "\n").encode("utf-8")
     temporary = path.with_suffix(path.suffix + ".tmp")
@@ -37,6 +51,23 @@ def write_json(path, value):
         handle.flush()
         os.fsync(handle.fileno())
     os.replace(temporary, path)
+
+
+class ProviderEvidenceError(RuntimeError):
+    """A provider attempt could not be recorded durably; do not retry the I/O."""
+
+
+def record_provider_attempt(path, value):
+    """Keep each authorized attempt and captured response across process crashes."""
+    data = (json.dumps(value, ensure_ascii=False, allow_nan=False) + "\n").encode("utf-8")
+    try:
+        with Path(path).open("ab") as stream:
+            if stream.write(data) != len(data):
+                raise OSError("incomplete provider-attempt write")
+            stream.flush()
+            os.fsync(stream.fileno())
+    except OSError:
+        raise ProviderEvidenceError("provider attempt evidence could not be saved") from None
 
 
 def _csv(path, fields, rows):
@@ -57,13 +88,14 @@ def _note(original, logging_error):
 
 
 class _ObservedBackend:
-    def __init__(self, backend, reservoir_id, journal, provenance, committed):
+    def __init__(self, backend, reservoir_id, journal, provenance, committed, recovery=None):
         self.backend = backend
         self.reservoir_id = reservoir_id
         self.journal = journal
         self.provenance = provenance
         self.policy_id = getattr(backend, "policy_id", type(backend).__name__)
         self.committed = committed
+        self.recovery = recovery
         self.audit_counts = Counter()
 
     @property
@@ -102,6 +134,8 @@ class _ObservedBackend:
             raise
 
     def save_physics(self, record):
+        if self.recovery is not None:
+            self.recovery.check_physics(self.reservoir_id, record)
         self.journal.record_physics(self.reservoir_id, record)
         self.committed[self.reservoir_id] += 1
         write_json(self.journal.output / "progress.json", {
@@ -126,7 +160,7 @@ class _ObservedBackend:
 
 
 def run_experiment(config, rows, backends, *, output, run_id, project_root=PROJECT_ROOT, provenance=None,
-                   information_runtime=None, outcome_checks=None, information_agents=None):
+                    information_runtime=None, outcome_checks=None, information_agents=None, recovery=None):
     """Run connected reservoirs with one isolated decision backend per reservoir.
 
     Local inflows are incremental natural runoff in cms. Incoming upstream
@@ -145,7 +179,7 @@ def run_experiment(config, rows, backends, *, output, run_id, project_root=PROJE
     journal = TraceJournal(output, run_id=run_id, provenance=provenance)
     committed = {s["physical"]["reservoir_id"]: 0 for s in config["reservoirs"].values()}
     observed = {name: _ObservedBackend(backend, config["reservoirs"][name]["physical"]["reservoir_id"],
-                                     journal, metadata[name], committed)
+                                      journal, metadata[name], committed, recovery)
                 for name, backend in backends.items()}
     policies = {name: LLMPolicyAdapter(backend, on_commit=backend.save_physics)
                 for name, backend in observed.items()}
@@ -156,13 +190,16 @@ def run_experiment(config, rows, backends, *, output, run_id, project_root=PROJE
             "network": config, "inflow_records": rows, "backend_provenance": metadata,
             "python": platform.python_version(),
             "hydrocnhs_core": json.loads((root / "environment/hydrocnhs-core.json").read_text(encoding="utf-8")),
-            "implementation_files": {p.name: hashlib.sha256(p.read_bytes()).hexdigest()
-                                     for p in Path(__file__).parent.glob("*.py")},
+            "implementation_files": _implementation_files(),
+            "adapter_implementation_files": _adapter_implementation_files(),
             "abm_module_sha256": hashlib.sha256((root / "examples/llm_reservoir_abm.py").read_bytes()).hexdigest(),
-            "automatic_retry": False,
+            "automatic_retry": bool((provenance or {}).get("automatic_retry", False)),
+            "provenance": json_snapshot(provenance),
         }
         if information_runtime is not None:
             run_metadata["information_config"] = information_runtime.configuration
+        if recovery is not None:
+            run_metadata["recovery"] = recovery.describe()
         if outcome_checks:
             run_metadata["outcome_checks"] = json_snapshot(outcome_checks)
             run_metadata["information_agents"] = {i: {"reservoir": a["reservoir"], "information": a.get("information")}
@@ -170,6 +207,8 @@ def run_experiment(config, rows, backends, *, output, run_id, project_root=PROJE
         write_json(journal.output / "experiment.json", run_metadata)
         records, engine = _run_network(config, rows, policies, project_root=root,
                                        information_runtime=information_runtime)
+        if recovery is not None:
+            recovery.finish()
         flows = engine.pop("routed_flows_cms")
         ledger = engine.pop("network_balance")
         reaches = engine.pop("reach_volume_trace")
@@ -196,6 +235,12 @@ def run_experiment(config, rows, backends, *, output, run_id, project_root=PROJE
             output_files={name: hashlib.sha256((journal.output / name).read_bytes()).hexdigest()
                           for name in ("experiment.json", "reservoir_trajectory.csv", "network_flows.csv",
                                        "network_balance.csv", "reach_volume_trace.json")})
+        if recovery is not None:
+            summary["recovery"] = recovery.describe()
+            summary["request_attempts_including_source"] = recovery.prior_network_calls + (summary["observed_network_calls"] or 0)
+        attempt_file = journal.output / "provider_attempts.jsonl"
+        if attempt_file.exists():
+            summary["provider_attempts_sha256"] = hashlib.sha256(attempt_file.read_bytes()).hexdigest()
         if outcome_checks:
             from .outcome import evaluate_outcomes
             outcomes = evaluate_outcomes(outcome_checks, records, flows, rows, information_agents or {}, run_id)
@@ -214,7 +259,13 @@ def run_experiment(config, rows, backends, *, output, run_id, project_root=PROJE
             summary["additional_output_files"] = {"outcome_audit.jsonl": hashlib.sha256(target.read_bytes()).hexdigest()}
         return records, journal.finalize(summary)
     except Exception as exc:
-        failure = {"completed_reservoir_days": committed, "automatic_retry": False}
+        failure = {"completed_reservoir_days": committed,
+                   "automatic_retry": bool((provenance or {}).get("automatic_retry", False))}
+        if recovery is not None:
+            failure["recovery"] = recovery.describe()
+        attempt_file = journal.output / "provider_attempts.jsonl"
+        if attempt_file.exists():
+            failure["provider_attempts_sha256"] = hashlib.sha256(attempt_file.read_bytes()).hexdigest()
         try:
             journal.fail(exc, failure)
         except Exception as logging_error:
@@ -227,7 +278,7 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description="Daily HydroCNHS LLM reservoir networks; offline responses only")
     parser.add_argument("--project-root", type=Path, default=PROJECT_ROOT)
     parser.add_argument("--case-root", type=Path, default=None, help="Case/data bundle root, independent of the runtime checkout")
-    parser.add_argument("--case", default="cases/fe_walter_llm_fixture.json")
+    parser.add_argument("--case", required=True)
     parser.add_argument("--responses", required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--run-id", default=None)

@@ -19,6 +19,17 @@ def temporary_yaml(folder, mutation=None, statistics=None):
     data=yaml.safe_load(EXAMPLE.read_text())
     data['case']=str(ROOT/'cases/fe_walter_reference/case.json')
     data['output']=str(folder/'output')
+    # Preserve this suite's explicit legacy-engine compatibility regression.
+    # Public rule registration and parity are covered in test_public_examples.
+    public = data['agents']['fe_operator']
+    parameters = public['rule_parameters']
+    data['agents']['fe_operator'] = {
+        'reservoir': public['reservoir_id'], 'mode': 'offline', 'strategy': 'benchmark',
+        'benchmark': {'statistics': parameters['inflow_statistics_file'],
+                      **{key: value for key, value in parameters.items()
+                         if key != 'inflow_statistics_file'}},
+        'auditors': public.get('auditors', [])}
+    data.pop('extensions', None)
     data['agents']['fe_operator']['benchmark']['statistics']=str(STATS)
     if statistics is not None:
         blob=json.loads(STATS.read_text())

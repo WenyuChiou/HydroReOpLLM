@@ -1,4 +1,4 @@
-# Seasonal-pool v1 prompt variant; unexecuted. check makes no provider request.
+# Seasonal-pool v2 prompt variant; unexecuted. check makes no provider request.
 schema_version: llm-reservoir-experiment.v1
 case: ../../../cases/fe_walter_ollama_demo/case.json
 start_date: "2016-01-01"
@@ -13,6 +13,9 @@ models:
     base_url: http://localhost:11434
     temperature: 0.7
     max_tokens: 2048
+    num_ctx: 16384
+    think: false
+    keep_alive: 30m
     seed: null
     timeout_seconds: 120
     api_key_env: null
@@ -22,18 +25,23 @@ auditors:
     version: "1"
 agents:
   fe_operator:
-    reservoir: FEWalter
-    mode: llm
-    model: reservoir_model
-    strategy: reference_v3_7
-    reference:
-      profile: fe_walter
-      method: dkp
-      system_prompt: ../../../prompts/fe_walter_reference/dkp_seasonal_v1_system.txt
-      system_prompt_mode: custom
-      dkp: ../../../data/anik_v3_7/DKP_FEWalter_Dam_v1.2.md
-      prompt_storage: false
-      hide_availability_line: true
-      dkp_no_missing_inputs: true
-      zeroshot_knowledge: target
+    reservoir_id: FEWalter
+    type: llm
+    model_profile: reservoir_model
+    customization:
+      backend: reference_v3_7
+      parameters:
+        reference:
+          profile: fe_walter
+          method: dkp
+          system_prompt: ../prompts/dkp_seasonal_v2_system.txt
+          system_prompt_mode: custom
+          dkp: ../knowledge/DKP_FEWalter_Dam_v1.2.md
+          prompt_storage: false
+          hide_availability_line: true
+          dkp_no_missing_inputs: true
+          zeroshot_knowledge: target
     auditors: [release_limits]
+
+extensions:
+  reference_v3_7: ../extensions/__init__.py

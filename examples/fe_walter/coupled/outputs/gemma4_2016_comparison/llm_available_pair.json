@@ -1,0 +1,241 @@
+{
+  "date": "2016-01-02",
+  "method": "llm_available",
+  "engines": {
+    "original": {
+      "provider_request": {
+        "format": {
+          "additionalProperties": false,
+          "properties": {
+            "applicable_target_ft": {
+              "description": "Operation-target water level (ft NGVD29) that applies to this interval, read from the operation target",
+              "type": "number"
+            },
+            "intended_storage_direction": {
+              "description": "How you intend storage to change over this interval",
+              "enum": [
+                "increase",
+                "hold",
+                "decrease"
+              ],
+              "type": "string"
+            },
+            "pool_position": {
+              "description": "Beginning water level compared with applicable_target_ft",
+              "enum": [
+                "below_target",
+                "at_target",
+                "above_target"
+              ],
+              "type": "string"
+            },
+            "reasoning": {
+              "description": "One or two sentences: the storage change your release will cause, and why it moves toward the target",
+              "type": "string"
+            },
+            "release_cfs": {
+              "description": "Target mean release for the interval in cubic feet per second",
+              "type": "number"
+            },
+            "release_relation_to_inflow": {
+              "description": "How your release will compare with this interval's inflow",
+              "enum": [
+                "below_inflow",
+                "equal_to_inflow",
+                "above_inflow"
+              ],
+              "type": "string"
+            }
+          },
+          "required": [
+            "applicable_target_ft",
+            "pool_position",
+            "intended_storage_direction",
+            "release_relation_to_inflow",
+            "reasoning",
+            "release_cfs"
+          ],
+          "type": "object"
+        },
+        "keep_alive": "30m",
+        "messages": [
+          {
+            "content": "You are the operator of a reservoir, making one release decision per day.\n\nReservoir information (public sources):\n- Name: F.E. Walter Dam on the Lehigh River, Pennsylvania\n- Location: Bear Creek Township, Luzerne County and Kidder Township, Carbon County, Pennsylvania\n- Purpose: flood control, water storage, recreation\n- Opened: 1961; operated by the U.S. Army Corps of Engineers\n- Type: earth-fill embankment with rock shell, impounding the Lehigh River\n- Dam height (foundation): 234 ft; length: 3,000 ft\n- Spillway type: concrete\n- Catchment area: 289 square miles\n- Total capacity (publicly reported): 110,700 acre-feet\n- Operation target: Your goal is to keep the water level within the designated seasonal pool levels. From November 1 through March 14, keep the pool near the conservation pool at 1300.0 ft N.G.V.D., within 1297.0 to 1303.0 ft. From March 15 through May 9, keep the pool between 1300.0 and 1370.0 ft and, when hydrologic conditions allow, fill toward 1370.0 ft by May 10. From May 10 through October 14, keep the pool at or below 1370.0 ft. From October 15 through October 31, keep the pool between 1300.0 and 1370.0 ft and lower it toward 1300.0 ft by November 1.\n\nEach day you will receive the current date, mean inflow,\nwater level at the beginning of the interval, and the previous one or two\nsimulated release decisions.\nFlows are also stated as volumes in cubic feet over their interval, the\nunit of the water balance. Decide the interval's mean release\nin cfs, consistent with the reservoir's purpose. You have no operating\nmanual; use general reservoir-operation principles.\n\nPhysical water balance (not an operating rule):\n- storage_change_cubic_feet = (inflow_cfs - release_cfs) * 86,400 * interval_days.\n- A release below inflow increases storage; a release equal to inflow\n  leaves storage approximately unchanged; a release above inflow decreases\n  storage. Passing inflow cannot refill a reservoir below its target.\n\nConstraints you must respect:\n- Do not plan to release more water than is available (storage + inflow).\n- Avoid letting storage exceed capacity (uncontrolled spill).\n- Avoid abrupt interval-to-interval release changes unless conditions require them.\n\nRespond only with JSON, with the fields in this order:\n  applicable_target_ft (the operation-target water level for this interval),\n  pool_position (below_target | at_target | above_target),\n  intended_storage_direction (increase | hold | decrease),\n  release_relation_to_inflow (below_inflow | equal_to_inflow | above_inflow),\n  reasoning (1-2 sentences), release_cfs (number).\nDecide the first four, then write the reasoning, then choose release_cfs.\nMake release_cfs consistent with the four fields and with your reasoning.",
+            "role": "system"
+          },
+          {
+            "content": "Date: 2016-01-02 (January, day 2 of the year)\n1. Today's inflow: 789.4 cfs (= 68,203,331 cubic feet (= 1,566 acre-feet) over 1 days)\n2. Water level at beginning of interval: 1300.00 ft NGVD29\n3. Previous simulated release decisions (and what was actually released):\n   2016-01-01: decided 1,134.5 cfs; actually released 1,134.5 cfs (= 98,020,800 cubic feet (= 2,250 acre-feet) over 1 days)\n4. Number of days in this decision interval: 1\n\nDecide the mean release for this interval (cfs).",
+            "role": "user"
+          }
+        ],
+        "model": "gemma4:12b",
+        "options": {
+          "num_ctx": 16384,
+          "num_predict": 2048,
+          "temperature": 0.7
+        },
+        "stream": false,
+        "think": false
+      },
+      "provider_request_sha256": "b2f10eeccb96dc21643026fee563544e7b483ea41df8a97e8b83cc9fb21570bd",
+      "raw_provider_reply": {
+        "created_at": "2026-10-17T08:17:35.3207212Z",
+        "done": true,
+        "done_reason": "stop",
+        "eval_count": 122,
+        "eval_duration": 1974340000,
+        "load_duration": 5698800,
+        "message": {
+          "content": "{\n  \"applicable_target_ft\": 1300.0,\n  \"pool_position\": \"at_target\",\n  \"intended_storage_direction\": \"hold\",\n  \"release_relation_to_inflow\": \"above_inflow\",\n  \"reasoning\": \"The current water level is exactly at the conservation target. Since the release exceeds the inflow, the level will gradually decrease slightly to offset the previous day's high release, maintaining stability.\",\n  \"release_cfs\": 1000.0\n}",
+          "role": "assistant"
+        },
+        "model": "gemma4:12b",
+        "prompt_eval_cached_count": 0,
+        "prompt_eval_count": 957,
+        "prompt_eval_duration": 445303000,
+        "total_duration": 2432632800
+      },
+      "parsed_reply": {
+        "applicable_target_ft": 1300.0,
+        "pool_position": "at_target",
+        "intended_storage_direction": "hold",
+        "release_relation_to_inflow": "above_inflow",
+        "reasoning": "The current water level is exactly at the conservation target. Since the release exceeds the inflow, the level will gradually decrease slightly to offset the previous day's high release, maintaining stability.",
+        "release_cfs": 1000.0
+      },
+      "physics": {
+        "engine": "original",
+        "method": "llm_available",
+        "date": "2016-01-02",
+        "pool_elevation_start_ft": 1299.999898097275,
+        "pool_elevation_end_ft": 1295.5718219575651,
+        "inflow_cms": 22.353047216043645,
+        "requested_release_cms": 28.316847,
+        "decision_release_cms": 28.316847,
+        "controlled_release_cms": 28.316847,
+        "spill_cms": 0.0,
+        "storage_start_m3": 2457835.8195677483,
+        "storage_end_m3": 1942563.5182339193,
+        "mass_balance_residual_m3": 0.0
+      }
+    },
+    "framework": {
+      "provider_request": {
+        "model": "gemma4:12b",
+        "messages": [
+          {
+            "role": "system",
+            "content": "You are the operator of a reservoir, making one release decision per day.\n\nReservoir information (public sources):\n- Name: F.E. Walter Dam on the Lehigh River, Pennsylvania\n- Location: Bear Creek Township, Luzerne County and Kidder Township, Carbon County, Pennsylvania\n- Purpose: flood control, water storage, recreation\n- Opened: 1961; operated by the U.S. Army Corps of Engineers\n- Type: earth-fill embankment with rock shell, impounding the Lehigh River\n- Dam height (foundation): 234 ft; length: 3,000 ft\n- Spillway type: concrete\n- Catchment area: 289 square miles\n- Total capacity (publicly reported): 110,700 acre-feet\n- Operation target: Your goal is to keep the water level within the designated seasonal pool levels. From November 1 through March 14, keep the pool near the conservation pool at 1300.0 ft N.G.V.D., within 1297.0 to 1303.0 ft. From March 15 through May 9, keep the pool between 1300.0 and 1370.0 ft and, when hydrologic conditions allow, fill toward 1370.0 ft by May 10. From May 10 through October 14, keep the pool at or below 1370.0 ft. From October 15 through October 31, keep the pool between 1300.0 and 1370.0 ft and lower it toward 1300.0 ft by November 1.\n\nEach day you will receive the current date, mean inflow,\nwater level at the beginning of the interval, and the previous one or two\nsimulated release decisions.\nFlows are also stated as volumes in cubic feet over their interval, the\nunit of the water balance. Decide the interval's mean release\nin cfs, consistent with the reservoir's purpose. You have no operating\nmanual; use general reservoir-operation principles.\n\nPhysical water balance (not an operating rule):\n- storage_change_cubic_feet = (inflow_cfs - release_cfs) * 86,400 * interval_days.\n- A release below inflow increases storage; a release equal to inflow\n  leaves storage approximately unchanged; a release above inflow decreases\n  storage. Passing inflow cannot refill a reservoir below its target.\n\nConstraints you must respect:\n- Do not plan to release more water than is available (storage + inflow).\n- Avoid letting storage exceed capacity (uncontrolled spill).\n- Avoid abrupt interval-to-interval release changes unless conditions require them.\n\nRespond only with JSON, with the fields in this order:\n  applicable_target_ft (the operation-target water level for this interval),\n  pool_position (below_target | at_target | above_target),\n  intended_storage_direction (increase | hold | decrease),\n  release_relation_to_inflow (below_inflow | equal_to_inflow | above_inflow),\n  reasoning (1-2 sentences), release_cfs (number).\nDecide the first four, then write the reasoning, then choose release_cfs.\nMake release_cfs consistent with the four fields and with your reasoning."
+          },
+          {
+            "role": "user",
+            "content": "Date: 2016-01-02 (January, day 2 of the year)\n1. Today's inflow: 789.4 cfs (= 68,203,331 cubic feet (= 1,566 acre-feet) over 1 days)\n2. Water level at beginning of interval: 1300.00 ft NGVD29\n3. Previous simulated release decisions (and what was actually released):\n   2016-01-01: decided 1,134.5 cfs; actually released 1,134.5 cfs (= 98,020,800 cubic feet (= 2,250 acre-feet) over 1 days)\n4. Number of days in this decision interval: 1\n\nDecide the mean release for this interval (cfs)."
+          }
+        ],
+        "stream": false,
+        "options": {
+          "temperature": 0.7,
+          "num_predict": 2048,
+          "num_ctx": 16384
+        },
+        "format": {
+          "type": "object",
+          "properties": {
+            "applicable_target_ft": {
+              "type": "number",
+              "description": "Operation-target water level (ft NGVD29) that applies to this interval, read from the operation target"
+            },
+            "pool_position": {
+              "type": "string",
+              "enum": [
+                "below_target",
+                "at_target",
+                "above_target"
+              ],
+              "description": "Beginning water level compared with applicable_target_ft"
+            },
+            "intended_storage_direction": {
+              "type": "string",
+              "enum": [
+                "increase",
+                "hold",
+                "decrease"
+              ],
+              "description": "How you intend storage to change over this interval"
+            },
+            "release_relation_to_inflow": {
+              "type": "string",
+              "enum": [
+                "below_inflow",
+                "equal_to_inflow",
+                "above_inflow"
+              ],
+              "description": "How your release will compare with this interval's inflow"
+            },
+            "reasoning": {
+              "type": "string",
+              "description": "One or two sentences: the storage change your release will cause, and why it moves toward the target"
+            },
+            "release_cfs": {
+              "type": "number",
+              "description": "Target mean release for the interval in cubic feet per second"
+            }
+          },
+          "required": [
+            "applicable_target_ft",
+            "pool_position",
+            "intended_storage_direction",
+            "release_relation_to_inflow",
+            "reasoning",
+            "release_cfs"
+          ],
+          "additionalProperties": false
+        },
+        "think": false,
+        "keep_alive": "30m"
+      },
+      "provider_request_sha256": "b2f10eeccb96dc21643026fee563544e7b483ea41df8a97e8b83cc9fb21570bd",
+      "raw_provider_reply": {
+        "model": "gemma4:12b",
+        "created_at": "2026-10-17T08:50:38.4661338Z",
+        "message": {
+          "role": "assistant",
+          "content": "{\n  \"applicable_target_ft\": 1300.0,\n  \"pool_position\": \"at_target\",\n  \"intended_storage_direction\": \"hold\",\n  \"release_relation_to_inflow\": \"equal_to_inflow\",\n  \"reasoning\": \"The current water level is exactly at the target conservation pool. To maintain this level, the release should match the current inflow.\",\n  \"release_cfs\": 789.4\n}"
+        },
+        "done": true,
+        "done_reason": "stop",
+        "total_duration": 2166729600,
+        "load_duration": 5207900,
+        "prompt_eval_count": 957,
+        "prompt_eval_cached_count": 1,
+        "prompt_eval_duration": 411946000,
+        "eval_count": 111,
+        "eval_duration": 1742837000
+      },
+      "parsed_reply": {
+        "applicable_target_ft": 1300.0,
+        "pool_position": "at_target",
+        "intended_storage_direction": "hold",
+        "release_relation_to_inflow": "equal_to_inflow",
+        "reasoning": "The current water level is exactly at the target conservation pool. To maintain this level, the release should match the current inflow.",
+        "release_cfs": 789.4
+      },
+      "physics": {
+        "engine": "framework",
+        "method": "llm_available",
+        "date": "2016-01-02",
+        "inflow_cms": 22.353047216043645,
+        "controlled_release_cms": 22.353319021799997,
+        "spill_cms": 0.0,
+        "storage_start_m3": 2457835.819567748,
+        "storage_end_m3": 2457812.3355503995,
+        "mass_balance_residual_m3": 0.0,
+        "decision_release_cms": 22.353319021799997,
+        "pool_elevation_start_ft": 1299.999898097275,
+        "pool_elevation_end_ft": 1299.999706038338,
+        "requested_release_cms": 22.353319021799997
+      }
+    }
+  },
+  "requests_equal": true
+}

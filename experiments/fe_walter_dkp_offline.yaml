@@ -33,6 +33,10 @@ agents:
     prompt: ../prompts/daily_dkp_release.txt # Observation, DKP and previous physical feedback.
     prompt_version: "dkp-diagnostic-1"
     knowledge:
-      fe_walter_dkp: ../data/anik_v3_7/DKP_FEWalter_Dam_v1.2.md # Frozen supplied source.
+      fe_walter_dkp: ../examples/fe_walter/knowledge/DKP_FEWalter_Dam_v1.2.md # Frozen supplied source.
     context_file: ../cases/fe_walter_dkp_offline/context.json # Assumptions visible to the agent.
     auditors: [release_limits, dkp_strategy] # Both required; UNKNOWN never counts as PASS.
+
+extensions:
+  dkp_strategy: ../examples/fe_walter/extensions/__init__.py
+  reservoir-dkp-decision.v1: ../examples/fe_walter/extensions/__init__.py

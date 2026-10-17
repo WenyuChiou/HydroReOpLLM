@@ -17,7 +17,8 @@
 | 操作 audit | 135 PASS / 10 WARN / 221 FAIL |
 | 保存的每日最大水量平衡殘差 | 0 m³ |
 
-全年範例展示一種方法。規則式與可用資訊方法仍保留三日教學紀錄；尚未執行三種方法的全年比較。
+本章保留較早的單一方法 2016–2020 研究，以及規則式／可用資訊方法的三日教學紀錄。
+目前維護設定的全年證據，請見英文[2016 年耦合結果](coupled/README.md#verified-2016-results)。
 
 ## 完整每日軌跡
 
@@ -64,7 +65,7 @@
 5. **實際操作：**受控放流 12.1847392641 m³/s、spill 為零、期末蓄水 23,695,577.3604956 m³。
 6. **下一日：**期末蓄水成為日初蓄水；歷史使用實際放流。
 
-固定 [system prompt](../../prompts/fe_walter_reference/dkp_system.txt) 與保存 trace 的 hash 相符。
+固定 [system prompt](prompts/reference/dkp_system.txt) 與保存 trace 的 hash 相符。
 展開下方完整訊息，查看模型實際收到與回傳的內容。
 
 <details>

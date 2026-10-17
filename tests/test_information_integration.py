@@ -66,7 +66,7 @@ class InformationIntegrationTests(unittest.TestCase):
         settings=self.save(self.configuration(live=True))
         payloads=[]
         def transport(url,payload,headers,timeout):
-            info=json.loads(payload["messages"][1]["content"].split(": ",1)[1])
+            info=json.loads(next(m["content"] for m in payload["messages"] if m["role"] == "user").split(": ",1)[1])
             payloads.append(info)
             gauge=info["fields"]["downstream"]
             return self.reply(2 if gauge["status"]=="AVAILABLE" and gauge["value"]>3 else 5)
@@ -163,7 +163,7 @@ class InformationIntegrationTests(unittest.TestCase):
         backend=ConfiguredBackend(agent_id="op",mode="offline",prompt_spec=PromptSpec("test","1",template),knowledge_texts={})
         expected=Template(template).substitute(agent_id='"op"',knowledge="{}",previous_transition="null",
             observation=json.dumps(dict(observed_hydrology=observation.to_dict(),static_context={}),sort_keys=True,separators=(",",":")))
-        self.assertEqual(backend._messages(observation)[1]["content"],expected)
+        self.assertEqual(backend.preview(observation)["messages"], [{"role": "user", "content": expected}])
         self.assertNotIn("decision_information",expected)
 
     def test_local_inflow_and_storage_histories_include_current_and_committed_steps(self):

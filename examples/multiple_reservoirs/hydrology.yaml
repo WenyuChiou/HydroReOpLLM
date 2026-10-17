@@ -1,0 +1,12 @@
+model: model.yaml
+forcing: forcing.csv
+zero_flow_nodes: []
+inflow_bindings:
+  inlet_a:
+    runoff: basin_a
+  inlet_b:
+    runoff: basin_b
+  river_a:
+    constant: 0
+  river_b:
+    constant: 0

@@ -1,99 +1,158 @@
-# Running and maintenance
+# Run, recover, and plan resources
 
-Start with the saved examples. Before a new model run, check the configuration,
-available resources and output path. This page describes the current runner;
-automatic retry, checkpoint restore and policy fallback are not provided.
+Use the generic four-day coupled fixture before a case study or long provider
+run. Keep one experiment YAML for `check`, `prepare`, and `run`, and verify the
+operation directory produced by that YAML.
 
-## 1. Plan CPU, GPU and memory
+## Run the generic coupled fixture
 
-| Work | Where it runs | What to check |
-|---|---|---|
-| Hydrology, reservoir accounting and routing | Python host / CPU | Catchment and network size; host memory and step duration |
-| Prompt construction, checks, audit and trace | Python host / CPU | Prompt/history size and disk writes |
-| Local LLM inference | Ollama process | Loaded model, CPU/GPU placement, RAM/VRAM and response duration |
-| Remote LLM inference | Provider service | Request latency, call allowance and available usage/cost records |
+From the repository root, run the rule-based path first:
 
-A GPU is not required to read results or build the manual. The inference
-provider determines whether a local model uses CPU, GPU or both.
-`ollama ps` lists already loaded models and their processor placement; it does
-not request a generation. See the [Ollama FAQ](https://docs.ollama.com/faq).
+```powershell
+reservoir-experiment check examples/multiple_reservoirs/experiment.yaml
+reservoir-experiment prepare examples/multiple_reservoirs/experiment.yaml
+reservoir-experiment run examples/multiple_reservoirs/experiment.yaml
+reservoir-experiment verify runs/independent-rivers-rule/operation
+```
 
-Hardware requirements depend on the model, context and network. The three-day
-tutorial is not a CPU/GPU benchmark. Inspect host and provider processes
-separately in your system monitor before choosing a longer experiment.
+The top-level YAML sets `output: ../../runs/independent-rivers-rule`. For a
+coupled experiment, preparation evidence is stored under that output root and
+daily operation evidence is stored in its `operation/` directory. The current
+verification target is therefore:
 
-## 2. Bound a new experiment
+```text
+runs/independent-rivers-rule/operation
+```
+
+Expected success is four completed dates, 2020-02-28 through 2020-03-02, plus a
+successful verification of links, hashes, and water accounting. Read
+`runs/independent-rivers-rule/operation/summary.json` next.
+
+After the rule path succeeds, configure the `local` model profile and run the LLM
+variant deliberately:
+
+```powershell
+reservoir-experiment check examples/multiple_reservoirs/experiment.llm.yaml
+reservoir-experiment prepare examples/multiple_reservoirs/experiment.llm.yaml
+reservoir-experiment run examples/multiple_reservoirs/experiment.llm.yaml --allow-network
+reservoir-experiment verify runs/independent-rivers-mixed/operation
+```
+
+Only the LLM `run` command needs `--allow-network`. `check` validates references
+without running hydrology or a provider. `prepare` runs hydrology and makes zero
+model requests.
+
+Some older supplied-inflow examples write operation files directly at the
+configured output root because they do not have a separate coupled preparation
+stage. For those examples, use the output path documented by that example. Do
+not remove or add `/operation` by analogy; inspect the entry type and resolved
+output path.
+
+## Run the current F.E. Walter example
+
+The [F.E. Walter walkthrough](../tutorials/fe_walter.md) applies this workflow
+to the saved 366-day 2016 comparison. Start with
+[Rule-based operation](../examples/fe_walter/coupled/current/experiment.yaml),
+then select [LLM with available information](../examples/fe_walter/coupled/current/llm_available.yaml)
+or [LLM with retrieved knowledge](../examples/fe_walter/coupled/current/llm_knowledge.yaml).
+Choose the provider and model in [current/models.yaml](../examples/fe_walter/coupled/current/models.yaml).
+Keep each method's output separate and reuse accepted preparation only when its
+input hashes and runtime match. The [main notebook](../tutorials/main.ipynb)
+reads saved annual evidence without requesting a model or running hydrology.
+
+## Bound a new experiment
 
 | Setting | Purpose |
 |---|---|
-| `start_date`, `end_date` | Inclusive daily interval within the case's continuous input |
-| `max_calls` | At least days × LLM agents; request allowance, not a cost or memory limit |
-| `max_tokens` | Positive response-length limit; too small can yield an incomplete reply |
-| `timeout_seconds` | Single-request timeout; timeout stops execution without retry |
-| Information profile | Select fields/history actually needed by the prompt |
+| `start_date`, `end_date` | Inclusive operation interval within continuous case inputs |
+| `max_calls` | Integer total request allowance, or explicit `null` for no total cap; retries count |
+| `max_tokens` | Positive response limit; a small value can truncate a reply |
+| `timeout_seconds` | Timeout for one provider attempt |
+| `max_attempts` | Maximum attempts for one decision and one profile; default `1` |
+| `retry_delay_seconds` | Delay between eligible retries; default `2` seconds |
+| Information profile | Fields and history available when the decision is made |
 
-Keep temperature **0.7** for these examples. A new start date needs verified
-initial reservoir and routing state; it does not inherit an earlier run.
-Agent count does not by itself establish parallel inference.
-Full controls and defaults are in the [parameter reference](PARAMETER_REFERENCE.md).
-Provider concurrency and context limits are provider settings, not extra
-HydroOpsLLM YAML fields.
+The examples use temperature **0.7**. A new start date requires verified initial
+reservoir and routing state; it does not inherit state from another run. Agent
+count does not establish parallel inference. Provider concurrency and context
+limits are service settings, not extra HydroOpsLLM YAML fields.
 
-## 3. Reserve storage and preserve evidence
+## Plan CPU, GPU, memory, and storage
 
-Store inputs, model files and run outputs separately. Reserve space for:
+| Work | Where it runs | What to check |
+|---|---|---|
+| Hydrology, reservoir accounting, routing | Python host / CPU | Network size, host memory, step duration |
+| Prompt construction, checks, audit, trace | Python host / CPU | Prompt/history size and disk writes |
+| Local LLM inference | Local provider process | Loaded model, CPU/GPU placement, RAM/VRAM, response duration |
+| Remote LLM inference | Provider service | Latency, call allowance, available usage and cost records |
 
-- The environment, input bundle and local model files.
-- Per-decision messages, raw replies, proposals, audit and physics/feedback records.
-- Reservoir and routing tables, summaries, backups and figures.
+A GPU is not required to prepare hydrology, run rule agents, read results, or
+build the manual. The inference service determines local CPU/GPU use. `ollama ps`
+shows loaded models and processor placement without requesting a generation.
+See the [Ollama FAQ](https://docs.ollama.com/faq).
 
-Measure a representative **completed** run directory and extrapolate cautiously
-to the planned days and agents. Prompt/history growth can make output size
-nonlinear. No fixed GB-per-year claim has been validated.
+The four-day fixture is not a hardware benchmark. Measure a representative
+completed run before extending the period. Prompt and history growth can make
+storage nonlinear; no fixed GB-per-year estimate has been validated.
 
-Keep the full run directory and its YAML, case, source hashes and prompt/knowledge
-versions together. Do not prune `raw/` to make a run appear complete.
-The original notebook downloads and saved results are evidence, not caches.
+Retain inputs, model files, and run outputs separately. Keep the complete run
+directory with configuration, case, source hashes, prompt and knowledge
+versions, decisions, raw replies, provider attempts, physics, routing, audits,
+backups, and figures. Do not prune `raw/` to make a run appear complete.
 
-Ollama manages model storage separately; consult its
-[storage documentation](https://docs.ollama.com/faq#where-are-models-stored)
-before moving model files.
+## Resume an interrupted run
 
-## 4. If execution is interrupted
-
-1. **Confirm the process has stopped.** Check its command line before launching
-   another run.
-2. **Preserve the output directory.** Copy it for diagnosis; retain the failed or
-   partial records and original configuration.
-3. **Verify existing evidence.** Run `verify` against that directory. A missing
-   summary, truncated file or failed binding is incomplete evidence, not a pass.
-4. **Find the last fully committed transition.** Match the decision, audit,
-   physics and feedback records. A raw reply alone does not prove release was
+1. Confirm the original process stopped.
+2. Preserve the partial output and original configuration.
+3. Compare `backend_events.jsonl`, `provider_attempts.jsonl`, and the last
+   decision and physics records. A raw reply alone does not prove release was
    applied.
-5. **Resolve the cause before another experiment.** Use a new run ID/output.
-   Do not overwrite the interrupted run or rerun completed dates as recovery.
+4. Resume unchanged inputs into a new output directory.
+5. Verify the new operation directory and retain the source run beside it.
 
-A timeout or lost connection can leave the provider outcome and cost unknown.
-A system crash can leave a partial record. Preserve uncertainty; do not infer
-success from a returned fragment.
+For the coupled fixture, `--from-run` points to the source `operation/` directory:
 
-**This runner has no general resume command.** Continuing from a later date
-requires an explicitly reviewed reconstruction of reservoir storage, routing
-memory and agent history. Changing only `start_date` is not a recovery method.
+```powershell
+reservoir-experiment resume examples/multiple_reservoirs/experiment.yaml `
+  --from-run runs/interrupted/operation `
+  --output runs/continued `
+  --run-id continued
+reservoir-experiment verify runs/continued
+```
 
-## 5. Checks, fallback and outcome
+`resume --output` is the operation output itself, so the verification target in
+this command is `runs/continued`, without another `/operation` suffix. Add
+`--allow-network` only when unfinished LLM decisions require new requests.
+
+Resume verifies and replays the **committed history**: completed days already
+saved with their decisions, physical transitions, and evidence. It skips those
+decisions and reuses captured replies and custom context where available. It
+does not overwrite the source run.
+
+Recovery rejects changed inputs, prompts, model settings, code, or Python
+version. It supports static case information. Dynamic external information
+extensions require a durable replay contract and are rejected without one. A
+finite call allowance includes attempts from the source run.
+
+An in-flight request without a journaled decision can be sent again. A timeout
+or crash can leave provider outcome and cost unknown. Preserve that uncertainty;
+the external service cannot be guaranteed to receive a request exactly once.
+
+## Interpret retries, fallback, and outcomes
 
 | Event | Current behavior |
 |---|---|
-| Incomplete reply, invalid schema/unit/value or provider error | Stop before applying that proposal; no automatic retry |
-| Valid requested release exceeds feasible water/limits | Common physical calculation determines implemented release and spill |
-| Operation audit FAIL/WARN/UNKNOWN | Preserve the diagnostic verdict; it is not a silent replacement policy |
-| Storage/process failure or incomplete evidence | Preserve partial files; diagnose before another run |
+| Incomplete reply or invalid fields | Retry within the selected profile's `max_attempts`; do not advance physics |
+| Timeout or eligible connection/HTTP failure | Retry within the same profile and retain failed attempts |
+| Exhausted eligible attempts | Try ordered `customization.fallback_models`, when configured |
+| Authentication/configuration error or evidence-write failure | Stop and preserve diagnostics |
+| Requested release exceeds feasible water or limits | Apply the common physical calculation and record implemented release and spill |
+| Operation audit FAIL/WARN/UNKNOWN | Preserve the diagnostic; do not regenerate or replace the action |
 
-Physical clipping is not a fallback operating policy. To compare a rule policy
-with an LLM, select it as a separate experiment with the same verified inputs.
-An automatic emergency policy would need an explicit, tested contract and
-traceable activation; it is not a current configuration option.
+Physical clipping is not a fallback operating policy. Compare a rule policy and
+an LLM in separate experiments with the same verified inputs. An emergency
+policy would require an explicit, tested, traceable contract; it is not a current
+configuration option.
 
-Continue with [results and audit/trace](RESULTS_GUIDE.md) or
-[troubleshooting](USER_GUIDE.md#troubleshooting).
+Continue with [Results, audit, and trace](RESULTS_GUIDE.md) or
+[Troubleshooting](USER_GUIDE.md#troubleshooting).

@@ -10,17 +10,23 @@ auditors:
     version: "1"
 agents:
   fe_operator:
-    reservoir: FEWalter                  # Reservoir ID in case.json.
-    mode: offline                        # Native prompt/audit run on fixture replies.
-    strategy: reference_v3_7             # Generic strategy selector; optional vendor plugin.
-    reference:
-      profile: fe_walter                 # This reference profile is FE-specific.
-      method: zeroshot                   # Original zero-shot or DKP policy.
-      system_prompt: ../../../prompts/fe_walter_reference/zeroshot_system.txt # Actual system instructions, read at runtime.
-      system_prompt_mode: original       # Exact original text; use custom for an intentional variant.
-      responses: ../../../cases/fe_walter_reference/zeroshot_responses.json
-      prompt_storage: false             # Matches saved five-year prompt condition.
-      hide_availability_line: true       # Keep numeric availability ceiling out of prompt.
-      dkp_no_missing_inputs: true        # Original V3.7 DKP condition.
-      zeroshot_knowledge: target         # Original public facts + seasonal target.
+    reservoir_id: FEWalter                  # Reservoir ID in case.json.
+    type: llm
+    customization:
+      backend: reference_v3_7
+      execution: replay # Saved fixture replies; no provider calls.
+      parameters:
+        reference:
+          profile: fe_walter                 # This reference profile is FE-specific.
+          method: zeroshot                   # Original zero-shot or DKP policy.
+          system_prompt: ../prompts/reference/zeroshot_system.txt # Actual system instructions, read at runtime.
+          system_prompt_mode: original       # Exact original text; use custom for an intentional variant.
+          responses: ../../../cases/fe_walter_reference/zeroshot_responses.json
+          prompt_storage: false             # Matches saved five-year prompt condition.
+          hide_availability_line: true       # Keep numeric availability ceiling out of prompt.
+          dkp_no_missing_inputs: true        # Original V3.7 DKP condition.
+          zeroshot_knowledge: target         # Original public facts + seasonal target.
     auditors: [release_limits]           # Preserve native audit plus generic bounds.
+
+extensions:
+  reference_v3_7: ../extensions/__init__.py

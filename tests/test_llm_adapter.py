@@ -6,9 +6,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from delaware_operations.case import CFS_TO_CMS
-from delaware_operations.contracts import ACTION_SCHEMA_VERSION, ReservoirObservation
-from delaware_operations.llm_adapter import (
+from examples.fe_walter.legacy.case import CFS_TO_CMS
+from examples.fe_walter.legacy.contracts import ACTION_SCHEMA_VERSION, ReservoirObservation
+from examples.fe_walter.legacy.llm_adapter import (
     RecordedResponsePolicy,
     normalize_delaware_response,
 )

@@ -2,19 +2,24 @@
 
 [English](README.md) | [繁體中文](README.zh-TW.md)
 
-教學整併為兩本英文 notebook。兩者只讀取已追蹤、已驗收的 snapshot，並保存
-GitHub 與 MyST-NB 可顯示的表格與圖片輸出。預設流程不呼叫模型或網路，也不下載、
-重新校正或執行新的模擬。
+先閱讀英文 [F.E. Walter 設定教學](fe_walter.md)與[主 notebook](main.ipynb)。
+兩者皆使用目前 2016 年、366 日的範例，比較 **Rule-based**、
+**LLM with available information**、**LLM with retrieved knowledge**。
+在 [`coupled/current/`](../examples/fe_walter/coupled/current/) 選擇方法的 experiment，
+並在 [`models.yaml`](../examples/fe_walter/coupled/current/models.yaml) 設定模型。
+
+Notebook 只讀取已追蹤的保存證據，並保留 GitHub 與 MyST-NB 可顯示的表格及圖片。
+預設流程不呼叫模型或網路，也不下載、重新校正或執行新的模擬。
 
 | Notebook | 用途 | 保存的證據 |
 |---|---|---|
-| [主教學](main.ipynb) | 輸入 → YAML → 規則／prompt → check → 保存的 run → verify → audit／trace | 同一個三日 FE Walter case，比較確定性規則、zero-shot 與 DKP |
+| [主教學](main.ipynb) | 共用輸入 → experiment 與模型設定 → 實際 prompt／reply → 全年軌跡 → 結果判讀 | 全年 Rule-based 基準及目前 Gemma 4 比較，包含獨立的 Anik 執行 |
 | [進階教學](advanced.ipynb) | 河網、被動出口、狀態隔離、routing 限制及自有資料設定 | 已驗收的三庫 31 日 snapshot |
 
-主比較使用初始蓄水 **2,457,848.279729185 m³（1,992.61 acre-ft）**、零損失，
-以及下游 `UH=[1.0]` identity routing；這些都是範圍受限的整合假設。保存的
-zero-shot audit 為 2 PASS／1 FAIL，DKP 為 3 FAIL；所有方法的策略驗收皆為
-`null`。
+主範例假設初始蓄水 **2,457,848.279729185 m³（1,992.61 acre-ft）**、
+零水庫損失，以及下游 `UH=[1.0]` identity routing。目前各 LLM 執行均完成
+366 日，並記錄 366 次 HTTP 嘗試。完成執行與水量平衡不代表操作表現合格；
+請一併閱讀[目前全年結果](../examples/fe_walter/coupled/README.md#verified-2016-results)的季節檢查。
 
 ## 建置與檢查
 
@@ -26,22 +31,24 @@ python tutorials/build_notebooks.py --check
 ```
 
 Builder 不需 Jupyter kernel；它依序執行 cells、封鎖 socket／urllib，並嵌入
-pandas HTML 與 matplotlib PNG。資料來自
-`examples/fe_walter/reference_outputs/ollama_three_day`、
-`examples/fe_walter/reference_outputs/rule_three_day` 及
-`examples/fe_walter/reference_outputs/multi_reservoir_month`，不依賴被忽略的 `runs/`。
+pandas HTML 與 matplotlib PNG。資料來自 `examples/fe_walter/` 下已提交的
+`coupled/outputs/gemma4_2016_comparison`、`coupled/outputs/2016` 的 Rule-based
+資料列，以及 `reference_outputs/multi_reservoir_month`，不依賴被忽略的 `runs/`。
+較早的短期教學 snapshot 仍保留在 `reference_outputs/`。
 
-## 選用的本機 Ollama 重跑
+## 選用的新執行
 
-Notebook 只記錄此流程，不會自動執行。指定模型已可在本機使用後，請改用新的
-`run_id` 與輸出路徑。現有 YAML 最多三次呼叫且不重試；必須明確加入
-`--allow-network`。
+Notebook 只記錄此流程，不會自動執行。請選擇新的 `run_id` 與輸出路徑，
+將 experiment 副本留在原檔旁，並檢查 `current/models.yaml`。
+目前 LLM 設定沒有總呼叫上限，每日決策最多嘗試兩次；必須明確加入 `--allow-network`。
 
 ```powershell
-Copy-Item examples/fe_walter/zero_shot/experiment.ollama.yaml examples/fe_walter/zero_shot/my-run.yaml
+Copy-Item examples/fe_walter/coupled/current/llm_available.yaml examples/fe_walter/coupled/current/my-run.yaml
 # 先編輯 my-run.yaml，將 run_id 與 output 改為新值。
-python run_experiment.py check examples/fe_walter/zero_shot/my-run.yaml
-python run_experiment.py run examples/fe_walter/zero_shot/my-run.yaml --allow-network
+reservoir-experiment check examples/fe_walter/coupled/current/my-run.yaml
+reservoir-experiment prepare examples/fe_walter/coupled/current/my-run.yaml
+reservoir-experiment run examples/fe_walter/coupled/current/my-run.yaml --allow-network
+reservoir-experiment verify <new-output-path>/operation
 ```
 
 [FE Walter 範例指南](../examples/fe_walter/README.zh-TW.md) ·

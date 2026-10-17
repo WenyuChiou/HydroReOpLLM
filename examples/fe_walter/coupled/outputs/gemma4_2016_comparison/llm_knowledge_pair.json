@@ -1,0 +1,297 @@
+{
+  "date": "2016-01-02",
+  "method": "llm_knowledge",
+  "engines": {
+    "original": {
+      "provider_request": {
+        "format": {
+          "additionalProperties": false,
+          "properties": {
+            "applicable_target_ft": {
+              "description": "Operation-target water level (ft NGVD29) that applies to this interval, read from the operation target",
+              "type": "number"
+            },
+            "intended_storage_direction": {
+              "description": "How you intend storage to change over this interval",
+              "enum": [
+                "increase",
+                "hold",
+                "decrease"
+              ],
+              "type": "string"
+            },
+            "operating_mode": {
+              "enum": [
+                "pass_inflow",
+                "store_toward_target",
+                "draw_toward_target",
+                "minimum_release",
+                "flood_control",
+                "post_flood_drawdown",
+                "recreation_plan"
+              ],
+              "type": "string"
+            },
+            "pool_position": {
+              "description": "Beginning water level compared with applicable_target_ft",
+              "enum": [
+                "below_target",
+                "at_target",
+                "above_target"
+              ],
+              "type": "string"
+            },
+            "reasoning": {
+              "description": "Brief rule citation and water-balance explanation: the storage change the release will cause",
+              "type": "string"
+            },
+            "release_cfs": {
+              "description": "Target mean release for the interval in cfs",
+              "type": "number"
+            },
+            "release_relation_to_inflow": {
+              "description": "How your release will compare with this interval's inflow",
+              "enum": [
+                "below_inflow",
+                "equal_to_inflow",
+                "above_inflow"
+              ],
+              "type": "string"
+            },
+            "rules_applied": {
+              "description": "Exact retrieved DKP section headings used",
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            }
+          },
+          "required": [
+            "applicable_target_ft",
+            "pool_position",
+            "intended_storage_direction",
+            "release_relation_to_inflow",
+            "operating_mode",
+            "rules_applied",
+            "reasoning",
+            "release_cfs"
+          ],
+          "type": "object"
+        },
+        "keep_alive": "30m",
+        "messages": [
+          {
+            "content": "You are the water control manager operating F.E. Walter Dam on the Lehigh River, Pennsylvania,\nmaking one release decision per day.\n\nReservoir information (public sources):\n- Name: F.E. Walter Dam on the Lehigh River, Pennsylvania\n- Location: Bear Creek Township, Luzerne County and Kidder Township, Carbon County, Pennsylvania\n- Purpose: flood control, water storage, recreation\n- Opened: 1961; operated by the U.S. Army Corps of Engineers\n- Type: earth-fill embankment with rock shell, impounding the Lehigh River\n- Dam height (foundation): 234 ft; length: 3,000 ft\n- Spillway type: concrete\n- Catchment area: 289 square miles\n- Total capacity (publicly reported): 110,700 acre-feet\n- Operation target: Your goal is to keep the water level within the designated seasonal pool levels. From November 1 through March 14, keep the pool near the conservation pool at 1300.0 ft N.G.V.D., within 1297.0 to 1303.0 ft. From March 15 through May 9, keep the pool between 1300.0 and 1370.0 ft and, when hydrologic conditions allow, fill toward 1370.0 ft by May 10. From May 10 through October 14, keep the pool at or below 1370.0 ft. From October 15 through October 31, keep the pool between 1300.0 and 1370.0 ft and lower it toward 1300.0 ft by November 1.\n\nFrom the reservoir's water control manual:\n- Storage at spillway crest (el. 1450.0 ft): 109,878 acre-feet\n- Maximum allowable release: 10,000 cfs\n- Minimum required release: 50 cfs\n\nYour operating knowledge comes from the reservoir's Decision\nKnowledge Package (DKP), extracted from the project's official\nwater control manual. Each day, the sections of the DKP most\nrelevant to the current conditions are retrieved and provided to\nyou together with the system state. Base your decision on those\nretrieved DKP excerpts: apply their operating zones, decision\nrules, release constraints, rating tables, and seasonal guidance.\nThis model represents the reservoir only: storage, inflow and release.\nApply the storage, inflow, seasonal and release-limit rules.\nDo not invent an observation or rule.\n\nHow to apply the DKP in this simulation:\n- Storage-to-elevation conversion is physical preprocessing and the current\n  pool elevation may be supplied. Apply the shared operation target stated\n  in the reservoir information; do not derive a different target from the DKP.\n- Compare the current pool with that target yourself; no precomputed\n  above-target or below-target interpretation is supplied.\n- Gate-position rate limits are not discharge-rate limits. Do not convert\n  them to cfs per hour without the required gate-rating information.\n- Exhibit D's numerical recreation calendar is explicitly specific to 2014.\n  In every other year, apply only the structural recreation constraints\n  stated by the DKP and identify the annual calendar as unavailable; do not\n  transfer the 2014 weekday, weekend, event-date, or numeric release schedule.\n- No recommended release, target-tracking controller output, or precomputed\n  above/below-target label is supplied. Select the release independently\n  from the retrieved DKP rules and the raw state values.\n- If the DKP does not provide a unique numeric release for the available\n  inputs, do not invent an official formula. Choose the most defensible\n  action allowed by the retrieved rules and explain it in the reasoning.\n- No external reduced-domain release rule is supplied in this run.\n- Use store_toward_target or draw_toward_target only when the selected\n  release actually changes storage in that direction. Use pass_inflow only\n  when the selected release is approximately equal to inflow.\n- During seasonal refill, report store_toward_target; during seasonal\n  drawdown, report draw_toward_target. Reserve recreation_plan for an\n  applicable dated recreation-release instruction whose calendar is known.\n\nPhysical water balance (not an operating rule):\n- storage_change_cubic_feet = (inflow_cfs - release_cfs) * 86,400 * interval_days.\n- A release below inflow increases storage; a release equal to inflow\n  leaves storage approximately unchanged; a release above inflow decreases\n  storage. Passing inflow cannot refill a reservoir below its target.\n\nReduced-model hard constraints on your answer:\n- Release between 50 and 10,000 cfs.\n- Do not plan to release more water than is available (storage + inflow).\n- Follow the DKP's rate-of-change rules.\n- The 50-10,000 cfs bounds cannot represent the WCM's declared-drought\n  43-cfs exception or its conditional post-flood >10,000-cfs exception;\n  identify those conditions as outside the reduced-model scope.\n\nBefore answering, check that the proposed release changes storage in the\ndirection claimed by the reasoning. Respond only with JSON, with the\nfields in this order:\n  applicable_target_ft (the operation-target water level for this interval),\n  pool_position (below_target | at_target | above_target),\n  intended_storage_direction (increase | hold | decrease),\n  release_relation_to_inflow (below_inflow | equal_to_inflow | above_inflow),\n  operating_mode, rules_applied,\n  reasoning, release_cfs (number).\nDecide the first four, then write the reasoning, then choose release_cfs.\nMake release_cfs consistent with the four fields and with your reasoning.\nIn rules_applied, copy the exact heading of every retrieved DKP section\nused; do not invent rule identifiers.",
+            "role": "system"
+          },
+          {
+            "content": "Date: 2016-01-02 (January, day 2 of the year)\n1. Today's inflow: 789.4 cfs (= 68,203,331 cubic feet (= 1,566 acre-feet) over 1 days)\n2. Water level at beginning of interval: 1300.00 ft NGVD29\n3. Previous simulated release decisions (and what was actually released):\n   2016-01-01: decided 1,134.5 cfs; actually released 1,134.5 cfs (= 98,020,800 cubic feet (= 2,250 acre-feet) over 1 days)\n4. Number of days in this decision interval: 1\n5. Release limits for this interval (water control manual): 50-10,000 cfs (= 4,320,000-864,000,000 cubic feet over 1 days)\n\nRetrieved DKP sections relevant to current conditions:\n\n--- DKP excerpt 1: R-RELEASE (composite per-timestep decision; WCM Table 7-1 Parts A and B; §7-01, §7-03, §7-05) ---\n```pseudo\nplan = R-PLAN(pool_elevation, stages, season)\n\nactive_min = R-MINFC       if plan in {C, D} or impounding_for_flood_emergency   # 100 cfs\n           | R-MINDROUGHT  if drbc_drought_declared                              #  43 cfs\n           | R-MINNORM                                                           #  50 cfs\n\nCASE plan OF\n  A:  release = inflow_cfs, holding pool at or near target_pool_ft;\n        obligations = Minimum Release Schedule + Water Quality Release Schedule (R-TEMP)\n\n  B:  release_combined = MaxReleaseSchedule_Rising(stages)      # §2.4.5 — MOST RESTRICTIVE gage governs\n        release_walter  = R-BALANCE(release_combined, pct_fc_storage_used,\n                                    beltzville_state.pct_fc_storage_used)\n        summer: defer to Exhibit D Recreation Plan (NOT SUPPLIED)\n        apply R-FILLING whenever pool exceeds any previously attained elevation\n\n  C:  release = active_min                                       # store all inflow at BOTH projects\n        on stages_trend == falling_after_peak, switch to MaxReleaseSchedule_Falling (§2.4.5)\n\n  D:  release = pass inflow (hourly or finer), gates incrementally to full open;\n        once outlet capacity exceeded, HOLD full open until pool < EL_SPILLWAY;\n        then outflow = inflow until MaxReleaseSchedule_Rising (Plan B) can be resumed\n\nrelease = clip(release, lower = active_min,\n                        upper = min( Q_CHANNEL_CAP,            # conditional — see R-ATSITE\n                                     outlet_capacity(pool_elevation),\n                                     R-DOWNSTREAM limit ) )\n\nsubject to R-ROC (gate-position limits, NOT a discharge-rate limit)\n\nIF pool_elevation > EL_SPILLWAY:\n    total_outflow = release + spillway_discharge(pool_elevation)   # uncontrolled, §2.4.3\n```\n\n--- DKP excerpt 2: R-MINNORM, R-MINFC, R-MINDROUGHT (Minimum Release Schedule; WCM Table 7-1 Part B; §7-01, §7-05,c,3, §8-04) ---\n```pseudo\nFlows maintained at the reservoir OUTFLOW gaging station (White Haven for Walter):\n\n   Regulation purpose                     Walter (cfs)   Beltzville (cfs)\n   1. Flood control regulation (storing)      100              35     -> R-MINFC\n   2. Normal regulation                        50              35     -> R-MINNORM\n   3. Drought warning and drought               43              15     -> R-MINDROUGHT\n\nPrecedence: R-MINFC applies whenever storing under Plans C/D; R-MINDROUGHT relaxes\nR-MINNORM under a declared DRBC drought warning or emergency; R-MINNORM otherwise.\nThe 50 cfs is a Commonwealth of Pennsylvania Fish Commission requirement set to protect\ndownstream brook trout habitat (Table 7-1 Part B).\n```\n\n--- DKP excerpt 3: R-ATSITE (maximum release; WCM §4-09, §7-02a, §7-05,c,1, Table 7-2 notes 1–2) ---\n```pseudo\nrelease ≤ 10,000 cfs  \"during non-spillway flow conditions ... should not be exceeded IF POSSIBLE\"\n   equivalently: stage_WhiteHaven ≤ 8.4 ft (Table 7-1 Part B note 5)\nrelease ≤ outlet_capacity(pool_elevation)   [≈17,000 cfs at EL_SPILLWAY]\n\nEXCEPTION (Table 7-2 note 1): during FALLING stages after a peak, releases in excess of\n10,000 cfs MAY be considered, provided the release — combined with Beltzville's — does not\ncause any key Lehigh station to exceed max(event_peak_stage, flood stage), whichever governs.\nCONFIRMED BY RECORD: the WY1996 maximum discharge of 11,452 cfs (Table 8-1, 29 Jan 1996)\nexceeds 10,000 cfs -- the exception is exercised in practice, not merely permitted.\n=> the 10,000 cfs cap is a CONDITIONAL constraint, not a physical invariant.\n```\n\n--- DKP excerpt 4: R-ZONE (seasonal rule curve — the normal operating target; WCM §7-01, Plate 7-2) ---\n```pseudo\ntarget_pool_ft = 1300.0   # winter normal pool\nStorage for recreation begins on/about 1 April; target date mid-May to reach 1370.0;\n1370.0 is held and drawn on to make releases through mid-October; thereafter any\nremaining water is released and the pool returns to 1300.0.\n\nRATIONALE (§3-05,b,2(b)): 1370 is \"the limit imposed to keep adequate flood control space\navailable since this volume can be quickly evacuated in advance of an oncoming storm event.\"\n\n=> Recreation storage is ALWAYS subordinate and pre-releasable; it is NOT protected storage.\n```\n\nThe simulated year is 2016. Check the year of every dated DKP instruction before applying it.\nApply these DKP rules to decide the mean release for this interval (cfs).",
+            "role": "user"
+          }
+        ],
+        "model": "gemma4:12b",
+        "options": {
+          "num_ctx": 16384,
+          "num_predict": 2048,
+          "temperature": 0.7
+        },
+        "stream": false,
+        "think": false
+      },
+      "provider_request_sha256": "f339967979e59f98768593e7044771465847851c9ef2e99873fb2e8800efd2dd",
+      "raw_provider_reply": {
+        "created_at": "2026-10-17T09:21:23.1893089Z",
+        "done": true,
+        "done_reason": "stop",
+        "eval_count": 302,
+        "eval_duration": 4600151000,
+        "load_duration": 6196300,
+        "message": {
+          "content": "{\n  \"applicable_target_ft\": 1300.0,\n  \"pool_position\": \"at_target\",\n  \"intended_storage_direction\": \"hold\",\n  \"release_relation_to_inflow\": \"equal_to_inflow\",\n  \"operating_mode\": \"pass_inflow\",\n  \"rules_applied\": [\n    \"R-RELEASE\",\n    \"R-MINNORM\",\n    \"R-ATSITE\",\n    \"R-ZONE\"\n  ],\n  \"reasoning\": \"The current date is January 2, 2016. According to R-ZONE, the winter target pool elevation is 1300.0 ft. The current pool is at 1300.0 ft, which is exactly at the target. Under R-RELEASE, Plan A is used to maintain the pool at or near the target. Plan A specifies a release equal to the inflow (789.4 cfs). This release is well above the R-MINNORM (50 cfs) and R-MINFC (100 cfs) requirements, and well below the R-ATSITE cap of 10,000 cfs. Therefore, to hold the pool at the current target level, the release should match the inflow.\",\n  \"release_cfs\": 789.4\n}",
+          "role": "assistant"
+        },
+        "model": "gemma4:12b",
+        "prompt_eval_cached_count": 0,
+        "prompt_eval_count": 2940,
+        "prompt_eval_duration": 881819000,
+        "total_duration": 5575305400
+      },
+      "parsed_reply": {
+        "applicable_target_ft": 1300.0,
+        "pool_position": "at_target",
+        "intended_storage_direction": "hold",
+        "release_relation_to_inflow": "equal_to_inflow",
+        "operating_mode": "pass_inflow",
+        "rules_applied": [
+          "R-RELEASE",
+          "R-MINNORM",
+          "R-ATSITE",
+          "R-ZONE"
+        ],
+        "reasoning": "The current date is January 2, 2016. According to R-ZONE, the winter target pool elevation is 1300.0 ft. The current pool is at 1300.0 ft, which is exactly at the target. Under R-RELEASE, Plan A is used to maintain the pool at or near the target. Plan A specifies a release equal to the inflow (789.4 cfs). This release is well above the R-MINNORM (50 cfs) and R-MINFC (100 cfs) requirements, and well below the R-ATSITE cap of 10,000 cfs. Therefore, to hold the pool at the current target level, the release should match the inflow.",
+        "release_cfs": 789.4
+      },
+      "physics": {
+        "engine": "original",
+        "method": "llm_knowledge",
+        "date": "2016-01-02",
+        "pool_elevation_start_ft": 1299.999898097275,
+        "pool_elevation_end_ft": 1299.999706038338,
+        "inflow_cms": 22.353047216043645,
+        "requested_release_cms": 22.353319021799997,
+        "decision_release_cms": 22.353319021799997,
+        "controlled_release_cms": 22.353319021799997,
+        "spill_cms": 0.0,
+        "storage_start_m3": 2457835.8195677483,
+        "storage_end_m3": 2457812.3355503995,
+        "mass_balance_residual_m3": 0.0
+      }
+    },
+    "framework": {
+      "provider_request": {
+        "model": "gemma4:12b",
+        "messages": [
+          {
+            "role": "system",
+            "content": "You are the water control manager operating F.E. Walter Dam on the Lehigh River, Pennsylvania,\nmaking one release decision per day.\n\nReservoir information (public sources):\n- Name: F.E. Walter Dam on the Lehigh River, Pennsylvania\n- Location: Bear Creek Township, Luzerne County and Kidder Township, Carbon County, Pennsylvania\n- Purpose: flood control, water storage, recreation\n- Opened: 1961; operated by the U.S. Army Corps of Engineers\n- Type: earth-fill embankment with rock shell, impounding the Lehigh River\n- Dam height (foundation): 234 ft; length: 3,000 ft\n- Spillway type: concrete\n- Catchment area: 289 square miles\n- Total capacity (publicly reported): 110,700 acre-feet\n- Operation target: Your goal is to keep the water level within the designated seasonal pool levels. From November 1 through March 14, keep the pool near the conservation pool at 1300.0 ft N.G.V.D., within 1297.0 to 1303.0 ft. From March 15 through May 9, keep the pool between 1300.0 and 1370.0 ft and, when hydrologic conditions allow, fill toward 1370.0 ft by May 10. From May 10 through October 14, keep the pool at or below 1370.0 ft. From October 15 through October 31, keep the pool between 1300.0 and 1370.0 ft and lower it toward 1300.0 ft by November 1.\n\nFrom the reservoir's water control manual:\n- Storage at spillway crest (el. 1450.0 ft): 109,878 acre-feet\n- Maximum allowable release: 10,000 cfs\n- Minimum required release: 50 cfs\n\nYour operating knowledge comes from the reservoir's Decision\nKnowledge Package (DKP), extracted from the project's official\nwater control manual. Each day, the sections of the DKP most\nrelevant to the current conditions are retrieved and provided to\nyou together with the system state. Base your decision on those\nretrieved DKP excerpts: apply their operating zones, decision\nrules, release constraints, rating tables, and seasonal guidance.\nThis model represents the reservoir only: storage, inflow and release.\nApply the storage, inflow, seasonal and release-limit rules.\nDo not invent an observation or rule.\n\nHow to apply the DKP in this simulation:\n- Storage-to-elevation conversion is physical preprocessing and the current\n  pool elevation may be supplied. Apply the shared operation target stated\n  in the reservoir information; do not derive a different target from the DKP.\n- Compare the current pool with that target yourself; no precomputed\n  above-target or below-target interpretation is supplied.\n- Gate-position rate limits are not discharge-rate limits. Do not convert\n  them to cfs per hour without the required gate-rating information.\n- Exhibit D's numerical recreation calendar is explicitly specific to 2014.\n  In every other year, apply only the structural recreation constraints\n  stated by the DKP and identify the annual calendar as unavailable; do not\n  transfer the 2014 weekday, weekend, event-date, or numeric release schedule.\n- No recommended release, target-tracking controller output, or precomputed\n  above/below-target label is supplied. Select the release independently\n  from the retrieved DKP rules and the raw state values.\n- If the DKP does not provide a unique numeric release for the available\n  inputs, do not invent an official formula. Choose the most defensible\n  action allowed by the retrieved rules and explain it in the reasoning.\n- No external reduced-domain release rule is supplied in this run.\n- Use store_toward_target or draw_toward_target only when the selected\n  release actually changes storage in that direction. Use pass_inflow only\n  when the selected release is approximately equal to inflow.\n- During seasonal refill, report store_toward_target; during seasonal\n  drawdown, report draw_toward_target. Reserve recreation_plan for an\n  applicable dated recreation-release instruction whose calendar is known.\n\nPhysical water balance (not an operating rule):\n- storage_change_cubic_feet = (inflow_cfs - release_cfs) * 86,400 * interval_days.\n- A release below inflow increases storage; a release equal to inflow\n  leaves storage approximately unchanged; a release above inflow decreases\n  storage. Passing inflow cannot refill a reservoir below its target.\n\nReduced-model hard constraints on your answer:\n- Release between 50 and 10,000 cfs.\n- Do not plan to release more water than is available (storage + inflow).\n- Follow the DKP's rate-of-change rules.\n- The 50-10,000 cfs bounds cannot represent the WCM's declared-drought\n  43-cfs exception or its conditional post-flood >10,000-cfs exception;\n  identify those conditions as outside the reduced-model scope.\n\nBefore answering, check that the proposed release changes storage in the\ndirection claimed by the reasoning. Respond only with JSON, with the\nfields in this order:\n  applicable_target_ft (the operation-target water level for this interval),\n  pool_position (below_target | at_target | above_target),\n  intended_storage_direction (increase | hold | decrease),\n  release_relation_to_inflow (below_inflow | equal_to_inflow | above_inflow),\n  operating_mode, rules_applied,\n  reasoning, release_cfs (number).\nDecide the first four, then write the reasoning, then choose release_cfs.\nMake release_cfs consistent with the four fields and with your reasoning.\nIn rules_applied, copy the exact heading of every retrieved DKP section\nused; do not invent rule identifiers."
+          },
+          {
+            "role": "user",
+            "content": "Date: 2016-01-02 (January, day 2 of the year)\n1. Today's inflow: 789.4 cfs (= 68,203,331 cubic feet (= 1,566 acre-feet) over 1 days)\n2. Water level at beginning of interval: 1300.00 ft NGVD29\n3. Previous simulated release decisions (and what was actually released):\n   2016-01-01: decided 1,134.5 cfs; actually released 1,134.5 cfs (= 98,020,800 cubic feet (= 2,250 acre-feet) over 1 days)\n4. Number of days in this decision interval: 1\n5. Release limits for this interval (water control manual): 50-10,000 cfs (= 4,320,000-864,000,000 cubic feet over 1 days)\n\nRetrieved DKP sections relevant to current conditions:\n\n--- DKP excerpt 1: R-RELEASE (composite per-timestep decision; WCM Table 7-1 Parts A and B; §7-01, §7-03, §7-05) ---\n```pseudo\nplan = R-PLAN(pool_elevation, stages, season)\n\nactive_min = R-MINFC       if plan in {C, D} or impounding_for_flood_emergency   # 100 cfs\n           | R-MINDROUGHT  if drbc_drought_declared                              #  43 cfs\n           | R-MINNORM                                                           #  50 cfs\n\nCASE plan OF\n  A:  release = inflow_cfs, holding pool at or near target_pool_ft;\n        obligations = Minimum Release Schedule + Water Quality Release Schedule (R-TEMP)\n\n  B:  release_combined = MaxReleaseSchedule_Rising(stages)      # §2.4.5 — MOST RESTRICTIVE gage governs\n        release_walter  = R-BALANCE(release_combined, pct_fc_storage_used,\n                                    beltzville_state.pct_fc_storage_used)\n        summer: defer to Exhibit D Recreation Plan (NOT SUPPLIED)\n        apply R-FILLING whenever pool exceeds any previously attained elevation\n\n  C:  release = active_min                                       # store all inflow at BOTH projects\n        on stages_trend == falling_after_peak, switch to MaxReleaseSchedule_Falling (§2.4.5)\n\n  D:  release = pass inflow (hourly or finer), gates incrementally to full open;\n        once outlet capacity exceeded, HOLD full open until pool < EL_SPILLWAY;\n        then outflow = inflow until MaxReleaseSchedule_Rising (Plan B) can be resumed\n\nrelease = clip(release, lower = active_min,\n                        upper = min( Q_CHANNEL_CAP,            # conditional — see R-ATSITE\n                                     outlet_capacity(pool_elevation),\n                                     R-DOWNSTREAM limit ) )\n\nsubject to R-ROC (gate-position limits, NOT a discharge-rate limit)\n\nIF pool_elevation > EL_SPILLWAY:\n    total_outflow = release + spillway_discharge(pool_elevation)   # uncontrolled, §2.4.3\n```\n\n--- DKP excerpt 2: R-MINNORM, R-MINFC, R-MINDROUGHT (Minimum Release Schedule; WCM Table 7-1 Part B; §7-01, §7-05,c,3, §8-04) ---\n```pseudo\nFlows maintained at the reservoir OUTFLOW gaging station (White Haven for Walter):\n\n   Regulation purpose                     Walter (cfs)   Beltzville (cfs)\n   1. Flood control regulation (storing)      100              35     -> R-MINFC\n   2. Normal regulation                        50              35     -> R-MINNORM\n   3. Drought warning and drought               43              15     -> R-MINDROUGHT\n\nPrecedence: R-MINFC applies whenever storing under Plans C/D; R-MINDROUGHT relaxes\nR-MINNORM under a declared DRBC drought warning or emergency; R-MINNORM otherwise.\nThe 50 cfs is a Commonwealth of Pennsylvania Fish Commission requirement set to protect\ndownstream brook trout habitat (Table 7-1 Part B).\n```\n\n--- DKP excerpt 3: R-ATSITE (maximum release; WCM §4-09, §7-02a, §7-05,c,1, Table 7-2 notes 1–2) ---\n```pseudo\nrelease ≤ 10,000 cfs  \"during non-spillway flow conditions ... should not be exceeded IF POSSIBLE\"\n   equivalently: stage_WhiteHaven ≤ 8.4 ft (Table 7-1 Part B note 5)\nrelease ≤ outlet_capacity(pool_elevation)   [≈17,000 cfs at EL_SPILLWAY]\n\nEXCEPTION (Table 7-2 note 1): during FALLING stages after a peak, releases in excess of\n10,000 cfs MAY be considered, provided the release — combined with Beltzville's — does not\ncause any key Lehigh station to exceed max(event_peak_stage, flood stage), whichever governs.\nCONFIRMED BY RECORD: the WY1996 maximum discharge of 11,452 cfs (Table 8-1, 29 Jan 1996)\nexceeds 10,000 cfs -- the exception is exercised in practice, not merely permitted.\n=> the 10,000 cfs cap is a CONDITIONAL constraint, not a physical invariant.\n```\n\n--- DKP excerpt 4: R-ZONE (seasonal rule curve — the normal operating target; WCM §7-01, Plate 7-2) ---\n```pseudo\ntarget_pool_ft = 1300.0   # winter normal pool\nStorage for recreation begins on/about 1 April; target date mid-May to reach 1370.0;\n1370.0 is held and drawn on to make releases through mid-October; thereafter any\nremaining water is released and the pool returns to 1300.0.\n\nRATIONALE (§3-05,b,2(b)): 1370 is \"the limit imposed to keep adequate flood control space\navailable since this volume can be quickly evacuated in advance of an oncoming storm event.\"\n\n=> Recreation storage is ALWAYS subordinate and pre-releasable; it is NOT protected storage.\n```\n\nThe simulated year is 2016. Check the year of every dated DKP instruction before applying it.\nApply these DKP rules to decide the mean release for this interval (cfs)."
+          }
+        ],
+        "stream": false,
+        "options": {
+          "temperature": 0.7,
+          "num_predict": 2048,
+          "num_ctx": 16384
+        },
+        "format": {
+          "type": "object",
+          "properties": {
+            "applicable_target_ft": {
+              "type": "number",
+              "description": "Operation-target water level (ft NGVD29) that applies to this interval, read from the operation target"
+            },
+            "pool_position": {
+              "type": "string",
+              "enum": [
+                "below_target",
+                "at_target",
+                "above_target"
+              ],
+              "description": "Beginning water level compared with applicable_target_ft"
+            },
+            "intended_storage_direction": {
+              "type": "string",
+              "enum": [
+                "increase",
+                "hold",
+                "decrease"
+              ],
+              "description": "How you intend storage to change over this interval"
+            },
+            "release_relation_to_inflow": {
+              "type": "string",
+              "enum": [
+                "below_inflow",
+                "equal_to_inflow",
+                "above_inflow"
+              ],
+              "description": "How your release will compare with this interval's inflow"
+            },
+            "operating_mode": {
+              "type": "string",
+              "enum": [
+                "pass_inflow",
+                "store_toward_target",
+                "draw_toward_target",
+                "minimum_release",
+                "flood_control",
+                "post_flood_drawdown",
+                "recreation_plan"
+              ]
+            },
+            "rules_applied": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Exact retrieved DKP section headings used"
+            },
+            "reasoning": {
+              "type": "string",
+              "description": "Brief rule citation and water-balance explanation: the storage change the release will cause"
+            },
+            "release_cfs": {
+              "type": "number",
+              "description": "Target mean release for the interval in cfs"
+            }
+          },
+          "required": [
+            "applicable_target_ft",
+            "pool_position",
+            "intended_storage_direction",
+            "release_relation_to_inflow",
+            "operating_mode",
+            "rules_applied",
+            "reasoning",
+            "release_cfs"
+          ],
+          "additionalProperties": false
+        },
+        "think": false,
+        "keep_alive": "30m"
+      },
+      "provider_request_sha256": "f339967979e59f98768593e7044771465847851c9ef2e99873fb2e8800efd2dd",
+      "raw_provider_reply": {
+        "model": "gemma4:12b",
+        "created_at": "2026-10-17T10:21:01.3878618Z",
+        "message": {
+          "role": "assistant",
+          "content": "{\n  \"applicable_target_ft\": 1300.0,\n  \"pool_position\": \"at_target\",\n  \"intended_storage_direction\": \"hold\",\n  \"release_relation_to_inflow\": \"equal_to_inflow\",\n  \"operating_mode\": \"pass_inflow\",\n  \"rules_applied\": [\n    \"R-RELEASE\",\n    \"R-MINNORM\",\n    \"R-ATSITE\",\n    \"R-ZONE\"\n  ],\n  \"reasoning\": \"The current date is January 2, which falls within the winter period (Nov 1 - Mar 14) where the target pool elevation is 1300.0 ft. The current pool elevation is exactly 1300.0 ft, which is at the target. According to R-RELEASE, for Plan A (maintaining pool at or near target), the release should equal the inflow. The inflow is 789.4 cfs. This release is well above the R-MINNORM of 50 cfs and below the R-ATSITE limit of 10,000 cfs. Since the goal is to hold the pool at the target level, passing the inflow exactly maintains the current elevation.\",\n  \"release_cfs\": 789.4\n}"
+        },
+        "done": true,
+        "done_reason": "stop",
+        "total_duration": 5416409500,
+        "load_duration": 6419200,
+        "prompt_eval_count": 2940,
+        "prompt_eval_cached_count": 0,
+        "prompt_eval_duration": 959728000,
+        "eval_count": 294,
+        "eval_duration": 4358981000
+      },
+      "parsed_reply": {
+        "applicable_target_ft": 1300.0,
+        "pool_position": "at_target",
+        "intended_storage_direction": "hold",
+        "release_relation_to_inflow": "equal_to_inflow",
+        "operating_mode": "pass_inflow",
+        "rules_applied": [
+          "R-RELEASE",
+          "R-MINNORM",
+          "R-ATSITE",
+          "R-ZONE"
+        ],
+        "reasoning": "The current date is January 2, which falls within the winter period (Nov 1 - Mar 14) where the target pool elevation is 1300.0 ft. The current pool elevation is exactly 1300.0 ft, which is at the target. According to R-RELEASE, for Plan A (maintaining pool at or near target), the release should equal the inflow. The inflow is 789.4 cfs. This release is well above the R-MINNORM of 50 cfs and below the R-ATSITE limit of 10,000 cfs. Since the goal is to hold the pool at the target level, passing the inflow exactly maintains the current elevation.",
+        "release_cfs": 789.4
+      },
+      "physics": {
+        "engine": "framework",
+        "method": "llm_knowledge",
+        "date": "2016-01-02",
+        "inflow_cms": 22.353047216043645,
+        "controlled_release_cms": 22.353319021799997,
+        "spill_cms": 0.0,
+        "storage_start_m3": 2457835.819567748,
+        "storage_end_m3": 2457812.3355503995,
+        "mass_balance_residual_m3": 0.0,
+        "decision_release_cms": 22.353319021799997,
+        "pool_elevation_start_ft": 1299.999898097275,
+        "pool_elevation_end_ft": 1299.999706038338,
+        "requested_release_cms": 22.353319021799997
+      }
+    }
+  },
+  "requests_equal": true
+}

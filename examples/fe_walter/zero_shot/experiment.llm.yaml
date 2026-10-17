@@ -20,18 +20,23 @@ auditors:
     version: "1"
 agents:
   fe_operator:
-    reservoir: FEWalter
-    mode: llm # Requires explicit --allow-network AND a live-ready case.
-    model: reservoir_model
-    strategy: reference_v3_7
-    reference:
-      profile: fe_walter # This optional original-policy example is FE Walter-specific.
-      method: zeroshot
-      system_prompt: ../../../prompts/fe_walter_reference/zeroshot_system.txt
-      system_prompt_mode: original # Preserve original text, daily builder and native schema.
-      prompt_storage: false
-      hide_availability_line: true
-      dkp_no_missing_inputs: true
-      zeroshot_knowledge: target
-      # No responses file in llm mode; transport failure stops before physics.
+    reservoir_id: FEWalter
+    type: llm
+    model_profile: reservoir_model
+    customization:
+      backend: reference_v3_7
+      parameters:
+        reference:
+          profile: fe_walter # This optional original-policy example is FE Walter-specific.
+          method: zeroshot
+          system_prompt: ../prompts/reference/zeroshot_system.txt
+          system_prompt_mode: original # Preserve original text, daily builder and native schema.
+          prompt_storage: false
+          hide_availability_line: true
+          dkp_no_missing_inputs: true
+          zeroshot_knowledge: target
+          # No responses file in llm mode; transport failure stops before physics.
     auditors: [release_limits] # Original native audit is retained automatically.
+
+extensions:
+  reference_v3_7: ../extensions/__init__.py

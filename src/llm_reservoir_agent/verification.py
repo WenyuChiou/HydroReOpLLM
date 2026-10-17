@@ -354,6 +354,8 @@ def verify_run(output, *, require_offline=False, expected_audit_suites=None):
     reaches = reach_document.get("reaches")
     _check(isinstance(reaches, list) and len(reaches) == len(topology["edges"]), "reach trace edge coverage mismatch")
     stocks = [0.0] * n
+    component_stocks = {c["component_id"]: [0.0] * n for c in topology["components"]}
+    node_components = {node: c["component_id"] for c in topology["components"] for node in c["nodes"]}
     for saved, edge in zip(reaches, topology["edges"]):
         for field in ("source", "target", "fraction", "unit_hydrograph"):
             _check(saved.get(field) == edge[field], "reach trace edge mismatch")
@@ -378,6 +380,7 @@ def verify_run(output, *, require_offline=False, expected_audit_suites=None):
             _close(row.get("in_transit_end_m3"), stock, "reach in-transit volume mismatch",
                    tolerance=volume_tolerance)
             stocks[timestep] += stock
+            component_stocks[node_components[edge["source"]]][timestep] += stock
         _close(saved.get("final_in_transit_m3"), daily[-1]["in_transit_end_m3"], "reach final stock mismatch",
                tolerance=_volume_tolerance(entered_total, arrived_total, daily[-1]["in_transit_end_m3"]))
 
@@ -388,7 +391,7 @@ def verify_run(output, *, require_offline=False, expected_audit_suites=None):
     max_system, previous_stock = 0.0, 0.0
     for timestep, row in enumerate(ledger):
         local_input = math.fsum(local[node][timestep] for node in local) * 86400
-        outlet = flows[config["outlet"]][timestep] * 86400
+        outlet = math.fsum(flows[node][timestep] for node in topology["outlets"]) * 86400
         storage_change = math.fsum(series[timestep]["transition"]["storage_end_m3"] -
                                    series[timestep]["transition"]["storage_start_m3"] for series in records.values())
         channel_change = stocks[timestep] - previous_stock
@@ -406,6 +409,39 @@ def verify_run(output, *, require_offline=False, expected_audit_suites=None):
         _close(residual, 0.0, "system balance failed", tolerance=system_tolerance)
         max_system = max(max_system, abs(residual))
         previous_stock = stocks[timestep]
+
+    # v2 component ledgers are checked from independently reconstructed flows,
+    # physics and reach stocks, rather than accepted on their combined residual.
+    if config["schema_version"] == "llm-reservoir-network.v2":
+        saved_components = summary.get("component_balances")
+        _check(summary.get("outlets") == topology["outlets"], "summary outlets mismatch")
+        _check(summary.get("component_count") == len(topology["components"]), "component count mismatch")
+        _check(isinstance(saved_components, list) and len(saved_components) == len(topology["components"]),
+               "component ledger coverage mismatch")
+        for component, saved in zip(topology["components"], saved_components):
+            for key in ("component_id", "nodes", "outlets"):
+                _check(saved.get(key) == component[key], "component identity mismatch")
+            daily = saved.get("network_balance")
+            _check(isinstance(daily, list) and len(daily) == n, "component timestep coverage mismatch")
+            stock_series = component_stocks[component["component_id"]]
+            prior = 0.0
+            for t, day in enumerate(days):
+                inputs = math.fsum(local[node][t] for node in component["routing_nodes"]) * 86400
+                outputs = math.fsum(flows[node][t] for node in component["outlets"]) * 86400
+                change = math.fsum(records[node][t]["transition"]["storage_end_m3"] -
+                                  records[node][t]["transition"]["storage_start_m3"]
+                                  for node in component["reservoirs"])
+                channel_change = stock_series[t] - prior
+                residual = math.fsum([inputs, -outputs, -change, -channel_change])
+                _check(daily[t].get("date") == day, "component ledger dates mismatch")
+                expected = dict(local_input_m3=inputs, outlet_outflow_m3=outputs,
+                    reservoir_storage_change_m3=change, channel_storage_change_m3=channel_change,
+                    channel_storage_end_m3=stock_series[t], system_residual_m3=residual)
+                tolerance = _volume_tolerance(inputs, outputs, change, channel_change, stock_series[t], prior)
+                for key, value in expected.items():
+                    _close(daily[t].get(key), value, "component ledger mismatch: " + key, tolerance=tolerance)
+                _close(residual, 0.0, "component balance failed", tolerance=tolerance)
+                prior = stock_series[t]
 
     counts = Counter(event["status"] for event in streams["audit"])
     _check(dict(counts) == summary.get("audit_counts"), "audit counts mismatch")
@@ -481,6 +517,9 @@ def verify_run(output, *, require_offline=False, expected_audit_suites=None):
         for metadata in provenance.values():
             _check(isinstance(metadata, Mapping) and
                     (metadata.get("provider") == "physical" or metadata.get("data_kind") == "synthetic_fixture" or
+                     (metadata.get('backend') == 'rule_based' and
+                      isinstance(metadata.get('rule_id'), str) and bool(metadata['rule_id'].strip()) and
+                      metadata.get('model_used') is False and metadata.get('network_enabled') is False) or
                      (metadata.get("backend") == "hanasaki_benchmark" and
                       metadata.get("mode") == "benchmark" and metadata.get("model_used") is False and
                       metadata.get("network_enabled") is False and

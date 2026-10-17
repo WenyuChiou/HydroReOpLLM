@@ -5,6 +5,8 @@ from pathlib import Path
 import tempfile
 import unittest
 
+import yaml
+
 
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPT = ROOT / "examples/fe_walter/check_pool_levels.py"
@@ -84,11 +86,42 @@ class SeasonalPoolTests(unittest.TestCase):
     def test_prompt_variants_share_the_versioned_target(self):
         target = pool.load_criteria()["operation_target"]
         for method in ["zeroshot", "dkp"]:
-            text = (ROOT / f"prompts/fe_walter_reference/{method}_seasonal_v1_system.txt").read_text(encoding="utf-8")
+            text = (ROOT / f"examples/fe_walter/prompts/reference/{method}_seasonal_v1_system.txt").read_text(encoding="utf-8")
             self.assertIn("- Operation target: " + target, text)
-            original = (ROOT / f"prompts/fe_walter_reference/{method}_system.txt").read_text(encoding="utf-8")
+            original = (ROOT / f"examples/fe_walter/prompts/reference/{method}_system.txt").read_text(encoding="utf-8")
             old_line = next(line for line in original.splitlines() if line.startswith("- Operation target:"))
             self.assertEqual(text, original.replace(old_line, "- Operation target: " + target))
+
+    def test_active_aniks_change_only_the_approved_operation_target(self):
+        """Test the executable entries, rather than unused reference copies."""
+        target = pool.load_criteria()["operation_target"]
+        entries = (
+            ("coupled/agents.llm_available.yaml", "zeroshot", True),
+            ("coupled/agents.llm_knowledge.yaml", "dkp", True),
+            ("zero_shot/experiment.seasonal.ollama.yaml", "zeroshot", False),
+            ("dkp/experiment.seasonal.ollama.yaml", "dkp", False),
+        )
+        for name, method, split in entries:
+            with self.subTest(entry=name):
+                path = ROOT / "examples/fe_walter" / name
+                data = yaml.safe_load(path.read_text(encoding="utf-8"))
+                agent = data["fe_operator"] if split else next(iter(data["agents"].values()))
+                reference = agent["customization"]["parameters"]["reference"]
+                self.assertIs(reference["prompt_storage"], False)
+                self.assertIs(reference["hide_availability_line"], True)
+                self.assertIs(reference["dkp_no_missing_inputs"], True)
+                actual = (path.parent / reference["system_prompt"]).read_text(encoding="utf-8")
+                original = (ROOT / f"examples/fe_walter/prompts/reference/{method}_system.txt").read_text(encoding="utf-8")
+                old_line = next(line for line in original.splitlines() if line.startswith("- Operation target:"))
+                self.assertEqual(actual, original.replace(old_line, "- Operation target: " + target))
+
+    def test_november_first_requires_winter_pool_even_if_run_completed(self):
+        for level, status in [(1300.0, "PASS"), (1390.8590831121244, "FAIL"),
+                              (1450.0000027053293, "FAIL")]:
+            with self.subTest(level=level):
+                row = self.check_rows(("2016-11-01", level))[0]
+                self.assertEqual(row["season"], "winter_hold")
+                self.assertEqual(row["status"], status)
 
 
 class FigureManualTests(unittest.TestCase):
@@ -101,10 +134,11 @@ class FigureManualTests(unittest.TestCase):
             build.prepare(target, source_ref="codex/figure1-readme33-preview")
             home = (target / "index.md").read_text(encoding="utf-8")
             overview = (target / "docs/README.md").read_text(encoding="utf-8")
+            for page in (home, overview):
+                self.assertIn("hydrocnhs-coupling-framework-en.png", page)
+                self.assertNotIn("_figure_downloads/", page)
             for ext in ["png", "pdf"]:
                 name = "hydroopsllm-figure1." + ext
-                self.assertIn("_figure_downloads/" + name, home)
-                self.assertIn("_figure_downloads/" + name, overview)
                 self.assertEqual((target / "_figure_downloads" / name).read_bytes(),
                                  (ROOT / ("docs/figures/hydrocnhs-coupling-framework-en." + ext)).read_bytes())
 

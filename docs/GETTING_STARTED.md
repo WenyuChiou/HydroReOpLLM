@@ -33,7 +33,7 @@ use the same installation command afterward.
 Validate a saved configuration:
 
 ```powershell
-python run_experiment.py check examples/fe_walter/zero_shot/experiment.ollama.yaml
+reservoir-experiment check examples/fe_walter/coupled/rule.yaml
 ```
 
 `check` reads and validates inputs, pins source hashes and reports the planned
@@ -44,7 +44,7 @@ evidence without rerunning it:
 python run_experiment.py verify examples/fe_walter/reference_outputs/ollama_three_day/zero_shot
 ```
 
-Keep model execution for [Check, run and verify](USER_GUIDE.md#6-check-run-and-verify),
+Keep model execution for [Check, run and verify](USER_GUIDE.md#check-run-and-verify),
 after you understand the files and output safeguards.
 
 ## Build your simulation

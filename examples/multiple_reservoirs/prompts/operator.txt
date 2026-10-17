@@ -1,0 +1,4 @@
+Purpose: $purpose
+Current observation: $observation
+Committed previous transition: $previous_transition
+Local guidance: $guidance

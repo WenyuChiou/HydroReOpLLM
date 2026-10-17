@@ -12,8 +12,8 @@ from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
-from delaware_operations.case import sha256
-from delaware_operations.hydrology import AGGREGATE, CORE, MANIFEST, MODEL, UNITS, WEATHER, load_smoke_inputs, main, run_smoke
+from examples.fe_walter.legacy.case import sha256
+from examples.fe_walter.legacy.hydrology import AGGREGATE, CORE, MANIFEST, MODEL, UNITS, WEATHER, load_smoke_inputs, main, run_smoke
 
 
 class HydrologyInputTests(unittest.TestCase):
@@ -46,10 +46,42 @@ class HydrologyInputTests(unittest.TestCase):
 
     def test_existing_output_rejected_before_hydrology_runs(self):
         with tempfile.TemporaryDirectory() as folder:
-            with patch("delaware_operations.hydrology.run_smoke") as execute:
+            with patch("examples.fe_walter.legacy.hydrology.run_smoke") as execute:
                 with self.assertRaises(FileExistsError): main(["--output", folder])
                 execute.assert_not_called()
             self.assertEqual(list(Path(folder).iterdir()), [])
+
+
+class HydrologyProvenanceTests(unittest.TestCase):
+    def test_bundled_hydrocnhs_without_separate_distribution_has_source_pin(self):
+        from importlib.metadata import PackageNotFoundError
+        import hydrocnhs
+        from examples.fe_walter.legacy.cli import implementation_provenance
+
+        def version(name):
+            if name == "hydrocnhs":
+                raise PackageNotFoundError(name)
+            return "fixture-version"
+
+        with patch("importlib.metadata.version", side_effect=version):
+            report = implementation_provenance(ROOT, "hydrocnhs")
+        self.assertIsNone(report["runtime"]["packages"]["hydrocnhs"])
+        source = report["runtime"]["module_sources"]["hydrocnhs"]
+        self.assertEqual(source["file"], str(Path(hydrocnhs.__file__).resolve()))
+        self.assertEqual(source["sha256"], sha256(Path(source["file"])))
+
+    def test_missing_required_dependency_metadata_is_not_suppressed(self):
+        from importlib.metadata import PackageNotFoundError
+        from examples.fe_walter.legacy.cli import implementation_provenance
+
+        def version(name):
+            if name == "numpy":
+                raise PackageNotFoundError(name)
+            return "fixture-version"
+
+        with patch("importlib.metadata.version", side_effect=version):
+            with self.assertRaises(PackageNotFoundError):
+                implementation_provenance(ROOT, "hydrocnhs")
 
 
 @unittest.skipUnless(importlib.util.find_spec("hydrocnhs"), "optional HydroCNHS runtime is not installed")

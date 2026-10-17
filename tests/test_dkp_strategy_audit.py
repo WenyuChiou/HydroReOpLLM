@@ -8,7 +8,8 @@ import yaml
 
 from llm_reservoir_agent.auditor import AuditedBackend
 from llm_reservoir_agent.configured_backend import ConfiguredBackend
-from llm_reservoir_agent.dkp_audit import (
+from llm_reservoir_agent.context import ContextValue
+from examples.fe_walter.extensions.dkp_audit import (
     AF_TO_M3, CFS_TO_CMS, DKP_MODES, DKP_RESPONSE_SCHEMA, DKPStrategyAudit, validate_dkp_decision,
 )
 from llm_reservoir_agent.network import PROJECT_ROOT
@@ -17,10 +18,17 @@ from llm_reservoir_agent.verification import verify_run
 from llm_reservoir_agent.workflow import load_settings, run_settings
 
 
-DKP = PROJECT_ROOT / 'data/anik_v3_7/DKP_FEWalter_Dam_v1.2.md'
+DKP = PROJECT_ROOT / 'examples/fe_walter/knowledge/DKP_FEWalter_Dam_v1.2.md'
 CURVE = PROJECT_ROOT / 'cases/fe_belt_prompton_offline/fe_walter_storage_elevation.csv'
 CONFIG = PROJECT_ROOT / 'experiments/fe_walter_dkp_offline.yaml'
 
+
+
+def _pin_example_extension(data):
+    # This test copies FE Walter configuration into a disposable directory.
+    if data.get("extensions"):
+        data["extensions"] = {key: str(PROJECT_ROOT / "examples/fe_walter/extensions/__init__.py") for key in data["extensions"]}
+    return data
 
 def observation():
     return dict(schema_version='reservoir-observation.v1', timestep=0,
@@ -58,7 +66,7 @@ def context(checker, reply=None):
     obs = observation()
     return dict(observation=obs, action=dict(schema_version='reservoir-action.v1', release_cms=(reply or {}).get('release_cms',5)),
                 backend_trace=dict(audit_contexts={'dkp':checker.prepare_context(obs)},
-                                   **({} if reply is None else dict(dkp_decision=reply))))
+                                   **({} if reply is None else dict(decision_metadata=reply))))
 
 
 @pytest.mark.parametrize('release,mode', [(1.5,'store_toward_target'),(5,'store_toward_target'),(3,'pass_inflow')])
@@ -78,7 +86,7 @@ def test_frozen_rubric_exact_parity_and_no_network(tmp_path, release, mode):
     runtime = checker.prepare_context(observation())
     day = pd.Timestamp(observation()['timestamp'])
     original._retrieve_operational_sections(day,'',runtime)
-    expected = original._audit_decision(day,data['backend_trace']['dkp_decision'],release/CFS_TO_CMS,
+    expected = original._audit_decision(day,data['backend_trace']['decision_metadata'],release/CFS_TO_CMS,
                                         release/CFS_TO_CMS,3/CFS_TO_CMS,observation()['state']['storage_m3']/AF_TO_M3,runtime)
     assert result['legacy_audit'] == expected
     assert result['status'] == expected['audit_status']
@@ -166,18 +174,22 @@ def test_all_eight_frozen_modes_are_valid_schema_values(mode):
 def test_mock_reply_prompt_audit_context_and_original_payload_match(tmp_path):
     checker=plugin(tmp_path)
     knowledge=DKP.read_text(encoding='utf-8')
-    prompt=PromptSpec('test','1','$observation $knowledge $previous_transition',('rules',),
+    prompt=PromptSpec('test','1','$observation $knowledge $dkp_context $previous_transition',('rules',),
                        {'rules':hashlib.sha256(knowledge.encode()).hexdigest()})
     transport=Mock(return_value={'message':{'content':json.dumps(decision())}})
     backend=ConfiguredBackend(agent_id='test',mode='llm',prompt_spec=prompt,knowledge_texts={'rules':knowledge},
                               model=dict(provider='ollama',model='mock-only',base_url='http://localhost:11434',temperature=0.7),
-                              response_schema=DKP_RESPONSE_SCHEMA,audit_context_builders={'dkp':checker.prepare_context},
+                              response_schema=DKP_RESPONSE_SCHEMA,response_extension=__import__(
+                                  'examples.fe_walter.extensions', fromlist=['parse_response']),
+                              prompt_variables={'dkp_context': lambda ctx: ContextValue(
+                                  checker.prepare_context(ctx.observation), {'source': 'dkp-audit-test'})},
+                              audit_context_builders={'dkp':checker.prepare_context},
                               transport=transport)
     wrapped=AuditedBackend(backend,[checker]);action=wrapped.decide(observation())
     assert action==dict(schema_version='reservoir-action.v1',release_cms=1.5)
-    assert backend.latest_trace['dkp_decision']==decision()
+    assert backend.latest_trace['decision_metadata']==decision()
     assert backend.latest_trace['audit_contexts']['dkp']==checker.prepare_context(observation())
-    content=transport.call_args.args[1]['messages'][1]['content']
+    content=transport.call_args.args[1]['messages'][-1]['content']
     assert 'seasonal_target_storage_af' in content and '1340.0' in content
     assert transport.call_args.args[1]['options']['temperature']==0.7
     assert wrapped.latest_audit['status']=='PASS'
@@ -193,7 +205,9 @@ def test_mode_typo_stops_mock_reply_before_physical_action(tmp_path):
     transport=Mock(return_value={'message':{'content':json.dumps(decision(mode='pass_inflow_typo'))}})
     backend=ConfiguredBackend(agent_id='test',mode='llm',prompt_spec=prompt,knowledge_texts={'rules':knowledge},
                               model=dict(provider='ollama',model='mock-only',base_url='http://localhost:11434'),
-                              response_schema=DKP_RESPONSE_SCHEMA,audit_context_builders={'dkp':checker.prepare_context},
+                              response_schema=DKP_RESPONSE_SCHEMA,response_extension=__import__(
+                                  'examples.fe_walter.extensions', fromlist=['parse_response']),
+                              audit_context_builders={'dkp':checker.prepare_context},
                               transport=transport)
     wrapped=AuditedBackend(backend,[checker])
     with pytest.raises(ValueError,match='eight frozen'):wrapped.decide(observation())
@@ -229,7 +243,7 @@ def external_config(tmp_path):
 
 
 def save(tmp_path,data):
-    path=tmp_path/'experiment.yaml';path.write_text(yaml.safe_dump(data),encoding='utf-8');return path
+    path=tmp_path/'experiment.yaml';path.write_text(yaml.safe_dump(_pin_example_extension(data)),encoding='utf-8');return path
 
 
 def test_seven_daily_steps_keep_bounds_pass_and_dkp_unknown_offline(tmp_path):

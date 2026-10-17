@@ -11,10 +11,17 @@ import yaml
 
 from llm_reservoir_agent.network import PROJECT_ROOT
 from llm_reservoir_agent.configured_backend import http_json_transport as original_http_transport
-from llm_reservoir_agent.reference_backend import ReferenceBackend
+from examples.fe_walter.extensions.reference_backend import ReferenceBackend
 from llm_reservoir_agent.verification import verify_run
 from llm_reservoir_agent.workflow import load_settings, run_settings
 
+
+
+def _pin_example_extension(data):
+    # This test copies FE Walter configuration into a disposable directory.
+    if data.get("extensions"):
+        data["extensions"] = {key: str(PROJECT_ROOT / "examples/fe_walter/extensions/__init__.py") for key in data["extensions"]}
+    return data
 
 class ReferenceLiveTests(unittest.TestCase):
     def setUp(self):
@@ -28,7 +35,7 @@ class ReferenceLiveTests(unittest.TestCase):
         self.guard.stop()
         self.temp.cleanup()
 
-    def settings(self, method, provider='ollama', ready=True):
+    def settings(self, method, provider='ollama', ready=True, run_suffix=''):
         folder = 'zero_shot' if method == 'zeroshot' else method
         p = PROJECT_ROOT / f'examples/fe_walter/{folder}/experiment.llm.yaml'
         data = yaml.safe_load(p.read_text(encoding='utf-8'))
@@ -40,14 +47,14 @@ class ReferenceLiveTests(unittest.TestCase):
         cp.write_text(json.dumps(case))
         data['case'] = str(cp)
         data['case_root'] = str(self.root)
-        data['output'] = str(self.root / f'run-{method}-{provider}')
-        spec = data['agents']['fe_operator']['reference']
+        data['output'] = str(self.root / f'run-{method}-{provider}{run_suffix}')
+        spec = data['agents']['fe_operator']['customization']['parameters']['reference']
         for key in ('system_prompt', 'dkp'):
             if key in spec:
                 spec[key] = str((p.parent / spec[key]).resolve())
         data['models']['reservoir_model'].update(provider=provider, model='mock-model')
         dest = self.root / 'experiment.yaml'
-        dest.write_text(yaml.safe_dump(data), encoding='utf-8')
+        dest.write_text(yaml.safe_dump(_pin_example_extension(data)), encoding='utf-8')
         return load_settings(dest)
 
     def replies(self, method):
@@ -96,7 +103,7 @@ class ReferenceLiveTests(unittest.TestCase):
                         self.assertEqual('Retrieved DKP sections' in req['messages'][1]['content'], method == 'dkp')
                     self.assertNotEqual(requests[0]['messages'][1]['content'], requests[1]['messages'][1]['content'])
                     self.assertIn('2016-01-01', requests[1]['messages'][1]['content'])
-                    raw = '\n'.join(p.read_text() for p in Path(settings.report['output']).glob('raw/policy_*.json'))
+                    raw = '\n'.join(p.read_text(encoding='utf-8') for p in Path(settings.report['output']).glob('raw/policy_*.json'))
                     for token in ('request_sha256', 'raw_reply', 'schema', 'audit_execution', '0.7'):
                         self.assertIn(token, raw)
 
@@ -108,8 +115,9 @@ class ReferenceLiveTests(unittest.TestCase):
         for change in ('budget', 'responses', 'model'):
             bad = deepcopy(data)
             if change == 'budget': bad['max_calls'] = 2
-            elif change == 'responses': bad['agents']['fe_operator']['reference']['responses'] = 'ignored.json'
-            else: bad['agents']['fe_operator']['model'] = 'missing'
+            elif change == 'responses':
+                bad['agents']['fe_operator']['customization']['parameters']['reference']['responses'] = 'ignored.json'
+            else: bad['agents']['fe_operator']['model_profile'] = 'missing'
             settings.path.write_text(yaml.safe_dump(bad))
             with self.assertRaises(ValueError): load_settings(settings.path)
 
@@ -134,8 +142,7 @@ class ReferenceLiveTests(unittest.TestCase):
         agent = settings.agents['fe_operator']
         backend = ReferenceBackend(agent['reference'], settings.network['reservoirs']['FEWalter']['physical'],
                                    runtime_root=PROJECT_ROOT, mode='llm', model=agent['model'], transport=lambda *a: {})
-        import sys
-        schema = sys.modules['dkp_llm_release'].dkp_schema(include_missing_inputs=False)
+        schema = backend._parser.schema
         url, payload = chat_request(agent['model'], [], schema=schema)
         captured = []
         class FakeOpener:
@@ -150,7 +157,7 @@ class ReferenceLiveTests(unittest.TestCase):
         for method in ('zeroshot', 'dkp'):
             for failure in ('timeout', 'json', 'nonfinite', 'missing', 'extra', 'enum', 'boolean'):
                 with self.subTest(method=method, failure=failure):
-                    settings = self.settings(method)
+                    settings = self.settings(method, run_suffix=f'-{failure}')
                     attempts = []
                     def fake(*args):
                         attempts.append(1)
@@ -171,14 +178,9 @@ class ReferenceLiveTests(unittest.TestCase):
                     output = Path(settings.report['output'])
                     if (output/'reservoir_trajectory.csv').exists():
                         self.assertLessEqual(len((output/'reservoir_trajectory.csv').read_text().splitlines()), 1)
-                    raw = '\n'.join(p.read_text() for p in output.rglob('*.json'))
+                    raw = '\n'.join(p.read_text(encoding='utf-8') for p in output.rglob('*.json'))
                     self.assertNotIn('secret must not reach trace', raw)
                     # Each attempt has a fresh output; prior failed evidence is retained.
-                    settings.path.unlink()
-                    data = json.loads((self.root/'case.json').read_text())
-                    self.assertTrue(data['live_readiness']['ready'])
-                    self.root = self.root / failure / method
-                    self.root.mkdir(parents=True, exist_ok=True)
 
     def test_missing_credential_does_not_call_transport(self):
         settings = self.settings('zeroshot')
@@ -187,7 +189,7 @@ class ReferenceLiveTests(unittest.TestCase):
         backend = ReferenceBackend(agent['reference'], settings.network['reservoirs']['FEWalter']['physical'],
                                    runtime_root=PROJECT_ROOT, mode='llm', model=model,
                                    transport=lambda *a: self.fail('called'))
-        with patch.dict('os.environ', {}, clear=True), self.assertRaisesRegex(RuntimeError, 'unset'):
+        with patch.dict('os.environ', {}, clear=True), self.assertRaisesRegex(RuntimeError, 'request or response failed'):
             backend._fixture.decide('system', 'prompt')
         self.assertEqual(backend.network_calls, 0)
 
@@ -196,7 +198,7 @@ class ReferenceLiveTests(unittest.TestCase):
             for provider in ('ollama', 'openai_compatible'):
                 for status in ('length', 'missing', 'incomplete'):
                     with self.subTest(method=method, provider=provider, status=status):
-                        settings = self.settings(method, provider)
+                        settings = self.settings(method, provider, run_suffix=f'-{status}')
                         attempts = []
                         def fake(*args):
                             attempts.append(1)
@@ -209,14 +211,18 @@ class ReferenceLiveTests(unittest.TestCase):
                             choice = {'message': {'content': content}}
                             if status != 'missing': choice['finish_reason'] = 'length' if status == 'length' else None
                             return {'choices': [choice]}
-                        with self.assertRaisesRegex(RuntimeError, 'physics was not applied'):
-                            run_settings(settings, allow_network=True, transport=fake)
-                        self.assertEqual(len(attempts), 1)
+                        rejects = status == 'length' or (provider == 'ollama' and status == 'incomplete')
+                        if rejects:
+                            with self.assertRaisesRegex(RuntimeError, 'physics was not applied'):
+                                run_settings(settings, allow_network=True, transport=fake)
+                            self.assertEqual(len(attempts), 1)
+                        else:
+                            _, result = run_settings(settings, allow_network=True, transport=fake)
+                            self.assertEqual(sum(result['summary']['audit_counts'].values()), 3)
+                            self.assertEqual(len(attempts), 3)
                         output = Path(settings.report['output'])
-                        if (output/'reservoir_trajectory.csv').exists():
+                        if rejects and (output/'reservoir_trajectory.csv').exists():
                             self.assertLessEqual(len((output/'reservoir_trajectory.csv').read_text().splitlines()), 1)
-                        self.root = self.root / method / provider / status
-                        self.root.mkdir(parents=True, exist_ok=True)
 
 
 if __name__ == '__main__':

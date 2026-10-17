@@ -13,7 +13,7 @@ from unittest.mock import patch
 from llm_reservoir_agent.case import load_case, load_responses
 from llm_reservoir_agent.experiment import run_experiment
 from llm_reservoir_agent.network import PROJECT_ROOT, run_network
-from llm_reservoir_agent.dkp_adapter import DKPPolicyAdapter
+from examples.fe_walter.extensions.dkp_adapter import DKPPolicyAdapter
 from llm_reservoir_agent.policy_adapter import LLMPolicyAdapter
 from llm_reservoir_agent.prompt import PromptSpec
 
@@ -325,7 +325,7 @@ class MultiReservoirAcceptance(Base):
         self.assertFalse(shared.decisions)
 
     def test_wrapped_policy_isolation_at_both_entrypoints(self):
-        from delaware_operations.anik_adapter import AnikPolicyAdapter, load_anik
+        from examples.fe_walter.extensions.anik_v3_7 import AnikPolicyAdapter, load_anik
         vendor = load_anik(PROJECT_ROOT)
         cfg = next(value for value in vendor.RESERVOIRS if value.name == "F.E. Walter Dam")
         config, rows = network(count=2, days=1)

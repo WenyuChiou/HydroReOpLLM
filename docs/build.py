@@ -9,6 +9,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import zipfile
 from urllib.parse import quote, unquote, urlsplit
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -25,10 +26,65 @@ MAP_DOWNLOADS = {
 HYDROLOGY_DOWNLOADS = {
     **{f"examples/fe_walter/hydrology_data/{name}": name for name in (
         "calibration_validation_metrics.csv", "subcatchments.csv", "provenance.json",
+        "reproduced_cv_metrics_20261016.csv", "reproduction_20261016.json",
     )},
     "data/accepted/fe_walter_hydrology.yaml": "fe_walter_hydrology.yaml",
     "data/accepted/historical_manifest.json": "historical_manifest.json",
 }
+ANNUAL_DOWNLOADS = {
+    "examples/fe_walter/annual/outputs/custom_system_prompt_20261016.txt": "custom_system_prompt_20261016.txt",
+    **{
+    f"examples/fe_walter/annual/outputs/{name}": name for name in (
+        "daily.csv", "attempt_summary.json", "failed_reply_2016_06_18.txt",
+        "annual_attempt.pdf", "annual_attempt.svg",
+    )
+    },
+}
+CONFIG_DOWNLOADS = {
+    f"examples/fe_walter/coupled/{name}": name
+    for name in (
+        "experiment.yaml", "rule.yaml", "llm_available.yaml", "llm_knowledge.yaml",
+        "llm_available.gemma4.yaml", "llm_knowledge.gemma4.yaml", "models.gemma4.yaml",
+        "hydrology.yaml", "models.yaml", "agents.rule.yaml", "agents.llm_available.yaml",
+        "agents.llm_knowledge.yaml", "auditors.yaml", "reservoirs.json",
+    )
+}
+CONFIG_DOWNLOADS.update({
+    f"examples/fe_walter/coupled/current/{name}": f"current-{name}"
+    for name in ("experiment.yaml", "llm_available.yaml", "llm_knowledge.yaml", "models.yaml")
+})
+CONFIG_DOWNLOADS.update({
+    f"examples/fe_walter/prompts/{name}": name
+    for name in ("zeroshot_seasonal_v1_system.txt", "dkp_seasonal_v1_system.txt",
+                 "dkp_seasonal_v2_system.txt")
+})
+COMPLETED_DOWNLOADS = {
+    f"examples/fe_walter/coupled/outputs/{name}": name
+    for name in ("daily.csv", "summary.json", "pool_release.svg", "pool_release.pdf",
+                 "llm_available_decision.json", "llm_knowledge_decision.json")
+}
+YEAR_DOWNLOADS = {
+    f"examples/fe_walter/coupled/outputs/2016/{name}": f"2016-{name}"
+    for name in ("daily.csv", "summary.json", "pins.json", "pool_release.svg",
+                 "pool_release.pdf", "llm_available_decision.json", "llm_knowledge_decision.json")
+}
+COMPARISON_DOWNLOADS = {
+    f"examples/fe_walter/coupled/outputs/gemma4_2016_comparison/{name}": f"gemma4-2016-{name}"
+    for name in ("daily.csv", "summary.json", "pool_release.png", "pool_release.svg",
+                 "pool_release.pdf", "llm_available_pair.json", "llm_knowledge_pair.json")
+}
+MULTI_RESERVOIR_FILES = (
+    "agents.llm.yaml", "agents.rule.yaml", "auditors.yaml", "experiment.llm.yaml",
+    "experiment.yaml", "forcing.csv", "hydrology.yaml", "information.yaml",
+    "model.yaml", "models.yaml", "reference_a.csv", "reference_b.csv",
+    "reservoirs.yaml", "statistics_a.json", "statistics_b.json",
+    "extensions/__init__.py", "knowledge/guidance.json", "prompts/operator.txt",
+    "prompts/system.txt",
+)
+MULTI_RESERVOIR_DOWNLOADS = {
+    f"examples/multiple_reservoirs/{name}": name for name in MULTI_RESERVOIR_FILES
+}
+MULTI_SHARED_RULES = ("examples/rules/hanasaki/__init__.py",)
 PAGES = {
     "docs/index.md": "index.md",
     "docs/index.zh-TW.md": "index.zh-TW.md",
@@ -37,6 +93,11 @@ PAGES = {
     "examples/fe_walter/README.md": "examples/fe_walter/README.md",
     "examples/fe_walter/README.zh-TW.md": "examples/fe_walter/README.zh-TW.md",
     "examples/fe_walter/hydrology.md": "examples/fe_walter/hydrology.md",
+    "examples/fe_walter/configuration.md": "examples/fe_walter/configuration.md",
+    "examples/fe_walter/annual/README.md": "examples/fe_walter/annual/README.md",
+    "examples/fe_walter/coupled/README.md": "examples/fe_walter/coupled/README.md",
+    "examples/fe_walter/annual/results.md": "examples/fe_walter/annual/results.md",
+    "examples/fe_walter/annual/decision_2016_01_01.md": "examples/fe_walter/annual/decision_2016_01_01.md",
     "examples/fe_walter/hydrology.zh-TW.md": "examples/fe_walter/hydrology.zh-TW.md",
     "examples/fe_walter/coupling.md": "examples/fe_walter/coupling.md",
     "examples/fe_walter/coupling.zh-TW.md": "examples/fe_walter/coupling.zh-TW.md",
@@ -47,6 +108,7 @@ PAGES = {
        for name in ("README.md", "README.zh-TW.md")},
     "tutorials/README.md": "tutorials/README.md",
     "tutorials/README.zh-TW.md": "tutorials/README.zh-TW.md",
+    "tutorials/fe_walter.md": "tutorials/fe_walter.md",
     "tutorials/main.ipynb": "tutorials/main.ipynb",
     "tutorials/advanced.ipynb": "tutorials/advanced.ipynb",
     "archive/README.md": "archive/README.md",
@@ -54,8 +116,9 @@ PAGES = {
         "README.md", "README.zh-TW.md", "LLM_MODULES.md", "LLM_MODULES.zh-TW.md",
         "USER_GUIDE.md", "USER_GUIDE.zh-TW.md", "HYDROLOGY_SETUP.md",
         "LIVE_READINESS.md", "auditor_plugins.md", "PROJECT_INVENTORY.md", "BUILDING.md",
-        "GETTING_STARTED.md", "BUILD_SIMULATION.md", "BUILD_SIMULATION.zh-TW.md", "FIRST_DECISION.md", "INFORMATION.md", "INFORMATION.zh-TW.md",
-        "PARAMETER_REFERENCE.md", "RESULTS_GUIDE.md", "REFERENCE.md", "RUNNING.md",
+        "GETTING_STARTED.md", "BUILD_SIMULATION.md", "BUILD_SIMULATION.zh-TW.md", "INFORMATION.md", "INFORMATION.zh-TW.md",
+        "CONFIGURATION.md", "MODEL_PROVIDERS.md", "MULTI_RESERVOIR.md", "INPUT_OUTPUT.md", "API_REFERENCE.md",
+        "PARAMETER_REFERENCE.md", "RESULTS_GUIDE.md", "REFERENCE.md", "RUNNING.md", "CODE_STRUCTURE.md", "WEATHER_INPUTS.md",
     )},
 }
 # Match the inner image in a linked badge before its enclosing Markdown link.
@@ -88,6 +151,30 @@ def prepare(source: Path, *, source_ref: str = "main") -> None:
             elif not match[1].startswith("!") and relative in HYDROLOGY_DOWNLOADS:
                 import os
                 output = source / "_hydrology_downloads" / HYDROLOGY_DOWNLOADS[relative]
+                value = Path(os.path.relpath(output, (source / destination).parent)).as_posix()
+            elif not match[1].startswith("!") and relative in ANNUAL_DOWNLOADS:
+                import os
+                output = source / "_annual_downloads" / ANNUAL_DOWNLOADS[relative]
+                value = Path(os.path.relpath(output, (source / destination).parent)).as_posix()
+            elif not match[1].startswith("!") and relative in CONFIG_DOWNLOADS:
+                import os
+                output = source / "_config_downloads" / CONFIG_DOWNLOADS[relative]
+                value = Path(os.path.relpath(output, (source / destination).parent)).as_posix()
+            elif not match[1].startswith("!") and relative in COMPLETED_DOWNLOADS:
+                import os
+                output = source / "_completed_downloads" / COMPLETED_DOWNLOADS[relative]
+                value = Path(os.path.relpath(output, (source / destination).parent)).as_posix()
+            elif not match[1].startswith("!") and relative in YEAR_DOWNLOADS:
+                import os
+                output = source / "_completed_downloads" / YEAR_DOWNLOADS[relative]
+                value = Path(os.path.relpath(output, (source / destination).parent)).as_posix()
+            elif not match[1].startswith("!") and relative in COMPARISON_DOWNLOADS:
+                import os
+                output = source / "_completed_downloads" / COMPARISON_DOWNLOADS[relative]
+                value = Path(os.path.relpath(output, (source / destination).parent)).as_posix()
+            elif not match[1].startswith("!") and relative in MULTI_RESERVOIR_DOWNLOADS:
+                import os
+                output = source / "_multiple_reservoir_downloads" / MULTI_RESERVOIR_DOWNLOADS[relative]
                 value = Path(os.path.relpath(output, (source / destination).parent)).as_posix()
             elif match[1].startswith("!"):
                 output = source / relative
@@ -140,6 +227,72 @@ def prepare(source: Path, *, source_ref: str = "main") -> None:
     hydrology_downloads.mkdir()
     for relative, name in HYDROLOGY_DOWNLOADS.items():
         shutil.copyfile(ROOT / relative, hydrology_downloads / name)
+    # Publish only the selected annual teaching evidence, including the failed reply.
+    annual_downloads = source / "_annual_downloads"
+    annual_downloads.mkdir()
+    for relative, name in ANNUAL_DOWNLOADS.items():
+        shutil.copyfile(ROOT / relative, annual_downloads / name)
+    config_downloads = source / "_config_downloads"
+    config_downloads.mkdir()
+    for relative, name in CONFIG_DOWNLOADS.items():
+        shutil.copyfile(ROOT / relative, config_downloads / name)
+        # Canonical files also support copyable literalinclude blocks in tutorials.
+        target = source / relative
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(ROOT / relative, target)
+    completed_downloads = source / "_completed_downloads"
+    completed_downloads.mkdir()
+    for relative, name in COMPLETED_DOWNLOADS.items():
+        shutil.copyfile(ROOT / relative, completed_downloads / name)
+    # Keep current-year downloads distinct from the historical same-basename assets.
+    # Canonical source copies support direct local references and source-byte checks.
+    for relative, name in YEAR_DOWNLOADS.items():
+        shutil.copyfile(ROOT / relative, completed_downloads / name)
+        canonical = source / relative
+        canonical.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(ROOT / relative, canonical)
+    # Only these curated comparison assets are published; raw HTTP journals stay private.
+    for relative, name in COMPARISON_DOWNLOADS.items():
+        shutil.copyfile(ROOT / relative, completed_downloads / name)
+        canonical = source / relative
+        canonical.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(ROOT / relative, canonical)
+    for name in ("llm_available_reply.txt", "llm_knowledge_reply.txt"):
+        relative = "examples/fe_walter/coupled/outputs/2016/" + name
+        shutil.copyfile(ROOT / relative, source / relative)
+    # Publish one complete, explicit teaching bundle. Keep paths inside the bundle
+    # so split YAML, prompts, provenance inputs and extension code remain runnable.
+    multiple_downloads = source / "_multiple_reservoir_downloads"
+    multiple_downloads.mkdir()
+    archive = multiple_downloads / "hydroopslm-multiple-reservoirs.zip"
+    with zipfile.ZipFile(archive, "w", compression=zipfile.ZIP_DEFLATED) as bundle:
+        for relative, name in MULTI_RESERVOIR_DOWNLOADS.items():
+            item = ROOT / relative
+            bundle.write(item, arcname=f"multiple_reservoirs/{name}")
+            download = multiple_downloads / name
+            download.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(item, download)
+            canonical = source / relative
+            canonical.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(item, canonical)
+        # Shared user-rule modules keep their sibling location after extraction.
+        # Never put ../ paths in an archive or flatten these imports into a core module.
+        for relative in MULTI_SHARED_RULES:
+            item = ROOT / relative
+            bundle.write(item, arcname=Path(relative).relative_to('examples').as_posix())
+            canonical = source / relative
+            canonical.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(item, canonical)
+    for name in ("llm_available_reply.txt", "llm_knowledge_reply.txt"):
+        relative = "examples/fe_walter/coupled/outputs/" + name
+        target = source / relative
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(ROOT / relative, target)
+    # The rejected historical prompt remains distinct from active config downloads.
+    relative = "examples/fe_walter/annual/outputs/custom_system_prompt_20261016.txt"
+    target = source / relative
+    target.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(ROOT / relative, target)
     # Publish selected original-byte case evidence for local viewing and downloads.
     case_downloads = source / "_case_downloads/dkp_2016_2020"
     case_downloads.mkdir(parents=True)
@@ -151,14 +304,19 @@ def prepare(source: Path, *, source_ref: str = "main") -> None:
         item = ROOT / "examples/fe_walter/reference_outputs/long_term_dkp" / relative
         shutil.copyfile(item, case_downloads / item.name)
     groups = {
-        "Overview": ["docs/README"],
-        "Build a simulation": ["docs/GETTING_STARTED", "docs/BUILD_SIMULATION", "docs/USER_GUIDE", "docs/INFORMATION", "docs/LLM_MODULES"],
-        "FE Walter case study": ["examples/fe_walter/README", "examples/fe_walter/hydrology", "examples/fe_walter/coupling", *[f"examples/fe_walter/{method}/README" for method in ("benchmark", "zero_shot", "dkp")], "examples/fe_walter/results"],
-        "Further configuration": ["tutorials/advanced", "docs/RESULTS_GUIDE", "docs/RUNNING"],
-        "Reference": ["docs/PARAMETER_REFERENCE", "docs/REFERENCE", "docs/FIRST_DECISION", "docs/HYDROLOGY_SETUP",
-                      "tutorials/README", "tutorials/main",
-                                    "docs/PROJECT_INVENTORY", "archive/README", "repository",
-                                    "docs/BUILDING", "docs/auditor_plugins", "docs/LIVE_READINESS"],
+        "Overview and installation": ["docs/README", "docs/GETTING_STARTED"],
+        "Inputs and outputs": ["docs/INPUT_OUTPUT", "docs/HYDROLOGY_SETUP", "docs/WEATHER_INPUTS"],
+        "Configure agents": ["docs/CONFIGURATION", "docs/BUILD_SIMULATION", "docs/MULTI_RESERVOIR",
+                             "docs/MODEL_PROVIDERS", "docs/LLM_MODULES", "docs/INFORMATION"],
+        "Tutorials": ["tutorials/fe_walter", "tutorials/README", "tutorials/main", "tutorials/advanced",
+                      "examples/fe_walter/README", "examples/fe_walter/configuration", "examples/fe_walter/hydrology",
+                      "examples/fe_walter/coupled/README", "examples/fe_walter/coupling", "examples/fe_walter/annual/README",
+                      *[f"examples/fe_walter/{method}/README" for method in ("benchmark", "zero_shot", "dkp")]],
+        "Results and recovery": ["docs/RESULTS_GUIDE", "docs/RUNNING", "examples/fe_walter/results",
+                                 "examples/fe_walter/annual/decision_2016_01_01", "examples/fe_walter/annual/results"],
+        "API and reference": ["docs/API_REFERENCE", "docs/PARAMETER_REFERENCE", "docs/REFERENCE", "docs/USER_GUIDE",
+                              "docs/CODE_STRUCTURE", "docs/PROJECT_INVENTORY", "archive/README", "repository",
+                              "docs/BUILDING", "docs/auditor_plugins", "docs/LIVE_READINESS"],
         "繁體中文": [path.rsplit(".", 1)[0] for path in PAGES.values()
                    if "zh-TW" in path],
     }

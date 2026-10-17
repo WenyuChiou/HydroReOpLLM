@@ -30,8 +30,19 @@ PROJECT_ROOT = default_runtime_root()
 
 
 def validate_network(config):
-    if not isinstance(config, Mapping) or config.get("schema_version") != "llm-reservoir-network.v1":
+    if not isinstance(config, Mapping) or config.get("schema_version") not in (
+            "llm-reservoir-network.v1", "llm-reservoir-network.v2"):
         raise ValueError("unsupported reservoir network configuration")
+    if config["schema_version"] == "llm-reservoir-network.v1":
+        if "outlets" in config:
+            raise ValueError("v1 reservoir networks require outlet, not outlets")
+        outlets = [config.get("outlet")]
+    else:
+        if "outlet" in config:
+            raise ValueError("v2 reservoir networks require outlets, not outlet")
+        outlets = config.get("outlets")
+        if not isinstance(outlets, list) or not outlets:
+            raise ValueError("v2 reservoir networks require a non-empty outlets list")
     start = date.fromisoformat(config["start_date"])
     if start.isoformat() != config["start_date"]:
         raise ValueError("start_date must be canonical YYYY-MM-DD")
@@ -40,7 +51,6 @@ def validate_network(config):
     reservoirs = config.get("reservoirs")
     if not isinstance(reservoirs, Mapping) or not reservoirs:
         raise ValueError("reservoirs must be a non-empty mapping")
-    outlet = config.get("outlet")
     names = list(reservoirs)
     inlets = []
     physical_ids = []
@@ -69,12 +79,12 @@ def validate_network(config):
     junctions = config.get("junctions", [])
     if not isinstance(junctions, list):
         raise ValueError("junctions must be a list")
-    nodes = names + inlets + junctions + [outlet]
+    nodes = names + inlets + junctions + outlets
     if not all(isinstance(node, str) and node.strip() for node in nodes) or len(set(nodes)) != len(nodes):
-        raise ValueError("all reservoir, inlet, junction and outlet names must be distinct non-empty strings")
+        raise ValueError("all reservoir, inlet, junction and outlet IDs must be distinct non-empty strings")
     if len(set(physical_ids)) != len(physical_ids):
         raise ValueError("physical reservoir_id values must be distinct")
-    routing_nodes = inlets + junctions + [outlet]
+    routing_nodes = inlets + junctions + outlets
     for node, location in _json_mapping_copy(config.get("node_locations", {}), "node_locations").items():
         if node not in nodes:
             raise ValueError("node location refers to an unknown node")
@@ -92,7 +102,7 @@ def validate_network(config):
         if not isinstance(edge, Mapping) or set(edge).difference({"source", "target", "fraction", "unit_hydrograph"}):
             raise ValueError("unsupported routing connection fields")
         source, target = edge.get("source"), edge.get("target")
-        if source not in names + junctions or target not in routing_nodes or source == target or source == outlet:
+        if source not in names + junctions or target not in routing_nodes or source == target or source in outlets:
             raise ValueError("connections route reservoir/junction outputs into an inlet, junction or outlet")
         if (source, target) in pairs:
             raise ValueError("duplicate routing connection")
@@ -127,10 +137,40 @@ def validate_network(config):
                 queue.append(target)
     if len(sequence) != len(nodes):
         raise ValueError("reservoir routing network contains a cycle")
-    if [node for node in nodes if not adjacency[node]] != [outlet]:
-        raise ValueError("every reservoir must drain to the configured common outlet")
+    terminals = [node for node in nodes if not adjacency[node]]
+    if set(terminals) != set(outlets) or len(terminals) != len(outlets):
+        raise ValueError("configured outlets must exactly match the terminal routing nodes")
+    undirected = {node: [] for node in nodes}
+    for source, targets in adjacency.items():
+        for target in targets:
+            undirected[source].append(target)
+            undirected[target].append(source)
+    components = []
+    remaining = set(nodes)
+    for first in nodes:
+        if first not in remaining:
+            continue
+        queue = deque([first])
+        members = []
+        remaining.remove(first)
+        while queue:
+            node = queue.popleft()
+            members.append(node)
+            for neighbor in undirected[node]:
+                if neighbor in remaining:
+                    remaining.remove(neighbor)
+                    queue.append(neighbor)
+        component_outlets = [node for node in outlets if node in members]
+        component_reservoirs = [node for node in names if node in members]
+        if not component_outlets or not component_reservoirs:
+            raise ValueError("every independent water system must contain a reservoir and configured outlet")
+        components.append({"component_id": "component-" + str(len(components) + 1),
+                           "nodes": members,
+                           "routing_nodes": [node for node in routing_nodes if node in members],
+                           "reservoirs": component_reservoirs, "outlets": component_outlets})
     return {"reservoirs": reservoirs, "routing_nodes": routing_nodes, "nodes": nodes,
-            "edges": edges, "adjacency": adjacency, "sequence": sequence, "start": start}
+            "edges": edges, "adjacency": adjacency, "sequence": sequence, "start": start,
+            "outlets": outlets, "components": components}
 
 
 def validate_inflows(config, rows):
@@ -217,7 +257,10 @@ def _run_network(config, rows, policies, *, project_root=PROJECT_ROOT, informati
     aliases = {node: f"node{i:0{width}d}" for i, node in enumerate(topology["nodes"])}
     inverse = {value: key for key, value in aliases.items()}
     native_config = deepcopy(config)
-    native_config["outlet"] = aliases[config["outlet"]]
+    if config["schema_version"] == "llm-reservoir-network.v1":
+        native_config["outlet"] = aliases[topology["outlets"][0]]
+    else:
+        native_config["outlets"] = [aliases[node] for node in topology["outlets"]]
     native_config["node_locations"] = {aliases[node]: location for node, location in config.get("node_locations", {}).items()}
     native_config["junctions"] = [aliases[node] for node in config.get("junctions", [])]
     native_config["reservoirs"] = {aliases[name]: dict(settings, inflow_node=aliases[settings["inflow_node"]])
@@ -297,15 +340,17 @@ def _run_network(config, rows, policies, *, project_root=PROJECT_ROOT, informati
                     expected[node] += np.convolve(expected[edge["source"]], edge["unit_hydrograph"])[:len(rows)] * edge["fraction"]
         if not np.allclose(native[node], expected[node], rtol=0, atol=1e-10):
             raise RuntimeError("native outflow was lost or duplicated at " + node)
-    ledger, reaches = network_balance(topology, local, expected, records, [r["date"] for r in rows])
+    ledger, reaches, component_balances = network_balance(
+        topology, local, expected, records, [r["date"] for r in rows], return_components=True)
     return records, {"engine": "hydrocnhs_reservoir_network", "days": len(rows),
-        "reservoir_count": len(records), "reservoirs": list(records), "simulation_sequence": sequence,
+        "reservoir_count": len(records), "reservoirs": list(records), "outlets": list(topology["outlets"]),
+        "component_count": len(topology["components"]), "simulation_sequence": sequence,
         "verified_hydrocnhs_commit": core["hydrocnhs_commit"], "hydrology_recomputed": False,
         "routing": "caller-supplied unit hydrographs; independent convolution verified",
         "local_inflows_unchanged": True, "native_node_aliases": aliases, "native_routing_relays": relays,
         "native_sequence_normalized": original_native_sequence != native_sequence,
         "original_native_sequence": original_native_sequence,
-        "network_balance": ledger, "reach_volume_trace": reaches,
+        "network_balance": ledger, "component_balances": component_balances, "reach_volume_trace": reaches,
         "max_system_balance_residual_m3": max(abs(r["system_residual_m3"]) for r in ledger),
         "initial_channel_storage_m3": 0.0, "final_channel_storage_m3": ledger[-1]["channel_storage_end_m3"],
         "operation_modes": {name: s.get("operation_mode", "controlled") for name, s in config["reservoirs"].items()},

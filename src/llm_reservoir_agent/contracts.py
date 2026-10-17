@@ -22,6 +22,18 @@ from typing import Any, Mapping
 OBSERVATION_SCHEMA_VERSION = "reservoir-observation.v1"
 ACTION_SCHEMA_VERSION = "reservoir-action.v1"
 
+# Native provider constraint for the normalized requested action. Physical
+# feasibility remains a host-side calculation after response validation.
+ACTION_JSON_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "schema_version": {"type": "string", "enum": [ACTION_SCHEMA_VERSION]},
+        "release_cms": {"type": "number", "minimum": 0},
+    },
+    "required": ["schema_version", "release_cms"],
+    "additionalProperties": False,
+}
+
 
 def _json_mapping_copy(value: Mapping[str, Any], label: str) -> dict[str, Any]:
     if not isinstance(value, Mapping):

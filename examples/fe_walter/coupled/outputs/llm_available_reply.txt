@@ -1,0 +1,8 @@
+{
+  "applicable_target_ft": 1300.0,
+  "pool_position": "at_target",
+  "intended_storage_direction": "hold",
+  "release_relation_to_inflow": "equal_to_inflow",
+  "reasoning": "The target pool level is 1300.0 ft, and inflow is 1134.5 cfs, so a release of 1134.5 cfs is appropriate to maintain the pool level.",
+  "release_cfs": 1134.5
+}

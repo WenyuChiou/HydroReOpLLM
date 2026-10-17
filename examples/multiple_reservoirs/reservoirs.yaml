@@ -1,0 +1,40 @@
+schema_version: reservoir-physical-case.v1
+data_kind: synthetic_fixture
+network:
+  schema_version: llm-reservoir-network.v2
+  start_date: '2020-02-28'
+  reservoirs:
+    lake_a:
+      inflow_node: inlet_a
+      physical:
+        reservoir_id: lake_a
+        capacity_m3: 1000000.0
+        dead_storage_m3: 0.0
+        initial_storage_m3: 500000.0
+        minimum_release_cms: 0.0
+        maximum_release_cms: 20.0
+        dt_seconds: 86400.0
+    lake_b:
+      inflow_node: inlet_b
+      physical:
+        reservoir_id: lake_b
+        capacity_m3: 1000000.0
+        dead_storage_m3: 0.0
+        initial_storage_m3: 500000.0
+        minimum_release_cms: 0.0
+        maximum_release_cms: 20.0
+        dt_seconds: 86400.0
+  connections:
+  - source: lake_a
+    target: river_a
+    unit_hydrograph:
+    - 0.0
+    - 1.0
+  - source: lake_b
+    target: river_b
+    unit_hydrograph:
+    - 0.0
+    - 1.0
+  outlets:
+  - river_a
+  - river_b

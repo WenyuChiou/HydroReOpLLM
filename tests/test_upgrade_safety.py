@@ -8,19 +8,28 @@ import pytest
 import yaml
 
 from llm_reservoir_agent.network import PROJECT_ROOT
-from llm_reservoir_agent.reference_backend import ReferenceBackend
+from examples.fe_walter.extensions.reference_backend import ReferenceBackend
 from llm_reservoir_agent.workflow import load_settings, main, run_settings, verify_settings_output
 
+
+
+def _pin_example_extension(data):
+    # This test copies FE Walter configuration into a disposable directory.
+    if data.get("extensions"):
+        entries = {"reference_v3_7": "examples/fe_walter/extensions/__init__.py",
+                   "hanasaki": "examples/rules/hanasaki/__init__.py"}
+        data["extensions"] = {key: str(PROJECT_ROOT / entries[key]) for key in data["extensions"]}
+    return data
 
 def benchmark_settings(tmp_path):
     source = PROJECT_ROOT / 'examples/fe_walter/benchmark/experiment.yaml'
     data = yaml.safe_load(source.read_text())
     data['case'] = str(PROJECT_ROOT / 'cases/fe_walter_reference/case.json')
     data['output'] = str(tmp_path / 'output')
-    data['agents']['fe_operator']['benchmark']['statistics'] = str(
+    data['agents']['fe_operator']['rule_parameters']['inflow_statistics_file'] = str(
         PROJECT_ROOT / 'data/benchmark/fe_walter_statistics.json')
     path = tmp_path / 'experiment.yaml'
-    path.write_text(yaml.safe_dump(data))
+    path.write_text(yaml.safe_dump(_pin_example_extension(data)))
     return load_settings(path)
 
 
@@ -41,12 +50,12 @@ def test_wrong_profile_identity_stops_check_and_constructor(tmp_path):
     data = yaml.safe_load(source.read_text())
     data['case'] = str(case_path)
     data['case_root'] = str(tmp_path)
-    data['agents']['fe_operator']['reference']['responses'] = str(
+    data['agents']['fe_operator']['customization']['parameters']['reference']['responses'] = str(
         PROJECT_ROOT / 'tests/fixtures/zeroshot_responses.json')
-    data['agents']['fe_operator']['reference']['system_prompt'] = str(
-        PROJECT_ROOT / 'prompts/fe_walter_reference/zeroshot_system.txt')
+    data['agents']['fe_operator']['customization']['parameters']['reference']['system_prompt'] = str(
+        PROJECT_ROOT / 'examples/fe_walter/prompts/reference/zeroshot_system.txt')
     config = tmp_path / 'reference.yaml'
-    config.write_text(yaml.safe_dump(data))
+    config.write_text(yaml.safe_dump(_pin_example_extension(data)))
     with pytest.raises(ValueError, match='profile must match physical reservoir_id'):
         load_settings(config)
 
@@ -57,8 +66,8 @@ def test_cache_reuses_identical_inputs_and_rejects_changed_settings(tmp_path):
         run_settings(settings)
     assert verify_settings_output(settings)['status'] == 'PASS'
     data = deepcopy(settings.data)
-    data['agents']['fe_operator']['benchmark']['alpha'] = 0.9
-    settings.path.write_text(yaml.safe_dump(data))
+    data['agents']['fe_operator']['rule_parameters']['alpha'] = 0.9
+    settings.path.write_text(yaml.safe_dump(_pin_example_extension(data)))
     changed = load_settings(settings.path)
     with pytest.raises(ValueError, match='choose a new run_id/output'):
         verify_settings_output(changed)
@@ -68,18 +77,15 @@ def test_cache_rejects_different_implementation(tmp_path):
     settings = benchmark_settings(tmp_path)
     with patch('urllib.request.urlopen', side_effect=AssertionError('network forbidden')):
         run_settings(settings)
-    original_glob = Path.glob
-    replacement = tmp_path / 'benchmark.py'
-    replacement.write_text('# different implementation\n')
-    module_dir = PROJECT_ROOT / 'src/llm_reservoir_agent'
+    original_read = Path.read_bytes
+    target = PROJECT_ROOT / 'src/llm_reservoir_agent/benchmark.py'
 
-    def changed_glob(path, pattern):
-        if path == module_dir and pattern == '*.py':
-            return iter([replacement if p.name == 'benchmark.py' else p
-                         for p in original_glob(path, pattern)])
-        return original_glob(path, pattern)
+    def changed_read(path):
+        if path == target:
+            return b'# different implementation\n'
+        return original_read(path)
 
-    with patch.object(Path, 'glob', changed_glob), pytest.raises(ValueError, match='runtime'):
+    with patch.object(Path, 'read_bytes', changed_read), pytest.raises(ValueError, match='runtime'):
         verify_settings_output(settings)
 
 
