@@ -517,6 +517,9 @@ def verify_run(output, *, require_offline=False, expected_audit_suites=None):
         for metadata in provenance.values():
             _check(isinstance(metadata, Mapping) and
                     (metadata.get("provider") == "physical" or metadata.get("data_kind") == "synthetic_fixture" or
+                     (metadata.get('backend') == 'rule_based' and
+                      isinstance(metadata.get('rule_id'), str) and bool(metadata['rule_id'].strip()) and
+                      metadata.get('model_used') is False and metadata.get('network_enabled') is False) or
                      (metadata.get("backend") == "hanasaki_benchmark" and
                       metadata.get("mode") == "benchmark" and metadata.get("model_used") is False and
                       metadata.get("network_enabled") is False and

@@ -79,6 +79,9 @@ def read_configuration(path):
     versions = {"hydroops-coupled-simulation.v2": "hydroops-coupled-simulation.v1",
                 "llm-reservoir-experiment.v2": "llm-reservoir-experiment.v1"}
     if data.get("schema_version") not in versions:
+        from .agent_configuration import normalize_agent
+        if isinstance(data.get('agents'), dict):
+            data['agents'] = {key: normalize_agent(value) for key, value in data['agents'].items()}
         return data, {}
     data = deepcopy(data)
     data["schema_version"] = versions[data["schema_version"]]
@@ -104,6 +107,8 @@ def read_configuration(path):
                 hydrology[key] = _file(bases["hydrology"], hydrology[key], "hydrology." + key)
     if not isinstance(data.get("agents", {}), dict):
         raise ValueError("agents must be a mapping")
+    from .agent_configuration import normalize_agent
+    data['agents'] = {key: normalize_agent(value) for key, value in data.get('agents', {}).items()}
     for agent in data.get("agents", {}).values():
         rebase_agent(agent, bases.get("agents", path.parent), extensions)
     for spec in data.get("auditors", {}).values():

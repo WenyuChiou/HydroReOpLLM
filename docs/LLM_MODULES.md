@@ -22,6 +22,8 @@ requests controlled release; it does not write storage, spill or river flow.
 | Module | Input → output |
 |---|---|
 | `configuration.py` | v1/v2 experiment and section files → one normalized configuration with file pins |
+| `agent_configuration.py` | `normalize_agent(spec)` translates the public per-reservoir interface into the existing engine configuration and rejects mixed syntax |
+| `rule_based.py` | `RuleBasedBackend` binds a registered rule's source pins, `rule_id`, `policy_id` and explicit zero-provider-call contract |
 | `prompt.py` | explicit `PromptSpec` templates → provider-independent messages and provenance |
 | `context.py` | immutable `DecisionContext` → available `ContextValue` with provenance |
 | `information.py` | causal catalog and profile → `decision-information.v1` snapshot |
@@ -36,20 +38,26 @@ Case extensions may supply context callbacks, auditors, response contracts or a
 complete backend. They are registered explicitly in YAML and their source bytes
 are pinned. The F.E. Walter extension uses native-matched Anik message formatting
 through the common configured provider transport. It is a scientific case
-adapter, not the configured strategy's prompt default.
+adapter. Select it with `customization.backend` and supply its case options in
+`customization.parameters`; it does not supply a common prompt for other agents.
 
 ## Prompt ownership
 
-`PromptSpec` has independent system and user templates:
+The public LLM interface names a user template and an optional system template.
+The engine represents these independent inputs with `PromptSpec`:
 
 ```yaml
-prompt:
-  system: prompts/system.txt
-  user: prompts/operator.txt
+reservoir_id: lake_a
+type: llm
+model_profile: local
+prompt_file: prompts/operator.txt
+customization:
+  system_prompt_file: prompts/system.txt
 ```
 
 The runtime does not prepend hidden shared system text. It renders built-in
-fields, fixed `prompt_variables` and dynamic `context_providers` into these two
+fields, fixed `customization.prompt_variables` and dynamic
+`customization.context_providers` into these two
 templates. Only rendered message content is visible to the model.
 
 The current observation contains the timestamp, local inflow, beginning storage,
@@ -98,7 +106,7 @@ settings.
 ## Retry and fallback boundary
 
 Each profile has an explicit `max_attempts`. Eligible transport and response
-failures retry without advancing physics. `fallback_models` then tries configured
+failures retry without advancing physics. `customization.fallback_models` then tries configured
 profiles in declared order. Every attempt records provider, model, request hash,
 reply metadata, usage, error class and elapsed time.
 

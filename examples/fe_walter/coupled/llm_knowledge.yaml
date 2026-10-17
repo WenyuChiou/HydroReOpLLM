@@ -26,22 +26,24 @@ auditors:
     version: '1'
 agents:
   fe_operator:
-    reservoir: FEWalter
-    mode: llm
-    model: reservoir_model
-    strategy: reference_v3_7
-    reference:
-      profile: fe_walter
-      method: dkp
-      consultation_mode: daily
-      response_validation: policy
-      system_prompt: ../prompts/dkp_seasonal_v1_system.txt
-      system_prompt_mode: custom
-      dkp: ../knowledge/DKP_FEWalter_Dam_v1.2.md
-      prompt_storage: false
-      hide_availability_line: false
-      dkp_no_missing_inputs: false
-      zeroshot_knowledge: target
+    reservoir_id: FEWalter
+    type: llm
+    model_profile: reservoir_model
+    customization:
+      backend: reference_v3_7
+      parameters:
+        reference:
+          profile: fe_walter
+          method: dkp
+          consultation_mode: daily
+          response_validation: policy
+          system_prompt: ../prompts/dkp_seasonal_v1_system.txt
+          system_prompt_mode: custom
+          dkp: ../knowledge/DKP_FEWalter_Dam_v1.2.md
+          prompt_storage: false
+          hide_availability_line: false
+          dkp_no_missing_inputs: false
+          zeroshot_knowledge: target
     auditors:
     - release_limits
 hydrology:

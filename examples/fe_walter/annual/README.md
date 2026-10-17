@@ -85,13 +85,13 @@ python run_experiment.py verify runs/fe-walter-2016/run-rule --require-offline
 ```
 
 The plan should report `days: 366`, `planned_llm_calls: 0` and
-`strategy: benchmark` under the agent strategy map. A completed run has 366
+`type: rule_based`, `rule: hanasaki` in the generated agent configuration. A completed run has 366
 committed decisions and physical updates. Verification checks stored evidence,
 water balance and downstream routing; a PASS does not establish seasonal-pool
 performance.
 
 Rule coefficients and pre-experiment statistics are specified under the YAML's
-`benchmark` section. See the [rule source and interpretation](../benchmark/README.md).
+`rule_parameters` section. See the [rule source and interpretation](../benchmark/README.md).
 
 ## 5. Configure and run the two LLM scenarios
 
@@ -108,18 +108,18 @@ Inspect these settings before executing:
 
 | Setting | Meaning |
 |---|---|
-| `agents.fe_operator.reservoir` | The physical reservoir controlled by this independent operator |
-| `strategy: reference_v3_7` | The retained example implementation, not the name of a general LLM method |
-| `reference.method` | Available-information or retrieved-guidance behavior |
-| `reference.system_prompt` | Method-specific native system message with only the approved seasonal-target edit |
-| `reference.dkp` | Identified knowledge document for the retrieved-guidance method |
+| `agents.fe_operator.reservoir_id` | The physical reservoir controlled by this independent operator |
+| `customization.backend: reference_v3_7` | The retained example implementation, not the name of a general LLM method |
+| `customization.parameters.reference.method` | Available-information or retrieved-guidance behavior |
+| `customization.parameters.reference.system_prompt` | Method-specific native system message with only the approved seasonal-target edit |
+| `customization.parameters.reference.dkp` | Identified knowledge document for the retrieved-guidance method |
 | `models.reservoir_model` | Ollama, `gemma3:4b`, temperature 0.7, token limit and timeout |
 | `max_calls: null` | Explicitly no total request cap; set an integer if a bounded experiment is preferred |
 | `models.reservoir_model.max_attempts: 2` | At most two attempts for one decision, using the same request and unchanged reservoir state |
 | `models.reservoir_model.retry_delay_seconds: 2` | Delay before a retry of a transient provider or invalid-response failure |
 | `models.reservoir_model.num_ctx`, `.think`, `.keep_alive` | Current explicit Ollama controls: `16384`, `false`, `30m` |
-| `reference.consultation_mode` | `daily` in the current example; `native_threshold` restores the native 10% consultation trigger |
-| `reference.response_validation: policy` | Original policy parser validates required response fields |
+| `customization.parameters.reference.consultation_mode` | `daily` in the current example; `native_threshold` restores the native 10% consultation trigger |
+| `customization.parameters.reference.response_validation: policy` | Original policy parser validates required response fields |
 | `auditors` | Release-bound checks; separate from the model's response-format checks |
 
 The current tutorial uses the complete current-day simulated mean inlet as a
@@ -137,7 +137,7 @@ python run_experiment.py run runs/fe-walter-2016-live/llm_knowledge.yaml --allow
 python run_experiment.py verify runs/fe-walter-2016-live/run-llm_knowledge
 ```
 
-The method differs under `reference.method`: `zeroshot` uses available
+The method differs under `customization.parameters.reference.method`: `zeroshot` uses available
 information; `dkp` also retrieves the selected knowledge document. Each points to
 its own native system message. Do not add `--require-offline` for real-inference runs.
 

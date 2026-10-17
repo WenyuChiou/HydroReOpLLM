@@ -58,7 +58,8 @@ class AnnualCaseTests(unittest.TestCase):
                                  hydrology_runner=lambda: (self.rows, {"fixture": True}))
             settings = [yaml.safe_load((target / f"{name}.yaml").read_text())
                         for name in ("llm_available", "llm_knowledge")]
-            prompts = [s["agents"]["fe_operator"]["reference"]["system_prompt"] for s in settings]
+            prompts = [s["agents"]["fe_operator"]["customization"]["parameters"]["reference"]["system_prompt"]
+                       for s in settings]
             self.assertNotEqual(prompts[0], prompts[1])
             self.assertEqual([Path(p).name for p in prompts],
                              ["zeroshot_seasonal_v1_system.txt", "dkp_seasonal_v1_system.txt"])

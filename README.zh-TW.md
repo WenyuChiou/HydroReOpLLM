@@ -9,7 +9,7 @@ HydroOpsLLM 將大型語言模型的決策接入 HydroCNHS 水文模擬，用於
 
 ![HydroOpsLLM 封面](docs/figures/hydroopslm-cover.png)
 
-HydroCNHS 計算流量，各水庫的 agent 提出放流需求，再由物理模型實施、更新蓄水並演算下游出流。實施結果供下一日決策使用。每座水庫可在 YAML 選擇 Rule-based 或 LLM。
+HydroCNHS 計算流量，各水庫的 agent 提出放流需求，再由物理模型實施、更新蓄水並演算下游出流。實施結果供下一日決策使用。在 YAML 為每個 agent 設定 `reservoir_id` 與 `type: rule_based` 或 `type: llm`。
 
 ## 安裝
 
@@ -56,7 +56,7 @@ reservoir-experiment verify runs/independent-rivers-rule/operation --require-off
 
 ## 設定 LLM
 
-每個 agent 選擇模型 profile、明確的 prompt，以及選用的知識或自訂 context。原生介面支援 **OpenAI、Anthropic Claude、Google Gemini 與 Ollama**，另保留 OpenAI-compatible 介面。
+每個 LLM agent 選擇 `model_profile` 與 `prompt_file`，並可在 `customization` 加入知識或 context。核心不會自動加入共用 system prompt。原生介面支援 **OpenAI、Anthropic Claude、Google Gemini 與 Ollama**，另保留 OpenAI-compatible 介面。
 
 `check` 預覽設定與 prompt，不呼叫模型。新的 LLM 執行需明確指定 `--allow-network`。憑證、參數、重試與 fallback 設定見[模型設定](docs/USER_GUIDE.md)。
 

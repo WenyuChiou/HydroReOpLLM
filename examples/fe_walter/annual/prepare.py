@@ -101,13 +101,17 @@ def prepare(year, directory, run_id, *, live_diagnostic=False, hydrology_runner=
                         max_calls=0 if method == "rule" else None)
         agent = settings["agents"]["fe_operator"]
         if method == "rule":
-            agent["benchmark"]["statistics"] = str((template.parent / agent["benchmark"]["statistics"]).resolve())
+            # The registered example rule owns this resource parameter.
+            parameters = agent["rule_parameters"]
+            parameters["inflow_statistics_file"] = str(
+                (template.parent / parameters["inflow_statistics_file"]).resolve())
         else:
             # Retain each Anik method-specific system and the approved target edit.
             settings["models"]["reservoir_model"].update(max_attempts=2, retry_delay_seconds=2)
+            reference = agent["customization"]["parameters"]["reference"]
             for key in ("system_prompt", "dkp"):
-                if key in agent["reference"]:
-                    agent["reference"][key] = str((template.parent / agent["reference"][key]).resolve())
+                if key in reference:
+                    reference[key] = str((template.parent / reference[key]).resolve())
         settings["extensions"] = {key: str((template.parent / value).resolve()) for key, value in settings.get("extensions", {}).items()}
         with (directory / f"{method}.yaml").open("x", encoding="utf-8") as stream:
             yaml.safe_dump(settings, stream, sort_keys=False)

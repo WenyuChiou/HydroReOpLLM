@@ -143,7 +143,7 @@ def load_coupled_settings(path, *, runtime_root=PROJECT_ROOT):
         checked = load_settings(folder/"experiment.yaml", runtime_root=runtime_root)
         files.update({p: h for p, h in checked.files.items() if not Path(p).is_relative_to(folder)})
         report = {k: checked.report[k] for k in ("agent_count", "llm_agent_count", "planned_llm_calls",
-                                                  "max_calls", "live_ready", "agent_strategies", "prompt_previews")}
+                                                  "max_calls", "live_ready", "agent_strategies", "agent_types", "agent_rules", "prompt_previews")}
     settings.report.update(report, schema_version=SCHEMA, run_id=data["run_id"],
                            start_date=first, end_date=last, hydrology_start=weather["dates"][0],
                            hydrology_end=weather["dates"][-1], unused_weather_units=unused,

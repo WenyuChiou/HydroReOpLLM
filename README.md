@@ -9,7 +9,7 @@ HydroOpsLLM couples large language model decisions with HydroCNHS hydrological s
 
 ![HydroOpsLLM cover](docs/figures/hydroopslm-cover.png)
 
-HydroCNHS computes streamflow. Each reservoir agent requests a release; the physical model implements it, updates storage and routes outflow downstream. The implemented result informs the next daily decision. Select Rule-based or LLM operation for each reservoir in YAML.
+HydroCNHS computes streamflow. Each reservoir agent requests a release; the physical model implements it, updates storage and routes outflow downstream. The implemented result informs the next daily decision. In YAML, set each agent's `reservoir_id` and `type: rule_based` or `type: llm`.
 
 ## Installation
 
@@ -56,7 +56,7 @@ Follow [Build a simulation](docs/BUILD_SIMULATION.md) to set hydrology, reservoi
 
 ## Configure an LLM
 
-Each agent selects a model profile, explicit prompt and optional knowledge or custom context. Native interfaces support **OpenAI, Anthropic Claude, Google Gemini and Ollama**, with an additional OpenAI-compatible interface.
+Each LLM agent selects `model_profile` and `prompt_file`, with optional knowledge or context under `customization`. No common system prompt is automatically added. Native interfaces support **OpenAI, Anthropic Claude, Google Gemini and Ollama**, with an additional OpenAI-compatible interface.
 
 `check` previews configuration and prompts without calling a model. New LLM execution requires explicit `--allow-network`. See [Model configuration](docs/USER_GUIDE.md) for credentials, parameters, retry and fallback settings.
 

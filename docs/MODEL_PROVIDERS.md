@@ -5,7 +5,7 @@ agent supplies the explicit system and user messages; provider adapters translat
 those messages into each native API without injecting another instruction.
 
 Always run `check` and the rule-based case first. A provider request occurs only
-during `run ... --allow-network` for an agent with `mode: llm`.
+during `run ... --allow-network` for a live agent with `type: llm`.
 
 ## Copy a provider profile
 

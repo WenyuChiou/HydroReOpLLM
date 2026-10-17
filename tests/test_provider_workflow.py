@@ -17,13 +17,16 @@ ROOT = Path(__file__).resolve().parents[1]
 def setup_case(tmp_path, provider=None):
     folder = tmp_path / "example"
     shutil.copytree(ROOT / "examples/multiple_reservoirs", folder)
+    # The copied entry registers a shared sibling rule package by relative path.
+    shutil.copytree(ROOT / "examples/rules", tmp_path / "rules",
+                    ignore=shutil.ignore_patterns("__pycache__"))
     path = folder / "experiment.yaml"
     data = yaml.safe_load(path.read_text())
     data["output"] = str(tmp_path / "run")
     if provider:
         data["agents"] = {"file": "agents.llm.yaml"}
         agents = yaml.safe_load((folder / "agents.llm.yaml").read_text())
-        agents["operator_a"]["model"] = "chosen"
+        agents["operator_a"]["model_profile"] = "chosen"
         (folder / "agents.llm.yaml").write_text(yaml.safe_dump(agents))
         data["models"] = {"chosen": {"provider": provider, "model": "fixture-model",
             "base_url": "https://provider.invalid", "max_tokens": 1024, "max_attempts": 1,
@@ -114,7 +117,7 @@ def test_yaml_cross_provider_fallback_retains_failed_and_successful_sources(tmp_
     data["models"]["backup"] = dict(data["models"]["chosen"], provider="anthropic")
     agents_path = path.parent / "agents.llm.yaml"
     agents = yaml.safe_load(agents_path.read_text())
-    agents["operator_a"]["fallback_models"] = ["backup"]
+    agents["operator_a"]["customization"]["fallback_models"] = ["backup"]
     agents_path.write_text(yaml.safe_dump(agents))
     path.write_text(yaml.safe_dump(data))
     urls = []
@@ -177,7 +180,7 @@ def test_interrupted_fallback_replays_failed_primary_without_a_new_call(tmp_path
     data["models"]["backup"] = dict(data["models"]["chosen"], provider="anthropic")
     agents_path = path.parent / "agents.llm.yaml"
     agents = yaml.safe_load(agents_path.read_text())
-    agents["operator_a"]["fallback_models"] = ["backup"]
+    agents["operator_a"]["customization"]["fallback_models"] = ["backup"]
     agents_path.write_text(yaml.safe_dump(agents))
     path.write_text(yaml.safe_dump(data))
     checked = load_coupled_settings(path)
@@ -217,7 +220,7 @@ def test_failed_attempt_metadata_is_redacted_across_retry_and_fallback(tmp_path,
         "base_url": "https://fallback.invalid", "api_key_env": "OFFLINE_PROVIDER_KEY"}
     agents_path = path.parent / "agents.llm.yaml"
     agents = yaml.safe_load(agents_path.read_text())
-    agents["operator_a"]["fallback_models"] = ["backup"]
+    agents["operator_a"]["customization"]["fallback_models"] = ["backup"]
     agents_path.write_text(yaml.safe_dump(agents))
     path.write_text(yaml.safe_dump(data))
 

@@ -105,20 +105,19 @@ models:
 
 agents:
   operator:
-    reservoir: R1
-    strategy: configured
-    mode: llm
-    model: local_model
-    prompt: operator.txt
-    prompt_version: '1'
-    knowledge: {}
-    context: {}
-    response_schema: reservoir-action.v1
+    reservoir_id: R1
+    type: llm
+    model_profile: local_model
+    prompt_file: operator.txt
     auditors: [release_limits]
 
 auditors:
   release_limits: {type: release_bounds, version: '1'}
 ```
+
+The prompt is explicit; no common system prompt is automatically added. Optional
+knowledge, context, information and separate system instructions belong under the
+agent's `customization` mapping.
 
 `max_calls: null` removes the total-call cap. `max_attempts: 2` remains a separate
 per-decision bound, and a retry uses unchanged decision inputs without advancing

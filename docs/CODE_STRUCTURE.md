@@ -10,6 +10,8 @@ src/
   hydrocnhs/                         GWLF/ABCD, Lohmann routing and Dam API
   llm_reservoir_agent/
     configuration.py                v1/v2 sections, declaring-file paths and pins
+    agent_configuration.py          public agent keys normalized into the existing engine
+    rule_based.py                   source-pinned rule wrapper and generic rule provenance
     weather.py                      full-period forcing validation and simulation
     coupled.py                      check and compile the two-stage simulation
     workflow.py                     check / prepare / run / verify / resume CLI
@@ -31,7 +33,11 @@ Regional calibration evidence, prompts, statistics and extension code live under
 
 ## Stage 1: prepare hydrological boundaries
 
-`configuration.read_configuration()` resolves explicit section files. Every
+`configuration.read_configuration()` resolves explicit section files and calls
+`agent_configuration.normalize_agent(spec)` before resource rebasing. That
+function translates `reservoir_id`, `type`, rule/model/prompt selections and
+`customization` into the existing engine configuration. It rejects a mixture of
+public and legacy keys in one agent. Every
 resource path is rebased against the file that declares it. Section references
 replace the whole section and are pinned by hash.
 
@@ -50,7 +56,8 @@ For each operation day:
 
 1. `network.py` supplies prepared incremental local flows.
 2. The agent receives its current immutable observation and committed history.
-3. A benchmark returns a rule action, or `configured_backend.py` renders explicit
+3. The registered rule backend returns a requested release, or
+   `configured_backend.py` renders explicit
    system/user templates and calls the selected adapter in `providers.py`.
 4. Response checking yields a requested controlled release or stops the step.
 5. Auditors record diagnostic results without changing the proposal.
@@ -74,6 +81,14 @@ backend extension that preserves its native Anik message formatting and response
 contract through the common configured provider transport.
 
 Extensions can also provide auditors, information sources and response schemas.
+Rule modules implement `validate_backend`, `build_backend` and `rebase_agent`;
+`type: rule_based` selects their registry ID with `rule` and passes the opaque
+`rule_parameters` mapping. Hanasaki is an example-local wrapper; the retained
+internal `BenchmarkBackend` also supports old configurations.
+`rule_based.RuleBasedBackend` wraps the selected backend, requires
+`decide(observation)`, `policy_id` and `network_calls=0`, and records `rule_id`
+provenance. It supplies no model transport. Offline verification of new public
+rules uses this generic contract rather than recognizing an algorithm name.
 Changing physics or routing is outside these decision-extension contracts and
 requires separate physical acceptance.
 

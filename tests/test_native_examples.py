@@ -29,11 +29,12 @@ def test_canonical_example_runs_native_model_and_shared_physics(example, tmp_pat
     data["case"] = str((source.parent / data["case"]).resolve())
     data["output"] = str(tmp_path / "output")
     for spec in data["agents"].values():
-        if spec["strategy"] == "benchmark":
-            settings = spec["benchmark"]
-            settings["statistics"] = str((source.parent / settings["statistics"]).resolve())
+        if spec["type"] == "rule_based":
+            settings = spec["rule_parameters"]
+            settings["inflow_statistics_file"] = str(
+                (source.parent / settings["inflow_statistics_file"]).resolve())
         else:
-            settings = spec["reference"]
+            settings = spec["customization"]["parameters"]["reference"]
             for key in ("responses", "system_prompt", "dkp", "profile_file"):
                 if key in settings:
                     settings[key] = str((source.parent / settings[key]).resolve())

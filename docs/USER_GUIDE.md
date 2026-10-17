@@ -37,11 +37,17 @@ spill and ending storage, and routes implemented release plus spill downstream.
 
 | Goal | Agent configuration | Provider request |
 |---|---|---|
-| Exercise the whole workflow | `strategy: benchmark`, `mode: offline` | none |
-| Use your prompts and a model | `strategy: configured`, `mode: llm` | explicit `--allow-network` |
-| Preserve a scientific case method | registered case extension | depends on the extension |
+| Use an explicit operating rule or controller | `type: rule_based`, `rule: <registered ID>`, `rule_parameters` | none |
+| Compare with the example's inflow-history rule | `type: rule_based`, `rule: hanasaki` | none |
+| Use your prompts and a model | `type: llm`, `model_profile`, `prompt_file` | explicit `--allow-network` |
+| Preserve a scientific case method | `type: llm` with `customization.backend` | depends on the extension |
 
-Begin with the benchmark. A configured model agent is appropriate after the
+Begin with a rule agent. Hanasaki is an example implementation, not a fixed
+framework choice. Register your own module for operating curves, water-supply or
+hydropower control; those controllers must supply their own algorithms and tests.
+A baseline is a comparison run, not an algorithm. Offline means no real provider request; LLM
+tests and replay can use supplied or saved replies without creating a third type.
+An LLM agent is appropriate after the
 hydrology, network, initial storage, prompt and audit criteria are reviewable.
 The F.E. Walter teaching case retains separate native Anik formatting through
 its extension; its saved 2016 diagnostics are not a new Anik replication.
@@ -56,18 +62,27 @@ from the file that declares it, and files are not deep-merged.
 Older v1 inline configurations remain supported. Use
 [Configuration](CONFIGURATION.md) for the complete shape and path rules.
 
+The experiment owns the shared dates, output, hydrology, physical topology and
+catalogs. Each agent uses `reservoir_id` to select one reservoir and sets its own
+method, model, prompt, information profile and auditors. Information sources
+control visibility; only the physical network's connections move water.
+
 ## Treat prompts and information as study inputs
 
-A configured LLM agent declares both messages:
+A generic LLM agent declares its user instruction and may add a system template:
 
 ```yaml
-prompt:
-  system: prompts/system.txt
-  user: prompts/operator.txt
+reservoir_id: lake_a
+type: llm
+model_profile: local
+prompt_file: prompts/operator.txt
+customization:
+  system_prompt_file: prompts/system.txt
 ```
 
-There is no hidden common system instruction. Fixed `prompt_variables`, selected
-information and dynamic `context_providers` become named template values. A
+There is no automatically added common system instruction. Under `customization`,
+fixed `prompt_variables`, selected `information` and dynamic `context_providers`
+become named template values. A
 custom context callback sees only immutable decision inputs and returns a value
 with provenance. It cannot change physical state.
 
@@ -78,7 +93,7 @@ Supported providers are OpenAI Responses, Anthropic Messages, Gemini
 and credential environment-variable names are explicit. Sampling and token
 settings are sent only when configured.
 
-Retries are bounded per profile. Optional `fallback_models` are ordered profile
+Retries are bounded per profile. Optional `customization.fallback_models` are ordered profile
 IDs and default to empty. The trace records the model and attempt actually used.
 Authentication or configuration errors stop. Audit FAIL and physical failure do
 not request a replacement answer.

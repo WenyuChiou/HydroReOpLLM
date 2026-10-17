@@ -329,7 +329,7 @@ Audit FAIL 是操作診斷；本次保存的執行未因此替換放流。 蓄�
 每座受控水庫都分配一個獨立 agent；此案例只有一座。
 
 <details>
-<summary>保存的完整執行 YAML（展開）</summary>
+<summary>目前等價設定（展開）</summary>
 
 ```yaml
 # User-requested three-day local Ollama diagnostic; check performs no provider call.
@@ -356,21 +356,26 @@ auditors:
     version: "1"
 agents:
   fe_operator:
-    reservoir: FEWalter
-    mode: llm
-    model: reservoir_model
-    strategy: reference_v3_7
-    reference:
-      profile: fe_walter
-      method: dkp
-      system_prompt: ../prompts/reference/dkp_system.txt
-      system_prompt_mode: original
-      dkp: ../knowledge/DKP_FEWalter_Dam_v1.2.md
-      prompt_storage: false
-      hide_availability_line: true
-      dkp_no_missing_inputs: true
-      zeroshot_knowledge: target
+    reservoir_id: FEWalter
+    type: llm
+    model_profile: reservoir_model
+    customization:
+      backend: reference_v3_7
+      parameters:
+        reference:
+          profile: fe_walter
+          method: dkp
+          system_prompt: ../prompts/reference/dkp_system.txt
+          system_prompt_mode: original
+          dkp: ../knowledge/DKP_FEWalter_Dam_v1.2.md
+          prompt_storage: false
+          hide_availability_line: true
+          dkp_no_missing_inputs: true
+          zeroshot_knowledge: target
     auditors: [release_limits]
+
+extensions:
+  reference_v3_7: ../extensions/__init__.py
 ```
 
 </details>

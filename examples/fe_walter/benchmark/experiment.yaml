@@ -8,15 +8,17 @@ end_date: '2016-01-03'
 max_calls: 0
 agents:
   fe_operator: # Decision unit ID; one per controlled reservoir.
-    reservoir: FEWalter # Must match the reservoir node in the case.
-    mode: offline
-    strategy: benchmark
-    benchmark:
+    reservoir_id: FEWalter # Must match the reservoir node in the case.
+    type: rule_based
+    rule: hanasaki
+    rule_parameters:
       purpose: flood_control # This adapter supports flood_control and other; no hydropower optimization.
       alpha: 0.85 # Published capacity reduction factor; not a newly calibrated parameter.
-      statistics: ../../../data/benchmark/fe_walter_statistics.json # Frozen 1996–2015 climatology, before the run.
+      inflow_statistics_file: ../../../data/benchmark/fe_walter_statistics.json # Frozen 1996–2015 climatology, before the run.
     auditors: [release_limits]
 auditors:
   release_limits:
     type: release_bounds
     version: '1' # Checks the requested release against the common physical/available-water bounds.
+extensions:
+  hanasaki: ../../rules/hanasaki/__init__.py

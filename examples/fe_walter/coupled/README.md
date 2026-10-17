@@ -14,21 +14,22 @@ water balance verification do not establish acceptable reservoir performance.
 | File | Role |
 |---|---|
 | [`reservoirs.json`](reservoirs.json) | `reservoir-physical-case.v1`: F.E. Walter physics and operation network |
-| [`rule.yaml`](rule.yaml) | Rule-based benchmark; no model request |
+| [`rule.yaml`](rule.yaml) | Rule-based baseline using the example Hanasaki module; no model request |
 | [`llm_available.yaml`](llm_available.yaml) | LLM operation with available information |
 | [`llm_knowledge.yaml`](llm_knowledge.yaml) | LLM operation with retrieved operating knowledge |
-| [`../prompts/zeroshot_seasonal_v1_system.txt`](../prompts/zeroshot_seasonal_v1_system.txt) | Native available-information system message with the approved seasonal-target edit |
-| [`../prompts/dkp_seasonal_v1_system.txt`](../prompts/dkp_seasonal_v1_system.txt) | Native operating-knowledge system message with the same target edit |
-| [`../extensions/`](../extensions/) | Explicit case extension: backend, native bridge, profile/history, and DKP audit |
+| [Available-information prompt](../prompts/zeroshot_seasonal_v1_system.txt) | Native system message with the approved seasonal-target edit |
+| [Retrieved-knowledge prompt](../prompts/dkp_seasonal_v1_system.txt) | Native operating-knowledge system message with the same target edit |
+| [Case extension](../extensions/) | Case-owned prompt formatting, response parsing, profile/history and audit |
 
 Both LLM files register the case-owned `reference_v3_7` extension because this
 example reproduces the F.E. Walter teaching interface. The available-information
 configuration uses its `zeroshot` machine ID. The operating-knowledge
 configuration uses its `dkp` machine ID and the existing vendor knowledge file.
-The extension reuses pinned native policies; it does not reconstruct their prompt
-or retrieval behavior with the generic prompt engine. Those IDs are provenance,
-not names for generic methods. For another basin, use
-the general `strategy: configured` example in
+The case extension preserves Anik's message, schema and retrieval behavior through
+the shared configured backend. The framework handles provider calls, retries,
+records, physics and routing; the original standalone code is an offline test
+oracle. Those IDs are case provenance, not generic method names. For another basin, use
+the general `type: llm` example in
 [Weather and inflow inputs](../../../docs/WEATHER_INPUTS.md#a-generic-configured-llm-simulation).
 
 ## Read the configuration

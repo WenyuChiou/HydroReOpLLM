@@ -212,7 +212,7 @@ Open [experiment.ollama.yaml](experiment.ollama.yaml). The YAML selects local Ol
 assigned one independent agent; this case has one.
 
 <details>
-<summary>Exact saved run YAML (expand)</summary>
+<summary>Current equivalent configuration (expand)</summary>
 
 ```yaml
 # User-requested three-day local Ollama diagnostic; check performs no provider call.
@@ -239,20 +239,25 @@ auditors:
     version: "1"
 agents:
   fe_operator:
-    reservoir: FEWalter
-    mode: llm
-    model: reservoir_model
-    strategy: reference_v3_7
-    reference:
-      profile: fe_walter
-      method: zeroshot
-      system_prompt: ../prompts/reference/zeroshot_system.txt
-      system_prompt_mode: original
-      prompt_storage: false
-      hide_availability_line: true
-      dkp_no_missing_inputs: true
-      zeroshot_knowledge: target
+    reservoir_id: FEWalter
+    type: llm
+    model_profile: reservoir_model
+    customization:
+      backend: reference_v3_7
+      parameters:
+        reference:
+          profile: fe_walter
+          method: zeroshot
+          system_prompt: ../prompts/reference/zeroshot_system.txt
+          system_prompt_mode: original
+          prompt_storage: false
+          hide_availability_line: true
+          dkp_no_missing_inputs: true
+          zeroshot_knowledge: target
     auditors: [release_limits]
+
+extensions:
+  reference_v3_7: ../extensions/__init__.py
 ```
 
 </details>

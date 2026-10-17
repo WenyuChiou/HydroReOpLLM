@@ -1,20 +1,20 @@
 operator_a:
-  reservoir: lake_a
-  mode: offline
-  strategy: benchmark
-  benchmark:
+  reservoir_id: lake_a
+  type: rule_based
+  rule: hanasaki
+  rule_parameters:
     purpose: flood_control
     alpha: 0.85
-    statistics: statistics_a.json
+    inflow_statistics_file: statistics_a.json
   auditors:
   - bounds
 operator_b:
-  reservoir: lake_b
-  mode: offline
-  strategy: benchmark
-  benchmark:
+  reservoir_id: lake_b
+  type: rule_based
+  rule: hanasaki
+  rule_parameters:
     purpose: flood_control
     alpha: 0.85
-    statistics: statistics_b.json
+    inflow_statistics_file: statistics_b.json
   auditors:
   - bounds

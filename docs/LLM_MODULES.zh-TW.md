@@ -1,77 +1,133 @@
-# HydroOpsLLM LLM 模組
+# LLM 決策模組
 
 [English](LLM_MODULES.md) | [繁體中文](LLM_MODULES.zh-TW.md)
 
-修改 prompt 或增加 backend 前，先讀本頁。
-HydroCNHS 提供水文、routing 與 Dam API。新增的決策路徑為：
+設定的決策路徑如下，從不可變的決策輸入開始，到已提交的回饋結束：
 
-`info + prompt + 選用 context → LLM → 操作提案 → 回覆檢查 → execution → feedback`
+```text
+immutable decision context
+  → explicit system and user templates
+  → provider request and bounded attempts
+  → strict operation proposal
+  → audit
+  → physical implementation and routing
+  → committed feedback
+```
 
-Audit 評估指定操作規則；trace 保存完整鏈條。目前操作入口使用 daily。
+HydroCNHS 提供水文、原生 Dam 整合與 routing。
+模型提出控制放流需求，不直接寫入蓄水、溢流或河川流量。
 
-| 模組 | 輸入 → 輸出 | 設定／擴充 |
-|---|---|---|
-| Information adapter | 因果有效的狀態 → observation（`info`） | Case input、host state 與 backend observation mapping |
-| Prompt | Observation、模板、選用知識 → messages | 獨立 TXT；`PromptSpec`／`PromptStrategy.build` |
-| Optional context | 局部知識或額外資訊 → 模型情境 | YAML `knowledge`／`context`；自訂檢索由 backend 負責 |
-| LLM backend | Messages＋取樣設定 → 原回覆 | Model profile；注入的決策 backend |
-| 操作提案 | 模型回覆 → 請求放流及可得理由 | 原欄位保留於 trace；正規化 action 使用 m³/s |
-| 回覆檢查 | 完整回覆 → 解析且有效的 `ReservoirAction` 或停止 | `ResponseParser.parse` 及嚴格欄位／單位／數值檢查，先於物理更新 |
-| Reservoir execution | 請求＋當前可用水量 → 實際放流、spill、state | 共同物理；限制由 host 控制 |
-| Auditor | 綁定的 observation／decision → PASS／WARN／FAIL／UNKNOWN | `AuditSpec`／各庫獨立 `AuditPlugin` |
-| Trace／feedback | 決策及已提交結果 → 證據、下一步歷史 | Journal 與 backend transition feedback |
+## 模組責任
 
-這些是責任分工與 Python 擴充契約。YAML loader 支援列出的策略與 auditor，
-並非任意 plugin registry。替換 parser、資訊 mapping 或檢索實作，需要組合它們
-的 backend 與針對性測試。更換物理或 routing 另需物理驗收。
-
-## 固定設定與變動 info
-
-| 同一實驗固定 | 每個 timestep 更新 |
+| 模組 | 輸入 → 輸出 |
 |---|---|
-| Prompt 模板／版本與水庫 profile | 時間、入流與步初蓄水／state |
-| Model／取樣設定與 action schema | 本庫的請求及實際放流歷史 |
-| 知識來源／版本與 audit 規則 | 檢索片段，限使用檢索的 backend |
-| 河網、物理與初始條件 | 執行 transition 與下游 routed flow |
+| `configuration.py` | v1/v2 experiment 與 section 檔案 → 一份正規化設定及檔案 pins |
+| `agent_configuration.py` | `normalize_agent(spec)` 將各水庫的公開介面轉為既有引擎設定，並拒絕新舊語法混用 |
+| `rule_based.py` | `RuleBasedBackend` 綁定已註冊規則的來源 pins、`rule_id`、`policy_id` 與明確的零 provider 請求契約 |
+| `prompt.py` | 明確的 `PromptSpec` 模板 → 不依賴 provider 的訊息與來源紀錄 |
+| `context.py` | 不可變的 `DecisionContext` → 可用的 `ContextValue` 與來源紀錄 |
+| `information.py` | 符合因果性的 catalog 與 profile → `decision-information.v1` 快照 |
+| `providers.py` | 共用訊息 → 原生 provider 請求；原生回覆 → 文字與 metadata |
+| `configured_backend.py` | Prompt、context、profiles 與回覆 → 已檢查的 `ReservoirAction` 與 attempt trace |
+| `physics.py` | 請求放流與當前可用水量 → 實施放流、溢流與期末蓄水 |
+| `network.py` | 實施出流 → 一次下游 routing 更新 |
+| `experiment.py` | 決策、provider 證據、audit 與物理結果 → 持久保存的 journals |
+| `recovery.py` | 已驗證的提交前綴 → 新執行中可續跑的狀態 |
 
-Host observation 包含 `timestep`、`timestamp`、`inflow_cms`、
-`release_upper_bound_cms`、`state` 與 `context`。
-只有放進最終 messages 的內容，LLM 才看得見。
-Backend 增加欄位時須明定意義、單位與可用時點；預報不能當成未來觀測真值。
-各庫保有自己的狀態／歷史；被動出口跳過決策路徑。
+案例 extension 可提供 context callback、auditor、回覆契約或完整 backend。
+它們必須在 YAML 明確註冊，並固定來源 bytes。
+F.E. Walter extension 透過共用 provider transport 保留符合 Anik 原生的訊息格式，
+作為科學案例 adapter。以 `customization.backend` 選擇它，
+並在 `customization.parameters` 提供案例選項；它不會為其他 agent 提供共用 prompt。
 
-模板與逐日資料分開。通用 YAML backend 的 `$observation` 區分受保護
-水文資料與 static context；`$previous_transition` 第一天為 null，
-之後使用已提交的實際結果。Knowledge 是選用功能。
-通用局部 knowledge 以全文加入；自動檢索／tools 透過 Python 擴充。
-詳見[設定手冊](USER_GUIDE.zh-TW.md)。
+## Prompt 的控制權
 
-## Proposal 與驗收
+公開 LLM 介面指定 user 模板，並可選用 system 模板。
+引擎以 `PromptSpec` 表示這兩個獨立輸入：
 
-Proposal 指請求的受控放流量，單位 m³/s：
+```yaml
+reservoir_id: lake_a
+type: llm
+model_profile: local
+prompt_file: prompts/operator.txt
+customization:
+  system_prompt_file: prompts/system.txt
+```
+
+執行時不會在前面加入隱藏的共用 system 文字。
+引擎將內建欄位、固定的 `customization.prompt_variables`
+與動態的 `customization.context_providers` 代入這兩個模板。
+模型只能看見代入後的訊息內容。
+
+當前 observation 包含時間戳、local inflow、步初蓄水、放流上限、物理狀態與宣告的 context。
+Previous transition 在第一步為 `null`，之後則是實際已提交的
+observation／action／physics 紀錄。
+
+## Context callbacks
+
+Context extension 提供 `build_context(config)`，回傳一個 callback。
+Callback 取得不可變的 `DecisionContext(agent_id, observation, previous_transition)`，
+再回傳 `ContextValue(value, provenance, available=True)`。
+
+YAML 的 `preview` 值只供設定驗證使用。
+`check` 不會執行 callback，也不存取它依賴的網路來源。
+執行時，可用時間 metadata 不得晚於決策時間。
+回傳值與來源紀錄會在代入模板前複製，並保存於 trace。
+
+專案可在此接入自己的檢索系統。
+HydroOpsLLM 提供本機 JSON 選取範例，沒有內建向量資料庫 connector。
+
+## Provider adapters
+
+五種 adapter 保留相同的設定訊息，同時使用各 provider 的原生 API 格式：
+
+- OpenAI Responses；
+- Anthropic Messages；
+- Gemini `generateContent`；
+- Ollama Chat；
+- OpenAI-compatible Chat Completions。
+
+回覆 adapter 要求各 provider 對應的完成證據，
+並拒絕拒答、截斷、缺少完成狀態或格式錯誤的輸出。
+檢查後的提案通常如下：
 
 ```json
 {"schema_version":"reservoir-action.v1","release_cms":5.0}
 ```
 
-它不設定蓄水或 spill。專用 reader 可另外保留理由、引用或原 decision 欄位，
-再產生共同 action。錯誤／不完整回覆在物理更新前停止，沒有自動 rule fallback。
-物理限制可能讓實際放流與請求不同；下一步歷史保存實際結果。
+專用 extension 可保留額外的原生欄位，同時回傳相同的共用 action。
+Transport 設定見[模型 provider](MODEL_PROVIDERS.md)。
 
-Checker PASS 表示 action 契約有效。Auditor PASS 表示配置的規則通過。
-模擬完成／物理平衡不代表策略已通過驗收；這些結果必須分開呈現。
+## 重試與 fallback 邊界
 
-## 追查一個決策
+每個 profile 都明確設定 `max_attempts`。
+符合條件的 transport 或回覆錯誤可以重試，期間不推進物理狀態。
+`customization.fallback_models` 接著依宣告順序嘗試設定的 profiles。
+每個 attempt 保存 provider、模型、request hash、回覆 metadata、usage、錯誤類別與耗時。
 
-[教學](../tutorials/main.ipynb)展示：
-info → 完整 system／user prompt → 保存的實際 Ollama 回覆 → 正規化 proposal →
-action 契約重新檢查 → 原 audit → 已提交物理 → 隔日 info。
+身分驗證與設定錯誤會停止執行。一旦取得有效 action，
+後續的 audit FAIL 或物理錯誤不會重新抽取決策。證據 ledger 寫入失敗也會停止執行。
 
-重新檢查是當次對正規化 action 的檢視，不捏造歷史 checker event。
-Trace 保留原 audit 與 prompt／回覆證據。
-通用固定放流 offline 跳過模型／prompt；參考 offline 案例則執行 prompt
-組合與給定回覆解析。給定回覆不能證明真實 LLM 決策品質；保存的實際 Ollama 回覆保留原策略判定。
+## 驗收結果的意義
 
-[Contracts](../src/llm_reservoir_agent/contracts.py) ·
-[Prompt／parser 契約](../src/llm_reservoir_agent/prompt.py) ·
-[Auditor 插件](auditor_plugins.md) · [設定](USER_GUIDE.zh-TW.md)
+以下結論必須分開解讀：
+
+| 證據 | 支持的結論 |
+|---|---|
+| Response check PASS | Provider 回傳的內容符合選定的 action 契約。 |
+| Audit PASS | 通過設定的決策評估準則。 |
+| Physical balance PASS | 在案例物理設定下，實施的蓄水與流量平衡。 |
+| Run verification PASS | 保存的紀錄、hash 與連結在內部一致。 |
+
+這些結果都不能單獨證明操作策略品質。
+合成回覆不是真實模型結果；結果筆數也不能證明與科學策略具有相同語意。
+
+## 復原邊界
+
+持久保存的 provider ledger、原始請求／回覆紀錄、物理 journal 與 audit journal
+都是復原輸入。續跑驗證已提交前綴，略過已提交決策，並盡可能重用捕捉的回覆。
+若外部服務已接受請求，但本機尚未提交證據時發生 crash，
+仍可能重複發出外部請求；執行環境不保證網路恰好傳送一次。
+
+[設定 prompt 與 context](CONFIGURATION.md) ·
+[決策資訊](INFORMATION.md) · [結果與 trace](RESULTS_GUIDE.md)

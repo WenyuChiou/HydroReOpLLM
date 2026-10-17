@@ -29,8 +29,8 @@ a calibration/validation result and does not establish an operating policy.
 | `experiment.llm.yaml` | Mixed entry; references `agents.llm.yaml`. |
 | `model.yaml`, `forcing.csv`, `hydrology.yaml` | Native full-period hydrology and operation inlet bindings. |
 | `reservoirs.yaml` | Two physical reservoirs, two routing paths and exact terminal outlets. |
-| `agents.rule.yaml` | One benchmark agent for each reservoir. |
-| `agents.llm.yaml` | Configured local LLM for `lake_a`; benchmark for `lake_b`. |
+| `agents.rule.yaml` | One `type: rule_based`, `rule: hanasaki` agent for each reservoir. |
+| `agents.llm.yaml` | `type: llm` for `lake_a`; Hanasaki rule for `lake_b`. |
 | `models.yaml` | Ollama, OpenAI, Anthropic and Gemini profile examples. |
 | `prompts/system.txt`, `prompts/operator.txt` | Explicit configured system and user messages. |
 | `information.yaml` | Empty source/profile catalog, ready for study-specific information. |
@@ -86,12 +86,14 @@ reservoir-experiment verify runs/independent-rivers-mixed/operation
 ```
 
 The default mixed entry selects the `local` Ollama profile for `lake_a` and keeps
-`lake_b` on the benchmark. Install the named local model and start Ollama before
-the run. To use a cloud profile, replace `operator_a.model` in `agents.llm.yaml`
+`lake_b` on the Hanasaki rule. Install the named local model and start Ollama before
+the run. To use a cloud profile, replace `operator_a.model_profile` in `agents.llm.yaml`
 with the chosen profile ID, replace its `YOUR_*_MODEL` value in `models.yaml`,
 set the named API-key environment variable, and choose a new `run_id` and output.
 
-The configured prompt has two independent files:
+The user template is selected by `prompt_file`; the optional system template is
+selected by `customization.system_prompt_file`. No common system prompt is added.
+The example explicitly supplies two files:
 
 ```text
 system.txt: response contract and general operating boundary

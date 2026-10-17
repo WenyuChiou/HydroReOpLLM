@@ -23,6 +23,7 @@ information: {file: information.yaml}
 auditors: {file: auditors.yaml}
 extensions:
   local_retrieval: extensions/__init__.py
+  hanasaki: ../rules/hanasaki/__init__.py
 ```
 
 `hydrology`, `models`, `agents`, `auditors`, `information` and `extensions` may
@@ -36,52 +37,102 @@ to the top-level experiment. Cycles and missing section files stop validation.
 Older inline `hydroops-coupled-simulation.v1` configurations remain accepted.
 Use v2 for new work because it records the split inputs directly.
 
-## Select rule-based or configured operation
+## Separate the experiment from each reservoir
+
+The top-level experiment sets the shared dates, output, physical case, hydrology,
+model catalog, information catalog and auditor catalog. Each entry under `agents`
+sets one reservoir's method and selects entries from those catalogs. Reservoirs
+in the same experiment may use different methods, models, prompts and information
+profiles. A shared catalog does not automatically expose its contents to an agent.
+
+The physical case's `network.connections` and `outlets` describe where water goes.
+Information sources and agent information profiles describe what the operator can
+see. A gauge or forecast location does not add a physical connection.
+
+## Select rule-based or LLM operation
 
 Rule-based agents need no model or prompt:
 
 ```yaml
 operator_a:
-  reservoir: lake_a
-  mode: offline
-  strategy: benchmark
-  benchmark:
-    purpose: flood_control
+  reservoir_id: lake_a
+  type: rule_based
+  rule: hanasaki
+  rule_parameters:
     alpha: 0.85
-    statistics: statistics_a.json
+    inflow_statistics_file: statistics_a.json
   auditors: [bounds]
 ```
 
-A general LLM agent selects a model profile and owns both prompt messages:
+`rule` names a rule extension explicitly registered in the experiment's
+`extensions` catalog. `rule_parameters` is an opaque mapping interpreted by that
+extension. Here `hanasaki` is the example's inflow-history rule, with pinned
+statistics and an example `alpha` of `0.85`; it is not a framework method enum.
+The example's optional `purpose` retains its existing metadata and does not
+select a seasonal-pool or hydropower controller.
+
+To use your own operating curves, water-supply or hydropower controller, register
+your Python rule module and select its ID in `rule`. The module implements
+`validate_backend`, `build_backend` and `rebase_agent` hooks; the common engine
+still applies physics, routing, audits and trace writing. Implement and test the
+controller's own parameters and behavior. A controller name does not supply its
+algorithm. The physical kernel determines the feasible implemented release.
+The built backend provides `decide(observation)`, a `policy_id` and
+`network_calls=0`. The generic rule wrapper records the selected `rule_id` and
+source pins; it supplies no model transport to the rule module.
+
+A general LLM agent selects a model profile and a user instruction template:
 
 ```yaml
 operator_a:
-  reservoir: lake_a
-  mode: llm
-  strategy: configured
-  model: local
-  prompt:
-    system: prompts/system.txt
-    user: prompts/operator.txt
-  prompt_version: '1'
-  prompt_variables:
-    purpose: demonstrate an independently configured operator
-  context_providers:
-    guidance:
-      extension: local_retrieval
-      config:
-        documents: knowledge/guidance.json
-      preview: 'Offline preview: use only supplied state and guidance.'
-  fallback_models: []
+  reservoir_id: lake_a
+  type: llm
+  model_profile: local
+  prompt_file: prompts/operator.txt
+  customization:
+    system_prompt_file: prompts/system.txt
+    prompt_version: '1'
+    prompt_variables:
+      purpose: demonstrate an independently configured operator
+    context_providers:
+      guidance:
+        extension: local_retrieval
+        config:
+          documents: knowledge/guidance.json
+        preview: 'Offline preview: use only supplied state and guidance.'
+    fallback_models: []
   auditors: [bounds]
 ```
 
-`strategy: configured` has no hidden shared system text. `prompt.system` and
-`prompt.user` are explicit `PromptSpec` inputs. The user template must contain
-text; the system template may be empty. Both use Python `string.Template` syntax.
-Write `$$` for a literal dollar sign.
+`prompt_file` must contain text. No common system prompt is automatically added.
+Use `customization.system_prompt_file` only when the study supplies a separate
+system instruction. Both templates use Python `string.Template` syntax; write
+`$$` for a literal dollar sign. Optional knowledge, context, information, prompt
+variables, response schema and fallbacks belong under `customization`.
+
+Choose `type: rule_based` for an explicit operating rule or controller and
+`type: llm` when studying model decisions with prompts and available information.
+A baseline is a comparison run, not an algorithm name.
+Offline means no real model-provider request: rule agents run offline, and test
+or replay LLM paths use supplied or saved replies. It is not a third agent type.
+
+### Customize a backend only when needed
+
+`customization.backend` selects an explicitly registered extension. Its
+`customization.parameters` mapping contains backend-specific settings, for example
+`reference: {...}` for the F.E. Walter case. Parameters cannot replace public
+identity, method, model, prompt or auditor fields. An extension that constructs
+its own messages may omit `prompt_file`; it must explicitly validate and pin its
+prompt resources. `customization.execution: replay` is an offline test option for
+custom LLM backends. The default is live execution. The case extension preserves
+Anik's message construction; it does not define a shared prompt for other agents.
 
 ## Build the prompt namespace
+
+Rule modules can also select an information profile with
+`customization: {information: downstream}`. The engine passes the selected,
+available values in `observation.context.decision_information`; the rule decides
+how to use them. This does not create a water connection or a prompt.
 
 Built-in placeholders are:
 
@@ -93,7 +144,8 @@ Built-in placeholders are:
 | `$knowledge` | Hash-pinned full text from the agent's `knowledge` mapping |
 | `$information` | Selected `decision-information.v1` snapshot; requires an information profile |
 
-Add fixed text or JSON with `prompt_variables`:
+Add fixed text or JSON with `customization.prompt_variables`. The following
+blocks are entries inside the agent's `customization` mapping:
 
 ```yaml
 prompt_variables:
@@ -149,8 +201,9 @@ or retrieval. Neither path can modify storage, inflow or physical limits.
 empty list:
 
 ```yaml
-model: openai_primary
-fallback_models: [anthropic_backup, local_backup]
+model_profile: openai_primary
+customization:
+  fallback_models: [anthropic_backup, local_backup]
 ```
 
 Each profile runs its own bounded `max_attempts`. The ledger records every

@@ -16,7 +16,9 @@ from llm_reservoir_agent.workflow import load_settings, main, run_settings, veri
 def _pin_example_extension(data):
     # This test copies FE Walter configuration into a disposable directory.
     if data.get("extensions"):
-        data["extensions"] = {key: str(PROJECT_ROOT / "examples/fe_walter/extensions/__init__.py") for key in data["extensions"]}
+        entries = {"reference_v3_7": "examples/fe_walter/extensions/__init__.py",
+                   "hanasaki": "examples/rules/hanasaki/__init__.py"}
+        data["extensions"] = {key: str(PROJECT_ROOT / entries[key]) for key in data["extensions"]}
     return data
 
 def benchmark_settings(tmp_path):
@@ -24,7 +26,7 @@ def benchmark_settings(tmp_path):
     data = yaml.safe_load(source.read_text())
     data['case'] = str(PROJECT_ROOT / 'cases/fe_walter_reference/case.json')
     data['output'] = str(tmp_path / 'output')
-    data['agents']['fe_operator']['benchmark']['statistics'] = str(
+    data['agents']['fe_operator']['rule_parameters']['inflow_statistics_file'] = str(
         PROJECT_ROOT / 'data/benchmark/fe_walter_statistics.json')
     path = tmp_path / 'experiment.yaml'
     path.write_text(yaml.safe_dump(_pin_example_extension(data)))
@@ -48,9 +50,9 @@ def test_wrong_profile_identity_stops_check_and_constructor(tmp_path):
     data = yaml.safe_load(source.read_text())
     data['case'] = str(case_path)
     data['case_root'] = str(tmp_path)
-    data['agents']['fe_operator']['reference']['responses'] = str(
+    data['agents']['fe_operator']['customization']['parameters']['reference']['responses'] = str(
         PROJECT_ROOT / 'tests/fixtures/zeroshot_responses.json')
-    data['agents']['fe_operator']['reference']['system_prompt'] = str(
+    data['agents']['fe_operator']['customization']['parameters']['reference']['system_prompt'] = str(
         PROJECT_ROOT / 'examples/fe_walter/prompts/reference/zeroshot_system.txt')
     config = tmp_path / 'reference.yaml'
     config.write_text(yaml.safe_dump(_pin_example_extension(data)))
@@ -64,7 +66,7 @@ def test_cache_reuses_identical_inputs_and_rejects_changed_settings(tmp_path):
         run_settings(settings)
     assert verify_settings_output(settings)['status'] == 'PASS'
     data = deepcopy(settings.data)
-    data['agents']['fe_operator']['benchmark']['alpha'] = 0.9
+    data['agents']['fe_operator']['rule_parameters']['alpha'] = 0.9
     settings.path.write_text(yaml.safe_dump(_pin_example_extension(data)))
     changed = load_settings(settings.path)
     with pytest.raises(ValueError, match='choose a new run_id/output'):

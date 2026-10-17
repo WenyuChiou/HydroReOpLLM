@@ -60,6 +60,7 @@ MULTI_RESERVOIR_FILES = (
 MULTI_RESERVOIR_DOWNLOADS = {
     f"examples/multiple_reservoirs/{name}": name for name in MULTI_RESERVOIR_FILES
 }
+MULTI_SHARED_RULES = ("examples/rules/hanasaki/__init__.py",)
 PAGES = {
     "docs/index.md": "index.md",
     "docs/index.zh-TW.md": "index.zh-TW.md",
@@ -221,6 +222,14 @@ def prepare(source: Path, *, source_ref: str = "main") -> None:
             download = multiple_downloads / name
             download.parent.mkdir(parents=True, exist_ok=True)
             shutil.copyfile(item, download)
+            canonical = source / relative
+            canonical.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(item, canonical)
+        # Shared user-rule modules keep their sibling location after extraction.
+        # Never put ../ paths in an archive or flatten these imports into a core module.
+        for relative in MULTI_SHARED_RULES:
+            item = ROOT / relative
+            bundle.write(item, arcname=Path(relative).relative_to('examples').as_posix())
             canonical = source / relative
             canonical.parent.mkdir(parents=True, exist_ok=True)
             shutil.copyfile(item, canonical)

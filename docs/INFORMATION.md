@@ -50,14 +50,13 @@ The agent selects one profile and its prompt explicitly places `$information`:
 
 ```yaml
 operator_a:
-  reservoir: lake_a
-  strategy: configured
-  mode: llm
-  model: local
-  information: operator_view
-  prompt:
-    system: prompts/system.txt
-    user: prompts/operator_with_information.txt
+  reservoir_id: lake_a
+  type: llm
+  model_profile: local
+  prompt_file: prompts/operator_with_information.txt
+  customization:
+    system_prompt_file: prompts/system.txt
+    information: operator_view
 ```
 
 ```text

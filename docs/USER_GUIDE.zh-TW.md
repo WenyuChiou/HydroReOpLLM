@@ -31,12 +31,17 @@ HydroOpsLLM 將已確認的 HydroCNHS 水文結果接到規則式或大型語言
 
 | 目的 | Agent 設定 | Provider 請求 |
 |---|---|---|
-| 測試完整流程 | `strategy: benchmark`、`mode: offline` | 無 |
-| 使用自己的 prompt 與模型 | `strategy: configured`、`mode: llm` | 明確指定 `--allow-network` |
-| 保留特定科學案例的方法 | 註冊案例 extension | 依 extension 設計 |
+| 使用明確的操作規則或控制器 | `type: rule_based`、`rule: <registered ID>`、`rule_parameters` | 無 |
+| 與範例的歷史入流規則比較 | `type: rule_based`、`rule: hanasaki` | 無 |
+| 使用自己的 prompt 與模型 | `type: llm`、`model_profile`、`prompt_file` | 明確指定 `--allow-network` |
+| 保留特定科學案例的方法 | `type: llm` 加上 `customization.backend` | 依 extension 設計 |
 
-先執行 benchmark。水文、河網、初始蓄水、prompt 與 audit 準則確認後，
-再使用 configured 模型 agent。F.E. Walter 教學透過案例 extension 保留
+先執行規則 agent。Hanasaki 是範例實作，不是框架固定選項。
+可註冊自己的模組來實作操作曲線、供水或水力發電控制器，並提供各自的演算法與測試。
+Baseline 指用來比較的執行，不是演算法名稱。Offline 表示不發出真實 provider 請求；
+LLM 測試與重播可使用給定或保存的回覆，不是第三種 agent 類型。
+水文、河網、初始蓄水、prompt 與 audit 準則確認後，
+再使用 LLM agent。F.E. Walter 教學透過案例 extension 保留
 Anik 原生訊息格式；保存的 2016 年診斷結果不是新的 Anik 重現結果。
 
 ## 使用 v2 分檔設定
@@ -48,18 +53,25 @@ Anik 原生訊息格式；保存的 2016 年診斷結果不是新的 Anik 重現
 
 舊版 v1 inline 設定仍受支援。[設定檔](CONFIGURATION.md)說明完整結構與路徑規則。
 
+全域 experiment 設定共用日期、輸出、水文、物理河網與各類 catalog。
+每個 agent 用 `reservoir_id` 選擇一座水庫，分別設定方法、模型、prompt、資訊 profile
+與 auditor。資訊來源決定可見內容；只有物理河網的 connections 會搬移水量。
+
 ## 將 prompt 與資訊視為研究輸入
 
-Configured LLM agent 明確指定兩則訊息：
+通用 LLM agent 指定 user 指令，並可另加 system 模板：
 
 ```yaml
-prompt:
-  system: prompts/system.txt
-  user: prompts/operator.txt
+reservoir_id: lake_a
+type: llm
+model_profile: local
+prompt_file: prompts/operator.txt
+customization:
+  system_prompt_file: prompts/system.txt
 ```
 
-核心不會加入隱藏的共用 system 指令。固定的 `prompt_variables`、選定的
-information 與動態 `context_providers` 成為具名模板變數。
+核心不會自動加入共用 system 指令。`customization` 內固定的 `prompt_variables`、
+選定的 `information` 與動態 `context_providers` 成為具名模板變數。
 自訂 callback 只取得不可變的決策輸入，並回傳值與來源紀錄，不能改動物理狀態。
 
 ## 明確設定 provider 行為
@@ -68,7 +80,7 @@ information 與動態 `context_providers` 成為具名模板變數。
 Ollama Chat 與 OpenAI-compatible Chat Completions。
 明確指定模型 ID 與憑證環境變數名稱；只傳送有設定的取樣與 token 參數。
 
-每個 profile 的重試次數有上限。選用的 `fallback_models` 依序列出 profile ID，
+每個 profile 的重試次數有上限。選用的 `customization.fallback_models` 依序列出 profile ID，
 預設為空。Trace 記錄實際使用的模型與 attempt。
 驗證身分或設定錯誤會停止；audit FAIL 與物理錯誤不會要求模型重答。
 

@@ -90,39 +90,40 @@ in global hydrological models.” *Geoscientific Model Development*, 16, 5449–
 [`tutorials/config/fe_walter_tutorial_benchmark.yaml`](../../../tutorials/config/fe_walter_tutorial_benchmark.yaml)。
 若要建立新輸出，請從
 [experiment.hydroopslm.offline.yaml](experiment.hydroopslm.offline.yaml)開始。
-它選用 `strategy: benchmark`、`mode: offline`、`purpose: flood_control`
+它選用 `type: rule_based`、`rule: hanasaki`、`rule_parameters.purpose: flood_control`
 與 `max_calls: 0`，並使用示範期以前的
 [固定 1996–2015 統計資料](../../../data/benchmark/fe_walter_statistics.json)。
 它不需要模型或 prompt。
 
 <details>
-<summary>保存的完整 benchmark YAML（展開）</summary>
+<summary>目前規則設定（展開）</summary>
 
 ```yaml
-# Deterministic companion to the saved three-day Ollama tutorial snapshots.
-# It uses the same input, physical case, losses, and UH=[1] routing; no model or
-# network request is configured.
+# HydroOpsLM offline teaching run; original settings/results are preserved.
+# Rule-based daily benchmark; no prompt, model or network is used.
 schema_version: llm-reservoir-experiment.v1
-run_id: fe-walter-tutorial-benchmark-2016-01
-case: ../../cases/fe_walter_ollama_demo/case.json
-output: ../../runs/fe-walter-tutorial-benchmark
+run_id: hydroopslm-fe-walter-benchmark
+case: ../../../cases/fe_walter_reference/case.json # Same physical case as both LLM methods.
+output: ../../../runs/hydroopslm-fe-walter-benchmark # Change both IDs for another run; never overwrite.
 start_date: '2016-01-01'
 end_date: '2016-01-03'
 max_calls: 0
 agents:
-  fe_operator:
-    reservoir: FEWalter
-    mode: offline
-    strategy: benchmark
-    benchmark:
-      purpose: flood_control
-      alpha: 0.85
-      statistics: ../../data/benchmark/fe_walter_statistics.json
+  fe_operator: # Decision unit ID; one per controlled reservoir.
+    reservoir_id: FEWalter # Must match the reservoir node in the case.
+    type: rule_based
+    rule: hanasaki
+    rule_parameters:
+      purpose: flood_control # This adapter supports flood_control and other; no hydropower optimization.
+      alpha: 0.85 # Published capacity reduction factor; not a newly calibrated parameter.
+      inflow_statistics_file: ../../../data/benchmark/fe_walter_statistics.json # Frozen 1996–2015 climatology, before the run.
     auditors: [release_limits]
 auditors:
   release_limits:
     type: release_bounds
-    version: '1'
+    version: '1' # Checks the requested release against the common physical/available-water bounds.
+extensions:
+  hanasaki: ../../rules/hanasaki/__init__.py
 ```
 
 </details>

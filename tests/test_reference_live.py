@@ -48,7 +48,7 @@ class ReferenceLiveTests(unittest.TestCase):
         data['case'] = str(cp)
         data['case_root'] = str(self.root)
         data['output'] = str(self.root / f'run-{method}-{provider}{run_suffix}')
-        spec = data['agents']['fe_operator']['reference']
+        spec = data['agents']['fe_operator']['customization']['parameters']['reference']
         for key in ('system_prompt', 'dkp'):
             if key in spec:
                 spec[key] = str((p.parent / spec[key]).resolve())
@@ -115,8 +115,9 @@ class ReferenceLiveTests(unittest.TestCase):
         for change in ('budget', 'responses', 'model'):
             bad = deepcopy(data)
             if change == 'budget': bad['max_calls'] = 2
-            elif change == 'responses': bad['agents']['fe_operator']['reference']['responses'] = 'ignored.json'
-            else: bad['agents']['fe_operator']['model'] = 'missing'
+            elif change == 'responses':
+                bad['agents']['fe_operator']['customization']['parameters']['reference']['responses'] = 'ignored.json'
+            else: bad['agents']['fe_operator']['model_profile'] = 'missing'
             settings.path.write_text(yaml.safe_dump(bad))
             with self.assertRaises(ValueError): load_settings(settings.path)
 

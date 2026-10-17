@@ -1,66 +1,218 @@
-# 建立模擬
+# 建立氣象到水庫操作的模擬
 
-先定義河川系統與每座水庫操作者可取得的資訊，再選擇操作方法。
-[FE Walter 案例](../examples/fe_walter/README.zh-TW.md)示範這些選擇如何套用到同一地點。
+本教學將已確認的 HydroCNHS 模型接到水庫操作。
+先使用規則式設定，走過完整的水文、水庫、routing 與紀錄流程，不呼叫模型 provider。
 
-## 1. 設定物理案例
+可執行的教學案例位於
+[`examples/multiple_reservoirs`](../examples/multiple_reservoirs/experiment.yaml)。
+案例包含兩個獨立河川系統。短期氣象資料與合成參數用來檢查軟體連接，
+不代表已校正的水文模型或已驗證的操作策略。
 
-準備水庫、河川連接、每日 local inflow 與初始蓄水。
-流量使用 **m³/s**、體積使用 **m³**，日期使用 ISO 格式。
+## 1. 安裝專案
 
-案例設定容量、出口限制、損失與 routing。每座受控水庫配置一個獨立決策單元；被動出口不配置。
-河網連接決定上游放流是否到達下游水庫。
+建立環境、安裝 repo，並確認指令可用：
 
-半分佈式水文模型保留各子集水區的氣象、面積及參數。
-HydroCNHS 先計算產流與上游 routing，再進入水庫操作。
-給定的 experiment CLI 使用已有且來源明確的入流序列，FE Walter 範例即採此方式。
-氣象驅動的原生執行需設定水文模型與 Dam-policy 綁定，不能只改 experiment YAML 欄位。
-選擇方法前，先閱讀[耦合流程](../examples/fe_walter/coupling.zh-TW.md)。
+```powershell
+git clone https://github.com/WenyuChiou/HydroOpsLLM.git
+cd HydroOpsLLM
+py -3.12 -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install -e . -c environment/requirements-bundled.txt
+reservoir-experiment --help
+```
 
-[準備 input 與案例設定](USER_GUIDE.zh-TW.md) · [原生 HydroCNHS 設定](HYDROLOGY_SETUP.md)
+水文與流程控制使用 CPU。只有本機推論伺服器使用 GPU 時，才需要考慮 GPU；
+遠端 provider 不使用你的本機 GPU。
 
-## 2. 選擇操作方法
+## 2. 先確認 HydroCNHS 模型
 
-| 方法 | 提供內容 | 決策 |
-|---|---|---|
-| 規則式 | 已發表規則與參數 | 規則計算 requested release |
-| 使用可用資訊的 LLM | Prompt 與選定資訊 | 模型提出放流及解釋 |
-| 使用檢索知識的 LLM | 相同介面加上有來源的知識流程 | 模型同時使用選定操作指引 |
+使用不含 agent 的 HydroCNHS 模型，以 GWLF 或 ABCD 計算降雨逕流，
+並使用 Lohmann routing。先完成暖機、校正與驗證，再將產生的流量作為操作邊界。
+將已確認的模型、氣象檔原始 bytes、指標、期間與來源紀錄一起保存。
 
-三種 FE Walter 方法使用相同水庫收支計算。其他水庫需設定自己的物理 profile 與操作準則。
+氣象表必須涵蓋每個使用氣象資料的子集水區，以及模型期間的每一天：
 
-## 3. 決定操作者看得到什麼
+```text
+date,subbasin_id,precipitation_mm,temperature_c,pet_cm
+2020-02-27,basin_a,10,10,0.1
+```
 
-區分**固定指令**與**每一步更新的資訊**。
+準備階段連續執行完整期間的原生 HydroCNHS，包含暖機，
+再選出水庫操作期間的每日邊界。水庫決策不會回頭改變氣象到逕流的計算。
 
-| 元件 | 例子 | 設定位置 |
-|---|---|---|
-| Prompt | 操作目的、指令與輸出欄位 | 獨立 UTF-8 prompt 檔 |
-| Available information | 當期入流、水位、過去實際放流 | Host observation 與選定 information profile |
-| 額外資訊 | 下游測站流量、預報入流、用水需求 | 有時間戳的來源與 agent information profile |
-| 可選知識 | 可識別的操作文件 | Knowledge 設定或方法專用的檢索流程 |
+修改教學檔案前，先閱讀 [HydroCNHS 設定與校正／驗證](HYDROLOGY_SETUP.md)
+及[氣象輸入](WEATHER_INPUTS.md)。
 
-來源需宣告單位與觀測／預報可取得的時間。下游測站值只有在決策當時可取得，才能作為 input。
-使用模擬下游回饋時，取已完成的前一步；當日 routing 結果在放流後才計算。
+## 3. 將水文綁定到水庫河網
 
-[決策資訊](INFORMATION.zh-TW.md) · [Prompt 與知識設定](LLM_MODULES.zh-TW.md)
+最上層設定檔引用 `hydrology.yaml` 與 `reservoirs.yaml`：
 
-## 4. 設定提案與檢查
+```yaml
+schema_version: hydroops-coupled-simulation.v2
+case: reservoirs.yaml
+start_date: '2020-02-28'
+end_date: '2020-03-02'
+hydrology: {file: hydrology.yaml}
+```
 
-提案包含 requested release；各方法也可保留 rationale、目標與引用規則。
-回覆檢查在執行前驗證完整性、必要欄位、單位及數值。
+每個水文 binding 為一個操作節點提供增量 local flow：
 
-水庫計算執行可行放流、計算 spill 並更新蓄水。操作 audit 另行評估設定準則。
-Trace 連結 **資訊 → prompt → 回覆 → 提案 → 檢查 → 實際操作 → 下一步資訊**。
+```yaml
+model: model.yaml
+forcing: forcing.csv
+zero_flow_nodes: []
+inflow_bindings:
+  inlet_a: {runoff: basin_a}
+  inlet_b: {runoff: basin_b}
+  river_a: {constant: 0}
+  river_b: {constant: 0}
+```
 
-[提案、checker 與 auditor 設定](USER_GUIDE.zh-TW.md)
+不要將已演算的上游流量再次加入 local inflow。
+操作河網只將實施的控制放流加溢流向下游演算一次。
 
-## 5. 檢查、執行與驗證
+物理案例使用 `reservoir-physical-case.v1`，每個水體 ID 都必須明確指定。
+新河網使用 `llm-reservoir-network.v2` 與 `outlets` 清單：
 
-保存 case、prompt 與 experiment YAML，選擇新的 run ID 與輸出目錄。
-先驗證設定，再開始模擬，最後驗證保存輸出。
+```yaml
+schema_version: reservoir-physical-case.v1
+data_kind: synthetic_fixture
+network:
+  schema_version: llm-reservoir-network.v2
+  start_date: '2020-02-28'
+  reservoirs:
+    lake_a:
+      inflow_node: inlet_a
+      physical:
+        reservoir_id: lake_a
+        capacity_m3: 1000000
+        dead_storage_m3: 0
+        initial_storage_m3: 500000
+        minimum_release_cms: 0
+        maximum_release_cms: 20
+        dt_seconds: 86400
+  connections:
+    - source: lake_a
+      target: river_a
+      unit_hydrograph: [0, 1]
+  outlets: [river_a]
+```
 
-[設定指南](USER_GUIDE.zh-TW.md)提供完整指令與輸出保護。
-執行模型需明確授予網路權限；查看既有紀錄不會呼叫模型。
+`outlets` 的每個項目都必須對應確切的終端節點。
+獨立系統可共用一個 experiment，同時保持水流獨立，不要虛設共同出口。
+資訊來源描述 agent 可以看見什麼，不會建立水流連接。
+目前原型水庫收支核心的蒸發與滲漏為零。
 
-接著閱讀 [FE Walter：地點與共用設定](../examples/fe_walter/README.zh-TW.md)。
+## 4. 為每座受控水庫選擇 agent
+
+每座受控水庫恰有一個 agent，被動水庫不配置 agent。
+先使用確定性的 Hanasaki 規則：
+
+```yaml
+operator_a:
+  reservoir_id: lake_a
+  type: rule_based
+  rule: hanasaki
+  rule_parameters:
+    alpha: 0.85
+    inflow_statistics_file: statistics_a.json
+  auditors: [bounds]
+```
+
+使用 `type: rule_based`，並以 `rule` 指定明確註冊的規則 extension。
+Hanasaki 是此範例的規則；若要使用自己的操作曲線、供水或水力發電控制器，
+請註冊相應實作。通用模型操作者使用 `type: llm`、`model_profile` 與 `prompt_file`。
+選用的 prompt／context 控制放在 `customization`，核心不會加入共用 system 指令。
+F.E. Walter 的 Anik 教學方法是現行的案例 extension，保留其原生訊息格式，
+不會成為通用 backend 的預設 prompt。
+
+Rule-based 也可用 `customization: {information: downstream}` 選擇資訊 profile；
+引擎將決策當時可取得的值放入 `observation.context.decision_information`，供規則自行使用。
+
+啟用 LLM agent 前，先閱讀 [Agent、prompt 與 context](CONFIGURATION.md)
+及[模型 provider](MODEL_PROVIDERS.md)。
+
+## 5. 先檢查設定
+
+從 repo 根目錄執行：
+
+```powershell
+reservoir-experiment check examples/multiple_reservoirs/experiment.yaml
+```
+
+`check` 讀取並驗證每個引用的 section、路徑、模型 profile、prompt、extension、
+日期、binding 與物理設定，不執行水文或發出 provider 請求。
+每個路徑都以宣告它的檔案位置解析。
+
+## 6. 準備水文
+
+```powershell
+reservoir-experiment prepare examples/multiple_reservoirs/experiment.yaml
+```
+
+`prepare` 執行完整連續水文期間，寫入選定的操作邊界，不發出模型請求。
+準備結果包含 `inflows.csv`、`case.json`、`experiment.yaml`、`hydrology.json`
+與 `preparation.json`，並以 hash 將產生的檔案綁定到來源。
+
+## 7. 執行規則式案例
+
+```powershell
+reservoir-experiment run examples/multiple_reservoirs/experiment.yaml
+```
+
+操作期間為 2020-02-28 至 2020-03-02，共四天。
+每天由 agent 提出控制放流需求，物理核心計算可行的實施放流與溢流，
+再由原生 routing 推進下游流量。下一次決策使用已提交的期末狀態。
+當日下游流量不會回饋給產生該流量的同一次決策。
+
+之後若要執行 LLM 版本，使用 `experiment.llm.yaml`。
+它選用 `agents.llm.yaml`、設定獨立的執行身分，並讓 `lake_b` 繼續使用 Hanasaki 規則。
+同一個 experiment 中，每個 agent 各自選擇方法。明確加上網路執行旗標：
+
+```powershell
+reservoir-experiment run examples/multiple_reservoirs/experiment.llm.yaml --allow-network
+```
+
+`max_calls: null` 取消總請求上限，但不取消各模型 profile 的 `max_attempts` 上限。
+
+## 8. 驗證並閱讀結果
+
+```powershell
+reservoir-experiment verify runs/independent-rivers-rule/operation
+```
+
+先閱讀 `summary.json`，再查看：
+
+| 證據 | 回答的問題 |
+|---|---|
+| `decisions.jsonl` | 每個決策綁定了哪些 observation 與提案？ |
+| `raw/` 與 provider ledger | 保存了哪些訊息、請求、回覆、usage 與 attempt metadata？ |
+| `audit.jsonl` | 哪些設定的決策檢查通過、警告、失敗或仍未知？ |
+| `physics.jsonl` | 實施了多少放流與溢流？蓄水是否平衡？ |
+| `network_flows.csv` | 流量到達各 routing 節點時是多少？ |
+| `reservoir_trajectory.csv` | 各水庫的狀態如何改變？ |
+
+紀錄寫入失敗會停止執行。Audit FAIL 與物理錯誤不會觸發另一次模型嘗試。
+完整執行可建立可重現的執行與水量紀錄，不代表操作策略品質已獲驗證。
+
+## 9. 中斷後續跑
+
+續跑時使用新的輸出目錄：
+
+```powershell
+reservoir-experiment resume examples/multiple_reservoirs/experiment.yaml `
+  --from-run runs/interrupted/operation `
+  --output runs/resumed `
+  --run-id resumed-01
+```
+
+續跑會驗證並重播已提交的前綴，略過已提交決策，並在可用時重用保存的回覆，
+不覆寫來源執行。只有未完成的決策需要新 provider 請求時，才加上 `--allow-network`。
+五種 provider adapter 都能重播已提交的 attempt，包含重試與 fallback。
+已提交的自訂 context 值會直接重用，不重新執行檢索。
+`type: extension` 的動態數值資訊來源需要持久的重播契約，目前 `resume` 會拒絕這類來源；
+需要續跑的研究請使用已固定的 CSV 或 static 資訊。
+
+Ledger 避免復原後的 trace 悄悄重複決策，但不能保證外部網路服務恰好執行一次。
+
+接著閱讀[完整雙水庫教學](MULTI_RESERVOIR.md)或[參數說明](PARAMETER_REFERENCE.md)。

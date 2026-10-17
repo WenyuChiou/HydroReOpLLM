@@ -77,6 +77,7 @@ Do not add already routed upstream flow as local inflow again. The operation
 network routes controlled release plus spill exactly once.
 
 The physical case uses `reservoir-physical-case.v1`. Every water ID is explicit.
+The current reservoir kernel assumes zero evaporation and seepage.
 New networks use `llm-reservoir-network.v2` and an `outlets` list:
 
 ```yaml
@@ -110,22 +111,27 @@ sources describe what an agent may see. They never create water connections.
 ## 4. Choose an agent for every controlled reservoir
 
 Each controlled reservoir has exactly one agent. Passive reservoirs have no
-agent. Start with a deterministic benchmark:
+agent. Start with the deterministic Hanasaki rule:
 
 ```yaml
 operator_a:
-  reservoir: lake_a
-  mode: offline
-  strategy: benchmark
-  benchmark:
-    purpose: flood_control
+  reservoir_id: lake_a
+  type: rule_based
+  rule: hanasaki
+  rule_parameters:
     alpha: 0.85
-    statistics: statistics_a.json
+    inflow_statistics_file: statistics_a.json
   auditors: [bounds]
 ```
 
-Use `mode: offline` with `strategy: benchmark` for rule-based operation. Use
-`mode: llm` with `strategy: configured` for a general model-backed operator.
+Use `type: rule_based` with `rule` naming an explicitly registered rule extension.
+Hanasaki is this example's rule; register another implementation for your own
+operating curves, water-supply or hydropower controller. Use `type: llm`,
+`model_profile` and `prompt_file` for
+a general model-backed operator. Optional prompt/context controls belong inside
+`customization`; no common system instruction is injected.
+Rule-based agents can also select `customization: {information: downstream}`;
+the engine supplies available values in `observation.context.decision_information`.
 The F.E. Walter Anik teaching methods are an active case extension with their
 own native message formatting. They do not define the generic configured prompt.
 
@@ -169,7 +175,8 @@ into the decision that produced it.
 
 To run the LLM variant later, use `experiment.llm.yaml`. It selects
 `agents.llm.yaml`, gives the run a separate identity and keeps `lake_b` on its
-benchmark. Add the explicit network gate:
+Hanasaki rule. Each agent selects its own method within the shared experiment.
+Add the explicit network gate:
 
 ```powershell
 reservoir-experiment run examples/multiple_reservoirs/experiment.llm.yaml --allow-network

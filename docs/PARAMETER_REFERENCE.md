@@ -66,17 +66,32 @@ Bindings may select routed output, direct runoff or constant zero as documented 
 See [Model providers](MODEL_PROVIDERS.md) for complete profiles and native API
 paths.
 
-## Configured agent
+## Reservoir agent
 
 | Key | Required / default | Meaning |
 |---|---|---|
-| `reservoir` | required | Exact controlled-reservoir ID. |
-| `strategy` | `configured` | `configured`, `benchmark`, or a registered backend extension ID. |
-| `mode` | required | `offline` or `llm`, as allowed by the strategy. |
-| `model` | LLM required | Primary model profile ID. |
+| `reservoir_id` | required | Exact controlled-reservoir ID; one agent per controlled reservoir. |
+| `type` | required | `rule_based` or `llm`. |
+| `rule` | rule-based required | ID of an explicitly registered rule extension. |
+| `rule_parameters` | `{}` | Opaque parameters validated by the selected rule extension. |
+| `model_profile` | live LLM required | Primary model profile ID from the experiment's `models` catalog. |
+| `prompt_file` | LLM required | Nonempty UTF-8 user template; a custom message-building backend may supply its own explicit resources. |
+| `auditors` | `[]` | Unique configured auditor IDs. |
+| `customization` | `{}` | Optional advanced LLM controls listed below. |
+
+The experiment owns dates, hydrology, physical topology, output and reusable
+catalogs. Each agent selects a method, model, prompt, information profile and
+auditors for its own reservoir. Information topology describes visibility;
+`network.connections` describes water movement.
+
+### Advanced LLM customization
+
+All keys in this table are inside `customization`:
+
+| Key | Required / default | Meaning |
+|---|---|---|
 | `fallback_models` | `[]` | Ordered unique profile IDs, excluding the primary. |
-| `prompt.system` | optional path | Explicit UTF-8 system template. |
-| `prompt.user` | required path | Explicit nonempty UTF-8 user template. |
+| `system_prompt_file` | omitted | Explicit UTF-8 system template; no common system prompt is injected. |
 | `prompt_version` | `"1"` | User-managed prompt identity. |
 | `prompt_variables` | `{}` | Alias to fixed finite text or JSON. |
 | `context_providers` | `{}` | Alias to extension, config and required offline `preview`. |
@@ -85,8 +100,9 @@ paths.
 | `context_file` | omitted | Alternative JSON file; cannot be combined with `context`. |
 | `information` | omitted | Information-profile ID; requires `$information` in a prompt. |
 | `response_schema` | `reservoir-action.v1` | Common action or registered response extension. |
-| `auditors` | `[]` | Unique configured auditor IDs. |
-| `release_cms` | offline configured only | Fixed nonnegative requested release in m³/s. |
+| `backend` | omitted | Explicitly registered backend extension; otherwise the generic LLM backend. |
+| `parameters` | `{}` | Opaque extension parameters, excluding public identity/method/model/prompt/auditor keys. |
+| `execution` | live | `replay` selects offline supplied/saved replies for a custom LLM backend only. |
 
 Built-in placeholders are `$agent_id`, `$observation`, `$knowledge`,
 `$previous_transition` and `$information`. Custom aliases must be identifiers and
@@ -104,18 +120,26 @@ At run time the callback receives immutable `agent_id`, `observation` and
 `previous_transition`, then returns a `ContextValue` containing value,
 provenance and availability.
 
-## Benchmark agent
+## Rule parameters
 
-`strategy: benchmark` requires `mode: offline` and accepts no model or prompt.
+Rule agents require no model or prompt. `rule_based` is the operating class;
+`rule` chooses a user-registered implementation. The framework does not prescribe
+an algorithm list. The example-local Hanasaki wrapper accepts:
 
-| `benchmark` key | Required / default | Meaning |
-|---|---|---|
-| `statistics` | required path | Pinned `reservoir-benchmark-statistics.v1` JSON. |
-| `purpose` | `flood_control` | `flood_control` or `other`. |
-| `alpha` | `0.85` | Finite value in `(0, 1]`. |
+| Rule | `rule_parameters` key | Required / default | Meaning |
+|---|---|---|---|
+| `hanasaki` | `inflow_statistics_file` | required path | Pinned `reservoir-benchmark-statistics.v1` JSON. |
+| `hanasaki` | `purpose` | `flood_control` | Existing `flood_control` or `other` metadata; does not select another controller. |
+| `hanasaki` | `alpha` | `0.85` | Finite value in `(0, 1]`. |
 
 The statistics document identifies reservoir, reference period, mean and monthly
-mean inflow, reference-day count, source path, hash, format and columns.
+mean inflow, reference-day count, source path, hash, format and columns. Register
+another module to implement your own operating curves, water-supply or hydropower
+controller. It must validate and interpret its own `rule_parameters`; these
+controller names do not identify built-in algorithms. Rule modules expose
+`validate_backend`, `build_backend` and `rebase_agent` hooks.
+"Baseline" names a comparison run. "Offline" means no real provider request;
+it includes rules and LLM test/replay paths using supplied or saved replies.
 
 ## Physical case and network
 
@@ -188,3 +212,21 @@ after routing. They write `outcome_audit.jsonl` and do not change releases.
 
 [Build a simulation](BUILD_SIMULATION.md) · [Configuration](CONFIGURATION.md) ·
 [Two-reservoir example](MULTI_RESERVOIR.md)
+
+## Legacy compatibility appendix
+
+Earlier agent syntax remains accepted, but one agent cannot mix old and public
+fields. Use the public names above for new configurations.
+
+| Earlier syntax | Public syntax |
+|---|---|
+| `reservoir` | `reservoir_id` |
+| `strategy: benchmark`, `mode: offline`, `benchmark.statistics` | `type: rule_based`, `rule: hanasaki`, `rule_parameters.inflow_statistics_file` |
+| `strategy: configured`, `mode: offline`, `release_cms` | Retained legacy fixed-release test path; new rule agents select a registered extension. |
+| `strategy: configured`, `mode: llm`, `model`, `prompt.user` | `type: llm`, `model_profile`, `prompt_file` |
+| `prompt.system`, extra prompt/context fields | `customization.system_prompt_file` and other `customization` entries |
+| `strategy: reference_v3_7`, `reference` | `type: llm`, `customization.backend: reference_v3_7`, `customization.parameters.reference` |
+
+Older v1 experiment files and information section names remain supported. Source
+and trace records may show normalized internal `mode`/`strategy` identifiers;
+those identifiers preserve compatibility rather than adding public agent types.

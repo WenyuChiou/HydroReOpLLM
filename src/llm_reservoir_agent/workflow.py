@@ -155,7 +155,15 @@ def load_settings(path, *, runtime_root=PROJECT_ROOT, information_providers=None
         _text(identifier, "agent ID")
         if not isinstance(spec, dict):
             raise ValueError("agent settings must be a mapping")
+        # Method identity is framework metadata; plugins only receive their
+        # original backend contract and cannot reinterpret this classification.
+        agent_type = spec.get('agent_type')
+        if agent_type is not None and agent_type not in ('rule_based', 'llm'):
+            raise ValueError('agent_type must be rule_based or llm')
+        spec = {key: value for key, value in spec.items() if key != 'agent_type'}
         strategy = spec.get("strategy", "configured")
+        if agent_type == 'rule_based' and (spec.get('mode') != 'offline' or strategy not in extensions):
+            raise ValueError('rule must name a registered rule module in extensions')
         if strategy not in extensions:
             _mapping(spec, {"reservoir", "mode", "model", "prompt", "prompt_version", "knowledge", "context",
                             "context_file", "release_cms", "auditors", "response_schema", "strategy", "benchmark",
@@ -193,18 +201,32 @@ def load_settings(path, *, runtime_root=PROJECT_ROOT, information_providers=None
             if mode == "llm" and model_id not in models:
                 raise ValueError("LLM extension requires a known model profile")
             physical = network["reservoirs"][name]["physical"]
+            import inspect
+            parameters = inspect.signature(extension.validate_backend).parameters
+            clock = ({'simulation_start': start} if 'simulation_start' in parameters
+                     or any(p.kind == inspect.Parameter.VAR_KEYWORD for p in parameters.values()) else {})
+            # Information selection is independent of the rule algorithm. The
+            # runtime supplies only causal, published records in observation.context.
+            selected_information = spec.get('information') if agent_type == 'rule_based' else None
+            if selected_information is not None and (not isinstance(selected_information, str)
+                                                     or selected_information not in profiles):
+                raise ValueError('rule references an unknown information profile')
+            plugin_spec = ({k: v for k, v in spec.items() if k != 'information'}
+                           if agent_type == 'rule_based' else spec)
             normalized, pins = extension.validate_backend(
-                spec, base_path=path.parent, runtime_root=runtime_root,
+                plugin_spec, base_path=path.parent, runtime_root=runtime_root,
                 physical=physical, mode=mode, days=len(rows), model=models.get(model_id),
-                auditor_settings=auditors)
+                auditor_settings=auditors, **clock)
             files.update(pins)
             checks = spec.get("auditors", [])
             if not isinstance(checks, list) or len(checks) != len(set(checks)) or any(a not in auditors for a in checks):
                 raise ValueError("extension auditors must be unique configured IDs")
-            agents[identifier] = dict(reservoir=name, mode=mode, strategy=strategy,
+            agents[identifier] = dict(reservoir=name, mode=mode, strategy=strategy, agent_type=agent_type,
                                      **normalized, model=models.get(model_id),
                                      extension_runtime=extension,
                                      audit_plugins=[ConfiguredAudit(a, auditors[a]) for a in checks])
+            if selected_information is not None:
+                agents[identifier]['information'] = selected_information
             continue
         model_id = spec.get("model")
         if model_id is not None and model_id not in models or mode == "llm" and model_id is None:
@@ -339,6 +361,13 @@ def load_settings(path, *, runtime_root=PROJECT_ROOT, information_providers=None
                   live_ready=network["data_kind"] == "synthetic_fixture" or readiness.get("ready") is True,
                   live_readiness=readiness, data_kind=network["data_kind"],
                   source_files=files, settings_sha256=hashlib.sha256(raw).hexdigest())
+    # Method and execution are separate: replayed LLM decisions remain LLM
+    # examples, while deterministic rules never require a provider.
+    report['agent_types'] = {i: (a.get('agent_type') or ('rule_based' if a.get('strategy') == 'benchmark'
+        or a.get('strategy', 'configured') == 'configured' and a['mode'] == 'offline' else 'llm')
+        ) for i, a in agents.items()}
+    report['agent_rules'] = {i: ('hanasaki' if a.get('strategy') == 'benchmark' else a.get('strategy', 'configured'))
+        for i, a in agents.items() if report['agent_types'][i] == 'rule_based'}
     if catalog is not None:
         report["information_bindings"] = {i: a["information"] for i, a in agents.items() if "information" in a}
         report["information_provider_versions"] = {
@@ -442,9 +471,14 @@ def run_settings(settings, *, allow_network=False, runtime_root=PROJECT_ROOT, tr
             continue
         if "extension_runtime" in agent:
             physical = current.network["reservoirs"][agent["reservoir"]]["physical"]
+            from .rule_based import RuleBasedBackend, no_model_transport
+            is_rule = agent.get('agent_type') == 'rule_based'
             backend = agent["extension_runtime"].build_backend(
                 agent, physical=physical, runtime_root=runtime_root,
-                mode=agent["mode"], model=agent["model"], transport=bounded_transport)
+                mode=agent["mode"], model=None if is_rule else agent["model"],
+                transport=no_model_transport if is_rule else bounded_transport)
+            if is_rule:
+                backend = RuleBasedBackend(backend, agent['strategy'])
             backends[agent["reservoir"]] = AuditedBackend(backend, agent["audit_plugins"])
             continue
         backend = ConfiguredBackend(agent_id=identifier, mode=agent["mode"], prompt_spec=agent["prompt"],
