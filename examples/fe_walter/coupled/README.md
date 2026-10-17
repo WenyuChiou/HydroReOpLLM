@@ -115,6 +115,12 @@ physical initial state.
 
 ## Verified 2016 results
 
+> **Example confirmation pending.** Verification below concerns saved-run
+> execution and water accounting. The prompt version and equivalence to Anik's
+> example still require user confirmation. These outputs are not an accepted
+> reproduction of Anik's results. Keep them as evidence until that review;
+> do not change the prompt or rerun the model on that basis.
+
 
 These runs use the maintained split configuration and separate native system
 messages. All three methods cover **366 unique daily decisions**, from 1 January

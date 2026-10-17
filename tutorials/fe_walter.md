@@ -313,6 +313,10 @@ For interruptions, follow [resume](../docs/BUILD_SIMULATION.md#9-resume-after-an
 
 ## Step 8. Read the verified 2016 results
 
+> **Example confirmation pending.** The saved outputs verify execution only.
+> The prompt version and Anik-example equivalence await user confirmation;
+> do not treat these results as an accepted reproduction.
+
 Continue with the [current 2016 annual results](../examples/fe_walter/coupled/README.md#verified-2016-results).
 All three methods contain 366 unique daily decisions.
 The available-information recovery chain retains **369 actual attempts**:
