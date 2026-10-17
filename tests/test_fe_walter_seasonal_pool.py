@@ -135,8 +135,11 @@ class FigureManualTests(unittest.TestCase):
             home = (target / "index.md").read_text(encoding="utf-8")
             overview = (target / "docs/README.md").read_text(encoding="utf-8")
             for page in (home, overview):
-                self.assertIn("hydrocnhs-coupling-framework-en.png", page)
+                self.assertIn("hydroopslm-cover.png", page)
                 self.assertNotIn("_figure_downloads/", page)
+            # Keep the core workflow in the Overview and its original figure
+            # downloads byte-exact; the landing page uses the existing cover.
+            self.assertIn("hydrocnhs-coupling-framework-en.png", overview)
             for ext in ["png", "pdf"]:
                 name = "hydroopsllm-figure1." + ext
                 self.assertEqual((target / "_figure_downloads" / name).read_bytes(),

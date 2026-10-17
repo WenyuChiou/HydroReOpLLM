@@ -106,5 +106,9 @@ def test_comparison_downloads_keep_source_bytes_and_need_no_network(tmp_path, mo
         assert (tmp_path / "_completed_downloads" / name).read_bytes() == (ROOT / relative).read_bytes()
         assert (tmp_path / relative).read_bytes() == (ROOT / relative).read_bytes()
     page = (tmp_path / "examples/fe_walter/coupled/README.md").read_text()
-    assert "gemma4-2016-pool_release.pdf" in page
+    # Engine comparisons remain downloadable through the technical reference;
+    # the main tutorial now presents the three framework methods instead.
+    assert "../engine_comparison.md" in page
+    reference = (tmp_path / "examples/fe_walter/engine_comparison.md").read_text()
+    assert "gemma4-2016-pool_release.pdf" in reference
     assert "corrected-case LLM rerun pending" not in page

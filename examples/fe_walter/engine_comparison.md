@@ -14,6 +14,7 @@ replay compares engineering behavior under identical saved responses.
 - [Available-information saved pair](coupled/outputs/gemma4_2016_comparison/llm_available_pair.json)
 - [Retrieved-knowledge saved pair](coupled/outputs/gemma4_2016_comparison/llm_knowledge_pair.json)
 - [Complete engine daily table](coupled/outputs/gemma4_2016_comparison/daily.csv)
+- [Original-program/framework comparison figure (PDF)](coupled/outputs/gemma4_2016_comparison/pool_release.pdf)
 
 The main notebook omits engine-parity tables and the raw daily audit gallery.
 Those materials answer implementation and diagnostic questions, not the
