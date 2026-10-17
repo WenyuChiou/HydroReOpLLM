@@ -20,13 +20,17 @@ Creek 交會處，橫跨 Carbon 與 Luzerne counties。水壩建於 1961 年。�
 [重新評估研究](https://www.nap.usace.army.mil/Missions/Factsheets/Fact-Sheet-Article-View/Article/490871/francis-e-walter-dam-re-evaluation-study/)，以及
 [流量管理計畫與時程](https://www.nap.usace.army.mil/Missions/Civil-Works/Francis-E-Walter-Dam/Flow-Management-Plan-Schedule/)。
 
+```{figure-md} fe-walter-study-area-zh-tw
+:class: study-area-figure
+
 ![F.E. Walter 模式集水區、河流、水壩與測站](../../docs/figures/fe-walter-catchment.png)
 
-**地圖說明。** 圖中顯示模式子集水區、水壩、測站與 1996–2025 年平均年降水量。
+**圖 1。** 模式子集水區、水壩、測站與 1996–2025 年平均年降水量。
 七個實際模式貢獻單元合計 **750.811 km²**；這是模式集水區面積，不是官方水庫水面
 或專案土地面積。原生模型中另有 1 ha 的人工匯總出口，此面積不計入上述總和。
 **資料來源：** Esri、CGIAR、USGS、data.pa.gov、TomTom、Garmin、SafeGraph、
 METI/NASA、EPA、NPS、USDA、USFWS、New Jersey Office of GIS、FAO、NOAA。
+```
 
 ## 已接受的水文邊界
 

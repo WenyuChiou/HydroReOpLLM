@@ -83297,7 +83297,7 @@ hvNARGQ2A0BEZDYDQERkNgNARGQ2A0BEZDYDQERkNgNARGQ2A0BEZDYDQERkNgNARGQ2A0BFDA6EA6Sn
 </g>
 <g clip-path="url(#cp_125)">
 <g transform="matrix(1 0 0 1 545 80)">
-<path d="M-12 67 L253 67 L253 -25 L-12 -25 Z "  fill="#FFFFFF" fill-rule="nonzero" stroke="#000000" fill-opacity="1" stroke-opacity="1"  stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="4" />
+<path d="M-12 80 L330 80 L330 -30 L-12 -30 Z "  fill="#FFFFFF" fill-rule="nonzero" stroke="#000000" fill-opacity="1" stroke-opacity="1"  stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="4" />
 </g>
 </g>
 <g clip-path="url(#cp_125)">
@@ -83306,21 +83306,21 @@ hvNARGQ2A0BEZDYDQERkNgNARGQ2A0BEZDYDQERkNgNARGQ2A0BEZDYDQERkNgNARGQ2A0BFDA6EA6Sn
 </g>
 </g>
 <g clip-path="url(#cp_125)">
-<g font-family="'ArialMT'" font-size="22" >
-<g transform="matrix(1 0 0 1 575 94)" fill="#172033" fill-opacity="1" xml:space='preserve'>
-<text><tspan x="0 15.887695 30.561523 47.673828 62.347656 68.459961 80.695312 92.930664 105.16602 117.40137 129.63672 141.87207 154.10742 166.34277 ">USGS 01447500</tspan></text>
+<g font-family="'ArialMT'" font-size="30" >
+<g transform="matrix(1 0 0 1 575 96)" fill="#172033" fill-opacity="1" xml:space='preserve'>
+<text><tspan x="0 21.665039 41.674805 65.009766 85.019531 93.354492 110.03906 126.72363 143.4082 160.09277 176.77734 193.46191 210.14648 226.83105 ">USGS 01447500</tspan></text>
 </g>
 </g>
 </g>
 <g clip-path="url(#cp_125)">
 <g transform="matrix(1 0 0 1 545 80)">
-<path d="M2 43 L10 35 L18 43 L10 51 Z "  fill="#13223A" fill-rule="nonzero" stroke="#FFFFFF" fill-opacity="1" stroke-opacity="1"  stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="4" />
+<path d="M2 49 L10 41 L18 49 L10 57 Z "  fill="#13223A" fill-rule="nonzero" stroke="#FFFFFF" fill-opacity="1" stroke-opacity="1"  stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="4" />
 </g>
 </g>
 <g clip-path="url(#cp_125)">
-<g font-family="'ArialMT'" font-size="22" >
-<g transform="matrix(1 0 0 1 575 130)" fill="#172033" fill-opacity="1" xml:space='preserve'>
-<text><tspan x="0 15.887695 28.123047 46.449219 52.561523 58.673828 64.786133 77.021484 89.256836 95.369141 100.25684 112.49219 118.60449 ">Dam / outlet</tspan></text>
+<g font-family="'ArialMT'" font-size="30" >
+<g transform="matrix(1 0 0 1 575 140)" fill="#172033" fill-opacity="1" xml:space='preserve'>
+<text><tspan x="0 21.665039 38.349609 63.339844 71.674805 80.009766 88.344727 105.0293 121.71387 130.04883 136.71387 153.39844 161.7334 ">Dam / outlet</tspan></text>
 </g>
 </g>
 </g>

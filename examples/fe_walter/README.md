@@ -24,15 +24,19 @@ See the U.S. Army Corps of Engineers
 [re-evaluation study](https://www.nap.usace.army.mil/Missions/Factsheets/Fact-Sheet-Article-View/Article/490871/francis-e-walter-dam-re-evaluation-study/),
 and [flow-management plan and schedule](https://www.nap.usace.army.mil/Missions/Civil-Works/Francis-E-Walter-Dam/Flow-Management-Plan-Schedule/).
 
+```{figure-md} fe-walter-study-area
+:class: study-area-figure
+
 ![F.E. Walter modeled catchment, rivers, dam, and gauge](../../docs/figures/fe-walter-catchment.png)
 
-**Map.** Modeled subcatchments, dam, gauge, and 1996–2025 mean annual
+**Figure 1.** Modeled subcatchments, dam, gauge, and 1996–2025 mean annual
 precipitation. The seven modeled contributing units total **750.811 km²**. This
 is modeled watershed area, not official reservoir surface area or project
 property area. The native model's separate 1 ha artificial aggregation outlet
 is excluded. **Source credits:** Esri, CGIAR, USGS, data.pa.gov, TomTom, Garmin,
 SafeGraph, METI/NASA, EPA, NPS, USDA, USFWS, New Jersey Office of GIS, FAO, and
 NOAA.
+```
 
 ## Accepted hydrological boundary
 

@@ -9,23 +9,23 @@
   "original_reference_png_sha256": "eac9fd260fd86ca4e11fa9d9566db6e86f412873f099a439df2871047996d67e",
   "package": {
     "file": "fe-walter-arcgis-source.zip",
-    "bytes": 2516008,
-    "sha256": "d2a819922b88623aea22943c16ba971739954606ef609bafc599eaa9e726b70b",
+    "bytes": 2715395,
+    "sha256": "e3256d713ba8da7b4fdc242c4989544967ea45a65ef47e51c65712b49d751def",
     "aprx": "p30/FE_Walter_DRB_manual_v9.aprx",
     "picture_source": "../commondata/pictures/layout_overlay.svg (relative to APRX)"
   },
   "exports": {
+    "fe-walter-catchment.pdf": {
+      "bytes": 1705018,
+      "sha256": "304a15849ce14a6ab9c7497c535a897588c48d95ce99bb0b3c7e01598964d4d4"
+    },
     "fe-walter-catchment.png": {
-      "bytes": 2629718,
-      "sha256": "8238b994bed369e4cc437cf988e3cad92810df606a9f754cfc10a4e685517d1b"
+      "bytes": 2584221,
+      "sha256": "4875fda12524551dc84bf301eb55e6ef3b1f046a8b271ffe95214ac903bb87ae"
     },
     "fe-walter-catchment.svg": {
-      "bytes": 14937496,
-      "sha256": "c7bb847662ba1bbda4de7907bd3ff4c63c08d242e9dc2a345c3f2f4a8074fcb9"
-    },
-    "fe-walter-catchment.pdf": {
-      "bytes": 1705008,
-      "sha256": "680923b6b81a8431960c8f5840ea68698443488456de0dc23f9fa85ed0d5f804"
+      "bytes": 14937493,
+      "sha256": "6de3765047e3da623550bc69d2abd2c741489608f2183bedaffbc95591c5f67b"
     }
   },
   "exporter": {
@@ -111,7 +111,8 @@
       "dam_label_svg_position": [
         810,
         650
-      ]
+      ],
+      "legend_font_size_svg_px": 30
     }
   },
   "scale_and_extent_checks": {
@@ -153,6 +154,19 @@
       "scientific_members_unchanged": true,
       "map_frames_and_camera_extents": "unchanged",
       "native_credits": "retained off-page at y=-1 inch; full providers in case captions"
+    },
+    {
+      "date": "2026-10-17",
+      "request": "Enlarge USGS and Dam / outlet legend labels; use numbered figure captions in the manual.",
+      "parent_package_sha256": "d2a819922b88623aea22943c16ba971739954606ef609bafc599eaa9e726b70b",
+      "changed_package_members": [
+        "commondata/pictures/layout_overlay.svg"
+      ],
+      "unchanged_members": 132,
+      "legend_font_size_before": 22,
+      "legend_font_size_after": 30,
+      "scientific_members_unchanged": true,
+      "map_frames_and_camera_extents": "unchanged"
     }
   ]
 }
