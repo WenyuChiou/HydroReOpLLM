@@ -335,6 +335,15 @@ and fall checks alongside engineering verification.
 and the [historical five-year DKP study](../examples/fe_walter/results.md) retain
 their original settings. They are separate experiments.
 
+For the earlier Gemma 3 diagnostic, the preserved files remain downloadable:
+[daily values](../examples/fe_walter/coupled/outputs/2016/daily.csv),
+[summary](../examples/fe_walter/coupled/outputs/2016/summary.json),
+[source pins](../examples/fe_walter/coupled/outputs/2016/pins.json),
+[available-information sample](../examples/fe_walter/coupled/outputs/2016/llm_available_decision.json)
+and [knowledge sample](../examples/fe_walter/coupled/outputs/2016/llm_knowledge_decision.json).
+These files retain the earlier response contract, including its incorrect
+missing-information fallback; use the Gemma 4 links above for the current study.
+
 ## Code map
 
 | User task | Code responsible |
