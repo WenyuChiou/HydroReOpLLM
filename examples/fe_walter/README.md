@@ -138,13 +138,14 @@ Shared physical setup is defined once on this page.
 
 ## Read the results
 
-Start with the [2016 coupled results](coupled/README.md#verified-2016-results)
-for the maintained three-method annual example. [Historical results and decision
+Start with the [latest Gemma 4 comparison](coupled/README.md#verified-2016-results)
+for the maintained annual LLM example and its original-code/framework checks. [Historical results and decision
 records](results.md) retain the earlier 2020 walkthrough and 2016–2020 study.
 
 | Saved evidence | Period and model | Purpose |
 |---|---|---|
-| Current three-method annual example | 2016-01-01–12-31; 366 days per method; LLM methods use `gemma3:4b`, temperature 0.7 | Read pool elevation, controlled release and preserved decisions |
+| Current original-code/framework comparison | 2016-01-01–12-31; 366 days per engine and LLM method; `gemma4:12b`, temperature 0.7 | Read water levels, controlled release, seasonal compliance and same-reply engineering checks |
+| Earlier three-method annual example | 2016-01-01–12-31; 366 days per method; LLM methods use `gemma3:4b`, temperature 0.7 | Preserved earlier configuration; separate from the current comparison |
 | Three-method tutorial | 2016-01-01–01-03; LLM methods use `gemma3:4b`, temperature 0.7 | Learn each method under common three-day conditions |
 | One-year results walkthrough | 2020-01-01–12-31; 366 days from the historical retrieved-knowledge record | Inspect seasonal operation and individual decisions |
 | Historical retrieved-knowledge experiment | 2016-01-01–2020-12-31; `gemma4:12b`, temperature 0.7 | Inspect the complete 1,827-day trajectory and decision behaviour |

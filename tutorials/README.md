@@ -6,6 +6,10 @@ Start with the English [F.E. Walter configuration tutorial](fe_walter.md) for
 the current split weather-to-operation entry, model settings and daily decision
 contract. It is the single maintained source for that walkthrough.
 
+Use the [latest 2016 Gemma 4 results](../examples/fe_walter/coupled/README.md#verified-2016-results)
+as the main annual example. The companion notebooks below preserve older,
+shorter teaching snapshots.
+
 The two companion English notebooks execute from tracked, accepted
 snapshots and save rich table and figure outputs for GitHub and MyST-NB. Their
 default path makes no model, network, download, recalibration, or new simulation

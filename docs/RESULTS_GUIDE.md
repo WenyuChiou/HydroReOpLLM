@@ -19,7 +19,10 @@ is implemented controlled release plus spill. The total is injected into routing
 once. The next step begins with the previous step's ending storage and uses the
 release that was actually implemented.
 
-The [FE Walter results chapter](../examples/fe_walter/results.md) displays the complete saved 2016–2020 daily trajectory and follows selected decisions into their physical outcomes.
+Start with the [latest 2016 Gemma 4 comparison](../examples/fe_walter/coupled/README.md#verified-2016-results)
+for water levels, controlled release and seasonal compliance. The
+[historical results chapter](../examples/fe_walter/results.md) preserves the
+separate 2016–2020 trajectory and its original operating targets.
 
 ## Follow a decision in the trace
 
@@ -56,17 +59,19 @@ an operating criterion.
 | WARN | A configured warning requires interpretation |
 | UNKNOWN | The required evidence or an applicable auditor is unavailable |
 
-The saved three-day available-information example retains **2 PASS / 1 FAIL**;
-the three-day retrieved-knowledge example retains **3 FAIL**. For annual saved-run
-evidence, see the [2016 coupled results](../examples/fe_walter/coupled/README.md#verified-2016-results).
-Those completed annual outputs used a prior diagnostic configuration whose DKP
-method incorrectly retained `missing_inputs`; the corrected Anik V3.7
-configuration is confirmed, but its real-LLM rerun is still pending. Treat the
-saved outputs as execution and water-accounting evidence, not acceptance or a
-quality result for the corrected case.
-The benchmark retains **3 PASS** under its release-bounds auditor. Their auditor
-suites differ, so these counts do not establish which policy is better. Strategy
-acceptance remains unset in the LLM snapshots.
+The current comparison uses the confirmed Anik V3.7 prompts with the approved
+seasonal-target edit and real `gemma4:12b` replies. Both the original code and
+HydroOpsLLM completed 366 days for each of the two LLM methods. Read engineering
+checks, execution completion and seasonal operating performance separately;
+completion does not mean every operating target was met.
+
+The [earlier annual configuration](../examples/fe_walter/coupled/README.md#earlier-2016-configuration-preserved)
+retains the prior diagnostic response contract, including its DKP
+`missing_inputs` field. It is preserved separately from the corrected comparison.
+The older three-day tutorial retains **2 PASS / 1 FAIL** for available information,
+**3 FAIL** for retrieved knowledge and **3 PASS** for its rule-based method.
+Those auditor suites differ, so these counts do not establish which method is
+better. Strategy acceptance remains unset in those three-day LLM snapshots.
 
 These historical machine names identify preserved provenance. The public method
 titles are **LLM operation with available information** and **LLM operation with

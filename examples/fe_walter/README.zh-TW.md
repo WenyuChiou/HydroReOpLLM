@@ -116,12 +116,13 @@ python examples/fe_walter/check_pool_levels.py examples/fe_walter/reference_outp
 
 ## 查看結果
 
-先看英文[2016 年耦合結果](coupled/README.md#verified-2016-results)，了解目前維護的三方法全年範例。
+先看英文[最新 Gemma 4 對照結果](coupled/README.md#verified-2016-results)，了解目前維護的全年 LLM 範例及原版程式／框架檢查。
 [歷史結果與決策紀錄](results.zh-TW.md)另保留較早的 2020 教學與 2016–2020 研究。
 
 | 保存證據 | 期間與模型 | 用途 |
 |---|---|---|
-| 目前三方法全年範例 | 2016-01-01–12-31；每種方法 366 日；LLM 使用 `gemma3:4b`、temperature 0.7 | 查看水位、控制放流與保存決策 |
+| 目前原版程式／框架對照 | 2016-01-01–12-31；每套引擎、每種 LLM 方法各 366 日；`gemma4:12b`、temperature 0.7 | 查看水位、控制放流、季節合規及相同回覆的工程檢查 |
+| 較早三方法全年範例 | 2016-01-01–12-31；每種方法 366 日；LLM 使用 `gemma3:4b`、temperature 0.7 | 保存較早設定，與目前對照分開閱讀 |
 | 三方法教學 | 2016-01-01–01-03；LLM 使用 `gemma3:4b`、temperature 0.7 | 在相同三日條件下學習各方法 |
 | 一年結果教學 | 2020-01-01–12-31；歷史檢索知識紀錄中的 366 日 | 查看季節操作與個別決策 |
 | 歷史檢索知識實驗 | 2016-01-01–2020-12-31；`gemma4:12b`、temperature 0.7 | 查看完整 1,827 日軌跡與決策行為 |
