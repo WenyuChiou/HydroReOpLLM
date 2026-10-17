@@ -30,8 +30,8 @@ and [flow-management plan and schedule](https://www.nap.usace.army.mil/Missions/
 ![F.E. Walter modeled catchment, rivers, dam, and gauge](../../docs/figures/fe-walter-catchment.png)
 
 **Figure 1.** Modeled subcatchments, dam, gauge, and 1996–2025 mean annual
-precipitation. The cyan polygon marks the reservoir surface; the diamond marks
-the dam/outlet. The seven modeled contributing units total **750.811 km²**. This
+precipitation. The outlined callout identifies the reservoir area; its water is blue,
+matching the rivers. The diamond marks the dam/outlet. The seven modeled contributing units total **750.811 km²**. This
 is modeled watershed area, not official reservoir surface area or project
 property area. The native model's separate 1 ha artificial aggregation outlet
 is excluded. **Source credits:** Esri, CGIAR, USGS, data.pa.gov, TomTom, Garmin,
