@@ -26,7 +26,7 @@ Creek 交會處，橫跨 Carbon 與 Luzerne counties。水壩建於 1961 年。�
 ![F.E. Walter 模式集水區、河流、水壩與測站](../../docs/figures/fe-walter-catchment.png)
 
 **圖 1。** 模式子集水區、水壩、測站與 1996–2025 年平均年降水量。
-青色 polygon 表示水庫水面，菱形表示水壩／出口。
+框線標出水庫位置，水面與河流採用相同藍色；菱形表示水壩／出口。
 七個實際模式貢獻單元合計 **750.811 km²**；這是模式集水區面積，不是官方水庫水面
 或專案土地面積。原生模型中另有 1 ha 的人工匯總出口，此面積不計入上述總和。
 **資料來源：** Esri、CGIAR、USGS、data.pa.gov、TomTom、Garmin、SafeGraph、

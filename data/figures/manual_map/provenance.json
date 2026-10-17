@@ -9,23 +9,23 @@
   "original_reference_png_sha256": "eac9fd260fd86ca4e11fa9d9566db6e86f412873f099a439df2871047996d67e",
   "package": {
     "file": "fe-walter-arcgis-source.zip",
-    "bytes": 2524329,
-    "sha256": "8c8d4eb312a2f9b5aeec4935042463b7b617543f65279f89d777ecd77f03cd2b",
+    "bytes": 2524560,
+    "sha256": "a796d721e151d13325b459f88481c102dd53c2e3eca51f43d6f1b04a5622acdc",
     "aprx": "p30/FE_Walter_DRB_manual_v9.aprx",
     "picture_source": "../commondata/pictures/layout_overlay.svg (relative to APRX)"
   },
   "exports": {
     "fe-walter-catchment.pdf": {
-      "bytes": 1720051,
-      "sha256": "262ca7a28493bfa5bad13bdf62518dd6904e28d8ea07cede48a979fc2ff86618"
+      "bytes": 1720048,
+      "sha256": "996093caed87288686ffd3e66e027ac9a781efdb9109b221efe52f1636ace5cc"
     },
     "fe-walter-catchment.png": {
-      "bytes": 2638900,
-      "sha256": "d845a23a122e1c0ad03a81977cb48b6ef62026bb1f6a318e564b608d779c979d"
+      "bytes": 2658118,
+      "sha256": "39c0c9e733e64b857d242794a15f6bd05532020e04296ec08c18b245b41a8e07"
     },
     "fe-walter-catchment.svg": {
-      "bytes": 15154970,
-      "sha256": "d082442da4fdcde0b038e0d50d0245c6a9ef635ae72931b26cd459ba3add0521"
+      "bytes": 15154879,
+      "sha256": "9053ccd8e0070a0514edaa8155b23f7135568b9e31b02f7f4c1cdafdc2d11b38"
     }
   },
   "exporter": {
@@ -112,8 +112,8 @@
         "CONUS",
         "F. E. Walter catchment"
       ],
-      "DRB_title_font_pt": 21,
-      "legend": "Compact three-row box separates gauge, dam/outlet and reservoir surface; 252x116 SVG units",
+      "DRB_title_font_pt": 25,
+      "legend": "Two-row gauge and dam/outlet legend, 28 SVG px; reservoir identified by geographic callout box",
       "colorbar": "256 solid vector swatches from native raster colorizer, 1300–1550 mm/year; thin neutral border; dark-blue right endpoint",
       "dam_name": "F. E. Walter Reservoir",
       "map_frames_and_camera_extents": "FE detail/DRB overview unchanged; CONUS resized and its leader recomputed from the original geographic anchor",
@@ -124,17 +124,17 @@
         8.35
       ],
       "DRB_title_position": "Centered in the gap between the smaller CONUS locator and DRB overview",
-      "dam_name_background": "Reservoir name in the white margin without a leader to the dam/outlet",
+      "dam_name_background": "Name in white margin, orthogonal leader ends at bounding box around actual water polygon",
       "station_label": "USGS 01447500 appears once in the legend; only the station marker remains on the map.",
       "north_arrows": "ArcGIS Compass North 1, centered,0.60inch height; linked to respective native mapframes",
       "dam_label_svg_position": [
         810,
         650
       ],
-      "legend_font_size_svg_px": 24,
+      "legend_font_size_svg_px": 28,
       "dam_name_font_size_svg_px": 28,
       "point_symbols_pt": {
-        "dam_outlet": 13.5,
+        "dam_outlet": 18,
         "usgs_gauge": 14.0,
         "white_outline": 0.9
       },
@@ -148,7 +148,10 @@
         ],
         "casing": "Separate white layer of the same features below the blue layer"
       },
-      "reservoir_label_leader": null,
+      "reservoir_label_leader": {
+        "geometry": "Orthogonal, no arrowhead",
+        "endpoint": "West boundary of the box enclosing the actual water polygon, rather than the outlet point"
+      },
       "DRB_rivers": {
         "mainstem_width_pt": 1.3,
         "tributary_width_pt": 0.85,
@@ -159,7 +162,22 @@
         ],
         "coastal_bay_thematic_polygon_visible": false,
         "coastal_geometry_unchanged": true
-      }
+      },
+      "colorbar_tick_font_svg_px": 25,
+      "colorbar_title_font_svg_px": 30,
+      "reservoir_water_rgb": [
+        23,
+        108,
+        155,
+        100
+      ],
+      "reservoir_area_callout_svg": [
+        858.3690342656613,
+        535.5414054026282,
+        55.742331835423556,
+        80.44211483124593
+      ],
+      "dam_marker_size_pt": 18
     }
   },
   "scale_and_extent_checks": {
@@ -504,6 +522,61 @@
           "fe-walter-catchment.pdf": "262ca7a28493bfa5bad13bdf62518dd6904e28d8ea07cede48a979fc2ff86618",
           "fe-walter-catchment.png": "d845a23a122e1c0ad03a81977cb48b6ef62026bb1f6a318e564b608d779c979d",
           "fe-walter-catchment.svg": "d082442da4fdcde0b038e0d50d0245c6a9ef635ae72931b26cd459ba3add0521"
+        }
+      }
+    },
+    {
+      "date": "2026-10-17",
+      "request": "Unify water blue, mark reservoir area with box rather than legend, enlarge outlet and typography",
+      "parent_package_sha256": "8c8d4eb312a2f9b5aeec4935042463b7b617543f65279f89d777ecd77f03cd2b",
+      "water_rgb": [
+        23,
+        108,
+        155,
+        100
+      ],
+      "river_rgb": [
+        23,
+        108,
+        155,
+        100
+      ],
+      "dam_size_before_pt": 13.5,
+      "dam_size_pt": 18,
+      "reservoir_area_callout_svg": [
+        858.3690342656613,
+        535.5414054026282,
+        55.742331835423556,
+        80.44211483124593
+      ],
+      "water_polygon_count": 1,
+      "legend_rows": [
+        "USGS 01447500",
+        "Dam / outlet"
+      ],
+      "legend_font_svg_px": 28,
+      "colorbar_tick_svg_px": 25,
+      "colorbar_title_svg_px": 30,
+      "DRB_title_pt": 25,
+      "changed_package_members": [
+        "p30/FE_Walter_DRB_manual_v9.aprx",
+        "commondata/pictures/layout_overlay.svg"
+      ],
+      "unchanged_package_members": 131,
+      "map_extents_unchanged": true,
+      "scientific_members_unchanged": true,
+      "exports": {
+        "fe-walter-catchment.pdf": {
+          "bytes": 1720048,
+          "sha256": "996093caed87288686ffd3e66e027ac9a781efdb9109b221efe52f1636ace5cc"
+        },
+        "fe-walter-catchment.png": {
+          "bytes": 2658118,
+          "sha256": "39c0c9e733e64b857d242794a15f6bd05532020e04296ec08c18b245b41a8e07"
+        },
+        "fe-walter-catchment.svg": {
+          "bytes": 15154879,
+          "sha256": "9053ccd8e0070a0514edaa8155b23f7135568b9e31b02f7f4c1cdafdc2d11b38"
         }
       }
     }
