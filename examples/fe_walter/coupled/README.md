@@ -8,11 +8,11 @@ time, and the initial storage is an explicit assumption.
 Start with [the FE Walter tutorial](../../../tutorials/fe_walter.md) for a file-by-file
 walkthrough of the experiment, model settings, prompts, reservoir IDs and code.
 
-The current 2016 section below distinguishes completed operation, actual provider
-attempts, numerical verification and diagnostic operating audits. Its curated
-files use `outputs/2016/`. The earlier diagnostic demonstration remains separate
-and unchanged. Execution and water balance verification do not establish
-acceptable reservoir performance.
+The current comparison below uses the confirmed Anik prompts with real
+`gemma4:12b` replies. Its curated files use `outputs/gemma4_2016_comparison/`.
+Prior results in `outputs/2016/` and the earlier demonstration remain unchanged.
+Execution and water balance verification do not establish acceptable reservoir
+performance.
 
 ## Files
 
@@ -135,11 +135,82 @@ also reproduces the prior high-water trajectories: maximum differences are below
 `0.000001 m³` in storage and `0.000003 ft` in pool elevation across both methods.
 This isolates the water-balance implementation; it does not establish that the
 old prompts were correct or that the corrected real LLM will meet its targets.
-The corrected configuration has not been sent to a real model.
+The corrected configuration has now been tested with a real model in both
+independent engines; see the comparison below.
 
 ## Verified 2016 results
 
-> **Configuration confirmed; corrected-case LLM rerun pending.** All five source
+The **17 October 2026 Gemma 4 comparison** runs original Anik V3.7 `simulate`
+and the HydroOpsLLM coupled entry independently, for both LLM methods. All four
+runs completed **366 unique days and 366 actual HTTP attempts each**. No retry,
+Rule-based substitution or other-model fallback was needed. Accepted upstream
+hydrology was reused; it was not recalibrated or recomputed.
+
+Both engines use the confirmed seasonal targets, system/user prompt construction,
+schemas, knowledge, initial state and model controls: `gemma4:12b`, temperature
+`0.7`, output `2048`, context `16384`, `think: false`, timeout `120 s`, at most
+two attempts per decision and a two-second retry delay. The seed is unspecified.
+The model digest and input/output hashes are in the
+[comparison summary](outputs/gemma4_2016_comparison/summary.json).
+
+![Independent Anik and HydroOpsLLM 2016 pool elevation and controlled release](outputs/gemma4_2016_comparison/pool_release.png)
+
+Columns distinguish the two information settings; colors and line styles identify
+the engine consistently. Pool elevation is **end-of-day**, derived from recorded
+storage with the same Anik rating curve. Release is implemented controlled
+release, excluding spill. Dotted lines mark 1300 and 1370 ft; they do not replace
+the seasonal compliance windows.
+
+| Method | Engine | Days / HTTP attempts | Winter within 1297–1303 ft | 1 November end pool (ft) |
+|---|---|---:|---:|---:|
+| Available information | Original Anik | 366 / 366 | 63 / 135 | 1366.87 |
+| Available information | HydroOpsLLM | 366 / 366 | 61 / 135 | 1351.79 |
+| Retrieved knowledge | Original Anik | 366 / 366 | 132 / 135 | 1298.60 |
+| Retrieved knowledge | HydroOpsLLM | 366 / 366 | 135 / 135 | 1297.06 |
+
+Winter means 1 January–14 March and 1 November–31 December. Spring begins
+15 March, summer 10 May, and fall 15 October. Fall requires 1300–1370 ft and an
+end pool below that day's beginning pool. Fall compliance was **9/17 and 10/17**
+days for the available-information original/framework runs, and **0/17 in both**
+knowledge runs. The knowledge runs drew down too early and below the fall band.
+Summer has only an upper limit, so its compliance can include an undesirably low
+pool. Full seasonal counts are in the summary; reasoning audits are a separate
+diagnostic and do not trigger resampling.
+
+**Engineering consistency and operating performance are separate findings.**
+Independent real trajectories differ substantially: end-pool MAE / maximum
+difference is **6.169 / 58.327 ft** for available information and
+**2.872 / 86.553 ft** for retrieved knowledge. These runs cannot be described as
+equivalent trajectories or used as a method ranking.
+
+The first different numeric reply occurred under an identical complete request:
+**2 January**, 1000 vs 789.4 cfs, for available information; **11 March**, 300 vs
+396.8 cfs, for knowledge. The following day's user message first differed as
+implemented release and storage entered history. To isolate the engines, the
+same 366 saved original real replies were then replayed through each engine,
+with sockets blocked. All **366 full requests matched exactly in each engine,
+for each method**; maximum end-pool differences were `4.55e-13 ft` and
+`2.28e-12 ft`, respectively. Maximum controlled-release differences were
+`1.14e-13 cfs` and `6.60e-12 cfs`. Both formal framework verifications passed:
+maximum system water-balance residual `3.67e-9 m³`, routing difference `0 m³/s`.
+This supports sampled-reply divergence in these realizations; it does not show
+that the seasonal operating goals are met.
+
+Download the [daily values](outputs/gemma4_2016_comparison/daily.csv),
+[600 dpi PNG](outputs/gemma4_2016_comparison/pool_release.png),
+[vector SVG](outputs/gemma4_2016_comparison/pool_release.svg), or
+[180 mm vector PDF](outputs/gemma4_2016_comparison/pool_release.pdf).
+The [available-information pair](outputs/gemma4_2016_comparison/llm_available_pair.json)
+and [knowledge pair](outputs/gemma4_2016_comparison/llm_knowledge_pair.json) preserve
+the actual 2 January requests, schema, raw provider replies, parsed proposals and
+recorded physics for both engines. Complete journals, audits, independent replay
+reports and source pins remain in the external experiment archive. The
+[saved-artifact exporter](export_comparison.py) creates these teaching assets
+without requesting a model response or rerunning a simulation.
+
+## Earlier 2016 configuration (preserved)
+
+> **Prior diagnostic configuration.** All five source
 > attachments are intended Anik V3.7 inputs and are byte-equal to the retained
 > vendor copies. The saved outputs below are completed execution under a prior
 > diagnostic configuration: its DKP method incorrectly used

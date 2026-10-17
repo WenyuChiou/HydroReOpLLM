@@ -329,14 +329,18 @@ For interruptions, follow [resume](../docs/BUILD_SIMULATION.md#9-resume-after-an
 
 ## Step 8. Read the verified 2016 results
 
-> **Configuration confirmed; corrected-case LLM rerun pending.** All five source
-> attachments are intended Anik V3.7 inputs and are byte-equal to the retained
-> vendor copies. The saved outputs below completed under a prior diagnostic
-> configuration whose DKP method incorrectly retained `missing_inputs`; they
-> verify that execution and accounting only, not the corrected case or its
-> operating quality. No saved sample, reply, table or plot has been replaced.
+The [corrected Gemma 4 comparison](../examples/fe_walter/coupled/README.md#verified-2016-results)
+now contains four complete 366-day runs: original Anik and HydroOpsLLM, each with
+available information and retrieved knowledge. Each used 366 actual requests,
+without retries or fallback. Same-reply offline replay verifies the two engines;
+independent real trajectories and seasonal operating performance are reported
+separately. Read its [daily values](../examples/fe_walter/coupled/outputs/gemma4_2016_comparison/daily.csv)
+and [summary](../examples/fe_walter/coupled/outputs/gemma4_2016_comparison/summary.json).
 
-Continue with the [saved 2016 annual results](../examples/fe_walter/coupled/README.md#verified-2016-results).
+The remaining files in this step are **preserved prior-configuration evidence**.
+Their DKP method incorrectly retained `missing_inputs`; they do not describe the
+corrected comparison. No prior sample, reply, table or plot has been replaced.
+See [the earlier 2016 configuration](../examples/fe_walter/coupled/README.md#earlier-2016-configuration-preserved).
 All three methods contain 366 unique daily decisions.
 The available-information recovery chain retains **369 actual attempts**:
 366 successful replies and three timeouts. It preserves the first eight

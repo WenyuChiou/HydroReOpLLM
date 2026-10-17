@@ -63,6 +63,11 @@ YEAR_DOWNLOADS = {
     for name in ("daily.csv", "summary.json", "pins.json", "pool_release.svg",
                  "pool_release.pdf", "llm_available_decision.json", "llm_knowledge_decision.json")
 }
+COMPARISON_DOWNLOADS = {
+    f"examples/fe_walter/coupled/outputs/gemma4_2016_comparison/{name}": f"gemma4-2016-{name}"
+    for name in ("daily.csv", "summary.json", "pool_release.png", "pool_release.svg",
+                 "pool_release.pdf", "llm_available_pair.json", "llm_knowledge_pair.json")
+}
 MULTI_RESERVOIR_FILES = (
     "agents.llm.yaml", "agents.rule.yaml", "auditors.yaml", "experiment.llm.yaml",
     "experiment.yaml", "forcing.csv", "hydrology.yaml", "information.yaml",
@@ -158,6 +163,10 @@ def prepare(source: Path, *, source_ref: str = "main") -> None:
                 import os
                 output = source / "_completed_downloads" / YEAR_DOWNLOADS[relative]
                 value = Path(os.path.relpath(output, (source / destination).parent)).as_posix()
+            elif not match[1].startswith("!") and relative in COMPARISON_DOWNLOADS:
+                import os
+                output = source / "_completed_downloads" / COMPARISON_DOWNLOADS[relative]
+                value = Path(os.path.relpath(output, (source / destination).parent)).as_posix()
             elif not match[1].startswith("!") and relative in MULTI_RESERVOIR_DOWNLOADS:
                 import os
                 output = source / "_multiple_reservoir_downloads" / MULTI_RESERVOIR_DOWNLOADS[relative]
@@ -233,6 +242,12 @@ def prepare(source: Path, *, source_ref: str = "main") -> None:
     # Keep current-year downloads distinct from the historical same-basename assets.
     # Canonical source copies support direct local references and source-byte checks.
     for relative, name in YEAR_DOWNLOADS.items():
+        shutil.copyfile(ROOT / relative, completed_downloads / name)
+        canonical = source / relative
+        canonical.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(ROOT / relative, canonical)
+    # Only these curated comparison assets are published; raw HTTP journals stay private.
+    for relative, name in COMPARISON_DOWNLOADS.items():
         shutil.copyfile(ROOT / relative, completed_downloads / name)
         canonical = source / relative
         canonical.parent.mkdir(parents=True, exist_ok=True)

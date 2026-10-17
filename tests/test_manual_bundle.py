@@ -97,9 +97,14 @@ def test_current_2016_exports_are_local_exact_and_do_not_replace_history(prepare
         'daily.csv', 'summary.json', 'pool_release.svg', 'pool_release.pdf',
         'llm_available_decision.json', 'llm_knowledge_decision.json',
     )
+    comparison = (
+        'daily.csv', 'summary.json', 'pool_release.png', 'pool_release.svg',
+        'pool_release.pdf', 'llm_available_pair.json', 'llm_knowledge_pair.json',
+    )
     downloads = output / '_completed_downloads'
     assert {item.name for item in downloads.iterdir() if item.is_file()} == (
         set(historical) | {'2016-' + name for name in current}
+        | {'gemma4-2016-' + name for name in comparison}
     )
     for name in current:
         relative = 'examples/fe_walter/coupled/outputs/2016/' + name
