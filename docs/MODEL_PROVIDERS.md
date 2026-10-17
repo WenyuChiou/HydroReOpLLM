@@ -1,20 +1,52 @@
 # Configure a model provider
 
-Model profiles describe transport. Agents select profiles by ID. The configured
-agent supplies the explicit system and user messages; provider adapters translate
-those messages into each native API without injecting another instruction.
+A model catalog contains named transport profiles. An LLM agent selects one
+profile with `model_profile`. The agent supplies the explicit user message and
+any study-defined system message; adapters translate them without injecting
+another instruction.
 
-Always run `check` and the rule-based case first. A provider request occurs only
-during `run ... --allow-network` for a live agent with `type: llm`.
+Run `check` and the rule-based fixture before enabling a provider. A live request
+requires `--allow-network` during an LLM `run` or an unfinished part of `resume`.
 
-## Copy a provider profile
+## Configure the first local profile
 
-The examples below are complete transport profiles. Replace every
-`YOUR_*_MODEL` value with an available model ID. Keep credentials in environment
-variables, never in YAML.
+Edit `examples/multiple_reservoirs/models.yaml`. The minimal profile selected by
+the generic `model_profile: local` agent is:
 
 ```yaml
-local_ollama:
+local:
+  provider: ollama
+  model: gemma3:4b
+  base_url: http://localhost:11434
+  temperature: 0.7
+  max_tokens: 2048
+  timeout_seconds: 120
+  max_attempts: 2
+  retry_delay_seconds: 2
+```
+
+Replace the model ID if your Ollama service exposes a different model. No model
+is downloaded by HydroOpsLLM. Check the full experiment, then intentionally run:
+
+```powershell
+reservoir-experiment check examples/multiple_reservoirs/experiment.llm.yaml
+reservoir-experiment prepare examples/multiple_reservoirs/experiment.llm.yaml
+reservoir-experiment run examples/multiple_reservoirs/experiment.llm.yaml --allow-network
+reservoir-experiment verify runs/independent-rivers-mixed/operation
+```
+
+Success produces four operation dates under
+`runs/independent-rivers-mixed/operation`. Inspect `summary.json` and the provider
+ledger before extending the period.
+
+## Choose another supported provider
+
+The following entries form one complete example catalog. Profile IDs are the
+keys at the left margin. Replace every `YOUR_*_MODEL` or host value. Keep secret
+values in environment variables, never in YAML.
+
+```yaml
+local:
   provider: ollama
   model: gemma3:4b
   base_url: http://localhost:11434
@@ -65,7 +97,7 @@ compatible_service:
   retry_delay_seconds: 2
 ```
 
-The adapter appends the native operation to `base_url`:
+The adapter appends its native operation to `base_url`:
 
 | Provider | API used | Credential header |
 |---|---|---|
@@ -76,12 +108,9 @@ The adapter appends the native operation to `base_url`:
 | `openai_compatible` | Chat Completions: `/chat/completions` | Bearer token |
 
 Set `base_url` to the root immediately before the appended path. Redirects are
-disabled, so configure the final service URL. URLs cannot contain embedded
-credentials, a query or a fragment.
+disabled. URLs cannot contain embedded credentials, a query, or a fragment.
 
 ## Set credentials for the current shell
-
-PowerShell example:
 
 ```powershell
 $env:OPENAI_API_KEY = Read-Host -MaskInput 'OpenAI API key'
@@ -89,74 +118,75 @@ reservoir-experiment run examples/multiple_reservoirs/experiment.llm.yaml --allo
 Remove-Item Env:OPENAI_API_KEY
 ```
 
-The YAML stores only `api_key_env`. The runtime resolves its value at request
-time and excludes credential values from the trace. An unset required variable
-stops the run before a successful request.
+Set the agent's `model_profile: openai_primary` before this run. The runtime
+reads the named variable at request time and excludes its value from the trace.
+An unset required variable stops execution before a successful request.
 
-## Understand common controls
+## Know which keys are required
 
-| Key | Required or default | Effect |
+| Key | Requirement or default | Effect |
 |---|---|---|
 | `provider` | required | Selects one of the five adapters above. |
 | `model` | required | Exact provider model ID; no model is downloaded. |
 | `base_url` | required | HTTP(S) service root. |
-| `temperature` | optional | Finite value from 0 through 2. Omitted means the adapter does not send it. |
-| `max_tokens` | required by Anthropic; otherwise optional | Positive output limit. Omitted optional values are not sent. |
+| `temperature` | optional | Finite value from 0 through 2; omitted values are not sent. |
+| `max_tokens` | required by Anthropic; otherwise optional | Positive output limit. |
 | `seed` | optional | Integer for `ollama` or `openai_compatible`; support does not guarantee reproducibility. |
 | `timeout_seconds` | default `60` | Positive timeout for one attempt. |
 | `max_attempts` | default `1` | Positive attempt limit for one decision and one profile. |
 | `retry_delay_seconds` | default `2` | Nonnegative delay between eligible attempts. |
 | `retryable_http_statuses` | default `[]` | Explicit unique HTTP status codes eligible for retry. |
-| `api_key_env` | optional | Environment-variable name containing the credential. |
+| `api_key_env` | optional | Name of the environment variable containing a credential. |
 
-The software does not force sampling or token parameters when they are omitted.
-Choose them as part of the experiment design and retain the exact profile.
+Ollama also accepts `num_ctx`, `think`, and `keep_alive`. Anthropic accepts
+`anthropic_version`, which defaults to `2023-06-01`. A provider-specific key on
+another provider stops validation.
 
-Ollama also accepts `num_ctx`, `think` and `keep_alive`. Anthropic accepts
-`anthropic_version`, which defaults to `2023-06-01`. Provider-specific keys on a
-different provider stop validation.
+The software does not force omitted sampling or token controls. Retain the exact
+profile as part of the study design.
 
-## Constrain the response format
+## Constrain and validate responses
 
-A configured agent sends the `reservoir-action.v1` JSON schema through each
-provider's native structured-output field. A case extension supplies its own
-schema and parser. Local response validation still runs after generation.
-Use a model and endpoint that support the selected structured-output API.
+A general agent sends the `reservoir-action.v1` JSON schema through the native
+structured-output field. A case extension supplies its own schema and parser.
+Local validation still runs after generation. Choose a model and endpoint that
+support the selected structured-output API.
 
 The adapters follow [OpenAI Responses](https://developers.openai.com/api/docs/guides/structured-outputs),
-[Anthropic Messages](https://platform.claude.com/docs/en/build-with-claude/structured-outputs)
+[Anthropic Messages](https://platform.claude.com/docs/en/build-with-claude/structured-outputs),
 and [Gemini generateContent](https://ai.google.dev/api/generate-content).
-Offline fixtures verify request and response contracts; live service compatibility
-must be tested separately with the chosen model.
+Offline fixtures verify request and response contracts. Test live compatibility
+separately with the chosen service and model.
 
-## Configure retry and fallback deliberately
+## Configure retry and fallback
 
-Timeouts and connection failures can retry within `max_attempts`. An HTTP failure
-retries only when its status appears in `retryable_http_statuses`. Invalid or
-truncated generated content can retry within the same attempt budget.
+Timeouts and connection failures may retry within `max_attempts`. An HTTP error
+retries only when its status is listed in `retryable_http_statuses`. Invalid or
+truncated content may retry within the same profile's attempt budget.
 
-At the agent level, an ordered `fallback_models` list can continue with another
-configured profile after the primary profile exhausts eligible attempts:
+Fallback belongs under the agent's `customization` mapping and contains profile
+IDs from the same model catalog:
 
 ```yaml
-model: openai_primary
-fallback_models: [anthropic_primary, local_ollama]
+operator_a:
+  reservoir_id: lake_a
+  type: llm
+  model_profile: openai_primary
+  prompt_file: prompts/operator.txt
+  customization:
+    fallback_models: [anthropic_primary, local]
 ```
 
 Authentication and configuration errors are terminal. A valid proposal that
-later fails an auditor or physical check is not regenerated. An evidence-write
-failure also stops execution. The provider ledger records the actual profile,
-model and attempt for every request.
+later fails an auditor or physical check is not regenerated. Evidence-write
+failure also stops execution. The ledger records the actual profile, provider,
+model, and attempt for every request.
 
-## Match compute and storage to the run
+HydroCNHS, routing, and orchestration use the host CPU. Local inference may use
+a GPU when the selected server supports it; cloud inference uses provider
+compute. Retained prompts, replies, request metadata, usage, physics, audits,
+and checkpoints can dominate storage. No provider profile establishes speed,
+cost, or decision quality.
 
-HydroCNHS, routing and orchestration use the CPU. Local inference may use a GPU
-when the selected server and model support one. Cloud inference uses provider
-compute. Retaining full prompts, native replies, request metadata, provider
-usage, physics, audits and checkpoints can dominate storage on long runs.
-
-No provider configuration establishes speed, cost or decision quality. Test the
-chosen model and operating rubric under a study-specific evaluation design.
-
-Return to [configuration](CONFIGURATION.md) or follow the
-[mixed two-reservoir example](MULTI_RESERVOIR.md#switch-one-reservoir-to-an-llm).
+Return to [Configuration](CONFIGURATION.md) or continue with
+[Running and recovery](RUNNING.md).

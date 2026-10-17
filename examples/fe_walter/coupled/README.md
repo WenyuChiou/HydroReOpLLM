@@ -21,10 +21,10 @@ performance.
 | [`experiment.yaml`](experiment.yaml) | Canonical v2 entry, selecting the rule baseline |
 | [`reservoirs.json`](reservoirs.json) | `reservoir-physical-case.v1`: F.E. Walter physics and operation network |
 | [`rule.yaml`](rule.yaml) | Alternative entry for the same rule identity/output; do not run both into that directory |
-| [`llm_available.yaml`](llm_available.yaml) | LLM operation with available information |
-| [`llm_knowledge.yaml`](llm_knowledge.yaml) | LLM operation with retrieved operating knowledge |
+| [`llm_available.gemma4.yaml`](llm_available.gemma4.yaml) | Current Gemma 4 operation with available information |
+| [`llm_knowledge.gemma4.yaml`](llm_knowledge.gemma4.yaml) | Current Gemma 4 operation with retrieved operating knowledge |
 | [`hydrology.yaml`](hydrology.yaml) | Shared accepted native model, forcing and inlet bindings |
-| [`models.yaml`](models.yaml) | Shared explicit Ollama model profile |
+| [`models.gemma4.yaml`](models.gemma4.yaml) | Current model profile; older `models.yaml` retains Gemma 3 |
 | [`agents.rule.yaml`](agents.rule.yaml) | Rule operator and its Hanasaki parameters |
 | [`agents.llm_available.yaml`](agents.llm_available.yaml) | Available-information operator and case settings |
 | [`agents.llm_knowledge.yaml`](agents.llm_knowledge.yaml) | Retrieved-knowledge operator and case settings |
@@ -84,13 +84,13 @@ operation days. It makes zero model requests.
 Choose one configuration and review its model settings and method-specific prompt first:
 
 ```powershell
-reservoir-experiment check examples/fe_walter/coupled/llm_available.yaml
-reservoir-experiment prepare examples/fe_walter/coupled/llm_available.yaml
-reservoir-experiment run examples/fe_walter/coupled/llm_available.yaml --allow-network
-reservoir-experiment verify runs/fe-walter-coupled-llm_available/operation
+reservoir-experiment check examples/fe_walter/coupled/llm_available.gemma4.yaml
+reservoir-experiment prepare examples/fe_walter/coupled/llm_available.gemma4.yaml
+reservoir-experiment run examples/fe_walter/coupled/llm_available.gemma4.yaml --allow-network
+reservoir-experiment verify runs/fe-walter-coupled-gemma4-llm_available/operation
 ```
 
-For retrieved operating knowledge, substitute `llm_knowledge.yaml` and its output
+For retrieved operating knowledge, substitute `llm_knowledge.gemma4.yaml` and its output
 directory. Both configurations set `max_calls: null`, meaning no total call cap,
 and `max_attempts: 2`, meaning at most two attempts for one daily decision.
 Both explicitly set `num_ctx: 16384`, `think: false`, and `keep_alive: 30m`.
@@ -100,6 +100,10 @@ Both omit the availability-ceiling line. The retrieved-knowledge method also
 omits `missing_inputs` and the missing-information fallback from its system
 prompt, response schema and retrieval; its reply has the eight configured fields
 documented in the tutorial. No provider fallback is selected.
+
+The unsuffixed LLM entries and `models.yaml` preserve the earlier Gemma 3
+configuration. Use the `.gemma4.yaml` entries for current model controls; the
+saved comparison's separate QA provenance remains in its summary.
 
 ## Reuse the prepared hydrology
 
@@ -454,12 +458,17 @@ and verified run does not by itself show that the operating policy is acceptable
 If an operation stops, resume into a new output:
 
 ```powershell
-reservoir-experiment resume examples/fe_walter/coupled/llm_available.yaml `
-  --from-run runs/fe-walter-coupled-llm_available/operation `
-  --output runs/fe-walter-coupled-llm_available-resumed `
-  --run-id fe-walter-coupled-llm-available-resumed `
+reservoir-experiment resume examples/fe_walter/coupled/llm_available.gemma4.yaml `
+  --from-run runs/fe-walter-coupled-gemma4-llm_available/operation `
+  --output runs/fe-walter-coupled-gemma4-llm_available-resumed `
+  --run-id fe-walter-coupled-gemma4-llm-available-resumed `
   --allow-network
+reservoir-experiment verify runs/fe-walter-coupled-gemma4-llm_available-resumed
 ```
+
+The resume output is the operation directory itself; do not append another
+`/operation`. Use the matching knowledge configuration and source run when
+recovering that method. New requests require `--allow-network`.
 
 Read [Build a weather-to-operation simulation](../../../docs/BUILD_SIMULATION.md)
 for the generic workflow and [Code structure](../../../docs/CODE_STRUCTURE.md) for

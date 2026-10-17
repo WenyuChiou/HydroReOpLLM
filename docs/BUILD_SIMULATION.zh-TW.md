@@ -1,26 +1,23 @@
 # 建立氣象到水庫操作的模擬
 
-本教學將已確認的 HydroCNHS 模型接到水庫操作。
-先使用規則式設定，走過完整的水文、水庫、routing 與紀錄流程，不呼叫模型 provider。
+依這套通用流程，把已確認的 HydroCNHS 模型接到水庫 agent。
+先用規則檢查連線，再選 LLM profile 與 prompt；兩種方法共用物理水庫與 routing 介面。
 
 可執行的教學案例位於
 [`examples/multiple_reservoirs`](../examples/multiple_reservoirs/experiment.yaml)。
 案例包含兩個獨立河川系統。短期氣象資料與合成參數用來檢查軟體連接，
 不代表已校正的水文模型或已驗證的操作策略。
 
-真實案例請閱讀英文 [F.E. Walter 設定教學](../tutorials/fe_walter.md)。
-[輸入與輸出](INPUT_OUTPUT.md) 說明本套件與原生 HydroCNHS 介面的差異。
+[輸入與輸出](INPUT_OUTPUT.md)說明與原生 HydroCNHS 的差異；
+[agent、prompt 與 context](CONFIGURATION.md)說明 LLM 設定。
+之後再讀 [FE Walter 案例背景](../examples/fe_walter/README.zh-TW.md)及英文
+[實際設定教學](../tutorials/fe_walter.md)，把共通流程套用到真實地點。
 
 ## 1. 安裝專案
 
-建立環境、安裝 repo，並確認指令可用：
+依[安裝教學](GETTING_STARTED.md)完成安裝，再確認指令可用：
 
 ```powershell
-git clone https://github.com/WenyuChiou/HydroOpsLLM.git
-cd HydroOpsLLM
-py -3.12 -m venv .venv
-.\.venv\Scripts\Activate.ps1
-python -m pip install -e . -c environment/requirements-bundled.txt
 reservoir-experiment --help
 ```
 
@@ -185,7 +182,8 @@ reservoir-experiment run examples/multiple_reservoirs/experiment.llm.yaml --allo
 reservoir-experiment verify runs/independent-rivers-rule/operation
 ```
 
-先閱讀 `summary.json`，再查看：
+先讀 `runs/independent-rivers-rule/operation/summary.json`；以下檔案也位於
+同一個 `operation/` 目錄：
 
 | 證據 | 回答的問題 |
 |---|---|
@@ -210,7 +208,7 @@ reservoir-experiment resume examples/multiple_reservoirs/experiment.yaml `
   --run-id resumed-01
 ```
 
-續跑會驗證並重播已提交的前綴，略過已提交決策，並在可用時重用保存的回覆，
+續跑會驗證並重建已保存的逐日狀態序列，略過已完成決策，並在可用時重用保存的回覆，
 不覆寫來源執行。只有未完成的決策需要新 provider 請求時，才加上 `--allow-network`。
 五種 provider adapter 都能重播已提交的 attempt，包含重試與 fallback。
 已提交的自訂 context 值會直接重用，不重新執行檢索。

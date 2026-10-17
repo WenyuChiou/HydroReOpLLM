@@ -3,7 +3,8 @@
 **Hydrological Simulation with Large Language Model Reservoir Operations**
 
 Configure reservoir operations within a coupled hydrological simulation.
-Start with the inputs, configure an agent, then follow one FE Walter case through three operation methods.
+Learn the common setup and LLM decision workflow first. Then use F.E. Walter to
+design a reservoir-operation study from site information, data and prompts.
 
 ![HydroOpsLLM cover](figures/hydroopslm-cover.png)
 
@@ -29,9 +30,9 @@ Choose Rule-based or LLM, model parameters, prompts and available information.
 
 ::: {container} route-step
 
-[03 · Follow the FE Walter configuration](../tutorials/fe_walter.md)
+[03 · Design the F.E. Walter study](../examples/fe_walter/README.md)
 
-Read actual files and connect subcatchments, the reservoir and the LLM decision.
+Understand the site, operating purpose and data, then follow its configuration and results.
 
 :::
 
@@ -44,7 +45,7 @@ Read actual files and connect subcatchments, the reservoir and the LLM decision.
 | [Overview](README.md) and [Installation](GETTING_STARTED.md) | What the package adds and how to install it. |
 | [Inputs and outputs](INPUT_OUTPUT.md) | Experiment YAML, data formats, units and output files that differ from native HydroCNHS. |
 | [Configure an agent](CONFIGURATION.md) and [Build a simulation](BUILD_SIMULATION.md) | Select a rule or LLM, map reservoirs and choose prompts/model settings. |
-| [F.E. Walter tutorial](../tutorials/fe_walter.md) | Walk through the actual experiment, prompts, case resources and daily decision. |
+| [F.E. Walter case study](../examples/fe_walter/README.md) and [worked tutorial](../tutorials/fe_walter.md) | Start with the map, reservoir purpose and data; then design prompts, execute and interpret the study. |
 | [Results](RESULTS_GUIDE.md) and [Recovery](RUNNING.md) | Inspect decisions, audits, implemented flows and interrupted runs. |
 | [Python API documentation](API_REFERENCE.md) | Function parameters, returns and extension contracts. |
 | [Configuration reference](PARAMETER_REFERENCE.md) and [Code structure](CODE_STRUCTURE.md) | Look up fields and their implementation. |

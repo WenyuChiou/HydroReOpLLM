@@ -9,23 +9,23 @@
   "original_reference_png_sha256": "eac9fd260fd86ca4e11fa9d9566db6e86f412873f099a439df2871047996d67e",
   "package": {
     "file": "fe-walter-arcgis-source.zip",
-    "bytes": 2516140,
-    "sha256": "8bd3a5f942d61dbd7f2bc78e6376949bf2a37fdf981aebe239a919c757dd4e1b",
+    "bytes": 2516008,
+    "sha256": "d2a819922b88623aea22943c16ba971739954606ef609bafc599eaa9e726b70b",
     "aprx": "p30/FE_Walter_DRB_manual_v9.aprx",
     "picture_source": "../commondata/pictures/layout_overlay.svg (relative to APRX)"
   },
   "exports": {
     "fe-walter-catchment.png": {
-      "bytes": 2648705,
-      "sha256": "f7239a743398fb326d4b6c481bbe000c0d9a9bc0977d3fcd692757236bd45905"
+      "bytes": 2629718,
+      "sha256": "8238b994bed369e4cc437cf988e3cad92810df606a9f754cfc10a4e685517d1b"
     },
     "fe-walter-catchment.svg": {
-      "bytes": 14940771,
-      "sha256": "e046763681e45e2056bee4fdf53c230562b1c5e52eea952a66f8e2b1270f702f"
+      "bytes": 14937496,
+      "sha256": "c7bb847662ba1bbda4de7907bd3ff4c63c08d242e9dc2a345c3f2f4a8074fcb9"
     },
     "fe-walter-catchment.pdf": {
-      "bytes": 1705648,
-      "sha256": "dcd73e32f1f241a433835aa958c4f822a8a4b0c2ec8ead36f6e06cde51a9e2d4"
+      "bytes": 1705008,
+      "sha256": "680923b6b81a8431960c8f5840ea68698443488456de0dc23f9fa85ed0d5f804"
     }
   },
   "exporter": {
@@ -77,7 +77,7 @@
         "transparency_percent": 78
       }
     ],
-    "service_attribution": "Native layout dynamic service credits consolidated below both panels and precipitation key; all provider names retained, no attribution over basin.",
+    "service_attribution": "Service credits retained off-page in the source layout; all provider names appear in normal-size case captions.",
     "locator_leaders": {
       "geometry": "Two single straight segments, without arrowheads; original location/extent anchors retained.",
       "stroke": "#111111",
@@ -105,9 +105,13 @@
         8.35
       ],
       "DRB_title_position": "outside DRB frame, between locator and overview; no basin overlap",
-      "dam_name_background": "none",
-      "station_label": "USGS 01447500, black23SVGpx text in white box with black border",
-      "north_arrows": "ArcGIS Compass North 1, centered,0.60inch height; linked to respective native mapframes"
+      "dam_name_background": "White map margin to the left of the dam, with leader to the unchanged dam location.",
+      "station_label": "USGS 01447500 appears once in the legend; only the station marker remains on the map.",
+      "north_arrows": "ArcGIS Compass North 1, centered,0.60inch height; linked to respective native mapframes",
+      "dam_label_svg_position": [
+        810,
+        650
+      ]
     }
   },
   "scale_and_extent_checks": {
@@ -136,5 +140,19 @@
     "Saved exports have fixed hashes. Re-exported live Esri basemaps may differ as service content changes.",
     "The exporter resolves packaged editable picture sources relative to the APRX before export.",
     "Map export uses a short-lived ArcPy child; extraction cleanup occurs after that process exits and releases Windows layer locks."
+  ],
+  "revisions": [
+    {
+      "date": "2026-10-17",
+      "request": "Move USGS station ID into the legend, place reservoir text in the white map margin, and move visible service credits into the caption.",
+      "parent_package_sha256": "8bd3a5f942d61dbd7f2bc78e6376949bf2a37fdf981aebe239a919c757dd4e1b",
+      "changed_package_members": [
+        "p30/FE_Walter_DRB_manual_v9.aprx",
+        "commondata/pictures/layout_overlay.svg"
+      ],
+      "scientific_members_unchanged": true,
+      "map_frames_and_camera_extents": "unchanged",
+      "native_credits": "retained off-page at y=-1 inch; full providers in case captions"
+    }
   ]
 }

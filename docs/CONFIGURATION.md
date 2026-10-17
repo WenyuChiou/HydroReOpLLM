@@ -1,12 +1,19 @@
-# Configure agents, prompts and context
+# Configure agents, prompts, and context
 
-Use one `hydroops-coupled-simulation.v2` file as the experiment entry point.
-Keep large sections in separate YAML files so hydrology, agents and models can
-change independently and remain reviewable.
+Start from the four-day independent-river fixture in
+[`examples/multiple_reservoirs`](../examples/multiple_reservoirs/experiment.yaml).
+It is a connection test for an accepted HydroCNHS model, reservoir network, and
+operator. It is not a calibrated basin or a validated operating policy.
 
-## Split the configuration
+For your own study, complete HydroCNHS basin construction, parameter derivation,
+and calibration/validation first. Use the
+[official HydroCNHS manual and tutorials](https://cylin928.github.io/HydroCNHS/),
+then follow [Build a simulation](BUILD_SIMULATION.md) to connect that accepted
+model to HydroOpsLLM.
 
-The two-reservoir example uses:
+## Make the first rule-based run
+
+The generic fixture uses one v2 entry file:
 
 ```yaml
 schema_version: hydroops-coupled-simulation.v2
@@ -26,32 +33,17 @@ extensions:
   hanasaki: ../rules/hanasaki/__init__.py
 ```
 
-`hydrology`, `models`, `agents`, `auditors`, `information` and `extensions` may
-be inline. The first five may instead be exactly `{file: path}`. A file reference
-cannot contain inline values, and the loader does not deep-merge files.
+Edit these files in this order:
 
-Every path is relative to the file that declares it. For example, a prompt path
-inside `agents.llm.yaml` is relative to `agents.llm.yaml`, while `case` is relative
-to the top-level experiment. Cycles and missing section files stop validation.
+| File | Required change for a new study |
+|---|---|
+| `experiment.yaml` | Set dates, output, case, and referenced section files. |
+| `hydrology.yaml` | Point to the accepted HydroCNHS model and forcing; bind incremental local flow to operation nodes. |
+| `reservoirs.yaml` | Define reservoir state, physical limits, connections, and exact terminal outlets. |
+| `agents.rule.yaml` | Assign exactly one agent to every controlled reservoir. |
+| `models.yaml` | Required by this split example; used only by LLM agents. |
 
-Older inline `hydroops-coupled-simulation.v1` configurations remain accepted.
-Use v2 for new work because it records the split inputs directly.
-
-## Separate the experiment from each reservoir
-
-The top-level experiment sets the shared dates, output, physical case, hydrology,
-model catalog, information catalog and auditor catalog. Each entry under `agents`
-sets one reservoir's method and selects entries from those catalogs. Reservoirs
-in the same experiment may use different methods, models, prompts and information
-profiles. A shared catalog does not automatically expose its contents to an agent.
-
-The physical case's `network.connections` and `outlets` describe where water goes.
-Information sources and agent information profiles describe what the operator can
-see. A gauge or forecast location does not add a physical connection.
-
-## Select rule-based or LLM operation
-
-Rule-based agents need no model or prompt:
+A rule agent needs no model or prompt:
 
 ```yaml
 operator_a:
@@ -64,24 +56,43 @@ operator_a:
   auditors: [bounds]
 ```
 
-`rule` names a rule extension explicitly registered in the experiment's
-`extensions` catalog. `rule_parameters` is an opaque mapping interpreted by that
-extension. Here `hanasaki` is the example's inflow-history rule, with pinned
-statistics and an example `alpha` of `0.85`; it is not a framework method enum.
-The example's optional `purpose` retains its existing metadata and does not
-select a seasonal-pool or hydropower controller.
+`rule` is the ID of a registered rule extension. `rule_parameters` contains
+settings interpreted by that extension. Hanasaki is this fixture's example
+inflow-history rule; it is not a framework default. Register and test your own
+module for operating curves, water supply, hydropower, or another controller.
 
-To use your own operating curves, water-supply or hydropower controller, register
-your Python rule module and select its ID in `rule`. The module implements
-`validate_backend`, `build_backend` and `rebase_agent` hooks; the common engine
-still applies physics, routing, audits and trace writing. Implement and test the
-controller's own parameters and behavior. A controller name does not supply its
-algorithm. The physical kernel determines the feasible implemented release.
-The built backend provides `decide(observation)`, a `policy_id` and
-`network_calls=0`. The generic rule wrapper records the selected `rule_id` and
-source pins; it supplies no model transport to the rule module.
+Run the complete rule path from the repository root:
 
-A general LLM agent selects a model profile and a user instruction template:
+```powershell
+reservoir-experiment check examples/multiple_reservoirs/experiment.yaml
+reservoir-experiment prepare examples/multiple_reservoirs/experiment.yaml
+reservoir-experiment run examples/multiple_reservoirs/experiment.yaml
+reservoir-experiment verify runs/independent-rivers-rule/operation
+```
+
+Success means the four operation dates were written and `verify` accepted the
+saved links, hashes, and water accounting. It does not validate policy quality.
+Next, inspect the output as described in [Results, audit, and trace](RESULTS_GUIDE.md).
+
+## Switch one reservoir to an LLM
+
+After the rule run verifies the connections, the smallest general LLM agent is:
+
+```yaml
+operator_a:
+  reservoir_id: lake_a
+  type: llm
+  model_profile: local
+  prompt_file: prompts/operator.txt
+```
+
+All four keys are required for this general agent. `reservoir_id` selects the
+physical reservoir. `type` selects LLM operation. `model_profile` selects a
+profile ID from the model catalog. `prompt_file` is a nonempty user-instruction
+template, resolved relative to this agent file.
+
+HydroOpsLLM does not add a common system prompt. Add one only when your study
+defines it explicitly:
 
 ```yaml
 operator_a:
@@ -91,88 +102,90 @@ operator_a:
   prompt_file: prompts/operator.txt
   customization:
     system_prompt_file: prompts/system.txt
-    prompt_version: '1'
-    prompt_variables:
-      purpose: demonstrate an independently configured operator
-    context_providers:
-      guidance:
-        extension: local_retrieval
-        config:
-          documents: knowledge/guidance.json
-        preview: 'Offline preview: use only supplied state and guidance.'
-    fallback_models: []
-  auditors: [bounds]
 ```
 
-`prompt_file` must contain text. No common system prompt is automatically added.
-Use `customization.system_prompt_file` only when the study supplies a separate
-system instruction. Both templates use Python `string.Template` syntax; write
-`$$` for a literal dollar sign. Optional knowledge, context, information, prompt
-variables, response schema and fallbacks belong under `customization`.
+Configure the matching `local` catalog entry in
+[Model providers](MODEL_PROVIDERS.md). Then use the supplied LLM entry file:
 
-Choose `type: rule_based` for an explicit operating rule or controller and
-`type: llm` when studying model decisions with prompts and available information.
-A baseline is a comparison run, not an algorithm name.
-Offline means no real model-provider request: rule agents run offline, and test
-or replay LLM paths use supplied or saved replies. It is not a third agent type.
+```powershell
+reservoir-experiment check examples/multiple_reservoirs/experiment.llm.yaml
+reservoir-experiment prepare examples/multiple_reservoirs/experiment.llm.yaml
+reservoir-experiment run examples/multiple_reservoirs/experiment.llm.yaml --allow-network
+reservoir-experiment verify runs/independent-rivers-mixed/operation
+```
 
-### Customize a backend only when needed
+Live `run` and unfinished decisions during `resume` require `--allow-network`.
+Rule agents, checks, and replay paths do not make live requests.
 
-`customization.backend` selects an explicitly registered extension. Its
-`customization.parameters` mapping contains backend-specific settings, for example
-`reference: {...}` for the F.E. Walter case. Parameters cannot replace public
-identity, method, model, prompt or auditor fields. An extension that constructs
-its own messages may omit `prompt_file`; it must explicitly validate and pin its
-prompt resources. `customization.execution: replay` is an offline test option for
-custom LLM backends. The default is live execution. The case extension preserves
-Anik's message construction; it does not define a shared prompt for other agents.
+## Understand catalogs, profiles, and paths
 
-## Build the prompt namespace
+A **catalog** is a named collection shared by the experiment, such as all model
+profiles or all auditors. A **profile** is one named entry in a catalog. An agent
+sees a profile only when it selects that profile ID.
 
-Rule modules can also select an information profile with
-`customization: {information: downstream}`. The engine passes the selected,
-available values in `observation.context.decision_information`; the rule decides
-how to use them. This does not create a water connection or a prompt.
+The top-level experiment owns shared dates, output, physical case, hydrology,
+and catalogs. Each agent chooses its reservoir, method, model, prompt,
+information profile, and auditors. Information visibility never creates a water
+connection; only `network.connections` and `outlets` move water.
 
-Built-in placeholders are:
+`hydrology`, `models`, `agents`, `auditors`, and `information` may be inline or
+exactly `{file: path}`. A file reference cannot also contain inline values, and
+the loader does not deep-merge files. Every path is relative to the file that
+declares it. Missing files and reference cycles stop validation.
+
+New work should use `hydroops-coupled-simulation.v2`. Older inline v1 files
+remain accepted.
+
+## Add prompt data only when needed
+
+Both user and optional system templates use Python `string.Template` syntax.
+Write `$$` for a literal dollar sign. Built-in placeholders are:
 
 | Placeholder | Value |
 |---|---|
 | `$agent_id` | JSON agent ID |
 | `$observation` | Protected current hydrology and static context |
-| `$previous_transition` | Previous committed observation, action and physics; `null` on day one |
+| `$previous_transition` | Previous committed observation, action, and physics; `null` on day one |
 | `$knowledge` | Hash-pinned full text from the agent's `knowledge` mapping |
 | `$information` | Selected `decision-information.v1` snapshot; requires an information profile |
 
-Add fixed text or JSON with `customization.prompt_variables`. The following
-blocks are entries inside the agent's `customization` mapping:
+Add fixed values, knowledge, selected information, custom context, retry, and
+fallback controls under `customization`:
 
 ```yaml
-prompt_variables:
-  purpose: flood-season demonstration
-  preferences: {avoid_large_changes: true}
+operator_a:
+  reservoir_id: lake_a
+  type: llm
+  model_profile: openai_primary
+  prompt_file: prompts/operator.txt
+  customization:
+    prompt_version: '1'
+    prompt_variables:
+      purpose: flood-season demonstration
+    fallback_models: [anthropic_primary, local]
 ```
 
-The alias becomes a template placeholder, such as `$purpose`. Aliases must be
-identifiers, cannot replace built-in names and must be unique across fixed and
-dynamic context.
+Prompt-variable aliases must be identifiers, cannot replace built-in names, and
+must be unique across fixed and dynamic context. See [Decision information](INFORMATION.md)
+for observations and forecasts available at a decision time.
 
 ## Add dynamic context with an extension
 
-`context_providers` connect a prompt alias to a registered extension:
+Use a context provider for study-specific retrieval or computation:
 
 ```yaml
-context_providers:
-  guidance:
-    extension: local_retrieval
-    config: {documents: knowledge/guidance.json}
-    preview: 'Offline preview used by check.'
+customization:
+  context_providers:
+    guidance:
+      extension: local_retrieval
+      config: {documents: knowledge/guidance.json}
+      preview: 'Offline preview used by check.'
 ```
 
-`check` uses `preview`. It does not call the callback or access a network source.
-At decision time, the extension's `build_context(config)` returns a callback. The
-callback receives an immutable `DecisionContext` with `agent_id`, `observation`
-and `previous_transition`, then returns:
+`check` uses `preview`; it does not invoke the callback or access a network
+source. At decision time, `build_context(config)` returns a callback. The
+callback receives an immutable `DecisionContext` with `agent_id`, `observation`,
+and `previous_transition`, and returns:
 
 ```python
 ContextValue(
@@ -187,46 +200,42 @@ ContextValue(
 )
 ```
 
-The example performs a small local selection from JSON. A project can connect a
-vector database through the same callback contract, but HydroOpsLLM does not ship
-a general vector-database connector. Pin source bytes and preserve provenance.
+HydroOpsLLM includes a small local JSON selector, not a general vector-database
+connector. Pin source bytes and retain provenance. A **source pin** records the
+exact source bytes, usually with a hash, so another researcher can identify the
+input used. Context and information cannot modify storage, inflow, or limits.
 
-Use [decision information](INFORMATION.md) for timestamped observations,
-forecasts and simulation fields. Use a context provider for custom computation
-or retrieval. Neither path can modify storage, inflow or physical limits.
+## Keep retry and fallback explicit
 
-## Add explicit fallback models
+`customization.fallback_models` is an ordered list of model profile IDs and
+defaults to an empty list. Each profile uses its own bounded `max_attempts`.
+The provider ledger records every attempt, actual provider and model, request
+hash, response metadata, and error.
 
-`fallback_models` is an ordered list of model profile IDs. It defaults to an
-empty list:
-
-```yaml
-model_profile: openai_primary
-customization:
-  fallback_models: [anthropic_backup, local_backup]
-```
-
-Each profile runs its own bounded `max_attempts`. The ledger records every
-attempt, actual provider, actual model, request hash, response metadata and error.
 Authentication and configuration errors are terminal. Audit FAIL, physical
-failure and evidence-write failure never select another model.
+failure, and evidence-write failure never select another model. Fallback is an
+availability policy, not evidence that different models implement the same
+operating policy.
 
-Fallbacks are an explicit availability policy. They are not a claim that two
-models implement the same operating policy.
+## Preserve advanced backend and history semantics
 
-## Keep experiment evidence
+`customization.backend` selects an explicitly registered extension, and
+`customization.parameters` contains its backend-specific settings. An extension
+that constructs its own messages may omit `prompt_file`; it must validate and
+pin its prompt resources. `customization.execution: replay` is an offline test
+option for custom LLM backends. The F.E. Walter extension preserves Anik's
+message construction; it does not define defaults for general agents.
 
-For reproducible work, retain:
+A rule module implements `validate_backend`, `build_backend`, and `rebase_agent`.
+Its backend supplies `decide(observation)`, a `policy_id`, and `network_calls=0`.
+The common engine still applies physics, routing, audits, and trace writing.
 
-- the complete split configuration and all source hashes;
-- full prompts, context provenance and provider request/response records;
-- hydrology and reservoir initial-state evidence;
-- physics, routing and audit journals; and
-- runtime and provider identifiers.
+**Committed history** means completed decision days already saved to disk with
+their action, physical transition, and evidence. Resume verifies this saved
+prefix, skips its decisions, and can reuse captured replies. It cannot guarantee
+that an external service received an in-flight request exactly once.
 
-Full raw logs and checkpoints can require substantial storage. Plan retention
-before a long experiment. No current example supplies a provider performance or
-decision-quality benchmark.
-
-Continue with [model providers](MODEL_PROVIDERS.md), then run the
-[offline check, prepare and run sequence](BUILD_SIMULATION.md#5-check-without-running-anything).
+For reproducibility, retain the complete split configuration, source hashes,
+prompts, context provenance, provider records, initial state, physics, routing,
+audits, runtime, and provider identifiers. Plan storage retention before a long
+run. No supplied provider profile establishes speed, cost, or decision quality.

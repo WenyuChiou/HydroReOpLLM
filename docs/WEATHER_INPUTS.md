@@ -79,7 +79,7 @@ This abbreviated example uses the reusable configured strategy. The physical
 case, prompt and model must be appropriate for the user's basin.
 
 ```yaml
-schema_version: hydroops-coupled-simulation.v1
+schema_version: hydroops-coupled-simulation.v2
 case: reservoirs.json
 run_id: basin-operator-v1
 output: ../runs/basin-operator-v1

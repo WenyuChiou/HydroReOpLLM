@@ -44,6 +44,7 @@ CONFIG_DOWNLOADS = {
     f"examples/fe_walter/coupled/{name}": name
     for name in (
         "experiment.yaml", "rule.yaml", "llm_available.yaml", "llm_knowledge.yaml",
+        "llm_available.gemma4.yaml", "llm_knowledge.gemma4.yaml", "models.gemma4.yaml",
         "hydrology.yaml", "models.yaml", "agents.rule.yaml", "agents.llm_available.yaml",
         "agents.llm_knowledge.yaml", "auditors.yaml", "reservoirs.json",
     )

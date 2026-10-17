@@ -1,61 +1,100 @@
-# FE Walter 案例
+# F.E. Walter 案例
 
 [English](README.md) | [繁體中文](README.zh-TW.md)
 
-同一座水庫、共用水文背景與三種操作方法。
-依序閱讀**水文設定 → 每日耦合流程 → 操作方法 → 結果**；本頁定義共用案例。
+完成[建立通用模擬](../../docs/BUILD_SIMULATION.zh-TW.md)後，再使用這個研究案例。
+本案例把同一份已確認的 HydroCNHS 水文邊界與同一個水庫物理模型，套用到三種操作
+方法：規則範例、使用可用資訊的 LLM，以及使用檢索知識的 LLM。三種方法共用物理
+計算，因此差異可追溯到決策輸入與邏輯，而不是不同的水量計算。
 
-## 地點與水文背景
+目前設定的逐步操作見
+[F.E. Walter：設定水庫 agent](../../tutorials/fe_walter.md)。
 
-F.E. Walter Reservoir 位於 Delaware River Basin 的 Lehigh River。
-上游採**半分佈式模型**：七個地理子集水區保留自己的 forcing、面積與河長。
-**GWLF** 計算產流，**Lohmann routing** 將水送達水庫。
+## 地點與研究範圍
 
-![FE Walter 集水區、河流與測站](../../docs/figures/fe-walter-catchment.png)
+F.E. Walter Dam 位於 Pennsylvania 州 White Haven 附近、Lehigh River 與 Bear
+Creek 交會處，橫跨 Carbon 與 Luzerne counties。水壩建於 1961 年。官方核定用途為
+**Flood Risk Management** 與 **Recreation**。在蓄水量與防洪優先順序允許時，放流也
+支援下游泛舟與釣魚。資料來源為 U.S. Army Corps of Engineers 的
+[專案頁](https://www.nap.usace.army.mil/Missions/Civil-Works/Francis-E-Walter-Dam/)、
+[重新評估研究](https://www.nap.usace.army.mil/Missions/Factsheets/Fact-Sheet-Article-View/Article/490871/francis-e-walter-dam-re-evaluation-study/)，以及
+[流量管理計畫與時程](https://www.nap.usace.army.mil/Missions/Civil-Works/Francis-E-Walter-Dam/Flow-Management-Plan-Schedule/)。
 
-凍結的模擬提供水庫入流；操作實驗不重新校正或重算它。
-已接受的水文校正期間為 **1990–2010**，驗證期間為 **2011–2020**。
+![F.E. Walter 模式集水區、河流、水壩與測站](../../docs/figures/fe-walter-catchment.png)
+
+**地圖說明。** 圖中顯示模式子集水區、水壩、測站與 1996–2025 年平均年降水量。
+七個實際模式貢獻單元合計 **750.811 km²**；這是模式集水區面積，不是官方水庫水面
+或專案土地面積。原生模型中另有 1 ha 的人工匯總出口，此面積不計入上述總和。
+**資料來源：** Esri、CGIAR、USGS、data.pa.gov、TomTom、Garmin、SafeGraph、
+METI/NASA、EPA、NPS、USDA、USFWS、New Jersey Office of GIS、FAO、NOAA。
+
+## 已接受的水文邊界
+
+上游採半分佈式模型。七個地理子集水區各自保留氣象、面積、緯度、土地與土壤屬性、
+河長。GWLF 計算產流，Lohmann routing 將水送達壩址。操作實驗使用產生的每日入口
+流量；更換 operator 不會重新校正水文。
+
+| 資料或期間 | 本案例用途 |
+|---|---|
+| 每日氣象 | Daymet V4 R1 降水、最低溫與最高溫，依 polygon overlap 加權 |
+| 有紀錄的氣象補值 | nClimGrid-Daily 僅補 leap year 的 12 月 31 日，不作一般缺值填補 |
+| PET | 由日平均溫與子集水區緯度計算 HydroCNHS Hamon PET |
+| 土地覆蓋 | NLCD 2021，以 60 m 彙整，並假設整段歷史模擬期間固定不變 |
+| 土壤 | SSURGO polygons 與 NRCS Soil Data Access 屬性；未使用 gSSURGO raster |
+| 原生連續期間 | 1989–2025；1989 為暖機期 |
+| 校正／驗證 | 1990–2010／2011–2020，測站 USGS 01447500 |
+| 前推期間 | 2021–2025；屬前推模擬，不是新增測站驗證 |
+
 USGS 01447500 涵蓋七區中的兩區；其餘五區不是各自有測站的獨立驗證單元。
+已接受的資料與指標見[水文、參數與 C&V](hydrology.zh-TW.md)。建立及校正其他流域時，
+使用 [HydroCNHS 官方手冊](https://cylin928.github.io/HydroCNHS/)與
+[HydroCNHS 設定](../../docs/HYDROLOGY_SETUP.md)；本頁不重複原生建模與校正流程。
 
-本案例的資料與數值見[水文、參數與 C&V](hydrology.zh-TW.md)；建立其他集水區請依[原生 HydroCNHS 流程](../../docs/HYDROLOGY_SETUP.md)。
-本案例聚焦操作規則、資訊與語言模型提案如何影響水庫操作。
+## 共用物理假設
 
-## 共用案例設定
-
-| 項目 | 設定 |
+| 項目 | 設定與解釋 |
 |---|---|
-| 水庫 | FE Walter；一座受控水庫與一個決策單元 |
-| 入流 | 凍結的每日模擬入流，m³/s |
-| 初始蓄水 | 2,457,848.279729185 m³，即 1,992.61 acre-ft |
-| 水庫損失 | 降水、蒸發、滲漏及取水均為零 |
-| 下游 routing | Identity unit hydrograph，`UH=[1.0]` |
-| 物理計算 | 實際受控放流 + spill；更新一次蓄水、注入 routing 一次 |
+| 水庫 | 一座受控 F.E. Walter 水庫與一個決策單元 |
+| 入流 | 凍結的每日 HydroCNHS 模擬入口流量，m³/s |
+| 初始蓄水 | 2,457,848.279729185 m³（1,992.61 acre-ft）；整合假設，不是 2016 年 1 月觀測值 |
+| 水庫損失 | 水庫核心中的直接降水、蒸發、滲漏與取水皆為零 |
+| 下游 routing | Identity unit hydrograph，`UH=[1.0]`；介面假設，不是已校正旅行時間 |
+| 物理計算 | 更新一次蓄水；實施控制放流加 spill，只注入下游 routing 一次 |
 
-初始蓄水是整合假設，不是 2016 年一月的觀測值。
-Identity 下游 routing 用於耦合介面測試，不是已校正河川旅行時間。
+LLM 不會提供集水區入流，也不負責水量計算。共用物理核心對所有方法套用可用水量與
+放流限制，計算蓄水與 spill，再將實施出流送往下游。
 
-水庫入流是 **HydroCNHS 模擬值**，不是 LLM 產生的：
-各子集水區氣象 → GWLF 產流 → Lohmann 上游 routing → 壩址匯總入流。
-操作執行器讀取這份凍結的每日序列，不會每次決策都重算降雨產流。
-[本案例水文章節](hydrology.zh-TW.md)列出氣象、觀測流量、七個子集水區、
-已接受的參數與校正／驗證結果。
+## 區分水文輸入與 LLM 每日可見資訊
 
-改變操作方法前，準備以下檔案：
+| 資訊 | 水文／物理用途 | LLM 用途 |
+|---|---|---|
+| Daymet 氣象、PET、土地、土壤、HydroCNHS 參數 | 產生已接受的每日入口流量 | 不會自動提供給 LLM |
+| 日期、入口流量、當日起始水位及最多兩筆已完成決策 | 描述當日操作狀態 | 納入每日訊息；本例不顯示另外的蓄水體積欄位 |
+| 季節操作目標 | 不改變水文 | 明確納入目前兩種 LLM 方法 |
+| 檢索操作指引 | 不改變水文或物理 | 只有檢索知識方法使用 |
+| 提議放流 | 依物理狀態與限制檢查 | 由選定規則或 LLM 方法產生 |
 
-| 檔案 | 控制內容 |
+這個區隔避免把水文輸入當成未說明的模型知識。保存的訊息與 trace 顯示每個每日 LLM
+決策實際可使用的內容。
+
+## 從目前 2016 設定開始
+
+目前維護的對照使用 `gemma4:12b`、temperature 0.7 與明確的 v2 入口檔：
+
+| 方法輸入 | 檔案 |
 |---|---|
-| [Case JSON](../../cases/fe_walter_ollama_demo/case.json) | 三日教學的水庫限制、初始蓄水與河網連接 |
-| [Inflow CSV](../../cases/fe_walter_reference/inflows.csv) | 每日入流及來源 pin |
-| Experiment YAML | 日期、方法、模型、auditor 與新的輸出位置 |
-| LLM 方法使用的 prompt 檔 | 固定操作指令及回覆欄位 |
-| 選用的 knowledge 檔 | 有來源的操作指引與檢索設定 |
+| 使用可用資訊的 LLM | [`coupled/llm_available.gemma4.yaml`](coupled/llm_available.gemma4.yaml) |
+| 使用檢索知識的 LLM | [`coupled/llm_knowledge.gemma4.yaml`](coupled/llm_knowledge.gemma4.yaml) |
+| 共用模型 profile | [`coupled/models.gemma4.yaml`](coupled/models.gemma4.yaml) |
+| 規則範例 | [規則式操作](benchmark/README.zh-TW.md) |
 
-[建立模擬](../../docs/BUILD_SIMULATION.zh-TW.md)說明如何將這些元件套用到自己的水庫。
+舊 Gemma 3 檔案保持原樣，作為保存輸入；不能用它們宣稱重現目前 Gemma 4 對照。
+確切檔案、指令、成功檢查與輸出位置見[設定教學](../../tutorials/fe_walter.md)。
 
 ## 季節水位
 
-目前案例使用以下**研究自訂**的水位合規窗口，單位為 ft N.G.V.D.。
-兩個新版 prompt 使用同一規格；這不是官方逐年操作計畫。
+目前案例使用四個**研究自訂**的水位合規窗口，單位為 ft N.G.V.D.。目前兩種 prompt
+使用相同窗口；這些設定不是官方逐年操作時程。
 
 | 季節 | 日期，含首尾日 | 水位檢查 |
 |---|---|---|
@@ -64,18 +103,10 @@ Identity 下游 routing 用於耦合介面測試，不是已校正河川旅行�
 | 夏季 | 5 月 10 日–10 月 14 日 | 不高於 1370 ft；此檢查不設下限 |
 | 秋季降水位 | 10 月 15 日–10 月 31 日 | 1300–1370 ft，且水位下降 |
 
-3/15、5/10、10/15 歸後一季；水位上下限均含端點。
-[季節規格](seasonal_pool_criteria.json)保存共同英文指令：
-冬季維持 1300 ft 附近，春季在水文條件允許時向 1370 ft 蓄水，
-夏季不超過 1370 ft，秋季於 10/15 起降水位，朝 11/1 回到 1300 ft。
-
-新實驗改用[可用資訊 YAML](zero_shot/experiment.seasonal.ollama.yaml)或
-[檢索知識 YAML](dkp/experiment.seasonal.ollama.yaml)。
-兩者使用 `system_prompt_mode: custom`、獨立 prompt 與新輸出位置。
-僅修改操作目標段落，回覆欄位與原版 reference 程式不變。
-上述獨立三日季節設定僅完成無模型請求的設定檢查，尚未重跑。
-它們保存的完整交換仍保留原始冬夏指令與 audit 判定。
-目前維護的氣象到操作設定，請見英文[2016 年耦合結果](coupled/README.md#verified-2016-results)。
+3/15、5/10、10/15 歸入後一季；水位上下限均包含端點。
+[季節規格](seasonal_pool_criteria.json)保存日期、區間與共同英文指令：冬季維持
+1300 ft 附近，春季在水文條件允許時向 1370 ft 蓄水，夏季不超過 1370 ft，秋季從
+10/15 開始降水位，朝 11/1 回到 1300 ft。
 
 ### 檢查保存的水位序列
 
@@ -83,52 +114,45 @@ Identity 下游 routing 用於耦合介面測試，不是已校正河川旅行�
 python examples/fe_walter/check_pool_levels.py examples/fe_walter/reference_outputs/long_term_dkp/plotted_daily.csv --output runs/fe-walter-seasonal-pool-v1.csv
 ```
 
-在 repo 根目錄執行，輸出檔名必須是新的。程式僅讀取資料，
-另存包含輸入／規格 hash 的 CSV；不執行模型、模擬或策略 audit。
-保存序列的 `pool_elevation_start_ft` 是**每日起始水位**，不代表日內最高或日末水位。
+在 repo 根目錄使用新的輸出檔名執行。程式另存包含輸入與規格 hash 的 CSV，拒絕覆寫
+既有檔案；不執行模型、模擬或策略 audit。
 
-秋季「下降」指低於前一個連續日的水位；持平會判 FAIL，包含已到 1300 ft 的情況。
-缺少水位、非有限值或缺少秋季前一日資訊時判 UNKNOWN；已觀察到超出水位帶仍判 FAIL。
-不額外加入數值容差。原版策略 audit 的目標邏輯維持原樣，
-與本次新增的水位合規結果分開。上述命令中的歷史序列並非使用新版 prompt 產生。
+保存的 `pool_elevation_start_ft` 是每日起始 snapshot，不代表日內最高或日末合規。
+秋季「下降」表示低於前一個連續日；持平會判 `FAIL`，包含已到 1300 ft。缺少或非
+有限水位，以及缺少秋季前一日紀錄時判 `UNKNOWN`；觀察到超出區間仍判 `FAIL`。
+不額外加入數值容差。原版 decision audits 保留原有目標邏輯。上述歷史序列並非使用
+修訂 prompt 產生。
 
-## 跟著每日耦合流程
+## 透過共用物理比較方法
 
-選方法前，先閱讀[每日耦合章節](coupling.zh-TW.md)。
-每天 HydroCNHS 把水 routing 到 Dam API；策略提出放流，水庫物理更新蓄水與 spill，
-實際出流再進入下游 routing。實際放流及期末蓄水回饋下一次決策。
-
-目前範例讀取預先模擬的水文入流；同一章說明氣象驅動的原生接法，以及如何驗證其執行。
-
-## 選擇操作方法
-
-| 方法 | 決策來源 | 方法專用設定 |
+| 方法 | 決策來源 | 方法專用輸入 |
 |---|---|---|
-| [規則式操作](benchmark/README.zh-TW.md) | Hanasaki-based 每日防洪規則 | 規則參數與歷史統計 |
-| [使用可用資訊的 LLM](zero_shot/README.zh-TW.md) | 指令與當期資訊 | 模型、獨立 prompt 與回覆欄位 |
-| [使用檢索知識的 LLM](dkp/README.zh-TW.md) | 相同介面加上檢索操作指引 | Prompt、知識來源與檢索 |
+| [規則式操作](benchmark/README.zh-TW.md) | Hanasaki-based 每日防洪範例 | 規則參數與歷史統計 |
+| [使用可用資訊的 LLM](zero_shot/README.zh-TW.md) | 案例指令與每日狀態 | 目前 Gemma 4 profile 與明確案例 prompt |
+| [使用檢索知識的 LLM](dkp/README.zh-TW.md) | 相同介面加上檢索指引 | 目前 Gemma 4 profile、prompt 與知識來源 |
 
 規則參考 [Hanasaki et al. (2006)](https://doi.org/10.1016/j.jhydrol.2005.11.011)
-及 [Abeshu et al. (2023), Section 2.3.3](https://gmd.copernicus.org/articles/16/5449/2023/) 的防洪公式。
-[規則章節](benchmark/README.md#sources-and-adaptation)說明每日調整；此特定策略不是 HydroCNHS 內建規則。
-
-方法章節依序說明**設定 → 操作方法 → 執行 → 保存決策**。共用物理條件集中於本頁。
+與 [Abeshu et al. (2023), Section 2.3.3](https://gmd.copernicus.org/articles/16/5449/2023/)
+的防洪公式。它是已註冊的案例規則，不是 HydroCNHS 原生操作政策。
+[每日耦合章節](coupling.zh-TW.md)說明三種方法如何通過相同水庫物理與下游 routing。
 
 ## 查看結果
 
-先看英文[最新 Gemma 4 對照結果](coupled/README.md#verified-2016-results)，了解目前維護的全年 LLM 範例及原版程式／框架檢查。
-[歷史結果與決策紀錄](results.zh-TW.md)另保留較早的 2020 教學與 2016–2020 研究。
+目前與歷史結果應分開閱讀。先讀英文
+[最新 Gemma 4 對照](coupled/README.md#verified-2016-results)。
+[歷史結果與決策紀錄](results.zh-TW.md)保存較早的 2020 教學與 2016–2020 研究。
 
 | 保存證據 | 期間與模型 | 用途 |
 |---|---|---|
-| 目前原版程式／框架對照 | 2016-01-01–12-31；每套引擎、每種 LLM 方法各 366 日；`gemma4:12b`、temperature 0.7 | 查看水位、控制放流、季節合規及相同回覆的工程檢查 |
-| 較早三方法全年範例 | 2016-01-01–12-31；每種方法 366 日；LLM 使用 `gemma3:4b`、temperature 0.7 | 保存較早設定，與目前對照分開閱讀 |
-| 三方法教學 | 2016-01-01–01-03；LLM 使用 `gemma3:4b`、temperature 0.7 | 在相同三日條件下學習各方法 |
-| 一年結果教學 | 2020-01-01–12-31；歷史檢索知識紀錄中的 366 日 | 查看季節操作與個別決策 |
-| 歷史檢索知識實驗 | 2016-01-01–2020-12-31；`gemma4:12b`、temperature 0.7 | 查看完整 1,827 日軌跡與決策行為 |
+| 目前原版程式／框架對照 | 2016-01-01–12-31；每套引擎、每種 LLM 方法各 366 日；`gemma4:12b`、temperature 0.7 | 水位、控制放流、季節合規與相同回覆工程檢查 |
+| 較早三方法全年範例 | 2016-01-01–12-31；每種方法 366 日；LLM 使用 `gemma3:4b`、temperature 0.7 | 保存較早設定，與目前對照分開 |
+| 歷史三日教學 | 2016-01-01–01-03；LLM 使用 `gemma3:4b`、temperature 0.7 | 保存教學 snapshot 與原始 audit verdict；不是目前首次執行路徑 |
+| 一年結果教學 | 2020-01-01–12-31；歷史檢索知識紀錄中的 366 日 | 季節操作與個別決策 |
+| 歷史檢索知識實驗 | 2016-01-01–2020-12-31；`gemma4:12b`、temperature 0.7 | 完整 1,827 日軌跡與決策行為 |
 
-五年紀錄屬歷史 DKP 實驗，沒有提供配對的五年規則式或可用資訊軌跡。
-三日教學與歷史實驗的模型版本、程式來源紀錄不同。
+五年紀錄屬歷史檢索知識實驗；沒有提供配對的五年規則式或可用資訊軌跡。三日教學
+與歷史實驗的模型版本、程式來源不同。三日季節 YAML 已完成 offline check 但未重跑；
+保存 exchanges 保留原始指令與 verdicts。
 
-[主 notebook](../../tutorials/main.ipynb)保留三日教學；
+[主 notebook](../../tutorials/main.ipynb)保存歷史三日教學；
 [進階 notebook](../../tutorials/advanced.ipynb)說明多水庫。

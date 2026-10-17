@@ -36,5 +36,7 @@ reproduction. Keep that evidence available for research reporting; it is not an
 extra set of LLM settings. Only two units drain through gauge 01447500, so the
 other five are not independently gauge-validated.
 
-Continue with [Configure the F.E. Walter agent](../tutorials/fe_walter.md)
-or [Build a coupled simulation](BUILD_SIMULATION.md).
+Continue with [Build a coupled simulation](BUILD_SIMULATION.md) and
+[configure an LLM agent](CONFIGURATION.md). The later
+[F.E. Walter case study](../examples/fe_walter/README.md) explains how those
+general steps support one specific research design.

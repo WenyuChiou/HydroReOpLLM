@@ -1,8 +1,8 @@
 # Build a weather-to-operation simulation
 
-This tutorial takes one accepted HydroCNHS model through reservoir operation.
-Start with the rule-based configuration. It exercises the full hydrology,
-reservoir, routing and evidence path without contacting a model provider.
+Use this general workflow to connect an accepted HydroCNHS model to reservoir
+agents. First check the connections with a rule, then choose an LLM profile and
+prompt. The same physical reservoir and routing interface serves both methods.
 
 The runnable teaching case is in
 [`examples/multiple_reservoirs`](../examples/multiple_reservoirs/experiment.yaml).
@@ -10,20 +10,16 @@ It contains two independent river systems. Its short forcing record and
 synthetic parameters test software connections; they are not a calibrated
 hydrological model or a validated operating policy.
 
-For the real case, follow [F.E. Walter: configure the reservoir agent](../tutorials/fe_walter.md).
-Read [Inputs and outputs](INPUT_OUTPUT.md) for the changes from native HydroCNHS.
+Read [Inputs and outputs](INPUT_OUTPUT.md) for the changes from native HydroCNHS
+and [Agents, prompts and context](CONFIGURATION.md) for LLM settings. Then read
+the [FE Walter study background](../examples/fe_walter/README.md) and its
+[worked configuration](../tutorials/fe_walter.md) to apply this sequence to a real site.
 
 ## 1. Install the project
 
-Create an environment, install the repository, and confirm the command is
-available:
+Follow [Installation](GETTING_STARTED.md), then confirm the command is available:
 
 ```powershell
-git clone https://github.com/WenyuChiou/HydroOpsLLM.git
-cd HydroOpsLLM
-py -3.12 -m venv .venv
-.\.venv\Scripts\Activate.ps1
-python -m pip install -e . -c environment/requirements-bundled.txt
 reservoir-experiment --help
 ```
 
@@ -195,7 +191,8 @@ profile's `max_attempts` limit.
 reservoir-experiment verify runs/independent-rivers-rule/operation
 ```
 
-Read `summary.json` first, then inspect:
+For this coupled entry, read `runs/independent-rivers-rule/operation/summary.json`
+first. The following files are also inside that `operation/` directory:
 
 | Evidence | Question it answers |
 |---|---|
@@ -221,7 +218,7 @@ reservoir-experiment resume examples/multiple_reservoirs/experiment.yaml `
   --run-id resumed-01
 ```
 
-Resume verifies and replays the committed prefix. It skips committed decisions
+Resume verifies and rebuilds the sequence of already saved daily transitions. It skips committed decisions
 and reuses captured replies when available. It does not overwrite the source run.
 Add `--allow-network` only if unfinished decisions need new provider requests.
 All five provider adapters can replay committed attempts, including retries and

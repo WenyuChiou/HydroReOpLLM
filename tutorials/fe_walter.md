@@ -1,9 +1,15 @@
 # F.E. Walter: configure and follow a reservoir decision
 
-Follow one real case from its experiment YAML to the daily LLM decision.
-The hydrology and reservoir stay fixed while you change the operation method.
-Use the [HydroCNHS tutorials](https://github.com/cylin928/HydroCNHS/tree/main/tutorials)
-for catchment construction and calibration. Here we explain the added agent settings.
+Apply the common [simulation workflow](../docs/BUILD_SIMULATION.md) and
+[agent configuration](../docs/CONFIGURATION.md) to one real reservoir. Read the
+[FE Walter study background](../examples/fe_walter/README.md) first: it explains
+the site, data, seasonal targets and modeling assumptions.
+
+Here the hydrology and physical reservoir stay fixed while you choose a
+Rule-based agent, an LLM with available information, or an LLM with retrieved
+operating knowledge. Basin construction, parameter estimation and C&V remain
+in the [HydroCNHS tutorials](https://github.com/cylin928/HydroCNHS/tree/main/tutorials).
+This walkthrough concentrates on LLM settings and their connections.
 
 ## Step 1. Separate the experiment, physical coupling and agent settings
 
@@ -19,10 +25,10 @@ the same rule run identity/output; do not execute both into that directory.
 
 | Scope | Files | Responsibility |
 |---|---|---|
-| Global experiment | `experiment.yaml`, `rule.yaml`, `llm_available.yaml`, `llm_knowledge.yaml` | Schema, dates, run/output, call gate, section references and explicit extension catalog. |
+| Global experiment | `experiment.yaml`, `rule.yaml`, `llm_available.gemma4.yaml`, `llm_knowledge.gemma4.yaml` | Schema, dates, run/output, call gate, section references and explicit extension catalog. |
 | Hydrology and physical coupling | `hydrology.yaml`, `reservoirs.json` | Weather/native model, source-to-inlet bindings, physical state and routing graph. |
 | Per-agent behavior | `agents.rule.yaml`, `agents.llm_available.yaml`, `agents.llm_knowledge.yaml` | Exact reservoir assignment, rule or LLM and its case-specific settings. |
-| Shared model and checks | `models.yaml`, `auditors.yaml` | Named provider profile and diagnostic checks selected by each agent. |
+| Shared model and checks | `models.gemma4.yaml`, `auditors.yaml` | Named provider profile and diagnostic checks selected by each agent. |
 
 All entries use `hydroops-coupled-simulation.v2`. A section reference such as
 `hydrology: {file: hydrology.yaml}` loads that section from its sibling file.
@@ -30,9 +36,11 @@ Resource paths are relative to the file that declares them. Keep copies in the
 same directory unless you deliberately update those paths. For a new study,
 choose a new `run_id` and `output`; source files and prior records remain pinned.
 
-The available-information entry selects its own agent and the shared model:
+The current Gemma 4 entry selects the same case agent and an explicit model
+profile. Older unsuffixed LLM entries retain Gemma 3 for historical
+reproducibility; use the new entry for the current model controls:
 
-```{literalinclude} ../examples/fe_walter/coupled/llm_available.yaml
+```{literalinclude} ../examples/fe_walter/coupled/llm_available.gemma4.yaml
 :language: yaml
 ```
 
@@ -47,6 +55,13 @@ bounded attempts.
 `coupled.load_coupled_settings()` checks the connection without running hydrology
 or contacting a model. The short `zero_shot/experiment.yaml` is a separate
 supplied-inflow tutorial, not the full-weather entry taught here.
+
+| Change for a new execution | Retain for this comparison | Optional additions |
+|---|---|---|
+| Run ID/output; method; service address if needed | Accepted hydrology, physical state, seasonal targets, prompts, case profile and daily history | Retrieved knowledge, extra information, custom context and diagnostic auditors |
+
+For another reservoir, set these inputs deliberately; FE Walter values are
+example settings, not defaults imposed by the core.
 
 ## Step 2. Connect accepted hydrology
 
@@ -138,18 +153,18 @@ The available-information agent lives in its own file:
 
 `reservoir_id: FEWalter` binds `fe_operator` to the graph node.
 `type: llm` selects the general operation class; `model_profile: reservoir_model`
-selects a profile in [models.yaml](../examples/fe_walter/coupled/models.yaml).
+selects a profile in [models.gemma4.yaml](../examples/fe_walter/coupled/models.gemma4.yaml).
 `customization.backend: reference_v3_7` selects the explicitly registered case
 extension. Its `parameters.reference` mapping belongs to this example.
 
-```{literalinclude} ../examples/fe_walter/coupled/models.yaml
+```{literalinclude} ../examples/fe_walter/coupled/models.gemma4.yaml
 :language: yaml
 ```
 
 | `models.reservoir_model` field | Value | What it controls |
 |---|---|---|
 | `provider` | `ollama` | Provider adapter. |
-| `model` | `gemma3:4b` | Explicit model ID, installed separately. |
+| `model` | `gemma4:12b` | Explicit model ID, installed separately. |
 | `base_url` | `http://localhost:11434` | Ollama service address. |
 | `temperature` | `0.7` | Sampling setting; it does not guarantee identical replies. |
 | `max_tokens` | `2048` | Maximum generated tokens. |
@@ -186,7 +201,156 @@ The rule uses no model or prompt. For another rule, register its implementation
 and supply its own `rule_parameters`; the generic core has no closed enum of
 rule algorithms.
 
-## Step 5. Read the prompt and case resources
+## Step 5. Design what the LLM sees
+
+The [common prompt guide](../docs/CONFIGURATION.md) explains user templates,
+optional knowledge and custom context. FE Walter uses a case-owned formatter
+to reproduce Anik V3.7, with the confirmed seasonal-target change. Keep this
+formatter when reproducing the case; use generic templates for another study.
+
+| Component | FE Walter design | Setting |
+|---|---|---|
+| System instructions | Operation task, four seasonal targets and response fields | Versioned [available-information prompt](../examples/fe_walter/prompts/zeroshot_seasonal_v1_system.txt) or [knowledge prompt](../examples/fe_walter/prompts/dkp_seasonal_v2_system.txt) |
+| Daily user message | Date, inflow, beginning pool elevation, interval and up to two completed decisions | Case formatter selected by `customization.backend` |
+| Optional knowledge | Relevant sections of the operating document, included before the request | Knowledge agent's `reference.dkp` path |
+| Response contract | Proposed release in cfs plus the method's explanatory fields | Case response schema and parser |
+
+The LLM does not automatically receive the weather, soil or land-cover tables.
+Those inputs produce hydrological inflow. Only information placed in its actual
+messages is visible to the model. No shared system instruction is inserted.
+
+The available-information method receives the daily state without retrieved
+document sections. To add retrieved knowledge, select
+[llm_knowledge.gemma4.yaml](../examples/fe_walter/coupled/llm_knowledge.gemma4.yaml).
+It uses this agent file:
+
+```{literalinclude} ../examples/fe_walter/coupled/agents.llm_knowledge.yaml
+:language: yaml
+```
+
+This case retrieves local document sections without a vector database. Its
+knowledge response has eight fields and excludes `missing_inputs`. The
+[Anik compatibility reference](#reference-exact-anik-prompt-and-case-contract)
+below explains the preserved details after the main workflow.
+
+## Step 6. Follow the input and output of one decision
+
+1. `network.py` supplies the prepared inlet and current reservoir state.
+2. The formatter converts m³/s to cfs and m³ to acre-ft, then derives pool elevation.
+3. The selected provider receives the actual system and daily user messages.
+4. The case reply contains reasoning, target/direction fields and `release_cfs`.
+   The knowledge reply additionally contains `operating_mode` and
+   `rules_applied`, for eight fields in total; it has no `missing_inputs` field.
+5. `NativeResponseParser` validates the response, converts cfs to m³/s and clips
+   the proposal to the case's 50–10,000 cfs limits. The raw reply remains recorded.
+6. Common physics applies available water, calculates controlled release, spill
+   and ending storage. Routing receives controlled release plus spill once.
+7. The saved transition updates the next day's state and two-entry history.
+
+Seasonal target noncompliance is an operating audit result; it is not a reason
+to sample another reply. See [Inputs and outputs](../docs/INPUT_OUTPUT.md)
+for units, schemas and the exported files.
+
+## Step 7. Check, prepare, run and verify
+
+Run commands from the repository root. **Check first**; this previews the
+configuration, prompt and schema without hydrology or model requests:
+
+```powershell
+reservoir-experiment check examples/fe_walter/coupled/experiment.yaml
+reservoir-experiment check examples/fe_walter/coupled/llm_available.gemma4.yaml
+reservoir-experiment check examples/fe_walter/coupled/llm_knowledge.gemma4.yaml
+```
+
+Expect 366 operation days, zero planned provider decisions for the rule, and
+366 daily decisions for each LLM method before eligible retries.
+The preview uses placeholder inflow, not simulated January 1 flow.
+
+**Prepare and run the rule first** to check the physical connections:
+
+```powershell
+reservoir-experiment prepare examples/fe_walter/coupled/experiment.yaml
+reservoir-experiment run examples/fe_walter/coupled/experiment.yaml
+reservoir-experiment verify runs/fe-walter-coupled-rule/operation
+```
+
+Preparation computes the accepted continuous upstream hydrology, then selects
+2016. It does not contact a model. If the identical preparation already exists,
+follow [Reuse the prepared hydrology](../examples/fe_walter/coupled/README.md#reuse-the-prepared-hydrology)
+before preparing LLM entries. Keep the dates, forcing, model, bindings and
+runtime unchanged. Each method starts its own reservoir state and history.
+
+**When you intend to request real LLM decisions**, use the Gemma 4 entry:
+
+```powershell
+reservoir-experiment prepare examples/fe_walter/coupled/llm_available.gemma4.yaml
+reservoir-experiment run examples/fe_walter/coupled/llm_available.gemma4.yaml --allow-network
+reservoir-experiment verify runs/fe-walter-coupled-gemma4-llm_available/operation
+```
+
+For retrieved knowledge, substitute `llm_knowledge.gemma4.yaml` in both
+configuration commands and verify
+`runs/fe-walter-coupled-gemma4-llm_knowledge/operation`.
+Choose a new run ID/output when repeating an experiment. The model must already
+be available at the configured service. `--allow-network` permits requests;
+reading this page does not execute them.
+
+| Location | Contents |
+|---|---|
+| Original `examples/fe_walter/coupled/*.yaml` | Editable user inputs; paths resolve relative to their declaring file |
+| Your output root | Prepared `inflows.csv`, `case.json`, generated operation `experiment.yaml`, `hydrology.json` and `preparation.json` |
+| `<output>/operation/` | `summary.json`, `reservoir_trajectory.csv`, `network_flows.csv`, `decisions.jsonl`, `audit.jsonl`, `physics.jsonl` and provider evidence |
+
+Edit original inputs rather than generated files. Expect 366 unique dates in
+a completed annual trajectory. `verify` checks saved evidence and water
+accounting. A seasonal audit FAIL does not mean the provider or execution failed
+and never triggers another sample. The selected
+[auditor file](../examples/fe_walter/coupled/auditors.yaml) adds release-limit
+diagnostics; the FE extension also records its native operating audit.
+
+For an interruption, follow [recovery](../docs/BUILD_SIMULATION.md#9-resume-after-an-interruption).
+Use the source run's `operation/` directory and write to a new output. Preserve
+raw requests/replies and attempts to explain the result.
+
+## Step 8. Read the verified 2016 results
+
+The [current Gemma 4 comparison](../examples/fe_walter/coupled/README.md#verified-2016-results)
+contains four complete 366-day runs: original Anik and HydroOpsLLM, each with
+available information and retrieved knowledge. Each used 366 actual HTTP attempts
+without retry or fallback. The saved comparison used isolated QA run entries;
+the new `.gemma4.yaml` files above expose its model controls as teaching inputs
+with new output locations.
+
+Read the [water-level and controlled-release plot](../examples/fe_walter/coupled/outputs/gemma4_2016_comparison/pool_release.png),
+[daily values](../examples/fe_walter/coupled/outputs/gemma4_2016_comparison/daily.csv)
+and [comparison summary](../examples/fe_walter/coupled/outputs/gemma4_2016_comparison/summary.json).
+Pool elevation is end-of-day; controlled release excludes spill.
+
+Same-reply offline replay checks the two engines with identical saved replies.
+Independent real trajectories differ at temperature 0.7; completing a year does
+not establish seasonal compliance or rank methods. Read the reported winter
+and fall checks alongside engineering verification.
+
+[Earlier Gemma 3 annual results](../examples/fe_walter/coupled/README.md#earlier-2016-configuration-preserved)
+and the [historical five-year DKP study](../examples/fe_walter/results.md) retain
+their original settings. They are separate experiments.
+
+## Code map
+
+| User task | Code responsible |
+|---|---|
+| Read the experiment and resolve files | [configuration.py](../src/llm_reservoir_agent/configuration.py), [agent_configuration.py](../src/llm_reservoir_agent/agent_configuration.py) |
+| Check/prepare the full-weather entry | [coupled.py](../src/llm_reservoir_agent/coupled.py): `load_coupled_settings`, `prepare_coupled`, `run_coupled` |
+| Load forcing and bind flow | [weather.py](../src/llm_reservoir_agent/weather.py): `load_weather`, `validate_bindings`, `simulate_weather` |
+| Preserve FE messages, history and parsing | [reference_backend.py](../examples/fe_walter/extensions/reference_backend.py), [native_case.py](../examples/fe_walter/extensions/native_case.py) |
+| Call and record the selected model | [configured_backend.py](../src/llm_reservoir_agent/configured_backend.py), [providers.py](../src/llm_reservoir_agent/providers.py) |
+| Apply reservoir physics and route downstream | [physics.py](../src/llm_reservoir_agent/physics.py), [network.py](../src/llm_reservoir_agent/network.py) |
+| Commit evidence and recover interruptions | [experiment.py](../src/llm_reservoir_agent/experiment.py), [recovery.py](../src/llm_reservoir_agent/recovery.py) |
+
+[Python API documentation](../docs/API_REFERENCE.md) ·
+[Return to the common case](../examples/fe_walter/README.md)
+
+## Reference: exact Anik prompt and case contract
 
 `extensions.reference_v3_7` points to [the case module](../examples/fe_walter/extensions/__init__.py).
 Its `validate_backend()` checks resources; `build_backend()` constructs a
@@ -234,7 +398,7 @@ They are not another basin's default reservoir curve or operating targets.
 
 ### Add retrieved operating knowledge
 
-Use [llm_knowledge.yaml](../examples/fe_walter/coupled/llm_knowledge.yaml);
+Use [llm_knowledge.gemma4.yaml](../examples/fe_walter/coupled/llm_knowledge.gemma4.yaml);
 it selects this complete agent file while sharing the same model and hydrology:
 
 ```{literalinclude} ../examples/fe_walter/coupled/agents.llm_knowledge.yaml
@@ -267,119 +431,3 @@ has exactly eight fields:
 `release_cfs`. It neither requests `missing_inputs` nor invents missing
 downstream observations. The frozen v1 prompt remains only as a reproducibility
 dependency for prior saved output.
-
-## Step 6. Follow the input and output of one decision
-
-1. `network.py` supplies the prepared inlet and current reservoir state.
-2. The formatter converts m³/s to cfs and m³ to acre-ft, then derives pool elevation.
-3. The selected provider receives the actual system and daily user messages.
-4. The case reply contains reasoning, target/direction fields and `release_cfs`.
-   The knowledge reply additionally contains `operating_mode` and
-   `rules_applied`, for eight fields in total; it has no `missing_inputs` field.
-5. `NativeResponseParser` validates the response, converts cfs to m³/s and clips
-   the proposal to the case's 50–10,000 cfs limits. The raw reply remains recorded.
-6. Common physics applies available water, calculates controlled release, spill
-   and ending storage. Routing receives controlled release plus spill once.
-7. The committed transition updates the next day's state and two-entry history.
-
-Seasonal target noncompliance is an operating audit result; it is not a reason
-to sample another reply. See [Inputs and outputs](../docs/INPUT_OUTPUT.md)
-for units, schemas and the exported files.
-
-## Step 7. Check, prepare and inspect
-
-Validate the canonical rule entry, then the LLM method you intend to use:
-
-```powershell
-reservoir-experiment check examples/fe_walter/coupled/experiment.yaml
-reservoir-experiment check examples/fe_walter/coupled/llm_available.yaml
-```
-
-Both plans contain 366 days and one agent. The canonical rule plans zero LLM
-calls; the LLM entry plans 366 decisions. Both checks make zero provider requests.
-The LLM prompt preview uses placeholder flow for validation, not newly simulated
-January 1 inflow. Review all selected files and prompt text before execution.
-
-Preparation is separate and makes no provider request:
-
-```powershell
-reservoir-experiment prepare examples/fe_walter/coupled/experiment.yaml
-```
-
-This runs the accepted continuous hydrology or verifies an explicitly reused
-preparation. It writes `inflows.csv`, `case.json`, `experiment.yaml`,
-`hydrology.json` and `preparation.json` under your chosen output.
-The generated `experiment.yaml` is an operation plan; edit the original input,
-not generated files. See [the execution commands](../examples/fe_walter/coupled/README.md#run-an-llm-method)
-when you intentionally enable model requests later.
-
-The shared [auditors.yaml](../examples/fe_walter/coupled/auditors.yaml)
-declares the check selected by `auditors: [release_limits]`:
-
-```{literalinclude} ../examples/fe_walter/coupled/auditors.yaml
-:language: yaml
-```
-
-`release_limits` selects `release_bounds` version `1`.
-The FE extension also retains its native diagnostic audit. Read `summary.json`,
-`reservoir_trajectory.csv`, `network_flows.csv`, `decisions.jsonl`,
-`audit.jsonl`, `physics.jsonl`, `provider_attempts.jsonl` and retained raw artifacts
-together. Audit FAIL does not by itself mean execution failed.
-For interruptions, follow [resume](../docs/BUILD_SIMULATION.md#9-resume-after-an-interruption).
-
-## Step 8. Read the verified 2016 results
-
-The [corrected Gemma 4 comparison](../examples/fe_walter/coupled/README.md#verified-2016-results)
-now contains four complete 366-day runs: original Anik and HydroOpsLLM, each with
-available information and retrieved knowledge. Each used 366 actual requests,
-without retries or fallback. Same-reply offline replay verifies the two engines;
-independent real trajectories and seasonal operating performance are reported
-separately. Read its [daily values](../examples/fe_walter/coupled/outputs/gemma4_2016_comparison/daily.csv)
-and [summary](../examples/fe_walter/coupled/outputs/gemma4_2016_comparison/summary.json).
-
-The remaining files in this step are **preserved prior-configuration evidence**.
-Their DKP method incorrectly retained `missing_inputs`; they do not describe the
-corrected comparison. No prior sample, reply, table or plot has been replaced.
-See [the earlier 2016 configuration](../examples/fe_walter/coupled/README.md#earlier-2016-configuration-preserved).
-All three methods contain 366 unique daily decisions.
-The available-information recovery chain retains **369 actual attempts**:
-366 successful replies and three timeouts. It preserves the first eight
-committed days and reposts none. The retrieved-knowledge chain retains **368 actual attempts**, including two
-timeouts, and also reposts no committed days.
-
-
-Read [the 2016 daily table](../examples/fe_walter/coupled/outputs/2016/daily.csv),
-[verification summary](../examples/fe_walter/coupled/outputs/2016/summary.json) and
-[source/output pins](../examples/fe_walter/coupled/outputs/2016/pins.json) together.
-Requested release, implemented controlled release and spill remain distinct.
-The [15 June available-information sample](../examples/fe_walter/coupled/outputs/2016/llm_available_decision.json)
-and [retrieved-knowledge sample](../examples/fe_walter/coupled/outputs/2016/llm_knowledge_decision.json)
-show messages, raw response, schema/parser fields, diagnostic audit, normalized
-action and the implemented transition. They do not include a next-day
-observation. The next state follows from committed ending storage and
-implemented total outflow.
-
-Audit FAIL is a diagnostic operating result, not a model-format failure.
-Audits evaluate the seasonal goals; they do not force an LLM release or request
-another sample after a seasonal FAIL. Saved-file verification establishes
-execution integrity and water accounting; it does not accept policy quality.
-These single realizations do not rank the methods.
-
-The [earlier 2016 diagnostic](../examples/fe_walter/coupled/README.md#historical-2016-diagnostic-preserved)
-and the older notebooks retain their original prompts, audit counts and samples.
-Offline supplied-reply tests establish wiring and recovery, not LLM quality.
-
-## Code map
-
-| User task | Code responsible |
-|---|---|
-| Read the experiment and resolve files | [configuration.py](../src/llm_reservoir_agent/configuration.py), [agent_configuration.py](../src/llm_reservoir_agent/agent_configuration.py) |
-| Check/prepare the full-weather entry | [coupled.py](../src/llm_reservoir_agent/coupled.py): `load_coupled_settings`, `prepare_coupled`, `run_coupled` |
-| Load forcing and bind flow | [weather.py](../src/llm_reservoir_agent/weather.py): `load_weather`, `validate_bindings`, `simulate_weather` |
-| Preserve FE messages, history and parsing | [reference_backend.py](../examples/fe_walter/extensions/reference_backend.py), [native_case.py](../examples/fe_walter/extensions/native_case.py) |
-| Call and record the selected model | [configured_backend.py](../src/llm_reservoir_agent/configured_backend.py), [providers.py](../src/llm_reservoir_agent/providers.py) |
-| Apply reservoir physics and route downstream | [physics.py](../src/llm_reservoir_agent/physics.py), [network.py](../src/llm_reservoir_agent/network.py) |
-| Commit evidence and recover interruptions | [experiment.py](../src/llm_reservoir_agent/experiment.py), [recovery.py](../src/llm_reservoir_agent/recovery.py) |
-
-[Python API documentation](../docs/API_REFERENCE.md) ·
-[Return to the common case](../examples/fe_walter/README.md)

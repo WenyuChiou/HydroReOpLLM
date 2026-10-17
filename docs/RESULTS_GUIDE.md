@@ -1,107 +1,128 @@
-# Results, audit and troubleshooting
+# Results, audit, and trace
 
-First compare what the operation method requested with what the reservoir
-executed. Then inspect the audit and the trace explaining that decision.
+For the generic coupled rule run, start here:
 
-## Read the trajectory
+```text
+runs/independent-rivers-rule/operation/summary.json
+```
 
-| File | Read it for |
+The experiment's configured output root is `runs/independent-rivers-rule`.
+Preparation evidence is under that root; operation evidence is under
+`runs/independent-rivers-rule/operation`. The LLM fixture follows the same layout
+at `runs/independent-rivers-mixed/operation`.
+
+Older supplied-inflow examples may place operation files directly at their
+configured output root. Use each example's documented path instead of assuming
+every output has an `operation/` child.
+
+## Read the operation trajectory
+
+| File under the operation directory | Read it for |
 |---|---|
-| `reservoir_trajectory.csv` | Inflow, requested release, implemented controlled release, spill and storage |
-| `network_flows.csv` | Flow at reservoirs and downstream network nodes |
-| `network_balance.csv` | Water-balance evidence for the network |
+| `summary.json` | Completion, numerical checks, and audit counts |
+| `reservoir_trajectory.csv` | Inflow, requested release, implemented controlled release, spill, and storage |
+| `network_flows.csv` | Flow at reservoirs and downstream nodes |
+| `network_balance.csv` | Network water-balance evidence |
 | `reach_volume_trace.json` | Routing inputs and outputs |
-| `summary.json` | Completion, numerical checks and audit counts |
-| `outcome_audit.jsonl` | Optional post-routing control-point diagnostics and resolved limit sources |
+| `outcome_audit.jsonl` | Optional post-routing control-point diagnostics and limit sources |
 
-Rates use **m³/s**; storage and water-balance residuals use **m³**. Total outflow
-is implemented controlled release plus spill. The total is injected into routing
-once. The next step begins with the previous step's ending storage and uses the
-release that was actually implemented.
+Rates use **m³/s**. Storage and water-balance residuals use **m³**. Total outflow
+is implemented controlled release plus spill, injected into routing once. The
+next step begins with prior ending storage and the release actually implemented.
 
-Start with the [latest 2016 Gemma 4 comparison](../examples/fe_walter/coupled/README.md#verified-2016-results)
-for water levels, controlled release and seasonal compliance. The
-[historical results chapter](../examples/fe_walter/results.md) preserves the
-separate 2016–2020 trajectory and its original operating targets.
+## Follow one decision
 
-## Follow a decision in the trace
+Read one day in this order: **available information → rendered prompt → full
+reply → proposal → response checks → implemented release → next-day information**.
+For a retrieved-knowledge method, also inspect the selected excerpts and sources.
 
-Read one step in this order: **available information → rendered prompt → full
-reply → operation proposal → response checks → actual release → next-step
-information**. For the retrieved-knowledge method, also inspect the excerpts and their sources.
-
-| Record | Evidence |
+| Record under the operation directory | Evidence |
 |---|---|
-| `decisions.jsonl` and `raw/` | Information, prompts, replies and normalized proposals |
-| `audit.jsonl` | Configured operating criteria and their verdicts |
-| `physics.jsonl` and `backend_events.jsonl` | Applied release, storage calculations and coupling events |
-| `experiment.json` | Saved settings and provenance |
+| `decisions.jsonl` and `raw/` | Information, messages, replies, and normalized proposals |
+| `provider_attempts.jsonl` | Actual profile, provider, model, attempts, metadata, and errors |
+| `audit.jsonl` | Configured decision criteria and verdicts |
+| `physics.jsonl` and `backend_events.jsonl` | Applied release, storage calculation, and coupling events |
+| `experiment.json` | Resolved settings and provenance |
 
-When an information profile is enabled, the selected source, valid/available
-times and history are preserved under
-`observation.context.decision_information`. Read that snapshot beside the final
-messages, action, physical transition and any control-point outcome record.
+When an information profile is selected, its source, valid and available times,
+and history appear under `observation.context.decision_information`. Read that
+snapshot beside the rendered messages, action, physical transition, and any
+control-point outcome record. The [LLM decision workflow](LLM_MODULES.md)
+describes the modules. The saved-record inspector makes no model request.
 
-The [LLM decision workflow](LLM_MODULES.md) explains each module. The inspector
-reads saved records; it makes no model request.
+## Separate response, physics, and operation evidence
 
-## Distinguish response checks from operation audit
+Response checks validate completeness, required fields, units, and numeric
+values. Invalid replies stop before release is applied. The physical kernel then
+checks feasible water and limits. Operation audits evaluate configured operating
+criteria. A physically feasible release can still fail an operating criterion.
 
-Response checks validate reply completeness, required fields, units and numeric
-values. Invalid replies stop before a release is applied. Operation audit
-evaluates the configured operating criteria. A feasible release can still fail
-an operating criterion.
-
-| Verdict | Interpretation |
+| Verdict | Meaning |
 |---|---|
-| PASS | The applicable configured checks passed |
+| PASS | Applicable configured checks passed |
 | FAIL | At least one applicable check failed; inspect its evidence |
 | WARN | A configured warning requires interpretation |
-| UNKNOWN | The required evidence or an applicable auditor is unavailable |
+| UNKNOWN | Required evidence or an applicable auditor is unavailable |
 
-The current comparison uses the confirmed Anik V3.7 prompts with the approved
-seasonal-target edit and real `gemma4:12b` replies. Both the original code and
-HydroOpsLLM completed 366 days for each of the two LLM methods. Read engineering
-checks, execution completion and seasonal operating performance separately;
-completion does not mean every operating target was met.
+`verify` establishes saved-file integrity and numerical consistency. Completed
+dates establish execution completion. Neither claim establishes good operating
+performance. Evaluate seasonal targets, flood control, water supply, or another
+study objective with its own accepted rubric.
+
+## Read the F.E. Walter evidence after the generic run
+
+The [latest 2016 Gemma 4 comparison](../examples/fe_walter/coupled/README.md#verified-2016-results)
+reports water level, controlled release, and seasonal compliance. Its explicit
+current-result files are
+[`models.gemma4.yaml`](../examples/fe_walter/coupled/models.gemma4.yaml),
+[`llm_available.gemma4.yaml`](../examples/fe_walter/coupled/llm_available.gemma4.yaml),
+and [`llm_knowledge.gemma4.yaml`](../examples/fe_walter/coupled/llm_knowledge.gemma4.yaml).
+The [historical results chapter](../examples/fe_walter/results.md) preserves the
+separate 2016–2020 trajectory and its original targets. Do not use an older
+Gemma 3 profile to claim reproduction of the Gemma 4 comparison.
+
+The current comparison uses confirmed Anik V3.7 prompts with the approved
+seasonal-target edit and real `gemma4:12b` replies. Original code and HydroOpsLLM
+completed 366 days for each LLM method. Read completion, engineering checks, and
+seasonal operating performance separately; completion does not mean every
+operating target was met.
 
 The [earlier annual configuration](../examples/fe_walter/coupled/README.md#earlier-2016-configuration-preserved)
-retains the prior diagnostic response contract, including its DKP
-`missing_inputs` field. It is preserved separately from the corrected comparison.
-The older three-day tutorial retains **2 PASS / 1 FAIL** for available information,
-**3 FAIL** for retrieved knowledge and **3 PASS** for its rule-based method.
-Those auditor suites differ, so these counts do not establish which method is
-better. Strategy acceptance remains unset in those three-day LLM snapshots.
+retains the earlier diagnostic response contract, including DKP
+`missing_inputs`. The older three-day tutorial preserves **2 PASS / 1 FAIL** for
+available information, **3 FAIL** for retrieved knowledge, and **3 PASS** for its
+rule method. The auditor suites differ, so these counts do not rank the methods.
+Strategy acceptance remains unset in those three-day LLM snapshots.
 
-These historical machine names identify preserved provenance. The public method
-titles are **LLM operation with available information** and **LLM operation with
-retrieved knowledge**.
+Historical machine names preserve provenance. Public method titles are **LLM
+operation with available information** and **LLM operation with retrieved
+knowledge**.
 
 ## Read post-routing outcome checks
 
-`outcome_audit.jsonl` is separate from request/decision `audit.jsonl`. Each
+`outcome_audit.jsonl` is separate from decision `audit.jsonl`. Each
 `control-point-audit.v1` row records the check ID, timestep, node, routed flow,
-resolved minimum/maximum, status, limit sources and decision references. A
-dynamic limit comes from selected information at that same decision timestep;
-missing optional information yields `UNKNOWN`.
+resolved limit, status, limit sources, and decision references. A dynamic limit
+comes from selected information at the same decision timestep; missing optional
+information produces `UNKNOWN`.
 
-The result diagnoses the routed system after decisions and routing. It does not
-change a release, resample an LLM after a seasonal FAIL, optimize routing,
-guarantee safety or assign causal blame to one agent. Keep its counts separate
+This result diagnoses the routed system after decisions and routing. It does not
+change release, resample an LLM after a seasonal FAIL, optimize routing,
+guarantee safety, or assign causal blame to one agent. Keep these counts separate
 from historical request-audit counts.
 
 ## Troubleshoot
 
 | Observation | Next step |
 |---|---|
-| Incomplete or invalid reply | Inspect raw reply and response-check error; no release should be applied |
-| FAIL with balanced water | Read the failed operating criterion separately from numerical checks |
+| Incomplete or invalid reply | Inspect the raw reply and response-check error; release should not be applied |
+| FAIL with balanced water | Read the operating criterion separately from numerical checks |
 | UNKNOWN audit | Check the configured auditor and available evidence |
 | Output folder already exists | Copy the YAML and set a new run ID and output path |
-| Readiness blocks execution | Resolve the documented prerequisite; retain the original gate |
+| Readiness blocks execution | Resolve the documented prerequisite and retain the original gate |
 
-For interrupted runs and resource planning, read [Running and maintenance](RUNNING.md).
-See [detailed troubleshooting](USER_GUIDE.md#troubleshooting),
-[audit plugins](auditor_plugins.md) and [live readiness](LIVE_READINESS.md).
+For interruption and resource planning, read [Running and recovery](RUNNING.md).
+See [audit plugins](auditor_plugins.md) and [live readiness](LIVE_READINESS.md)
+for advanced checks.
 
 - {download}`Download the main notebook <../_notebook_downloads/main.ipynb>`

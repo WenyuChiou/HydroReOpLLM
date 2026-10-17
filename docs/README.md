@@ -21,8 +21,8 @@ precomputed weather-to-runoff simulation.
 |---|---|---|
 | 1 | [Installation](GETTING_STARTED.md) | Install the package and check the command-line entry. |
 | 2 | [Inputs and outputs](INPUT_OUTPUT.md) | Separate global, hydrology, reservoir/coupling and agent settings; check data units. |
-| 3 | [Configure an agent](CONFIGURATION.md) and [model providers](MODEL_PROVIDERS.md) | Choose Rule-based or LLM, then set the model, prompt and optional knowledge. |
-| 4 | [F.E. Walter tutorial](../tutorials/fe_walter.md) | Follow actual YAML files, reservoir mappings and the daily decision. |
+| 3 | [Build a simulation](BUILD_SIMULATION.md), [configure an agent](CONFIGURATION.md) and [model providers](MODEL_PROVIDERS.md) | Learn the common setup, switch Rule-based to LLM, then set the model, prompt and optional knowledge. |
+| 4 | [F.E. Walter case study](../examples/fe_walter/README.md) and [worked tutorial](../tutorials/fe_walter.md) | Connect the map, operating purpose and data to actual YAML, prompt design and daily decisions. |
 | 5 | [Results](RESULTS_GUIDE.md) and [Recovery](RUNNING.md) | Read the latest annual results, inspect records and resume interrupted runs. |
 | 6 | [Python API](API_REFERENCE.md) and [code structure](CODE_STRUCTURE.md) | Find function contracts, extension points and their implementation modules. |
 

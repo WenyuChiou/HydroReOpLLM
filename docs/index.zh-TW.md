@@ -2,7 +2,8 @@
 
 **Hydrological Simulation with Large Language Model Reservoir Operations**
 
-在耦合水文模擬中設定水庫操作。先了解輸入、設定 agent，再以一個 FE Walter 案例學習三種操作方法。
+在耦合水文模擬中設定水庫操作。先學會通用設定與 LLM 決策流程，
+再以 F.E. Walter 的地點背景、資料與 prompt 設計一個水庫操作研究。
 
 ![HydroOpsLLM 封面](figures/hydroopslm-cover.png)
 
@@ -28,9 +29,9 @@
 
 ::: {container} route-step
 
-[03 · FE Walter 設定教學（英文）](../tutorials/fe_walter.md)
+[03 · 設計 F.E. Walter 案例](../examples/fe_walter/README.zh-TW.md)
 
-逐檔理解共用 input、三種操作方法、prompt 與逐日決策，再查看保存紀錄。
+先了解地圖、水庫目的及使用資料，再逐步設定案例並解讀結果。
 
 :::
 
@@ -43,7 +44,7 @@
 | [Overview](README.zh-TW.md) 與[安裝](GETTING_STARTED.md) | 本套件新增的功能與安裝方式。 |
 | [輸入與輸出（英文）](INPUT_OUTPUT.md) | 相對於原生 HydroCNHS 新增的 experiment YAML、資料格式、單位與輸出。 |
 | [設定 agent（英文）](CONFIGURATION.md) 與[建立模擬](BUILD_SIMULATION.zh-TW.md) | 選擇規則或 LLM、對應水庫、設定 prompt 與模型。 |
-| [F.E. Walter 教學（英文）](../tutorials/fe_walter.md) | 逐檔閱讀實際 experiment、prompt、案例資源與每日決策。 |
+| [F.E. Walter 案例](../examples/fe_walter/README.zh-TW.md)與[實作教學（英文）](../tutorials/fe_walter.md) | 從地圖、水庫目的與資料開始，再設計 prompt、執行並解讀研究。 |
 | [結果（英文）](RESULTS_GUIDE.md) 與[續跑（英文）](RUNNING.md) | 查看決策、audit、實際流量及中斷紀錄。 |
 | [Python API 文件（英文）](API_REFERENCE.md) | 函數參數、回傳值及擴充介面。 |
 | [設定參考（英文）](PARAMETER_REFERENCE.md) 與[程式架構（英文）](CODE_STRUCTURE.md) | 查詢欄位及對應的實作。 |

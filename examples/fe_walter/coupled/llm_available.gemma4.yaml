@@ -1,0 +1,18 @@
+# Current 2016 design; check is offline, run requires explicit --allow-network.
+schema_version: hydroops-coupled-simulation.v2
+case: reservoirs.json
+start_date: '2016-01-01'
+end_date: '2016-12-31'
+run_id: fe-walter-coupled-gemma4-llm_available
+output: ../../../runs/fe-walter-coupled-gemma4-llm_available
+max_calls: null
+models:
+  file: models.gemma4.yaml
+auditors:
+  file: auditors.yaml
+agents:
+  file: agents.llm_available.yaml
+hydrology:
+  file: hydrology.yaml
+extensions:
+  reference_v3_7: ../extensions/__init__.py

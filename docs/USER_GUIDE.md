@@ -2,128 +2,118 @@
 
 [English](USER_GUIDE.md) | [繁體中文](USER_GUIDE.zh-TW.md)
 
-HydroOpsLLM connects accepted HydroCNHS hydrology to rule-based or
-language-model reservoir decisions. The host keeps water accounting, physical
-limits, routing and evidence outside the model.
+HydroOpsLLM connects an accepted HydroCNHS model to rule-based or LLM reservoir
+operation. HydroOpsLLM keeps water accounting, physical limits, routing, audits,
+and evidence outside the language model.
 
-## Follow the manual in this order
+## Check, run and verify
 
-1. Read the [overview](README.md) to understand the two-stage simulation.
-2. Install the project in [Build a simulation](BUILD_SIMULATION.md#1-install-the-project).
-3. Accept the [HydroCNHS setup and calibration/validation](HYDROLOGY_SETUP.md).
-4. Bind reservoirs and routing nodes in
-   [Build a simulation](BUILD_SIMULATION.md#3-bind-hydrology-to-the-reservoir-network).
-5. Choose agents and prompts in [Configuration](CONFIGURATION.md).
-6. Choose a [model provider](MODEL_PROVIDERS.md) only if the study needs an LLM.
-7. Add [decision information](INFORMATION.md) or custom context explicitly.
-8. Run `check → prepare → run → verify`, then inspect or resume the trace.
+1. **Install.** Follow [Build a simulation: Install](BUILD_SIMULATION.md#1-install-the-project).
+2. **Confirm inputs and outputs.** Read [Inputs and outputs](INPUT_OUTPUT.md).
+   Complete basin construction, parameter derivation, and calibration/validation
+   with the [official HydroCNHS manual](https://cylin928.github.io/HydroCNHS/).
+3. **Build and connect.** Use the four-day independent-river fixture in
+   [Build a simulation](BUILD_SIMULATION.md). It checks weather, hydrology,
+   reservoir IDs, connections, and outputs without claiming scientific validity.
+4. **Configure the agent.** Start with the supplied rule configuration, then use
+   [Configuration](CONFIGURATION.md) to switch one reservoir to the minimal LLM
+   agent: `reservoir_id`, `type`, `model_profile`, and `prompt_file`.
+5. **Configure the model and prompt.** Select the `local` profile or another
+   explicit profile in [Model providers](MODEL_PROVIDERS.md). HydroOpsLLM adds no
+   common system prompt.
+6. **Run and verify.** Execute the canonical `check → prepare → run → verify`
+   commands in [Running and recovery](RUNNING.md#run-the-generic-coupled-fixture).
+7. **Read results.** Start with `summary.json`, then use
+   [Results, audit, and trace](RESULTS_GUIDE.md).
 
-The [two-reservoir walkthrough](MULTI_RESERVOIR.md) provides a complete split
-configuration and a downloadable bundle.
+After this generic path works, continue to the
+[F.E. Walter study background](../examples/fe_walter/README.md) and
+[worked configuration](../tutorials/fe_walter.md), or the
+[two-reservoir walkthrough](MULTI_RESERVOIR.md).
 
 ## Understand the execution boundary
 
 Preparation runs GWLF or ABCD rainfall-runoff and Lohmann routing over the full
-continuous period, including warm-up. It then selects inlet boundaries for the
-operation dates. Daily operation advances reservoir decisions, physical storage
-and downstream routing. Reservoir decisions do not alter the precomputed weather
-simulation.
+continuous period, including warm-up. It then selects operation-date inlet
+boundaries. Daily operation advances reservoir decisions, physical storage, and
+downstream routing. Reservoir decisions do not change the precomputed
+weather-to-runoff simulation.
 
 One controlled reservoir has one agent. The agent requests controlled release.
-The physical kernel applies release limits and water availability, computes
-spill and ending storage, and routes implemented release plus spill downstream.
+The physical kernel applies water availability and release limits, computes
+spill and ending storage, and routes implemented controlled release plus spill.
 
-## Choose the simplest valid decision method
+## Choose the decision method
 
 | Goal | Agent configuration | Provider request |
 |---|---|---|
-| Use an explicit operating rule or controller | `type: rule_based`, `rule: <registered ID>`, `rule_parameters` | none |
-| Compare with the example's inflow-history rule | `type: rule_based`, `rule: hanasaki` | none |
-| Use your prompts and a model | `type: llm`, `model_profile`, `prompt_file` | explicit `--allow-network` |
-| Preserve a scientific case method | `type: llm` with `customization.backend` | depends on the extension |
+| Use an operating rule or controller | `type: rule_based`, `rule`, `rule_parameters` | none |
+| Run the fixture's inflow-history example | `type: rule_based`, `rule: hanasaki` | none |
+| Use your prompt and a model | `type: llm`, `model_profile`, `prompt_file` | only with `--allow-network` |
+| Preserve a scientific case method | `type: llm` with `customization.backend` | extension-dependent |
 
-Begin with a rule agent. Hanasaki is an example implementation, not a fixed
-framework choice. Register your own module for operating curves, water-supply or
-hydropower control; those controllers must supply their own algorithms and tests.
-A baseline is a comparison run, not an algorithm. Offline means no real provider request; LLM
-tests and replay can use supplied or saved replies without creating a third type.
-An LLM agent is appropriate after the
-hydrology, network, initial storage, prompt and audit criteria are reviewable.
-The F.E. Walter teaching case retains separate native Anik formatting through
-its extension; its saved 2016 diagnostics are not a new Anik replication.
+Start with a rule agent to verify the physical connections. Hanasaki is one
+registered example, not a framework default. A baseline is a comparison run,
+not an algorithm. Offline means no live provider request; replay and fixtures
+can use saved replies without defining another agent type.
 
-## Use the v2 split configuration
+The F.E. Walter extension preserves the case's native Anik message format. It
+does not define a common prompt or an Anik default for other reservoirs.
 
-New experiments use `hydroops-coupled-simulation.v2`. `hydrology`, `models`,
-`agents`, `auditors` and `information` can each be inline or exactly
-`{file: path}`. `extensions` registers explicit source files. Every path resolves
-from the file that declares it, and files are not deep-merged.
+## Use v2 and explicit study inputs
 
-Older v1 inline configurations remain supported. Use
-[Configuration](CONFIGURATION.md) for the complete shape and path rules.
+New experiments use `hydroops-coupled-simulation.v2`. The experiment holds
+shared dates, output, hydrology, physical topology, and catalogs. Each agent
+selects its reservoir, method, model profile, prompt, information profile, and
+auditors. Information controls what an operator sees; physical connections move
+water.
 
-The experiment owns the shared dates, output, hydrology, physical topology and
-catalogs. Each agent uses `reservoir_id` to select one reservoir and sets its own
-method, model, prompt, information profile and auditors. Information sources
-control visibility; only the physical network's connections move water.
+`hydrology`, `models`, `agents`, `auditors`, and `information` can be inline or
+exactly `{file: path}`. Paths resolve from the declaring file, and section files
+are not deep-merged. Older inline v1 configurations remain supported.
 
-## Treat prompts and information as study inputs
+A catalog is a named collection, such as all model profiles. A profile is one
+named entry selected by an agent. A source pin records exact input bytes or a
+hash for reproducibility. Committed history is the sequence of completed days
+already saved with decisions, physical transitions, and evidence.
 
-A generic LLM agent declares its user instruction and may add a system template:
+## Add advanced context and recovery later
+
+The minimal LLM agent is:
 
 ```yaml
-reservoir_id: lake_a
-type: llm
-model_profile: local
-prompt_file: prompts/operator.txt
-customization:
-  system_prompt_file: prompts/system.txt
+operator_a:
+  reservoir_id: lake_a
+  type: llm
+  model_profile: local
+  prompt_file: prompts/operator.txt
 ```
 
-There is no automatically added common system instruction. Under `customization`,
-fixed `prompt_variables`, selected `information` and dynamic `context_providers`
-become named template values. A
-custom context callback sees only immutable decision inputs and returns a value
-with provenance. It cannot change physical state.
+Add optional `customization.system_prompt_file`, `prompt_variables`, knowledge,
+selected [decision information](INFORMATION.md), `context_providers`, retries,
+and `fallback_models` only when the study requires them. Fallback entries are
+ordered model profile IDs under `customization`. They do not replace a failed
+audit, physical transition, or evidence write.
 
-## Keep provider behavior explicit
+`verify` checks saved links, hashes, and water accounting. It does not establish
+that an operating policy is effective. Keep hydrology calibration/validation,
+response validation, operation audits, and physical verification as separate
+evidence.
 
-Supported providers are OpenAI Responses, Anthropic Messages, Gemini
-`generateContent`, Ollama Chat and OpenAI-compatible Chat Completions. Model IDs
-and credential environment-variable names are explicit. Sampling and token
-settings are sent only when configured.
-
-Retries are bounded per profile. Optional `customization.fallback_models` are ordered profile
-IDs and default to empty. The trace records the model and attempt actually used.
-Authentication or configuration errors stop. Audit FAIL and physical failure do
-not request a replacement answer.
-
-## Read completion claims carefully
-
-`verify` checks saved links, hashes and water accounting. It does not prove that
-the operating policy is good. Keep hydrology calibration/validation, decision
-audits and physical verification as separate evidence.
-
-The trace retains provider request/response evidence, decisions, physics and
-audits. If writing that evidence fails, execution stops. Resume skips committed
-decisions and can reuse captured replies, but an external network service cannot
-offer an exactly-once guarantee across every crash boundary.
-
-## Check, run and verify
-
-Use the same experiment for `check`, `prepare` and `run`, then verify its
-operation directory. The complete commands and their meanings are in
-[Build a simulation](BUILD_SIMULATION.md#5-check-without-running-anything).
+Resume reconstructs an interrupted run in a new directory. It skips committed
+decisions and can reuse saved replies. An in-flight external request may be sent
+again after a crash, so exactly-once provider behavior is not guaranteed. See
+[Running and recovery](RUNNING.md#resume-an-interrupted-run).
 
 ## Troubleshooting
 
 | Symptom | Next step |
 |---|---|
-| Missing or stale information | Inspect the selected profile, availability times and required flags. |
-| Provider authentication error | Set the named `api_key_env`; do not place the key in YAML. |
-| Invalid or truncated reply | Inspect the provider ledger and raw response before starting a new run. |
-| Audit FAIL with valid balance | Review the configured operating criterion; physics does not clear the audit. |
-| Output already exists | Choose a new `run_id` and output, or use `resume` for an interrupted run. |
+| Missing or stale information | Inspect the selected profile, availability times, and required flags. |
+| Provider authentication error | Set the named `api_key_env`; do not put credentials in YAML. |
+| Invalid or truncated reply | Inspect the provider ledger and raw response before another run. |
+| Audit FAIL with valid balance | Review the operating criterion; physical success does not clear it. |
+| Output already exists | Choose a new `run_id` and output, or resume an interrupted run into a new directory. |
 
-Use [Results, audit and trace](RESULTS_GUIDE.md) to interpret the output and
-[Parameter reference](PARAMETER_REFERENCE.md) when adapting the configuration.
+Use the [parameter reference](PARAMETER_REFERENCE.md) when adapting fields and
+[Live readiness](LIVE_READINESS.md) before a live study.
