@@ -10,13 +10,13 @@ requires `--allow-network` during an LLM `run` or an unfinished part of `resume`
 
 ## Configure the first local profile
 
-Edit `examples/multiple_reservoirs/models.yaml`. The minimal profile selected by
+In your model catalog, set the model ID exposed by your service. The minimal profile selected by
 the generic `model_profile: local` agent is:
 
 ```yaml
 local:
   provider: ollama
-  model: gemma3:4b
+  model: YOUR_OLLAMA_MODEL
   base_url: http://localhost:11434
   temperature: 0.7
   max_tokens: 2048
@@ -48,7 +48,7 @@ values in environment variables, never in YAML.
 ```yaml
 local:
   provider: ollama
-  model: gemma3:4b
+  model: YOUR_OLLAMA_MODEL
   base_url: http://localhost:11434
   temperature: 0.7
   max_tokens: 2048

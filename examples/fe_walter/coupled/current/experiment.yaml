@@ -1,16 +1,18 @@
-# Current teaching entry; preserved runs and earlier configurations remain unchanged.
-schema_version: hydroops-coupled-simulation.v2
-run_id: fe-walter-current-rule
-case: ../reservoirs.json
-output: ../../../../runs/fe-walter-current-rule
-start_date: '2016-01-01'
-end_date: '2016-12-31'
-max_calls: 0
+# Rule-based teaching entry. Relative paths start from the file that declares them.
+schema_version: hydroops-coupled-simulation.v2 # Loader format, not the package release.
+run_id: fe-walter-current-rule # Label recorded in run metadata.
+case: ../reservoirs.json # Physical reservoir and routing network JSON.
+output: ../../../../runs/fe-walter-current-rule # Actual folder; change with run_id for a new run.
+start_date: '2016-01-01' # First operation day (included).
+end_date: '2016-12-31' # Last operation day (included).
+max_calls: 0 # Run-wide provider-attempt ceiling; this rule makes no model calls.
+# Agent, audit and hydrology settings are separate reusable layers.
 agents:
   file: ../agents.rule.yaml
 auditors:
   file: ../auditors.yaml
 hydrology:
   file: ../hydrology.yaml
+# Rules are generic registered modules; Hanasaki is this example's selected module.
 extensions:
   hanasaki: ../../../rules/hanasaki/__init__.py

@@ -1,5 +1,9 @@
 # F.E. Walter：使用檢索知識的 LLM 操作
 
+> 歷史參考：本頁保存較早設定與決策紀錄。新的研究請從[最新版 FE Walter 教學](../../../tutorials/fe_walter.md)開始，
+> 並查看[目前全年結果](../results.zh-TW.md)。
+
+
 [English](README.md) | [繁體中文](README.zh-TW.md) · [FE Walter 案例](../README.zh-TW.md)
 
 此方法在使用可用資訊的方法所用的相同 LLM 介面上，加入依條件檢索、與來源綁定
@@ -15,7 +19,7 @@
 [季節 prompt](../prompts/reference/dkp_seasonal_v1_system.txt)。
 [共用窗口與水位檢查](../README.zh-TW.md#季節水位)說明日期與判定。
 這份獨立三日季節 YAML 尚未重跑；本頁保存的完整交換仍保留原始指令與 audit 判定。
-目前維護的全年設定，請見英文[2016 年耦合結果](../coupled/README.md#verified-2016-results)。
+目前維護的全年設定，請見英文[2016 年耦合結果](../results.md)。
 
 ## 1. 設定操作方法
 
@@ -307,7 +311,7 @@ Audit FAIL 是操作診斷；本次保存的執行未因此替換放流。 蓄�
 [完整 prompt／回覆](../../../examples/fe_walter/reference_outputs/ollama_three_day/dkp/raw/policy_87d975aee46dea6d4818b1f090efec8cc79b1e29a0fc31132d62799f2f3741b6.json) · [原始 audit](../../../examples/fe_walter/reference_outputs/ollama_three_day/dkp/raw/audit_87d975aee46dea6d4818b1f090efec8cc79b1e29a0fc31132d62799f2f3741b6.json) · [執行紀錄](../../../examples/fe_walter/reference_outputs/ollama_three_day/dkp/physics.jsonl)
 
 
-[完整 2016–2020 結果與決策紀錄](../results.zh-TW.md)
+[完整 2016–2020 結果與決策紀錄](../results_history.zh-TW.md)
 
 上表呈現此方法的三日保存結果，並非策略績效評估；下載資料保留完整精度。
 連結的五年結果屬另一份知識檢索實驗，並非三種方法的五年比較。

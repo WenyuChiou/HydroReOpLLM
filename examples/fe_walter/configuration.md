@@ -5,4 +5,4 @@ The maintained file-by-file walkthrough is
 (English). It explains the canonical split experiment, hydrology/physical
 coupling, per-agent rule or LLM settings, prompts, decisions and recovery.
 
-[Case overview](README.md) · [Weather-to-operation commands](coupled/README.md)
+[Case overview](README.md) · [Run commands and technical reference](coupled/README.md)

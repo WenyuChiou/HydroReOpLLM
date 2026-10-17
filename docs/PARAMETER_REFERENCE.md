@@ -11,15 +11,15 @@ accepted.
 
 | Key | Required / default | Meaning |
 |---|---|---|
-| `schema_version` | required | `hydroops-coupled-simulation.v2`. |
-| `run_id` | required text | Trace identity; choose a new value for a new run. |
-| `output` | required path | New preparation directory; existing output is refused. |
-| `case` | required path | YAML or JSON `reservoir-physical-case.v1`. |
+| `schema_version` | required | Configuration format read by the loader: `hydroops-coupled-simulation.v2`; not the package version. |
+| `run_id` | required text | Name saved with the run and its decisions; does not set the output location. |
+| `output` | required path | New folder for preparation and its `operation/` results subfolder; existing output is refused. |
+| `case` | required path | Physical reservoir/network YAML or JSON using `reservoir-physical-case.v1`. |
 | `start_date`, `end_date` | required quoted dates | Inclusive operation period inside the native model period. |
 | `max_calls` | default `0` | Integer covering planned LLM requests, or explicit `null` for no total cap. |
 | `hydrology` | required mapping or file section | Native model, forcing and inlet bindings. |
 | `agents` | required nonempty mapping or file section | One agent per controlled reservoir. |
-| `models` | default `{}` | Named transport profiles. |
+| `models` | default `{}` | Named provider/model settings selected by LLM agents. |
 | `auditors` | default `{}` | Named decision checks. |
 | `information` | default empty | `sources` and `profiles` mappings. |
 | `outcome_checks` | default `{}` | Post-routing control-point diagnostics. |
@@ -73,7 +73,7 @@ paths.
 | `reservoir_id` | required | Exact controlled-reservoir ID; one agent per controlled reservoir. |
 | `type` | required | `rule_based` or `llm`. |
 | `rule` | rule-based required | ID of an explicitly registered rule extension. |
-| `rule_parameters` | `{}` | Opaque parameters validated by the selected rule extension. |
+| `rule_parameters` | `{}` | Parameters defined and validated by your selected rule module. |
 | `model_profile` | live LLM required | Primary model profile ID from the experiment's `models` catalog. |
 | `prompt_file` | LLM required | Nonempty UTF-8 user template; a custom message-building backend may supply its own explicit resources. |
 | `auditors` | `[]` | Unique configured auditor IDs. |
@@ -169,13 +169,17 @@ nonnegative and sum to 1. Outgoing fractions from each internal node sum to 1.
 
 | Key | Unit / constraint |
 |---|---|
-| `reservoir_id` | Exact nonempty ID matching the network key. |
+| `reservoir_id` | Nonempty physical reservoir ID, unique across the network; it may differ from the reservoir graph key. |
 | `capacity_m3` | Positive m³. |
 | `dead_storage_m3` | Nonnegative m³ below capacity. |
 | `initial_storage_m3` | Between dead storage and capacity. |
 | `minimum_release_cms` | Nonnegative m³/s. |
 | `maximum_release_cms` | m³/s, at least the minimum. |
 | `dt_seconds` | Positive seconds; the current runner requires daily `86400`. |
+
+An agent's `reservoir_id` selects the **graph key**; `physical.reservoir_id`
+identifies the physical reservoir in its records. For FE Walter these are
+`FEWalter` and `fe_walter`, respectively. Preserve each reference in its own role.
 
 The kernel clips a requested release to operating and available-water bounds,
 computes spill above capacity, and checks mass balance. Initial storage is an

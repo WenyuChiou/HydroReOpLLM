@@ -1,234 +1,108 @@
-# Build a weather-to-operation simulation
+# Connect your simulation
 
-Use this general workflow to connect an accepted HydroCNHS model to reservoir
-agents. First check the connections with a rule, then choose an LLM profile and
-prompt. The same physical reservoir and routing interface serves both methods.
+Keep your accepted HydroCNHS model. Add the physical reservoir network, then
+assign an operator to each controlled reservoir. This page explains the common
+sequence; the [FE Walter tutorial](../tutorials/fe_walter.md) shows every actual file.
 
-The runnable teaching case is in
-[`examples/multiple_reservoirs`](../examples/multiple_reservoirs/experiment.yaml).
-It contains two independent river systems. Its short forcing record and
-synthetic parameters test software connections; they are not a calibrated
-hydrological model or a validated operating policy.
-
-Read [Inputs and outputs](INPUT_OUTPUT.md) for the changes from native HydroCNHS
-and [Agents, prompts and context](CONFIGURATION.md) for LLM settings. Then read
-the [FE Walter study background](../examples/fe_walter/README.md) and its
-[worked configuration](../tutorials/fe_walter.md) to apply this sequence to a real site.
+Steps: [inputs](#2-accept-the-hydrocnhs-model-first) →
+[water connections](#3-bind-hydrology-to-the-reservoir-network) →
+[agents](#4-choose-an-agent-for-every-controlled-reservoir) →
+[execution](#5-check-without-running-anything).
 
 ## 1. Install the project
 
-Follow [Installation](GETTING_STARTED.md), then confirm the command is available:
-
-```powershell
-reservoir-experiment --help
-```
-
-Hydrology and orchestration run on the CPU. A GPU is relevant only when a local
-inference server uses it. Remote providers do not use your local GPU.
+Follow [Installation](GETTING_STARTED.md), then check `reservoir-experiment --help`.
 
 ## 2. Accept the HydroCNHS model first
 
-Use an agent-free HydroCNHS model with GWLF or ABCD rainfall-runoff and Lohmann
-routing. Follow the [official HydroCNHS tutorials](https://github.com/cylin928/HydroCNHS/tree/main/tutorials)
-for basin construction, model parameters and calibration/validation. Bring the
-accepted model and complete weather table to this entry; changing the agent does
-not require recalibrating unchanged hydrology.
+Prepare basin boundaries, model parameters and calibration/validation with the
+[HydroCNHS tutorials](https://github.com/cylin928/HydroCNHS/tree/main/tutorials).
+This entry accepts an agent-free GWLF or ABCD model with Lohmann routing.
 
-The weather table contains every model day for every weather-driven subbasin:
+Supply complete precipitation, temperature and PET data for its continuous
+period, including warm-up. The reservoir-operation dates select a period within
+that model record. Initial reservoir storage is a separate physical setting;
+hydrological warm-up does not determine it.
 
-```text
-date,subbasin_id,precipitation_mm,temperature_c,pet_cm
-2020-02-27,basin_a,10,10,0.1
-```
-
-Preparation runs native HydroCNHS over the complete continuous period, including
-warm-up. It then selects the daily boundaries for reservoir operation. Reservoir
-decisions do not feed back into the weather-to-runoff calculation.
-
-See [HydroCNHS setup and calibration/validation](HYDROLOGY_SETUP.md) and
-[weather inputs](WEATHER_INPUTS.md) before adapting the teaching files.
+See [input formats and units](INPUT_OUTPUT.md) and the detailed
+[weather reference](WEATHER_INPUTS.md).
 
 ## 3. Bind hydrology to the reservoir network
 
-The top-level file points to `hydrology.yaml` and `reservoirs.yaml`:
+![Map water sources and agents](figures/reservoir-agent-mapping.svg)
 
-```yaml
-schema_version: hydroops-coupled-simulation.v2
-case: reservoirs.yaml
-start_date: '2020-02-28'
-end_date: '2020-03-02'
-hydrology: {file: hydrology.yaml}
-```
+*Figure 2. Blue arrows carry water; orange arrows carry the current reservoir
+state and requested release. Explicit IDs connect the files.*
 
-Each hydrology binding supplies incremental local flow to one operation node:
+| Setting | Meaning |
+|---|---|
+| `hydrology.model`, `hydrology.forcing` | Paths to the native model and complete weather table. |
+| `hydrology.inflow_bindings` | Which native runoff or routed outlet supplies each operation inlet. |
+| Reservoir `inflow_node` | The inlet supplying this reservoir. |
+| `network.connections` | Directed water paths between reservoirs, inlets and downstream nodes. |
+| `network.outlets` | Terminal nodes, including separate outlets for independent river systems. |
 
-```yaml
-model: model.yaml
-forcing: forcing.csv
-zero_flow_nodes: []
-inflow_bindings:
-  inlet_a: {runoff: basin_a}
-  inlet_b: {runoff: basin_b}
-  river_a: {constant: 0}
-  river_b: {constant: 0}
-```
+For reservoirs in series, downstream local input contains only additional runoff.
+Upstream release and spill arrive through the network connection. Binding that
+same upstream water again would count it twice. Information sources describe
+what an operator can see; they do not create water paths.
 
-Do not add already routed upstream flow as local inflow again. The operation
-network routes controlled release plus spill exactly once.
-
-The physical case uses `reservoir-physical-case.v1`. Every water ID is explicit.
-The current reservoir kernel assumes zero evaporation and seepage.
-New networks use `llm-reservoir-network.v2` and an `outlets` list:
-
-```yaml
-schema_version: reservoir-physical-case.v1
-data_kind: synthetic_fixture
-network:
-  schema_version: llm-reservoir-network.v2
-  start_date: '2020-02-28'
-  reservoirs:
-    lake_a:
-      inflow_node: inlet_a
-      physical:
-        reservoir_id: lake_a
-        capacity_m3: 1000000
-        dead_storage_m3: 0
-        initial_storage_m3: 500000
-        minimum_release_cms: 0
-        maximum_release_cms: 20
-        dt_seconds: 86400
-  connections:
-    - source: lake_a
-      target: river_a
-      unit_hydrograph: [0, 1]
-  outlets: [river_a]
-```
-
-Every item in `outlets` is an exact terminal node. Independent systems can share
-one experiment and remain independent; do not invent a common outlet. Information
-sources describe what an agent may see. They never create water connections.
+The physical case also sets capacity, initial/dead storage, release limits and
+the daily interval. The current reservoir kernel assumes zero evaporation and
+seepage. Full field definitions are in the [parameter reference](PARAMETER_REFERENCE.md).
 
 ## 4. Choose an agent for every controlled reservoir
 
-Each controlled reservoir has exactly one agent. Passive reservoirs have no
-agent. Start with the deterministic Hanasaki rule:
+An agent's `reservoir_id` must match its physical reservoir. Choose `type:
+rule_based` with your registered rule and its parameters, or `type: llm` with
+a model profile and explicit prompt. Hanasaki is a supplied example rule, not
+the definition of Rule-based operation. Passive outlets have no decision agent.
 
-```yaml
-operator_a:
-  reservoir_id: lake_a
-  type: rule_based
-  rule: hanasaki
-  rule_parameters:
-    alpha: 0.85
-    inflow_statistics_file: statistics_a.json
-  auditors: [bounds]
-```
-
-Use `type: rule_based` with `rule` naming an explicitly registered rule extension.
-Hanasaki is this example's rule; register another implementation for your own
-operating curves, water-supply or hydropower controller. Use `type: llm`,
-`model_profile` and `prompt_file` for
-a general model-backed operator. Optional prompt/context controls belong inside
-`customization`; no common system instruction is injected.
-Rule-based agents can also select `customization: {information: downstream}`;
-the engine supplies available values in `observation.context.decision_information`.
-The F.E. Walter Anik teaching methods are an active case extension with their
-own native message formatting. They do not define the generic configured prompt.
-
-Continue with [Agents, prompts and context](CONFIGURATION.md) and
-[model providers](MODEL_PROVIDERS.md) before enabling an LLM agent.
+Read [Configure agents](CONFIGURATION.md) for the minimal LLM settings, optional
+knowledge and custom prompt variables. Shared model settings do not share state
+or history between reservoirs.
 
 ## 5. Check without running anything
 
-From the repository root:
-
 ```powershell
-reservoir-experiment check examples/multiple_reservoirs/experiment.yaml
+reservoir-experiment check examples/fe_walter/coupled/current/experiment.yaml
 ```
 
-`check` reads and validates every referenced section, path, model profile,
-prompt, extension, date, binding and physical setting. It runs neither hydrology
-nor a provider request. Each path is relative to the file that declares it.
+`check` validates referenced files, dates, IDs, model settings and prompt inputs.
+It runs neither hydrology nor a model request. Paths are relative to the file
+that declares them.
 
 ## 6. Prepare hydrology
 
-```powershell
-reservoir-experiment prepare examples/multiple_reservoirs/experiment.yaml
-```
-
-`prepare` runs the full continuous hydrology period and writes the selected
-operation boundaries. It makes zero model requests. The preparation contains
-`inflows.csv`, `case.json`, `experiment.yaml`, `hydrology.json` and
-`preparation.json`, with hashes that bind the generated files to their sources.
+`prepare` runs HydroCNHS over its full continuous period and saves daily inflow
+for the operation dates. It makes no model request. A verified matching
+preparation can be reused when comparing operation methods; see
+[reuse a preparation](WEATHER_INPUTS.md#reuse-a-preparation).
 
 ## 7. Run the rule-based case
 
-```powershell
-reservoir-experiment run examples/multiple_reservoirs/experiment.yaml
-```
+`run` repeats this daily loop: read inflow and state, request release, apply
+reservoir physics, route actual outflow downstream, save the completed day.
+The next day uses the updated storage and history. Upstream rainfall–runoff
+remains the saved input.
 
-The operation period is four days: 2020-02-28 through 2020-03-02. Each day the
-agent requests controlled release, the physical kernel implements a feasible
-release and spill, and native routing advances downstream. The next decision
-uses the committed ending state. Same-day downstream flow does not feed back
-into the decision that produced it.
-
-To run the LLM variant later, use `experiment.llm.yaml`. It selects
-`agents.llm.yaml`, gives the run a separate identity and keeps `lake_b` on its
-Hanasaki rule. Each agent selects its own method within the shared experiment.
-Add the explicit network gate:
-
-```powershell
-reservoir-experiment run examples/multiple_reservoirs/experiment.llm.yaml --allow-network
-```
-
-`max_calls: null` removes the total request cap. It does not remove each model
-profile's `max_attempts` limit.
+Start with a rule when checking a new network. To select an LLM, change the
+agent method and model/prompt references while retaining the physical inputs.
+Only an LLM `run` needs `--allow-network`. The [run chapter](RUNNING.md) gives
+the complete commands and output paths.
 
 ## 8. Verify and read the result
 
-```powershell
-reservoir-experiment verify runs/independent-rivers-rule/operation
-```
-
-For this coupled entry, read `runs/independent-rivers-rule/operation/summary.json`
-first. The following files are also inside that `operation/` directory:
-
-| Evidence | Question it answers |
-|---|---|
-| `decisions.jsonl` | What observation and proposal were bound to each decision? |
-| `raw/` and provider ledger | What messages, requests, replies, usage and attempt metadata were retained? |
-| `audit.jsonl` | Which configured decision checks passed, warned, failed or remained unknown? |
-| `physics.jsonl` | What release and spill were implemented, and did storage balance? |
-| `network_flows.csv` | What flow reached each routing node? |
-| `reservoir_trajectory.csv` | How did each reservoir state change? |
-
-Evidence-write failure stops execution. Audit FAIL and physical failure do not
-trigger another model attempt. A completed run establishes reproducible
-execution and water accounting; it does not establish policy quality.
+`verify` checks saved records, water balance and routing. Read the
+[water-level and release results](RESULTS_GUIDE.md) first. Provider attempts and
+audits are explained separately in the [records reference](RECORDS.md).
+Completion and balanced water do not establish that an operation target was met.
 
 ## 9. Resume after an interruption
 
-Resume into a new output directory:
+Preserve the partial run and continue into a new directory with `resume`.
+Follow [Run and resume](RUNNING.md#resume-an-interrupted-run) for the exact
+output-path convention and the limits of request recovery.
 
-```powershell
-reservoir-experiment resume examples/multiple_reservoirs/experiment.yaml `
-  --from-run runs/interrupted/operation `
-  --output runs/resumed `
-  --run-id resumed-01
-```
-
-Resume verifies and rebuilds the sequence of already saved daily transitions. It skips committed decisions
-and reuses captured replies when available. It does not overwrite the source run.
-Add `--allow-network` only if unfinished decisions need new provider requests.
-All five provider adapters can replay committed attempts, including retries and
-fallbacks. Committed custom context values are reused without rerunning retrieval.
-Dynamic numeric information sources with `type: extension` need a durable
-replay contract and are currently rejected by `resume`; use pinned CSV/static
-information for resumable studies.
-
-The ledger prevents silent duplicate decisions inside the recovered trace, but
-it cannot promise exactly-once behavior at an external network service.
-
-Next, use the [complete two-reservoir walkthrough](MULTI_RESERVOIR.md) or the
-[parameter reference](PARAMETER_REFERENCE.md).
+Next: [FE Walter step by step](../tutorials/fe_walter.md), or
+[multiple-reservoir configuration](MULTI_RESERVOIR.md).

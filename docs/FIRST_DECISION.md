@@ -1,5 +1,8 @@
 # Your first reservoir decision
 
+> Historical saved decision. The maintained [FE Walter tutorial](../tutorials/fe_walter.md) and [annual results](../examples/fe_walter/results.md) use the current settings.
+
+
 This chapter reads one saved actual Ollama record for F.E. Walter Dam on
 **2016-01-01**. It does not rerun the simulation or reconstruct an invented
 reply. The record is bound by decision ID

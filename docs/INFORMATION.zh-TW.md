@@ -2,8 +2,12 @@
 
 [English](INFORMATION.md) | [繁體中文](INFORMATION.zh-TW.md)
 
-決策資訊是 agent 決策當時可取得欄位的明確快照，選取時遵守因果性。
-它不會取代受保護的 host observation，也不會建立水流連接。
+決策資訊是 agent 在決策當時可取得的額外資料，例如已發布的入流預報或下游流量需求。
+Profile 指定該 agent 可以使用哪些欄位；未發布的未來觀測不能進入決策。
+
+核心 observation 已提供當前入流及水庫狀態，有額外資料時才加入 information。
+Rule-based 可從 observation 讀取選定值，LLM 則由模板放入 `$information`。
+資訊不會改變實際河網或水庫物理。
 
 v2 experiment 使用一個 `information` section：
 

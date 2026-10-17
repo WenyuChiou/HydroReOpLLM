@@ -1,5 +1,9 @@
 # F.E. Walter：使用可用資訊的 LLM 操作
 
+> 歷史參考：本頁保存較早設定與決策紀錄。新的研究請從[最新版 FE Walter 教學](../../../tutorials/fe_walter.md)開始，
+> 並查看[目前全年結果](../results.zh-TW.md)。
+
+
 [English](README.md) | [繁體中文](README.zh-TW.md) · [FE Walter 案例](../README.zh-TW.md)
 
 此方法向 LLM 提供操作指示與可用的水庫資訊，不會檢索知識摘錄。範例使用本機
@@ -15,7 +19,7 @@ Ollama；逐步指南會先讀取保存的回覆，再說明如何啟動新執�
 [季節 prompt](../prompts/reference/zeroshot_seasonal_v1_system.txt)。
 [共用窗口與水位檢查](../README.zh-TW.md#季節水位)說明日期與判定。
 這份獨立三日季節 YAML 尚未重跑；本頁保存的完整交換仍保留原始指令與 audit 判定。
-目前維護的全年設定，請見英文[2016 年耦合結果](../coupled/README.md#verified-2016-results)。
+目前維護的全年設定，請見英文[2016 年耦合結果](../results.md)。
 
 ## 1. 設定操作方法
 
@@ -186,7 +190,7 @@ Audit FAIL 是操作診斷；本次保存的執行未因此替換放流。 蓄�
 [完整 prompt／回覆](../../../examples/fe_walter/reference_outputs/ollama_three_day/zero_shot/raw/policy_b32bc5738ff8f890b5950aab3f5203ab31c224527ff6be8b3f5daf50bdb3dcc5.json) · [原始 audit](../../../examples/fe_walter/reference_outputs/ollama_three_day/zero_shot/raw/audit_b32bc5738ff8f890b5950aab3f5203ab31c224527ff6be8b3f5daf50bdb3dcc5.json) · [執行紀錄](../../../examples/fe_walter/reference_outputs/ollama_three_day/zero_shot/physics.jsonl)
 
 
-[完整 2016–2020 結果與決策紀錄](../results.zh-TW.md)
+[完整 2016–2020 結果與決策紀錄](../results_history.zh-TW.md)
 
 上表呈現此方法的三日保存結果，並非策略績效評估；下載資料保留完整精度。
 連結的五年結果屬另一份知識檢索實驗，並非三種方法的五年比較。

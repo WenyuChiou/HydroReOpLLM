@@ -19,16 +19,6 @@
   <meta name="twitter:image" content="{{ social_image|e }}">
 {% endblock %}
 
-{% block document %}
-  {{ super() }}
-  {% if toc %}
-  <aside class="chapter-toc" aria-label="On this page">
-    <h3>On this page</h3>
-    {{ toc }}
-  </aside>
-  {% endif %}
-{% endblock %}
-
 {% block relbar_bottom %}
   {% if prev or next %}
   <nav class="chapter-pagination" aria-label="Previous and next chapter">

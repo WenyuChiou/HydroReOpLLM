@@ -1,8 +1,38 @@
 # Inputs and outputs
 
-HydroOpsLLM adds reservoir decision configuration and durable records around
-HydroCNHS. Use the [native input/output reference](https://cylin928.github.io/HydroCNHS/files/4_input_output.html#inputs)
-for unchanged hydrology APIs. This page specifies the added interface and its differences.
+HydroOpsLLM adds settings for reservoir operators and saves their decisions and
+physical results. Keep your accepted HydroCNHS model, then supply the settings
+below. Use the [native input/output reference](https://cylin928.github.io/HydroCNHS/files/4_input_output.html#inputs)
+for unchanged HydroCNHS functions.
+
+## Separate the settings first
+
+| Settings | What belongs here? | Shared or local? |
+|---|---|---|
+| Global / experiment | Dates, run name, output folder and references to other files | Shared by this experiment |
+| Hydrology | Accepted HydroCNHS model, complete weather data and flow bindings | Shared water inputs |
+| Reservoir / network | Capacity, initial storage, release limits, inlets and downstream connections | Physical values for each reservoir and reach |
+| Agent / LLM | Operation method, rule parameters or model profile and prompt | Selected separately for each reservoir |
+| Audit / records | Optional checks and saved evidence | Checks selected by agent; records saved under the run output |
+
+**Global** means shared within one experiment. **Local** means selected for one
+agent or reservoir. Neither means a computer-wide setting. Two agents may select
+the same model profile while keeping separate storage and decision history.
+
+Start with `experiment.yaml`. These first fields answer different questions:
+
+| Field | Meaning |
+|---|---|
+| `schema_version` | Which configuration format the loader should read; this is not the package version. New coupled studies use `hydroops-coupled-simulation.v2`. |
+| `run_id` | A name recorded with this simulation so its decisions can be identified. It does not select an output folder. |
+| `output` | Where to create preparation files and the `operation/` results folder. Choose an unused directory. |
+| `case` | Path to the physical reservoir/network YAML or JSON, rather than a case-study label. |
+| `start_date`, `end_date` | First and last reservoir-operation dates, both included. |
+| `agents: {file: ...}` | Load the named agent settings from another file. Other section references work the same way. |
+
+Every relative path starts from the file that declares it. Full runnable files
+with comments appear in the [FE Walter walkthrough](../tutorials/fe_walter.md).
+The [parameter reference](PARAMETER_REFERENCE.md) lists required fields and defaults.
 
 ## What changes at the boundary?
 
@@ -90,7 +120,7 @@ uses `release_cfs` plus reasoning and target/direction fields. The case parser
 validates that schema, converts cfs to m³/s and clips to the case release bounds.
 The confirmed knowledge variant adds `operating_mode` and `rules_applied` (eight raw fields).
 It uses `dkp_no_missing_inputs: true` and omits `missing_inputs`. Older saved diagnostics
-used a nine-field variant; see the [case results](../examples/fe_walter/coupled/README.md#verified-2016-results).
+used a nine-field variant; see the [case results](../examples/fe_walter/results.md).
 Common physics then applies available water and computes spill.
 Always distinguish:
 

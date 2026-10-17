@@ -1,7 +1,7 @@
 # Code structure and execution flow
 
 Users normally enter through `reservoir-experiment`. The modules below explain
-where configuration, model requests, physics and evidence remain separated.
+which code reads each input and how one completed day becomes the next decision.
 
 ## Reusable installed modules
 
@@ -31,7 +31,7 @@ src/
 Regional calibration evidence, prompts, statistics and extension code live under
 `examples/` and `data/`. They are study inputs, not defaults for another basin.
 
-## Stage 1: prepare hydrological boundaries
+## Stage 1: calculate and save daily inflow
 
 `configuration.read_configuration()` resolves explicit section files and calls
 `agent_configuration.normalize_agent(spec)` before resource rebasing. That
@@ -50,7 +50,7 @@ its complete continuous period. `coupled.prepare_coupled()` selects operation
 dates and writes an ordinary pinned reservoir experiment with daily local inlet
 boundaries. Preparation makes zero model requests.
 
-## Stage 2: decide, implement and route
+## Stage 2: decide, apply release and route downstream
 
 For each operation day:
 

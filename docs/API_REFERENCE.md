@@ -30,7 +30,7 @@ Read a plan without executing a model:
 ```python
 from llm_reservoir_agent.coupled import load_coupled_settings
 
-settings = load_coupled_settings("examples/fe_walter/coupled/llm_available.yaml")
+settings = load_coupled_settings("examples/fe_walter/coupled/current/llm_available.yaml")
 print(settings.report["days"])             # 366 operation days
 print(settings.report["llm_agent_count"])  # 1
 print(settings.report["network_calls"])    # 0 during this check
@@ -57,7 +57,7 @@ preparation if necessary):
 ```python
 from llm_reservoir_agent.coupled import load_coupled_settings, run_coupled
 
-settings = load_coupled_settings("examples/fe_walter/coupled/experiment.yaml")
+settings = load_coupled_settings("examples/fe_walter/coupled/current/experiment.yaml")
 records, trace_summary = run_coupled(settings)
 print(len(records["FEWalter"]), trace_summary["status"])
 ```
@@ -208,7 +208,7 @@ file errors. Audit FAIL/WARN/UNKNOWN values remain diagnostic results in the rep
 ```python
 from llm_reservoir_agent.verification import verify_run
 
-report = verify_run("runs/fe-walter-coupled-rule/operation", require_offline=True)
+report = verify_run("runs/fe-walter-current-rule/operation", require_offline=True)
 print(report["status"], report["days"])
 ```
 

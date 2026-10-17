@@ -1,4 +1,9 @@
-# FE Walter: rule-based benchmark
+# FE Walter: Rule-based reference
+
+> Historical reference: this page preserves earlier settings and saved decisions.
+> Start new work from the [current FE Walter tutorial](../../../tutorials/fe_walter.md)
+> and read the [current annual results](../results.md).
+
 
 [English](README.md) | [繁體中文](README.zh-TW.md) · [FE Walter case](../README.md)
 
@@ -49,7 +54,7 @@ and enters routing once. Next-day history uses implemented release.
 | 2016-01-02 | 22.353047 | 17.490024 | 17.490024 | 0.000000 | 3,485,122.95 |
 | 2016-01-03 | 14.193931 | 11.137442 | 11.137442 | 0.000000 | 3,749,203.61 |
 
-[Full 2016–2020 results and decision records](../results.md)
+[Historical 2016–2020 results and decision records](../results_history.md)
 
 The table shows this method's saved three-day trajectory, not a policy-performance
 assessment. Downloads retain full precision. The linked five-year results belong

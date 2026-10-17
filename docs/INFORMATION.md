@@ -2,9 +2,15 @@
 
 [English](INFORMATION.md) | [繁體中文](INFORMATION.zh-TW.md)
 
-Decision information is an explicit, causal snapshot of fields available when
-an agent decides. It does not replace the protected host observation and it does
-not create a water connection.
+Decision information is additional data selected for an agent at decision time,
+such as a published inflow forecast or a downstream flow requirement. A profile
+names which fields that agent may use. It keeps unavailable future observations
+out of the decision and does not change the physical river network.
+
+The core observation already supplies current inflow and reservoir state.
+Use this optional information section when your study needs more data. The same
+profile mechanism is available to Rule-based and LLM agents; a rule reads the
+selected values from its observation, while an LLM template places `$information`.
 
 In a v2 experiment, use one `information` section:
 

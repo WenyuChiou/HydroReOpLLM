@@ -2,7 +2,7 @@
 
 [English](coupling.md) | [繁體中文](coupling.zh-TW.md) · [Case study](README.md)
 
-Read [hydrology, parameters and C&V](hydrology.md), then follow one daily decision.
+Start with the [maintained FE Walter tutorial](../../tutorials/fe_walter.md), then follow one daily decision here.
 The three methods change the decision source; reservoir physics and routing use the same interfaces.
 
 ## 1. What the current example runs
@@ -45,9 +45,11 @@ Today's routed consequence is not available before today's release.
 
 ## 3. Connect a weather-driven native run
 
-Use the native HydroCNHS model and the same Dam agent for a weather-driven study.
-The following is a **host-integration recipe**. The supplied experiment CLI runs the precomputed-inflow case;
-it has no weather-mode YAML switch. This update does not supply a complete, accepted weather-to-LM FE Walter configuration.
+The maintained experiment CLI already connects weather to operations in two stages:
+`prepare` computes and saves upstream inflow, then `run` advances reservoir operation
+and downstream routing daily. Its settings start at `coupled/current/experiment.yaml`.
+The following advanced **native host-integration recipe** is for researchers who
+need to attach agents directly to their own HydroCNHS host rather than use that entry point.
 
 1. **Prepare a separate native model.** Copy the hydrology configuration. Retain each real subcatchment's weather,
    area, GWLF parameters and Lohmann routing. Prepare hydrological warm-up/antecedent conditions and reservoir initial storage separately.
@@ -96,7 +98,7 @@ Before model requests in a new weather-driven integration, verify these connecti
 
 The saved three-day examples validate only their supplied-inflow integration.
 For weather-to-operation execution evidence, read the
-[current 2016 coupled results](coupled/README.md#verified-2016-results).
+[current 2016 coupled results](results.md).
 Saved-file verification does not establish operating-policy acceptance.
 
 Continue with [rule-based operation](benchmark/README.md),

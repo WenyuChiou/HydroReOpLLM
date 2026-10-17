@@ -1,8 +1,12 @@
-"""Resolve explicit configuration sections without guessing paths in user data.
+"""Assemble one experiment from its global and section-specific YAML files.
 
-Role: Load a versioned experiment and its optional section files. Every resource
-is resolved against the file that declares it, then passed to the existing
-validators. This module never runs hydrology, retrieval or a language model.
+The top-level document selects the physical case, run identity, interval and
+output. Its hydrology, agents, models and auditors may live in separate files so
+each concern can be reused independently. ``schema_version`` selects this
+loader's document format; it is not the installed package release. Every
+relative resource path is resolved from the file that declares that path, then
+the assembled data is passed to the existing validators. This module never runs
+hydrology, retrieval or a language model.
 """
 from copy import deepcopy
 import hashlib
@@ -76,6 +80,8 @@ def read_configuration(path):
     data = yaml.load(path.read_text(encoding="utf-8-sig"), Loader=UniqueLoader)
     if not isinstance(data, dict):
         raise ValueError("experiment must be a mapping")
+    # Public v2 documents split sections into files; downstream validators still
+    # consume the equivalent canonical v1 mapping.
     versions = {"hydroops-coupled-simulation.v2": "hydroops-coupled-simulation.v1",
                 "llm-reservoir-experiment.v2": "llm-reservoir-experiment.v1"}
     if data.get("schema_version") not in versions:
@@ -85,6 +91,8 @@ def read_configuration(path):
         return data, {}
     data = deepcopy(data)
     data["schema_version"] = versions[data["schema_version"]]
+    # ``bases`` remembers each declaring directory; ``pins`` proves the exact
+    # section bytes that contributed to the assembled experiment.
     pins, bases = {}, {}
     for key in ("hydrology", "models", "agents", "auditors", "extensions", "information"):
         if key in data:

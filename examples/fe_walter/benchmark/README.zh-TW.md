@@ -1,5 +1,9 @@
 # F.E. Walter：規則式基準
 
+> 歷史參考：本頁保存較早設定與決策紀錄。新的研究請從[最新版 FE Walter 教學](../../../tutorials/fe_walter.md)開始，
+> 並查看[目前全年結果](../results.zh-TW.md)。
+
+
 [English](README.md) | [繁體中文](README.zh-TW.md) · [FE Walter 案例](../README.zh-TW.md)
 
 這個自訂的每日防洪規則透過原生 HydroCNHS Dam API 提出 release 請求。它依據
@@ -48,7 +52,7 @@ release、spill 與 ending storage。總出流是 controlled release 加 spill�
 | 2016-01-02 | 22.353047 | 17.490024 | 17.490024 | 0.000000 | 3,485,122.95 |
 | 2016-01-03 | 14.193931 | 11.137442 | 11.137442 | 0.000000 | 3,749,203.61 |
 
-[完整 2016–2020 結果與決策紀錄](../results.zh-TW.md)
+[完整 2016–2020 結果與決策紀錄](../results_history.zh-TW.md)
 
 上表呈現此方法的三日保存結果，並非策略績效評估；下載資料保留完整精度。
 連結的五年結果屬另一份知識檢索實驗，並非三種方法的五年比較。

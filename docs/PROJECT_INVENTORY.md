@@ -18,7 +18,7 @@ dependencies, original bytes/hash and destination. The
 
 ## Data flow
 
-`run_experiment.py` → validate YAML/input/source pins → reservoir-local backend
+`reservoir-experiment` → read settings and prepare upstream inflow → reservoir-local backend
 → requested release → checker → common physics → native Dam API/routing
 → implemented outcome → next observation and audit/trace.
 
@@ -33,14 +33,11 @@ validation is 2011–2020; no recalibration is part of this cleanup.
 
 ## Evidence and limits
 
-Saved Ollama results contain three requests per LLM method, `gemma3:4b`,
-temperature 0.7. LLM operation with available information has **2 PASS / 1 FAIL**;
-LLM operation with retrieved knowledge has **3 FAIL**.
-Execution and water balance do not certify an operating policy. Initial
-storage, identity downstream routing and zero losses are teaching assumptions.
+The current tutorial uses the saved 2016 Rule-based baseline and the two current
+framework LLM trajectories, each with 366 daily records. Model settings and
+source hashes are retained with the result provenance. Read the
+[current results](../examples/fe_walter/results.md) for water level and controlled release.
 
-The three real reservoirs lie on separate branches. Their saved January test
-models reservoir contributions, not complete downstream river discharge.
-Historical 2016–2020 results, audit failures, 13 known failed requests and
-attempt 1289's unknown result/cost remain intact. Source license boundaries
-and private-repository status are unchanged.
+The historical three-day, three-reservoir and 2016–2020 studies remain separate
+evidence. Their old model settings, failed requests and unknown costs are
+preserved; they are not the inputs to the current tutorial.

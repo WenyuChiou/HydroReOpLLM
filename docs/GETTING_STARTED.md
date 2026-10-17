@@ -1,14 +1,11 @@
 # Installation
 
-Install the framework before changing a decision method. All commands on this
-page run from the repository root.
+Clone the repository, install the package, then check the current example.
+Run the commands below from a PowerShell terminal.
 
 ## Install in a virtual environment
 
-Use Python 3.12 and the repository's pinned dependency constraints:
-
-Clone or download the repository first, then open its root directory. Repository
-access is required while this project is private; the published manual is public.
+Use Python 3.12 with the project's pinned dependency constraints:
 
 ```powershell
 git clone https://github.com/WenyuChiou/HydroOpsLLM.git
@@ -18,35 +15,25 @@ python -m venv .venv
 python -m pip install -e . -c environment/requirements-bundled.txt
 ```
 
-Installation does not download or start a language model. Choose the provider
-and model when configuring your operation method. Reading saved records and
-building this manual make no model request.
+Repository access is required while the project is private. On Linux/macOS,
+activate the environment with `source .venv/bin/activate`.
 
-For CPU/GPU, disk space and interruptions, see
-[Running and maintenance](RUNNING.md).
-
-On Linux/macOS, activate the environment with `source .venv/bin/activate`;
-use the same installation command afterward.
+Installation does not download or start an LLM. Select the provider and model
+later in the agent's model profile.
 
 ## Verify the installation without inference
 
-Validate a saved configuration:
-
 ```powershell
-reservoir-experiment check examples/fe_walter/coupled/rule.yaml
+reservoir-experiment --help
+reservoir-experiment check examples/fe_walter/coupled/current/experiment.yaml
 ```
 
-`check` reads and validates inputs, pins source hashes and reports the planned
-calls. It does not contact the configured provider. To verify existing execution
-evidence without rerunning it:
-
-```powershell
-python run_experiment.py verify examples/fe_walter/reference_outputs/ollama_three_day/zero_shot
-```
-
-Keep model execution for [Check, run and verify](USER_GUIDE.md#check-run-and-verify),
-after you understand the files and output safeguards.
+`check` validates the configuration without running hydrology or requesting a
+model. You can also read the [saved results](../examples/fe_walter/results.md)
+without starting a provider.
 
 ## Build your simulation
 
-Continue with [Design your simulation](BUILD_SIMULATION.md): define the physical case, select information and configure the operation method.
+Continue with [Inputs and configuration](INPUT_OUTPUT.md), then
+[connect your simulation](BUILD_SIMULATION.md). For basin construction and
+calibration, use the [HydroCNHS tutorials](https://github.com/cylin928/HydroCNHS/tree/main/tutorials).

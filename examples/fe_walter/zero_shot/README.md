@@ -1,5 +1,10 @@
 # F.E. Walter: LLM operation with available information
 
+> Historical reference: this page preserves earlier settings and saved decisions.
+> Start new work from the [current FE Walter tutorial](../../../tutorials/fe_walter.md)
+> and read the [current annual results](../results.md).
+
+
 [English](README.md) | [繁體中文](README.zh-TW.md) · [FE Walter case](../README.md)
 
 This method supplies operating instructions and available reservoir information
@@ -17,7 +22,7 @@ and [seasonal prompt](../prompts/reference/zeroshot_seasonal_v1_system.txt).
 Read the [shared windows and pool checks](../README.md#seasonal-pool-levels).
 This separate three-day seasonal YAML has not been rerun. Saved exchanges on
 this page retain their original instructions and audit verdicts. See the
-[current 2016 coupled results](../coupled/README.md#verified-2016-results) for
+[current 2016 coupled results](../results.md) for
 the maintained annual configuration.
 
 ## 1. Configure the method
@@ -191,7 +196,7 @@ Audit FAIL is an operating diagnosis; this saved run did not replace the release
 [Full prompt and response](../../../examples/fe_walter/reference_outputs/ollama_three_day/zero_shot/raw/policy_b32bc5738ff8f890b5950aab3f5203ab31c224527ff6be8b3f5daf50bdb3dcc5.json) · [Raw audit](../../../examples/fe_walter/reference_outputs/ollama_three_day/zero_shot/raw/audit_b32bc5738ff8f890b5950aab3f5203ab31c224527ff6be8b3f5daf50bdb3dcc5.json) · [Execution records](../../../examples/fe_walter/reference_outputs/ollama_three_day/zero_shot/physics.jsonl)
 
 
-[Full 2016–2020 results and decision records](../results.md)
+[Historical 2016–2020 results and decision records](../results_history.md)
 
 The table shows this method's saved three-day trajectory, not a policy-performance
 assessment. Downloads retain full precision. The linked five-year results belong

@@ -1,5 +1,10 @@
-"""One configured entry for generic weather preparation and daily reservoir operation.
+"""Connect configured hydrology to daily reservoir operation.
 
+A coupled simulation document supplies the global run identity and inclusive
+date interval, a physical-network case, hydrology inputs, reservoir agents,
+model profiles and audit profiles. ``load_coupled_settings`` checks and connects
+those layers; ``prepare_coupled`` produces daily local inflow in m3/s; and
+``run_coupled`` hands the prepared case to the existing operation workflow.
 Regional data preparation/calibration stays outside this module. Generated case
 files use the existing experiment, native Dam/routing and recovery contracts.
 """
@@ -18,6 +23,7 @@ from .case import read_json
 from .network import PROJECT_ROOT, validate_network
 from .weather import load_weather, simulate_weather, validate_bindings
 
+# Canonical format consumed here after the configuration loader expands public v2 files.
 SCHEMA = "hydroops-coupled-simulation.v1"
 
 
@@ -73,7 +79,7 @@ def _operation_document(settings, folder):
 
 
 def _physical_case(settings, inflow_hash):
-    """Bind generated operation physics to the user's physical case."""
+    """Bind daily local inflow (m3/s) to the user's physical network."""
     case = deepcopy(settings.case)
     case["schema_version"] = "llm-reservoir-network-case.v1"
     case["network"]["start_date"] = settings.data["start_date"]
@@ -117,12 +123,14 @@ def load_coupled_settings(path, *, runtime_root=PROJECT_ROOT):
     topology = validate_network(case["network"])
     weather = load_weather(data.get("hydrology"), path.parent)
     unused = validate_bindings(weather, topology["routing_nodes"])
+    # Both dates are operation days; hydrology may begin earlier for model warm-up.
     first, last = data.get("start_date"), data.get("end_date")
     for day in (first, last):
         if not isinstance(day, str) or date.fromisoformat(day).isoformat() != day:
             raise ValueError("operation dates must be quoted YYYY-MM-DD strings")
     if not weather["dates"][0] <= first <= last <= weather["dates"][-1]:
         raise ValueError("operation dates must lie inside the full native hydrology period")
+    # Both comparisons are inclusive, so the configured end date remains an operation day.
     days = [d for d in weather["dates"] if first <= d <= last]
     files = {str(p): _sha(p) for p in (path, case_path, *weather["paths"].values())}
     files.update(section_pins)

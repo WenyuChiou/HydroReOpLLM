@@ -1,8 +1,33 @@
-# Run the two-reservoir example
+# Connect reservoirs and agents
 
 This example shows how one experiment can contain two independent water systems.
 `lake_a` drains to `river_a`; `lake_b` drains to `river_b`. Both terminal nodes
 appear in `outlets`. There is no artificial connection between them.
+
+## Match the IDs
+
+![A hydrological source, inlet, reservoir and agent](figures/reservoir-agent-mapping.svg)
+
+*Figure 3. Water follows the blue path from a hydrological source through an
+inlet and reservoir to a downstream node. The agent receives the reservoir state
+and requests release through the separate orange information path. The IDs in
+the files establish these links; names and map positions do not.*
+
+| Link | Where you set it |
+|---|---|
+| Subbasin or native routed outlet → inlet | `hydrology.inflow_bindings` |
+| Inlet → reservoir | The reservoir's `inflow_node` in the physical case |
+| Agent → reservoir | The agent's `reservoir_id` |
+| Reservoir → downstream node | `network.connections` |
+| Terminal nodes | `network.outlets` |
+
+For a series of reservoirs, connect upstream outflow to the next inlet and bind
+only additional local runoff there. Parallel tributaries join at an explicitly
+named junction. Independent systems keep separate terminal outlets. An
+information profile can expose a gauge without creating a water connection.
+
+Continue with the [configuration notebook](../tutorials/advanced.ipynb) for a
+small example that reads these settings without running a model.
 
 {download}`Download the complete example bundle <../_multiple_reservoir_downloads/hydroopslm-multiple-reservoirs.zip>`
 

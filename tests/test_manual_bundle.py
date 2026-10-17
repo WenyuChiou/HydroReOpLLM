@@ -73,8 +73,11 @@ def test_fe_walter_walkthrough_publishes_the_actual_configuration(prepared_manua
     # Literalinclude directives must resolve from the canonical tutorial's location.
     import re
     includes = re.findall(r'\{literalinclude\}\s+(\S+)', text)
-    assert '../examples/fe_walter/coupled/experiment.yaml' in includes
+    assert '../examples/fe_walter/coupled/current/experiment.yaml' in includes
+    assert '../examples/fe_walter/coupled/agents.rule.yaml' in includes
     assert '../examples/fe_walter/coupled/agents.llm_available.yaml' in includes
+    assert '../examples/fe_walter/coupled/agents.llm_knowledge.yaml' in includes
+    assert '../examples/fe_walter/coupled/current/models.yaml' in includes
     assert '../examples/fe_walter/prompts/zeroshot_seasonal_v1_system.txt' in includes
     assert '../examples/fe_walter/prompts/dkp_seasonal_v2_system.txt' in includes
     for name in includes:
@@ -88,10 +91,10 @@ def test_fe_walter_walkthrough_publishes_the_actual_configuration(prepared_manua
 
 def test_current_2016_exports_are_local_exact_and_do_not_replace_history(prepared_manual):
     # Exercise the real prepare() publication path using the accepted saved export.
-    _, output = prepared_manual
+    builder, output = prepared_manual
     current = (
         'daily.csv', 'summary.json', 'pins.json', 'pool_release.svg', 'pool_release.pdf',
-        'llm_available_decision.json', 'llm_knowledge_decision.json',
+        'pool_release.png', 'llm_available_decision.json', 'llm_knowledge_decision.json',
     )
     historical = (
         'daily.csv', 'summary.json', 'pool_release.svg', 'pool_release.pdf',
@@ -114,19 +117,20 @@ def test_current_2016_exports_are_local_exact_and_do_not_replace_history(prepare
     for name in historical:
         relative = 'examples/fe_walter/coupled/outputs/' + name
         assert (downloads / name).read_bytes() == (ROOT / relative).read_bytes(), relative
-    # PNG follows the existing image publication path, outside the download map.
-    png = 'examples/fe_walter/coupled/outputs/2016/pool_release.png'
-    assert (output / png).read_bytes() == (ROOT / png).read_bytes()
     for name in ('llm_available_reply.txt', 'llm_knowledge_reply.txt'):
         relative = 'examples/fe_walter/coupled/outputs/2016/' + name
         assert (output / relative).read_bytes() == (ROOT / relative).read_bytes()
+    tutorial_downloads = output / '_tutorial_downloads'
+    assert {item.name for item in tutorial_downloads.iterdir() if item.is_file()} == set(
+        builder.TUTORIAL_DOWNLOADS.values()
+    )
+    for relative, published_name in builder.TUTORIAL_DOWNLOADS.items():
+        expected = (ROOT / relative).read_bytes()
+        assert (output / relative).read_bytes() == expected, relative
+        assert (tutorial_downloads / published_name).read_bytes() == expected, relative
     import os
     for page, names in (
         ('examples/fe_walter/coupled/README.md', current),
-        ('tutorials/fe_walter.md', (
-            'daily.csv', 'summary.json', 'pins.json',
-            'llm_available_decision.json', 'llm_knowledge_decision.json',
-        )),
     ):
         published_page = output / page
         text = published_page.read_text(encoding='utf-8')
@@ -134,3 +138,8 @@ def test_current_2016_exports_are_local_exact_and_do_not_replace_history(prepare
             target = downloads / ('2016-' + name)
             href = Path(os.path.relpath(target, published_page.parent)).as_posix()
             assert '](' + href + ')' in text, (page, name)
+    # The maintained tutorial must download the same combined rows as its figures,
+    # while the separate historical namespace above remains byte-preserved.
+    tutorial = (output / 'tutorials/fe_walter.md').read_text(encoding='utf-8')
+    assert '[daily.csv](../_tutorial_downloads/daily.csv)' in tutorial
+    assert '[daily.csv](../_completed_downloads/2016-daily.csv)' not in tutorial

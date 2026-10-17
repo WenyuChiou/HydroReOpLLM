@@ -1,9 +1,19 @@
 # Configure agents, prompts, and context
 
-Start from the four-day independent-river fixture in
-[`examples/multiple_reservoirs`](../examples/multiple_reservoirs/experiment.yaml).
-It is a connection test for an accepted HydroCNHS model, reservoir network, and
-operator. It is not a calibrated basin or a validated operating policy.
+An **agent** is the operator assigned to one reservoir. Its method is either
+`rule_based` or `llm`. Both request controlled release through the same physical
+reservoir calculation. Start with the required settings, then add knowledge or
+custom information when your study needs it.
+
+On this page: [choose a rule](#make-the-first-rule-based-run) →
+[switch to LLM](#switch-one-reservoir-to-an-llm) →
+[build the prompt](#add-prompt-data-only-when-needed) →
+[add retrieval](#add-dynamic-context-with-an-extension).
+
+The short examples below use the generic
+[`examples/multiple_reservoirs`](../examples/multiple_reservoirs/experiment.yaml)
+configuration. The [FE Walter tutorial](../tutorials/fe_walter.md) applies the same
+settings to the current case.
 
 For your own study, complete HydroCNHS basin construction, parameter derivation,
 and calibration/validation first. Use the
@@ -138,6 +148,18 @@ remain accepted.
 
 ## Add prompt data only when needed
 
+The **prompt** is the set of messages actually sent to the LLM. The user template
+contains the task and places the current data. An optional system template
+contains study-wide instructions. The framework replaces placeholders with values
+at each decision; selecting a data source alone does not put it in the prompt.
+
+![Prompt construction and optional knowledge](figures/prompt-context-workflow.svg)
+
+*Figure 2. Current state and history enter the user template. Optional knowledge
+or retrieval results are inserted only where the template requests them. The
+provider receives the rendered messages and response schema. Validation converts
+an accepted reply into a requested release; it does not assess seasonal performance.*
+
 Both user and optional system templates use Python `string.Template` syntax.
 Write `$$` for a literal dollar sign. Built-in placeholders are:
 
@@ -148,6 +170,21 @@ Write `$$` for a literal dollar sign. Built-in placeholders are:
 | `$previous_transition` | Previous committed observation, action, and physics; `null` on day one |
 | `$knowledge` | Hash-pinned full text from the agent's `knowledge` mapping |
 | `$information` | Selected `decision-information.v1` snapshot; requires an information profile |
+
+For example, a user template can say:
+
+```text
+Choose a controlled release for this daily interval.
+Current reservoir state and inflow: $observation
+Previous completed interval: $previous_transition
+Study guidance: $guidance
+Return the JSON action required by the response schema.
+```
+
+`$guidance` is a custom alias. Define it in `prompt_variables` for fixed text or
+in `context_providers` for retrieval, as shown below. Remove the line when it is
+not needed. The generic action uses `release_cms` in m³/s; FE Walter preserves
+its own case prompt and raw response format before conversion to this action.
 
 Add fixed values, knowledge, selected information, custom context, retry, and
 fallback controls under `customization`:

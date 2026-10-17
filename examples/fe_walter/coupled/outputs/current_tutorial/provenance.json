@@ -1,0 +1,76 @@
+{
+  "schema_version": "fe-walter-current-tutorial.v1",
+  "purpose": "Saved-data teaching comparison; no new provider request, hydrology run, or reservoir simulation.",
+  "methods": [
+    "Rule-based",
+    "LLM with available information",
+    "LLM with retrieved knowledge"
+  ],
+  "period": {
+    "start": "2016-01-01",
+    "end": "2016-12-31",
+    "days_per_method": 366
+  },
+  "units": {
+    "inflow_cms": "m3/s",
+    "controlled_release_cms": "m3/s",
+    "spill_cms": "m3/s",
+    "pool_elevation_end_ft": "ft N.G.V.D.",
+    "storage_end_m3": "m3"
+  },
+  "validation": {
+    "date_policy": "Exact ordered dates; no interpolation.",
+    "inflow_policy": "Absolute tolerance 1e-10 m3/s for CSV serialization.",
+    "initial_state_policy": "LLM storage_start_m3 and Rule-based first-step mass-balance reconstruction.",
+    "expected_initial_storage_m3": 2457848.279729185,
+    "methods": {
+      "rule": {
+        "rows": 366,
+        "unique_dates": 366,
+        "date_start": "2016-01-01",
+        "date_end": "2016-12-31",
+        "max_inflow_difference_from_reference_cms": 4.973799150320701e-14,
+        "initial_storage_m3": 2457848.279729185
+      },
+      "llm_available": {
+        "rows": 366,
+        "unique_dates": 366,
+        "date_start": "2016-01-01",
+        "date_end": "2016-12-31",
+        "max_inflow_difference_from_reference_cms": 0.0,
+        "initial_storage_m3": 2457848.27972919
+      },
+      "llm_knowledge": {
+        "rows": 366,
+        "unique_dates": 366,
+        "date_start": "2016-01-01",
+        "date_end": "2016-12-31",
+        "max_inflow_difference_from_reference_cms": 0.0,
+        "initial_storage_m3": 2457848.27972919
+      }
+    }
+  },
+  "sources": {
+    "rule_rows": {
+      "path": "../2016/daily.csv",
+      "sha256": "959483f653bd8665b460bcf5cf8c98a6f16717f6c415c53840d08232575a7909"
+    },
+    "llm_framework_rows": {
+      "path": "../gemma4_2016_comparison/daily.csv",
+      "sha256": "1e5bc33ae6ba3e7782744debb75fddde3371601c85517a49aa62ee2003334330"
+    },
+    "initial_state": {
+      "path": "../2016/summary.json",
+      "sha256": "07ae6392fd59bbdfd380641b6eda40909fa81ee8a25888687567a7cfe74a9f13"
+    }
+  },
+  "artifacts": {
+    "daily.csv": "cf3187a46b10298974684dd41cbb46880057b9968cf5a2f9ecfca4b2dcd9d62e",
+    "daily_water_elevation.png": "049d6ccd9fe40fecbb9b133b4325b26be0366eb4fc98f1cf1aec4e81d628befc",
+    "daily_water_elevation.svg": "58c92831e1a128998549402e1516de5f2c43566000d8d58acd54923f58caa1c8",
+    "daily_water_elevation.pdf": "ed812454859cd755afda17f9d88a03299b88d6187640e34460de28610b3de961",
+    "controlled_release_daily.png": "16c53d29e84202a6a31134046c40a030151adc2788b43a5114ebe5a05bcb70b3",
+    "controlled_release_daily.svg": "243c10c4a87bda4de43ec01572edf7b107822cae85f81ea8c67fd13d44a6d0ed",
+    "controlled_release_daily.pdf": "ca932109856919f3ac64a1af1c40ffba6a8dd7945560de886cf21672ae1fde39"
+  }
+}

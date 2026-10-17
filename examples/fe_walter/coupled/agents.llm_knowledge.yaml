@@ -1,21 +1,24 @@
-fe_operator:
-  reservoir_id: FEWalter
-  type: llm
-  model_profile: reservoir_model
+# Agent layer for the domain-knowledge method.
+fe_operator: # Decision-unit ID used in plans and traces.
+  reservoir_id: FEWalter # Controlled reservoir ID in reservoirs.json.
+  type: llm # Provider-backed operating method.
+  model_profile: reservoir_model # Profile ID from current/models.yaml.
   customization:
-    backend: reference_v3_7
+    backend: reference_v3_7 # Registered backend ID from the entry's extensions.
+    # The backend owns this reference recipe; the framework keeps it opaque.
     parameters:
       reference:
-        profile: fe_walter
-        method: dkp
-        consultation_mode: daily
-        response_validation: policy
-        system_prompt: ../prompts/dkp_seasonal_v2_system.txt
-        system_prompt_mode: custom
-        dkp: ../knowledge/DKP_FEWalter_Dam_v1.2.md
-        prompt_storage: false
-        hide_availability_line: true
-        dkp_no_missing_inputs: true
-        zeroshot_knowledge: target
+        profile: fe_walter # Backend's FE Walter physical/operating profile.
+        method: dkp # Include the declared domain-knowledge package.
+        consultation_mode: daily # One decision opportunity per operation day.
+        response_validation: policy # Validate replies with the backend policy contract.
+        system_prompt: ../prompts/dkp_seasonal_v2_system.txt # Relative to this file.
+        system_prompt_mode: custom # Use the declared system-prompt file.
+        dkp: ../knowledge/DKP_FEWalter_Dam_v1.2.md # Knowledge document, relative to this file.
+        prompt_storage: false # Do not include storage in the prompt representation.
+        hide_availability_line: true # Preserve the approved prompt variant.
+        dkp_no_missing_inputs: true # Reject incomplete backend inputs.
+        zeroshot_knowledge: target # Backend compatibility setting for target context.
+  # Auditor IDs refer to profiles in auditors.yaml.
   auditors:
   - release_limits
