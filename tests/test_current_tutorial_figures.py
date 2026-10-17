@@ -82,12 +82,13 @@ def test_tutorial_check_rejects_changed_source_pins(monkeypatch):
         builder.check()
 
 
-def test_main_notebook_has_exactly_two_result_figures():
+def test_main_notebook_has_exactly_one_combined_result_figure():
     notebook = json.loads((ROOT / 'tutorials/main.ipynb').read_text(encoding='utf-8'))
     figures = [out for cell in notebook['cells'] for out in cell.get('outputs', [])
                if 'image/png' in out.get('data', {})]
-    assert len(figures) == 2
+    assert len(figures) == 1
     markdown = '\n'.join(''.join(cell['source']) for cell in notebook['cells'] if cell['cell_type'] == 'markdown')
+    assert 'outputs/current_tutorial/reservoir_operations.png' not in markdown
     assert 'outputs/current_tutorial/daily_water_elevation.png' not in markdown
     assert 'outputs/current_tutorial/controlled_release_daily.png' not in markdown
     assert 'coupled/current/my-run.yaml' in markdown
@@ -97,7 +98,7 @@ def test_current_figure_manifest_covers_exact_published_bytes():
     import hashlib
     folder = OUTPUTS / 'current_tutorial'
     manifest = json.loads((folder / 'provenance.json').read_text(encoding='utf-8'))
-    assert len(manifest['artifacts']) == 7
+    assert len(manifest['artifacts']) == 10
     for name, digest in manifest['artifacts'].items():
         path = folder / name
         assert hashlib.sha256(path.read_bytes()).hexdigest() == digest
@@ -112,7 +113,7 @@ def test_result_figures_keep_paper_width_fonts_and_editable_labels():
     from PIL import Image
 
     folder = OUTPUTS / 'current_tutorial'
-    for stem in ('daily_water_elevation', 'controlled_release_daily'):
+    for stem in ('reservoir_operations', 'daily_water_elevation', 'controlled_release_daily'):
         pdf = (folder / (stem + '.pdf')).read_bytes()
         box = re.search(rb'/MediaBox\s*\[\s*0\s+0\s+([\d.]+)', pdf)
         assert box is not None
@@ -135,3 +136,67 @@ def test_result_figures_keep_paper_width_fonts_and_editable_labels():
         with Image.open(folder / (stem + '.png')) as image:
             assert abs(image.width - 180 / 25.4 * 600) <= 1
             assert image.info['dpi'][0] == pytest.approx(600, abs=1)
+
+
+def test_combined_figure_has_shared_calendar_exact_lines_grouped_bars_and_large_legend():
+    """The paper figure must preserve every plotted daily value in its A/B layout."""
+    import matplotlib.colors as mcolors
+    import matplotlib.dates as mdates
+    import numpy as np
+
+    spec = importlib.util.spec_from_file_location(
+        'current_combined_figure', ROOT / 'tutorials/build_notebooks.py')
+    builder = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(builder)
+    daily = pd.read_csv(OUTPUTS / 'current_tutorial/daily.csv')
+    figure = builder.plot_reservoir_operations(daily)
+    axes = figure.axes
+    try:
+        assert len(axes) == 2
+        elevation, release = axes
+        assert elevation.get_shared_x_axes().joined(elevation, release)
+        assert elevation.get_title().startswith('(A)')
+        assert release.get_title().startswith('(B)')
+
+        expected_labels = [
+            'Rule-based',
+            'LLM with available information',
+            'LLM with retrieved knowledge',
+        ]
+        data_lines = {line.get_label(): line for line in elevation.lines
+                      if line.get_label() in expected_labels}
+        assert list(data_lines) == expected_labels
+        assert len(elevation.lines) == 5, 'Three method lines plus two dotted guides'
+        assert sorted(line.get_ydata()[0] for line in elevation.lines
+                      if line.get_linestyle() == ':') == [1300, 1370]
+
+        bars = release.patches
+        assert len(bars) == 3 * 366
+        offsets = []
+        for label in expected_labels:
+            expected = daily.loc[daily['method_label'] == label].copy()
+            expected_dates = mdates.date2num(pd.to_datetime(expected['date']))
+            line = data_lines[label]
+            np.testing.assert_allclose(line.get_ydata(), expected['pool_elevation_end_ft'],
+                                       rtol=0, atol=0)
+            color = mcolors.to_rgba(line.get_color())
+            method_bars = sorted(
+                (bar for bar in bars if np.allclose(bar.get_facecolor(), color)),
+                key=lambda bar: bar.get_x() + bar.get_width() / 2,
+            )
+            assert len(method_bars) == 366
+            centers = np.array([bar.get_x() + bar.get_width() / 2 for bar in method_bars])
+            offsets.append(float(np.median(centers - expected_dates)))
+            np.testing.assert_allclose(
+                [bar.get_height() for bar in method_bars],
+                expected['controlled_release_cms'], rtol=0, atol=0,
+            )
+        assert len({round(offset, 8) for offset in offsets}) == 3
+
+        legends = [*figure.legends, elevation.get_legend(), release.get_legend()]
+        legend = next(item for item in legends if item is not None)
+        assert [text.get_text() for text in legend.get_texts()] == expected_labels
+        assert min(text.get_fontsize() for text in legend.get_texts()) >= 10.5
+    finally:
+        import matplotlib.pyplot as plt
+        plt.close(figure)

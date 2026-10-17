@@ -13,7 +13,9 @@ def test_manual_current_downloads_have_an_isolated_namespace(tmp_path):
     spec.loader.exec_module(builder)
     with patch('socket.socket.connect', side_effect=AssertionError('network forbidden')):
         builder.prepare(tmp_path, source_ref='codex/manual-research-guide')
-    assert len(builder.TUTORIAL_DOWNLOADS) == 8
+    assert len(builder.TUTORIAL_DOWNLOADS) == 11
+    assert {'reservoir_operations.png', 'reservoir_operations.svg',
+            'reservoir_operations.pdf'} <= set(builder.TUTORIAL_DOWNLOADS.values())
     for source, name in builder.TUTORIAL_DOWNLOADS.items():
         assert (tmp_path / '_tutorial_downloads' / name).read_bytes() == (ROOT / source).read_bytes()
         assert (tmp_path / source).read_bytes() == (ROOT / source).read_bytes()
@@ -22,6 +24,12 @@ def test_manual_current_downloads_have_an_isolated_namespace(tmp_path):
     assert (tmp_path / '_tutorial_downloads/daily.csv').read_bytes() != historical.read_bytes()
     for name in ('docs/TROUBLESHOOTING.md', 'docs/RECORDS.md', 'examples/fe_walter/results_history.md'):
         assert (tmp_path / name).is_file()
+    # Primary vector links must download locally even while the repo is private.
+    current_results = (tmp_path / 'examples/fe_walter/results.md').read_text(encoding='utf-8')
+    for extension in ('svg', 'pdf'):
+        name = 'reservoir_operations.' + extension
+        assert '_tutorial_downloads/' + name in current_results
+        assert not any('/blob/' in line and name in line for line in current_results.splitlines())
 
 
 def test_manual_navigation_keeps_one_reader_route_without_right_toc():

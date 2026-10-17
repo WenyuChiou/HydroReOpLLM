@@ -25,6 +25,61 @@ LABELS = {
     "llm_available": "LLM with available information",
     "llm_knowledge": "LLM with retrieved knowledge",
 }
+METHOD_COLORS = {"rule": "#526B8A", "llm_available": "#BF795E",
+                 "llm_knowledge": "#4F8A7B"}
+
+
+def plot_reservoir_operations(daily):
+    """Return a paper-width figure of saved elevation and controlled release.
+
+    The axes share dates but retain separate units. Bars are grouped within
+    each day without changing their saved rates (m³/s), which exclude spill.
+    Paper exports and the executed tutorial use this same renderer.
+    """
+    import matplotlib.dates as mdates
+    import matplotlib.pyplot as plt
+    import pandas as pd
+
+    style = {"font.family": "Arial", "font.size": 10,
+             "axes.labelsize": 10, "axes.titlesize": 11,
+             "xtick.labelsize": 9, "ytick.labelsize": 9,
+             "pdf.fonttype": 42, "svg.fonttype": "none", "axes.grid": False}
+    with plt.rc_context(style):
+        fig, (elevation, release) = plt.subplots(
+            2, 1, figsize=(180 / 25.4, 115 / 25.4), sharex=True,
+            gridspec_kw={"height_ratios": [1.25, 1]})
+        fig.subplots_adjust(left=0.13, right=0.985, bottom=0.12,
+                            top=0.86, hspace=0.28)
+        for index, (method, label) in enumerate(LABELS.items()):
+            rows = daily.loc[daily["method"].eq(method)]
+            dates = pd.to_datetime(rows["date"])
+            color = METHOD_COLORS[method]
+            elevation.plot(dates, rows["pool_elevation_end_ft"], label=label,
+                           color=color, linestyle=("-", "--", "-.")[index], linewidth=1.35)
+            # Horizontal offsets separate methods without resampling dates.
+            release.bar(dates + pd.to_timedelta((index - 1) * 0.28, unit="D"),
+                        rows["controlled_release_cms"], width=0.26,
+                        color=color, linewidth=0, label=label, zorder=3)
+        for level in (1300, 1370):
+            elevation.axhline(level, color="#7B8185", linestyle=":", linewidth=0.8)
+        elevation.set(title="(A) Water elevation", ylabel="Water elevation (ft NGVD 29)")
+        release.set(title="(B) Controlled release", ylabel="Release (m³/s)", xlabel="2016",
+                    ylim=(0, float(daily["controlled_release_cms"].max()) * 1.08))
+        for ax in (elevation, release):
+            ax.title.set_position((0, 1.0))
+            ax.title.set_horizontalalignment("left")
+            ax.title.set_fontweight("bold")
+            ax.spines[["top", "right"]].set_visible(False)
+            ax.grid(axis="y", color="#DCE1E1", linewidth=0.45, zorder=0)
+        release.set_xlim(pd.to_datetime(daily["date"]).min() - pd.Timedelta(days=0.5),
+                         pd.to_datetime(daily["date"]).max() + pd.Timedelta(days=0.5))
+        release.xaxis.set_major_locator(mdates.MonthLocator(bymonth=(1, 3, 5, 7, 9, 11)))
+        release.xaxis.set_major_formatter(mdates.DateFormatter("%b"))
+        handles, labels = elevation.get_legend_handles_labels()
+        fig.legend(handles, labels, loc="upper center", bbox_to_anchor=(0.5, 1),
+                   ncol=3, frameon=False, fontsize=10.5, handlelength=2.1,
+                   columnspacing=1.0, handletextpad=0.55)
+        return fig
 
 SETUP = '''from pathlib import Path
 import html, json, re, sys
@@ -133,8 +188,7 @@ def _prepare_current_outputs() -> dict:
     csv_path = CURRENT / "daily.csv"
     combined.to_csv(csv_path, index=False, lineterminator="\n")
 
-    colors = {LABELS["rule"]: "#3b6ea8", LABELS["llm_available"]: "#d97932",
-              LABELS["llm_knowledge"]: "#2f8f68"}
+    colors = {LABELS[method]: color for method, color in METHOD_COLORS.items()}
     figures = []
     fig, ax = plt.subplots(figsize=(paper_width_mm / 25.4, 82 / 25.4),
                            layout="constrained")
@@ -145,7 +199,7 @@ def _prepare_current_outputs() -> dict:
     ax.axhline(1370, color="#666", linestyle=":", linewidth=1)
     ax.set(ylabel="Water elevation (ft NGVD 29)", xlabel="2016",
            xlim=(pd.Timestamp(dates[0]), pd.Timestamp(dates[-1])))
-    ax.legend(frameon=False, loc="center")
+    ax.legend(frameon=False, loc="center", fontsize=10.5)
     ax.xaxis.set_major_locator(mdates.MonthLocator(interval=2))
     ax.xaxis.set_major_formatter(mdates.DateFormatter("%b"))
     for ext in ("png", "svg", "pdf"):
@@ -177,6 +231,15 @@ def _prepare_current_outputs() -> dict:
         figures.append(path)
     plt.close(fig)
 
+    fig = plot_reservoir_operations(combined)
+    for ext in ("png", "svg", "pdf"):
+        path = CURRENT / f"reservoir_operations.{ext}"
+        fig.savefig(path, **({"dpi": raster_dpi} if ext == "png" else {}))
+        if ext == "svg":
+            path.write_bytes(("\n".join(line.rstrip() for line in path.read_text(encoding="utf-8").splitlines()) + "\n").encode("utf-8"))
+        figures.append(path)
+    plt.close(fig)
+
     manifest = {
         "schema_version": "fe-walter-current-tutorial.v1",
         "purpose": "Saved-data teaching comparison; no new provider request, hydrology run, or reservoir simulation.",
@@ -184,7 +247,10 @@ def _prepare_current_outputs() -> dict:
         "period": {"start": dates[0], "end": dates[-1], "days_per_method": 366},
         "figure_layout": {"width_mm": paper_width_mm, "png_dpi": raster_dpi,
                           "minimum_font_pt": 9, "pdf_fonttype": 42,
-                          "svg_labels": "editable text"},
+                          "svg_labels": "editable text", "legend_font_pt": 10.5,
+                          "primary_figure": "reservoir_operations",
+                          "panels": {"A": "Water elevation", "B": "Controlled release"},
+                          "method_colors": METHOD_COLORS},
         "units": {"inflow_cms": "m3/s", "controlled_release_cms": "m3/s",
                   "spill_cms": "m3/s", "pool_elevation_end_ft": "ft N.G.V.D.",
                   "storage_end_m3": "m3"},
@@ -293,36 +359,18 @@ for method, label in labels.items():
 The builder combines Rule-based rows from `outputs/2016/daily.csv` with the two
 framework LLM rows from `outputs/gemma4_2016_comparison/daily.csv`. It verifies
 366 unique ordered dates per method, common inflow, shared initial state, and
-units. It performs no interpolation. The first figure reports end-of-day pool
-elevation in feet NGVD 29. The second reports daily controlled release in m³/s;
-spill is excluded.'''),
+units. It performs no interpolation. One figure shares the date axis: (A)
+end-of-day pool elevation in feet NGVD 29; (B) daily controlled release in m³/s,
+shown as grouped bars. Spill is excluded. Colors identify the same methods in both panels.'''),
         code('''current = coupled / "outputs/current_tutorial"
 daily = pd.read_csv(current / "daily.csv")
 provenance = json.loads((current / "provenance.json").read_text(encoding="utf-8"))
 display(daily.groupby("method_label", sort=False).agg(rows=("date", "size"),
     unique_dates=("date", "nunique"), maximum_release_cms=("controlled_release_cms", "max")))
 display(pd.DataFrame(provenance["validation"]["methods"]).T)'''),
-        code('''import matplotlib.dates as mdates
-colors = {"Rule-based": "#3b6ea8", "LLM with available information": "#d97932",
-          "LLM with retrieved knowledge": "#2f8f68"}
-fig, ax = plt.subplots(figsize=(10.5, 4.8))
-for label, group in daily.groupby("method_label", sort=False):
-    ax.plot(pd.to_datetime(group["date"]), group["pool_elevation_end_ft"],
-            label=label, color=colors[label], linewidth=1.45)
-ax.axhline(1300, color="#666", linestyle=":", linewidth=1)
-ax.axhline(1370, color="#666", linestyle=":", linewidth=1)
-ax.set(title="Daily water elevation, 2016", ylabel="End-of-day elevation (ft NGVD 29)", xlabel="Date")
-ax.xaxis.set_major_locator(mdates.MonthLocator(interval=2)); ax.xaxis.set_major_formatter(mdates.DateFormatter("%b"))
-ax.legend(frameon=False); fig.tight_layout(); display(fig)'''),
-        code('''fig, axes = plt.subplots(3, 1, figsize=(10.5, 8), sharex=True, sharey=True)
-ymax = float(daily["controlled_release_cms"].max()) * 1.04
-for ax, (label, group) in zip(axes, daily.groupby("method_label", sort=False), strict=True):
-    ax.bar(pd.to_datetime(group["date"]), group["controlled_release_cms"],
-           width=1, color=colors[label], linewidth=0)
-    ax.set(ylabel="m³/s", ylim=(0, ymax)); ax.text(0.01, 0.88, label, transform=ax.transAxes, fontweight="bold", va="top")
-axes[0].set_title("Daily controlled release, 2016"); axes[-1].set_xlabel("Date")
-axes[-1].xaxis.set_major_locator(mdates.MonthLocator(interval=2)); axes[-1].xaxis.set_major_formatter(mdates.DateFormatter("%b"))
-fig.tight_layout(); display(fig)'''),
+        code('''from tutorials.build_notebooks import plot_reservoir_operations
+fig = plot_reservoir_operations(daily)
+display(fig)'''),
         md('''## 6. Run a new experiment deliberately
 
 These commands are documentation and are not executed by this notebook. Copy

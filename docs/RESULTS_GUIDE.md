@@ -40,7 +40,12 @@ Verification checks saved records and numerical consistency. Seasonal operation
 performance must be evaluated separately; a completed run can miss a target.
 
 The [results notebook](../tutorials/main.ipynb) reads saved data and reproduces
-the two teaching figures without running a model or hydrology.
+one combined teaching figure without running a model or hydrology. Panel A
+compares 2016 end-of-day water elevation in ft NGVD29, including dotted guides
+at 1300 and 1370 ft. Panel B compares daily controlled release in m³/s with
+grouped bars that exclude spill. Both panels share the calendar axis and the
+legend names **Rule-based**, **LLM with available information**, and **LLM with
+retrieved knowledge**.
 
 ## Follow one decision
 

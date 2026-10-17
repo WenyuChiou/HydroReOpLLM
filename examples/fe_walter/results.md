@@ -4,21 +4,15 @@ The maintained comparison uses three saved 2016 trajectories: **Rule-based**,
 **LLM with available information**, and **LLM with retrieved knowledge**. All
 three use the same accepted daily inflow and initial physical state.
 
-## Water elevation
+## Reservoir operations
 
-![Daily water elevation](coupled/outputs/current_tutorial/daily_water_elevation.png)
+![2016 water elevation and controlled release](coupled/outputs/current_tutorial/reservoir_operations.png)
 
-**Figure 1.** Saved end-of-day water elevation during 2016. Dotted guides at
-1300 and 1370 ft N.G.V.D. orient the study-defined seasonal windows; they do not
-represent a complete official operating schedule.
-
-## Controlled release
-
-![Daily controlled release](coupled/outputs/current_tutorial/controlled_release_daily.png)
-
-**Figure 2.** Daily controlled release in 2016, in m³/s: (a) Rule-based,
-(b) LLM with available information, and (c) LLM with retrieved knowledge.
-Panels share date and release scales; bars exclude spill.
+**Figure 1.** Saved 2016 operations for **Rule-based**, **LLM with available
+information**, and **LLM with retrieved knowledge**. (A) End-of-day water
+elevation in ft NGVD29; dotted guides at 1300 and 1370 ft orient the
+study-defined seasonal windows. (B) Daily controlled release in m³/s; grouped
+bars exclude spill. Both panels share the calendar axis.
 
 The combined teaching table contains 366 unique ordered dates per method. The
 builder checked matching inflow within 1e-10 m³/s for CSV serialization, the
@@ -28,7 +22,9 @@ simulation.
 
 Downloads: [combined CSV](coupled/outputs/current_tutorial/daily.csv),
 [provenance](coupled/outputs/current_tutorial/provenance.json),
-[elevation SVG](coupled/outputs/current_tutorial/daily_water_elevation.svg),
+[combined SVG](coupled/outputs/current_tutorial/reservoir_operations.svg), and
+[combined PDF](coupled/outputs/current_tutorial/reservoir_operations.pdf).
+Secondary standalone exports: [elevation SVG](coupled/outputs/current_tutorial/daily_water_elevation.svg),
 [elevation PDF](coupled/outputs/current_tutorial/daily_water_elevation.pdf),
 [release SVG](coupled/outputs/current_tutorial/controlled_release_daily.svg), and
 [release PDF](coupled/outputs/current_tutorial/controlled_release_daily.pdf).

@@ -175,18 +175,21 @@ Before combining, the builder verifies 366 unique ordered dates per method,
 common inflow within a 1e-10 m³/s CSV-serialization tolerance, the shared initial
 state, and units. It does not interpolate or generate model output.
 
-![Daily water elevation](../examples/fe_walter/coupled/outputs/current_tutorial/daily_water_elevation.png)
+![2016 water elevation and controlled release](../examples/fe_walter/coupled/outputs/current_tutorial/reservoir_operations.png)
 
-**Figure 4.** End-of-day pool elevation for all three methods, in feet NGVD 29.
-
-![Daily controlled release](../examples/fe_walter/coupled/outputs/current_tutorial/controlled_release_daily.png)
-
-**Figure 5.** Daily controlled release in 2016, in m³/s: (a) Rule-based,
-(b) LLM with available information, and (c) LLM with retrieved knowledge.
-Bars exclude spill; all panels share date and release scales.
+**Figure 4.** Saved 2016 operations for **Rule-based**, **LLM with available
+information**, and **LLM with retrieved knowledge**. (A) End-of-day water
+elevation in ft NGVD29, with dotted guides at 1300 and 1370 ft. (B) Daily
+controlled release in m³/s; grouped bars exclude spill. Both panels share the
+calendar axis.
 
 Downloads: [daily.csv](../examples/fe_walter/coupled/outputs/current_tutorial/daily.csv)
-and [current tutorial provenance](../examples/fe_walter/coupled/outputs/current_tutorial/provenance.json).
+and [current tutorial provenance](../examples/fe_walter/coupled/outputs/current_tutorial/provenance.json),
+plus the combined figure as [SVG](../examples/fe_walter/coupled/outputs/current_tutorial/reservoir_operations.svg)
+or [PDF](../examples/fe_walter/coupled/outputs/current_tutorial/reservoir_operations.pdf).
+The standalone [elevation](../examples/fe_walter/coupled/outputs/current_tutorial/daily_water_elevation.pdf)
+and [release](../examples/fe_walter/coupled/outputs/current_tutorial/controlled_release_daily.pdf)
+exports remain available as secondary downloads.
 
 Open the [main notebook](main.ipynb) for executable saved-data inspection.
 [Technical engine evidence and historical audit material](../examples/fe_walter/engine_comparison.md)

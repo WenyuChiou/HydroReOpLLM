@@ -79,6 +79,7 @@ TUTORIAL_DOWNLOADS = {
         "daily.csv", "provenance.json",
         "daily_water_elevation.png", "daily_water_elevation.svg", "daily_water_elevation.pdf",
         "controlled_release_daily.png", "controlled_release_daily.svg", "controlled_release_daily.pdf",
+        "reservoir_operations.png", "reservoir_operations.svg", "reservoir_operations.pdf",
     )
 }
 MULTI_RESERVOIR_FILES = (

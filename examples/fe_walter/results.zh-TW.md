@@ -6,25 +6,21 @@
 **LLM with retrieved knowledge**。期間為 2016-01-01 至 2016-12-31，共 366 天。
 下圖使用已保存的框架模擬結果，沒有新增模型請求。
 
-## 水位
+## 水庫操作
 
-![2016 年每日水位](coupled/outputs/current_tutorial/daily_water_elevation.png)
+![2016 年水位與控制放流](coupled/outputs/current_tutorial/reservoir_operations.png)
 
-*圖 1。三種方法的模擬日末水位，單位為 ft NGVD29。三者使用相同入流、水庫參數與初始蓄水。
-水位由蓄水—水位曲線換算，不是觀測測站水位。1300 與 1370 ft 虛線協助閱讀本研究定義的
-季節水位範圍，不代表完整的官方操作時程。*
-
-## 控制放流
-
-![2016 年每日控制放流](coupled/outputs/current_tutorial/controlled_release_daily.png)
-
-*圖 2。2016 年每日控制放流，單位 m³/s：(a) Rule-based、
-(b) LLM with available information、(c) LLM with retrieved knowledge。
-三個面板的日期與放流刻度相同；柱狀圖不包含 spill。*
+*圖 1。**Rule-based**、**LLM with available information** 與
+**LLM with retrieved knowledge** 的 2016 年保存操作結果。(A) 日末水位，
+單位為 ft NGVD29；1300 與 1370 ft 虛線協助閱讀本研究定義的季節水位範圍。
+(B) 每日控制放流，單位為 m³/s；分組柱狀圖不包含 spill。兩個面板共用日期軸。*
 
 [完整精度每日資料](coupled/outputs/current_tutorial/daily.csv) ·
 [來源紀錄](coupled/outputs/current_tutorial/provenance.json) ·
-[水位 PDF](coupled/outputs/current_tutorial/daily_water_elevation.pdf) ·
+[合併圖 SVG](coupled/outputs/current_tutorial/reservoir_operations.svg) ·
+[合併圖 PDF](coupled/outputs/current_tutorial/reservoir_operations.pdf)
+
+次要的單圖下載：[水位 PDF](coupled/outputs/current_tutorial/daily_water_elevation.pdf) ·
 [放流 PDF](coupled/outputs/current_tutorial/controlled_release_daily.pdf)
 
 資料由已保存的 Rule-based 年度結果及兩個最新框架 LLM 結果整理而成。

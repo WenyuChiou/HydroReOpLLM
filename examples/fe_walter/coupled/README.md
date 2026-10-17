@@ -49,19 +49,17 @@ Each method has 366 unique dates and the same saved daily inflow and initial
 physical state. The teaching export performs no interpolation and no new model,
 hydrology, or reservoir execution.
 
-![Daily water elevation](outputs/current_tutorial/daily_water_elevation.png)
+![Water elevation and controlled release](outputs/current_tutorial/reservoir_operations.png)
 
-**Figure 1.** Saved end-of-day water elevation for the three methods during
-2016. Horizontal guides mark 1300 and 1370 ft N.G.V.D.
-
-![Daily controlled release](outputs/current_tutorial/controlled_release_daily.png)
-
-**Figure 2.** Saved daily controlled release. Three vertically aligned bar
-panels share date and release scales.
+**Figure 1.** Saved 2016 operations: (A) end-of-day water elevation in ft NGVD 29;
+(B) daily controlled release in m³/s, excluding spill. The panels share dates
+and method colors; the 1300 and 1370 ft guides indicate study-defined levels.
 
 Teaching artifacts: [combined CSV](outputs/current_tutorial/daily.csv),
 [provenance](outputs/current_tutorial/provenance.json),
-[elevation SVG](outputs/current_tutorial/daily_water_elevation.svg),
+[combined SVG](outputs/current_tutorial/reservoir_operations.svg), and
+[combined PDF](outputs/current_tutorial/reservoir_operations.pdf).
+Secondary standalone exports: [elevation SVG](outputs/current_tutorial/daily_water_elevation.svg),
 [elevation PDF](outputs/current_tutorial/daily_water_elevation.pdf),
 [release SVG](outputs/current_tutorial/controlled_release_daily.svg), and
 [release PDF](outputs/current_tutorial/controlled_release_daily.pdf).

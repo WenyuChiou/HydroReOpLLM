@@ -16,7 +16,18 @@
     "png_dpi": 600,
     "minimum_font_pt": 9,
     "pdf_fonttype": 42,
-    "svg_labels": "editable text"
+    "svg_labels": "editable text",
+    "legend_font_pt": 10.5,
+    "primary_figure": "reservoir_operations",
+    "panels": {
+      "A": "Water elevation",
+      "B": "Controlled release"
+    },
+    "method_colors": {
+      "rule": "#526B8A",
+      "llm_available": "#BF795E",
+      "llm_knowledge": "#4F8A7B"
+    }
   },
   "units": {
     "inflow_cms": "m3/s",
@@ -73,11 +84,14 @@
   },
   "artifacts": {
     "daily.csv": "cf3187a46b10298974684dd41cbb46880057b9968cf5a2f9ecfca4b2dcd9d62e",
-    "daily_water_elevation.png": "59965e071529ab9dde152d2147f1beff3646b0129311d07d196847a296cf7489",
-    "daily_water_elevation.svg": "fa7f17e065fddfc76e0d4eb86b076c4587bd4ed97701dd68dfb3df2b0361b5d5",
-    "daily_water_elevation.pdf": "445c056381ef4e9cfcfbd3a5c5bbd287ab45038987861fa0f6acacd1115ce7f9",
-    "controlled_release_daily.png": "8e558a46f28c3187cf8fce380c76856c7bd760eea0a789e28b0c20f50b0ead9f",
-    "controlled_release_daily.svg": "10d0f3024a88a9f04a1dafae872d368c1b54b0ed8afc1031c6e3a91dc709c270",
-    "controlled_release_daily.pdf": "1c5c955bd33cc8810d7cdb304a742849e47e64ed6602c9dd9375b26c2d57688c"
+    "daily_water_elevation.png": "211f3fee32078fad869e366e16a23d057d11fd493cd9588477ab9aab3b588c5d",
+    "daily_water_elevation.svg": "4f9572117c190401d3c6caf18dbe1192d2c04d5eda3cd137bb620ec642f3b798",
+    "daily_water_elevation.pdf": "dc3bad081c11033cc4936973a791091aff4bc1ca74e18018fd670f8592625781",
+    "controlled_release_daily.png": "b3a087e1e40d74cf14789a57f7cac17d03179fd9b40fcedc958d1203de9889c3",
+    "controlled_release_daily.svg": "506489bde316522a988253e9f49505b0440b3901661e3aaee2a8bfae4550054f",
+    "controlled_release_daily.pdf": "e9bcfeabea421d5c044a8e146df6e65b9150155c1b951a13cc2dbc4a118e9dd5",
+    "reservoir_operations.png": "ec1161882b01f70c7cf4c45179ac2b9d6454befce05643cb73c97d30f3d0366a",
+    "reservoir_operations.svg": "7bdb3145300218cf58eeb20dc049fa38cbe943da1a519e3304c48abb109504e3",
+    "reservoir_operations.pdf": "b1192542083a891ef5acb0fcdab0fd3d35a9a85eb9b38f23a8c16eee806a3b71"
   }
 }
