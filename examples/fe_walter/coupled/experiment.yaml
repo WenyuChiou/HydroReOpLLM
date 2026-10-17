@@ -1,0 +1,16 @@
+# Canonical rule entry; rule.yaml is an alternative name for the same run/output.
+schema_version: hydroops-coupled-simulation.v2
+run_id: fe-walter-coupled-rule
+case: reservoirs.json
+output: ../../../runs/fe-walter-coupled-rule
+start_date: '2016-01-01'
+end_date: '2016-12-31'
+max_calls: 0
+agents:
+  file: agents.rule.yaml
+auditors:
+  file: auditors.yaml
+hydrology:
+  file: hydrology.yaml
+extensions:
+  hanasaki: ../../rules/hanasaki/__init__.py

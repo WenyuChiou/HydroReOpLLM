@@ -29,8 +29,11 @@ sage records. No module, arrow label or route changed in the v15 fill correction
 
 ## Edit and export
 
-Edit the native source. The historical source/build_coupling_drawio.py generator
-does not reproduce the reviewed layout. Run it only in a separate candidate directory.
+Edit the native source. `source/build_coupling_drawio.py` now preserves its exact
+bytes and derives the relationship manifest; it does not redraw or export the
+figure. Use `--output-dir` to inspect a separate source copy.
+See [Figure 1 interpretation](../../FIGURE1.md) for the execution boundary and
+each arrow's meaning.
 
 ```sh
 draw.io --export --format svg --embed-svg-images --output docs/figures/hydrocnhs-coupling-framework-en.svg docs/figures/hydrocnhs-coupling-framework-en.drawio

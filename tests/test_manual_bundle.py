@@ -46,3 +46,39 @@ def test_download_archive_keeps_every_declared_source_and_safe_relative_paths(pr
         for name, source in expected.items():
             assert not Path(name).is_absolute() and '..' not in Path(name).parts
             assert bundle.read(name) == source.read_bytes(), name
+
+
+def test_fe_walter_walkthrough_publishes_the_actual_configuration(prepared_manual):
+    """Readers can reach the walkthrough and copy the maintained experiment bytes."""
+    _, output = prepared_manual
+    page = 'tutorials/fe_walter.md'
+    assert (output / page).is_file()
+    assert 'tutorials/fe_walter' in (output / 'index.md').read_text(encoding='utf-8')
+    navigation = (output / '_templates/navigation.html').read_text(encoding='utf-8')
+    assert "chapter('tutorials/fe_walter'" in navigation
+    text = (output / page).read_text(encoding='utf-8')
+    assets = (
+        'coupled/experiment.yaml', 'coupled/rule.yaml', 'coupled/llm_available.yaml',
+        'coupled/llm_knowledge.yaml', 'coupled/hydrology.yaml', 'coupled/models.yaml',
+        'coupled/agents.rule.yaml', 'coupled/agents.llm_available.yaml',
+        'coupled/agents.llm_knowledge.yaml', 'coupled/auditors.yaml', 'coupled/reservoirs.json',
+        'prompts/zeroshot_seasonal_v1_system.txt', 'prompts/dkp_seasonal_v1_system.txt',
+    )
+    for name in assets:
+        relative = 'examples/fe_walter/' + name
+        assert (output / relative).read_bytes() == (ROOT / relative).read_bytes(), relative
+        download = output / '_config_downloads' / Path(name).name
+        assert download.read_bytes() == (ROOT / relative).read_bytes(), relative
+    # Literalinclude directives must resolve from the canonical tutorial's location.
+    import re
+    includes = re.findall(r'\{literalinclude\}\s+(\S+)', text)
+    assert '../examples/fe_walter/coupled/experiment.yaml' in includes
+    assert '../examples/fe_walter/coupled/agents.llm_available.yaml' in includes
+    assert '../examples/fe_walter/prompts/zeroshot_seasonal_v1_system.txt' in includes
+    for name in includes:
+        published = (output / page).parent / name
+        source = (ROOT / page).parent / name
+        assert published.read_bytes() == source.read_bytes(), name
+    landing = (output / 'examples/fe_walter/configuration.md').read_text(encoding='utf-8')
+    assert '../../tutorials/fe_walter.md' in landing
+    assert '{literalinclude}' not in landing

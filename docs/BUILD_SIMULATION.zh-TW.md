@@ -8,6 +8,9 @@
 案例包含兩個獨立河川系統。短期氣象資料與合成參數用來檢查軟體連接，
 不代表已校正的水文模型或已驗證的操作策略。
 
+真實案例請閱讀英文 [F.E. Walter 設定教學](../tutorials/fe_walter.md)。
+[輸入與輸出](INPUT_OUTPUT.md) 說明本套件與原生 HydroCNHS 介面的差異。
+
 ## 1. 安裝專案
 
 建立環境、安裝 repo，並確認指令可用：
@@ -27,8 +30,9 @@ reservoir-experiment --help
 ## 2. 先確認 HydroCNHS 模型
 
 使用不含 agent 的 HydroCNHS 模型，以 GWLF 或 ABCD 計算降雨逕流，
-並使用 Lohmann routing。先完成暖機、校正與驗證，再將產生的流量作為操作邊界。
-將已確認的模型、氣象檔原始 bytes、指標、期間與來源紀錄一起保存。
+並使用 Lohmann routing。集水區建模、參數及校正／驗證請依照
+[HydroCNHS 官方教學](https://github.com/cylin928/HydroCNHS/tree/main/tutorials)。
+將已確認的模型與完整氣象表交給本入口；只修改 agent 時，無須重新校正未變動的水文。
 
 氣象表必須涵蓋每個使用氣象資料的子集水區，以及模型期間的每一天：
 

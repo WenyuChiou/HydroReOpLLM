@@ -1,4 +1,4 @@
-schema_version: hydroops-coupled-simulation.v1
+schema_version: hydroops-coupled-simulation.v2
 case: reservoirs.json
 start_date: '2016-01-01'
 end_date: '2016-12-31'
@@ -6,55 +6,12 @@ run_id: fe-walter-coupled-llm_available
 output: ../../../runs/fe-walter-coupled-llm_available
 max_calls: null
 models:
-  reservoir_model:
-    provider: ollama
-    model: gemma3:4b
-    base_url: http://localhost:11434
-    temperature: 0.7
-    max_tokens: 2048
-    num_ctx: 16384
-    think: false
-    keep_alive: 30m
-    seed: null
-    timeout_seconds: 120
-    api_key_env: null
-    max_attempts: 2
-    retry_delay_seconds: 2
+  file: models.yaml
 auditors:
-  release_limits:
-    type: release_bounds
-    version: '1'
+  file: auditors.yaml
 agents:
-  fe_operator:
-    reservoir_id: FEWalter
-    type: llm
-    model_profile: reservoir_model
-    customization:
-      backend: reference_v3_7
-      parameters:
-        reference:
-          profile: fe_walter
-          method: zeroshot
-          consultation_mode: daily
-          response_validation: policy
-          system_prompt: ../prompts/zeroshot_seasonal_v1_system.txt
-          system_prompt_mode: custom
-          prompt_storage: false
-          hide_availability_line: false
-          dkp_no_missing_inputs: false
-          zeroshot_knowledge: target
-    auditors:
-    - release_limits
+  file: agents.llm_available.yaml
 hydrology:
-  model: ../../../data/accepted/fe_walter_hydrology.yaml
-  forcing: ../../../data/accepted/fe_walter_forcing_1989_2025.csv.gz
-  zero_flow_nodes:
-  - __AGGREGATION_OUTLET__
-  inflow_bindings:
-    FEW_INFLOW:
-      routed: __AGGREGATION_OUTLET__
-    Downstream:
-      constant: 0
-
+  file: hydrology.yaml
 extensions:
   reference_v3_7: ../extensions/__init__.py

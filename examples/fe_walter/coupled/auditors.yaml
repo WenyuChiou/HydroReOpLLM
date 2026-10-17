@@ -1,0 +1,3 @@
+release_limits:
+  type: release_bounds
+  version: '1'

@@ -2,7 +2,10 @@
 
 [English](README.md) | [繁體中文](README.zh-TW.md)
 
-教學整併為兩本英文 notebook。兩者只讀取已追蹤、已驗收的 snapshot，並保存
+先閱讀英文 [F.E. Walter 設定教學](fe_walter.md)：目前拆分的氣象到操作設定、
+模型參數及每日決策介面以該頁為唯一維護來源。
+
+另有兩本英文 notebook。兩者只讀取已追蹤、已驗收的 snapshot，並保存
 GitHub 與 MyST-NB 可顯示的表格與圖片輸出。預設流程不呼叫模型或網路，也不下載、
 重新校正或執行新的模擬。
 

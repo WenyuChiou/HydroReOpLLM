@@ -5,18 +5,30 @@ record to the shared reservoir physics and daily native routing. It is a teachin
 configuration. The identity downstream unit hydrograph is not calibrated travel
 time, and the initial storage is an explicit assumption.
 
-The rule-based configuration has been checked for all 366 days of 2016. The
-prepared inflow matches the existing annual input byte for byte. Execution and
-water balance verification do not establish acceptable reservoir performance.
+Start with [the FE Walter tutorial](../../../tutorials/fe_walter.md) for a file-by-file
+walkthrough of the experiment, model settings, prompts, reservoir IDs and code.
+
+The entries specify all 366 days of 2016. The historical preparation reproduced
+the existing annual inflow byte for byte. A real yearly LLM run of the current
+configuration remains pending; the saved demonstration below uses an earlier
+diagnostic configuration. Execution and water balance verification do not
+establish acceptable reservoir performance.
 
 ## Files
 
 | File | Role |
 |---|---|
+| [`experiment.yaml`](experiment.yaml) | Canonical v2 entry, selecting the rule baseline |
 | [`reservoirs.json`](reservoirs.json) | `reservoir-physical-case.v1`: F.E. Walter physics and operation network |
-| [`rule.yaml`](rule.yaml) | Rule-based baseline using the example Hanasaki module; no model request |
+| [`rule.yaml`](rule.yaml) | Alternative entry for the same rule identity/output; do not run both into that directory |
 | [`llm_available.yaml`](llm_available.yaml) | LLM operation with available information |
 | [`llm_knowledge.yaml`](llm_knowledge.yaml) | LLM operation with retrieved operating knowledge |
+| [`hydrology.yaml`](hydrology.yaml) | Shared accepted native model, forcing and inlet bindings |
+| [`models.yaml`](models.yaml) | Shared explicit Ollama model profile |
+| [`agents.rule.yaml`](agents.rule.yaml) | Rule operator and its Hanasaki parameters |
+| [`agents.llm_available.yaml`](agents.llm_available.yaml) | Available-information operator and case settings |
+| [`agents.llm_knowledge.yaml`](agents.llm_knowledge.yaml) | Retrieved-knowledge operator and case settings |
+| [`auditors.yaml`](auditors.yaml) | Shared diagnostic check catalog |
 | [Available-information prompt](../prompts/zeroshot_seasonal_v1_system.txt) | Native system message with the approved seasonal-target edit |
 | [Retrieved-knowledge prompt](../prompts/dkp_seasonal_v1_system.txt) | Native operating-knowledge system message with the same target edit |
 | [Case extension](../extensions/) | Case-owned prompt formatting, response parsing, profile/history and audit |
@@ -34,20 +46,12 @@ the general `type: llm` example in
 
 ## Read the configuration
 
-The rule YAML is the complete weather-to-operation setup:
-
-```{literalinclude} rule.yaml
-:language: yaml
-```
-
-| Section | What you change |
-|---|---|
-| `hydrology` | Accepted native model, complete weather and local-flow bindings |
-| `case` | Reservoir physics, initial storage and downstream network |
-| `start_date`, `end_date` | Operation period within the hydrology record |
-| `agents` | Decision method and its rule parameters or prompt/model |
-| `auditors` | Diagnostic checks enabled by the selected agent |
-| `run_id`, `output` | Separate identity and output for each experiment |
+The v2 entries select sibling files with section references such as
+`agents: {file: agents.rule.yaml}`. Global run settings belong in the entry;
+hydrology and physical coupling belong in `hydrology.yaml`/`reservoirs.json`;
+method behavior belongs in the selected agent file. Paths are relative to the
+file that declares them. The [canonical tutorial](../../../tutorials/fe_walter.md)
+includes the actual maintained files and explains their parameters.
 
 ## Hydrology and binding
 
@@ -66,9 +70,9 @@ routes implemented release plus spill to `Downstream` once.
 ## Run the rule-based method
 
 ```powershell
-reservoir-experiment check examples/fe_walter/coupled/rule.yaml
-reservoir-experiment prepare examples/fe_walter/coupled/rule.yaml
-reservoir-experiment run examples/fe_walter/coupled/rule.yaml
+reservoir-experiment check examples/fe_walter/coupled/experiment.yaml
+reservoir-experiment prepare examples/fe_walter/coupled/experiment.yaml
+reservoir-experiment run examples/fe_walter/coupled/experiment.yaml
 reservoir-experiment verify runs/fe-walter-coupled-rule/operation
 ```
 
@@ -95,14 +99,15 @@ day is requested and the original policy parser checks its required fields.
 
 ## Reuse the prepared hydrology
 
-When comparing methods, copy the next YAML to a new run ID and output and add a
-verified preparation to its `hydrology` section:
+When comparing methods, copy the next entry to a new run ID/output. Copy
+`hydrology.yaml` to a sibling `hydrology.reused.yaml`, retain its existing fields,
+and add this field at the root of that copied section file:
 
 ```yaml
-hydrology:
-  prepared_from: ../../../runs/fe-walter-coupled-rule
+prepared_from: ../../../runs/fe-walter-coupled-rule
 ```
 
+Point only the new entry's `hydrology` at `{file: hydrology.reused.yaml}`.
 Keep the accepted model, weather, dates, bindings and runtime unchanged. The new
 preparation pins and copies the existing inlet series without rerunning hydrology.
 Each operation method still starts a separate reservoir history from the same
@@ -110,7 +115,8 @@ physical initial state.
 
 ## Completed 2016 demonstration
 
-All three methods completed **366 daily reservoir decisions**. The LLM records
+The historical diagnostic demonstration completed **366 daily reservoir decisions**
+for each method. The LLM records
 are a preserved diagnostic variant from the original pinned runner at commit
 `5ee498e`, using the same
 prepared inflow that the new weather entry reproduced byte for byte. They were
@@ -184,7 +190,8 @@ For each day, follow this chain in `OUTPUT/operation`:
 2. the rule or LLM requests controlled release;
 3. physics records implemented controlled release, spill and ending storage;
 4. native routing receives total outflow at `Downstream`; and
-5. the next day uses committed ending storage and implemented-release history.
+5. the next day uses committed ending storage and up to two entries of requested
+   release and implemented **total outflow**, including spill, in FE history.
 
 Use `decisions.jsonl`, `audit.jsonl`, `physics.jsonl`,
 `reservoir_trajectory.csv` and the routing/balance records together. A completed

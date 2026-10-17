@@ -10,6 +10,9 @@ It contains two independent river systems. Its short forcing record and
 synthetic parameters test software connections; they are not a calibrated
 hydrological model or a validated operating policy.
 
+For the real case, follow [F.E. Walter: configure the reservoir agent](../tutorials/fe_walter.md).
+Read [Inputs and outputs](INPUT_OUTPUT.md) for the changes from native HydroCNHS.
+
 ## 1. Install the project
 
 Create an environment, install the repository, and confirm the command is
@@ -30,9 +33,10 @@ inference server uses it. Remote providers do not use your local GPU.
 ## 2. Accept the HydroCNHS model first
 
 Use an agent-free HydroCNHS model with GWLF or ABCD rainfall-runoff and Lohmann
-routing. Establish warm-up, calibration and validation before treating its flow
-as an operating boundary. Keep the accepted model, forcing bytes, metrics,
-periods and provenance together.
+routing. Follow the [official HydroCNHS tutorials](https://github.com/cylin928/HydroCNHS/tree/main/tutorials)
+for basin construction, model parameters and calibration/validation. Bring the
+accepted model and complete weather table to this entry; changing the agent does
+not require recalibrating unchanged hydrology.
 
 The weather table contains every model day for every weather-driven subbasin:
 

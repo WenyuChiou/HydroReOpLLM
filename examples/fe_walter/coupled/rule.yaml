@@ -1,4 +1,4 @@
-schema_version: hydroops-coupled-simulation.v1
+schema_version: hydroops-coupled-simulation.v2
 run_id: fe-walter-coupled-rule
 case: reservoirs.json
 output: ../../../runs/fe-walter-coupled-rule
@@ -6,29 +6,10 @@ start_date: '2016-01-01'
 end_date: '2016-12-31'
 max_calls: 0
 agents:
-  fe_operator:
-    reservoir_id: FEWalter
-    type: rule_based
-    rule: hanasaki
-    rule_parameters:
-      purpose: flood_control
-      alpha: 0.85
-      inflow_statistics_file: ../../../data/benchmark/fe_walter_statistics.json
-    auditors:
-    - release_limits
+  file: agents.rule.yaml
 auditors:
-  release_limits:
-    type: release_bounds
-    version: '1'
+  file: auditors.yaml
 hydrology:
-  model: ../../../data/accepted/fe_walter_hydrology.yaml
-  forcing: ../../../data/accepted/fe_walter_forcing_1989_2025.csv.gz
-  zero_flow_nodes:
-  - __AGGREGATION_OUTLET__
-  inflow_bindings:
-    FEW_INFLOW:
-      routed: __AGGREGATION_OUTLET__
-    Downstream:
-      constant: 0
+  file: hydrology.yaml
 extensions:
   hanasaki: ../../rules/hanasaki/__init__.py

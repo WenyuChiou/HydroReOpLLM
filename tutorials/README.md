@@ -2,7 +2,11 @@
 
 [English](README.md) | [繁體中文](README.zh-TW.md)
 
-The tutorial has two English notebooks. Both execute from tracked, accepted
+Start with the English [F.E. Walter configuration tutorial](fe_walter.md) for
+the current split weather-to-operation entry, model settings and daily decision
+contract. It is the single maintained source for that walkthrough.
+
+The two companion English notebooks execute from tracked, accepted
 snapshots and save rich table and figure outputs for GitHub and MyST-NB. Their
 default path makes no model, network, download, recalibration, or new simulation
 call.

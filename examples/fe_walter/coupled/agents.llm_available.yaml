@@ -1,0 +1,20 @@
+fe_operator:
+  reservoir_id: FEWalter
+  type: llm
+  model_profile: reservoir_model
+  customization:
+    backend: reference_v3_7
+    parameters:
+      reference:
+        profile: fe_walter
+        method: zeroshot
+        consultation_mode: daily
+        response_validation: policy
+        system_prompt: ../prompts/zeroshot_seasonal_v1_system.txt
+        system_prompt_mode: custom
+        prompt_storage: false
+        hide_availability_line: false
+        dkp_no_missing_inputs: false
+        zeroshot_knowledge: target
+  auditors:
+  - release_limits

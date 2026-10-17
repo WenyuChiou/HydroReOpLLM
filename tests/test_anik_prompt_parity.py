@@ -208,7 +208,8 @@ class AnikPromptParityTests(unittest.TestCase):
     def test_active_cases_use_method_specific_systems_and_native_dkp_shape(self):
         paths = [ROOT / "examples/fe_walter/coupled/llm_available.yaml",
                  ROOT / "examples/fe_walter/coupled/llm_knowledge.yaml"]
-        specs = [yaml.safe_load(path.read_text(encoding="utf-8"))["agents"]["fe_operator"]["customization"]["parameters"]["reference"]
+        from llm_reservoir_agent.configuration import read_configuration
+        specs = [read_configuration(path)[0]["agents"]["fe_operator"]["reference"]
                  for path in paths]
         self.assertEqual([spec["method"] for spec in specs], ["zeroshot", "dkp"])
         self.assertTrue(all(spec["system_prompt"].endswith(f"{spec['method']}_seasonal_v1_system.txt")

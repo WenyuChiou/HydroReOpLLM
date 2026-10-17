@@ -14,7 +14,10 @@ HydroOpsLLM 將水庫決策接入 HydroCNHS 水文模擬。
 
 ![HydroOpsLLM 核心流程](figures/hydrocnhs-coupling-framework-en.png)
 
-[高清 PNG](figures/hydrocnhs-coupling-framework-en.png) · [180 mm 向量 PDF](figures/hydrocnhs-coupling-framework-en.pdf)。
+上游連續水文先預算完成。逐日循環再組成決策、驗證回覆、套用物理計算、
+將出流送往下游 routing，並提交狀態給下一次決策。
+回覆驗證檢查 action 介面；診斷 audit 評估決策；recorder 保存證據，三者職責不同。
 
-先從[安裝](GETTING_STARTED.md)開始，再[建立模擬](BUILD_SIMULATION.zh-TW.md)，
-接著進入 [FE Walter 案例](../examples/fe_walter/README.zh-TW.md)。
+先從[安裝](GETTING_STARTED.md)開始，閱讀英文[輸入與輸出](INPUT_OUTPUT.md)，
+再[設定 agent（英文）](CONFIGURATION.md)，接著進入英文
+[FE Walter 設定教學](../tutorials/fe_walter.md)。

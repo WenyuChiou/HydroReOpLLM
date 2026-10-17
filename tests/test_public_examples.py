@@ -19,8 +19,10 @@ ROOT = Path(__file__).resolve().parents[1]
 FE_ENTRIES = tuple(sorted(
     path for folder in ("benchmark", "zero_shot", "dkp", "coupled")
     for path in (ROOT / "examples/fe_walter" / folder).glob("*.yaml")
+    if "schema_version" in yaml.safe_load(path.read_text(encoding="utf-8"))
 ))
-AGENT_FILES = FE_ENTRIES + tuple(sorted(
+AGENT_FILES = tuple(p for p in FE_ENTRIES if p.parent.name != "coupled") + tuple(sorted(
+    (ROOT / "examples/fe_walter/coupled").glob("agents.*.yaml"))) + tuple(sorted(
     (ROOT / "examples/multiple_reservoirs").glob("agents.*.yaml")))
 # Each pair crosses one published pool-calendar boundary on consecutive days.
 BOUNDARIES = (("2016-03-14", "2016-03-15"),

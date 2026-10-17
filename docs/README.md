@@ -17,5 +17,12 @@ precomputed weather-to-runoff simulation.
 
 ![HydroOpsLLM core workflow](figures/hydrocnhs-coupling-framework-en.png)
 
-Start with [Installation](GETTING_STARTED.md), then [build a simulation](BUILD_SIMULATION.md)
-and follow the [FE Walter case](../examples/fe_walter/README.md).
+Continuous upstream hydrology is precomputed. The daily cycle then renders a
+decision, validates its response, applies physics, routes outflow downstream and
+commits the transition for the next decision. Response validation checks the
+action contract; diagnostic audit evaluates the decision; the recorder preserves
+the evidence. These are separate responsibilities.
+
+Start with [Installation](GETTING_STARTED.md), read [Inputs and outputs](INPUT_OUTPUT.md),
+then [configure an agent](CONFIGURATION.md) and follow the
+[FE Walter tutorial](../tutorials/fe_walter.md).

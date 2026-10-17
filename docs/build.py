@@ -42,8 +42,16 @@ ANNUAL_DOWNLOADS = {
 }
 CONFIG_DOWNLOADS = {
     f"examples/fe_walter/coupled/{name}": name
-    for name in ("rule.yaml", "llm_available.yaml", "llm_knowledge.yaml", "reservoirs.json")
+    for name in (
+        "experiment.yaml", "rule.yaml", "llm_available.yaml", "llm_knowledge.yaml",
+        "hydrology.yaml", "models.yaml", "agents.rule.yaml", "agents.llm_available.yaml",
+        "agents.llm_knowledge.yaml", "auditors.yaml", "reservoirs.json",
+    )
 }
+CONFIG_DOWNLOADS.update({
+    f"examples/fe_walter/prompts/{name}": name
+    for name in ("zeroshot_seasonal_v1_system.txt", "dkp_seasonal_v1_system.txt")
+})
 COMPLETED_DOWNLOADS = {
     f"examples/fe_walter/coupled/outputs/{name}": name
     for name in ("daily.csv", "summary.json", "pool_release.svg", "pool_release.pdf",
@@ -69,6 +77,7 @@ PAGES = {
     "examples/fe_walter/README.md": "examples/fe_walter/README.md",
     "examples/fe_walter/README.zh-TW.md": "examples/fe_walter/README.zh-TW.md",
     "examples/fe_walter/hydrology.md": "examples/fe_walter/hydrology.md",
+    "examples/fe_walter/configuration.md": "examples/fe_walter/configuration.md",
     "examples/fe_walter/annual/README.md": "examples/fe_walter/annual/README.md",
     "examples/fe_walter/coupled/README.md": "examples/fe_walter/coupled/README.md",
     "examples/fe_walter/annual/results.md": "examples/fe_walter/annual/results.md",
@@ -83,6 +92,7 @@ PAGES = {
        for name in ("README.md", "README.zh-TW.md")},
     "tutorials/README.md": "tutorials/README.md",
     "tutorials/README.zh-TW.md": "tutorials/README.zh-TW.md",
+    "tutorials/fe_walter.md": "tutorials/fe_walter.md",
     "tutorials/main.ipynb": "tutorials/main.ipynb",
     "tutorials/advanced.ipynb": "tutorials/advanced.ipynb",
     "archive/README.md": "archive/README.md",
@@ -91,7 +101,7 @@ PAGES = {
         "USER_GUIDE.md", "USER_GUIDE.zh-TW.md", "HYDROLOGY_SETUP.md",
         "LIVE_READINESS.md", "auditor_plugins.md", "PROJECT_INVENTORY.md", "BUILDING.md",
         "GETTING_STARTED.md", "BUILD_SIMULATION.md", "BUILD_SIMULATION.zh-TW.md", "FIRST_DECISION.md", "INFORMATION.md", "INFORMATION.zh-TW.md",
-        "CONFIGURATION.md", "MODEL_PROVIDERS.md", "MULTI_RESERVOIR.md",
+        "CONFIGURATION.md", "MODEL_PROVIDERS.md", "MULTI_RESERVOIR.md", "INPUT_OUTPUT.md", "API_REFERENCE.md",
         "PARAMETER_REFERENCE.md", "RESULTS_GUIDE.md", "REFERENCE.md", "RUNNING.md", "CODE_STRUCTURE.md", "WEATHER_INPUTS.md",
     )},
 }
@@ -238,12 +248,7 @@ def prepare(source: Path, *, source_ref: str = "main") -> None:
         target = source / relative
         target.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(ROOT / relative, target)
-    # Active method-specific prompts and the rejected historical variant stay distinct.
-    for name in ("zeroshot_seasonal_v1_system.txt", "dkp_seasonal_v1_system.txt"):
-        relative = "examples/fe_walter/prompts/" + name
-        target = source / relative
-        target.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copyfile(ROOT / relative, target)
+    # The rejected historical prompt remains distinct from active config downloads.
     relative = "examples/fe_walter/annual/outputs/custom_system_prompt_20261016.txt"
     target = source / relative
     target.parent.mkdir(parents=True, exist_ok=True)
@@ -260,16 +265,18 @@ def prepare(source: Path, *, source_ref: str = "main") -> None:
         shutil.copyfile(item, case_downloads / item.name)
     groups = {
         "Overview and installation": ["docs/README", "docs/USER_GUIDE", "docs/GETTING_STARTED"],
-        "Build a simulation": ["docs/BUILD_SIMULATION", "docs/HYDROLOGY_SETUP", "docs/WEATHER_INPUTS",
-                               "docs/MULTI_RESERVOIR", "docs/CONFIGURATION", "docs/MODEL_PROVIDERS",
-                               "docs/LLM_MODULES", "docs/INFORMATION", "docs/RESULTS_GUIDE", "docs/RUNNING"],
-        "FE Walter case study": ["examples/fe_walter/README", "examples/fe_walter/hydrology", "examples/fe_walter/coupled/README", "examples/fe_walter/coupling", "examples/fe_walter/annual/README", *[f"examples/fe_walter/{method}/README" for method in ("benchmark", "zero_shot", "dkp")], "examples/fe_walter/results"],
-        "Further configuration": ["tutorials/advanced"],
-        "Reference": ["docs/PARAMETER_REFERENCE", "docs/REFERENCE", "docs/FIRST_DECISION",
-                      "examples/fe_walter/annual/decision_2016_01_01", "examples/fe_walter/annual/results", "docs/CODE_STRUCTURE",
-                      "tutorials/README", "tutorials/main",
-                                    "docs/PROJECT_INVENTORY", "archive/README", "repository",
-                                    "docs/BUILDING", "docs/auditor_plugins", "docs/LIVE_READINESS"],
+        "Inputs and outputs": ["docs/INPUT_OUTPUT", "docs/HYDROLOGY_SETUP", "docs/WEATHER_INPUTS"],
+        "Configure agents": ["docs/CONFIGURATION", "docs/BUILD_SIMULATION", "docs/MULTI_RESERVOIR",
+                             "docs/MODEL_PROVIDERS", "docs/LLM_MODULES", "docs/INFORMATION"],
+        "Tutorials": ["tutorials/fe_walter", "tutorials/README", "tutorials/main", "tutorials/advanced",
+                      "examples/fe_walter/README", "examples/fe_walter/configuration", "examples/fe_walter/hydrology",
+                      "examples/fe_walter/coupled/README", "examples/fe_walter/coupling", "examples/fe_walter/annual/README",
+                      *[f"examples/fe_walter/{method}/README" for method in ("benchmark", "zero_shot", "dkp")]],
+        "Results and recovery": ["docs/RESULTS_GUIDE", "docs/RUNNING", "examples/fe_walter/results",
+                                 "examples/fe_walter/annual/decision_2016_01_01", "examples/fe_walter/annual/results"],
+        "API and reference": ["docs/API_REFERENCE", "docs/PARAMETER_REFERENCE", "docs/REFERENCE", "docs/FIRST_DECISION",
+                              "docs/CODE_STRUCTURE", "docs/PROJECT_INVENTORY", "archive/README", "repository",
+                              "docs/BUILDING", "docs/auditor_plugins", "docs/LIVE_READINESS"],
         "繁體中文": [path.rsplit(".", 1)[0] for path in PAGES.values()
                    if "zh-TW" in path],
     }
