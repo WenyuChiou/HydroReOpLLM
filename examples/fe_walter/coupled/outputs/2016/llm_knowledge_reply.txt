@@ -1,0 +1,16 @@
+{
+  "applicable_target_ft": 1300.0,
+  "pool_position": "at_target",
+  "intended_storage_direction": "hold",
+  "release_relation_to_inflow": "equal_to_inflow",
+  "operating_mode": "recreation_plan",
+  "rules_applied": [
+    "R-RELEASE",
+    "R-MINNORM",
+    "R-ZONE",
+    "R-ATSITE"
+  ],
+  "missing_inputs": [],
+  "reasoning": "The current date is June 15, 2016, and the pool elevation is 1446.12 ft. This is within the winter pool range of 1300.0 ft. According to the DKP, when the pool is at or near the winter target, we operate under Plan A (R-ZONE). This dictates that the release should equal the inflow. The DKP excerpt 2 (R-MINNORM) specifies a 50 cfs minimum release when operating under Plan A. The DKP excerpt 3 (R-ATSITE) states that the maximum release is 10,000 cfs, which is not exceeded here. The DKP excerpt 4 (R-ZONE) confirms the 1300.0 ft target. The DKP excerpt 5 (Fallback Policy) emphasizes respecting physical invariants and prioritizing flood control. Given the inflow of 201.0 cfs and the target pool elevation, a release of 201.0 cfs is the appropriate action.",
+  "release_cfs": 201.0
+}

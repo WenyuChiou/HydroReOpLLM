@@ -11,10 +11,11 @@ Ollama；逐步指南會先讀取保存的回覆，再說明如何啟動新執�
 此方法接在相同每日 Dam／routing 迴圈，使用預先模擬入流；操作執行不重算 GWLF。
 每次實際操作更新蓄水；LLM 方法保留實際放流歷史。
 
-**新版季節案例：**使用[季節 YAML](experiment.seasonal.ollama.yaml)與
+**選用三日季節案例：**使用[季節 YAML](experiment.seasonal.ollama.yaml)與
 [季節 prompt](../prompts/reference/zeroshot_seasonal_v1_system.txt)。
 [共用窗口與水位檢查](../README.zh-TW.md#季節水位)說明日期與判定。
-新版尚未執行；本頁保存的完整交換仍保留原始指令與 audit 判定。
+這份獨立三日季節 YAML 尚未重跑；本頁保存的完整交換仍保留原始指令與 audit 判定。
+目前維護的全年設定，請見英文[2016 年耦合結果](../coupled/README.md#verified-2016-results)。
 
 ## 1. 設定操作方法
 

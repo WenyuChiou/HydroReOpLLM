@@ -56,8 +56,9 @@ an operating criterion.
 | WARN | A configured warning requires interpretation |
 | UNKNOWN | The required evidence or an applicable auditor is unavailable |
 
-The saved available-information example retains **2 PASS / 1 FAIL**; the
-retrieved-knowledge example retains **3 FAIL**.
+The saved three-day available-information example retains **2 PASS / 1 FAIL**;
+the three-day retrieved-knowledge example retains **3 FAIL**. For annual evidence,
+see the [current 2016 coupled results](../examples/fe_walter/coupled/README.md#verified-2016-results).
 The benchmark retains **3 PASS** under its release-bounds auditor. Their auditor
 suites differ, so these counts do not establish which policy is better. Strategy
 acceptance remains unset in the LLM snapshots.

@@ -8,11 +8,11 @@ time, and the initial storage is an explicit assumption.
 Start with [the FE Walter tutorial](../../../tutorials/fe_walter.md) for a file-by-file
 walkthrough of the experiment, model settings, prompts, reservoir IDs and code.
 
-The entries specify all 366 days of 2016. The historical preparation reproduced
-the existing annual inflow byte for byte. A real yearly LLM run of the current
-configuration remains pending; the saved demonstration below uses an earlier
-diagnostic configuration. Execution and water balance verification do not
-establish acceptable reservoir performance.
+The current 2016 section below distinguishes completed operation, actual provider
+attempts, numerical verification and diagnostic operating audits. Its curated
+files use `outputs/2016/`. The earlier diagnostic demonstration remains separate
+and unchanged. Execution and water balance verification do not establish
+acceptable reservoir performance.
 
 ## Files
 
@@ -113,7 +113,149 @@ preparation pins and copies the existing inlet series without rerunning hydrolog
 Each operation method still starts a separate reservoir history from the same
 physical initial state.
 
-## Completed 2016 demonstration
+## Verified 2016 results
+
+
+These runs use the maintained split configuration and separate native system
+messages. All three methods cover **366 unique daily decisions**, from 1 January
+through 31 December 2016.
+
+![2016 pool elevation and implemented controlled release](outputs/2016/pool_release.png)
+
+The upper panel shows end-of-day pool elevation in ft N.G.V.D.; the lower panel
+shows implemented controlled release in m³/s. Requested release and spill remain
+separate in the [daily table](outputs/2016/daily.csv). These are single
+realizations with shared inflow and initial storage, not a method ranking.
+
+| Method | Unique completed days | Actual provider attempts across the recovery chain | Operation audit PASS / FAIL | Saved-file verification |
+|---|---:|---:|---:|---|
+| Rule-based | 366 | 0 | 366 / 0 | PASS |
+| LLM with available information | 366 | 369 | 52 / 314 | PASS |
+| LLM with retrieved knowledge | **366** | **368** | **0 / 366** | **PASS** |
+
+The available-information chain contains 366 successful responses and three
+timeouts. Its resumed output reports 358 new provider calls; the original
+attempt contributes 11, making **369 actual attempts**. Recovery preserved
+the first eight committed days and reposted **zero** committed days.
+The retrieved-knowledge chain contains 366 successful replies and two timeouts:
+3 original attempts plus 365 new calls, for **368 actual attempts**. It preserves
+the original committed day and reposts none.
+Do not treat a resumed output's call count as the full-chain count.
+
+The maximum verified reservoir/system balance residual is
+**7.217750 × 10⁻⁹ m³** for the rule and **1.315493 × 10⁻⁸ m³** for the
+available-information run. Both have **0 m³/s** maximum routing difference.
+Retrieved-knowledge balance and routing checks are
+**2.922025e-08 m³ maximum reservoir/system balance residual and 0 m³/s routing difference**.
+
+Operation audit FAIL remains a diagnostic result. It did not replace a decision
+or request another sample. These counts are not a seasonal pool-compliance score
+or acceptance of operating quality. `operating_strategy_accepted` remains `null`.
+The displayed trajectories exceed the study seasonal pool bands; successful
+execution does not establish successful seasonal control.
+Read the [export summary](outputs/2016/summary.json) and
+[source/output hashes](outputs/2016/pins.json) with the trajectories.
+
+### Model settings, interruptions and measured resources
+
+Both LLM methods retain `gemma3:4b`, `temperature: 0.7`, `max_tokens: 2048`,
+`num_ctx: 16384`, `think: false` and `keep_alive: 30m`. Requests use a
+120-second timeout, at most two attempts per decision and a two-second retry
+delay. `max_calls: null` removes the total call cap. No model fallback is selected.
+
+The recorded Ollama version is `0.40.4`; the model is `gemma3:4b` (`Q4_K_M`).
+Initial timeouts occurred while the GPU was shared with other work. After the
+read-only service check showed no loaded model, the available-information run
+resumed with the same accepted settings. The retrieved-knowledge run also resumed
+without changing its settings or repeating its committed day. The failed attempts and original run
+remain preserved; recovery did not restart the completed eight-day prefix.
+
+The host runs Windows 11 with 16 logical CPUs and an NVIDIA GeForce RTX 4080
+SUPER (16 GB; the monitor reports 16,376 MiB). Inference runs in the external
+Ollama process. CPU times below measure the Python client, not the inference
+server. GPU samples describe the whole system, including other work.
+
+| Recorded operation interval | Elapsed seconds | Client user / system CPU seconds | Raw output bytes |
+|---|---:|---:|---:|
+| Rule | 7.520 | 1.984 / 1.984 | 20,634,458 |
+| Available information: original interrupted attempt | 741.890 | 1.438 / 0.750 | 1,342,457 |
+| Available information: resumed attempt | 1,169.425 | 10.547 / 5.781 | 52,572,264 |
+| Retrieved knowledge: full chain | **2,220.054** | **11.266 / 7.188** | **100,084,886** |
+
+The available-information elapsed intervals total **1,911.315 seconds**.
+This sum excludes the wait between attempts and the earlier hydrology
+preparation. The resumed output contains the reconstructed full trajectory;
+retained-directory byte counts include reconstructed records, not unique data
+volume. The retrieved-knowledge row sums its original and resumed intervals
+(343.321 + 1,876.733 seconds) and both retained directories. These measurements do not establish per-model CPU/GPU efficiency.
+
+### Inspect the current 15 June decisions
+
+The replies below are formatted from the saved JSON for readability. The decision
+downloads retain the recorded response strings and their source hashes.
+
+<details>
+<summary>Available information · saved 15 June reply</summary>
+
+```{literalinclude} outputs/2016/llm_available_reply.txt
+:language: json
+```
+
+</details>
+
+<details>
+<summary>Retrieved knowledge · saved 15 June reply</summary>
+
+```{literalinclude} outputs/2016/llm_knowledge_reply.txt
+:language: json
+```
+
+</details>
+
+Download the [available-information sample](outputs/2016/llm_available_decision.json)
+or [retrieved-knowledge sample](outputs/2016/llm_knowledge_decision.json).
+Each sample selects **15 June 2016** and contains:
+
+| Field | Read it for |
+|---|---|
+| `messages`, `raw_response` | The actual request messages and successful saved model reply. |
+| `response_schema`, `parsed_action` | The recorded response contract and case-parser output, when present. |
+| `audit_execution`, `audit` | Audit execution metadata and the diagnostic verdict, separate from response validation. |
+| `action` | Normalized requested controlled release in m³/s. |
+| `transition` | Implemented controlled release, spill, total outflow, ending storage and water balance. |
+
+Raw `release_cfs` is converted and bounds-clipped before the normalized action.
+Physics then applies water availability and computes spill. The next decision
+uses committed ending storage and implemented total outflow in its two-entry
+history. These current samples do not include the next day's observation;
+the joined January examples below belong to the historical diagnostic.
+
+The repository keeps the daily CSV, summary, pins, plots and these two selected
+samples. Full raw run directories remain outside Git. Download the
+[SVG](outputs/2016/pool_release.svg) or [PDF](outputs/2016/pool_release.pdf) for
+the annual result figure.
+
+### Export only completed, verified saved runs
+
+From the repository root in the installed project environment, replace the
+uppercase arguments with the three completed operation directories and a
+**new** export directory:
+
+```powershell
+python -m examples.fe_walter.coupled.export_year --rule RULE_RUN --available AVAILABLE_RUN --knowledge KNOWLEDGE_RUN --year 2016 --output NEW_DIR
+```
+
+The exporter verifies saved records and common physical inputs before creating
+the daily table, selected samples, plots and hashes. It makes no model request
+or hydrological simulation. It refuses an existing output directory. Publish
+the verified export as `outputs/2016/`; do not substitute fixture QA output.
+
+<a id="completed-2016-demonstration"></a>
+
+## Historical 2016 diagnostic (preserved)
+
+<details>
+<summary>Read the earlier diagnostic results and exchanges</summary>
 
 The historical diagnostic demonstration completed **366 daily reservoir decisions**
 for each method. The LLM records
@@ -181,6 +323,8 @@ or [operating-knowledge decision](outputs/llm_knowledge_decision.json). Each joi
 the observation, complete raw policy trace and audits, implemented physics and
 the next day's observation. Requested release can differ from implemented
 release; downstream routing receives controlled release plus spill.
+
+</details>
 
 ## Inspect one day
 

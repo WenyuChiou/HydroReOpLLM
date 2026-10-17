@@ -17,7 +17,9 @@ January storage and release history continue from December 2019; this is not a n
 | Operation audit | 135 PASS / 10 WARN / 221 FAIL |
 | Maximum saved daily water-balance residual | 0 m³ |
 
-This annual example shows one method. The rule-based and available-information tutorials retain their three-day records; no annual three-method comparison has been run.
+This chapter preserves the older one-method 2016–2020 study and the separate
+three-day rule/available-information tutorial records. For the maintained configuration's
+annual evidence, see the [current 2016 coupled results](coupled/README.md#verified-2016-results).
 
 ## Full daily trajectory
 

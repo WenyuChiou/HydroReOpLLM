@@ -311,12 +311,35 @@ The FE extension also retains its native diagnostic audit. Read `summary.json`,
 together. Audit FAIL does not by itself mean execution failed.
 For interruptions, follow [resume](../docs/BUILD_SIMULATION.md#9-resume-after-an-interruption).
 
-The [saved 2016 figure and replies](../examples/fe_walter/coupled/README.md#completed-2016-demonstration)
-come from an earlier diagnostic prompt configuration. They demonstrate file reading,
-not a new execution of the current YAML. A real yearly LLM run of the current
-configuration remains pending; do not relabel historical records as that run.
-Offline acceptance uses supplied replies;
-it establishes wiring and recovery, not real LLM decision quality.
+## Step 8. Read the verified 2016 results
+
+Continue with the [current 2016 annual results](../examples/fe_walter/coupled/README.md#verified-2016-results).
+All three methods contain 366 unique daily decisions.
+The available-information recovery chain retains **369 actual attempts**:
+366 successful replies and three timeouts. It preserves the first eight
+committed days and reposts none. The retrieved-knowledge chain retains **368 actual attempts**, including two
+timeouts, and also reposts no committed days.
+
+
+Read [the 2016 daily table](../examples/fe_walter/coupled/outputs/2016/daily.csv),
+[verification summary](../examples/fe_walter/coupled/outputs/2016/summary.json) and
+[source/output pins](../examples/fe_walter/coupled/outputs/2016/pins.json) together.
+Requested release, implemented controlled release and spill remain distinct.
+The [15 June available-information sample](../examples/fe_walter/coupled/outputs/2016/llm_available_decision.json)
+and [retrieved-knowledge sample](../examples/fe_walter/coupled/outputs/2016/llm_knowledge_decision.json)
+show messages, raw response, schema/parser fields, diagnostic audit, normalized
+action and the implemented transition. They do not include a next-day
+observation. The next state follows from committed ending storage and
+implemented total outflow.
+
+Audit FAIL is a diagnostic operating result, not a seasonal pool-compliance
+score or model-format failure. Saved-file verification establishes execution
+integrity and water accounting; it does not accept policy quality. These
+single realizations do not rank the methods.
+
+The [earlier 2016 diagnostic](../examples/fe_walter/coupled/README.md#historical-2016-diagnostic-preserved)
+and the older notebooks retain their original prompts, audit counts and samples.
+Offline supplied-reply tests establish wiring and recovery, not LLM quality.
 
 ## Code map
 

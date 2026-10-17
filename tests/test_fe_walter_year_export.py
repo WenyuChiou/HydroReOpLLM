@@ -223,6 +223,10 @@ def test_complete_fixture_table_is_labelled_and_pinned(exporter, runs, tmp_path)
     assert summary["operating_strategy_accepted"] is None
     pins = json.loads((output / "pins.json").read_text())
     assert pins["public_files"]["daily.csv"] == hashlib.sha256((output / "daily.csv").read_bytes()).hexdigest()
+    for method in exporter.METHODS[1:]:
+        reply = output / (method + "_reply.txt")
+        assert reply.read_text() == "Saved synthetic response\n"
+        assert pins["public_files"][reply.name] == hashlib.sha256(reply.read_bytes()).hexdigest()
     for path in output.glob("*.json"):
         assert str(tmp_path) not in path.read_text()
     with pytest.raises(FileExistsError):

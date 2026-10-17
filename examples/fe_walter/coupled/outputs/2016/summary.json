@@ -1,0 +1,135 @@
+{
+  "schema_version": "fe-walter-year-export.v1",
+  "year": 2016,
+  "days_per_method": 366,
+  "classification": "SAVED_PROVIDER_RECORDS",
+  "methods": {
+    "rule": {
+      "classification": "RULE_BASED",
+      "unique_days": 366,
+      "recorded_attempt_count": 0,
+      "prior_recorded_attempt_count": 0,
+      "recorded_attempt_count_in_chain": 0,
+      "recorded_unique_request_count": 0,
+      "recorded_network_calls": 0,
+      "physics_verification": {
+        "status": "PASS",
+        "days": 366,
+        "reservoir_count": 1,
+        "reservoir_days": 366,
+        "date_start": "2016-01-01",
+        "date_end": "2016-12-31",
+        "audit_counts": {
+          "PASS": 366
+        },
+        "max_reservoir_balance_residual_m3": 7.2177499532699585e-09,
+        "max_system_balance_residual_m3": 7.2177499532699585e-09,
+        "max_routing_difference_cms": 0.0,
+        "final_channel_storage_m3": 0.0,
+        "observed_network_calls": 0,
+        "operating_strategy_accepted": null,
+        "audit_binding_counts": {
+          "versioned_suite": 366,
+          "legacy_unbound": 0
+        },
+        "external_audit_pins_checked": []
+      }
+    },
+    "llm_available": {
+      "classification": "PROVIDER_RECORDED",
+      "unique_days": 366,
+      "recorded_attempt_count": 358,
+      "prior_recorded_attempt_count": 11,
+      "recorded_attempt_count_in_chain": 369,
+      "recorded_unique_request_count": 358,
+      "recorded_network_calls": 358,
+      "physics_verification": {
+        "status": "PASS",
+        "days": 366,
+        "reservoir_count": 1,
+        "reservoir_days": 366,
+        "date_start": "2016-01-01",
+        "date_end": "2016-12-31",
+        "audit_counts": {
+          "PASS": 52,
+          "FAIL": 314
+        },
+        "max_reservoir_balance_residual_m3": 1.3154931366443634e-08,
+        "max_system_balance_residual_m3": 1.3154931366443634e-08,
+        "max_routing_difference_cms": 0.0,
+        "final_channel_storage_m3": 0.0,
+        "observed_network_calls": 358,
+        "operating_strategy_accepted": null,
+        "audit_binding_counts": {
+          "versioned_suite": 366,
+          "legacy_unbound": 0
+        },
+        "external_audit_pins_checked": []
+      }
+    },
+    "llm_knowledge": {
+      "classification": "PROVIDER_RECORDED",
+      "unique_days": 366,
+      "recorded_attempt_count": 365,
+      "prior_recorded_attempt_count": 3,
+      "recorded_attempt_count_in_chain": 368,
+      "recorded_unique_request_count": 365,
+      "recorded_network_calls": 365,
+      "physics_verification": {
+        "status": "PASS",
+        "days": 366,
+        "reservoir_count": 1,
+        "reservoir_days": 366,
+        "date_start": "2016-01-01",
+        "date_end": "2016-12-31",
+        "audit_counts": {
+          "FAIL": 366
+        },
+        "max_reservoir_balance_residual_m3": 2.922024577856064e-08,
+        "max_system_balance_residual_m3": 2.922024577856064e-08,
+        "max_routing_difference_cms": 0.0,
+        "final_channel_storage_m3": 0.0,
+        "observed_network_calls": 365,
+        "operating_strategy_accepted": null,
+        "audit_binding_counts": {
+          "versioned_suite": 366,
+          "legacy_unbound": 0
+        },
+        "external_audit_pins_checked": []
+      }
+    }
+  },
+  "physical_configuration": {
+    "schema_version": "llm-reservoir-network.v1",
+    "data_kind": "simulated_local_inflow",
+    "start_date": "2016-01-01",
+    "reservoirs": {
+      "FEWalter": {
+        "inflow_node": "FEW_INFLOW",
+        "physical": {
+          "reservoir_id": "fe_walter",
+          "capacity_m3": 135532852.33895192,
+          "dead_storage_m3": 49.3392742128,
+          "initial_storage_m3": 2457848.279729185,
+          "minimum_release_cms": 1.41584235,
+          "maximum_release_cms": 283.16847,
+          "dt_seconds": 86400.0
+        }
+      }
+    },
+    "connections": [
+      {
+        "source": "FEWalter",
+        "target": "Downstream",
+        "unit_hydrograph": [
+          1.0
+        ]
+      }
+    ],
+    "outlet": "Downstream"
+  },
+  "initial_storage_m3": 2457848.279729185,
+  "operating_strategy_accepted": null,
+  "scope": "Saved-output physics verification; no model-quality or seasonal-target acceptance.",
+  "provider_evidence": "Classification uses saved reply metadata; not cryptographic authenticity evidence."
+}

@@ -87,8 +87,10 @@ For a new experiment, use the [available-information YAML](zero_shot/experiment.
 or [retrieved-knowledge YAML](dkp/experiment.seasonal.ollama.yaml).
 Both select `system_prompt_mode: custom`, separate prompt files and new output locations.
 Only the operation-target paragraph changes; response fields and reference-method code stay the same.
-These variants have been checked without a provider request; no new LLM results are supplied.
-Saved exchanges retain their original winter/summer instruction and audit verdicts.
+These separate three-day seasonal configurations have been checked without a
+provider request and have not been rerun. Their saved exchanges retain the
+original winter/summer instruction and audit verdicts. For the maintained
+weather-to-operation configuration, see the [current 2016 coupled results](coupled/README.md#verified-2016-results).
 
 ### Check a saved pool-level series
 
@@ -106,7 +108,8 @@ In fall, “falling” means strictly lower than the immediately preceding calen
 a flat day fails, including at 1300 ft. Missing/nonfinite levels or missing fall history produce
 `UNKNOWN`; an observed band violation remains `FAIL`. No extra numeric tolerance is applied.
 Reference decision audits keep their original target logic and remain separate from this
-new pool-level assessment. The saved trajectory was not generated with the revised prompt.
+new pool-level assessment. The historical series in the command above was not
+generated with the revised prompt.
 
 ## Follow the coupled daily workflow
 
@@ -116,7 +119,7 @@ reservoir physics updates storage and spill, and actual outflow enters downstrea
 Implemented release and ending storage feed the next decision.
 
 The current examples read precomputed hydrological inflow.
-The same chapter explains weather-driven native wiring and the verification it still requires.
+The same chapter explains weather-driven native wiring and how its execution is verified.
 
 ## Choose an operation method
 
@@ -135,11 +138,13 @@ Shared physical setup is defined once on this page.
 
 ## Read the results
 
-Use [Results and decision records](results.md) to follow **one year of daily operation (2020)**,
-then the full 2016–2020 record: flow, pool elevation, storage and audit verdicts.
+Start with the [2016 coupled results](coupled/README.md#verified-2016-results)
+for the maintained three-method annual example. [Historical results and decision
+records](results.md) retain the earlier 2020 walkthrough and 2016–2020 study.
 
 | Saved evidence | Period and model | Purpose |
 |---|---|---|
+| Current three-method annual example | 2016-01-01–12-31; 366 days per method; LLM methods use `gemma3:4b`, temperature 0.7 | Read pool elevation, controlled release and preserved decisions |
 | Three-method tutorial | 2016-01-01–01-03; LLM methods use `gemma3:4b`, temperature 0.7 | Learn each method under common three-day conditions |
 | One-year results walkthrough | 2020-01-01–12-31; 366 days from the historical retrieved-knowledge record | Inspect seasonal operation and individual decisions |
 | Historical retrieved-knowledge experiment | 2016-01-01–2020-12-31; `gemma4:12b`, temperature 0.7 | Inspect the complete 1,827-day trajectory and decision behaviour |

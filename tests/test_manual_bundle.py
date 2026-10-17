@@ -82,3 +82,48 @@ def test_fe_walter_walkthrough_publishes_the_actual_configuration(prepared_manua
     landing = (output / 'examples/fe_walter/configuration.md').read_text(encoding='utf-8')
     assert '../../tutorials/fe_walter.md' in landing
     assert '{literalinclude}' not in landing
+
+
+def test_current_2016_exports_are_local_exact_and_do_not_replace_history(prepared_manual):
+    # Exercise the real prepare() publication path using the accepted saved export.
+    _, output = prepared_manual
+    current = (
+        'daily.csv', 'summary.json', 'pins.json', 'pool_release.svg', 'pool_release.pdf',
+        'llm_available_decision.json', 'llm_knowledge_decision.json',
+    )
+    historical = (
+        'daily.csv', 'summary.json', 'pool_release.svg', 'pool_release.pdf',
+        'llm_available_decision.json', 'llm_knowledge_decision.json',
+    )
+    downloads = output / '_completed_downloads'
+    assert {item.name for item in downloads.iterdir() if item.is_file()} == (
+        set(historical) | {'2016-' + name for name in current}
+    )
+    for name in current:
+        relative = 'examples/fe_walter/coupled/outputs/2016/' + name
+        expected = (ROOT / relative).read_bytes()
+        assert (output / relative).read_bytes() == expected, relative
+        assert (downloads / ('2016-' + name)).read_bytes() == expected, relative
+    for name in historical:
+        relative = 'examples/fe_walter/coupled/outputs/' + name
+        assert (downloads / name).read_bytes() == (ROOT / relative).read_bytes(), relative
+    # PNG follows the existing image publication path, outside the download map.
+    png = 'examples/fe_walter/coupled/outputs/2016/pool_release.png'
+    assert (output / png).read_bytes() == (ROOT / png).read_bytes()
+    for name in ('llm_available_reply.txt', 'llm_knowledge_reply.txt'):
+        relative = 'examples/fe_walter/coupled/outputs/2016/' + name
+        assert (output / relative).read_bytes() == (ROOT / relative).read_bytes()
+    import os
+    for page, names in (
+        ('examples/fe_walter/coupled/README.md', current),
+        ('tutorials/fe_walter.md', (
+            'daily.csv', 'summary.json', 'pins.json',
+            'llm_available_decision.json', 'llm_knowledge_decision.json',
+        )),
+    ):
+        published_page = output / page
+        text = published_page.read_text(encoding='utf-8')
+        for name in names:
+            target = downloads / ('2016-' + name)
+            href = Path(os.path.relpath(target, published_page.parent)).as_posix()
+            assert '](' + href + ')' in text, (page, name)

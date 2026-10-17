@@ -57,6 +57,11 @@ COMPLETED_DOWNLOADS = {
     for name in ("daily.csv", "summary.json", "pool_release.svg", "pool_release.pdf",
                  "llm_available_decision.json", "llm_knowledge_decision.json")
 }
+YEAR_DOWNLOADS = {
+    f"examples/fe_walter/coupled/outputs/2016/{name}": f"2016-{name}"
+    for name in ("daily.csv", "summary.json", "pins.json", "pool_release.svg",
+                 "pool_release.pdf", "llm_available_decision.json", "llm_knowledge_decision.json")
+}
 MULTI_RESERVOIR_FILES = (
     "agents.llm.yaml", "agents.rule.yaml", "auditors.yaml", "experiment.llm.yaml",
     "experiment.yaml", "forcing.csv", "hydrology.yaml", "information.yaml",
@@ -148,6 +153,10 @@ def prepare(source: Path, *, source_ref: str = "main") -> None:
                 import os
                 output = source / "_completed_downloads" / COMPLETED_DOWNLOADS[relative]
                 value = Path(os.path.relpath(output, (source / destination).parent)).as_posix()
+            elif not match[1].startswith("!") and relative in YEAR_DOWNLOADS:
+                import os
+                output = source / "_completed_downloads" / YEAR_DOWNLOADS[relative]
+                value = Path(os.path.relpath(output, (source / destination).parent)).as_posix()
             elif not match[1].startswith("!") and relative in MULTI_RESERVOIR_DOWNLOADS:
                 import os
                 output = source / "_multiple_reservoir_downloads" / MULTI_RESERVOIR_DOWNLOADS[relative]
@@ -220,6 +229,16 @@ def prepare(source: Path, *, source_ref: str = "main") -> None:
     completed_downloads.mkdir()
     for relative, name in COMPLETED_DOWNLOADS.items():
         shutil.copyfile(ROOT / relative, completed_downloads / name)
+    # Keep current-year downloads distinct from the historical same-basename assets.
+    # Canonical source copies support direct local references and source-byte checks.
+    for relative, name in YEAR_DOWNLOADS.items():
+        shutil.copyfile(ROOT / relative, completed_downloads / name)
+        canonical = source / relative
+        canonical.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(ROOT / relative, canonical)
+    for name in ("llm_available_reply.txt", "llm_knowledge_reply.txt"):
+        relative = "examples/fe_walter/coupled/outputs/2016/" + name
+        shutil.copyfile(ROOT / relative, source / relative)
     # Publish one complete, explicit teaching bundle. Keep paths inside the bundle
     # so split YAML, prompts, provenance inputs and extension code remain runnable.
     multiple_downloads = source / "_multiple_reservoir_downloads"

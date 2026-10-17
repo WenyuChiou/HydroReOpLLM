@@ -73,8 +73,9 @@ Identity 下游 routing 用於耦合介面測試，不是已校正河川旅行�
 [檢索知識 YAML](dkp/experiment.seasonal.ollama.yaml)。
 兩者使用 `system_prompt_mode: custom`、獨立 prompt 與新輸出位置。
 僅修改操作目標段落，回覆欄位與原版 reference 程式不變。
-目前僅完成無模型請求的設定檢查，尚未產生新版 LLM 結果。
-既有範例中的完整交換仍是原始指令與原始 audit 判定。
+上述獨立三日季節設定僅完成無模型請求的設定檢查，尚未重跑。
+它們保存的完整交換仍保留原始冬夏指令與 audit 判定。
+目前維護的氣象到操作設定，請見英文[2016 年耦合結果](coupled/README.md#verified-2016-results)。
 
 ### 檢查保存的水位序列
 
@@ -89,7 +90,7 @@ python examples/fe_walter/check_pool_levels.py examples/fe_walter/reference_outp
 秋季「下降」指低於前一個連續日的水位；持平會判 FAIL，包含已到 1300 ft 的情況。
 缺少水位、非有限值或缺少秋季前一日資訊時判 UNKNOWN；已觀察到超出水位帶仍判 FAIL。
 不額外加入數值容差。原版策略 audit 的目標邏輯維持原樣，
-與本次新增的水位合規結果分開。保存軌跡並非使用新版 prompt 產生。
+與本次新增的水位合規結果分開。上述命令中的歷史序列並非使用新版 prompt 產生。
 
 ## 跟著每日耦合流程
 
@@ -97,7 +98,7 @@ python examples/fe_walter/check_pool_levels.py examples/fe_walter/reference_outp
 每天 HydroCNHS 把水 routing 到 Dam API；策略提出放流，水庫物理更新蓄水與 spill，
 實際出流再進入下游 routing。實際放流及期末蓄水回饋下一次決策。
 
-目前範例讀取預先模擬的水文入流；同一章說明氣象驅動的原生接法，以及仍需完成的驗證。
+目前範例讀取預先模擬的水文入流；同一章說明氣象驅動的原生接法，以及如何驗證其執行。
 
 ## 選擇操作方法
 
@@ -115,11 +116,12 @@ python examples/fe_walter/check_pool_levels.py examples/fe_walter/reference_outp
 
 ## 查看結果
 
-透過[結果與決策紀錄](results.zh-TW.md)先看 **2020 一年每日操作**，
-再查看完整 2016–2020 紀錄：流量、水位、蓄水與 audit 判定。
+先看英文[2016 年耦合結果](coupled/README.md#verified-2016-results)，了解目前維護的三方法全年範例。
+[歷史結果與決策紀錄](results.zh-TW.md)另保留較早的 2020 教學與 2016–2020 研究。
 
 | 保存證據 | 期間與模型 | 用途 |
 |---|---|---|
+| 目前三方法全年範例 | 2016-01-01–12-31；每種方法 366 日；LLM 使用 `gemma3:4b`、temperature 0.7 | 查看水位、控制放流與保存決策 |
 | 三方法教學 | 2016-01-01–01-03；LLM 使用 `gemma3:4b`、temperature 0.7 | 在相同三日條件下學習各方法 |
 | 一年結果教學 | 2020-01-01–12-31；歷史檢索知識紀錄中的 366 日 | 查看季節操作與個別決策 |
 | 歷史檢索知識實驗 | 2016-01-01–2020-12-31；`gemma4:12b`、temperature 0.7 | 查看完整 1,827 日軌跡與決策行為 |

@@ -273,7 +273,18 @@ def export_year(runs, *, year, output, allow_fixtures=False):
             writer.writerows(rows)
         (staging / "summary.json").write_text(json.dumps(_public(summary), indent=2, allow_nan=False) + "\n", encoding="utf-8")
         for method in METHODS[1:]:
-            (staging / (method + "_decision.json")).write_text(json.dumps(loaded[method]["sample"], indent=2, allow_nan=False) + "\n", encoding="utf-8")
+            sample = loaded[method]["sample"]
+            (staging / (method + "_decision.json")).write_text(json.dumps(sample, indent=2, allow_nan=False) + "\n", encoding="utf-8")
+            # A small readable companion supports copyable replies in the manual.
+            # The decision JSON retains the recorded response text and source hash.
+            response = sample["raw_response"]
+            if not isinstance(response, str):
+                raise ValueError("selected provider response must contain text")
+            try:
+                response = json.dumps(json.loads(response), indent=2, ensure_ascii=False, allow_nan=False)
+            except json.JSONDecodeError:
+                pass  # Retain other text; source classification is checked separately.
+            (staging / (method + "_reply.txt")).write_text(response + "\n", encoding="utf-8")
         _plot(staging, rows, year, fixture)
         pins = {"schema_version": "fe-walter-year-pins.v1", "publisher_sha256": _sha(Path(__file__).read_bytes()),
                 "profile_sources": dict(profile.source_hashes), "storage_m3_per_acreft": ACREFT_TO_M3,
