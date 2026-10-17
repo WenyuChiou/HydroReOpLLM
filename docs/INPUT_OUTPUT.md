@@ -88,7 +88,9 @@ records or the selected response parser's metadata.
 F.E. Walter intentionally has a different **raw** contract: its native response
 uses `release_cfs` plus reasoning and target/direction fields. The case parser
 validates that schema, converts cfs to m³/s and clips to the case release bounds.
-The knowledge variant also retains applied rules and missing-input statements.
+The confirmed knowledge variant adds `operating_mode` and `rules_applied` (eight raw fields).
+It uses `dkp_no_missing_inputs: true` and omits `missing_inputs`. Older saved diagnostics
+used a nine-field variant; see the [case results](../examples/fe_walter/coupled/README.md#verified-2016-results).
 Common physics then applies available water and computes spill.
 Always distinguish:
 

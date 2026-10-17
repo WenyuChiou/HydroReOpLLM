@@ -106,7 +106,7 @@ PAGES = {
         "README.md", "README.zh-TW.md", "LLM_MODULES.md", "LLM_MODULES.zh-TW.md",
         "USER_GUIDE.md", "USER_GUIDE.zh-TW.md", "HYDROLOGY_SETUP.md",
         "LIVE_READINESS.md", "auditor_plugins.md", "PROJECT_INVENTORY.md", "BUILDING.md",
-        "GETTING_STARTED.md", "BUILD_SIMULATION.md", "BUILD_SIMULATION.zh-TW.md", "FIRST_DECISION.md", "INFORMATION.md", "INFORMATION.zh-TW.md",
+        "GETTING_STARTED.md", "BUILD_SIMULATION.md", "BUILD_SIMULATION.zh-TW.md", "INFORMATION.md", "INFORMATION.zh-TW.md",
         "CONFIGURATION.md", "MODEL_PROVIDERS.md", "MULTI_RESERVOIR.md", "INPUT_OUTPUT.md", "API_REFERENCE.md",
         "PARAMETER_REFERENCE.md", "RESULTS_GUIDE.md", "REFERENCE.md", "RUNNING.md", "CODE_STRUCTURE.md", "WEATHER_INPUTS.md",
     )},
@@ -284,7 +284,7 @@ def prepare(source: Path, *, source_ref: str = "main") -> None:
         item = ROOT / "examples/fe_walter/reference_outputs/long_term_dkp" / relative
         shutil.copyfile(item, case_downloads / item.name)
     groups = {
-        "Overview and installation": ["docs/README", "docs/USER_GUIDE", "docs/GETTING_STARTED"],
+        "Overview and installation": ["docs/README", "docs/GETTING_STARTED"],
         "Inputs and outputs": ["docs/INPUT_OUTPUT", "docs/HYDROLOGY_SETUP", "docs/WEATHER_INPUTS"],
         "Configure agents": ["docs/CONFIGURATION", "docs/BUILD_SIMULATION", "docs/MULTI_RESERVOIR",
                              "docs/MODEL_PROVIDERS", "docs/LLM_MODULES", "docs/INFORMATION"],
@@ -294,7 +294,7 @@ def prepare(source: Path, *, source_ref: str = "main") -> None:
                       *[f"examples/fe_walter/{method}/README" for method in ("benchmark", "zero_shot", "dkp")]],
         "Results and recovery": ["docs/RESULTS_GUIDE", "docs/RUNNING", "examples/fe_walter/results",
                                  "examples/fe_walter/annual/decision_2016_01_01", "examples/fe_walter/annual/results"],
-        "API and reference": ["docs/API_REFERENCE", "docs/PARAMETER_REFERENCE", "docs/REFERENCE", "docs/FIRST_DECISION",
+        "API and reference": ["docs/API_REFERENCE", "docs/PARAMETER_REFERENCE", "docs/REFERENCE", "docs/USER_GUIDE",
                               "docs/CODE_STRUCTURE", "docs/PROJECT_INVENTORY", "archive/README", "repository",
                               "docs/BUILDING", "docs/auditor_plugins", "docs/LIVE_READINESS"],
         "繁體中文": [path.rsplit(".", 1)[0] for path in PAGES.values()
