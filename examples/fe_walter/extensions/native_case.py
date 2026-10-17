@@ -433,13 +433,219 @@ class NativeResponseParser:
         return {"schema_version": ACTION_SCHEMA, "release_cms": release}
 
 
-def _flow_relation(release: float, inflow: float) -> tuple[str, str]:
+def _flow_relation(release: float, inflow: float) -> tuple[str, str, float]:
     tolerance = max(1.0, 1e-9 * max(abs(inflow), 1.0))
     if release < inflow - tolerance:
-        return "below_inflow", "increase"
+        return "below_inflow", "increase", tolerance
     if release > inflow + tolerance:
-        return "above_inflow", "decrease"
-    return "equal_to_inflow", "hold"
+        return "above_inflow", "decrease", tolerance
+    return "equal_to_inflow", "hold", tolerance
+
+
+def _physics_audit(decision: Mapping[str, Any], *, inflow_cfs: float, release_cfs: float,
+                   pool_ft: float | None, target_ft: float | None,
+                   min_release_cfs: float, max_release_cfs: float,
+                   prompt_storage: bool, target_error_start_af: float | None,
+                   target_error_end_af: float | None, target_tolerance_ft: float,
+                   requested_release_cfs: float,
+                   physically_available_cfs: float | None) -> dict[str, list[str]]:
+    """CASE-local port of Anik V3.7's shared, record-only physics audit."""
+    hard: list[str] = []
+    hard_unattributed: list[str] = []
+    policy: list[str] = []
+    warnings: list[str] = []
+    if (requested_release_cfs < min_release_cfs - 0.1
+            or requested_release_cfs > max_release_cfs + 0.1):
+        hard.append(
+            f"requested release {requested_release_cfs:,.1f} cfs outside configured bounds "
+            f"[{min_release_cfs:,.0f}, {max_release_cfs:,.0f}] cfs"
+        )
+    if (physically_available_cfs is not None
+            and requested_release_cfs > physically_available_cfs + 0.1):
+        message = (
+            f"requested release {requested_release_cfs:,.1f} cfs exceeds physically "
+            f"available {physically_available_cfs:,.1f} cfs"
+        )
+        if prompt_storage:
+            hard.append(message)
+        else:
+            hard_unattributed.append(message + " (not attributed: storage not in prompt)")
+
+    result = {
+        "hard_physics": hard,
+        "hard_physics_unattributed": hard_unattributed,
+        "policy": policy,
+        "warnings": warnings,
+    }
+    relation, direction, tolerance = _flow_relation(release_cfs, inflow_cfs)
+    if pool_ft is None or target_ft is None:
+        warnings.append("physics audit skipped: pool or target unavailable")
+        return result
+    if pool_ft < target_ft - target_tolerance_ft:
+        position = "below_target"
+    elif pool_ft > target_ft + target_tolerance_ft:
+        position = "above_target"
+    else:
+        position = "at_target"
+
+    try:
+        stated_target = float(decision.get("applicable_target_ft"))
+    except (TypeError, ValueError):
+        policy.append("applicable_target_ft missing or not numeric")
+        stated_target = None
+    if stated_target is not None and abs(stated_target - target_ft) > target_tolerance_ft:
+        policy.append(
+            f"stated applicable_target_ft {stated_target:.1f} differs from the operation "
+            f"target {target_ft:.1f} for this date"
+        )
+    if decision.get("pool_position") != position:
+        policy.append(
+            f"pool_position '{decision.get('pool_position')}' contradicts the water level "
+            f"({pool_ft:.2f} ft vs target {target_ft:.1f} ft)"
+        )
+    if decision.get("release_relation_to_inflow") != relation:
+        policy.append(
+            f"release_relation_to_inflow '{decision.get('release_relation_to_inflow')}' "
+            f"contradicts release {release_cfs:,.1f} vs inflow {inflow_cfs:,.1f} cfs"
+        )
+    if decision.get("intended_storage_direction") != direction:
+        policy.append(
+            f"intended_storage_direction '{decision.get('intended_storage_direction')}' "
+            f"contradicts the water balance (storage will {direction})"
+        )
+    if (position == "below_target" and inflow_cfs > min_release_cfs + tolerance
+            and direction != "increase"):
+        policy.append(
+            "pool below target but release does not retain inflow, so storage cannot move "
+            "toward the target"
+        )
+    if (position == "above_target" and inflow_cfs < max_release_cfs - tolerance
+            and direction != "decrease"):
+        policy.append("pool above target but release does not draw storage down")
+    if (prompt_storage and position != "at_target"
+            and target_error_start_af is not None and target_error_end_af is not None
+            and target_error_end_af >= target_error_start_af - 0.5):
+        policy.append("release does not reduce the target-storage error")
+    return result
+
+
+def _dkp_rule_audit(decision: Mapping[str, Any], *, day: date, requested_release_cfs: float,
+                    release_cfs: float, inflow_cfs: float, storage_af: float,
+                    pool_ft: float | None, target_ft: float | None,
+                    target_storage_af: float | None, step_days: int,
+                    min_release_cfs: float, max_release_cfs: float,
+                    prompt_storage: bool, include_missing_inputs: bool,
+                    expected_missing: list[str], headings: list[str],
+                    target_tolerance_ft: float = 0.5) -> tuple[list[str], list[str], dict[str, float | None]]:
+    """Port the DKP-only Anik diagnostics without importing the vendored oracle."""
+    failures: list[str] = []
+    warnings: list[str] = []
+    mode = str(decision.get("operating_mode", ""))
+    rules = decision.get("rules_applied")
+    missing = decision.get("missing_inputs")
+    reasoning = str(decision.get("reasoning", ""))
+    if not mode:
+        failures.append("missing operating_mode")
+    def cites_retrieved_rule(rule: Any) -> bool:
+        cited = str(rule).strip()
+        for heading in headings:
+            if cited == heading:
+                return True
+            prefix = heading.split(" (")[0].strip()
+            if cited == prefix or cited in [name.strip() for name in prefix.split(",")]:
+                return True
+        return False
+    if not isinstance(rules, list) or not rules:
+        failures.append("rules_applied must contain at least one DKP section heading")
+    elif any(not cites_retrieved_rule(rule) for rule in rules):
+        failures.append("every rules_applied entry must be an exact retrieved DKP section heading")
+    if include_missing_inputs and not isinstance(missing, list):
+        failures.append("missing_inputs must be a JSON list")
+    if requested_release_cfs < min_release_cfs or requested_release_cfs > max_release_cfs:
+        failures.append("LLM release violated configured bounds and required clipping")
+
+    storage_change_af = (
+        (inflow_cfs - release_cfs) * CFS_TO_CMS * step_days * 86400.0 / ACREFT_TO_M3
+    )
+    projected_end_storage_af = storage_af + storage_change_af
+    target_error_start_af = target_error_end_af = None
+    if target_storage_af is not None:
+        target_error_start_af = abs(target_storage_af - storage_af)
+        target_error_end_af = abs(target_storage_af - projected_end_storage_af)
+
+    if mode == "store_toward_target":
+        if release_cfs >= inflow_cfs - 0.1:
+            failures.append("store_toward_target mode does not retain inflow")
+        if (prompt_storage and target_error_start_af is not None
+                and target_error_end_af >= target_error_start_af - 0.5):
+            failures.append("store_toward_target mode does not reduce target error")
+        if (pool_ft is not None and target_ft is not None
+                and pool_ft > target_ft + target_tolerance_ft):
+            warnings.append("store_toward_target mode selected while pool is above target")
+    elif mode in ("draw_toward_target", "post_flood_drawdown"):
+        if release_cfs <= inflow_cfs + 0.1:
+            failures.append(f"{mode} mode does not release more than inflow")
+        if (prompt_storage and target_error_start_af is not None
+                and target_error_end_af >= target_error_start_af - 0.5):
+            failures.append(f"{mode} mode does not reduce target error")
+        if (pool_ft is not None and target_ft is not None
+                and pool_ft < target_ft - target_tolerance_ft):
+            warnings.append(f"{mode} mode selected while pool is below target")
+    elif mode == "pass_inflow":
+        pass_tolerance = max(1.0, 1e-9 * max(abs(inflow_cfs), 1.0))
+        if abs(release_cfs - inflow_cfs) > pass_tolerance:
+            failures.append("pass_inflow mode release is not approximately equal to inflow")
+        recreation_hold = (
+            pool_ft is not None
+            and 1365.0 - target_tolerance_ft <= pool_ft <= 1370.0
+            and (day.month == 6 or (day.month == 5 and day.day >= 10))
+        )
+        if (pool_ft is not None and target_ft is not None
+                and pool_ft < target_ft - target_tolerance_ft
+                and inflow_cfs > min_release_cfs + pass_tolerance
+                and not recreation_hold):
+            failures.append("below-target pass_inflow cannot raise storage toward the target")
+
+    trace = " ".join(str(item) for item in (rules or [])) + " " + reasoning
+    missing_text = " ".join(str(item) for item in (missing or []))
+    applicability_trace = trace + " " + missing_text
+    if re.search(r"RESEARCH-TARGET-TRACKING|target[-_ ]tracking release", trace, re.IGNORECASE):
+        failures.append("prohibited target-tracking controller cited")
+    if day.year != 2014 and 4 <= day.month <= 10:
+        calendar_context = re.search(
+            r"(?:recreation|whitewater|boating|calendar|schedul|weekend|weekday|holiday|"
+            r"memorial|labor\s+day|event\s+date)", trace, re.IGNORECASE,
+        )
+        applies_2014_calendar = calendar_context and re.search(
+            r"(?:weekday|weekend|May\s+(?:9|10)|(?:225|250|750|1,?000)\s*cfs)",
+            trace, re.IGNORECASE,
+        )
+        disclaims_2014_calendar = re.search(
+            r"(?:not\s+applicable|not\s+appl(?:y|ied)|not\s+used|year[- ]specific|"
+            r"2014\s+specific|calendar\s+(?:is\s+)?(?:unknown|unavailable|missing)|"
+            r"outside\s+2014)", applicability_trace, re.IGNORECASE,
+        )
+        if applies_2014_calendar and not disclaims_2014_calendar:
+            failures.append("2014-only recreation calendar applied outside 2014")
+        if mode == "recreation_plan" and not re.search(
+            r"(?:annual|year[- ]specific|2014).*(?:calendar|schedule)|"
+            r"(?:calendar|schedule).*(?:unknown|unavailable|missing)",
+            missing_text if include_missing_inputs else applicability_trace,
+            re.IGNORECASE,
+        ):
+            warnings.append(
+                "recreation_plan outside 2014 does not disclose the missing annual "
+                "recreation calendar"
+            )
+    if include_missing_inputs and expected_missing and isinstance(missing, list) and not missing:
+        warnings.append("known unavailable runtime inputs were not disclosed")
+    metrics = {
+        "storage_change_af": storage_change_af,
+        "projected_end_storage_af": projected_end_storage_af,
+        "target_error_start_af": target_error_start_af,
+        "target_error_end_af": target_error_end_af,
+    }
+    return failures, warnings, metrics
 
 
 def native_audit(method: str, decision: Mapping[str, Any], observation: Mapping[str, Any],
@@ -450,51 +656,61 @@ def native_audit(method: str, decision: Mapping[str, Any], observation: Mapping[
     requested = decision["release_cfs"]
     release = action["release_cms"] / CFS_TO_CMS
     pool, target = runtime.get("pool_elevation_ft"), runtime.get("seasonal_target_ft")
-    failures, warnings, hard, policy = [], [], [], []
+    day = date.fromisoformat(observation["timestamp"][:10])
     minimum, maximum = profile.data["minimum_release_cfs"], profile.data["maximum_release_cfs"]
-    if requested < minimum - 0.1 or requested > maximum + 0.1:
-        hard.append(f"requested release {requested:,.1f} cfs outside configured bounds [{minimum:,.0f}, {maximum:,.0f}] cfs")
-    available = runtime.get("physically_available_release_cfs")
-    hard_unattributed = []
-    if available is not None and requested > available + 0.1:
-        message = f"requested release {requested:,.1f} cfs exceeds physically available {available:,.1f} cfs"
-        (hard if settings["prompt_storage"] else hard_unattributed).append(
-            message if settings["prompt_storage"] else message + " (not attributed: storage not in prompt)")
-    relation, direction = _flow_relation(release, inflow)
-    if pool is None or target is None:
-        warnings.append("physics audit skipped: pool or target unavailable")
-    else:
-        position = "below_target" if pool < target - 0.5 else "above_target" if pool > target + 0.5 else "at_target"
-        if abs(float(decision["applicable_target_ft"]) - target) > 0.5:
-            policy.append(f"stated applicable_target_ft {decision['applicable_target_ft']:.1f} differs from the operation target {target:.1f} for this date")
-        if decision["pool_position"] != position:
-            policy.append(f"pool_position '{decision['pool_position']}' contradicts the water level ({pool:.2f} ft vs target {target:.1f} ft)")
-        if decision["release_relation_to_inflow"] != relation:
-            policy.append("release_relation_to_inflow contradicts release versus inflow")
-        if decision["intended_storage_direction"] != direction:
-            policy.append(f"intended_storage_direction '{decision['intended_storage_direction']}' contradicts the water balance (storage will {direction})")
-        if position == "below_target" and inflow > minimum + 1 and direction != "increase":
-            policy.append("pool below target but release does not retain inflow, so storage cannot move toward the target")
-        if position == "above_target" and inflow < maximum - 1 and direction != "decrease":
-            policy.append("pool above target but release does not draw storage down")
-    failures = hard + policy
+    storage_af = observation["state"]["storage_m3"] / ACREFT_TO_M3
+    step_days = int(runtime.get("step_days") or 1)
+    storage_change_af = (
+        (inflow - release) * step_days * 1.98347
+        if method == "zeroshot"
+        else (inflow - release) * CFS_TO_CMS * step_days * 86400.0 / ACREFT_TO_M3
+    )
+    target_storage = runtime.get("seasonal_target_storage_af")
+    target_error_start = target_error_end = None
+    if target_storage is not None:
+        target_error_start = abs(target_storage - storage_af)
+        target_error_end = abs(target_storage - (storage_af + storage_change_af))
+    physics = _physics_audit(
+        decision, inflow_cfs=inflow, release_cfs=release, pool_ft=pool, target_ft=target,
+        min_release_cfs=minimum, max_release_cfs=maximum,
+        prompt_storage=settings["prompt_storage"], target_error_start_af=target_error_start,
+        target_error_end_af=target_error_end, target_tolerance_ft=0.5,
+        requested_release_cfs=requested,
+        physically_available_cfs=runtime.get("physically_available_release_cfs"),
+    )
+    hard = physics["hard_physics"]
+    hard_unattributed = physics["hard_physics_unattributed"]
+    policy = physics["policy"]
+    warnings = list(physics["warnings"])
+    physics_failures = hard + policy
+    failures = list(physics_failures)
     rule_failures: list[str] = []
+    metrics = {
+        "storage_change_af": storage_change_af,
+        "projected_end_storage_af": storage_af + storage_change_af,
+        "target_error_start_af": target_error_start,
+        "target_error_end_af": target_error_end,
+    }
     if method == "dkp":
-        rules = decision.get("rules_applied")
-        if not isinstance(rules, list) or not rules:
-            rule_failures.append("rules_applied must contain at least one DKP section heading")
-        elif any(rule not in headings and rule not in [h.split(" (")[0] for h in headings] for rule in rules):
-            rule_failures.append("every rules_applied entry must be an exact retrieved DKP section heading")
-        mode = decision.get("operating_mode")
-        if mode == "store_toward_target" and release >= inflow - 0.1:
-            rule_failures.append("store_toward_target mode does not retain inflow")
-        if mode in ("draw_toward_target", "post_flood_drawdown") and release <= inflow + 0.1:
-            rule_failures.append(f"{mode} mode does not release more than inflow")
-        if mode == "pass_inflow" and abs(release - inflow) > max(1.0, 1e-9 * max(abs(inflow), 1.0)):
-            rule_failures.append("pass_inflow mode release is not approximately equal to inflow")
-        failures += [item for item in rule_failures if item not in failures]
-        if not settings["dkp_no_missing_inputs"] and runtime.get("runtime_missing_inputs") and not decision.get("missing_inputs"):
-            warnings.append("known unavailable runtime inputs were not disclosed")
+        rule_failures, rule_warnings, metrics = _dkp_rule_audit(
+            decision, day=day, requested_release_cfs=requested, release_cfs=release,
+            inflow_cfs=inflow, storage_af=storage_af, pool_ft=pool, target_ft=target,
+            target_storage_af=target_storage, step_days=step_days,
+            min_release_cfs=minimum, max_release_cfs=maximum,
+            prompt_storage=settings["prompt_storage"],
+            include_missing_inputs=not settings["dkp_no_missing_inputs"],
+            expected_missing=list(runtime.get("runtime_missing_inputs") or []),
+            headings=headings,
+        )
+        failures += [item for item in rule_failures if item not in physics_failures]
+        warnings += rule_warnings
+    else:
+        metrics["target_error_start_af"] = (
+            None if target_error_start is None else round(target_error_start, 1)
+        )
+        metrics["target_error_end_af"] = (
+            None if target_error_end is None else round(target_error_end, 1)
+        )
     status = "FAIL" if failures else "WARN" if warnings or hard_unattributed else "PASS"
     result = {
         "date": observation["timestamp"][:10], "outcome": "llm",
@@ -505,8 +721,14 @@ def native_audit(method: str, decision: Mapping[str, Any], observation: Mapping[
         "hard_physics_unattributed": hard_unattributed, "policy_failures": policy,
         "request_physically_feasible": not (hard or hard_unattributed),
         "audit_revision_count": 0,
+        **metrics,
     }
     if method == "dkp":
-        result.update(physics_audit_status="FAIL" if hard or policy else "WARN" if warnings or hard_unattributed else "PASS",
-                      physics_audit_failures=hard + policy, dkp_rule_failures=rule_failures)
+        physics_status = (
+            "FAIL" if physics_failures
+            else "WARN" if physics["warnings"] or hard_unattributed
+            else "PASS"
+        )
+        result.update(physics_audit_status=physics_status,
+                      physics_audit_failures=physics_failures, dkp_rule_failures=rule_failures)
     return result

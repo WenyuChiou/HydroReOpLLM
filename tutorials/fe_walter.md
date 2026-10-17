@@ -202,8 +202,8 @@ The original standalone Anik runner is a test oracle, not this example's engine.
 | `system_prompt` | Seasonal available-information text file | Exact system message, shown below. |
 | `system_prompt_mode` | `custom` | Record the approved seasonal-target edit as a deliberate variation from the serialized original. |
 | `prompt_storage` | `false` | Omit the explicit storage-volume line; pool elevation remains available. |
-| `hide_availability_line` | `false` | Permit the availability-ceiling line only if `prompt_storage` is enabled. With storage disabled, neither line is shown. |
-| `dkp_no_missing_inputs` | `false` | In the knowledge method, retain missing-input response fields and relevant retrieved guidance. Not active in the available-information method. |
+| `hide_availability_line` | `true` | Preserve Anik V3.7 behavior by omitting the availability-ceiling line. |
+| `dkp_no_missing_inputs` | `true` | Preserve Anik V3.7 knowledge behavior: omit `missing_inputs` and the missing-information fallback from the knowledge prompt, response schema and retrieval. Not active in the available-information method. |
 | `zeroshot_knowledge` | `target` | Retain the target-condition provenance. The explicit custom system file supplies the actual system text. |
 
 Open [the actual system prompt](../examples/fe_walter/prompts/zeroshot_seasonal_v1_system.txt):
@@ -211,6 +211,12 @@ Open [the actual system prompt](../examples/fe_walter/prompts/zeroshot_seasonal_
 ```{literalinclude} ../examples/fe_walter/prompts/zeroshot_seasonal_v1_system.txt
 :language: text
 ```
+
+The confirmed operation target keeps the pool within 1297–1303 ft from
+November 1 through March 14; between 1300 and 1370 ft from March 15 through
+May 9 while filling toward 1370 ft by May 10; at or below 1370 ft from May 10
+through October 14; and between 1300 and 1370 ft and falling from October 15
+through October 31, reaching near 1300 ft on November 1.
 
 The case does not use a generic `prompt_file`: its extension builds native
 messages explicitly. `NativePromptFormatter` adds the date, inflow in cfs,
@@ -240,7 +246,10 @@ it selects this complete agent file while sharing the same model and hydrology:
 [DKP_FEWalter_Dam_v1.2.md](../examples/fe_walter/knowledge/DKP_FEWalter_Dam_v1.2.md).
 Its explicit system message is:
 
-```{literalinclude} ../examples/fe_walter/prompts/dkp_seasonal_v1_system.txt
+[Download the available-information prompt](../examples/fe_walter/prompts/zeroshot_seasonal_v1_system.txt)
+or [the corrected knowledge prompt](../examples/fe_walter/prompts/dkp_seasonal_v2_system.txt).
+
+```{literalinclude} ../examples/fe_walter/prompts/dkp_seasonal_v2_system.txt
 :language: text
 ```
 
@@ -249,8 +258,15 @@ The case `DKPRetriever` selects relevant local document sections before composin
 the prompt. It does not require a vector database.
 For another study, generic `knowledge`, `information` and `context_providers`
 are described in [prompt customization](../docs/CONFIGURATION.md).
-The current FE YAML does not select a generic information profile.
-Missing downstream observations are not invented.
+The current FE YAML does not select a generic information profile. With
+`dkp_no_missing_inputs: true`, the knowledge system prompt, response schema and
+retrieval exclude the missing-information fallback, and the response contract
+has exactly eight fields:
+`applicable_target_ft`, `pool_position`, `intended_storage_direction`,
+`release_relation_to_inflow`, `operating_mode`, `rules_applied`, `reasoning` and
+`release_cfs`. It neither requests `missing_inputs` nor invents missing
+downstream observations. The frozen v1 prompt remains only as a reproducibility
+dependency for prior saved output.
 
 ## Step 6. Follow the input and output of one decision
 
@@ -258,8 +274,8 @@ Missing downstream observations are not invented.
 2. The formatter converts m³/s to cfs and m³ to acre-ft, then derives pool elevation.
 3. The selected provider receives the actual system and daily user messages.
 4. The case reply contains reasoning, target/direction fields and `release_cfs`.
-   The knowledge reply additionally contains `operating_mode`, `rules_applied`
-   and `missing_inputs`.
+   The knowledge reply additionally contains `operating_mode` and
+   `rules_applied`, for eight fields in total; it has no `missing_inputs` field.
 5. `NativeResponseParser` validates the response, converts cfs to m³/s and clips
    the proposal to the case's 50–10,000 cfs limits. The raw reply remains recorded.
 6. Common physics applies available water, calculates controlled release, spill
@@ -313,11 +329,14 @@ For interruptions, follow [resume](../docs/BUILD_SIMULATION.md#9-resume-after-an
 
 ## Step 8. Read the verified 2016 results
 
-> **Example confirmation pending.** The saved outputs verify execution only.
-> The prompt version and Anik-example equivalence await user confirmation;
-> do not treat these results as an accepted reproduction.
+> **Configuration confirmed; corrected-case LLM rerun pending.** All five source
+> attachments are intended Anik V3.7 inputs and are byte-equal to the retained
+> vendor copies. The saved outputs below completed under a prior diagnostic
+> configuration whose DKP method incorrectly retained `missing_inputs`; they
+> verify that execution and accounting only, not the corrected case or its
+> operating quality. No saved sample, reply, table or plot has been replaced.
 
-Continue with the [current 2016 annual results](../examples/fe_walter/coupled/README.md#verified-2016-results).
+Continue with the [saved 2016 annual results](../examples/fe_walter/coupled/README.md#verified-2016-results).
 All three methods contain 366 unique daily decisions.
 The available-information recovery chain retains **369 actual attempts**:
 366 successful replies and three timeouts. It preserves the first eight
@@ -336,10 +355,11 @@ action and the implemented transition. They do not include a next-day
 observation. The next state follows from committed ending storage and
 implemented total outflow.
 
-Audit FAIL is a diagnostic operating result, not a seasonal pool-compliance
-score or model-format failure. Saved-file verification establishes execution
-integrity and water accounting; it does not accept policy quality. These
-single realizations do not rank the methods.
+Audit FAIL is a diagnostic operating result, not a model-format failure.
+Audits evaluate the seasonal goals; they do not force an LLM release or request
+another sample after a seasonal FAIL. Saved-file verification establishes
+execution integrity and water accounting; it does not accept policy quality.
+These single realizations do not rank the methods.
 
 The [earlier 2016 diagnostic](../examples/fe_walter/coupled/README.md#historical-2016-diagnostic-preserved)
 and the older notebooks retain their original prompts, audit counts and samples.

@@ -50,7 +50,8 @@ CONFIG_DOWNLOADS = {
 }
 CONFIG_DOWNLOADS.update({
     f"examples/fe_walter/prompts/{name}": name
-    for name in ("zeroshot_seasonal_v1_system.txt", "dkp_seasonal_v1_system.txt")
+    for name in ("zeroshot_seasonal_v1_system.txt", "dkp_seasonal_v1_system.txt",
+                 "dkp_seasonal_v2_system.txt")
 })
 COMPLETED_DOWNLOADS = {
     f"examples/fe_walter/coupled/outputs/{name}": name

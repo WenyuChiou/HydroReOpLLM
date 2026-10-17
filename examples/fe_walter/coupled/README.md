@@ -30,7 +30,7 @@ acceptable reservoir performance.
 | [`agents.llm_knowledge.yaml`](agents.llm_knowledge.yaml) | Retrieved-knowledge operator and case settings |
 | [`auditors.yaml`](auditors.yaml) | Shared diagnostic check catalog |
 | [Available-information prompt](../prompts/zeroshot_seasonal_v1_system.txt) | Native system message with the approved seasonal-target edit |
-| [Retrieved-knowledge prompt](../prompts/dkp_seasonal_v1_system.txt) | Native operating-knowledge system message with the same target edit |
+| [Retrieved-knowledge prompt](../prompts/dkp_seasonal_v2_system.txt) | Native operating-knowledge system message with the same target edit and Anik V3.7 response behavior |
 | [Case extension](../extensions/) | Case-owned prompt formatting, response parsing, profile/history and audit |
 
 Both LLM files register the case-owned `reference_v3_7` extension because this
@@ -96,6 +96,10 @@ and `max_attempts: 2`, meaning at most two attempts for one daily decision.
 Both explicitly set `num_ctx: 16384`, `think: false`, and `keep_alive: 30m`.
 They use `consultation_mode: daily` and `response_validation: policy`, so every
 day is requested and the original policy parser checks its required fields.
+Both omit the availability-ceiling line. The retrieved-knowledge method also
+omits `missing_inputs` and the missing-information fallback from its system
+prompt, response schema and retrieval; its reply has the eight configured fields
+documented in the tutorial. No provider fallback is selected.
 
 ## Reuse the prepared hydrology
 
@@ -113,16 +117,38 @@ preparation pins and copies the existing inlet series without rerunning hydrolog
 Each operation method still starts a separate reservoir history from the same
 physical initial state.
 
+## Engineering parity with Anik
+
+The [annual E2E test](../../../tests/test_anik_annual_e2e.py) runs the production
+coupled entry and the original Anik simulator independently for both LLM methods.
+It replays the same accepted 2016 inlet series and fixed synthetic replies, with
+the confirmed seasonal targets. It compares all 366 system/user messages and
+response schemas per method, bounded decisions, controlled release, spill,
+storage, next-day history and the identity-routed downstream outlet. The upstream
+hydrology is replayed at its boundary; this test does not recalibrate or rerun it.
+The [audit parity tests](../../../tests/test_anik_audit_parity.py) separately compare
+the diagnostic findings with the original Anik checks. Audits never replace a
+release or request another answer because a seasonal goal was missed.
+
+Replaying the **previously saved releases** through the original Anik water balance
+also reproduces the prior high-water trajectories: maximum differences are below
+`0.000001 m³` in storage and `0.000003 ft` in pool elevation across both methods.
+This isolates the water-balance implementation; it does not establish that the
+old prompts were correct or that the corrected real LLM will meet its targets.
+The corrected configuration has not been sent to a real model.
+
 ## Verified 2016 results
 
-> **Example confirmation pending.** Verification below concerns saved-run
-> execution and water accounting. The prompt version and equivalence to Anik's
-> example still require user confirmation. These outputs are not an accepted
-> reproduction of Anik's results. Keep them as evidence until that review;
-> do not change the prompt or rerun the model on that basis.
+> **Configuration confirmed; corrected-case LLM rerun pending.** All five source
+> attachments are intended Anik V3.7 inputs and are byte-equal to the retained
+> vendor copies. The saved outputs below are completed execution under a prior
+> diagnostic configuration: its DKP method incorrectly used
+> `dkp_no_missing_inputs: false`. They remain execution and water-accounting
+> evidence, not results or operating-quality acceptance for the corrected case.
+> The saved samples, replies, table and plot have not been replaced.
 
 
-These runs use the maintained split configuration and separate native system
+These saved runs used the prior split configuration and separate native system
 messages. All three methods cover **366 unique daily decisions**, from 1 January
 through 31 December 2016.
 
@@ -159,6 +185,13 @@ or request another sample. These counts are not a seasonal pool-compliance score
 or acceptance of operating quality. `operating_strategy_accepted` remains `null`.
 The displayed trajectories exceed the study seasonal pool bands; successful
 execution does not establish successful seasonal control.
+For example, on November 1 the saved available-information trajectory begins at
+**1390.859083 ft**, with **19.1142168 m³/s** inflow and **8.4950541 m³/s**
+implemented controlled release. The saved retrieved-knowledge trajectory begins
+at **1450.0000027 ft**, with **19.1142168 m³/s** inflow and
+**19.1138717 m³/s** implemented controlled release. Both are above the
+confirmed 1297–1303 ft winter band. The audit evaluates that goal; it does not
+force an LLM release or resample after a seasonal FAIL.
 Read the [export summary](outputs/2016/summary.json) and
 [source/output hashes](outputs/2016/pins.json) with the trajectories.
 
@@ -172,7 +205,7 @@ delay. `max_calls: null` removes the total call cap. No model fallback is select
 The recorded Ollama version is `0.40.4`; the model is `gemma3:4b` (`Q4_K_M`).
 Initial timeouts occurred while the GPU was shared with other work. After the
 read-only service check showed no loaded model, the available-information run
-resumed with the same accepted settings. The retrieved-knowledge run also resumed
+resumed with the same recorded settings. The retrieved-knowledge run also resumed
 without changing its settings or repeating its committed day. The failed attempts and original run
 remain preserved; recovery did not restart the completed eight-day prefix.
 
@@ -233,7 +266,7 @@ Each sample selects **15 June 2016** and contains:
 Raw `release_cfs` is converted and bounds-clipped before the normalized action.
 Physics then applies water availability and computes spill. The next decision
 uses committed ending storage and implemented total outflow in its two-entry
-history. These current samples do not include the next day's observation;
+history. These saved samples do not include the next day's observation;
 the joined January examples below belong to the historical diagnostic.
 
 The repository keeps the daily CSV, summary, pins, plots and these two selected

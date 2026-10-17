@@ -1,4 +1,4 @@
-"""FE Walter section migration preserves the committed bcb420d v1 contract.
+"""FE Walter migration preserves legacy loading and explicit Anik corrections.
 
 The legacy fixture below records the old settings directly, so the regression
 does not need Git, historical outputs, a provider, or hydrological execution.
@@ -41,6 +41,8 @@ SOURCE_PINS = {
     "examples/fe_walter/knowledge/DKP_FEWalter_Dam_v1.2.md":
         "7fb3b9e75c1d6a52168049afa80c527a49e606f1c0889e5d14b31f874502b206",
 }
+CONFIRMED_DKP_PROMPT = "examples/fe_walter/prompts/dkp_seasonal_v2_system.txt"
+CONFIRMED_DKP_SHA256 = "ae5e19ee4a8f3749d80f06088c7ee7f4cb14997a72d40a9d39c1ab2e51a7bf48"
 
 
 def _read(path):
@@ -97,6 +99,17 @@ def _legacy_document(method):
     return data
 
 
+def _confirmed_document(method):
+    """The only approved changes to the previous executable Anik settings."""
+    data = _legacy_document(method)
+    if method != "rule":
+        ref = data["agents"]["fe_operator"]["customization"]["parameters"]["reference"]
+        ref.update(hide_availability_line=True, dkp_no_missing_inputs=True)
+        if method == "llm_knowledge":
+            ref["system_prompt"] = str((ROOT / CONFIRMED_DKP_PROMPT).resolve())
+    return data
+
+
 @pytest.fixture(autouse=True)
 def forbid_execution(monkeypatch):
     def forbidden(*args, **kwargs):
@@ -145,10 +158,10 @@ def test_entry_loads_shared_sections_and_pins_declaring_files(entry, loaded):
 
 
 @pytest.mark.parametrize("method", METHODS)
-def test_split_settings_and_prompt_context_match_prior_v1(method, loaded, tmp_path):
+def test_split_matches_v1_with_only_confirmed_anik_corrections(method, loaded, tmp_path):
     checked = _load(method, loaded)
     legacy_path = tmp_path / "legacy.yaml"
-    legacy_path.write_text(yaml.safe_dump(_legacy_document(method)), encoding="utf-8")
+    legacy_path.write_text(yaml.safe_dump(_confirmed_document(method)), encoding="utf-8")
     legacy = load_coupled_settings(legacy_path, runtime_root=ROOT)
     def operation(settings):
         value = _operation_document(settings, tmp_path / "prepared")
@@ -170,6 +183,19 @@ def test_split_settings_and_prompt_context_match_prior_v1(method, loaded, tmp_pa
         assert preview["model_used"] is False
         assert preview["messages"] == [{"role": "system", "content": Path(
             reference["system_prompt"]).read_text(encoding="utf-8")}]
+
+
+@pytest.mark.parametrize("method", ("llm_available", "llm_knowledge"))
+def test_previous_v1_documents_still_load_without_rewriting_their_contract(method, tmp_path):
+    path = tmp_path / "old.yaml"
+    path.write_text(yaml.safe_dump(_legacy_document(method)), encoding="utf-8")
+    old = load_coupled_settings(path, runtime_root=ROOT)
+    ref = old.data["agents"]["fe_operator"]["reference"]
+    assert ref["hide_availability_line"] is False
+    assert ref["dkp_no_missing_inputs"] is False
+    assert ref["system_prompt"].endswith("_seasonal_v1_system.txt")
+    for relative, digest in SOURCE_PINS.items():
+        assert hashlib.sha256((ROOT / relative).read_bytes()).hexdigest() == digest
 
 
 @pytest.mark.parametrize("method", METHODS)
@@ -211,7 +237,10 @@ def test_shared_physics_sources_public_agents_and_output_identity(loaded):
         else:
             assert public["model_profile"] == "reservoir_model"
             prompt = "zeroshot" if method == "llm_available" else "dkp"
-            required.append(f"examples/fe_walter/prompts/{prompt}_seasonal_v1_system.txt")
+            if method == "llm_available":
+                required.append(f"examples/fe_walter/prompts/{prompt}_seasonal_v1_system.txt")
+            else:
+                assert checked.files[str((ROOT / CONFIRMED_DKP_PROMPT).resolve())] == CONFIRMED_DKP_SHA256
             if method == "llm_knowledge":
                 required.append("examples/fe_walter/knowledge/DKP_FEWalter_Dam_v1.2.md")
         for relative in required:

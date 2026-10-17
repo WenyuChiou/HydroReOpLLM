@@ -212,9 +212,10 @@ class AnikPromptParityTests(unittest.TestCase):
         specs = [read_configuration(path)[0]["agents"]["fe_operator"]["reference"]
                  for path in paths]
         self.assertEqual([spec["method"] for spec in specs], ["zeroshot", "dkp"])
-        self.assertTrue(all(spec["system_prompt"].endswith(f"{spec['method']}_seasonal_v1_system.txt")
-                            for spec in specs))
-        self.assertTrue(all(spec["dkp_no_missing_inputs"] is False for spec in specs))
+        self.assertTrue(specs[0]["system_prompt"].endswith("zeroshot_seasonal_v1_system.txt"))
+        self.assertTrue(specs[1]["system_prompt"].endswith("dkp_seasonal_v2_system.txt"))
+        self.assertTrue(all(spec["dkp_no_missing_inputs"] is True for spec in specs))
+        self.assertTrue(all(spec["hide_availability_line"] is True for spec in specs))
         self.assertTrue(all("prompt.txt" not in spec["system_prompt"] for spec in specs))
 
     def test_reference_ollama_request_keeps_native_controls(self):

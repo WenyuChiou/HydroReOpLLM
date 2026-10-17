@@ -63,6 +63,7 @@ def test_fe_walter_walkthrough_publishes_the_actual_configuration(prepared_manua
         'coupled/agents.rule.yaml', 'coupled/agents.llm_available.yaml',
         'coupled/agents.llm_knowledge.yaml', 'coupled/auditors.yaml', 'coupled/reservoirs.json',
         'prompts/zeroshot_seasonal_v1_system.txt', 'prompts/dkp_seasonal_v1_system.txt',
+        'prompts/dkp_seasonal_v2_system.txt',
     )
     for name in assets:
         relative = 'examples/fe_walter/' + name
@@ -75,6 +76,7 @@ def test_fe_walter_walkthrough_publishes_the_actual_configuration(prepared_manua
     assert '../examples/fe_walter/coupled/experiment.yaml' in includes
     assert '../examples/fe_walter/coupled/agents.llm_available.yaml' in includes
     assert '../examples/fe_walter/prompts/zeroshot_seasonal_v1_system.txt' in includes
+    assert '../examples/fe_walter/prompts/dkp_seasonal_v2_system.txt' in includes
     for name in includes:
         published = (output / page).parent / name
         source = (ROOT / page).parent / name
