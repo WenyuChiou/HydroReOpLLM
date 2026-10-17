@@ -15,6 +15,22 @@ Each reservoir selects `type: rule_based` with a registered rule, or `type: llm`
 with a model profile and explicit prompt. Reservoir decisions do not alter the
 precomputed weather-to-runoff simulation.
 
+## Read the manual
+
+| Step | Chapter | What to do |
+|---|---|---|
+| 1 | [Installation](GETTING_STARTED.md) | Install the package and check the command-line entry. |
+| 2 | [Inputs and outputs](INPUT_OUTPUT.md) | Separate global, hydrology, reservoir/coupling and agent settings; check data units. |
+| 3 | [Configure an agent](CONFIGURATION.md) and [model providers](MODEL_PROVIDERS.md) | Choose Rule-based or LLM, then set the model, prompt and optional knowledge. |
+| 4 | [F.E. Walter tutorial](../tutorials/fe_walter.md) | Follow actual YAML files, reservoir mappings and the daily decision. |
+| 5 | [Results](RESULTS_GUIDE.md) and [Recovery](RUNNING.md) | Read the latest annual results, inspect records and resume interrupted runs. |
+| 6 | [Python API](API_REFERENCE.md) and [code structure](CODE_STRUCTURE.md) | Find function contracts, extension points and their implementation modules. |
+
+For catchment construction and calibration, follow the linked
+[HydroCNHS prerequisites](HYDROLOGY_SETUP.md).
+
+## Core workflow
+
 ![HydroOpsLLM core workflow](figures/hydrocnhs-coupling-framework-en.png)
 
 Continuous upstream hydrology is precomputed. The daily cycle then renders a
@@ -22,7 +38,3 @@ decision, validates its response, applies physics, routes outflow downstream and
 commits the transition for the next decision. Response validation checks the
 action contract; diagnostic audit evaluates the decision; the recorder preserves
 the evidence. These are separate responsibilities.
-
-Start with [Installation](GETTING_STARTED.md), read [Inputs and outputs](INPUT_OUTPUT.md),
-then [configure an agent](CONFIGURATION.md) and follow the
-[FE Walter tutorial](../tutorials/fe_walter.md).
