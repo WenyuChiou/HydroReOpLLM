@@ -77,6 +77,6 @@ data bundle needs an explicit YAML `case_root`.
 
 ## Branch previews
 
-For source links to follow a preview branch, build with `python docs/build.py --source-ref codex/manual-research-guide`. The default is `main` for the published manual.
+For preview source links, use `python docs/build.py --source-ref YOUR_BRANCH`, replacing `YOUR_BRANCH` with your branch name. The published manual defaults to `main`.
 
 分支預覽可用 `--source-ref` 指定原始碼連結的版本；正式文件預設使用 `main`。

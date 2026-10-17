@@ -37,8 +37,8 @@ relative to the file that declares it.
 |---|---|---|
 | `model` | required path | Agent-free HydroCNHS model using GWLF or ABCD with Lohmann routing. |
 | `forcing` | required path | Complete daily weather CSV for the full model period. |
-| `zero_flow_nodes` | default `[]` | Operation nodes with explicit zero hydrological lateral flow. |
-| `inflow_bindings` | required mapping | One non-overlapping hydrology selector for every other routing node. |
+| `zero_flow_nodes` | default `[]` | Native HydroCNHS outlets intentionally assigned zero flow instead of weather; at least one outlet remains weather-driven. |
+| `inflow_bindings` | required mapping | One selector per operation inlet, junction, and outlet; use `{constant: 0}` for zero local flow and avoid overlapping catchments. |
 | `prepared_from` | optional path | Verified prior preparation to reuse when all hydrology inputs match. |
 
 Weather columns are `date,subbasin_id,precipitation_mm,temperature_c,pet_cm`.

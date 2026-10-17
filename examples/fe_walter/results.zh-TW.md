@@ -18,8 +18,9 @@
 
 ![2016 年每日控制放流](coupled/outputs/current_tutorial/controlled_release_daily.png)
 
-*圖 2。三個上下對齊面板分別呈現各方法的每日實際控制放流，單位 m³/s。
-日期與縱軸刻度相同；柱狀圖不包含另外計算的 spill。*
+*圖 2。2016 年每日控制放流，單位 m³/s：(a) Rule-based、
+(b) LLM with available information、(c) LLM with retrieved knowledge。
+三個面板的日期與放流刻度相同；柱狀圖不包含 spill。*
 
 [完整精度每日資料](coupled/outputs/current_tutorial/daily.csv) ·
 [來源紀錄](coupled/outputs/current_tutorial/provenance.json) ·

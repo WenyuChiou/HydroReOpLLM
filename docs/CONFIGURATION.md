@@ -155,10 +155,10 @@ at each decision; selecting a data source alone does not put it in the prompt.
 
 ![Prompt construction and optional knowledge](figures/prompt-context-workflow.svg)
 
-*Figure 2. Current state and history enter the user template. Optional knowledge
-or retrieval results are inserted only where the template requests them. The
-provider receives the rendered messages and response schema. Validation converts
-an accepted reply into a requested release; it does not assess seasonal performance.*
+*Figure 2. State and history enter the prompt; optional knowledge fills configured
+placeholders. The asterisk marks optional, user-supplied system instructions.
+Validation checks the response contract and returns requested release; it does
+not assess seasonal performance or alter inflow.*
 
 Both user and optional system templates use Python `string.Template` syntax.
 Write `$$` for a literal dollar sign. Built-in placeholders are:

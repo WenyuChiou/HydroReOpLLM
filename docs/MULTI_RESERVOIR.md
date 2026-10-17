@@ -33,7 +33,7 @@ small example that reads these settings without running a model.
 
 The bundle contains the top-level experiments, split YAML sections, HydroCNHS
 model and forcing, physical case, prompts, retrieval extension, local guidance,
-benchmark statistics and their reference CSV files.
+baseline statistics and their reference CSV files.
 
 ## Know what the example establishes
 
@@ -42,7 +42,7 @@ period covers four days, 2020-02-28 through 2020-03-02. The short first day lets
 the hydrology model initialize before the first reservoir decision.
 
 The hydrological parameters are copied teaching values and the forcing is
-synthetic. The reference inflows support the benchmark configuration. This case
+synthetic. The reference inflows support the rule-based baseline. This case
 checks configuration, routing, model-adapter and evidence connections. It is not
 a calibration/validation result and does not establish an operating policy.
 
@@ -62,7 +62,7 @@ a calibration/validation result and does not establish an operating policy.
 | `extensions/__init__.py` | Local retrieval callback for the `$guidance` prompt alias. |
 | `knowledge/guidance.json` | Two local teaching documents with availability times. |
 | `auditors.yaml` | Release-bound check used by both agents. |
-| `statistics_*.json`, `reference_*.csv` | Pinned synthetic benchmark inputs and provenance. |
+| `statistics_*.json`, `reference_*.csv` | Pinned synthetic baseline inputs and provenance. |
 
 Paths inside each file are relative to that file. The top-level loader does not
 merge a referenced section with inline values.

@@ -1,7 +1,7 @@
 # F.E. Walter: weather, hydrology, and daily operation
 
 This is the maintained tutorial source for the F.E. Walter research example.
-It keeps hydrology and physical state fixed while comparing **Rule-based**,
+It uses the same inflow, initial state, and physical parameters for **Rule-based**,
 **LLM with available information**, and **LLM with retrieved knowledge**.
 
 ![Weather-to-operation workflow](../docs/figures/fe-walter-weather-workflow.svg)
@@ -52,8 +52,8 @@ sources, calibration, validation, and limits.
 
 ![Reservoir and agent mapping](../docs/figures/reservoir-agent-mapping.svg)
 
-**Figure 2.** Configuration IDs connect routed hydrology nodes to the F.E.
-Walter reservoir node, physical case, and operating agent.
+**Figure 2.** Generic ID mapping between hydrology, a reservoir, and its agent.
+The table below gives the F.E. Walter IDs.
 
 [`reservoirs.json`](../examples/fe_walter/coupled/reservoirs.json) uses several
 identifiers with distinct roles:
@@ -127,10 +127,9 @@ in the model profile. They are provenance settings rather than method names.
 
 ![Prompt and context workflow](../docs/figures/prompt-context-workflow.svg)
 
-**Figure 3.** Both methods receive the daily reservoir state. Retrieved knowledge
-adds selected operating context before the request. Their raw response schemas
-contain six and eight fields, respectively; both are parsed into a release proposal
-for the same reservoir physics.
+**Figure 3.** Retrieved knowledge adds context to the prompt; system instructions
+are optional and user-supplied. The two methods use six- and eight-field raw
+response schemas, respectively; both return a release proposal to shared physics.
 
 The available-information prompt defines the task and structured response:
 
@@ -182,8 +181,9 @@ state, and units. It does not interpolate or generate model output.
 
 ![Daily controlled release](../examples/fe_walter/coupled/outputs/current_tutorial/controlled_release_daily.png)
 
-**Figure 5.** Daily controlled release for each method, in m³/s. Bars exclude
-spill; panels share date and release scales.
+**Figure 5.** Daily controlled release in 2016, in m³/s: (a) Rule-based,
+(b) LLM with available information, and (c) LLM with retrieved knowledge.
+Bars exclude spill; all panels share date and release scales.
 
 Downloads: [daily.csv](../examples/fe_walter/coupled/outputs/current_tutorial/daily.csv)
 and [current tutorial provenance](../examples/fe_walter/coupled/outputs/current_tutorial/provenance.json).

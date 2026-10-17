@@ -24,18 +24,18 @@ and [flow-management plan and schedule](https://www.nap.usace.army.mil/Missions/
 ![F.E. Walter modeled catchment, rivers, dam, and gauge](../../docs/figures/fe-walter-catchment.png)
 
 **Figure 1.** Modeled subcatchments, dam, gauge, and 1996–2025 mean annual
-precipitation. The outlined callout identifies the reservoir area; its water is
-blue, matching the rivers. The diamond marks the dam/outlet. The seven modeled
-contributing units total **750.811 km²**. This is modeled watershed area, not
-official reservoir surface area or project property area. The native model's
-separate 1 ha artificial aggregation outlet is excluded. **Source credits:**
-Esri, CGIAR, USGS, data.pa.gov, TomTom, Garmin, SafeGraph, METI/NASA, EPA, NPS,
-USDA, USFWS, New Jersey Office of GIS, FAO, and NOAA.
+precipitation. The callout locates the reservoir area; the diamond marks the
+dam/outlet. Water surfaces and rivers share the same blue.[^map-sources]
 ```
+
+[^map-sources]: Esri, CGIAR, USGS, data.pa.gov, TomTom, Garmin, SafeGraph,
+    METI/NASA, EPA, NPS, USDA, USFWS, New Jersey Office of GIS, FAO, and NOAA.
 
 ## Accepted hydrological boundary
 
-The seven modeled contributing units total 750.811 km². HydroCNHS uses daily
+The seven modeled contributing units total 750.811 km², excluding the native
+model's 1 ha artificial aggregation outlet. This is watershed area, not official
+reservoir surface or project property area. HydroCNHS uses daily
 weather and catchment properties to generate routed inflow at the dam. The
 operation experiment selects 2016 from the accepted 1989–2025 series. Changing
 the operator does not change or recalibrate hydrology.

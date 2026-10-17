@@ -16,9 +16,9 @@ represent a complete official operating schedule.
 
 ![Daily controlled release](coupled/outputs/current_tutorial/controlled_release_daily.png)
 
-**Figure 2.** Saved daily controlled release in m³/s. The three vertically
-aligned bar panels share the same date and y scales. Bars exclude spill, which
-is calculated separately.
+**Figure 2.** Daily controlled release in 2016, in m³/s: (a) Rule-based,
+(b) LLM with available information, and (c) LLM with retrieved knowledge.
+Panels share date and release scales; bars exclude spill.
 
 The combined teaching table contains 366 unique ordered dates per method. The
 builder checked matching inflow within 1e-10 m³/s for CSV serialization, the

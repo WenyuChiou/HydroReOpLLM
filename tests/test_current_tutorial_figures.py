@@ -103,3 +103,35 @@ def test_current_figure_manifest_covers_exact_published_bytes():
         assert hashlib.sha256(path.read_bytes()).hexdigest() == digest
         if path.suffix == '.svg':
             assert all(line == line.rstrip() for line in path.read_text(encoding='utf-8').splitlines())
+
+
+def test_result_figures_keep_paper_width_fonts_and_editable_labels():
+    """Prevent export defaults from shrinking labels or rasterizing vector text."""
+    import re
+    import xml.etree.ElementTree as ET
+    from PIL import Image
+
+    folder = OUTPUTS / 'current_tutorial'
+    for stem in ('daily_water_elevation', 'controlled_release_daily'):
+        pdf = (folder / (stem + '.pdf')).read_bytes()
+        box = re.search(rb'/MediaBox\s*\[\s*0\s+0\s+([\d.]+)', pdf)
+        assert box is not None
+        assert float(box.group(1)) / 72 * 25.4 == pytest.approx(180, abs=0.01)
+        assert b'/FontFile2' in pdf, 'PDF must embed its TrueType font'
+        svg = ET.parse(folder / (stem + '.svg')).getroot()
+        text_nodes = svg.findall('.//{http://www.w3.org/2000/svg}text')
+        # Matplotlib's SVG viewBox uses one unit per output point.
+        assert svg.get('width', '').endswith('pt')
+        assert float(svg.get('width')[:-2]) == pytest.approx(
+            float(svg.get('viewBox').split()[2]))
+        for node in text_nodes:
+            size = re.search(r'font-size:\s*([\d.]+)px', node.get('style', ''))
+            assert size is not None, 'Every text label needs an explicit size'
+            assert float(size.group(1)) >= 9, 'Paper labels must be at least 9 pt'
+        labels = ' '.join(''.join(node.itertext()) for node in text_nodes)
+        for method in ('Rule-based', 'LLM with available information',
+                       'LLM with retrieved knowledge'):
+            assert method in labels, 'Method labels must remain editable text'
+        with Image.open(folder / (stem + '.png')) as image:
+            assert abs(image.width - 180 / 25.4 * 600) <= 1
+            assert image.info['dpi'][0] == pytest.approx(600, abs=1)

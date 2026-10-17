@@ -1,6 +1,58 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="652" viewBox="0 0 1200 652" role="img" aria-labelledby="fe-walter-weather-workflow-title fe-walter-weather-workflow-desc">
-<title id="fe-walter-weather-workflow-title">FE Walter weather and daily operation</title>
-<desc id="fe-walter-weather-workflow-desc">Daymet precipitation and temperature feed GWLF. Hamon PET uses temperature and subcatchment latitude and also feeds GWLF. Lohmann routing yields saved daily inflow. Each operation day uses that inflow for agent decisions, reservoir physics and downstream routing; updated storage returns to the next decision. nClimGrid patches and units are explained in the caption.</desc>
-<defs><marker id="arrow-blue" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0 0L9 5L0 10Z" fill="#39718a"/></marker><marker id="arrow-orange" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0 0L9 5L0 10Z" fill="#a66b3d"/></marker><marker id="arrow-green" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0 0L9 5L0 10Z" fill="#36735f"/></marker></defs>
-<rect width="1200" height="652" fill="#fff"/>
-<g font-family="Arial, sans-serif" fill="#233d39"><text x="40" y="36" text-anchor="start" font-size="25" font-weight="700" fill="#39718a">1  Calculate upstream inflow before reservoir operation</text><path d="M300 128H356V184H416" fill="none" stroke="#39718a" stroke-width="3" stroke-linejoin="round" marker-end="url(#arrow-blue)"/><path d="M168 176V232" fill="none" stroke="#39718a" stroke-width="3" stroke-linejoin="round" marker-end="url(#arrow-blue)"/><path d="M300 280H356V232H416" fill="none" stroke="#39718a" stroke-width="3" stroke-linejoin="round" marker-end="url(#arrow-blue)"/><path d="M656 208H784" fill="none" stroke="#39718a" stroke-width="3" stroke-linejoin="round" marker-end="url(#arrow-blue)"/><path d="M1024 208H1128V408H180V456" fill="none" stroke="#39718a" stroke-width="3" stroke-linejoin="round" marker-end="url(#arrow-blue)"/><text x="340" y="104" text-anchor="middle" font-size="19" font-weight="400" fill="#233d39">P · T</text><text x="184" y="212" text-anchor="start" font-size="19" font-weight="400" fill="#233d39">T</text><text x="348" y="308" text-anchor="middle" font-size="19" font-weight="400" fill="#233d39">PET</text><text x="720" y="184" text-anchor="middle" font-size="19" font-weight="400" fill="#233d39">Runoff</text><text x="676" y="394" text-anchor="middle" font-size="21" font-weight="700" fill="#233d39">Saved daily inflow</text><path d="M320 512H416" fill="none" stroke="#36735f" stroke-width="3" stroke-linejoin="round" marker-end="url(#arrow-green)"/><path d="M696 512H784" fill="none" stroke="#39718a" stroke-width="3" stroke-linejoin="round" marker-end="url(#arrow-blue)"/><path d="M556 568V620H180V568" fill="none" stroke="#36735f" stroke-width="3" stroke-linejoin="round" marker-end="url(#arrow-green)"/><text x="368" y="488" text-anchor="middle" font-size="19" font-weight="400" fill="#233d39">Release</text><text x="740" y="488" text-anchor="middle" font-size="19" font-weight="400" fill="#233d39">Outflow</text><text x="368" y="608" text-anchor="middle" font-size="20" font-weight="400" fill="#233d39">Updated storage for the next day</text><rect x="40" y="64" width="260" height="112" rx="12" fill="#eef3f7" stroke="#39718a" stroke-width="2"/><text x="170.0" y="97.0" text-anchor="middle" font-size="23" font-weight="700" fill="#233d39">Daymet weather</text><text x="170.0" y="127.0" text-anchor="middle" font-size="21" font-weight="400" fill="#233d39">Precipitation (P)</text><text x="170.0" y="157.0" text-anchor="middle" font-size="21" font-weight="400" fill="#233d39">Temperature (T)</text><rect x="40" y="232" width="260" height="96" rx="12" fill="#eef3f7" stroke="#39718a" stroke-width="2"/><text x="170.0" y="272.0" text-anchor="middle" font-size="23" font-weight="700" fill="#233d39">Hamon PET</text><text x="170.0" y="302.0" text-anchor="middle" font-size="21" font-weight="400" fill="#233d39">Temperature + latitude</text><rect x="416" y="148" width="240" height="120" rx="12" fill="#eef3f7" stroke="#39718a" stroke-width="2"/><text x="536.0" y="200.0" text-anchor="middle" font-size="23" font-weight="700" fill="#233d39">Rainfall–runoff</text><text x="536.0" y="230.0" text-anchor="middle" font-size="21" font-weight="400" fill="#233d39">GWLF model</text><rect x="784" y="148" width="240" height="120" rx="12" fill="#eef3f7" stroke="#39718a" stroke-width="2"/><text x="904.0" y="200.0" text-anchor="middle" font-size="23" font-weight="700" fill="#233d39">Upstream routing</text><text x="904.0" y="230.0" text-anchor="middle" font-size="21" font-weight="400" fill="#233d39">Lohmann model</text><text x="40" y="438" text-anchor="start" font-size="25" font-weight="700" fill="#36735f">2  Repeat daily operation using the saved inflow</text><rect x="40" y="456" width="280" height="112" rx="12" fill="#f0f5f3" stroke="#36735f" stroke-width="2"/><text x="180.0" y="504.0" text-anchor="middle" font-size="23" font-weight="700" fill="#233d39">Reservoir agent</text><text x="180.0" y="534.0" text-anchor="middle" font-size="21" font-weight="400" fill="#233d39">Rule-based or LLM</text><rect x="416" y="456" width="280" height="112" rx="12" fill="#f0f5f3" stroke="#36735f" stroke-width="2"/><text x="556.0" y="504.0" text-anchor="middle" font-size="23" font-weight="700" fill="#233d39">Reservoir physics</text><text x="556.0" y="534.0" text-anchor="middle" font-size="21" font-weight="400" fill="#233d39">Release · Spill · Storage</text><rect x="784" y="456" width="280" height="112" rx="12" fill="#eef3f7" stroke="#39718a" stroke-width="2"/><text x="924.0" y="504.0" text-anchor="middle" font-size="23" font-weight="700" fill="#233d39">Downstream routing</text><text x="924.0" y="534.0" text-anchor="middle" font-size="21" font-weight="400" fill="#233d39">Actual outflow</text></g></svg>
+  <title id="fe-walter-weather-workflow-title">FE Walter weather and daily operation</title>
+  <desc id="fe-walter-weather-workflow-desc">Daymet precipitation and temperature feed GWLF. Hamon PET uses temperature and subcatchment latitude and also feeds GWLF. Lohmann routing yields saved daily inflow. Each operation day uses that inflow for agent decisions, reservoir physics and downstream routing; updated storage returns to the next decision. nClimGrid patches and units are explained in the caption.</desc>
+  <defs>
+    <marker id="arrow-blue" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M0 0L9 5L0 10Z" fill="#39718a" />
+    </marker>
+    <marker id="arrow-orange" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M0 0L9 5L0 10Z" fill="#a66b3d" />
+    </marker>
+    <marker id="arrow-green" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M0 0L9 5L0 10Z" fill="#36735f" />
+    </marker>
+  </defs>
+  <rect width="1200" height="652" fill="#fff" />
+  <g font-family="Arial, sans-serif" fill="#233d39">
+    <text x="40" y="36" text-anchor="start" font-size="25" font-weight="700" fill="#39718a">1  Prepare upstream inflow</text>
+    <path d="M300 128H356V184H416" fill="none" stroke="#39718a" stroke-width="3" stroke-linejoin="round" marker-end="url(#arrow-blue)" />
+    <path d="M168 176V232" fill="none" stroke="#39718a" stroke-width="3" stroke-linejoin="round" marker-end="url(#arrow-blue)" />
+    <path d="M300 280H356V232H416" fill="none" stroke="#39718a" stroke-width="3" stroke-linejoin="round" marker-end="url(#arrow-blue)" />
+    <path d="M656 208H784" fill="none" stroke="#39718a" stroke-width="3" stroke-linejoin="round" marker-end="url(#arrow-blue)" />
+    <path d="M1024 208H1128V408H20V512H40" fill="none" stroke="#39718a" stroke-width="3" stroke-linejoin="round" marker-end="url(#arrow-blue)" />
+    <text x="340" y="104" text-anchor="middle" font-size="19" font-weight="400" fill="#233d39">P · T</text>
+    <text x="184" y="212" text-anchor="start" font-size="19" font-weight="400" fill="#233d39">T</text>
+    <text x="348" y="308" text-anchor="middle" font-size="19" font-weight="400" fill="#233d39">PET</text>
+    <text x="720" y="184" text-anchor="middle" font-size="19" font-weight="400" fill="#233d39">Runoff</text>
+    <text x="676" y="394" text-anchor="middle" font-size="21" font-weight="700" fill="#233d39">Saved daily inflow</text>
+    <path d="M320 512H416" fill="none" stroke="#36735f" stroke-width="3" stroke-linejoin="round" marker-end="url(#arrow-green)" />
+    <path d="M696 512H784" fill="none" stroke="#39718a" stroke-width="3" stroke-linejoin="round" marker-end="url(#arrow-blue)" />
+    <path d="M556 568V620H180V568" fill="none" stroke="#36735f" stroke-width="3" stroke-linejoin="round" marker-end="url(#arrow-green)" />
+    <text x="368" y="488" text-anchor="middle" font-size="19" font-weight="400" fill="#233d39">Release</text>
+    <text x="740" y="488" text-anchor="middle" font-size="19" font-weight="400" fill="#233d39">Outflow</text>
+    <text x="368" y="608" text-anchor="middle" font-size="20" font-weight="400" fill="#233d39">Updated storage</text>
+    <rect x="40" y="64" width="260" height="112" rx="12" fill="#eef3f7" stroke="#39718a" stroke-width="2" />
+    <text x="170.0" y="97.0" text-anchor="middle" font-size="23" font-weight="700" fill="#233d39">Daymet weather</text>
+    <text x="170.0" y="127.0" text-anchor="middle" font-size="21" font-weight="400" fill="#233d39">Precipitation (P)</text>
+    <text x="170.0" y="157.0" text-anchor="middle" font-size="21" font-weight="400" fill="#233d39">Temperature (T)</text>
+    <rect x="40" y="232" width="260" height="96" rx="12" fill="#eef3f7" stroke="#39718a" stroke-width="2" />
+    <text x="170.0" y="272.0" text-anchor="middle" font-size="23" font-weight="700" fill="#233d39">Hamon PET</text>
+    <text x="170.0" y="302.0" text-anchor="middle" font-size="21" font-weight="400" fill="#233d39">T + latitude</text>
+    <rect x="416" y="148" width="240" height="120" rx="12" fill="#eef3f7" stroke="#39718a" stroke-width="2" />
+    <text x="536.0" y="200.0" text-anchor="middle" font-size="23" font-weight="700" fill="#233d39">Rainfall–runoff</text>
+    <text x="536.0" y="230.0" text-anchor="middle" font-size="21" font-weight="400" fill="#233d39">GWLF model</text>
+    <rect x="784" y="148" width="240" height="120" rx="12" fill="#eef3f7" stroke="#39718a" stroke-width="2" />
+    <text x="904.0" y="200.0" text-anchor="middle" font-size="23" font-weight="700" fill="#233d39">Upstream routing</text>
+    <text x="904.0" y="230.0" text-anchor="middle" font-size="21" font-weight="400" fill="#233d39">Lohmann model</text>
+    <text x="40" y="438" text-anchor="start" font-size="25" font-weight="700" fill="#36735f">2  Daily reservoir operation</text>
+    <rect x="40" y="456" width="280" height="112" rx="12" fill="#f0f5f3" stroke="#36735f" stroke-width="2" />
+    <text x="180.0" y="504.0" text-anchor="middle" font-size="23" font-weight="700" fill="#233d39">Reservoir agent</text>
+    <text x="180.0" y="534.0" text-anchor="middle" font-size="21" font-weight="400" fill="#233d39">Rule-based or LLM</text>
+    <rect x="416" y="456" width="280" height="112" rx="12" fill="#f0f5f3" stroke="#36735f" stroke-width="2" />
+    <text x="556.0" y="504.0" text-anchor="middle" font-size="23" font-weight="700" fill="#233d39">Reservoir physics</text>
+    <text x="556.0" y="534.0" text-anchor="middle" font-size="21" font-weight="400" fill="#233d39">Release · Spill · Storage</text>
+    <rect x="784" y="456" width="280" height="112" rx="12" fill="#eef3f7" stroke="#39718a" stroke-width="2" />
+    <text x="924.0" y="504.0" text-anchor="middle" font-size="23" font-weight="700" fill="#233d39">Downstream routing</text>
+    <text x="924.0" y="534.0" text-anchor="middle" font-size="21" font-weight="400" fill="#233d39">Actual outflow</text>
+  </g>
+</svg>

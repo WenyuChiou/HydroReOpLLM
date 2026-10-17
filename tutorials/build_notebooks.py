@@ -61,9 +61,14 @@ def _prepare_current_outputs() -> dict:
     import numpy as np
     import pandas as pd
 
-    plt.rcParams.update({"font.family": "Arial", "font.size": 11,
-                         "axes.titlesize": 12, "axes.labelsize": 11,
-                         "legend.fontsize": 11})
+    # Authoring size is the intended paper width, so fonts need no downscaling.
+    # Embed TrueType fonts in PDF; keep SVG labels as editable text.
+    paper_width_mm, raster_dpi = 180, 600
+    plt.rcParams.update({"font.family": "Arial", "font.size": 10,
+                         "axes.titlesize": 10, "axes.labelsize": 10,
+                         "xtick.labelsize": 9, "ytick.labelsize": 9,
+                         "legend.fontsize": 9, "pdf.fonttype": 42,
+                         "svg.fonttype": "none"})
 
     root = ROOT / "examples/fe_walter/coupled/outputs"
     rule_path = root / "2016/daily.csv"
@@ -131,40 +136,42 @@ def _prepare_current_outputs() -> dict:
     colors = {LABELS["rule"]: "#3b6ea8", LABELS["llm_available"]: "#d97932",
               LABELS["llm_knowledge"]: "#2f8f68"}
     figures = []
-    fig, ax = plt.subplots(figsize=(10.5, 4.8))
+    fig, ax = plt.subplots(figsize=(paper_width_mm / 25.4, 82 / 25.4),
+                           layout="constrained")
     for label, group in combined.groupby("method_label", sort=False):
         ax.plot(pd.to_datetime(group["date"]), group["pool_elevation_end_ft"],
-                label=label, color=colors[label], linewidth=1.45)
+                label=label, color=colors[label], linewidth=1.1)
     ax.axhline(1300, color="#666", linestyle=":", linewidth=1)
     ax.axhline(1370, color="#666", linestyle=":", linewidth=1)
-    ax.set(title="Daily water elevation, 2016", ylabel="End-of-day elevation (ft NGVD 29)", xlabel="Date")
-    ax.legend(frameon=False)
+    ax.set(ylabel="Water elevation (ft NGVD 29)", xlabel="2016",
+           xlim=(pd.Timestamp(dates[0]), pd.Timestamp(dates[-1])))
+    ax.legend(frameon=False, loc="center")
     ax.xaxis.set_major_locator(mdates.MonthLocator(interval=2))
     ax.xaxis.set_major_formatter(mdates.DateFormatter("%b"))
-    fig.tight_layout()
     for ext in ("png", "svg", "pdf"):
         path = CURRENT / f"daily_water_elevation.{ext}"
-        fig.savefig(path, bbox_inches="tight", **({"dpi": 300} if ext == "png" else {}))
+        fig.savefig(path, **({"dpi": raster_dpi} if ext == "png" else {}))
         if ext == "svg":
             path.write_bytes(("\n".join(line.rstrip() for line in path.read_text(encoding="utf-8").splitlines()) + "\n").encode("utf-8"))
         figures.append(path)
     plt.close(fig)
 
-    fig, axes = plt.subplots(3, 1, figsize=(10.5, 8), sharex=True, sharey=True)
+    fig, axes = plt.subplots(3, 1, figsize=(paper_width_mm / 25.4, 125 / 25.4),
+                             sharex=True, sharey=True, layout="constrained")
     ymax = float(combined["controlled_release_cms"].max()) * 1.04
-    for ax, (label, group) in zip(axes, combined.groupby("method_label", sort=False), strict=True):
+    for panel, (ax, (label, group)) in enumerate(zip(
+            axes, combined.groupby("method_label", sort=False), strict=True)):
         ax.bar(pd.to_datetime(group["date"]), group["controlled_release_cms"],
                width=1, color=colors[label], linewidth=0)
-        ax.set(ylabel="m³/s", ylim=(0, ymax))
-        ax.text(0.01, 0.88, label, transform=ax.transAxes, fontweight="bold", va="top")
-    axes[0].set_title("Daily controlled release, 2016")
-    axes[-1].set_xlabel("Date")
+        ax.set(ylabel="Release (m³/s)", ylim=(0, ymax),
+               xlim=(pd.Timestamp(dates[0]), pd.Timestamp(dates[-1])))
+        ax.set_title(f"({chr(97 + panel)}) {label}", loc="left", fontweight="bold", pad=4)
+    axes[-1].set_xlabel("2016")
     axes[-1].xaxis.set_major_locator(mdates.MonthLocator(interval=2))
     axes[-1].xaxis.set_major_formatter(mdates.DateFormatter("%b"))
-    fig.tight_layout()
     for ext in ("png", "svg", "pdf"):
         path = CURRENT / f"controlled_release_daily.{ext}"
-        fig.savefig(path, bbox_inches="tight", **({"dpi": 300} if ext == "png" else {}))
+        fig.savefig(path, **({"dpi": raster_dpi} if ext == "png" else {}))
         if ext == "svg":
             path.write_bytes(("\n".join(line.rstrip() for line in path.read_text(encoding="utf-8").splitlines()) + "\n").encode("utf-8"))
         figures.append(path)
@@ -175,6 +182,9 @@ def _prepare_current_outputs() -> dict:
         "purpose": "Saved-data teaching comparison; no new provider request, hydrology run, or reservoir simulation.",
         "methods": list(LABELS.values()),
         "period": {"start": dates[0], "end": dates[-1], "days_per_method": 366},
+        "figure_layout": {"width_mm": paper_width_mm, "png_dpi": raster_dpi,
+                          "minimum_font_pt": 9, "pdf_fonttype": 42,
+                          "svg_labels": "editable text"},
         "units": {"inflow_cms": "m3/s", "controlled_release_cms": "m3/s",
                   "spill_cms": "m3/s", "pool_elevation_end_ft": "ft N.G.V.D.",
                   "storage_end_m3": "m3"},
@@ -214,7 +224,7 @@ def main_cells() -> list[dict]:
 Follow the maintained 2016 configuration from `experiment.yaml` through
 hydrology, the reservoir network, a Rule-based operator, and the two LLM
 methods: **Rule-based**, **LLM with available information**, and **LLM with
-retrieved knowledge**. All three use the same saved inflow and physical state.
+retrieved knowledge**. All three use the same inflow, initial state, and physical parameters.
 
 This notebook reads committed files only. It makes no model request and runs no
 hydrology or reservoir simulation.

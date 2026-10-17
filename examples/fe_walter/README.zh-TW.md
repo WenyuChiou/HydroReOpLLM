@@ -22,16 +22,16 @@ Creek 交會處，橫跨 Carbon 與 Luzerne counties。水壩建於 1961 年。�
 ![F.E. Walter 模式集水區、河流、水壩與測站](../../docs/figures/fe-walter-catchment.png)
 
 **圖 1。** 模式子集水區、水壩、測站與 1996–2025 年平均年降水量。框線標出水庫
-位置，水面與河流採用相同藍色；菱形表示水壩／出口。七個實際模式貢獻單元合計
-**750.811 km²**；這是模式集水區面積，不是官方水庫水面或專案土地面積。原生模型
-中另有 1 ha 的人工匯總出口，此面積不計入上述總和。**資料來源：** Esri、CGIAR、
-USGS、data.pa.gov、TomTom、Garmin、SafeGraph、METI/NASA、EPA、NPS、USDA、
-USFWS、New Jersey Office of GIS、FAO、NOAA。
+位置，菱形表示水壩／出口；水面與河流採用相同藍色。[^map-sources]
 ```
+
+[^map-sources]: Esri、CGIAR、USGS、data.pa.gov、TomTom、Garmin、SafeGraph、
+    METI/NASA、EPA、NPS、USDA、USFWS、New Jersey Office of GIS、FAO、NOAA。
 
 ## 已接受的水文邊界
 
-七個模式貢獻單元合計 750.811 km²。HydroCNHS 使用每日氣象與集水區屬性產生
+七個模式貢獻單元合計 750.811 km²，不計原生模型中 1 ha 的人工匯總出口。
+這是集水區面積，不是官方水庫水面或專案土地面積。HydroCNHS 使用每日氣象與集水區屬性產生
 壩址入流；操作實驗從已接受的 1989–2025 序列選取 2016 年。更換 operator
 不會改變或重新校正水文。
 

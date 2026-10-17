@@ -11,6 +11,13 @@
     "end": "2016-12-31",
     "days_per_method": 366
   },
+  "figure_layout": {
+    "width_mm": 180,
+    "png_dpi": 600,
+    "minimum_font_pt": 9,
+    "pdf_fonttype": 42,
+    "svg_labels": "editable text"
+  },
   "units": {
     "inflow_cms": "m3/s",
     "controlled_release_cms": "m3/s",
@@ -66,11 +73,11 @@
   },
   "artifacts": {
     "daily.csv": "cf3187a46b10298974684dd41cbb46880057b9968cf5a2f9ecfca4b2dcd9d62e",
-    "daily_water_elevation.png": "049d6ccd9fe40fecbb9b133b4325b26be0366eb4fc98f1cf1aec4e81d628befc",
-    "daily_water_elevation.svg": "58c92831e1a128998549402e1516de5f2c43566000d8d58acd54923f58caa1c8",
-    "daily_water_elevation.pdf": "ed812454859cd755afda17f9d88a03299b88d6187640e34460de28610b3de961",
-    "controlled_release_daily.png": "16c53d29e84202a6a31134046c40a030151adc2788b43a5114ebe5a05bcb70b3",
-    "controlled_release_daily.svg": "243c10c4a87bda4de43ec01572edf7b107822cae85f81ea8c67fd13d44a6d0ed",
-    "controlled_release_daily.pdf": "ca932109856919f3ac64a1af1c40ffba6a8dd7945560de886cf21672ae1fde39"
+    "daily_water_elevation.png": "59965e071529ab9dde152d2147f1beff3646b0129311d07d196847a296cf7489",
+    "daily_water_elevation.svg": "fa7f17e065fddfc76e0d4eb86b076c4587bd4ed97701dd68dfb3df2b0361b5d5",
+    "daily_water_elevation.pdf": "445c056381ef4e9cfcfbd3a5c5bbd287ab45038987861fa0f6acacd1115ce7f9",
+    "controlled_release_daily.png": "8e558a46f28c3187cf8fce380c76856c7bd760eea0a789e28b0c20f50b0ead9f",
+    "controlled_release_daily.svg": "10d0f3024a88a9f04a1dafae872d368c1b54b0ed8afc1031c6e3a91dc709c270",
+    "controlled_release_daily.pdf": "1c5c955bd33cc8810d7cdb304a742849e47e64ed6602c9dd9375b26c2d57688c"
   }
 }
