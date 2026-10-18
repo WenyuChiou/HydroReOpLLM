@@ -11,7 +11,7 @@ dependencies = ["joblib", "matplotlib", "numpy", "pandas", "ruamel.yaml", "scipy
 
 [project.optional-dependencies]
 hydrocnhs = [] # Compatibility extra: the complete pinned source is now bundled.
-test = ["pytest>=8", "pytest-subtests"]
+test = ["pytest>=8", "pytest-subtests", "setuptools>=70.1"]
 docs = ["sphinx>=8,<9", "myst-nb>=1.2,<2"]
 
 [project.scripts]
