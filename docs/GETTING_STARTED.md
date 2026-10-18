@@ -5,7 +5,8 @@ Run the commands below from a PowerShell terminal.
 
 ## Install in a virtual environment
 
-Use Python 3.12 with the project's pinned dependency constraints:
+Python 3.12 is the minimum supported version and the version used in CI.
+Use it with the project's pinned dependency constraints:
 
 ```powershell
 git clone https://github.com/WenyuChiou/HydroOpsLLM.git

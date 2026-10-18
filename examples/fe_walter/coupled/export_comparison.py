@@ -31,8 +31,8 @@ ENGINES = ("original", "framework")
 MODEL = "gemma4:12b"
 DIGEST = "4eb23ef187e2c5462566d6a1d3bbbc2f1346d0b4327cbb66d58fffbcc9b2b05c"
 PROMPTS = {
-    "llm_available": ("zeroshot_seasonal_v1_system.txt", "0c557d4e51e4bb938d36c65808eb91e9ba5bc29db8b37d958149fee38bae9f75"),
-    "llm_knowledge": ("dkp_seasonal_v2_system.txt", "ae5e19ee4a8f3749d80f06088c7ee7f4cb14997a72d40a9d39c1ab2e51a7bf48"),
+    "llm_available": ("available_information.txt", "0c557d4e51e4bb938d36c65808eb91e9ba5bc29db8b37d958149fee38bae9f75"),
+    "llm_knowledge": ("retrieved_knowledge.txt", "ae5e19ee4a8f3749d80f06088c7ee7f4cb14997a72d40a9d39c1ab2e51a7bf48"),
 }
 
 
@@ -44,6 +44,23 @@ def require(condition: bool, message: str) -> None:
 
 def sha(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def validated_prompt_path(method: str, root: Path = ROOT) -> Path:
+    """Resolve one current canonical prompt and verify its accepted bytes."""
+    if method not in PROMPTS:
+        raise ValueError(f"unknown comparison method: {method}")
+    name, expected = PROMPTS[method]
+    path = root / "examples" / "fe_walter" / "prompts" / name
+    if not path.is_file():
+        raise FileNotFoundError(f"current canonical prompt is missing for {method}: {path}")
+    actual = sha(path)
+    if actual != expected:
+        raise ValueError(
+            f"current canonical prompt checksum mismatch for {method}: "
+            f"expected {expected}, got {actual}"
+        )
+    return path
 
 
 def value_sha(value: object) -> str:
@@ -237,8 +254,8 @@ def publish(run: Path, reports: dict[str, Path], output: Path) -> dict:
     anik = load_anik(ROOT)
     cfg = next(c for c in anik.RESERVOIRS if c.inflow_reservoir_key == "fe_walter")
     # These are identities of accepted experiment inputs, not a generic-core default.
-    for name, digest in PROMPTS.values():
-        require(sha(ROOT / "examples/fe_walter/prompts" / name) == digest, "Invalid saved comparison evidence: sha(ROOT / 'examples/fe_walter/prompts' / name) == digest")
+    for method in METHODS:
+        validated_prompt_path(method)
     summary = {"schema_version": "fe-walter-engine-comparison.v1", "model": MODEL,
                "model_digest": DIGEST, "period": {"start": "2016-01-01", "end": "2016-12-31", "days": 366},
                "model_controls": {"temperature": 0.7, "num_predict": 2048, "num_ctx": 16384,

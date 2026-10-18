@@ -90,8 +90,15 @@
     },
     "src/hydrocnhs/visual.py": {
       "upstream_path": "src/hydrocnhs/visual.py",
-      "sha256": "6dcf127865e2dd2475254505c7488d90fdab96d0362884ecfb1fec6e5d2faaf3",
-      "bytes": 9657
+      "upstream_sha256": "6dcf127865e2dd2475254505c7488d90fdab96d0362884ecfb1fec6e5d2faaf3",
+      "sha256": "7abef6ab6db93bf531d6953ff8bb5a95a72ee54f35a2194ea0efb7c396701f77",
+      "bytes": 9764,
+      "patch": {
+        "id": "hydrocnhs-visual-indicator-api",
+        "version": 1,
+        "path": "third_party/hydrocnhs/patches/visual-indicator-api.patch",
+        "sha256": "f75a76941bdad629cfc021d02663f129e633a691697ac5f0db8a5b0304586260"
+      }
     },
     "src/hydrocnhs/water_quality_model/__init__.py": {
       "upstream_path": "src/hydrocnhs/water_quality_model/__init__.py",
