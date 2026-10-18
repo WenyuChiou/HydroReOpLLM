@@ -133,6 +133,9 @@ def test_result_figures_keep_paper_width_fonts_and_editable_labels():
         for method in ('Rule-based', 'LLM with available information',
                        'LLM with retrieved knowledge'):
             assert method in labels, 'Method labels must remain editable text'
+        if stem != 'controlled_release_daily':
+            assert 'Winter target: 1300 ft' in labels
+            assert 'Summer limit: 1370 ft' in labels
         with Image.open(folder / (stem + '.png')) as image:
             assert abs(image.width - 180 / 25.4 * 600) <= 1
             assert image.info['dpi'][0] == pytest.approx(600, abs=1)
@@ -169,6 +172,11 @@ def test_combined_figure_has_shared_calendar_exact_lines_grouped_bars_and_large_
         assert len(elevation.lines) == 5, 'Three method lines plus two dotted guides'
         assert sorted(line.get_ydata()[0] for line in elevation.lines
                       if line.get_linestyle() == ':') == [1300, 1370]
+        guides = {text.get_text(): text for text in elevation.texts}
+        for label, level in (('Winter target: 1300 ft', 1300),
+                             ('Summer limit: 1370 ft', 1370)):
+            assert guides[label].xy == (0.74, level)
+            assert guides[label].get_fontsize() >= 9
 
         bars = release.patches
         assert len(bars) == 3 * 366

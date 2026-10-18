@@ -20,6 +20,29 @@ The main notebook omits engine-parity tables and the raw daily audit gallery.
 Those materials answer implementation and diagnostic questions, not the
 tutorial's three-method research comparison.
 
+## Reading the retrieved-knowledge trajectory
+
+The current plot covers 2016, with 366 daily decisions per method. The winter
+plateau near 1300 ft reflects decisions that approximately pass inflow. The
+abrupt spring rise also depends on inflow: on April 8, inflow is 63.63 m³/s
+while controlled release is 7.08 m³/s, and the pool rises 26.69 ft.
+
+The October undershoot has a different explanation. Saved input metadata on
+October 12–14 correctly identifies `target_period="summer"`; the requests give
+the correct date and start fall drawdown on October 15. Retrieved guidance describes the transition
+as “through mid-October” and includes the 1300 ft winter normal pool. The replies
+nevertheless apply the October 15–31 window early and request 1,000 cfs
+(28.316847 m³/s). This confirms a date-application error in those replies; this
+single run does not isolate retrieval wording as its cause.
+
+On October 12–15, inflow is only 3.31–3.18 m³/s. The saved physics implements
+the requested release without adjustment and records zero water-balance
+residual, while the pool falls to 1287.80 ft on October 15. On October 16, the
+reply recognizes the low level and reduces release to 50 cfs (1.41584235 m³/s).
+Seasonal audits record the operating problem; they do not override decisions.
+These records explain the displayed shape without changing prompts, repairing
+saved decisions, or issuing another model request.
+
 ## Preserved evidence locations
 
 | Evidence | Period | Intended use |

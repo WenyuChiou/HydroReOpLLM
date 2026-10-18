@@ -10,9 +10,16 @@ three use the same accepted daily inflow and initial physical state.
 
 **Figure 1.** Saved 2016 operations for **Rule-based**, **LLM with available
 information**, and **LLM with retrieved knowledge**. (A) End-of-day water
-elevation in ft NGVD29; dotted guides at 1300 and 1370 ft orient the
-study-defined seasonal windows. (B) Daily controlled release in m³/s; grouped
+elevation in ft NGVD29, with the 1300 ft winter target and 1370 ft summer upper
+limit labeled. Winter compliance is 1297–1303 ft on November 1–March 14; the
+summer ceiling applies on May 10–October 14. These are study criteria, not
+enforced release constraints. (B) Daily controlled release in m³/s; grouped
 bars exclude spill. Both panels share the calendar axis.
+
+In the retrieved-knowledge run, replies on October 12–14 apply the October
+15–31 drawdown window early. Continued release lowers the pool to **1287.8 ft
+on October 15**. This is saved decision behavior; seasonal audits report it
+without changing the release. See the [decision evidence](engine_comparison.md#reading-the-retrieved-knowledge-trajectory).
 
 The combined teaching table contains 366 unique ordered dates per method. The
 builder checked matching inflow within 1e-10 m³/s for CSV serialization, the

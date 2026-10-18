@@ -53,7 +53,9 @@ hydrology, or reservoir execution.
 
 **Figure 1.** Saved 2016 operations: (A) end-of-day water elevation in ft NGVD 29;
 (B) daily controlled release in m³/s, excluding spill. The panels share dates
-and method colors; the 1300 and 1370 ft guides indicate study-defined levels.
+and method colors. Labeled guides mark the 1300 ft winter target and 1370 ft
+summer upper limit; see the [seasonal criteria](../README.md#seasonal-pool-levels)
+for their applicable dates and tolerance band.
 
 Teaching artifacts: [combined CSV](outputs/current_tutorial/daily.csv),
 [provenance](outputs/current_tutorial/provenance.json),

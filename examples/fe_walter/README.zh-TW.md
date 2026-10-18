@@ -37,15 +37,22 @@ Creek 交會處，橫跨 Carbon 與 Luzerne counties。水壩建於 1961 年。�
 
 | 資料或期間 | 本案例用途 |
 |---|---|
-| 每日氣象 | Daymet V4 R1 降水、最低溫與最高溫，依 polygon overlap 加權 |
+| 每日氣象 | Daymet V4 R1 降水（mm/day）、最低溫與最高溫（°C），依子集水區與網格重疊面積加權；日均溫為最高、最低溫的平均 |
 | 有紀錄的氣象補值 | nClimGrid-Daily 僅補 leap year 的 12 月 31 日，不作一般缺值填補 |
-| PET | 由日平均溫與子集水區緯度計算 HydroCNHS Hamon PET |
+| PET | 由日平均溫與子集水區緯度計算 HydroCNHS Hamon PET（cm/day） |
 | 土地覆蓋 | NLCD 2021，以 60 m 彙整，並在歷史模擬期間保持固定 |
 | 土壤 | SSURGO polygons 與 NRCS Soil Data Access 屬性 |
+| 集水區幾何 | 子集水區邊界、面積、形心緯度與河道路徑長度 |
+| 觀測流量 | USGS 01447500 每日流量，用於水文校正與驗證 |
 | 校正／驗證 | 1990–2010／2011–2020，測站 USGS 01447500 |
 
 USGS 01447500 涵蓋七區中的兩區；其餘五區不是各自有測站的獨立驗證單元。完整資料、
 指標與前推期間見[水文、參數與 C&V](hydrology.zh-TW.md)。
+
+該測站的校正／驗證 KGE 為 **0.733／0.711**，NSE 為 **0.443／0.458**。
+這些指標評估入流水文模型，不是 LLM 操作表現。原生建模與校正方法連至
+[HydroCNHS 教學](https://github.com/cylin928/HydroCNHS/tree/main/tutorials)；
+本案例的參數表與完整指標保留於 C&V 參考章節。
 
 ## 共用物理假設
 

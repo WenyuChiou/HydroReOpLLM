@@ -29,6 +29,17 @@ METHOD_COLORS = {"rule": "#526B8A", "llm_available": "#BF795E",
                  "llm_knowledge": "#4F8A7B"}
 
 
+def _add_pool_level_guides(ax):
+    """Label the case's winter setpoint and summer ceiling, not hard constraints."""
+    for level, label in ((1300, "Winter target: 1300 ft"),
+                         (1370, "Summer limit: 1370 ft")):
+        ax.axhline(level, color="#7B8185", linestyle=":", linewidth=0.8)
+        ax.annotate(label, xy=(0.74, level), xycoords=("axes fraction", "data"),
+                    xytext=(0, 3), textcoords="offset points", ha="right", va="bottom",
+                    fontsize=9, color="#525B61", zorder=5,
+                    bbox={"facecolor": "white", "edgecolor": "none", "alpha": 0.9, "pad": 1.2})
+
+
 def plot_reservoir_operations(daily):
     """Return a paper-width figure of saved elevation and controlled release.
 
@@ -60,8 +71,7 @@ def plot_reservoir_operations(daily):
             release.bar(dates + pd.to_timedelta((index - 1) * 0.28, unit="D"),
                         rows["controlled_release_cms"], width=0.26,
                         color=color, linewidth=0, label=label, zorder=3)
-        for level in (1300, 1370):
-            elevation.axhline(level, color="#7B8185", linestyle=":", linewidth=0.8)
+        _add_pool_level_guides(elevation)
         elevation.set(title="(A) Water elevation", ylabel="Water elevation (ft NGVD 29)")
         release.set(title="(B) Controlled release", ylabel="Release (m³/s)", xlabel="2016",
                     ylim=(0, float(daily["controlled_release_cms"].max()) * 1.08))
@@ -195,8 +205,7 @@ def _prepare_current_outputs() -> dict:
     for label, group in combined.groupby("method_label", sort=False):
         ax.plot(pd.to_datetime(group["date"]), group["pool_elevation_end_ft"],
                 label=label, color=colors[label], linewidth=1.1)
-    ax.axhline(1300, color="#666", linestyle=":", linewidth=1)
-    ax.axhline(1370, color="#666", linestyle=":", linewidth=1)
+    _add_pool_level_guides(ax)
     ax.set(ylabel="Water elevation (ft NGVD 29)", xlabel="2016",
            xlim=(pd.Timestamp(dates[0]), pd.Timestamp(dates[-1])))
     ax.legend(frameon=False, loc="center", fontsize=10.5)
@@ -361,7 +370,10 @@ framework LLM rows from `outputs/gemma4_2016_comparison/daily.csv`. It verifies
 366 unique ordered dates per method, common inflow, shared initial state, and
 units. It performs no interpolation. One figure shares the date axis: (A)
 end-of-day pool elevation in feet NGVD 29; (B) daily controlled release in m³/s,
-shown as grouped bars. Spill is excluded. Colors identify the same methods in both panels.'''),
+shown as grouped bars. Spill is excluded. Colors identify the same methods in both panels.
+The winter target is 1300 ft (1297–1303 ft on November 1–March 14); the summer
+limit is 1370 ft on May 10–October 14. These guides are study criteria, not
+constraints imposed on each release.'''),
         code('''current = coupled / "outputs/current_tutorial"
 daily = pd.read_csv(current / "daily.csv")
 provenance = json.loads((current / "provenance.json").read_text(encoding="utf-8"))

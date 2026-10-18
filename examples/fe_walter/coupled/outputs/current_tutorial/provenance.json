@@ -84,14 +84,14 @@
   },
   "artifacts": {
     "daily.csv": "cf3187a46b10298974684dd41cbb46880057b9968cf5a2f9ecfca4b2dcd9d62e",
-    "daily_water_elevation.png": "211f3fee32078fad869e366e16a23d057d11fd493cd9588477ab9aab3b588c5d",
-    "daily_water_elevation.svg": "4f9572117c190401d3c6caf18dbe1192d2c04d5eda3cd137bb620ec642f3b798",
-    "daily_water_elevation.pdf": "dc3bad081c11033cc4936973a791091aff4bc1ca74e18018fd670f8592625781",
+    "daily_water_elevation.png": "087a3a75a98127b7cb704b9126a93978129ccce5719b2fcdd1c7822cbfe91268",
+    "daily_water_elevation.svg": "846757de94459ee5d94dd58a8fa987e0020853667da2761de0a4663beb31d262",
+    "daily_water_elevation.pdf": "54a489ab1acde8b47e18cdd981ccd8c23c9aac7787499e48b1c201e9c99c3947",
     "controlled_release_daily.png": "b3a087e1e40d74cf14789a57f7cac17d03179fd9b40fcedc958d1203de9889c3",
-    "controlled_release_daily.svg": "506489bde316522a988253e9f49505b0440b3901661e3aaee2a8bfae4550054f",
-    "controlled_release_daily.pdf": "e9bcfeabea421d5c044a8e146df6e65b9150155c1b951a13cc2dbc4a118e9dd5",
-    "reservoir_operations.png": "ec1161882b01f70c7cf4c45179ac2b9d6454befce05643cb73c97d30f3d0366a",
-    "reservoir_operations.svg": "7bdb3145300218cf58eeb20dc049fa38cbe943da1a519e3304c48abb109504e3",
-    "reservoir_operations.pdf": "b1192542083a891ef5acb0fcdab0fd3d35a9a85eb9b38f23a8c16eee806a3b71"
+    "controlled_release_daily.svg": "4bd121ec91da109f67d639f8e4e8c8af52a4d8ab0c7f63cb3bc76aa21a73f5f6",
+    "controlled_release_daily.pdf": "171690e7c141feb909f1fd01307f786d4fa69bc635a4fa61d91a7aa213933029",
+    "reservoir_operations.png": "8b43bce4104f5bfc211335d3dab4fa6d0a745d6dbc04b9a21bb93995afabc67a",
+    "reservoir_operations.svg": "db1a74358c764453c4427daf1fecc826ae525d9a6eead9f26bda86a8391eea89",
+    "reservoir_operations.pdf": "f0833690b1ecc9a67e711651f382ae3bdfaf5c9a5659dd644487a4b00336d5c2"
   }
 }

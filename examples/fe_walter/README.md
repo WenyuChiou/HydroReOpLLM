@@ -42,16 +42,24 @@ the operator does not change or recalibrate hydrology.
 
 | Data or period | Use in this case |
 |---|---|
-| Daily weather | Daymet V4 R1 precipitation, minimum temperature, and maximum temperature, weighted by polygon overlap |
+| Daily weather | Daymet V4 R1 precipitation (mm/day) and minimum/maximum temperature (°C), weighted by polygon overlap; daily mean temperature is their average |
 | Documented weather patches | nClimGrid-Daily only for leap-year December 31 entries, not general gap filling |
-| PET | HydroCNHS Hamon PET derived from daily mean temperature and subcatchment latitude |
+| PET | HydroCNHS Hamon PET (cm/day), derived from daily mean temperature and subcatchment latitude |
 | Land cover | NLCD 2021 summarized at 60 m and treated as static across the historical simulation |
 | Soil | SSURGO polygons and NRCS Soil Data Access attributes; no gSSURGO raster |
+| Catchment geometry | Subcatchment boundaries, areas, centroid latitude, and river-path lengths |
+| Observed flow | USGS 01447500 daily streamflow for hydrological calibration and validation |
 | Calibration / validation | 1990–2010 / 2011–2020 at USGS 01447500 |
 
 USGS 01447500 covers two of the seven units. The other five are not independently
 gauge-validated units. Read [hydrology, parameters, and C&V](hydrology.md) for
 the accepted data, metrics, and forward-simulation boundary.
+
+The accepted hydrology has calibration/validation KGE of **0.733/0.711** and NSE
+of **0.443/0.458** at that gauge. These values assess the inflow model, not the
+LLM operator. Native model-building and calibration procedures are covered by
+the [HydroCNHS tutorials](https://github.com/cylin928/HydroCNHS/tree/main/tutorials).
+The case-specific parameter tables and full metrics remain in the C&V reference.
 
 ## Common case setup
 

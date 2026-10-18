@@ -12,8 +12,14 @@
 
 *圖 1。**Rule-based**、**LLM with available information** 與
 **LLM with retrieved knowledge** 的 2016 年保存操作結果。(A) 日末水位，
-單位為 ft NGVD29；1300 與 1370 ft 虛線協助閱讀本研究定義的季節水位範圍。
+單位為 ft NGVD29，標示冬季目標 1300 ft 與夏季上限 1370 ft。
+冬季檢查範圍為 11 月 1 日至 3 月 14 日的 1297–1303 ft；夏季上限適用於
+5 月 10 日至 10 月 14 日。這些是研究定義的檢查標準，不是強制放流限制。
 (B) 每日控制放流，單位為 m³/s；分組柱狀圖不包含 spill。兩個面板共用日期軸。*
+
+檢索知識情境在 10 月 12–14 日的回覆中，提前套用 10 月 15–31 日的退水窗口。
+持續放流使水位在 **10 月 15 日降至 1287.8 ft**。這是已保存的決策行為；
+季節 audit 會記錄問題，不會改寫放流。詳見[決策證據](engine_comparison.md#reading-the-retrieved-knowledge-trajectory)。
 
 [完整精度每日資料](coupled/outputs/current_tutorial/daily.csv) ·
 [來源紀錄](coupled/outputs/current_tutorial/provenance.json) ·
