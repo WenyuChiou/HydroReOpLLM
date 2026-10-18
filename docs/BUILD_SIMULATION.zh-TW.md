@@ -39,9 +39,8 @@
 連線。目前的水庫平衡使用提供的入流與控制放流、計算溢流，並假設蒸發與
 滲漏為零。
 
-下一章：[Rule-based 與 LLM operator](CONFIGURATION.md)。
-
 ![水文、水庫與 agent ID 對應](figures/reservoir-agent-mapping.svg)
 
-*圖 1。明確的 ID 串接原生水流 binding、水庫物理、有向水流連線，以及每座
-受控水庫的 operator。*
+*圖 1。HydroCNHS 將逕流遞送到出口，再以 binding 接到操作入流節點。藍色箭頭
+表示水流，橘色箭頭表示水庫狀態與 agent 的放流建議。
+[可編輯 draw.io 原檔](figures/reservoir-agent-mapping.drawio)。*

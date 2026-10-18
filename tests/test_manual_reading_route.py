@@ -83,7 +83,8 @@ def test_generic_files_download_locally_and_main_route_reaches_cases_after_setti
 
 def test_teaching_diagrams_have_accessible_editable_text():
     namespace = {'s': 'http://www.w3.org/2000/svg'}
-    names = ('reservoir-agent-mapping', 'prompt-context-workflow', 'fe-walter-weather-workflow')
+    names = ('simulation-stages', 'reservoir-agent-mapping',
+             'prompt-context-workflow', 'fe-walter-weather-workflow')
     for name in names:
         root = ET.parse(ROOT / 'docs/figures' / (name + '.svg')).getroot()
         assert root.get('role') == 'img'
@@ -93,3 +94,8 @@ def test_teaching_diagrams_have_accessible_editable_text():
         assert root.find('s:desc', namespace).text
         assert len(root.findall('.//s:text', namespace)) >= 6
         assert not root.findall('.//s:image', namespace), 'Text must remain editable, not baked into a bitmap'
+        graph = ET.parse(ROOT / 'docs/figures' / (name + '.drawio')).getroot()
+        vertices = {cell.get('id') for cell in graph.iter('mxCell') if cell.get('vertex') == '1'}
+        edges = [cell for cell in graph.iter('mxCell') if cell.get('edge') == '1']
+        assert len(vertices) >= 6 and len(edges) >= 6
+        assert all(edge.get('source') in vertices and edge.get('target') in vertices for edge in edges)

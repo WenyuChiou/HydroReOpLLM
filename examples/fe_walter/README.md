@@ -3,20 +3,15 @@
 [English](README.md) | [繁體中文](README.zh-TW.md)
 
 This case connects accepted HydroCNHS hydrology to one controlled reservoir and
-compares three decision methods: **Rule-based**, **LLM with available
-information**, and **LLM with retrieved knowledge**. Start with the
-[maintained tutorial](../../tutorials/fe_walter.md).
+compares **Rule-based**, **LLM with available information**, and **LLM with
+retrieved knowledge** decisions. Start with the [maintained tutorial](../../tutorials/fe_walter.md).
 
 ## Site and study scope
 
 F.E. Walter Dam is near White Haven, Pennsylvania, at the confluence of the
-Lehigh River and Bear Creek in Carbon and Luzerne counties. The dam was
-constructed in 1961. Its authorized purposes are **Flood Risk Management** and
-**Recreation**. Releases also support downstream whitewater boating and fishing
-when stored water and flood-management priorities allow. See the U.S. Army
-Corps of Engineers [project page](https://www.nap.usace.army.mil/Missions/Civil-Works/Francis-E-Walter-Dam/),
-[re-evaluation study](https://www.nap.usace.army.mil/Missions/Factsheets/Fact-Sheet-Article-View/Article/490871/francis-e-walter-dam-re-evaluation-study/),
-and [flow-management plan and schedule](https://www.nap.usace.army.mil/Missions/Civil-Works/Francis-E-Walter-Dam/Flow-Management-Plan-Schedule/).
+Lehigh River and Bear Creek. The U.S. Army Corps of Engineers operates it for
+flood-risk management and recreation, with seasonal releases that can also
+support downstream boating and fishing [[1]](#fe-walter-ref-1).
 
 ```{figure-md} fe-walter-study-area
 :class: study-area-figure
@@ -31,88 +26,105 @@ dam/outlet. Water surfaces and rivers share the same blue.[^map-sources]
 [^map-sources]: Esri, CGIAR, USGS, data.pa.gov, TomTom, Garmin, SafeGraph,
     METI/NASA, EPA, NPS, USDA, USFWS, New Jersey Office of GIS, FAO, and NOAA.
 
-## Hydrological inputs and evaluation
+## Climate and hydrology
 
-The seven modeled contributing units total 750.811 km², excluding the native
-model's 1 ha artificial aggregation outlet. This is watershed area, not official
-reservoir surface or project property area. HydroCNHS uses daily
-weather and catchment properties to generate routed inflow at the dam. The
-operation experiment selects 2016 from the accepted 1989–2025 series. Changing
-the operator does not change or recalibrate hydrology.
+The accepted forcing contains daily precipitation, temperature, and PET for
+seven contributing units from 1989 through 2025. Precipitation and minimum and
+maximum temperature come from Daymet V4 R1 [[2]](#fe-walter-ref-2); nClimGrid-Daily fills
+the documented December 31 entries in leap years [[3]](#fe-walter-ref-3). The chart sums
+area-weighted daily precipitation and saved PET within each month and averages
+area-weighted daily mean temperature. This is display aggregation only: saved
+PET is converted from cm to mm, without recalculation or weather resampling.
 
-| Data or period | Use in this case |
-|---|---|
-| Daily weather | Daymet V4 R1 precipitation (mm/day) and minimum/maximum temperature (°C), weighted by polygon overlap; daily mean temperature is their average |
-| Documented weather patches | nClimGrid-Daily only for leap-year December 31 entries, not general gap filling |
-| PET | HydroCNHS Hamon PET (cm/day), derived from daily mean temperature and subcatchment latitude |
-| Land cover | NLCD 2021 summarized at 60 m and treated as static across the historical simulation |
-| Soil | SSURGO polygons and NRCS Soil Data Access attributes; no gSSURGO raster |
-| Catchment geometry | Subcatchment boundaries, areas, centroid latitude, and river-path lengths |
-| Observed flow | USGS 01447500 daily streamflow for hydrological calibration and validation |
-| Calibration / validation | 1990–2010 / 2011–2020 at USGS 01447500 |
+HydroCNHS computes daily Hamon PET as implemented in the native source
+[[4]](#fe-walter-ref-4):
 
-USGS 01447500 covers two of the seven units. The other five are not independently
-gauge-validated units. Read [hydrology, parameters, and C&V](hydrology.md) for
-the accepted data, metrics, and forward-simulation boundary.
+$$
+\mathrm{PET}=\left(\frac{D}{12}\right)^2\exp\left(\frac{T}{16}\right)
+\quad \text{mm day}^{-1},
+$$
 
-The accepted hydrology has calibration/validation KGE of **0.733/0.711** and NSE
-of **0.443/0.458** at that gauge. These values assess the inflow model, not the
-LLM operator. Native model-building and calibration procedures are covered by
-the [HydroCNHS tutorials](https://github.com/cylin928/HydroCNHS/tree/main/tutorials).
-The case-specific parameter tables and full metrics remain in the C&V reference.
+where $D$ is daylight duration (hours), calculated from latitude and day of year,
+and $T$ is daily mean
+temperature (°C); the implementation sets PET to zero when $T\leq0$ °C and
+stores the result in cm/day. PET drives the catchment runoff model together with
+precipitation and temperature. It is not subtracted as direct reservoir
+evaporation in this case, whose reservoir losses are set to zero.
 
-## Common case setup
+The seven units total 750.811 km². Calibration fits hydrological
+parameters against observed flow, whereas validation freezes those parameters
+and evaluates a separate period. Here, 1990–2010 is the calibration period and
+2011–2020 is the validation period at USGS 01447500 [[5]](#fe-walter-ref-5). That gauge
+covers two units; the other five are not independently gauge-validated. See
+[hydrology, parameters, and calibration/validation](hydrology.md) for periods,
+metrics, parameters, and the 2021–2025 simulation using those same parameters.
 
-| Item | Teaching setting |
-|---|---|
-| Reservoir | One controlled F.E. Walter node and one agent |
-| Inflow | Saved daily HydroCNHS simulated inflow, m³/s |
-| Initial storage | 2,457,848.279729185 m³; explicit assumption |
-| Reservoir losses | Direct precipitation, evaporation, seepage, and withdrawals are zero |
-| Downstream routing | `UH=[1.0]`; identity routing |
+Downloads: [monthly CSV](hydrology_data/climate/fe_walter_climate_monthly_1989_2025.csv),
+[source and aggregation record](hydrology_data/climate/provenance.json),
+[SVG](hydrology_data/climate/fe_walter_climate_1989_2025.svg) and
+[PDF](hydrology_data/climate/fe_walter_climate_1989_2025.pdf).
 
-The operator proposes release; shared physics enforces feasibility, updates
-storage, calculates spill, and routes implemented outflow.
+```{figure-md} fe-walter-climate-forcing
+:class: climate-figure
 
-## Method inputs
+![Monthly precipitation, PET, and temperature for the modeled F.E. Walter catchment](hydrology_data/climate/fe_walter_climate_1989_2025.png)
 
-| Method | Additional decision input |
-|---|---|
-| Rule-based | Registered rule parameters and inflow statistics |
-| LLM with available information | Daily state, seasonal instructions, short history |
-| LLM with retrieved knowledge | The same information plus selected local guidance |
+**Figure 2.** Area-weighted monthly climate inputs, 1989–2025. Precipitation and
+PET are monthly totals (mm/month); temperature is the monthly mean (°C).
+```
 
-Model identity belongs in the model settings and saved provenance. It does not
-replace these public method names.
+## Reservoir experiment
+
+The operation experiment selects 2016 inflow from the accepted continuous
+hydrology. Changing the operator does not change or recalibrate hydrology. For a
+daily interval, shared physics applies
+
+$$
+S_{t+1}=S_t+\left(Q_{\mathrm{in},t}-Q_{\mathrm{rel},t}-Q_{\mathrm{spill},t}\right)\Delta t,
+$$
+
+where $S$ is storage (m³), $Q_{\mathrm{in}}$ is hydrological inflow,
+$Q_{\mathrm{rel}}$ is implemented controlled release, $Q_{\mathrm{spill}}$ is
+spill (all m³/s), and $\Delta t=86{,}400$ s. Direct precipitation, reservoir
+evaporation, seepage, and withdrawals are zero in this reduced case. The operator
+proposes release; common physics enforces feasibility, updates storage and spill,
+and routes total outflow with `UH=[1.0]`.
+
+The methods share hydrology and reservoir physics. The rule method receives
+registered rule parameters and inflow statistics; the available-information LLM
+receives the daily state, seasonal instructions, and short history; the retrieved-
+knowledge LLM receives those inputs plus selected local guidance. The
+[versioned seasonal criteria](seasonal_pool_criteria.json) are study settings,
+not an official annual schedule. Saved results still use the previous prompts;
+see [results](results.md) and the separate [prompt review](prompt_review.md).
 
 ## Seasonal pool levels
 
-The optional case setting `seasonal_criteria_file` now supplies the current
-simulation date, bounds and next window start to both LLM methods. It prescribes
-no release. The [saved results](results.md) still use the previous prompts;
-[October requests and proposed messages](prompt_review.md) are shown separately.
+The study uses a winter target of 1300 ft, checked within 1297–1303 ft on
+November 1–March 14. The summer upper limit is 1370 ft on May 10–October 14;
+it is not a fixed summer level or a lower bound. The remaining transition
+windows are defined in [seasonal_pool_criteria.json](seasonal_pool_criteria.json).
+These criteria record operating performance; they do not change model decisions.
 
-The current case uses study-defined compliance windows in ft N.G.V.D. They are
-research settings, not an official annual operating schedule.
+## References
 
-| Season | Dates, inclusive | Pool-level check |
-|---|---|---|
-| Winter hold | November 1–March 14 | 1297–1303 ft, near the 1300 ft conservation pool |
-| Spring fill | March 15–May 9 | 1300–1370 ft |
-| Summer | May 10–October 14 | At or below 1370 ft; no lower bound in this check |
-| Fall drawdown | October 15–October 31 | 1300–1370 ft and falling |
+(fe-walter-ref-1)=
+[1] U.S. Army Corps of Engineers, Philadelphia District.
+[Francis E. Walter Dam](https://www.nap.usace.army.mil/Missions/Civil-Works/Francis-E-Walter-Dam/).
 
-The [versioned criteria](seasonal_pool_criteria.json) retain exact dates, bands,
-and the shared instruction. A compliance count is a diagnostic for these study
-criteria; it is not official operating acceptance.
+(fe-walter-ref-2)=
+[2] Thornton, M. M., et al. (2022).
+[Daymet: Daily Surface Weather Data on a 1-km Grid for North America, Version 4 R1](https://doi.org/10.3334/ORNLDAAC/2129).
 
-## Case file index
+(fe-walter-ref-3)=
+[3] NOAA National Centers for Environmental Information.
+[nClimGrid-Daily](https://www.ncei.noaa.gov/products/land-based-station/nclimgrid-daily).
 
-- [Configuration and commands](../../tutorials/fe_walter.md)
-- [Hydrology, parameters, and C&V](hydrology.md)
-- [Daily coupling](coupling.md)
-- [Current saved annual results](coupled/README.md#current-saved-2016-results)
-- [Current teaching results](results.md)
-- [Engine comparison evidence](engine_comparison.md)
-- [Main notebook](../../tutorials/main.ipynb)
-- [Generic multi-reservoir notebook](../../tutorials/advanced.ipynb)
+(fe-walter-ref-4)=
+[4] HydroCNHS.
+[Native Hamon PET implementation](../../src/hydrocnhs/rainfall_runoff_model/pet_hamon.py),
+following Hamon (1961), [*Estimating Potential Evapotranspiration*](https://doi.org/10.1061/JYCEAJ.0000599).
+
+(fe-walter-ref-5)=
+[5] U.S. Geological Survey.
+[USGS 01447500, Lehigh River at Stoddartsville, Pennsylvania](https://waterdata.usgs.gov/monitoring-location/USGS-01447500/).

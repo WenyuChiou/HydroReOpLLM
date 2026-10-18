@@ -21,7 +21,7 @@ settings first, then follow a complete case study and adapt it to your research.
 | [Reservoirs and network](BUILD_SIMULATION.md) | Connect inflow, storage and downstream paths. |
 | [Agents and LLM](CONFIGURATION.md) | Select a rule or a model, prompt and optional context. |
 | [Check and run](RUNNING.md) | Check files, prepare inflow, run operations and verify records. |
-| [Case studies](CASE_STUDIES.md) | Follow complete examples after learning the settings. |
+| [FE Walter case study](CASE_STUDIES.md) | Apply the settings to the reservoir, data and saved results. |
 | [Results](RESULTS_GUIDE.md) | Read water elevation and controlled release. |
 | [Troubleshooting](TROUBLESHOOTING.md) | Diagnose input, response and interruption problems. |
 | [API reference](API_REFERENCE.md) | Find functions and extension interfaces. |
@@ -30,11 +30,10 @@ Use the [HydroCNHS tutorials](https://github.com/cylin928/HydroCNHS/tree/main/tu
 for basin construction, hydrological parameters and calibration. This manual
 focuses on reservoir agents and the LLM workflow added by HydroOpsLLM.
 
-## Companion notebooks
+## Results notebook
 
-{download}`FE Walter results notebook <_notebook_downloads/main.ipynb>` ·
-{download}`Multiple-reservoir configuration <_notebook_downloads/advanced.ipynb>`
+{download}`FE Walter results notebook <_notebook_downloads/main.ipynb>`
 
-The notebooks use saved data or inspect configuration files. They do not request
-a model or rerun hydrology. [Sources and citation](REFERENCE.md) identifies the
+The notebook reads saved data. It makes no model request and does not rerun
+hydrology. [Sources and citation](REFERENCE.md) identifies the
 framework and case references.

@@ -43,9 +43,8 @@ water or create a connection. The current reservoir balance applies the supplied
 inflow and controlled release, computes spill, and assumes zero evaporation and
 seepage.
 
-Continue with [Rule-based and LLM operators](CONFIGURATION.md).
-
 ![Hydrology, reservoir, and agent ID mapping](figures/reservoir-agent-mapping.svg)
 
-*Figure 1. Explicit IDs join native flow bindings, reservoir physics, directed
-water connections, and the operator assigned to each controlled reservoir.*
+*Figure 1. HydroCNHS routes runoff to an outlet; a binding connects it to the
+operation inlet. Blue arrows carry water. Orange arrows carry reservoir state
+and the agent's release proposal. [Editable draw.io source](figures/reservoir-agent-mapping.drawio).*

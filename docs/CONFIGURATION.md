@@ -140,10 +140,8 @@ that return a provenance-bearing `ContextValue`.
 
 Live `run` and any unfinished LLM decisions during `resume` require explicit
 network permission. Rule-based agents and `check` do not call a model provider.
-Continue with [decision information](INFORMATION.md), then [run and resume](RUNNING.md).
-
 ![Prompt construction and response validation](figures/prompt-context-workflow.svg)
 
-*Figure 2. Current state, committed history, and explicitly selected optional
-information fill the user prompt. The response is validated before common
-reservoir physics implements and records the release.*
+*Figure 2. State, completed history and the template form the messages; the
+dashed arrow adds optional context. The LLM also receives a response schema.
+Validation produces the release proposal. [Editable draw.io source](figures/prompt-context-workflow.drawio).*

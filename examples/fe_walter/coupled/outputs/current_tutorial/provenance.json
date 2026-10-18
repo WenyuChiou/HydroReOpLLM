@@ -21,9 +21,12 @@
     "primary_figure": "reservoir_operations",
     "primary_height_mm": 160,
     "panels": {
-      "A": "Water elevation",
-      "B": "Three method-specific controlled-release rows"
+      "a": "Water elevation",
+      "b": "Water release (Rule-based)",
+      "c": "Water release (LLM with available information)",
+      "d": "Water release (LLM with retrieved knowledge)"
     },
+    "release_bar_width_days": 0.72,
     "method_colors": {
       "rule": "#526B8A",
       "llm_available": "#BF795E",
@@ -92,8 +95,8 @@
     "controlled_release_daily.png": "b3a087e1e40d74cf14789a57f7cac17d03179fd9b40fcedc958d1203de9889c3",
     "controlled_release_daily.svg": "3013a65994ef32e53799a82897b924e5b8365b1d5ebe8c458e2caf4616be20b3",
     "controlled_release_daily.pdf": "ffb03419f1dae1bc6fc777d1b5884182408dd7910395a3191cdd8e824fceecee",
-    "reservoir_operations.png": "823631e3b0eb327fddb934a253b0c9101a0faacf56c1798d1187698b4edffadf",
-    "reservoir_operations.svg": "54f4142faea05224c376c78359f8c1237cb12ef8ce1f4a6de6b298cad5f3eca1",
-    "reservoir_operations.pdf": "0de3410b8cb729996299c1e8f8653cbf9bb731d4cdef9b815fa6007ae93a73a6"
+    "reservoir_operations.png": "4b975f7af9055d41d83ed58165cecbe05c94f94ed069220f0f6ec04df9ab7765",
+    "reservoir_operations.svg": "226a05fe97cd2012a7619525972d71255adb94c7bfe4b372dceaf81ec32bf631",
+    "reservoir_operations.pdf": "9114a9bb8263805277a0f914560fbf7b2cefc551f4e189e66e4e3377e15c60fe"
   }
 }

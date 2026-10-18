@@ -18,6 +18,12 @@ FIGURE_DOWNLOADS = {
     f"docs/figures/hydrocnhs-coupling-framework-en.{ext}": f"hydroopsllm-figure1.{ext}"
     for ext in ("png", "pdf")
 }
+FIGURE_DOWNLOADS.update({
+    f"docs/figures/{name}.{ext}": f"{name}.{ext}"
+    for name in ("simulation-stages", "reservoir-agent-mapping",
+                 "prompt-context-workflow", "fe-walter-weather-workflow")
+    for ext in ("drawio", "svg")
+})
 MAP_DOWNLOADS = {
     **{f"docs/figures/fe-walter-catchment.{ext}": f"fe-walter-catchment.{ext}"
        for ext in ("png", "svg", "pdf")},
@@ -31,6 +37,13 @@ HYDROLOGY_DOWNLOADS = {
     "data/accepted/fe_walter_hydrology.yaml": "fe_walter_hydrology.yaml",
     "data/accepted/historical_manifest.json": "historical_manifest.json",
 }
+HYDROLOGY_DOWNLOADS.update({
+    f"examples/fe_walter/hydrology_data/climate/{name}": name
+    for name in ("fe_walter_climate_monthly_1989_2025.csv",
+                 "fe_walter_climate_1989_2025.png", "fe_walter_climate_1989_2025.svg",
+                 "fe_walter_climate_1989_2025.pdf")
+})
+HYDROLOGY_DOWNLOADS["examples/fe_walter/hydrology_data/climate/provenance.json"] = "climate-provenance.json"
 ANNUAL_DOWNLOADS = {
     "examples/fe_walter/annual/outputs/custom_system_prompt_20261016.txt": "custom_system_prompt_20261016.txt",
     **{
@@ -133,7 +146,7 @@ PAGES = {
     "tutorials/README.md": "tutorials/README.md",
     "tutorials/README.zh-TW.md": "tutorials/README.zh-TW.md",
     "tutorials/fe_walter.md": "tutorials/fe_walter.md",
-    "tutorials/main.ipynb": "tutorials/main.ipynb",
+    "examples/fe_walter/notebook.md": "tutorials/main.md",
     "tutorials/advanced.ipynb": "tutorials/advanced.ipynb",
     "archive/README.md": "archive/README.md",
     **{f"docs/{name}": f"docs/{name}" for name in (
@@ -363,8 +376,7 @@ def prepare(source: Path, *, source_ref: str = "main") -> None:
         "Overview and installation": ["docs/README", "docs/GETTING_STARTED"],
         "Configuration": ["docs/INPUT_OUTPUT", "docs/GLOBAL_SETTINGS", "docs/HYDROLOGY_SETUP",
                           "docs/BUILD_SIMULATION", "docs/CONFIGURATION", "docs/RUNNING"],
-        "Case studies": ["docs/CASE_STUDIES", "examples/fe_walter/README", "tutorials/fe_walter", "tutorials/main",
-                         "docs/MULTI_RESERVOIR", "tutorials/advanced", "tutorials/README"],
+        "Case studies": ["docs/CASE_STUDIES", "examples/fe_walter/README", "tutorials/fe_walter", "tutorials/main"],
         "Results": ["docs/RESULTS_GUIDE", "examples/fe_walter/results"],
         "Troubleshooting": ["docs/TROUBLESHOOTING"],
         "API and reference": ["docs/API_REFERENCE", "docs/PARAMETER_REFERENCE", "docs/REFERENCE", "docs/USER_GUIDE",
@@ -375,7 +387,8 @@ def prepare(source: Path, *, source_ref: str = "main") -> None:
                               "examples/fe_walter/engine_comparison", "examples/fe_walter/configuration", "examples/fe_walter/hydrology",
                               "examples/fe_walter/coupled/README", "examples/fe_walter/coupling", "examples/fe_walter/annual/README",
                               *[f"examples/fe_walter/{method}/README" for method in ("benchmark", "zero_shot", "dkp")],
-                              "examples/fe_walter/annual/decision_2016_01_01", "examples/fe_walter/annual/results"],
+                              "examples/fe_walter/annual/decision_2016_01_01", "examples/fe_walter/annual/results",
+                              "tutorials/README", "docs/MULTI_RESERVOIR", "tutorials/advanced"],
         "Historical research": ["examples/fe_walter/results_history"],
         "繁體中文": [path.rsplit(".", 1)[0] for path in PAGES.values()
                    if "zh-TW" in path],

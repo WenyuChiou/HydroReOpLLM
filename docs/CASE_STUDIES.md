@@ -1,15 +1,14 @@
 # Case studies
 
-You have now seen how to configure and check an experiment. These examples put
-the same files in a research context. Read their setting, data and assumptions
-before interpreting a trajectory.
+The F.E. Walter case applies the configuration chapters to one reservoir and
+three decision methods. Follow these steps in order.
 
-| Case | Start here | What it demonstrates |
+| Step | Read | Purpose |
 |---|---|---|
-| F.E. Walter | [Site, data and study criteria](../examples/fe_walter/README.md), then the [step-by-step tutorial](../tutorials/fe_walter.md) | One reservoir, common accepted hydrology and three decision methods, with saved 2016 results |
-| Small reservoir network | [Connect reservoirs and agents](MULTI_RESERVOIR.md), then the [configuration notebook](../tutorials/advanced.ipynb) | Two independent river systems, explicit node IDs and separate agent state; synthetic inputs for software checks |
+| 1 | [Site and data](../examples/fe_walter/README.md) | Understand the reservoir, climate inputs and study criteria. |
+| 2 | [Configure the experiment](../tutorials/fe_walter.md) | Connect hydrology, reservoir physics and the selected operator. |
+| 3 | [Output files](../examples/fe_walter/notebook.md) | Find daily values, the figure and the optional Python notebook. |
 
-The F.E. Walter [results notebook](../tutorials/main.ipynb) reads saved values.
-Its figures can be reproduced without starting an inference service or rerunning
-hydrology. The network notebook inspects configuration only. Neither notebook
-establishes a new calibration or a new LLM result.
+The [results page](../examples/fe_walter/results.md) compares saved 2016 water
+elevation and water release. Its figure can be reproduced without starting an
+inference service or rerunning hydrology.

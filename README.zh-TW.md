@@ -39,9 +39,6 @@ HydroCNHS 計算流量；每個水庫 agent 提出放流需求；物理模型執
    資料表可供檢視，不需要重新執行推論或水文模擬。這些保存曲線沿用來源執行時的
    prompt 與 context。
 
-讀完通用設定章節後，可選讀[多水庫範例](docs/MULTI_RESERVOIR.md)；它以四日合成
-軟體 fixture 示範兩個彼此分離的水系。
-
 ## 決策方法
 
 請為每個 agent 設定 `reservoir_id`，並選擇 `type: rule_based` 或 `type: llm`。Rule-based agent 會載入已註冊的規則模組；Hanasaki 是 F.E. Walter 範例選用的模組，並非框架的必要條件。LLM agent 會選擇 `model_profile` 與 `prompt_file`，也可在 `customization` 中加入 context 或檢索知識。核心不會自動加入共用 system prompt，但案例 extension 可明確組合一個 system prompt。

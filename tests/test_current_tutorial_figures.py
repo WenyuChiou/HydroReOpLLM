@@ -156,7 +156,7 @@ def test_result_figures_keep_paper_width_fonts_and_editable_labels():
 
 
 def test_combined_figure_has_shared_calendar_exact_lines_and_three_release_rows():
-    """The paper figure must preserve every plotted daily value in its A/B layout."""
+    """The four panels must share dates and preserve every saved daily value."""
     import matplotlib.colors as mcolors
     import matplotlib.dates as mdates
     import numpy as np
@@ -173,8 +173,7 @@ def test_combined_figure_has_shared_calendar_exact_lines_and_three_release_rows(
         elevation, *release_axes = axes
         assert all(elevation.get_shared_x_axes().joined(elevation, release)
                    for release in release_axes)
-        assert elevation.get_title().startswith('(A)')
-        assert release_axes[0].get_title().startswith('(B)')
+        assert elevation.get_title().startswith('(a)')
 
         expected_labels = [
             'Rule-based',
@@ -197,7 +196,9 @@ def test_combined_figure_has_shared_calendar_exact_lines_and_three_release_rows(
         release_ticks = [release.get_yticks() for release in release_axes]
         assert all(limits == release_limits[0] for limits in release_limits)
         assert all(np.array_equal(ticks, release_ticks[0]) for ticks in release_ticks)
-        for release, label in zip(release_axes, expected_labels, strict=True):
+        for index, (release, label) in enumerate(zip(release_axes, expected_labels, strict=True)):
+            assert release.get_title(loc='left') == f'({chr(98 + index)}) Water release ({label})'
+            assert release.get_ylabel() == 'Water release\n(m³/s)'
             expected = daily.loc[daily['method_label'] == label].copy()
             expected_dates = mdates.date2num(pd.to_datetime(expected['date']))
             line = data_lines[label]
@@ -205,6 +206,7 @@ def test_combined_figure_has_shared_calendar_exact_lines_and_three_release_rows(
                                        rtol=0, atol=0)
             color = mcolors.to_rgba(line.get_color())
             assert len(release.patches) == 366
+            assert all(bar.get_width() == pytest.approx(0.72) for bar in release.patches)
             assert all(np.allclose(bar.get_facecolor(), color) for bar in release.patches)
             centers = np.array([
                 bar.get_x() + bar.get_width() / 2 for bar in release.patches])
@@ -213,7 +215,7 @@ def test_combined_figure_has_shared_calendar_exact_lines_and_three_release_rows(
                 [bar.get_height() for bar in release.patches],
                 expected['controlled_release_cms'], rtol=0, atol=0,
             )
-            assert [text.get_text() for text in release.texts] == [label]
+            assert not release.texts, 'Method names belong in panel titles, not over the data'
 
         legends = [*figure.legends, elevation.get_legend(),
                    *(axis.get_legend() for axis in release_axes)]

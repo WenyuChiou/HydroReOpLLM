@@ -12,8 +12,8 @@ Read in order: [experiment](#1-begin-at-experimentyaml) →
 [execution](#6-check-prepare-run-and-verify) →
 [results](#7-read-the-current-saved-results).
 
-The [case file list](../examples/fe_walter/coupled/README.md#files) links the
-complete settings. Relative paths start at the file that declares them.
+Each step below links and displays its complete configuration file. Relative
+paths start at the file that declares them.
 The saved results below were produced **before daily seasonal context was added**.
 
 ## 1. Begin at `experiment.yaml`
@@ -73,11 +73,9 @@ sources, calibration, validation, and limits.
 
 ![Weather, inflow and daily reservoir decisions](../docs/figures/fe-walter-weather-workflow.svg)
 
-**Figure 1.** Daymet supplies precipitation (**P**, mm/day) and temperature
-(**T**, °C); documented nClimGrid patches cover the retained calendar gaps, and
-Hamon supplies PET (cm/day). Weather preparation and HydroCNHS routing are
-upstream precomputation. The daily operation loop receives the resulting inflow,
-asks the selected operator for release, and advances shared reservoir physics.
+**Figure 1.** Precipitation (**P**, mm/day), temperature (**T**, °C) and Hamon
+PET (cm/day) supply HydroCNHS. Saved inflow then feeds reservoir operations.
+[Editable draw.io source](../docs/figures/fe-walter-weather-workflow.drawio).
 
 ## 3. Map hydrology, reservoir, and agent IDs
 
@@ -122,6 +120,7 @@ loading, agent construction and the daily reservoir calculation.
 
 **Figure 2.** Generic ID mapping between hydrology, a reservoir, and its agent.
 The tables above give the F.E. Walter IDs.
+[Editable draw.io source](../docs/figures/reservoir-agent-mapping.drawio).
 
 ## 4. Select Rule-based or LLM operation
 
@@ -201,6 +200,7 @@ Removing the setting preserves the earlier prompt assembly.
 **Figure 3.** Retrieved knowledge adds context to the prompt; system instructions
 are optional and user-supplied. The two methods use six- and eight-field raw
 response schemas, respectively; both return a release proposal to shared physics.
+[Editable draw.io source](../docs/figures/prompt-context-workflow.drawio).
 
 ## 6. Check, prepare, run, and verify
 
@@ -245,10 +245,9 @@ Open the [main notebook](main.ipynb) for executable saved-data inspection.
 [Technical engine evidence and historical audit material](../examples/fe_walter/engine_comparison.md)
 remain available without interrupting the main workflow.
 
-![2016 water elevation and controlled release](../examples/fe_walter/coupled/outputs/current_tutorial/reservoir_operations.png)
+![2016 water elevation and water release](../examples/fe_walter/coupled/outputs/current_tutorial/reservoir_operations.png)
 
-**Figure 4.** Saved 2016 operations for **Rule-based**, **LLM with available
-information**, and **LLM with retrieved knowledge**. (A) End-of-day water
-elevation in ft NGVD29, with dotted guides at 1300 and 1370 ft. (B) Daily
-controlled release in m³/s, with one bar row per method. The three release
-rows share the same flow scale and exclude spill. All axes share dates.
+**Figure 4.** Saved 2016 operations. (a) End-of-day water elevation (ft NGVD29),
+with winter target 1300 ft and summer upper limit 1370 ft. (b–d) Daily water
+release (m³/s) for the methods in the panel titles. Release excludes spill;
+all panels share operation dates, and the three release panels share a flow scale.

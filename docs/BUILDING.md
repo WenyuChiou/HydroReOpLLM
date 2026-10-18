@@ -39,8 +39,8 @@ python scripts/check_docs_site.py build/docs
 ```
 
 Open `build/docs/index.html`. This is the documentation-site home, with chapter
-navigation, the FE Walter three-method case, network configuration and downloadable
-notebooks. The notebook downloads retain the original committed bytes.
+navigation, the FE Walter case and its downloadable results notebook. Notebook
+downloads retain the original committed bytes.
 Tables and figures come from saved MIME outputs.
 MyST-NB execution is **off**: building the site does not run a simulation, start
 Ollama or call a provider. Source/data links lead to the private GitHub repo and
@@ -59,7 +59,7 @@ remain unchanged.
 ## 繁體中文
 
 在完整 repo 使用上方安裝及建置指令，再開啟 `build/docs/index.html`。
-文件站提供中英文首頁、章節目錄、FE Walter 三方法案例及多水庫設定教學及 notebook 下載，
+文件站提供中英文首頁、章節目錄、FE Walter 三方法案例及結果 notebook 下載，
 直接顯示保存的表格／圖片；下載檔保留已提交 notebook 的原始 bytes。
 MyST-NB 不執行 cells；建置不啟動 Ollama、呼叫 provider 或執行模擬。
 [線上文件站](https://wenyuchiou.github.io/HydroOpsLLM/)由 GitHub Pages 提供；README 的文件 badge 可直接進入。

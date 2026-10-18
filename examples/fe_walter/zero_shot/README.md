@@ -11,7 +11,7 @@ This method supplies operating instructions and available reservoir information
 to the LLM. It does not retrieve knowledge excerpts. The example uses local
 Ollama; the walkthrough reads saved replies before showing how to start a new run.
 
-Shared input and physical assumptions are defined in the [common case setup](../README.md#common-case-setup).
+Shared input and physical assumptions are defined in the [common case setup](../README.md#reservoir-experiment).
 
 First review [the case hydrology](../hydrology.md) and [the coupled daily workflow](../coupling.md).
 This method uses the same daily Dam/routing loop with precomputed inflow; the operation run does not recalculate GWLF.

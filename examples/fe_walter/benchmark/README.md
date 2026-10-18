@@ -12,7 +12,7 @@ HydroCNHS Dam API. It follows [Hanasaki et al. (2006)](https://doi.org/10.1016/j
 and the flood-control formulation in [Abeshu et al. (2023), Section 2.3.3](https://gmd.copernicus.org/articles/16/5449/2023/).
 The rule is added by HydroOpsLLM; it is not a built-in HydroCNHS policy.
 
-Shared input and physical assumptions are defined in the [common case setup](../README.md#common-case-setup).
+Shared input and physical assumptions are defined in the [common case setup](../README.md#reservoir-experiment).
 
 First review [the case hydrology](../hydrology.md) and [the coupled daily workflow](../coupling.md).
 This method uses the same daily Dam/routing loop with precomputed inflow; the operation run does not recalculate GWLF.

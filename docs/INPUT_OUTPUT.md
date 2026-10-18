@@ -10,14 +10,15 @@ decision evidence. A new study follows this route:
 4. Choose Rule-based or LLM operators in [Configure agents](CONFIGURATION.md).
 5. Run the checks and commands in [Run and resume](RUNNING.md).
 
-These settings support three stages: configure and check, prepare upstream
-inflow, then run daily reservoir operations. Reservoir decisions use the saved
-inflow; they do not repeat or alter the upstream hydrology calculation.
+Check the configuration files, prepare and save upstream inflow, then run daily
+reservoir operations. Verify the saved records before interpreting the results.
+Reservoir decisions use the saved inflow; they do not repeat or alter the
+upstream hydrology calculation.
 
-![Three simulation stages](figures/simulation-stages.svg)
+![Simulation workflow](figures/simulation-stages.svg)
 
-*Figure 1. Configure the linked files, save HydroCNHS inflow, then run and verify
-daily reservoir operations.*
+*Figure 1. Configuration, saved inflow and results connect the calculation
+steps. [Editable draw.io source](figures/simulation-stages.drawio).*
 
 ## Begin with the experiment file
 

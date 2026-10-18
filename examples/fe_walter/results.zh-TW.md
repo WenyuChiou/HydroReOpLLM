@@ -13,6 +13,11 @@
 持續放流使水位在 **10 月 15 日降至 1287.8 ft**。這是已保存的決策行為；
 季節 audit 會記錄問題，不會改寫放流。詳見[決策證據](engine_comparison.md#reading-the-retrieved-knowledge-trajectory)。
 
+水位是當日日末的狀態，放水量則是當日的操作值。蓄水量也受入流與溢流影響，
+見[水量平衡](README.zh-TW.md#水庫實驗)。冬季檢查範圍為 11 月 1 日至
+3 月 14 日的 1297–1303 ft；夏季上限適用於 5 月 10 日至 10 月 14 日。
+這些研究準則不會改寫放流決策。
+
 [完整精度每日資料](coupled/outputs/current_tutorial/daily.csv) ·
 [來源紀錄](coupled/outputs/current_tutorial/provenance.json) ·
 [合併圖 SVG](coupled/outputs/current_tutorial/reservoir_operations.svg) ·
@@ -32,9 +37,6 @@
 
 ![2016 年水位與控制放流](coupled/outputs/current_tutorial/reservoir_operations.png)
 
-*圖 1。**Rule-based**、**LLM with available information** 與
-**LLM with retrieved knowledge** 的 2016 年保存操作結果。(A) 日末水位，
-單位為 ft NGVD29，標示冬季目標 1300 ft 與夏季上限 1370 ft。
-冬季檢查範圍為 11 月 1 日至 3 月 14 日的 1297–1303 ft；夏季上限適用於
-5 月 10 日至 10 月 14 日。這些是研究定義的檢查標準，不是強制放流限制。
-(B) 每日控制放流，單位為 m³/s；每種方法各占一列，三列使用相同流量刻度且不包含 spill。所有軸共用日期。*
+*圖 1。2016 年保存的操作結果。(a) 日末水位（ft NGVD29），標示冬季目標
+1300 ft 與夏季上限 1370 ft。(b–d) 各圖標題所列方法的每日放水量（m³/s），
+不含溢流。各圖共用操作日期；三張放流圖使用相同刻度。*

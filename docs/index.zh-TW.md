@@ -20,7 +20,7 @@
 | [水庫與河網](BUILD_SIMULATION.zh-TW.md) | 連接入流、蓄水與下游。 |
 | [Agents 與 LLM](CONFIGURATION.md) | 選擇規則或模型、prompt 與選用資訊。 |
 | [檢查與執行](RUNNING.md) | 檢查檔案、準備入流、執行操作與查核紀錄。 |
-| [案例](CASE_STUDIES.md) | 完成通用設定教學後，閱讀完整範例。 |
+| [FE Walter 案例](CASE_STUDIES.md) | 把設定套用到水庫、資料與保存結果。 |
 | [結果](RESULTS_GUIDE.md) | 查看水位與控制放流。 |
 | [問題排查](TROUBLESHOOTING.md) | 診斷輸入、回覆與中斷問題。 |
 | [API 文件](API_REFERENCE.md) | 查詢函數與擴充介面。 |
@@ -30,8 +30,7 @@
 
 ## 教學 Notebook
 
-{download}`FE Walter 結果 <_notebook_downloads/main.ipynb>` ·
-{download}`多水庫設定 <_notebook_downloads/advanced.ipynb>`
+{download}`FE Walter 結果 <_notebook_downloads/main.ipynb>`
 
-Notebook 讀取保存資料或檢查設定檔，不發送模型請求，也不重跑水文。
+Notebook 讀取保存資料，不發送模型請求，也不重跑水文。
 [資料來源與引用](REFERENCE.md)提供框架及案例文獻。

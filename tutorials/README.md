@@ -10,9 +10,8 @@ saved 2016 results.
 | Notebook | Purpose |
 |---|---|
 | [Main](main.ipynb) | Compare **Rule-based**, **LLM with available information**, and **LLM with retrieved knowledge** using saved annual data. |
-| [Advanced](advanced.ipynb) | Build a small generic multi-reservoir configuration with explicit IDs, topology, method mixing, and separate state. |
 
-The notebooks read committed evidence only. Their default path makes no model
+The main notebook reads committed evidence only. Its default path makes no model
 request, download, hydrology run, or reservoir simulation.
 
 ## Build and check

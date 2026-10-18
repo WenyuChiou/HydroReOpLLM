@@ -1,0 +1,111 @@
+{
+  "schema_version": "fe-walter-climate-figure.v1",
+  "purpose": "Display-only aggregation of accepted saved forcing; no PET recalculation, weather resampling, download, calibration, or hydrological/reservoir simulation.",
+  "aggregation": {
+    "spatial": "For each day and variable, sum the seven physical-unit values multiplied by unit area / total physical-unit area.",
+    "monthly_precipitation": "Sum area-weighted daily precipitation; mm/month.",
+    "monthly_pet": "Convert saved PET from cm/day to mm/day by multiplying by 10, then sum area-weighted daily values; mm/month.",
+    "monthly_temperature": "Arithmetic mean of area-weighted daily mean temperature; degree C.",
+    "rounding": "Calculations use binary64 and math.fsum; the CSV writes 10 decimal places."
+  },
+  "coverage_checks": {
+    "forcing_rows": 94598,
+    "physical_units": 7,
+    "days_per_unit": 13514,
+    "start_date": "1989-01-01",
+    "end_date": "2025-12-31",
+    "leap_days": 9,
+    "months": 444,
+    "area_ha": 75081.13498106843,
+    "area_km2": 750.8113498106843,
+    "unit_areas_ha": {
+      "FEW-D-01": 4118.429479142502,
+      "FEW-D-02": 20092.13735797237,
+      "FEW-R-01": 13284.602406496535,
+      "FEW-R-02": 6787.548484166814,
+      "FEW-X-01": 6878.790064214162,
+      "FEW-X-02": 8200.224510222431,
+      "FEW-X-03": 15719.402678853618
+    },
+    "forcing_source_label_counts": {
+      "Daymet V4 R1": 81760,
+      "Daymet V4 R1 single-pixel grid cells": 12775,
+      "NOAA nClimGrid-Daily; source label 1993-01-01": 7,
+      "NOAA nClimGrid-Daily; source label 1997-01-01": 7,
+      "NOAA nClimGrid-Daily; source label 2001-01-01": 7,
+      "NOAA nClimGrid-Daily; source label 2005-01-01": 7,
+      "NOAA nClimGrid-Daily; source label 2009-01-01": 7,
+      "NOAA nClimGrid-Daily; source label 2013-01-01": 7,
+      "NOAA nClimGrid-Daily; source label 2017-01-01": 7,
+      "NOAA nClimGrid-Daily; source label 2021-01-01": 7,
+      "NOAA nClimGrid-Daily; source label 2025-01-01": 7
+    }
+  },
+  "output_checks": {
+    "monthly_csv_rows": 444,
+    "png_pixels": [
+      4251,
+      4020
+    ],
+    "png_dpi": 600,
+    "svg_width_mm": 179.99999983333333,
+    "svg_text_editable": true,
+    "minimum_font_points": 9,
+    "pdf_header": "%PDF-1.4"
+  },
+  "numeric_summary": {
+    "precipitation_mm_total": 51648.2754414434,
+    "pet_mm_total": 29435.04137238053,
+    "temperature_c_monthly_mean": 7.951428142040783,
+    "first_month": {
+      "month": "1989-01",
+      "days": 31,
+      "precipitation_mm": 35.9166760456938,
+      "pet_mm": 4.477504748806881,
+      "temperature_c": -3.052143951110173
+    },
+    "last_month": {
+      "month": "2025-12",
+      "days": 31,
+      "precipitation_mm": 98.7986262182788,
+      "pet_mm": 1.4886588250110853,
+      "temperature_c": -4.932055311220372
+    }
+  },
+  "inputs": {
+    "data/accepted/fe_walter_forcing_1989_2025.csv.gz": {
+      "bytes": 4163734,
+      "sha256": "2d030c5e53b15ba5ef7dcb0979dd223889870e6f9a41396bb3b1e2adb4e6a826"
+    },
+    "examples/fe_walter/hydrology_data/subcatchments.csv": {
+      "bytes": 744,
+      "sha256": "6c9fcaf49575fd2436f9157bf7e41cf603e73234211e485ee2850ce23391d919"
+    }
+  },
+  "builder": {
+    "path": "scripts/build_climate_figure.py",
+    "sha256": "7f20a6495ea78c2c104f08506fe1b3773b414d2789d3e9b4fc802abe785f4f64",
+    "matplotlib": "3.10.7",
+    "font": "Arial",
+    "figure_width_mm": 180,
+    "png_dpi": 600
+  },
+  "outputs": {
+    "examples/fe_walter/hydrology_data/climate/fe_walter_climate_monthly_1989_2025.csv": {
+      "bytes": 23731,
+      "sha256": "c5aac86dae1d912c4199bc9c23429162c2cf46e128cedc3f1afcbb43ae20806d"
+    },
+    "examples/fe_walter/hydrology_data/climate/fe_walter_climate_1989_2025.png": {
+      "bytes": 1409838,
+      "sha256": "7dbd312b3ac90be234db8e65d8c96b5c3154b0034086736a727078d4195bb6fd"
+    },
+    "examples/fe_walter/hydrology_data/climate/fe_walter_climate_1989_2025.pdf": {
+      "bytes": 52506,
+      "sha256": "2568cb18c940f26d7ae21cd234f780f1f60ad37b17599cb5fef5ed599e5e93e4"
+    },
+    "examples/fe_walter/hydrology_data/climate/fe_walter_climate_1989_2025.svg": {
+      "bytes": 48580,
+      "sha256": "868c3c34d1f4467cea638b9820bffde57fc41b71d6e85648b77366e99ce1b938"
+    }
+  }
+}

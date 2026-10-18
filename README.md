@@ -42,10 +42,6 @@ HydroCNHS computes streamflow; each reservoir agent requests a release; the phys
    inference or hydrology. These saved curves retain the prompts and context of
    their source runs.
 
-After the general configuration chapters, the optional
-[multiple-reservoir example](docs/MULTI_RESERVOIR.md) demonstrates two separate
-water systems with a four-day synthetic software fixture.
-
 ## Decision methods
 
 Set each agent's `reservoir_id` and `type: rule_based` or `type: llm`. Rule-based agents load a registered rule module; Hanasaki is the selected module in the F.E. Walter example, not a framework-wide requirement. LLM agents select a `model_profile` and `prompt_file`, with optional context or retrieved knowledge under `customization`. The core does not prepend a shared system prompt, although a case extension may assemble one explicitly.

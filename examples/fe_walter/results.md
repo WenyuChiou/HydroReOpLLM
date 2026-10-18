@@ -1,4 +1,4 @@
-# Current F.E. Walter teaching results
+# F.E. Walter results
 
 The saved LLM trajectories use the **previous prompts**, without the new daily
 seasonal context. [Review the actual October requests and proposed addition](prompt_review.md). No new model result is shown.
@@ -20,6 +20,12 @@ shared initial storage of 2,457,848.279729185 m³, and units before combining.
 It performed no interpolation, model request, hydrology run, or reservoir
 simulation.
 
+Water elevation is the end-of-day state; water release applies during that day.
+Storage also changes with inflow and spill, as shown by the
+[water balance](README.md#reservoir-experiment). The winter criterion is
+1297–1303 ft on November 1–March 14; the summer ceiling applies on
+May 10–October 14. These study criteria do not override a release decision.
+
 Downloads: [combined CSV](coupled/outputs/current_tutorial/daily.csv),
 [provenance](coupled/outputs/current_tutorial/provenance.json),
 [combined SVG](coupled/outputs/current_tutorial/reservoir_operations.svg), and
@@ -36,10 +42,7 @@ and [`results_history.md`](results_history.md) for older experiments.
 
 ![2016 water elevation and controlled release](coupled/outputs/current_tutorial/reservoir_operations.png)
 
-**Figure 1.** Saved 2016 operations for **Rule-based**, **LLM with available
-information**, and **LLM with retrieved knowledge**. (A) End-of-day water
-elevation in ft NGVD29, with the 1300 ft winter target and 1370 ft summer upper
-limit labeled. Winter compliance is 1297–1303 ft on November 1–March 14; the
-summer ceiling applies on May 10–October 14. These are study criteria, not
-enforced release constraints. (B) Daily controlled release in m³/s; one row per method, with identical flow scales and no spill. All axes share
-the calendar.
+**Figure 1.** Saved 2016 operations. (a) End-of-day water elevation (ft NGVD29),
+with winter target 1300 ft and summer upper limit 1370 ft. (b–d) Daily water
+release (m³/s) for the methods named in each panel. Release excludes spill.
+All panels share operation dates; the three release panels share a flow scale.

@@ -11,7 +11,7 @@ This method adds conditionally retrieved, source-bound operating knowledge to
 the same LLM interface used by the available-information method. The difference
 is the information supplied to the model; it does not imply better policy performance.
 
-Shared input and physical assumptions are defined in the [common case setup](../README.md#common-case-setup).
+Shared input and physical assumptions are defined in the [common case setup](../README.md#reservoir-experiment).
 
 First review [the case hydrology](../hydrology.md) and [the coupled daily workflow](../coupling.md).
 This method uses the same daily Dam/routing loop with precomputed inflow; the operation run does not recalculate GWLF.

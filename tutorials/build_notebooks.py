@@ -61,8 +61,8 @@ def plot_reservoir_operations(daily):
             4, 1, figsize=(180 / 25.4, 160 / 25.4), sharex=True,
             gridspec_kw={"height_ratios": [1.55, 1, 1, 1]})
         elevation, *release_axes = axes
-        fig.subplots_adjust(left=0.13, right=0.985, bottom=0.085,
-                            top=0.91, hspace=0.24)
+        fig.subplots_adjust(left=0.15, right=0.985, bottom=0.095,
+                            top=0.91, hspace=0.5)
         release_max = float(daily["controlled_release_cms"].max()) * 1.08
         release_ticks = MaxNLocator(nbins=3, min_n_ticks=3).tick_values(0, release_max)
         release_max = float(release_ticks[-1])
@@ -73,25 +73,24 @@ def plot_reservoir_operations(daily):
             elevation.plot(dates, rows["pool_elevation_end_ft"], label=label,
                            color=color, linestyle=("-", "--", "-.")[index], linewidth=1.35)
             release = release_axes[index]
-            release.bar(dates, rows["controlled_release_cms"], width=0.9,
-                        color=color, linewidth=0, zorder=3)
-            release.set(ylim=(0, release_max), yticks=release_ticks)
-            release.text(0.01, 0.76, label, transform=release.transAxes,
-                         ha="left", va="top", color=color, fontsize=9.5,
-                         fontweight="bold",
-                         bbox={"facecolor": "white", "edgecolor": "none",
-                               "alpha": 0.88, "pad": 1.0})
+            # Every bar has the same width in days. Avoid outlines and pixel
+            # snapping, which can obscure gaps in a dense annual raster image.
+            release.bar(dates, rows["controlled_release_cms"], width=0.72,
+                        color=color, linewidth=0, edgecolor="none",
+                        antialiased=False, snap=False, zorder=3)
+            release.set(ylim=(0, release_max), yticks=release_ticks,
+                        ylabel="Water release\n(m³/s)")
+            release.set_title(f"({chr(98 + index)}) Water release ({label})", loc="left", fontweight="bold")
         _add_pool_level_guides(elevation)
-        elevation.set(title="(A) Water elevation", ylabel="Water elevation (ft NGVD 29)")
-        release_axes[0].set_title("(B) Controlled release")
-        release_axes[1].set_ylabel("Controlled release (m³/s)")
-        release_axes[-1].set_xlabel("2016")
+        elevation.set(title="(a) Water elevation", ylabel="Water elevation\n(ft NGVD 29)")
+        release_axes[-1].set_xlabel("Operation date (2016)")
         for ax in axes:
             ax.title.set_position((0, 1.0))
             ax.title.set_horizontalalignment("left")
             ax.title.set_fontweight("bold")
             ax.spines[["top", "right"]].set_visible(False)
             ax.grid(axis="y", color="#DCE1E1", linewidth=0.45, zorder=0)
+            ax.grid(axis="x", color="#E8ECEC", linewidth=0.4, zorder=0)
         release_axes[-1].set_xlim(
             pd.to_datetime(daily["date"]).min() - pd.Timedelta(days=0.5),
             pd.to_datetime(daily["date"]).max() + pd.Timedelta(days=0.5))
@@ -272,8 +271,10 @@ def _prepare_current_outputs() -> dict:
                           "svg_labels": "editable text", "legend_font_pt": 10,
                           "primary_figure": "reservoir_operations",
                           "primary_height_mm": 160,
-                          "panels": {"A": "Water elevation",
-                                     "B": "Three method-specific controlled-release rows"},
+                          "panels": {"a": "Water elevation",
+                                     **{chr(98 + index): f"Water release ({label})"
+                                        for index, label in enumerate(LABELS.values())}},
+                          "release_bar_width_days": 0.72,
                           "method_colors": METHOD_COLORS},
         "units": {"inflow_cms": "m3/s", "controlled_release_cms": "m3/s",
                   "spill_cms": "m3/s", "pool_elevation_end_ft": "ft N.G.V.D.",
@@ -323,7 +324,9 @@ retrieved knowledge**. All three use the same inflow, initial state, and physica
 This notebook reads committed files only. It makes no model request and runs no
 hydrology or reservoir simulation.
 
-![Weather-to-operation workflow](../docs/figures/fe-walter-weather-workflow.svg)
+Read the flow from weather through HydroCNHS to saved inflow, then reservoir operations.
+
+![Weather to inflow workflow](../docs/figures/fe-walter-weather-workflow.svg)
 
 [Maintained walkthrough](fe_walter.md) · [Current results](../examples/fe_walter/coupled/README.md#current-saved-2016-results)'''),
         md("## Setup"), code(SETUP),
@@ -387,9 +390,10 @@ for method, label in labels.items():
 The builder combines Rule-based rows from `outputs/2016/daily.csv` with the two
 framework LLM rows from `outputs/gemma4_2016_comparison/daily.csv`. It verifies
 366 unique ordered dates per method, common inflow, shared initial state, and
-units. It performs no interpolation. One figure shares the date axis: (A)
-end-of-day pool elevation in feet NGVD 29; (B) daily controlled release in m³/s,
-shown as grouped bars. Spill is excluded. Colors identify the same methods in both panels.
+units. It performs no interpolation. Four panels share operation dates:
+(a) end-of-day water elevation in feet NGVD 29; (b–d) daily water release in m³/s,
+one method per panel. Water release means implemented controlled release and
+excludes spill. All three release axes use the same scale.
 The winter target is 1300 ft (1297–1303 ft on November 1–March 14); the summer
 limit is 1370 ft on May 10–October 14. These guides are study criteria, not
 constraints imposed on each release.'''),
