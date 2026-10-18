@@ -24,19 +24,27 @@ HydroCNHS computes streamflow; each reservoir agent requests a release; the phys
 
    On Windows PowerShell, create and activate the environment with `py -3.12 -m venv .venv` and `.venv\Scripts\Activate.ps1` before running the same install command.
 
-2. **Inspect the current experiment.**
+2. **Configure a study.** Read [Configuration overview](docs/INPUT_OUTPUT.md),
+   then copy the complete [`templates/coupled`](templates/coupled/README.md)
+   starter. Its file index separates the experiment, accepted hydrology,
+   physical network, agents, models, prompts, information, and auditors. Run
+   `reservoir-experiment check <your-experiment.yaml>` after replacing every
+   required placeholder; `check` runs neither hydrology nor a model request.
 
-   ```sh
-   reservoir-experiment check examples/fe_walter/coupled/current/experiment.yaml
-   ```
+3. **Follow the [F.E. Walter tutorial](tutorials/fe_walter.md).** It applies the
+   general configuration to one research case and compares **Rule-based**,
+   **LLM with available information**, and **LLM with retrieved knowledge**. The
+   [main notebook](tutorials/main.ipynb) reads committed evidence and makes no
+   model request.
 
-   `check` validates the configuration and previews prompts without running hydrology or requesting a model. Use [Inputs and configuration](docs/INPUT_OUTPUT.md) to understand the experiment, hydrology, reservoir, agent, and model files.
+4. **Inspect the [saved results](examples/fe_walter/results.md).** The combined
+   operations figure and full-precision table support review without rerunning
+   inference or hydrology. These saved curves retain the prompts and context of
+   their source runs.
 
-3. **Follow the [F.E. Walter tutorial](tutorials/fe_walter.md).** It compares one physical case through three operating methods: **Rule-based**, **LLM with available information**, and **LLM with retrieved knowledge**. The [main notebook](tutorials/main.ipynb) reads committed evidence and makes no model request.
-
-4. **Inspect the [saved results](examples/fe_walter/results.md).** These results and figures support review without rerunning inference or hydrology.
-
-For a small generic network, see the optional [multiple-reservoir example](examples/multiple_reservoirs/experiment.yaml).
+After the general configuration chapters, the optional
+[multiple-reservoir example](docs/MULTI_RESERVOIR.md) demonstrates two separate
+water systems with a four-day synthetic software fixture.
 
 ## Decision methods
 

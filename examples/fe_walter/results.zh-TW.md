@@ -4,18 +4,10 @@
 
 比較同一 FE Walter 案例的三種方法：**Rule-based**、**LLM with available information**、
 **LLM with retrieved knowledge**。期間為 2016-01-01 至 2016-12-31，共 366 天。
-下圖使用已保存的框架模擬結果，沒有新增模型請求。
+下圖使用舊 prompt 產生的框架結果，尚未加入新的當日季節資訊，沒有新增模型請求。
+[10 月原文對照](prompt_review.md)把歷史請求與擬修改提示分開展示。
 
 ## 水庫操作
-
-![2016 年水位與控制放流](coupled/outputs/current_tutorial/reservoir_operations.png)
-
-*圖 1。**Rule-based**、**LLM with available information** 與
-**LLM with retrieved knowledge** 的 2016 年保存操作結果。(A) 日末水位，
-單位為 ft NGVD29，標示冬季目標 1300 ft 與夏季上限 1370 ft。
-冬季檢查範圍為 11 月 1 日至 3 月 14 日的 1297–1303 ft；夏季上限適用於
-5 月 10 日至 10 月 14 日。這些是研究定義的檢查標準，不是強制放流限制。
-(B) 每日控制放流，單位為 m³/s；分組柱狀圖不包含 spill。兩個面板共用日期軸。*
 
 檢索知識情境在 10 月 12–14 日的回覆中，提前套用 10 月 15–31 日的退水窗口。
 持續放流使水位在 **10 月 15 日降至 1287.8 ft**。這是已保存的決策行為；
@@ -36,5 +28,13 @@
 不等於模型請求或水量計算失敗。這些軌跡用於比較本次保存的方法結果，不能推論一般性的優劣排名；
 完成執行與水量守恆也不代表操作已達標。
 
-下一步：[逐檔教學](../../tutorials/fe_walter.md) · [結果 notebook](../../tutorials/main.ipynb)。
 較早五年研究與原始紀錄保存在[歷史參考](results_history.zh-TW.md)。
+
+![2016 年水位與控制放流](coupled/outputs/current_tutorial/reservoir_operations.png)
+
+*圖 1。**Rule-based**、**LLM with available information** 與
+**LLM with retrieved knowledge** 的 2016 年保存操作結果。(A) 日末水位，
+單位為 ft NGVD29，標示冬季目標 1300 ft 與夏季上限 1370 ft。
+冬季檢查範圍為 11 月 1 日至 3 月 14 日的 1297–1303 ft；夏季上限適用於
+5 月 10 日至 10 月 14 日。這些是研究定義的檢查標準，不是強制放流限制。
+(B) 每日控制放流，單位為 m³/s；每種方法各占一列，三列使用相同流量刻度且不包含 spill。所有軸共用日期。*

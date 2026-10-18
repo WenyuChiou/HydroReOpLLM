@@ -1,6 +1,6 @@
 # Installation
 
-Clone the repository, install the package, then check the current example.
+Clone the repository, install the package, then check that the command is available.
 Run the commands below from a PowerShell terminal.
 
 ## Install in a virtual environment
@@ -25,15 +25,12 @@ later in the agent's model profile.
 
 ```powershell
 reservoir-experiment --help
-reservoir-experiment check examples/fe_walter/coupled/current/experiment.yaml
 ```
 
-`check` validates the configuration without running hydrology or requesting a
-model. You can also read the [saved results](../examples/fe_walter/results.md)
-without starting a provider.
+The help command lists the available actions. It does not run hydrology or
+request a model. The next chapter introduces the files you will configure.
 
 ## Build your simulation
 
-Continue with [Inputs and configuration](INPUT_OUTPUT.md), then
-[connect your simulation](BUILD_SIMULATION.md). For basin construction and
+Read [Configuration overview](INPUT_OUTPUT.md) to see the complete file sequence. For basin construction and
 calibration, use the [HydroCNHS tutorials](https://github.com/cylin928/HydroCNHS/tree/main/tutorials).

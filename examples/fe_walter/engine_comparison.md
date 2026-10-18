@@ -28,7 +28,8 @@ abrupt spring rise also depends on inflow: on April 8, inflow is 63.63 m³/s
 while controlled release is 7.08 m³/s, and the pool rises 26.69 ft.
 
 The October undershoot has a different explanation. Saved input metadata on
-October 12–14 correctly identifies `target_period="summer"`; the requests give
+October 12–14 correctly identifies `target_period="summer"`. That metadata was
+not sent to the model. The actual requests give
 the correct date and start fall drawdown on October 15. Retrieved guidance describes the transition
 as “through mid-October” and includes the 1300 ft winter normal pool. The replies
 nevertheless apply the October 15–31 window early and request 1,000 cfs
@@ -56,3 +57,36 @@ saved decisions, or issuing another model request.
 These snapshots use different configurations and purposes. Do not combine them
 as one matched experiment or relabel them as current executions. The complete
 older narrative is preserved in [`results_history.md`](results_history.md).
+
+## Daily seasonal context for future comparisons
+
+The [October review](prompt_review.md) shows actual requests, retrieved text and
+raw replies alongside a separate proposed prompt preview. The saved trajectories
+above predate the optional `seasonal_criteria_file` setting.
+
+The two current framework agent files enable that case setting. For an original
+native Anik policy, its constructor can receive the following thin backend wrapper:
+
+```python
+from pathlib import Path
+from examples.fe_walter.extensions.seasonal_prompt_context import (
+    SeasonalContextBackend, load_seasonal_prompt_context,
+)
+
+criteria = load_seasonal_prompt_context(
+    Path("examples/fe_walter/seasonal_pool_criteria.json")
+)
+# native_backend is the original provider backend configured for the study.
+# Pass this wrapper as the original native policy's backend argument.
+dated_backend = SeasonalContextBackend(native_backend, criteria)
+```
+
+The wrapper adds only dated user-message text. The original policy still makes
+the release decision, and its native simulator still calculates water balance.
+Offline tests compare full provider requests and independent engine transitions
+using fixed replies. Seasonal boundaries also have an independent expected-date
+table, so two paths sharing the same helper are not the only date check.
+
+No new real replies were generated to validate model behavior. Original
+attachments, third-party source, frozen comparison executors and previous
+research outputs remain unchanged.

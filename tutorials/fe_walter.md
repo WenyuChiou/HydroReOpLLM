@@ -4,13 +4,17 @@ This is the maintained tutorial source for the F.E. Walter research example.
 It uses the same inflow, initial state, and physical parameters for **Rule-based**,
 **LLM with available information**, and **LLM with retrieved knowledge**.
 
-![Weather-to-operation workflow](../docs/figures/fe-walter-weather-workflow.svg)
+Read in order: [experiment](#1-begin-at-experimentyaml) →
+[hydrology](#2-connect-accepted-hydrology) →
+[reservoir](#3-map-hydrology-reservoir-and-agent-ids) →
+[agents](#4-select-rule-based-or-llm-operation) →
+[prompts](#5-read-prompt-and-knowledge-assembly) →
+[execution](#6-check-prepare-run-and-verify) →
+[results](#7-read-the-current-saved-results).
 
-**Figure 1.** Daymet supplies precipitation (**P**, mm/day) and temperature
-(**T**, °C); documented nClimGrid patches cover the retained calendar gaps, and
-Hamon supplies PET (cm/day). Weather preparation and HydroCNHS routing are
-upstream precomputation. The daily operation loop receives the resulting inflow,
-asks the selected operator for release, and advances shared reservoir physics.
+The [case file list](../examples/fe_walter/coupled/README.md#files) links the
+complete settings. Relative paths start at the file that declares them.
+The saved results below were produced **before daily seasonal context was added**.
 
 ## 1. Begin at `experiment.yaml`
 
@@ -22,6 +26,17 @@ auditors, and registered rule extension.
 ```{literalinclude} ../examples/fe_walter/coupled/current/experiment.yaml
 :language: yaml
 ```
+
+| Entry field | Meaning in this case |
+|---|---|
+| `schema_version` | Configuration format understood by the loader; not the package version |
+| `run_id` | Name saved in the run metadata; choose a new name for a new experiment |
+| `case` | Relative path to reservoir and network settings |
+| `output` | Parent output folder; daily records go in its `operation/` subfolder |
+| `start_date`, `end_date` | First and last operation days, both included |
+| `max_calls` | Total provider-attempt ceiling; zero for this Rule-based entry |
+| `agents.file`, `auditors.file`, `hydrology.file` | Referenced settings files; these are keys, not functions |
+| `extensions` | User modules registered for this case |
 
 The two LLM entries retain the same case and hydrology:
 
@@ -43,29 +58,35 @@ binding supplies that routed flow to operation inlet `FEW_INFLOW`.
 :language: yaml
 ```
 
+| Hydrology field | Meaning |
+|---|---|
+| `model` | Accepted native HydroCNHS model, including its full simulation period |
+| `forcing` | Complete daily precipitation, mean temperature and PET for that native period |
+| `zero_flow_nodes` | Artificial aggregation node assigned zero local runoff |
+| `inflow_bindings.FEW_INFLOW.routed` | Native routed outlet supplying the physical inlet |
+| `inflow_bindings.Downstream.constant` | Zero additional lateral input; routed reservoir outflow arrives separately |
+
 The accepted native series covers 1989–2025; this experiment selects the 366
 days of 2016. Changing the reservoir operator does not recalibrate hydrology.
 See [hydrology, parameters, and C&V](../examples/fe_walter/hydrology.md) for data
 sources, calibration, validation, and limits.
 
+![Weather, inflow and daily reservoir decisions](../docs/figures/fe-walter-weather-workflow.svg)
+
+**Figure 1.** Daymet supplies precipitation (**P**, mm/day) and temperature
+(**T**, °C); documented nClimGrid patches cover the retained calendar gaps, and
+Hamon supplies PET (cm/day). Weather preparation and HydroCNHS routing are
+upstream precomputation. The daily operation loop receives the resulting inflow,
+asks the selected operator for release, and advances shared reservoir physics.
+
 ## 3. Map hydrology, reservoir, and agent IDs
-
-![Reservoir and agent mapping](../docs/figures/reservoir-agent-mapping.svg)
-
-**Figure 2.** Generic ID mapping between hydrology, a reservoir, and its agent.
-The table below gives the F.E. Walter IDs.
 
 [`reservoirs.json`](../examples/fe_walter/coupled/reservoirs.json) uses several
 identifiers with distinct roles:
 
-| ID | Role |
-|---|---|
-| `FEW-D-01`, etc. | HydroCNHS contributing units. |
-| `FEW_INFLOW` | Operation-network inlet. |
-| `FEWalter` | Reservoir graph key; the agent must use this value as `reservoir_id`. |
-| `fe_walter` | Physical case/profile ID. |
-| `fe_operator` | Agent instance and state/history owner. |
-| `Downstream` | Terminal routing node. |
+This retained case uses the supported network v1 format with one `outlet`.
+New configurations should use the [v2 template](../templates/coupled/reservoirs.yaml)
+with `outlets`. Changing the version tag alone does not convert the structure.
 
 The physical initial storage is 2,457,848.279729185 m³. It is an integration
 assumption, not an observed 1 January 2016 pool measurement. The daily step is
@@ -76,6 +97,15 @@ are zero. Downstream `UH=[1.0]` is identity routing, not calibrated travel time.
 :language: json
 ```
 
+| ID | Role |
+|---|---|
+| `FEW-D-01`, etc. | HydroCNHS contributing units. |
+| `FEW_INFLOW` | Operation-network inlet. |
+| `FEWalter` | Reservoir graph key; the agent must use this value as `reservoir_id`. |
+| `fe_walter` | Physical case/profile ID. |
+| `fe_operator` | Agent instance and state/history owner. |
+| `Downstream` | Terminal routing node. |
+
 | JSON field | Role |
 |---|---|
 | `network.reservoirs.FEWalter.inflow_node` | Binds prepared flow from `FEW_INFLOW`. |
@@ -84,25 +114,33 @@ are zero. Downstream `UH=[1.0]` is identity routing, not calibrated travel time.
 | `connections[].unit_hydrograph` | Routes total outflow to the next node. |
 | `outlet` | Names the terminal operation-network node. |
 
-See the [parameter reference](../docs/PARAMETER_REFERENCE.md) for all public
-fields. The code path is
-[`configuration.py`](../src/llm_reservoir_agent/configuration.py) →
-[`coupled.py`](../src/llm_reservoir_agent/coupled.py) →
-[`agent_configuration.py`](../src/llm_reservoir_agent/agent_configuration.py) →
-[`configured_backend.py`](../src/llm_reservoir_agent/configured_backend.py) →
-[`agent.py`](../src/llm_reservoir_agent/agent.py) →
-[`experiment.py`](../src/llm_reservoir_agent/experiment.py).
+The [parameter reference](../docs/PARAMETER_REFERENCE.md) lists every physical
+field. The [code reference](../docs/CODE_STRUCTURE.md) traces configuration
+loading, agent construction and the daily reservoir calculation.
+
+![Reservoir and agent mapping](../docs/figures/reservoir-agent-mapping.svg)
+
+**Figure 2.** Generic ID mapping between hydrology, a reservoir, and its agent.
+The tables above give the F.E. Walter IDs.
 
 ## 4. Select Rule-based or LLM operation
 
-The Rule-based agent selects the registered Hanasaki-style case rule. The two
-LLM agents use the same daily decision interface.
+The [Rule-based agent file](../examples/fe_walter/coupled/agents.rule.yaml) selects
+the registered Hanasaki case rule. The two LLM agents use the same daily
+decision interface.
 
 ```{literalinclude} ../examples/fe_walter/coupled/agents.rule.yaml
 :language: yaml
 ```
 
-The available-information agent binds the prompt and model profile:
+The [available-information agent file](../examples/fe_walter/coupled/agents.llm_available.yaml)
+binds the prompt and model profile.
+
+Here `customization.backend: reference_v3_7` selects the registered case extension
+instead of the generic `prompt_file` recipe. The extension builds the native Anik
+messages, parses its raw response, and returns the generic release action.
+Settings inside `parameters.reference` belong to that extension. The agent ID,
+`reservoir_id`, `model_profile` and auditor selections keep their generic roles.
 
 ```{literalinclude} ../examples/fe_walter/coupled/agents.llm_available.yaml
 :language: yaml
@@ -110,14 +148,16 @@ The available-information agent binds the prompt and model profile:
 
 The available-information method receives the current date, inflow, starting
 water elevation, seasonal instruction, and short completed-decision history.
-The retrieved-knowledge agent adds the configured context provider:
+The [retrieved-knowledge agent file](../examples/fe_walter/coupled/agents.llm_knowledge.yaml)
+adds its local knowledge document:
 
 ```{literalinclude} ../examples/fe_walter/coupled/agents.llm_knowledge.yaml
 :language: yaml
 ```
 
 Model identity, sampling controls, context size, timeout, and attempt limit live
-in the model profile. They are provenance settings rather than method names.
+in [models.yaml](../examples/fe_walter/coupled/current/models.yaml). They describe
+the model execution and do not replace the three method names.
 
 ```{literalinclude} ../examples/fe_walter/coupled/current/models.yaml
 :language: yaml
@@ -125,20 +165,16 @@ in the model profile. They are provenance settings rather than method names.
 
 ## 5. Read prompt and knowledge assembly
 
-![Prompt and context workflow](../docs/figures/prompt-context-workflow.svg)
-
-**Figure 3.** Retrieved knowledge adds context to the prompt; system instructions
-are optional and user-supplied. The two methods use six- and eight-field raw
-response schemas, respectively; both return a release proposal to shared physics.
-
-The available-information prompt defines the task and structured response:
+The [available-information system file](../examples/fe_walter/prompts/zeroshot_seasonal_v1_system.txt)
+defines the task and structured response:
 
 ```{literalinclude} ../examples/fe_walter/prompts/zeroshot_seasonal_v1_system.txt
 :language: text
 ```
 
 The retrieved-knowledge method uses the current v2 prompt and the configured
-knowledge provider:
+[knowledge file](../examples/fe_walter/knowledge/DKP_FEWalter_Dam_v1.2.md). Its
+[system file](../examples/fe_walter/prompts/dkp_seasonal_v2_system.txt) is:
 
 ```{literalinclude} ../examples/fe_walter/prompts/dkp_seasonal_v2_system.txt
 :language: text
@@ -149,10 +185,32 @@ physics applies water availability and release limits, computes spill and end
 storage, and supplies the next day's state. The model does not calculate
 catchment inflow or water balance.
 
+Both agent files now reference
+[`seasonal_pool_criteria.json`](../examples/fe_walter/seasonal_pool_criteria.json)
+through the optional case setting `seasonal_criteria_file`. The backend appends
+the simulation date's window, pool bounds and next window start to the user
+prompt. It prescribes no release. The original Anik thin wrapper uses the same
+addition while retaining its native policy and water calculation.
+
+The [October comparison](../examples/fe_walter/prompt_review.md) separates the
+actual saved requests from proposed messages containing this addition.
+Removing the setting preserves the earlier prompt assembly.
+
+![Prompt and context workflow](../docs/figures/prompt-context-workflow.svg)
+
+**Figure 3.** Retrieved knowledge adds context to the prompt; system instructions
+are optional and user-supplied. The two methods use six- and eight-field raw
+response schemas, respectively; both return a release proposal to shared physics.
+
 ## 6. Check, prepare, run, and verify
 
 `check` resolves configuration without hydrology or provider access. `prepare`
 computes the selected hydrology. An LLM run requires the explicit network flag.
+
+Before an LLM run, Ollama must serve the exact installed model tag named in
+[`models.yaml`](../examples/fe_walter/coupled/current/models.yaml) at its configured
+URL. See [provider settings](../docs/MODEL_PROVIDERS.md) before enabling
+network access. Reading the saved results requires no inference service.
 
 ```powershell
 reservoir-experiment check examples/fe_walter/coupled/current/experiment.yaml
@@ -175,14 +233,6 @@ Before combining, the builder verifies 366 unique ordered dates per method,
 common inflow within a 1e-10 m³/s CSV-serialization tolerance, the shared initial
 state, and units. It does not interpolate or generate model output.
 
-![2016 water elevation and controlled release](../examples/fe_walter/coupled/outputs/current_tutorial/reservoir_operations.png)
-
-**Figure 4.** Saved 2016 operations for **Rule-based**, **LLM with available
-information**, and **LLM with retrieved knowledge**. (A) End-of-day water
-elevation in ft NGVD29, with dotted guides at 1300 and 1370 ft. (B) Daily
-controlled release in m³/s; grouped bars exclude spill. Both panels share the
-calendar axis.
-
 Downloads: [daily.csv](../examples/fe_walter/coupled/outputs/current_tutorial/daily.csv)
 and [current tutorial provenance](../examples/fe_walter/coupled/outputs/current_tutorial/provenance.json),
 plus the combined figure as [SVG](../examples/fe_walter/coupled/outputs/current_tutorial/reservoir_operations.svg)
@@ -194,3 +244,11 @@ exports remain available as secondary downloads.
 Open the [main notebook](main.ipynb) for executable saved-data inspection.
 [Technical engine evidence and historical audit material](../examples/fe_walter/engine_comparison.md)
 remain available without interrupting the main workflow.
+
+![2016 water elevation and controlled release](../examples/fe_walter/coupled/outputs/current_tutorial/reservoir_operations.png)
+
+**Figure 4.** Saved 2016 operations for **Rule-based**, **LLM with available
+information**, and **LLM with retrieved knowledge**. (A) End-of-day water
+elevation in ft NGVD29, with dotted guides at 1300 and 1370 ft. (B) Daily
+controlled release in m³/s, with one bar row per method. The three release
+rows share the same flow scale and exclude spill. All axes share dates.

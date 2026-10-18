@@ -98,12 +98,22 @@ def test_current_figure_manifest_covers_exact_published_bytes():
     import hashlib
     folder = OUTPUTS / 'current_tutorial'
     manifest = json.loads((folder / 'provenance.json').read_text(encoding='utf-8'))
-    assert len(manifest['artifacts']) == 10
+    expected = {'daily.csv'} | {
+        stem + suffix
+        for stem in ('reservoir_operations', 'daily_water_elevation',
+                     'controlled_release_daily')
+        for suffix in ('.png', '.svg', '.pdf')
+    }
+    assert set(manifest['artifacts']) == expected
+    assert manifest['figure_layout']['primary_height_mm'] == 160
+    assert 'no new daily or live-date context' in manifest['provenance_note']
     for name, digest in manifest['artifacts'].items():
         path = folder / name
         assert hashlib.sha256(path.read_bytes()).hexdigest() == digest
         if path.suffix == '.svg':
             assert all(line == line.rstrip() for line in path.read_text(encoding='utf-8').splitlines())
+    assert hashlib.sha256((folder / 'daily.csv').read_bytes()).hexdigest() == (
+        'cf3187a46b10298974684dd41cbb46880057b9968cf5a2f9ecfca4b2dcd9d62e')
 
 
 def test_result_figures_keep_paper_width_fonts_and_editable_labels():
@@ -115,9 +125,11 @@ def test_result_figures_keep_paper_width_fonts_and_editable_labels():
     folder = OUTPUTS / 'current_tutorial'
     for stem in ('reservoir_operations', 'daily_water_elevation', 'controlled_release_daily'):
         pdf = (folder / (stem + '.pdf')).read_bytes()
-        box = re.search(rb'/MediaBox\s*\[\s*0\s+0\s+([\d.]+)', pdf)
+        box = re.search(rb'/MediaBox\s*\[\s*0\s+0\s+([\d.]+)\s+([\d.]+)', pdf)
         assert box is not None
         assert float(box.group(1)) / 72 * 25.4 == pytest.approx(180, abs=0.01)
+        if stem == 'reservoir_operations':
+            assert float(box.group(2)) / 72 * 25.4 == pytest.approx(160, abs=0.01)
         assert b'/FontFile2' in pdf, 'PDF must embed its TrueType font'
         svg = ET.parse(folder / (stem + '.svg')).getroot()
         text_nodes = svg.findall('.//{http://www.w3.org/2000/svg}text')
@@ -138,10 +150,12 @@ def test_result_figures_keep_paper_width_fonts_and_editable_labels():
             assert 'Summer limit: 1370 ft' in labels
         with Image.open(folder / (stem + '.png')) as image:
             assert abs(image.width - 180 / 25.4 * 600) <= 1
+            if stem == 'reservoir_operations':
+                assert abs(image.height - 160 / 25.4 * 600) <= 1
             assert image.info['dpi'][0] == pytest.approx(600, abs=1)
 
 
-def test_combined_figure_has_shared_calendar_exact_lines_grouped_bars_and_large_legend():
+def test_combined_figure_has_shared_calendar_exact_lines_and_three_release_rows():
     """The paper figure must preserve every plotted daily value in its A/B layout."""
     import matplotlib.colors as mcolors
     import matplotlib.dates as mdates
@@ -155,11 +169,12 @@ def test_combined_figure_has_shared_calendar_exact_lines_grouped_bars_and_large_
     figure = builder.plot_reservoir_operations(daily)
     axes = figure.axes
     try:
-        assert len(axes) == 2
-        elevation, release = axes
-        assert elevation.get_shared_x_axes().joined(elevation, release)
+        assert len(axes) == 4
+        elevation, *release_axes = axes
+        assert all(elevation.get_shared_x_axes().joined(elevation, release)
+                   for release in release_axes)
         assert elevation.get_title().startswith('(A)')
-        assert release.get_title().startswith('(B)')
+        assert release_axes[0].get_title().startswith('(B)')
 
         expected_labels = [
             'Rule-based',
@@ -178,33 +193,33 @@ def test_combined_figure_has_shared_calendar_exact_lines_grouped_bars_and_large_
             assert guides[label].xy == (0.74, level)
             assert guides[label].get_fontsize() >= 9
 
-        bars = release.patches
-        assert len(bars) == 3 * 366
-        offsets = []
-        for label in expected_labels:
+        release_limits = [release.get_ylim() for release in release_axes]
+        release_ticks = [release.get_yticks() for release in release_axes]
+        assert all(limits == release_limits[0] for limits in release_limits)
+        assert all(np.array_equal(ticks, release_ticks[0]) for ticks in release_ticks)
+        for release, label in zip(release_axes, expected_labels, strict=True):
             expected = daily.loc[daily['method_label'] == label].copy()
             expected_dates = mdates.date2num(pd.to_datetime(expected['date']))
             line = data_lines[label]
             np.testing.assert_allclose(line.get_ydata(), expected['pool_elevation_end_ft'],
                                        rtol=0, atol=0)
             color = mcolors.to_rgba(line.get_color())
-            method_bars = sorted(
-                (bar for bar in bars if np.allclose(bar.get_facecolor(), color)),
-                key=lambda bar: bar.get_x() + bar.get_width() / 2,
-            )
-            assert len(method_bars) == 366
-            centers = np.array([bar.get_x() + bar.get_width() / 2 for bar in method_bars])
-            offsets.append(float(np.median(centers - expected_dates)))
+            assert len(release.patches) == 366
+            assert all(np.allclose(bar.get_facecolor(), color) for bar in release.patches)
+            centers = np.array([
+                bar.get_x() + bar.get_width() / 2 for bar in release.patches])
+            np.testing.assert_allclose(centers, expected_dates, rtol=0, atol=1e-10)
             np.testing.assert_allclose(
-                [bar.get_height() for bar in method_bars],
+                [bar.get_height() for bar in release.patches],
                 expected['controlled_release_cms'], rtol=0, atol=0,
             )
-        assert len({round(offset, 8) for offset in offsets}) == 3
+            assert [text.get_text() for text in release.texts] == [label]
 
-        legends = [*figure.legends, elevation.get_legend(), release.get_legend()]
+        legends = [*figure.legends, elevation.get_legend(),
+                   *(axis.get_legend() for axis in release_axes)]
         legend = next(item for item in legends if item is not None)
         assert [text.get_text() for text in legend.get_texts()] == expected_labels
-        assert min(text.get_fontsize() for text in legend.get_texts()) >= 10.5
+        assert min(text.get_fontsize() for text in legend.get_texts()) == 10
     finally:
         import matplotlib.pyplot as plt
         plt.close(figure)

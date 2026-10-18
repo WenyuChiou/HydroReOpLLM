@@ -1,20 +1,13 @@
 # Current F.E. Walter teaching results
 
+The saved LLM trajectories use the **previous prompts**, without the new daily
+seasonal context. [Review the actual October requests and proposed addition](prompt_review.md). No new model result is shown.
+
 The maintained comparison uses three saved 2016 trajectories: **Rule-based**,
 **LLM with available information**, and **LLM with retrieved knowledge**. All
 three use the same accepted daily inflow and initial physical state.
 
 ## Reservoir operations
-
-![2016 water elevation and controlled release](coupled/outputs/current_tutorial/reservoir_operations.png)
-
-**Figure 1.** Saved 2016 operations for **Rule-based**, **LLM with available
-information**, and **LLM with retrieved knowledge**. (A) End-of-day water
-elevation in ft NGVD29, with the 1300 ft winter target and 1370 ft summer upper
-limit labeled. Winter compliance is 1297–1303 ft on November 1–March 14; the
-summer ceiling applies on May 10–October 14. These are study criteria, not
-enforced release constraints. (B) Daily controlled release in m³/s; grouped
-bars exclude spill. Both panels share the calendar axis.
 
 In the retrieved-knowledge run, replies on October 12–14 apply the October
 15–31 drawdown window early. Continued release lowers the pool to **1287.8 ft
@@ -40,3 +33,13 @@ These trajectories support a saved-method comparison, not a general method
 ranking. Completion and mass balance do not establish acceptable operation.
 Read the [engine comparison](engine_comparison.md) for implementation evidence
 and [`results_history.md`](results_history.md) for older experiments.
+
+![2016 water elevation and controlled release](coupled/outputs/current_tutorial/reservoir_operations.png)
+
+**Figure 1.** Saved 2016 operations for **Rule-based**, **LLM with available
+information**, and **LLM with retrieved knowledge**. (A) End-of-day water
+elevation in ft NGVD29, with the 1300 ft winter target and 1370 ft summer upper
+limit labeled. Winter compliance is 1297–1303 ft on November 1–March 14; the
+summer ceiling applies on May 10–October 14. These are study criteria, not
+enforced release constraints. (B) Daily controlled release in m³/s; one row per method, with identical flow scales and no spill. All axes share
+the calendar.

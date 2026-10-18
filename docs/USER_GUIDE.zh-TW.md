@@ -2,51 +2,28 @@
 
 [English](USER_GUIDE.md) | [繁體中文](USER_GUIDE.zh-TW.md)
 
-先準備已接受的 HydroCNHS 水文模型，再加入水庫與河網設定，最後為每座受控水庫選擇操作 agent。
+保留已接受的 HydroCNHS 水文模型，再加入水庫蓄水、河網與操作 agent。請依序閱讀，
+每個設定章節都會展示完整檔案。
 
-## 檢查、執行與驗證
+1. [安裝](GETTING_STARTED.md)：安裝套件並檢查指令。
+2. [設定總覽](INPUT_OUTPUT.md)：了解需要哪些檔案。
+3. [全域設定](GLOBAL_SETTINGS.md)：決定日期、執行名稱與輸出位置。
+4. [水文](HYDROLOGY_SETUP.md)：提供原生模型與氣象資料。
+5. [水庫與河網](BUILD_SIMULATION.zh-TW.md)：連接入流、蓄水與下游。
+6. [Agents 與 LLM](CONFIGURATION.md)：選擇規則或 LLM，再設定 prompt 與資訊。
+7. [檢查與執行](RUNNING.md)：驗證設定、準備入流、執行與查核。
+8. [案例](CASE_STUDIES.md)：依完整研究範例操作。
+9. [結果](RESULTS_GUIDE.md)：區分建議放流、實際放流、溢流與水位。
+10. [問題排查](TROUBLESHOOTING.md)：診斷無效或未完成結果。
+11. [API 文件](API_REFERENCE.md)：查詢設定對應的函數。
 
-1. [安裝](GETTING_STARTED.md)套件。
-2. [區分設定](INPUT_OUTPUT.md)：全域、水文、水庫與 agent。
-3. [連接模擬](BUILD_SIMULATION.zh-TW.md)：將水文出口對應到水庫入流節點。
-4. [設定 agent](CONFIGURATION.md)：選擇 Rule-based 或 LLM。
-5. 依 [FE Walter 教學](../tutorials/fe_walter.md)，從實際 `experiment.yaml` 逐檔閱讀。
-6. [執行並驗證](RUNNING.md)，再[查看結果](RESULTS_GUIDE.md)。
+[模板清單](TEMPLATES.md)集中列出通用設定。相對路徑以宣告它的檔案為起點。
+Profile 是一組具名設定，例如某個模型設定；共用 profile 不會共用水庫狀態與歷史。
 
-Offline 表示不發送真實模型請求。Baseline 是比較用的模擬，例如 Rule-based；它不是第三種 agent。
-閱讀教學與已保存結果不需要啟動模型。
+HydroCNHS 先計算上游入流，再進行逐日水庫操作。更換 operator 不會改變已保存的
+上游水文。Agent 提出控制放流，水庫物理計算決定實際放流、溢流與剩餘蓄水，
+下一天從該結果繼續。
 
-## 了解執行順序
-
-HydroCNHS 先計算包含暖機期的連續上游入流。HydroOpsLLM 選出操作期間，
-再逐日執行決策、水庫物理計算與下游 routing。更換操作方法不會改變預先計算的上游水文。
-
-Agent 提出控制放流；水庫計算依可用水量及放流限制決定實際放流、溢流與剩餘蓄水。
-下一日使用更新後的狀態。
-
-## 選擇決策方法
-
-| 方法 | 設定 | 決策來源 |
-|---|---|---|
-| Rule-based | `type: rule_based`、`rule`、`rule_parameters` | 使用者註冊的規則模組；Hanasaki 只是範例。 |
-| LLM | `type: llm`、`model_profile`、`prompt_file` | 模型讀取使用者定義的 prompt。 |
-
-LLM 擴充模組可自行建立訊息格式，不必使用 `prompt_file`。FE Walter 使用此方式保留
-Anik 的訊息格式；案例邏輯保存在 examples，不是通用預設。
-
-## 設定與選用功能
-
-`experiment.yaml` 定義期間、輸出位置及其他設定檔的引用。Profile 是一組具名設定，
-例如某個 provider 與模型參數。多個 agent 可共用 profile，但各水庫的狀態與歷史分開保存。
-新實驗建議使用 `hydroops-coupled-simulation.v2`。相對路徑以寫下該路徑的檔案位置為起點。
-
-## 稍後加入選用資訊與續跑
-
-先完成必要設定，再依研究需要加入 system prompt、固定變數、帶時間的資訊或檢索 callback。
-框架不會自動加入共用 system prompt。
-
-## 問題排查
-
-[問題排查](TROUBLESHOOTING.md)集中說明輸入錯誤、無效回覆、操作目標未達與中斷問題。
-[執行與續跑](RUNNING.md)說明如何保留原始紀錄並從新目錄繼續；
-[API 文件](API_REFERENCE.md)與[設定參考](PARAMETER_REFERENCE.md)提供完整介面。
+集水區建置、參數估計與校正驗證請參考
+[HydroCNHS 官方教學](https://github.com/cylin928/HydroCNHS/tree/main/tutorials)；
+本手冊集中說明新增的水庫與 LLM 功能。

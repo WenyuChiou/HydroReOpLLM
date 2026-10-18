@@ -1,42 +1,47 @@
-# HydroCNHS prerequisites
+# Hydrology setup
 
-Prepare and accept hydrology before studying reservoir decisions. Use the
-[HydroCNHS tutorials](https://github.com/cylin928/HydroCNHS/tree/main/tutorials)
-for semi-distributed model building, parameter setting and calibration.
-Use its [input/output reference](https://cylin928.github.io/HydroCNHS/files/4_input_output.html#inputs)
-and [ABM integration tutorial](https://cylin928.github.io/HydroCNHS/files/6_Integrate_an_ABM.html)
-for the native APIs. We retain the unchanged HydroCNHS core, pinned in
-[the source record](../third_party/hydrocnhs/SOURCE.json).
+Prepare and accept hydrology before comparing reservoir operators. Supply an
+agent-free native HydroCNHS model, its complete forcing period, and an explicit
+mapping from native flows to operation network nodes. Basin delineation,
+parameter estimation, calibration, and validation remain user work.
 
-## Bring these inputs to the reservoir experiment
+Download [hydrology.yaml](../templates/coupled/hydrology.yaml) or browse the
+[complete template folder](TEMPLATES.md).
 
-| Input | Requirement at our boundary |
-|---|---|
-| Native model YAML | Agent-free GWLF or ABCD with Lohmann routing. Preserve subbasin IDs, accepted parameters and continuous dates. |
-| Weather CSV(.gz) | Every model day and weather-driven subbasin; precipitation mm/day, temperature °C, PET cm/day. |
-| Operation window | Must lie within the continuous hydrology period. Preserve antecedent state/warm-up. |
-| Flow bindings | Explicit native runoff/routed outlet → operation inlet. Count each catchment contribution once. |
-| Acceptance evidence | Data sources, warm-up, calibration/validation periods, selected parameters and gauge coverage. |
+```{literalinclude} ../templates/coupled/hydrology.yaml
+:language: yaml
+```
 
-The formal entry runs continuous upstream hydrology during prepare, then selects
-the reservoir-operation window. It does not download forcing, delineate a basin
-or search calibration parameters. Reservoir initial storage is set independently.
-Changing the operation method does not require recalibrating unchanged hydrology.
+| Field | Purpose and units | Required? | User-filled or referenced value |
+|---|---|---|---|
+| `model` | Complete native HydroCNHS model | Required | Path to user-owned accepted YAML |
+| `forcing` | Daily weather table | Required | Path to user-owned CSV or CSV.gz |
+| `zero_flow_nodes` | Native nodes with zero assigned local flow; upstream routed contributions remain | Optional; default empty | Native outlet IDs |
+| `inflow_bindings` | One local boundary for every operation node | Required | Mapping keyed by network node ID |
+| `runoff` | Local runoff before native routing | One binding choice | Native weather driven unit ID |
+| `routed` | Native routed outlet flow | One binding choice | Native routing outlet ID |
+| `constant` | Explicit absence of added lateral flow | One binding choice | Only `0` is accepted |
+| `prepared_from` | Reuse a verified matching preparation | Optional | Existing preparation directory |
 
-The added CSV format, PET requirement and unit conversion are specified in
-[Inputs and outputs](INPUT_OUTPUT.md). For complete field rules use
-[Weather inputs](WEATHER_INPUTS.md). The native core supports more workflows than
-this deliberately narrower weather-to-operation entry.
+After viewing the complete file, `hydrology.model` can be used as shorthand for
+the `model` key inside this section. It is a configuration position containing
+a path, not a function.
 
-## F.E. Walter evidence
+The native `WaterSystem` dates define the continuous hydrology period. The
+operation window in `experiment.yaml` must lie inside it. Keep the warm-up days
+and accepted parameters in the native file. The current entry accepts GWLF or
+ABCD rainfall-runoff with Lohmann routing and rejects native ABM agents so
+reservoir control is not applied twice.
 
-The [case hydrology record](../examples/fe_walter/hydrology.md) preserves the
-seven-subcatchment data sources, accepted parameters and fixed-parameter C&V
-reproduction. Keep that evidence available for research reporting; it is not an
-extra set of LLM settings. Only two units drain through gauge 01447500, so the
-other five are not independently gauge-validated.
+The forcing columns and units are listed in [Configuration overview](INPUT_OUTPUT.md).
+Each weather driven `(subbasin_id, date)` pair must appear exactly once. Bind
+each catchment contribution once: a downstream node receives upstream reservoir
+outflow through `network.connections`, so its local binding contains only
+additional lateral water.
 
-Continue with [Build a coupled simulation](BUILD_SIMULATION.md) and
-[configure an LLM agent](CONFIGURATION.md). The later
-[F.E. Walter case study](../examples/fe_walter/README.md) explains how those
-general steps support one specific research design.
+For an aggregation outlet, zero local input means that the node adds no runoff
+of its own. It can still receive and route water from upstream subcatchments;
+the `routed` binding returns that upstream total.
+
+See the [HydroCNHS manual](https://cylin928.github.io/HydroCNHS/) for native model
+construction and calibration. Continue with [reservoirs and the water network](BUILD_SIMULATION.md).

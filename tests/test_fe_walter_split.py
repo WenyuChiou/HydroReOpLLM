@@ -105,6 +105,8 @@ def _confirmed_document(method):
     if method != "rule":
         ref = data["agents"]["fe_operator"]["customization"]["parameters"]["reference"]
         ref.update(hide_availability_line=True, dkp_no_missing_inputs=True)
+        # New opt-in prompt context is the only additional executable setting.
+        ref["seasonal_criteria_file"] = _resource("../seasonal_pool_criteria.json")
         if method == "llm_knowledge":
             ref["system_prompt"] = str((ROOT / CONFIRMED_DKP_PROMPT).resolve())
     return data
@@ -194,6 +196,7 @@ def test_previous_v1_documents_still_load_without_rewriting_their_contract(metho
     assert ref["hide_availability_line"] is False
     assert ref["dkp_no_missing_inputs"] is False
     assert ref["system_prompt"].endswith("_seasonal_v1_system.txt")
+    assert "seasonal_criteria_file" not in ref
     for relative, digest in SOURCE_PINS.items():
         assert hashlib.sha256((ROOT / relative).read_bytes()).hexdigest() == digest
 

@@ -9,6 +9,10 @@ from pathlib import Path
 from llm_reservoir_agent.audit import json_snapshot
 from .reference_backend import ReferenceBackend, preview_backend, validate_reference
 from .dkp_audit import DKPStrategyAudit, DKP_RESPONSE_SCHEMA, validate_dkp_decision
+from .seasonal_prompt_context import (
+    SeasonalContextBackend, SeasonalPromptContext, SeasonalWindowContext,
+    load_seasonal_prompt_context,
+)
 
 
 def validate_backend(spec, *, base_path, runtime_root, physical, mode, days, model, auditor_settings):
@@ -77,7 +81,7 @@ def parse_response(value):
 def rebase_agent(spec, *, base_path):
     """Rebase declared native resource files; leave profile IDs and logical data alone."""
     reference = spec.get("reference", {})
-    for key in ("system_prompt", "profile_file", "dkp", "responses"):
+    for key in ("system_prompt", "profile_file", "dkp", "responses", "seasonal_criteria_file"):
         if key in reference:
             reference[key] = str((Path(base_path) / reference[key]).resolve())
 

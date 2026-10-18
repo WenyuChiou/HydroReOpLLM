@@ -20,6 +20,7 @@ from typing import Any, Mapping
 
 from llm_reservoir_agent.audit import json_snapshot
 from llm_reservoir_agent.context import ContextValue, DecisionContext
+from .seasonal_prompt_context import SeasonalPromptContext
 
 
 CFS_TO_CMS = 0.028316847
@@ -337,8 +338,10 @@ class DKPRetriever:
 class NativePromptFormatter:
     """Build one exact native user message as a ConfiguredBackend prompt callback."""
 
-    def __init__(self, profile: CaseProfile, settings: Mapping[str, Any], dkp_path: Path | None):
+    def __init__(self, profile: CaseProfile, settings: Mapping[str, Any], dkp_path: Path | None,
+                 seasonal_context: SeasonalPromptContext | None = None):
         self.profile, self.settings = profile, settings
+        self.seasonal_context = seasonal_context
         self.history: list[dict[str, Any]] = []
         self.retriever = None if dkp_path is None else DKPRetriever(dkp_path)
         self.last_runtime: dict[str, Any] | None = None
@@ -393,6 +396,8 @@ class NativePromptFormatter:
             self.last_headings = []
             lines += ["", "Decide the mean release for this interval (cfs)."]
         prompt = "\n".join(lines)
+        if self.seasonal_context is not None:
+            prompt = self.seasonal_context.inject(prompt, day)
         self.last_runtime = runtime
         self.last_variables = {
             "schema_version": "reservoir-daily-inputs.v1", "reservoir_profile": self.profile.profile_id,
@@ -404,6 +409,11 @@ class NativePromptFormatter:
             "history_semantics": "prior requested and implemented outflows; appended after physical commit",
             "target_period": runtime["target_period"],
         }
+        if self.seasonal_context is not None:
+            self.last_variables["seasonal_prompt_context"] = {
+                **self.seasonal_context.provenance,
+                "window": self.seasonal_context.for_date(day).window_id,
+            }
         return ContextValue(prompt, {"source": "fe_walter.native_prompt", "date": day.isoformat()})
 
     def commit(self, record: Mapping[str, Any]) -> None:

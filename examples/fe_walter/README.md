@@ -31,7 +31,7 @@ dam/outlet. Water surfaces and rivers share the same blue.[^map-sources]
 [^map-sources]: Esri, CGIAR, USGS, data.pa.gov, TomTom, Garmin, SafeGraph,
     METI/NASA, EPA, NPS, USDA, USFWS, New Jersey Office of GIS, FAO, and NOAA.
 
-## Accepted hydrological boundary
+## Hydrological inputs and evaluation
 
 The seven modeled contributing units total 750.811 km², excluding the native
 model's 1 ha artificial aggregation outlet. This is watershed area, not official
@@ -87,6 +87,11 @@ replace these public method names.
 
 ## Seasonal pool levels
 
+The optional case setting `seasonal_criteria_file` now supplies the current
+simulation date, bounds and next window start to both LLM methods. It prescribes
+no release. The [saved results](results.md) still use the previous prompts;
+[October requests and proposed messages](prompt_review.md) are shown separately.
+
 The current case uses study-defined compliance windows in ft N.G.V.D. They are
 research settings, not an official annual operating schedule.
 
@@ -101,7 +106,7 @@ The [versioned criteria](seasonal_pool_criteria.json) retain exact dates, bands,
 and the shared instruction. A compliance count is a diagnostic for these study
 criteria; it is not official operating acceptance.
 
-## Where to continue
+## Case file index
 
 - [Configuration and commands](../../tutorials/fe_walter.md)
 - [Hydrology, parameters, and C&V](hydrology.md)

@@ -28,7 +28,7 @@ Creek 交會處，橫跨 Carbon 與 Luzerne counties。水壩建於 1961 年。�
 [^map-sources]: Esri、CGIAR、USGS、data.pa.gov、TomTom、Garmin、SafeGraph、
     METI/NASA、EPA、NPS、USDA、USFWS、New Jersey Office of GIS、FAO、NOAA。
 
-## 已接受的水文邊界
+## 水文輸入與評估
 
 七個模式貢獻單元合計 750.811 km²，不計原生模型中 1 ha 的人工匯總出口。
 這是集水區面積，不是官方水庫水面或專案土地面積。HydroCNHS 使用每日氣象與集水區屬性產生
@@ -41,7 +41,7 @@ Creek 交會處，橫跨 Carbon 與 Luzerne counties。水壩建於 1961 年。�
 | 有紀錄的氣象補值 | nClimGrid-Daily 僅補 leap year 的 12 月 31 日，不作一般缺值填補 |
 | PET | 由日平均溫與子集水區緯度計算 HydroCNHS Hamon PET（cm/day） |
 | 土地覆蓋 | NLCD 2021，以 60 m 彙整，並在歷史模擬期間保持固定 |
-| 土壤 | SSURGO polygons 與 NRCS Soil Data Access 屬性 |
+| 土壤 | SSURGO polygons 與 NRCS Soil Data Access 屬性；未使用 gSSURGO raster |
 | 集水區幾何 | 子集水區邊界、面積、形心緯度與河道路徑長度 |
 | 觀測流量 | USGS 01447500 每日流量，用於水文校正與驗證 |
 | 校正／驗證 | 1990–2010／2011–2020，測站 USGS 01447500 |
@@ -79,6 +79,10 @@ Operator 提議放流；共用物理核心檢查可行性、更新蓄水、計�
 
 ## 季節水位
 
+選用設定 `seasonal_criteria_file` 現在會提供當日季節、適用水位條件與下一窗口起日，
+兩種 LLM 方法使用相同格式，不預先指定放流量。[保存結果](results.zh-TW.md)仍由舊 prompt 產生；
+[10 月原文對照](prompt_review.md)把歷史請求與擬修改提示分開展示。
+
 目前案例使用研究自訂的水位合規窗口，單位為 ft N.G.V.D.；這些設定不是官方逐年
 操作時程。
 
@@ -92,12 +96,13 @@ Operator 提議放流；共用物理核心檢查可行性、更新蓄水、計�
 [季節規格](seasonal_pool_criteria.json)保存確切日期、區間與共同指令。合規計數是研究
 診斷，不代表官方操作接受。
 
-## 後續閱讀
+## 案例檔案索引
 
 - [設定與指令](../../tutorials/fe_walter.md)
 - [水文、參數與 C&V](hydrology.zh-TW.md)
 - [每日耦合](coupling.zh-TW.md)
 - [目前保存的全年結果](coupled/README.md#current-saved-2016-results)
 - [目前教學結果](results.zh-TW.md)
+- [引擎對照證據](engine_comparison.md)
 - [主 notebook](../../tutorials/main.ipynb)
 - [通用多水庫 notebook](../../tutorials/advanced.ipynb)

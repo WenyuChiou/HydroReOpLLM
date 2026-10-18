@@ -21,10 +21,10 @@ html_context = {
 }
 html_static_path = ["_static"]
 html_css_files = ["manual.css"]
-html_js_files = ["manual.js"]
+html_js_files = ["manual.js", "prompt-review.js"]
 html_favicon = "_static/logo-32.png"
 html_theme_options = {"page_width": "1280px", "body_max_width": "960px",
                       "sidebar_width": "260px", "fixed_sidebar": True}
 templates_path = ["_templates"]
 html_sidebars = {"**": ["navigation.html"]}
-exclude_patterns = ["_static/**", "_templates/**", "_notebook_downloads/**", "_case_downloads/**", "_hydrology_downloads/**", "_figure_downloads/**", "_config_downloads/**", "_completed_downloads/**", "_tutorial_downloads/**"]
+exclude_patterns = ["_static/**", "_templates/**", "_notebook_downloads/**", "_case_downloads/**", "_hydrology_downloads/**", "_figure_downloads/**", "_config_downloads/**", "_completed_downloads/**", "_tutorial_downloads/**", "_template_downloads/**", "examples/fe_walter/knowledge/**"]

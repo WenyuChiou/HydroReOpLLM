@@ -26,13 +26,15 @@ from .native_case import (
     NativeResponseParser, ZERO_SCHEMA, case_profile_path, dkp_schema, load_case_profile,
     native_audit, read_system_prompt,
 )
+from .seasonal_prompt_context import load_seasonal_prompt_context
 
 
 def validate_reference(spec, base, runtime_root, *, mode="offline"):
     """Resolve files and pin source evidence without importing vendor modules."""
     allowed = {"method", "profile", "responses", "prompt_storage", "hide_availability_line",
                "dkp_no_missing_inputs", "zeroshot_knowledge", "dkp", "system_prompt",
-               "system_prompt_mode", "profile_file", "consultation_mode", "response_validation"}
+               "system_prompt_mode", "profile_file", "consultation_mode", "response_validation",
+               "seasonal_criteria_file"}
     if not isinstance(spec, dict) or set(spec) - allowed:
         raise ValueError("reference requires known reference strategy settings")
     result = dict(spec)
@@ -74,6 +76,16 @@ def validate_reference(spec, base, runtime_root, *, mode="offline"):
         result["system_prompt_sha256"] = pins[str(path)] = hashlib.sha256(blob).hexdigest()
     elif result["system_prompt_mode"] == "custom":
         raise ValueError("custom system_prompt_mode requires a system_prompt file")
+
+    if "seasonal_criteria_file" in result:
+        value = result["seasonal_criteria_file"]
+        if not isinstance(value, str) or not value.strip():
+            raise ValueError("seasonal_criteria_file must be a nonempty file path")
+        path = (Path(base) / value).resolve()
+        context = load_seasonal_prompt_context(path)
+        result["seasonal_criteria_file"] = str(path)
+        result["seasonal_criteria_sha256"] = context.sha256
+        pins[str(path)] = context.sha256
 
     profile_path = case_profile_path()
     profile_blob = profile_path.read_bytes()
@@ -271,7 +283,12 @@ class ReferenceBackend:
         if "system_prompt" in settings: self._source_hashes["system_prompt"] = settings["system_prompt_sha256"]
         dkp_path = Path(settings["dkp"]) if settings["method"] == "dkp" else None
         if dkp_path is not None: self._source_hashes["dkp"] = hashlib.sha256(dkp_path.read_bytes()).hexdigest()
-        self._formatter = NativePromptFormatter(self._profile, settings, dkp_path)
+        seasonal_context = None
+        if "seasonal_criteria_file" in settings:
+            seasonal_context = load_seasonal_prompt_context(
+                settings["seasonal_criteria_file"], settings["seasonal_criteria_sha256"])
+            self._source_hashes["seasonal_criteria"] = seasonal_context.sha256
+        self._formatter = NativePromptFormatter(self._profile, settings, dkp_path, seasonal_context)
         self._parser = NativeResponseParser(settings["method"], not settings["dkp_no_missing_inputs"],
             expected["minimum_release_cms"], expected["maximum_release_cms"])
         if mode == "offline":

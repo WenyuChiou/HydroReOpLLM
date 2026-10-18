@@ -4,6 +4,22 @@ The coupled entry expects an already accepted HydroCNHS model and a complete dai
 weather table. It does not download weather, delineate a basin, calibrate
 parameters or decide whether the hydrological model is scientifically adequate.
 
+## Start from the complete hydrology section
+
+The canonical starter keeps hydrology in one full source file:
+
+```{literalinclude} ../templates/coupled/hydrology.yaml
+:language: yaml
+```
+
+Open the [complete hydrology template](../templates/coupled/hydrology.yaml) beside
+the [top-level experiment template](../templates/coupled/experiment.yaml) while
+editing. The experiment references this section with `hydrology: {file:
+hydrology.yaml}`. In this manual, `hydrology.model` means the `model` key inside
+the expanded hydrology section. It is key-path shorthand, not a function call.
+The [HydroCNHS setup chapter](HYDROLOGY_SETUP.md) explains the full file before
+this page narrows to weather and binding rules.
+
 ## Native hydrology model
 
 `hydrology.model` points to an agent-free HydroCNHS YAML with:
@@ -41,20 +57,11 @@ that completed hydrology; they must lie within the native period.
 
 ## Bind natural flow to operation nodes
 
-`hydrology.inflow_bindings` must name every local-flow node in the operation
-network: each reservoir inlet, junction and common outlet. Each node has exactly
-one binding:
-
-```yaml
-hydrology:
-  model: accepted_hydrology.yaml
-  forcing: complete_weather.csv.gz
-  zero_flow_nodes: [native_placeholder]
-  inflow_bindings:
-    Reservoir1_inlet: {routed: native_outlet}
-    Reservoir2_inlet: {runoff: lateral_subbasin}
-    Downstream: {constant: 0}
-```
+`inflow_bindings` in the complete template must name every local-flow node in
+the operation network: each reservoir inlet, junction and common outlet. Each
+node has exactly one binding. The table below lists the three accepted forms;
+replace the template placeholders with IDs from the accepted hydrology model and
+physical network.
 
 | Binding | Meaning |
 |---|---|
@@ -73,56 +80,6 @@ downstream local input. Bind only the downstream reach's incremental lateral
 runoff. The operation network separately routes the upstream reservoir's
 implemented controlled release plus spill.
 
-## A generic configured LLM simulation
-
-This abbreviated example uses the reusable configured strategy. The physical
-case, prompt and model must be appropriate for the user's basin.
-
-```yaml
-schema_version: hydroops-coupled-simulation.v2
-case: reservoirs.json
-run_id: basin-operator-v1
-output: ../runs/basin-operator-v1
-start_date: '2020-01-01'
-end_date: '2020-12-31'
-max_calls: null
-
-hydrology:
-  model: accepted_hydrology.yaml
-  forcing: complete_weather.csv.gz
-  zero_flow_nodes: []
-  inflow_bindings:
-    R1_inlet: {routed: basin_outlet}
-    Downstream: {constant: 0}
-
-models:
-  local_model:
-    provider: ollama
-    model: your-model
-    base_url: http://localhost:11434
-    max_attempts: 2
-    retry_delay_seconds: 2
-
-agents:
-  operator:
-    reservoir_id: R1
-    type: llm
-    model_profile: local_model
-    prompt_file: operator.txt
-    auditors: [release_limits]
-
-auditors:
-  release_limits: {type: release_bounds, version: '1'}
-```
-
-The prompt is explicit; no common system prompt is automatically added. Optional
-knowledge, context, information and separate system instructions belong under the
-agent's `customization` mapping.
-
-`max_calls: null` removes the total-call cap. `max_attempts: 2` remains a separate
-per-decision bound, and a retry uses unchanged decision inputs without advancing
-storage. Network access still requires `run --allow-network`.
-
 ## Reuse a preparation
 
 To compare another operation method without rerunning hydrology, keep the model,
@@ -137,4 +94,7 @@ hydrology:
 The loader verifies the preparation manifest and inflow checksum. Changed bytes,
 dates, bindings, code or numeric-library versions require a fresh preparation.
 
-Continue with [Build a weather-to-operation simulation](BUILD_SIMULATION.md).
+Continue with [Build a simulation](BUILD_SIMULATION.md), then use the
+[configuration chapter](CONFIGURATION.md) for agents, prompts, and model
+profiles. The canonical files remain the source of complete examples; this
+weather reference does not redefine them.

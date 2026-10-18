@@ -24,19 +24,23 @@ HydroCNHS 計算流量；每個水庫 agent 提出放流需求；物理模型執
 
    在 Windows PowerShell 中，先以 `py -3.12 -m venv .venv` 與 `.venv\Scripts\Activate.ps1` 建立並啟用環境，再執行相同的安裝指令。
 
-2. **檢查目前的實驗設定。**
+2. **設定研究。** 先讀[設定總覽](docs/INPUT_OUTPUT.md)，再複製完整的
+   [`templates/coupled`](templates/coupled/README.md) 起始範本。檔案索引分開列出
+   實驗、已接受水文、物理網路、agent、模型、prompt、資訊與 auditor。替換所有必要
+   placeholder 後，執行 `reservoir-experiment check <your-experiment.yaml>`；
+   `check` 不會執行水文模擬或呼叫模型。
 
-   ```sh
-   reservoir-experiment check examples/fe_walter/coupled/current/experiment.yaml
-   ```
+3. **依序閱讀 [F.E. Walter 教學](tutorials/fe_walter.md)。** 教學把通用設定套用到
+   一個研究案例，並比較 **Rule-based**、**LLM with available information** 與
+   **LLM with retrieved knowledge**。[主 notebook](tutorials/main.ipynb)只讀取
+   repository 內已提交的證據，不會呼叫模型。
 
-   `check` 會驗證設定並預覽 prompts，不會執行水文模擬或呼叫模型。請由[輸入與設定](docs/INPUT_OUTPUT.md)了解實驗、水文、水庫、agent 與模型檔案。
+4. **查看[已儲存的結果](examples/fe_walter/results.zh-TW.md)。** 合併操作圖與完整精度
+   資料表可供檢視，不需要重新執行推論或水文模擬。這些保存曲線沿用來源執行時的
+   prompt 與 context。
 
-3. **依序閱讀 [F.E. Walter 教學](tutorials/fe_walter.md)。** 教學以同一個物理案例比較三種操作方法：**Rule-based**、**LLM with available information** 與 **LLM with retrieved knowledge**。[主 notebook](tutorials/main.ipynb)只讀取 repository 內已提交的證據，不會呼叫模型。
-
-4. **查看[已儲存的結果](examples/fe_walter/results.zh-TW.md)。** 這些結果與圖表可供檢視，不需要重新執行推論或水文模擬。
-
-若要查看小型通用網路，另見選讀的[多水庫範例](examples/multiple_reservoirs/experiment.yaml)。
+讀完通用設定章節後，可選讀[多水庫範例](docs/MULTI_RESERVOIR.md)；它以四日合成
+軟體 fixture 示範兩個彼此分離的水系。
 
 ## 決策方法
 

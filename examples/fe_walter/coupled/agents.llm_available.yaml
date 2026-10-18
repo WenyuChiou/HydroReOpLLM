@@ -14,6 +14,7 @@ fe_operator: # Decision-unit ID used in plans and traces.
         response_validation: policy # Validate replies with the backend policy contract.
         system_prompt: ../prompts/zeroshot_seasonal_v1_system.txt # Relative to this file.
         system_prompt_mode: custom # Use the declared system-prompt file.
+        seasonal_criteria_file: ../seasonal_pool_criteria.json # Daily study-defined pool window context.
         prompt_storage: false # Do not include storage in the prompt representation.
         hide_availability_line: true # Preserve the approved prompt variant.
         dkp_no_missing_inputs: true # Reject incomplete backend inputs.

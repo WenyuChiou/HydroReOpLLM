@@ -1,0 +1,18 @@
+# Path to the complete, accepted, agent-free native HydroCNHS model YAML.
+model: YOUR_NATIVE_HYDROCNHS_MODEL.yaml
+# Path to a complete CSV or CSV.gz forcing table for every native model day.
+forcing: YOUR_FORCING.csv
+
+# Native outlets assigned zero local runoff; upstream routed water is retained.
+# Use for artificial aggregation nodes with no weather-driven local catchment.
+zero_flow_nodes: [YOUR_ZERO_FLOW_NODE]
+
+# User-filled one-to-one coverage of every node in the operation network.
+# Choose exactly one of runoff, routed, or constant for each node.
+inflow_bindings:
+  YOUR_RESERVOIR_INLET_NODE:
+    # Local runoff ID from the native model RainfallRunoff section.
+    runoff: YOUR_NATIVE_SUBBASIN_ID
+  YOUR_DOWNSTREAM_OUTLET_NODE:
+    # Only zero is accepted; this declares no added lateral flow at the node.
+    constant: 0

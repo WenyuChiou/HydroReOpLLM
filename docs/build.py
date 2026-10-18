@@ -58,6 +58,10 @@ CONFIG_DOWNLOADS.update({
     for name in ("zeroshot_seasonal_v1_system.txt", "dkp_seasonal_v1_system.txt",
                  "dkp_seasonal_v2_system.txt")
 })
+CONFIG_DOWNLOADS.update({
+    "examples/fe_walter/seasonal_pool_criteria.json": "seasonal_pool_criteria.json",
+    "examples/fe_walter/knowledge/DKP_FEWalter_Dam_v1.2.md": "operating-knowledge.txt",
+})
 COMPLETED_DOWNLOADS = {
     f"examples/fe_walter/coupled/outputs/{name}": name
     for name in ("daily.csv", "summary.json", "pool_release.svg", "pool_release.pdf",
@@ -82,6 +86,13 @@ TUTORIAL_DOWNLOADS = {
         "reservoir_operations.png", "reservoir_operations.svg", "reservoir_operations.pdf",
     )
 }
+# Generic templates are maintained once and included verbatim in the chapters.
+TEMPLATE_FILES = (
+    "experiment.yaml", "hydrology.yaml", "reservoirs.yaml", "agents.rule.yaml",
+    "agents.llm.yaml", "models.yaml", "auditors.yaml", "information.yaml",
+    "prompts/system.txt", "prompts/operator.txt", "extensions/user_registered_rule/__init__.py",
+)
+TEMPLATE_DOWNLOADS = {"templates/coupled/" + name: name for name in TEMPLATE_FILES}
 MULTI_RESERVOIR_FILES = (
     "agents.llm.yaml", "agents.rule.yaml", "auditors.yaml", "experiment.llm.yaml",
     "experiment.yaml", "forcing.csv", "hydrology.yaml", "information.yaml",
@@ -115,6 +126,7 @@ PAGES = {
     "examples/fe_walter/results_history.md": "examples/fe_walter/results_history.md",
     "examples/fe_walter/results_history.zh-TW.md": "examples/fe_walter/results_history.zh-TW.md",
     "examples/fe_walter/engine_comparison.md": "examples/fe_walter/engine_comparison.md",
+    "examples/fe_walter/prompt_review.md": "examples/fe_walter/prompt_review.md",
     **{f"examples/fe_walter/{method}/{name}": f"examples/fe_walter/{method}/{name}"
        for method in ("benchmark", "zero_shot", "dkp")
        for name in ("README.md", "README.zh-TW.md")},
@@ -130,6 +142,7 @@ PAGES = {
         "LIVE_READINESS.md", "auditor_plugins.md", "PROJECT_INVENTORY.md", "BUILDING.md",
         "GETTING_STARTED.md", "BUILD_SIMULATION.md", "BUILD_SIMULATION.zh-TW.md", "INFORMATION.md", "INFORMATION.zh-TW.md",
         "CONFIGURATION.md", "MODEL_PROVIDERS.md", "MULTI_RESERVOIR.md", "INPUT_OUTPUT.md", "API_REFERENCE.md",
+        "GLOBAL_SETTINGS.md", "TEMPLATES.md", "CASE_STUDIES.md",
         "PARAMETER_REFERENCE.md", "RESULTS_GUIDE.md", "REFERENCE.md", "RUNNING.md", "CODE_STRUCTURE.md", "WEATHER_INPUTS.md",
         "TROUBLESHOOTING.md", "RECORDS.md",
     )},
@@ -188,6 +201,14 @@ def prepare(source: Path, *, source_ref: str = "main") -> None:
             elif not match[1].startswith("!") and relative in TUTORIAL_DOWNLOADS:
                 import os
                 output = source / "_tutorial_downloads" / TUTORIAL_DOWNLOADS[relative]
+                value = Path(os.path.relpath(output, (source / destination).parent)).as_posix()
+            elif not match[1].startswith("!") and relative in TEMPLATE_DOWNLOADS:
+                import os
+                output = source / "_template_downloads" / TEMPLATE_DOWNLOADS[relative]
+                value = Path(os.path.relpath(output, (source / destination).parent)).as_posix()
+            elif relative.startswith("docs/_static/"):
+                import os
+                output = source / "_static" / target.relative_to(ROOT / "docs/_static")
                 value = Path(os.path.relpath(output, (source / destination).parent)).as_posix()
             elif not match[1].startswith("!") and relative in MULTI_RESERVOIR_DOWNLOADS:
                 import os
@@ -257,6 +278,16 @@ def prepare(source: Path, *, source_ref: str = "main") -> None:
         target = source / relative
         target.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(ROOT / relative, target)
+    template_downloads = source / "_template_downloads"
+    template_downloads.mkdir()
+    for relative, name in TEMPLATE_DOWNLOADS.items():
+        for target in (template_downloads / name, source / relative):
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(ROOT / relative, target)
+    with zipfile.ZipFile(template_downloads / "coupled-configuration.zip", "w",
+                         compression=zipfile.ZIP_DEFLATED) as bundle:
+        for name in (*TEMPLATE_FILES, "README.md"):
+            bundle.write(ROOT / "templates/coupled" / name, arcname="coupled/" + name)
     completed_downloads = source / "_completed_downloads"
     completed_downloads.mkdir()
     for relative, name in COMPLETED_DOWNLOADS.items():
@@ -330,16 +361,17 @@ def prepare(source: Path, *, source_ref: str = "main") -> None:
         shutil.copyfile(item, case_downloads / item.name)
     groups = {
         "Overview and installation": ["docs/README", "docs/GETTING_STARTED"],
-        "Inputs and configuration": ["docs/INPUT_OUTPUT", "docs/BUILD_SIMULATION", "docs/HYDROLOGY_SETUP", "docs/WEATHER_INPUTS"],
-        "Configure agents": ["docs/CONFIGURATION", "docs/MULTI_RESERVOIR",
-                             "docs/MODEL_PROVIDERS", "docs/LLM_MODULES", "docs/INFORMATION"],
-        "Tutorials": ["examples/fe_walter/README", "tutorials/fe_walter", "tutorials/main", "tutorials/advanced",
-                      "tutorials/README"],
+        "Configuration": ["docs/INPUT_OUTPUT", "docs/GLOBAL_SETTINGS", "docs/HYDROLOGY_SETUP",
+                          "docs/BUILD_SIMULATION", "docs/CONFIGURATION", "docs/RUNNING"],
+        "Case studies": ["docs/CASE_STUDIES", "examples/fe_walter/README", "tutorials/fe_walter", "tutorials/main",
+                         "docs/MULTI_RESERVOIR", "tutorials/advanced", "tutorials/README"],
         "Results": ["docs/RESULTS_GUIDE", "examples/fe_walter/results"],
-        "Troubleshooting": ["docs/TROUBLESHOOTING", "docs/RUNNING"],
+        "Troubleshooting": ["docs/TROUBLESHOOTING"],
         "API and reference": ["docs/API_REFERENCE", "docs/PARAMETER_REFERENCE", "docs/REFERENCE", "docs/USER_GUIDE",
                               "docs/CODE_STRUCTURE", "docs/PROJECT_INVENTORY", "archive/README", "repository",
                               "docs/BUILDING", "docs/auditor_plugins", "docs/LIVE_READINESS", "docs/RECORDS",
+                              "docs/TEMPLATES", "docs/WEATHER_INPUTS", "docs/MODEL_PROVIDERS", "docs/INFORMATION", "docs/LLM_MODULES",
+                              "examples/fe_walter/prompt_review",
                               "examples/fe_walter/engine_comparison", "examples/fe_walter/configuration", "examples/fe_walter/hydrology",
                               "examples/fe_walter/coupled/README", "examples/fe_walter/coupling", "examples/fe_walter/annual/README",
                               *[f"examples/fe_walter/{method}/README" for method in ("benchmark", "zero_shot", "dkp")],

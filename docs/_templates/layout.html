@@ -22,8 +22,8 @@
 {% block relbar_bottom %}
   {% if prev or next %}
   <nav class="chapter-pagination" aria-label="Previous and next chapter">
-    {% if prev %}<a class="previous" href="{{ prev.link|e }}">← {{ prev.title }}</a>{% endif %}
-    {% if next %}<a class="next" href="{{ next.link|e }}">{{ next.title }} →</a>{% endif %}
+    {% if prev %}<a class="previous" href="{{ prev.link|e }}"><span>← Previous chapter</span><strong>{{ prev.title }}</strong></a>{% endif %}
+    {% if next %}<a class="next" href="{{ next.link|e }}"><span>Next chapter →</span><strong>{{ next.title }}</strong></a>{% endif %}
   </nav>
   {% endif %}
 {% endblock %}

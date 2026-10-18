@@ -122,7 +122,7 @@ def build_context(config):
 Register the module under `extensions`, select it in `customization.context_providers`,
 and place its alias in the prompt. This example performs no retrieval or model call.
 `check` uses the configured preview rather than executing the callback.
-See [prompt/context settings](CONFIGURATION.md#add-dynamic-context-with-an-extension).
+See [prompt/context settings](CONFIGURATION.md#build-the-prompt).
 
 ## Rule extension contract
 
@@ -216,6 +216,6 @@ Run that verification example only after the named run completes. Read-only
 verification makes no model request and cannot replace missing execution evidence.
 
 The supported user sequence remains `check → prepare → run → verify`, with
-`resume` after interruption. See [the walkthrough](BUILD_SIMULATION.md) for CLI
+`resume` after interruption. See [Check and run](RUNNING.md) for CLI
 arguments, [parameter reference](PARAMETER_REFERENCE.md) for YAML fields and
 [code structure](CODE_STRUCTURE.md) for module relationships.

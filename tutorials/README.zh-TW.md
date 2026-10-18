@@ -22,7 +22,9 @@ python tutorials/build_notebooks.py --check
 ```
 
 Builder 也會在 `examples/fe_walter/coupled/outputs/current_tutorial/` 產生教學
-CSV 與兩張圖。它只合併保存資料，檢查日期、入流、初始狀態與單位，不作插值。
+CSV 與一張合併操作圖；水位與放流單圖仍保留為次要匯出檔。它只合併保存資料，
+檢查日期、入流、初始狀態與單位，不作插值。曲線沿用來源執行所記錄的 prompt 與
+context；建置教學不會加入新的每日或即時日期 context。
 
-[通用設定](../docs/USER_GUIDE.md) · [HydroCNHS 設定](../docs/HYDROLOGY_SETUP.md) ·
+[通用設定](../docs/INPUT_OUTPUT.md) · [HydroCNHS 設定](../docs/HYDROLOGY_SETUP.md) ·
 [F.E. Walter 範例](../examples/fe_walter/README.zh-TW.md)

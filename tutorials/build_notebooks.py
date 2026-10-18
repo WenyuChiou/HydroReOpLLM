@@ -43,12 +43,13 @@ def _add_pool_level_guides(ax):
 def plot_reservoir_operations(daily):
     """Return a paper-width figure of saved elevation and controlled release.
 
-    The axes share dates but retain separate units. Bars are grouped within
-    each day without changing their saved rates (m³/s), which exclude spill.
+    The axes share dates but retain separate units. Each method has its own
+    release row, preserving the saved daily rates (m³/s), which exclude spill.
     Paper exports and the executed tutorial use this same renderer.
     """
     import matplotlib.dates as mdates
     import matplotlib.pyplot as plt
+    from matplotlib.ticker import MaxNLocator
     import pandas as pd
 
     style = {"font.family": "Arial", "font.size": 10,
@@ -56,38 +57,50 @@ def plot_reservoir_operations(daily):
              "xtick.labelsize": 9, "ytick.labelsize": 9,
              "pdf.fonttype": 42, "svg.fonttype": "none", "axes.grid": False}
     with plt.rc_context(style):
-        fig, (elevation, release) = plt.subplots(
-            2, 1, figsize=(180 / 25.4, 115 / 25.4), sharex=True,
-            gridspec_kw={"height_ratios": [1.25, 1]})
-        fig.subplots_adjust(left=0.13, right=0.985, bottom=0.12,
-                            top=0.86, hspace=0.28)
+        fig, axes = plt.subplots(
+            4, 1, figsize=(180 / 25.4, 160 / 25.4), sharex=True,
+            gridspec_kw={"height_ratios": [1.55, 1, 1, 1]})
+        elevation, *release_axes = axes
+        fig.subplots_adjust(left=0.13, right=0.985, bottom=0.085,
+                            top=0.91, hspace=0.24)
+        release_max = float(daily["controlled_release_cms"].max()) * 1.08
+        release_ticks = MaxNLocator(nbins=3, min_n_ticks=3).tick_values(0, release_max)
+        release_max = float(release_ticks[-1])
         for index, (method, label) in enumerate(LABELS.items()):
             rows = daily.loc[daily["method"].eq(method)]
             dates = pd.to_datetime(rows["date"])
             color = METHOD_COLORS[method]
             elevation.plot(dates, rows["pool_elevation_end_ft"], label=label,
                            color=color, linestyle=("-", "--", "-.")[index], linewidth=1.35)
-            # Horizontal offsets separate methods without resampling dates.
-            release.bar(dates + pd.to_timedelta((index - 1) * 0.28, unit="D"),
-                        rows["controlled_release_cms"], width=0.26,
-                        color=color, linewidth=0, label=label, zorder=3)
+            release = release_axes[index]
+            release.bar(dates, rows["controlled_release_cms"], width=0.9,
+                        color=color, linewidth=0, zorder=3)
+            release.set(ylim=(0, release_max), yticks=release_ticks)
+            release.text(0.01, 0.76, label, transform=release.transAxes,
+                         ha="left", va="top", color=color, fontsize=9.5,
+                         fontweight="bold",
+                         bbox={"facecolor": "white", "edgecolor": "none",
+                               "alpha": 0.88, "pad": 1.0})
         _add_pool_level_guides(elevation)
         elevation.set(title="(A) Water elevation", ylabel="Water elevation (ft NGVD 29)")
-        release.set(title="(B) Controlled release", ylabel="Release (m³/s)", xlabel="2016",
-                    ylim=(0, float(daily["controlled_release_cms"].max()) * 1.08))
-        for ax in (elevation, release):
+        release_axes[0].set_title("(B) Controlled release")
+        release_axes[1].set_ylabel("Controlled release (m³/s)")
+        release_axes[-1].set_xlabel("2016")
+        for ax in axes:
             ax.title.set_position((0, 1.0))
             ax.title.set_horizontalalignment("left")
             ax.title.set_fontweight("bold")
             ax.spines[["top", "right"]].set_visible(False)
             ax.grid(axis="y", color="#DCE1E1", linewidth=0.45, zorder=0)
-        release.set_xlim(pd.to_datetime(daily["date"]).min() - pd.Timedelta(days=0.5),
-                         pd.to_datetime(daily["date"]).max() + pd.Timedelta(days=0.5))
-        release.xaxis.set_major_locator(mdates.MonthLocator(bymonth=(1, 3, 5, 7, 9, 11)))
-        release.xaxis.set_major_formatter(mdates.DateFormatter("%b"))
+        release_axes[-1].set_xlim(
+            pd.to_datetime(daily["date"]).min() - pd.Timedelta(days=0.5),
+            pd.to_datetime(daily["date"]).max() + pd.Timedelta(days=0.5))
+        release_axes[-1].xaxis.set_major_locator(
+            mdates.MonthLocator(bymonth=(1, 3, 5, 7, 9, 11)))
+        release_axes[-1].xaxis.set_major_formatter(mdates.DateFormatter("%b"))
         handles, labels = elevation.get_legend_handles_labels()
-        fig.legend(handles, labels, loc="upper center", bbox_to_anchor=(0.5, 1),
-                   ncol=3, frameon=False, fontsize=10.5, handlelength=2.1,
+        fig.legend(handles, labels, loc="upper center", bbox_to_anchor=(0.5, 0.995),
+                   ncol=3, frameon=False, fontsize=10, handlelength=2.1,
                    columnspacing=1.0, handletextpad=0.55)
         return fig
 
@@ -120,7 +133,7 @@ def _sha(path: Path) -> str:
 
 
 def _prepare_current_outputs() -> dict:
-    """Combine the three approved saved arms and render two figures."""
+    """Combine the three approved saved arms and render teaching figures."""
     import matplotlib.dates as mdates
     import matplotlib.pyplot as plt
     import numpy as np
@@ -256,9 +269,11 @@ def _prepare_current_outputs() -> dict:
         "period": {"start": dates[0], "end": dates[-1], "days_per_method": 366},
         "figure_layout": {"width_mm": paper_width_mm, "png_dpi": raster_dpi,
                           "minimum_font_pt": 9, "pdf_fonttype": 42,
-                          "svg_labels": "editable text", "legend_font_pt": 10.5,
+                          "svg_labels": "editable text", "legend_font_pt": 10,
                           "primary_figure": "reservoir_operations",
-                          "panels": {"A": "Water elevation", "B": "Controlled release"},
+                          "primary_height_mm": 160,
+                          "panels": {"A": "Water elevation",
+                                     "B": "Three method-specific controlled-release rows"},
                           "method_colors": METHOD_COLORS},
         "units": {"inflow_cms": "m3/s", "controlled_release_cms": "m3/s",
                   "spill_cms": "m3/s", "pool_elevation_end_ft": "ft N.G.V.D.",
@@ -269,6 +284,10 @@ def _prepare_current_outputs() -> dict:
             "initial_state_policy": "LLM storage_start_m3 and Rule-based first-step mass-balance reconstruction.",
             "expected_initial_storage_m3": initial, "methods": checks,
         },
+        "provenance_note": (
+            "These saved curves retain the prompts and context recorded by their source runs; "
+            "no new daily or live-date context was supplied for this rendering."
+        ),
         "sources": {
             "rule_rows": {"path": "../2016/daily.csv", "sha256": _sha(rule_path)},
             "llm_framework_rows": {"path": "../gemma4_2016_comparison/daily.csv", "sha256": _sha(llm_path)},

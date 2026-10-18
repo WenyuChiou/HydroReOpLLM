@@ -135,3 +135,20 @@ div.highlight-json pre { white-space:pre-wrap; overflow-wrap:anywhere; }
 /* Keep multi-line study captions aligned with the body text. */
 figure.study-area-figure { margin-inline:0; }
 figure.study-area-figure figcaption { text-align:left; }
+
+/* Named chapter cards remain usable in a narrow viewport. */
+.chapter-pagination > a { display:flex; flex:1; flex-direction:column; gap:6px; padding:18px 20px; border:1px solid var(--line); border-radius:7px; text-decoration:none; }
+.chapter-pagination > a:hover { background:var(--wash); }
+.chapter-pagination span { color:var(--muted); font-size:13px; }
+.chapter-pagination strong { font-size:17px; line-height:1.4; }
+.review-columns { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:18px; }
+.review-columns section { min-width:0; }
+.review-columns details { padding:12px; margin:12px 0; }
+.review-columns summary { font-size:15px; line-height:1.5; }
+.review-text { white-space:pre-wrap; overflow-wrap:anywhere; font:13px/1.6 Consolas,monospace; max-height:520px; overflow:auto; }
+.review-tools { display:flex; flex-wrap:wrap; gap:8px; margin:10px 0; }
+.review-tools button,#review-date { padding:8px 12px; border:1px solid #b9cfc4; border-radius:4px; background:#fff; color:var(--ink); font:15px Arial,sans-serif; }
+.review-tools button { cursor:pointer; }
+.review-tools button:focus-visible,#review-date:focus-visible { outline:3px solid #69aa92; outline-offset:3px; }
+.review-parity { padding:14px; background:var(--wash); border-left:3px solid var(--accent); }
+@media(max-width:750px) { .review-columns { grid-template-columns:1fr; } }

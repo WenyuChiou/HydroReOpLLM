@@ -1,5 +1,8 @@
 # Coupled F.E. Walter experiment
 
+The saved LLM trajectories use the **previous prompts**, without the new daily
+seasonal context. [Review the actual October requests and proposed addition](../prompt_review.md). No new model result is shown.
+
 <a id="current-teaching-entry"></a>
 
 ## Current teaching entry
@@ -18,13 +21,15 @@ settings and provenance.
 
 | File | Role |
 |---|---|
-| `current/experiment.yaml` | Current Rule-based entry |
-| `current/llm_available.yaml` | Current LLM with available information entry |
-| `current/llm_knowledge.yaml` | Current LLM with retrieved knowledge entry |
-| `hydrology.yaml` | Accepted HydroCNHS model, forcing, and inlet bindings |
-| `reservoirs.json` | Physical reservoir and routing network |
-| `agents.*.yaml` | Per-agent method, prompt/knowledge, and auditor settings |
-| `current/models.yaml` | Provider and model provenance/settings |
+| [`current/experiment.yaml`](current/experiment.yaml) | Current Rule-based entry |
+| [`current/llm_available.yaml`](current/llm_available.yaml) | Current LLM with available information entry |
+| [`current/llm_knowledge.yaml`](current/llm_knowledge.yaml) | Current LLM with retrieved knowledge entry |
+| [`hydrology.yaml`](hydrology.yaml) | Accepted HydroCNHS model, forcing, and inlet bindings |
+| [`reservoirs.json`](reservoirs.json) | Physical reservoir and routing network |
+| [agents.rule.yaml](agents.rule.yaml), [agents.llm_available.yaml](agents.llm_available.yaml), [agents.llm_knowledge.yaml](agents.llm_knowledge.yaml) | One complete agent file for each method |
+| [auditors.yaml](auditors.yaml) | Optional checks that record operation outcomes |
+| [seasonal_pool_criteria.json](../seasonal_pool_criteria.json) | Canonical daily season and pool bounds used by the optional prompt addition |
+| [`current/models.yaml`](current/models.yaml) | Provider and model provenance/settings |
 
 ## Commands
 
@@ -49,14 +54,6 @@ Each method has 366 unique dates and the same saved daily inflow and initial
 physical state. The teaching export performs no interpolation and no new model,
 hydrology, or reservoir execution.
 
-![Water elevation and controlled release](outputs/current_tutorial/reservoir_operations.png)
-
-**Figure 1.** Saved 2016 operations: (A) end-of-day water elevation in ft NGVD 29;
-(B) daily controlled release in m³/s, excluding spill. The panels share dates
-and method colors. Labeled guides mark the 1300 ft winter target and 1370 ft
-summer upper limit; see the [seasonal criteria](../README.md#seasonal-pool-levels)
-for their applicable dates and tolerance band.
-
 Teaching artifacts: [combined CSV](outputs/current_tutorial/daily.csv),
 [provenance](outputs/current_tutorial/provenance.json),
 [combined SVG](outputs/current_tutorial/reservoir_operations.svg), and
@@ -65,6 +62,15 @@ Secondary standalone exports: [elevation SVG](outputs/current_tutorial/daily_wat
 [elevation PDF](outputs/current_tutorial/daily_water_elevation.pdf),
 [release SVG](outputs/current_tutorial/controlled_release_daily.svg), and
 [release PDF](outputs/current_tutorial/controlled_release_daily.pdf).
+
+![Water elevation and controlled release](outputs/current_tutorial/reservoir_operations.png)
+
+**Figure 1.** Saved 2016 operations: (A) end-of-day water elevation in ft NGVD 29;
+(B) daily controlled release in m³/s, in three rows with identical flow scales
+and no spill. All axes share dates
+and method colors. Labeled guides mark the 1300 ft winter target and 1370 ft
+summer upper limit; see the [seasonal criteria](../README.md#seasonal-pool-levels)
+for their applicable dates and tolerance band.
 
 <a id="earlier-2016-configuration-preserved"></a>
 
