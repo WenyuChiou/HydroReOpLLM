@@ -37,8 +37,8 @@ SOURCE_PINS = {
         "44a5d67ef9d256b1710403b641ff0629deff21f196cd1d951823197f0ffcbdf7",
     "examples/fe_walter/prompts/available_information.txt":
         "0c557d4e51e4bb938d36c65808eb91e9ba5bc29db8b37d958149fee38bae9f75",
-    "archive/fe_walter/prompts/retrieved_previous.txt":
-        "a6fed2a10ba6120701f4098c44a654a1361aa2da6adc83f9ed48ef32881de207",
+    "examples/fe_walter/prompts/retrieved_knowledge.txt":
+        "ae5e19ee4a8f3749d80f06088c7ee7f4cb14997a72d40a9d39c1ab2e51a7bf48",
     "examples/fe_walter/knowledge/operating_rules.md":
         "7fb3b9e75c1d6a52168049afa80c527a49e606f1c0889e5d14b31f874502b206",
 }
@@ -84,7 +84,7 @@ def _legacy_document(method):
             "profile": "fe_walter", "method": "zeroshot" if method == "llm_available" else "dkp",
             "consultation_mode": "daily", "response_validation": "policy",
             "system_prompt": _resource("../prompts/available_information.txt" if method == "llm_available"
-                                       else "../../../archive/fe_walter/prompts/retrieved_previous.txt"),
+                                       else "../prompts/retrieved_knowledge.txt"),
             "system_prompt_mode": "custom", "prompt_storage": False,
             "hide_availability_line": False, "dkp_no_missing_inputs": False,
             "zeroshot_knowledge": "target",
@@ -201,7 +201,7 @@ def test_previous_v1_documents_still_load_without_rewriting_their_contract(metho
     assert ref["hide_availability_line"] is False
     assert ref["dkp_no_missing_inputs"] is False
     source = ("examples/fe_walter/prompts/available_information.txt" if method == "llm_available"
-              else "archive/fe_walter/prompts/retrieved_previous.txt")
+              else "examples/fe_walter/prompts/retrieved_knowledge.txt")
     assert hashlib.sha256(Path(ref["system_prompt"]).read_bytes()).hexdigest() == SOURCE_PINS[source]
     assert "seasonal_criteria_file" not in ref
     for relative, digest in SOURCE_PINS.items():

@@ -13,7 +13,7 @@
 | `examples/fe_walter/prompts/` | One current system prompt for each LLM method |
 | `examples/fe_walter/knowledge/` | The operating text retrieved by the knowledge method |
 | `examples/synthetic/` | Invented inputs for older demonstration configurations |
-| `archive/fe_walter/` | Historical prompt inputs, source hashes and external recovery instructions |
+| `archive/fe_walter/` | Historical source hashes and external recovery instructions |
 | `tests/fixtures/` | Synthetic inputs for tests, separate from research results |
 
 The former root `knowledge/` contained only invented R1/R2/R3 guidance; it now

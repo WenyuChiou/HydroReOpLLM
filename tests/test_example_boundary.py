@@ -61,11 +61,9 @@ assert not any(name == "examples" or name.startswith("examples.") for name in sy
         self.assertNotIn("plugins/anik_v3_7.py", implementation)
         self.assertTrue(all("anik" not in path for path in implementation))
 
-    def test_legacy_historical_and_annual_helper_imports(self):
-        from examples.fe_walter.annual.prepare import prepare
+    def test_optional_historical_helper_imports(self):
         from examples.fe_walter.legacy.historical import run_historical
 
-        self.assertTrue(callable(prepare))
         self.assertTrue(callable(run_historical))
 
 

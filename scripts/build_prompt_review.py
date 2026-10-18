@@ -30,6 +30,15 @@ def text_hash(text: str) -> str:
     return sha(text.encode("utf-8"))
 
 
+def criteria_source_label(path: Path) -> str:
+    """Use repository-relative labels; external inputs expose only a basename."""
+    resolved = path.resolve()
+    try:
+        return resolved.relative_to(ROOT.resolve()).as_posix()
+    except ValueError:
+        return "external/" + resolved.name
+
+
 def selected_request(payload, raw_reply, source, line=None):
     """Keep exact message strings and raw JSON reply, rather than reformatting them."""
     system, user = (m["content"] for m in payload["messages"])
@@ -111,7 +120,7 @@ def main() -> None:
         context = load_seasonal_prompt_context(args.criteria)
         preview = {
             "kind": "proposed_prompt_preview_not_sent_to_a_model",
-            "criteria_file": "examples/fe_walter/seasonal_pool_criteria.json",
+            "criteria_file": criteria_source_label(args.criteria),
             "criteria_sha256": sha(args.criteria.read_bytes()),
             "days": [{"date": item["date"],
                       "added_context": context.render(date.fromisoformat(item["date"])),

@@ -65,4 +65,11 @@ def test_manual_prepare_copies_original_downloads_without_network():
         assert not (output / "paper").exists(), "Research drafts must not be published"
         assert not (output / "results").exists(), "Manual assets must come from curated examples"
         method = (output / "examples/fe_walter/zero_shot/README.md").read_text(encoding="utf-8")
-        assert "/blob/codex%2Fmanual-book-v1/" in method
+        assert "llm_available.yaml" in method
+        assert "available_information.txt" in method
+        prompt_downloads = sorted(
+            name for name in module.CONFIG_DOWNLOADS.values()
+            if name.endswith(".txt") and name != "operating-knowledge.txt"
+        )
+        assert prompt_downloads == ["available_information.txt", "retrieved_knowledge.txt"]
+        assert not any("historical-" in name for name in module.CONFIG_DOWNLOADS.values())

@@ -1,11 +1,10 @@
-# FE Walter: original zero-shot and DKP examples
+# FE Walter compatibility fixtures
 
 [English](README.md) | [繁體中文](README.zh-TW.md)
 
-Start with a complete case: [Zero-shot](../../examples/fe_walter/zero_shot/README.md) or [DKP](../../examples/fe_walter/dkp/README.md). Each folder includes its runnable YAML and a readable full prompt snapshot; inputs and the physical engine are shared.
-
-One generic reservoir engine, with two optional Anik V3.7 reference strategies.
-Both use the pinned original Python prompt builders, response formats and strategy audits. They share the common physical solver, daily feedback, HydroCNHS routing and durable trace with generic agents.
+Follow the [current FE Walter tutorial](../../tutorials/fe_walter.md) for a new study.
+This directory supplies short synthetic fixtures for interface tests.
+The framework uses our case formatter and parser; the optional original program is loaded separately from a hash-verified external artifact.
 
 | Strategy | Instructions / knowledge | Raw reply |
 |---|---|---|
@@ -24,9 +23,14 @@ Physical limits match V3.7. Initial storage is the original **1,992.61 acre-ft a
 
 Use `experiments/fe_walter_reference_zeroshot.yaml` or `experiments/fe_walter_reference_dkp.yaml`. Paths are relative to the YAML.
 
+These fixtures use historical instructions and require `HYDROOPS_FE_WALTER_HISTORY_DIR`
+to point to the external recovery package's `verified-restoration` root before
+checking or running them. See the [recovery index](../../archive/fe_walter/README.md).
+The current tutorial selects its prompt files explicitly and needs no history package.
+
 | Setting | Meaning |
 |---|---|
-| `strategy: reference_v3_7` | Select the optional original-policy adapter |
+| `strategy: reference_v3_7` | Select the case reference adapter |
 | `mode: offline`, `max_calls: 0` | Fixture transport; no provider, download or retry |
 | `reference.profile: fe_walter` | Preserve the original FE Walter physical/policy profile |
 | `reference.method` | `zeroshot` or `dkp` |

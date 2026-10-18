@@ -72,9 +72,19 @@ class WorkflowTests(unittest.TestCase):
                         # source; current framework profiles must still load.
                         with self.assertRaisesRegex(RuntimeError, 'HYDROOPS_ANIK_SOURCE_DIR'):
                             load_settings(path)
+                    elif (any(agent.get('reference', {}).get('profile') == 'fe_walter'
+                              for agent in data.get('agents', {}).values())
+                          and not os.environ.get('HYDROOPS_FE_WALTER_HISTORY_DIR')):
+                        with self.assertRaisesRegex(RuntimeError, 'HYDROOPS_FE_WALTER_HISTORY_DIR'):
+                            load_settings(path)
                     else:
                         settings = load_settings(path)
                         self.assertEqual(settings.report['network_calls'],0)
+            for method in ('zeroshot', 'dkp'):
+                path = PROJECT_ROOT / f'tests/fixtures/fe_walter_current/{method}.yaml'
+                with self.subTest(current_method=method):
+                    settings = load_settings(path)
+                    self.assertEqual(settings.report['network_calls'], 0)
         actual = load_settings(PROJECT_ROOT/'experiments/fe_belt_prompton.yaml')
         self.assertEqual(actual.report['agent_count'],2)
         self.assertEqual(actual.report['passive_reservoir_count'],1)

@@ -3,6 +3,9 @@ from datetime import date
 import hashlib
 import json
 from pathlib import Path
+import sys
+
+from scripts import build_prompt_review
 
 from examples.fe_walter.extensions.seasonal_prompt_context import load_seasonal_prompt_context
 
@@ -20,6 +23,31 @@ USER_HASHES = {
         "9031aa37ce8f63594b7fb3516bce485e25399765ad3119007dbebd78d52e41ab",
     ),
 }
+
+
+def test_alternate_criteria_preview_records_its_actual_source(tmp_path, monkeypatch):
+    """An external study file keeps its own source identity and byte hash."""
+    actual_file = STATIC / "prompt-review-data.json"
+    actual_bytes = actual_file.read_bytes()
+    actual = json.loads(actual_bytes)
+    criteria = tmp_path / "alternate_pool_criteria.json"
+    criteria.write_bytes((ROOT / "examples/fe_walter/seasonal_pool_criteria.json").read_bytes() + b"\n")
+    output = tmp_path / "request-review.json"
+    monkeypatch.setattr(build_prompt_review, "build", lambda _: actual)
+    monkeypatch.setattr(sys, "argv", [
+        "build_prompt_review.py", "--evidence-root", str(tmp_path / "fixture"),
+        "--output", str(output), "--criteria", str(criteria),
+    ])
+
+    build_prompt_review.main()
+
+    preview = json.loads(output.with_name("seasonal-context-preview.json").read_text())
+    assert preview["criteria_file"] == "external/alternate_pool_criteria.json"
+    assert preview["criteria_sha256"] == hashlib.sha256(criteria.read_bytes()).hexdigest()
+    assert str(tmp_path) not in preview["criteria_file"]
+    assert preview["model_requests"] == 0
+    assert json.loads(output.read_text()) == actual
+    assert actual_file.read_bytes() == actual_bytes
 
 
 def test_published_requests_preserve_independently_recorded_hashes():

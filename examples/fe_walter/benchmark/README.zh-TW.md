@@ -79,112 +79,18 @@ in global hydrological models.” *Geoscientific Model Development*, 16, 5449–
 此自訂策略將每月防洪公式調整為每日步長。它把
 [來源決策函式](https://github.com/DasanikBD/Delaware-Reservoir-LLM/blob/6c3dc532d712af55db1f4a1d8e018c86249ce7a8/benchmark_release.py)
 固定在 commit `6c3dc532d712af55db1f4a1d8e018c86249ce7a8`（函式 hash `c11a81…`）。
-該函式不同於為 LLM prompt 與 audit 相容性保留、未變更的 V3.7 vendor source。
-只有決策函式經過調整；所有方法皆使用 HydroOpsLLM simulation driver。
+案例規則保留該決策公式；框架中的方法使用 HydroOpsLLM simulation driver。
+原版程式對照另從恢復的來源載入。
 [流程測試原始碼](../../../tests/test_benchmark_workflow.py)
 檢查統計輸入、設定，以及共同模擬介面的使用。
 
 (benchmark-files-and-commands)=
-## 檔案與執行命令
+## 檔案與命令
 
-<details>
-<summary>展開設定、檔案位置與命令</summary>
+新研究請使用 [coupled/experiment.yaml](../coupled/experiment.yaml)，並依照
+[目前教學](../../../tutorials/fe_walter.md)檢查、執行與驗證。
+此入口連接共用水文、水庫河網及 Rule-based agent。
 
-保存結果所用的完整設定是
-[`tutorials/config/fe_walter_tutorial_benchmark.yaml`](../../../tutorials/config/fe_walter_tutorial_benchmark.yaml)。
-若要建立新輸出，請從
-[experiment.hydroopslm.offline.yaml](experiment.hydroopslm.offline.yaml)開始。
-它選用 `type: rule_based`、`rule: hanasaki`、`rule_parameters.purpose: flood_control`
-與 `max_calls: 0`，並使用示範期以前的
-[固定 1996–2015 統計資料](../../../data/benchmark/fe_walter_statistics.json)。
-它不需要模型或 prompt。
-
-<details>
-<summary>目前規則設定（展開）</summary>
-
-```yaml
-# HydroOpsLM offline teaching run; original settings/results are preserved.
-# Rule-based daily benchmark; no prompt, model or network is used.
-schema_version: llm-reservoir-experiment.v1
-run_id: hydroopslm-fe-walter-benchmark
-case: ../../../cases/fe_walter_reference/case.json # Same physical case as both LLM methods.
-output: ../../../runs/hydroopslm-fe-walter-benchmark # Change both IDs for another run; never overwrite.
-start_date: '2016-01-01'
-end_date: '2016-01-03'
-max_calls: 0
-agents:
-  fe_operator: # Decision unit ID; one per controlled reservoir.
-    reservoir_id: FEWalter # Must match the reservoir node in the case.
-    type: rule_based
-    rule: hanasaki
-    rule_parameters:
-      purpose: flood_control # This adapter supports flood_control and other; no hydropower optimization.
-      alpha: 0.85 # Published capacity reduction factor; not a newly calibrated parameter.
-      inflow_statistics_file: ../../../data/benchmark/fe_walter_statistics.json # Frozen 1996–2015 climatology, before the run.
-    auditors: [release_limits]
-auditors:
-  release_limits:
-    type: release_bounds
-    version: '1' # Checks the requested release against the common physical/available-water bounds.
-extensions:
-  hanasaki: ../../rules/hanasaki/__init__.py
-```
-
-</details>
-
-若要建立新執行，請在原檔旁複製一份：
-
-```powershell
-Copy-Item examples/fe_walter/benchmark/experiment.hydroopslm.offline.yaml examples/fe_walter/benchmark/my-run.yaml
-```
-
-在 `my-run.yaml` 中設定 `run_id: fe-walter-benchmark-my-run` 與
-`output: ../../../runs/fe-walter-benchmark-my-run`。第一次示範請保留其他設定。
-不得重複使用現有的輸出資料夾。
-
-### 檢查設定
-
-從 repository 資料夾驗證複製的設定：
-
-```powershell
-python run_experiment.py check examples/fe_walter/benchmark/my-run.yaml
-```
-
-此命令檢查設定，不會進行 inference 或模型請求。
-預期結果是三個每日步驟、一座受控水庫、`planned_llm_calls: 0`、
-`max_calls: 0`，以及零次 network call。
-
-### 執行新的實驗
-
-[保存的三日結果](../../../examples/fe_walter/reference_outputs/rule_three_day/)已可使用。
-只有在確定要啟動新 simulation 時，才執行以下命令：
-
-```powershell
-python run_experiment.py run examples/fe_walter/benchmark/my-run.yaml
-```
-
-此基準是決定性的，不會提出模型請求。
-
-### 驗證保存輸出
-
-驗證現有的保存結果，不重跑 simulation：
-
-```powershell
-python run_experiment.py verify examples/fe_walter/reference_outputs/rule_three_day --require-offline
-```
-
-完成新執行後，改用 `runs/fe-walter-benchmark-my-run`。驗證會檢查執行證據，
-不能證明操作策略良好。
-
-檢查保存的決策：
-
-```powershell
-python tutorials/inspect_decision_flow.py examples/fe_walter/reference_outputs/rule_three_day --require-offline
-```
-
-`decisions.jsonl`、`raw/`、`audit.jsonl`、`physics.jsonl` 與
-`backend_events.jsonl` 會將資訊與提案連結至檢查及執行。Notebook 將紀錄的
-checker 結果與目前的 contract recheck 分開呈現。Inspector 不會提出模型請求。
-詳見[結果與疑難排解](../../../docs/RESULTS_GUIDE.md)。
-
-</details>
+此資料夾保留 [experiment.yaml](experiment.yaml)，作為三天的離線相容性測試設定，
+搭配上方保存的歷史證據。重複的別名已移除，入流與規則參數保持相同。
+舊命令及設定保存在已驗證的[恢復包](../../../archive/fe_walter/README.md)。

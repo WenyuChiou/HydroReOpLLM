@@ -68,7 +68,7 @@
 5. **實際操作：**受控放流 12.1847392641 m³/s、spill 為零、期末蓄水 23,695,577.3604956 m³。
 6. **下一日：**期末蓄水成為日初蓄水；歷史使用實際放流。
 
-固定 [system prompt](../../archive/fe_walter/prompts/retrieved_original.txt) 與保存 trace 的 hash 相符。
+固定 [system prompt](../../archive/fe_walter/prompts/README.md) 與保存 trace 的 hash 相符。
 展開下方完整訊息，查看模型實際收到與回傳的內容。
 
 <details>

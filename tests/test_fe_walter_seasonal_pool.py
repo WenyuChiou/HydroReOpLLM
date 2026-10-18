@@ -88,32 +88,27 @@ class SeasonalPoolTests(unittest.TestCase):
         for method in ["zeroshot", "dkp"]:
             text = (ROOT / ("examples/fe_walter/prompts/" + {"zeroshot": "available_information.txt", "dkp": "retrieved_knowledge.txt"}[method])).read_text(encoding="utf-8")
             self.assertIn("- Operation target: " + target, text)
-            original = (ROOT / ("archive/fe_walter/prompts/" + {"zeroshot": "available_original.txt", "dkp": "retrieved_original.txt"}[method])).read_text(encoding="utf-8")
-            old_line = next(line for line in original.splitlines() if line.startswith("- Operation target:"))
-            self.assertEqual(text, original.replace(old_line, "- Operation target: " + target))
 
-    def test_active_aniks_change_only_the_approved_operation_target(self):
-        """Test the executable entries, rather than unused reference copies."""
+    def test_active_entries_use_the_canonical_current_prompts(self):
         target = pool.load_criteria()["operation_target"]
         entries = (
-            ("coupled/agents.llm_available.yaml", "zeroshot", True),
-            ("coupled/agents.llm_knowledge.yaml", "dkp", True),
-            ("zero_shot/experiment.seasonal.ollama.yaml", "zeroshot", False),
-            ("dkp/experiment.seasonal.ollama.yaml", "dkp", False),
+            ("coupled/agents.llm_available.yaml", "zeroshot"),
+            ("coupled/agents.llm_knowledge.yaml", "dkp"),
         )
-        for name, method, split in entries:
+        for name, method in entries:
             with self.subTest(entry=name):
                 path = ROOT / "examples/fe_walter" / name
                 data = yaml.safe_load(path.read_text(encoding="utf-8"))
-                agent = data["fe_operator"] if split else next(iter(data["agents"].values()))
+                agent = data["fe_operator"]
                 reference = agent["customization"]["parameters"]["reference"]
                 self.assertIs(reference["prompt_storage"], False)
                 self.assertIs(reference["hide_availability_line"], True)
                 self.assertIs(reference["dkp_no_missing_inputs"], True)
                 actual = (path.parent / reference["system_prompt"]).read_text(encoding="utf-8")
-                original = (ROOT / ("archive/fe_walter/prompts/" + {"zeroshot": "available_original.txt", "dkp": "retrieved_original.txt"}[method])).read_text(encoding="utf-8")
-                old_line = next(line for line in original.splitlines() if line.startswith("- Operation target:"))
-                self.assertEqual(actual, original.replace(old_line, "- Operation target: " + target))
+                canonical = ROOT / "examples/fe_walter/prompts" / {
+                    "zeroshot": "available_information.txt", "dkp": "retrieved_knowledge.txt"}[method]
+                self.assertEqual(actual, canonical.read_text(encoding="utf-8"))
+                self.assertIn("- Operation target: " + target, actual)
 
     def test_november_first_requires_winter_pool_even_if_run_completed(self):
         for level, status in [(1300.0, "PASS"), (1390.8590831121244, "FAIL"),

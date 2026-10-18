@@ -2,8 +2,7 @@
 
 The maintained case uses two current [system prompts](../../examples/fe_walter/prompts/)
 and one [operating reference](../../examples/fe_walter/knowledge/operating_rules.md).
-The prompt files in this archive support earlier configurations and recorded
-source hashes. They are not alternative prompts for the current tutorial.
+This index records recovery sources for earlier configurations and prompt hashes.
 
 The supplied original Anik program is **not distributed in the current source
 tree or wheel**. Its original file hashes are retained in
@@ -40,3 +39,29 @@ Framework tests run without the artifact. Tests that execute the original progra
 report explicit skips when the environment variable is absent. This is not a
 passing original-program equivalence check. To inspect a frozen older executor,
 restore its recorded revision into a separate directory; do not repin or rerun it.
+
+## Retired case configurations and prompts
+
+The earlier method YAMLs, prompt snapshots and annual preparation script are
+preserved in `HydroOpsLLM-case-entries-cleanup-20261018-5696dc1` outside this
+repository under `../_recovery/`. The ZIP's 34 files were restored and checked byte
+for byte; the Git bundle was verified before retirement. Historical result files
+remain in the repository. The maintained entry is the [coupled tutorial](../../tutorials/fe_walter.md).
+
+| Artifact | SHA256 |
+|---|---|
+| `historical-case-entries.zip` | `ff489dd2a41452695f681da694393a2fef1697e46ec282398056b33cad5d99d4` |
+| `complete-history.bundle` | `fc4fd71eb029f6b9c7877dcbf3d2c7fbc706eb721149509c8ff440e72726e438` |
+
+`HYDROOPS_FE_WALTER_HISTORY_DIR` selects the restored root for optional historical
+prompt checks. This is separate from `HYDROOPS_ANIK_SOURCE_DIR`, which selects the
+original program. Neither is needed for the maintained custom-prompt configurations.
+The historical profile retains its original paths and hashes as provenance.
+Restore frozen executors at their recorded revision for reproduction.
+
+Equivalent offline aliases were also retired: `benchmark/experiment.yaml` and
+`tutorials/config/multi_reservoir.offline.yaml` retain the same inputs, agents,
+rules, fixture decisions and zero-call settings. Their run IDs and output paths
+remain independently chosen. Original aliases and the pre-deletion working-tree test snapshot for the retired
+annual generator are retained in `retired-aliases-and-tests.zip` beside the recovery
+package. The Git bundle preserves the exact baseline revision.

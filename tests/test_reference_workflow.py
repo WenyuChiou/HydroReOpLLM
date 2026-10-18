@@ -3,6 +3,7 @@ from copy import deepcopy
 from dataclasses import replace
 import json
 import hashlib
+import os
 from pathlib import Path
 import sys
 import tempfile
@@ -47,6 +48,26 @@ class ReferenceTests(unittest.TestCase):
         for key in ('responses', 'dkp'):
             if key in spec:
                 spec[key] = str((path.parent / spec[key]).resolve())
+        prompt = ('available_information.txt' if method == 'zeroshot' else 'retrieved_knowledge.txt')
+        spec.update(system_prompt=str(PROJECT_ROOT / 'examples/fe_walter/prompts' / prompt),
+                    system_prompt_mode='custom')
+        return data
+
+    def history_root(self):
+        configured = os.environ.get('HYDROOPS_FE_WALTER_HISTORY_DIR')
+        if not configured:
+            self.skipTest('historical FE Walter prompt bundle is optional')
+        root = Path(configured).resolve()
+        if not root.is_dir():
+            self.fail('configured HYDROOPS_FE_WALTER_HISTORY_DIR is invalid')
+        return root
+
+    def original_fixture(self, method):
+        self.history_root()
+        data = self.fixture(method)
+        spec = data['agents']['fe_operator']['reference']
+        spec.pop('system_prompt')
+        spec['system_prompt_mode'] = 'original'
         return data
 
     def save(self, data):
@@ -54,20 +75,22 @@ class ReferenceTests(unittest.TestCase):
         path.write_text(yaml.safe_dump(_pin_example_extension(data)), encoding='utf-8')
         return path
 
-    def backend(self, method):
-        settings = load_settings(self.save(self.fixture(method)))
+    def backend(self, method, *, historical=False):
+        data = self.original_fixture(method) if historical else self.fixture(method)
+        settings = load_settings(self.save(data))
         spec = settings.agents['fe_operator']['reference']
         physics = settings.network['reservoirs']['FEWalter']['physical']
         return ReferenceBackend(spec, physics, runtime_root=PROJECT_ROOT)
 
     def test_system_info_and_state_prompt_match_original_factory(self):
+        self.history_root()
         model = load_anik(PROJECT_ROOT)
         zero = sys.modules['zeroshot_llm_release']
         cfg = next(c for c in model.RESERVOIRS if c.inflow_reservoir_key == 'fe_walter')
         cfg = replace(cfg, dkp_path=str(PROJECT_ROOT/'examples/fe_walter/knowledge/operating_rules.md'))
         for method in ('zeroshot', 'dkp'):
             with self.subTest(method=method):
-                adapter = self.backend(method)
+                adapter = self.backend(method, historical=True)
                 transport = _FixtureTransport([])
                 with patch.object(model, 'RESULTS_DIR', self.root), patch.object(model, 'LLM_BACKENDS',
                         {'fixture': ('zeroshot_llm_release', 'ReferenceFixture', {})}), patch.object(
@@ -192,7 +215,8 @@ class ReferenceTests(unittest.TestCase):
 
     def external_fixture(self, method, *, mode='original', suffix='', crlf=False):
         data = self.fixture(method)
-        blob = (PROJECT_ROOT / ('archive/fe_walter/prompts/' + {'zeroshot': 'available_original.txt', 'dkp': 'retrieved_original.txt'}[method])).read_bytes()
+        blob = (self.history_root() / ('archive/fe_walter/prompts/' + {
+            'zeroshot': 'available_original.txt', 'dkp': 'retrieved_original.txt'}[method])).read_bytes()
         if crlf:
             blob = blob.replace(b'\n', b'\r\n')
         path = self.root / f'{method}-system.txt'
@@ -204,7 +228,7 @@ class ReferenceTests(unittest.TestCase):
         for method in ('zeroshot', 'dkp'):
             for crlf in (False, True):
                 with self.subTest(method=method, crlf=crlf):
-                    original = self.backend(method)
+                    original = self.backend(method, historical=True)
                     settings = load_settings(self.save(self.external_fixture(method, crlf=crlf)))
                     spec = settings.agents['fe_operator']['reference']
                     backend = ReferenceBackend(spec, settings.network['reservoirs']['FEWalter']['physical'], runtime_root=PROJECT_ROOT)
@@ -270,6 +294,8 @@ class ReferenceTests(unittest.TestCase):
         for patch_spec in ({'system_prompt': ''}, {'system_prompt_mode': 'typo'}, {'system_prompt_mode': 'custom'}):
             data = self.fixture('zeroshot')
             data['agents']['fe_operator']['reference'].update(patch_spec)
+            if patch_spec == {'system_prompt_mode': 'custom'}:
+                data['agents']['fe_operator']['reference'].pop('system_prompt')
             with self.subTest(patch=patch_spec), self.assertRaises(ValueError):
                 load_settings(self.save(data))
         for contents, exception in ((b'   ', ValueError), (b'\xff', UnicodeDecodeError)):

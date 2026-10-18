@@ -72,8 +72,7 @@ def test_current_fe_entries_check_without_provider_or_simulation(path):
 
 
 def reference_pair(tmp_path, method):
-    folder = "zero_shot" if method == "zeroshot" else "dkp"
-    source = ROOT / "examples/fe_walter" / folder / "experiment.yaml"
+    source = ROOT / "tests/fixtures/fe_walter_current" / f"{method}.yaml"
     document = yaml.safe_load(source.read_text(encoding="utf-8"))
     document.update(case=str((source.parent / document["case"]).resolve()),
                     start_date="2016-01-01", end_date="2016-01-02")

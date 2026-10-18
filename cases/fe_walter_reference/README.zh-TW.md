@@ -1,11 +1,10 @@
-# FE Walter：原版 zero-shot 與 DKP 範例
+# FE Walter 相容性測試資料
 
 [English](README.md) | [繁體中文](README.zh-TW.md)
 
-直接從完整案例開始：[Zero-shot](../../examples/fe_walter/zero_shot/README.md) 或 [DKP](../../examples/fe_walter/dkp/README.md)。每個目錄都有可執行的 YAML 與完整 prompt 閱讀快照，input 與物理引擎共用。
-
-一套通用水庫引擎，加上兩個可選的 Anik V3.7 原版策略。
-兩者使用固定版本的原始 Python prompt builder、回覆格式與策略 audit，並和通用 agents 共用物理計算、daily 狀態回饋、HydroCNHS routing 與完整 trace。
+新研究請依照[目前 FE Walter 教學](../../tutorials/fe_walter.md)設定。
+此目錄提供介面測試使用的短期合成資料。
+框架使用案例自己的訊息組合與解析程式；選用的原版程式由 repo 外經雜湊驗證的來源載入。
 
 | 策略 | 指令／知識 | 原始回覆 |
 |---|---|---|
@@ -24,9 +23,13 @@
 
 使用 `experiments/fe_walter_reference_zeroshot.yaml` 或 `experiments/fe_walter_reference_dkp.yaml`。路徑以 YAML 所在目錄為基準。
 
+這兩份使用歷史指令的測試設定，須先將 `HYDROOPS_FE_WALTER_HISTORY_DIR`
+設為 repo 外恢復包的 `verified-restoration` 根目錄，再檢查或執行。
+詳見[恢復索引](../../archive/fe_walter/README.md)。目前教學明確指定 prompt 檔，無須歷史恢復包。
+
 | 設定 | 意義 |
 |---|---|
-| `strategy: reference_v3_7` | 選擇可選的原版策略 adapter |
+| `strategy: reference_v3_7` | 選擇案例的 reference adapter |
 | `mode: offline`、`max_calls: 0` | 使用測試回覆，不建立 provider、不下載、不重試 |
 | `reference.profile: fe_walter` | 保留原版 FE Walter 物理／策略設定 |
 | `reference.method` | `zeroshot` 或 `dkp` |

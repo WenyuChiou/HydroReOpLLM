@@ -24,7 +24,7 @@ from llm_reservoir_agent.prompt import PromptSpec, RenderedPromptContext
 from .native_case import (
     ACTION_SCHEMA, CFS_TO_CMS, PHYSICAL_ACREFT_TO_M3, NativePromptFormatter,
     NativeResponseParser, ZERO_SCHEMA, case_profile_path, dkp_schema, load_case_profile,
-    native_audit, read_system_prompt,
+    historical_prompt_path, native_audit, read_system_prompt,
 )
 from .seasonal_prompt_context import load_seasonal_prompt_context
 
@@ -87,7 +87,8 @@ def validate_reference(spec, base, runtime_root, *, mode="offline"):
         result["seasonal_criteria_sha256"] = context.sha256
         pins[str(path)] = context.sha256
 
-    profile_path = case_profile_path()
+    profile = load_case_profile(runtime_root)
+    profile_path = profile.path
     profile_blob = profile_path.read_bytes()
     profile_data = read_json(profile_path)
     implicit = {"case_profile": (profile_path, hashlib.sha256(profile_blob).hexdigest())}
@@ -96,7 +97,7 @@ def validate_reference(spec, base, runtime_root, *, mode="offline"):
     if result["system_prompt_mode"] != "custom":
         for method, prompt in profile_data["default_system_prompts"].items():
             implicit[f"default_system_prompt:{method}"] = (
-                (profile_path.parent / prompt["path"]).resolve(), prompt["sha256"])
+                historical_prompt_path(profile, method), prompt["sha256"])
     for label, (path, expected) in implicit.items():
         actual = hashlib.sha256(path.read_bytes()).hexdigest()
         if actual != expected:

@@ -45,7 +45,6 @@ HYDROLOGY_DOWNLOADS.update({
 })
 HYDROLOGY_DOWNLOADS["examples/fe_walter/hydrology_data/climate/provenance.json"] = "climate-provenance.json"
 ANNUAL_DOWNLOADS = {
-    "examples/fe_walter/annual/outputs/custom_system_prompt_20261016.txt": "custom_system_prompt_20261016.txt",
     **{
     f"examples/fe_walter/annual/outputs/{name}": name for name in (
         "daily.csv", "attempt_summary.json", "failed_reply_2016_06_18.txt",
@@ -64,10 +63,6 @@ CONFIG_DOWNLOADS = {
 CONFIG_DOWNLOADS.update({
     f"examples/fe_walter/prompts/{name}": name
     for name in ("available_information.txt", "retrieved_knowledge.txt")
-})
-CONFIG_DOWNLOADS.update({
-    f"archive/fe_walter/prompts/{name}.txt": f"historical-{name}.txt"
-    for name in ("available_original", "retrieved_original", "retrieved_default", "retrieved_previous")
 })
 CONFIG_DOWNLOADS.update({
     "examples/fe_walter/seasonal_pool_criteria.json": "seasonal_pool_criteria.json",
@@ -355,11 +350,6 @@ def prepare(source: Path, *, source_ref: str = "main") -> None:
         target = source / relative
         target.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(ROOT / relative, target)
-    # The rejected historical prompt remains distinct from active config downloads.
-    relative = "examples/fe_walter/annual/outputs/custom_system_prompt_20261016.txt"
-    target = source / relative
-    target.parent.mkdir(parents=True, exist_ok=True)
-    shutil.copyfile(ROOT / relative, target)
     # Publish selected original-byte case evidence for local viewing and downloads.
     case_downloads = source / "_case_downloads/dkp_2016_2020"
     case_downloads.mkdir(parents=True)

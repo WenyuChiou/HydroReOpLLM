@@ -3,7 +3,9 @@ from __future__ import annotations
 import hashlib
 import importlib
 import json
+import os
 from pathlib import Path
+import shutil
 from types import SimpleNamespace
 
 import pytest
@@ -13,7 +15,9 @@ from examples.fe_walter.extensions import anik_v3_7
 from examples.fe_walter.extensions.native_case import (
     CFS_TO_CMS,
     PHYSICAL_ACREFT_TO_M3,
+    CaseProfile,
     case_profile_path,
+    historical_prompt_path,
     load_case_profile,
 )
 from examples.fe_walter.extensions.reference_backend import ReferenceBackend, validate_reference
@@ -43,27 +47,20 @@ def _physical(runtime_root: Path) -> dict[str, object]:
     }
 
 
-def _default_prompt_paths() -> set[Path]:
-    profile_path = case_profile_path()
-    data = json.loads(profile_path.read_text(encoding="utf-8"))
-    return {
-        (profile_path.parent / prompt["path"]).resolve()
-        for prompt in data["default_system_prompts"].values()
-    }
+def _history_root() -> Path:
+    configured = os.environ.get("HYDROOPS_FE_WALTER_HISTORY_DIR")
+    if not configured:
+        pytest.skip("historical FE Walter prompt bundle is optional")
+    root = Path(configured).resolve()
+    if not root.is_dir():
+        pytest.fail("configured HYDROOPS_FE_WALTER_HISTORY_DIR is invalid")
+    return root
 
 
 def test_active_custom_reference_does_not_read_archived_default_prompts(tmp_path, monkeypatch):
     runtime_root = tmp_path / "runtime-without-vendor"
     runtime_root.mkdir()
-    defaults = _default_prompt_paths()
-    read_bytes = Path.read_bytes
-
-    def reject_archived_defaults(path):
-        if path.resolve() in defaults:
-            raise AssertionError("custom reference read an archived default prompt")
-        return read_bytes(path)
-
-    monkeypatch.setattr(Path, "read_bytes", reject_archived_defaults)
+    monkeypatch.delenv("HYDROOPS_FE_WALTER_HISTORY_DIR", raising=False)
     settings, pins, count = validate_reference(
         _configured_reference(), COUPLED, runtime_root, mode="llm"
     )
@@ -93,27 +90,57 @@ def test_active_custom_reference_does_not_read_archived_default_prompts(tmp_path
     assert backend.describe()["reference_source_sha256"]
 
 
-@pytest.mark.parametrize("failure", ("missing", "tampered"))
-def test_original_reference_still_fails_closed_on_default_prompt(failure, tmp_path, monkeypatch):
-    runtime_root = tmp_path / "runtime-without-vendor"
-    runtime_root.mkdir()
-    defaults = _default_prompt_paths()
-    read_bytes = Path.read_bytes
-
-    def break_archived_defaults(path):
-        if path.resolve() in defaults:
-            if failure == "missing":
-                raise FileNotFoundError(path)
-            return read_bytes(path) + b"\nchanged"
-        return read_bytes(path)
-
-    monkeypatch.setattr(Path, "read_bytes", break_archived_defaults)
+def _original_reference() -> dict[str, object]:
     settings = _configured_reference("zeroshot")
     settings.pop("system_prompt", None)
     settings["system_prompt_mode"] = "original"
-    expected = FileNotFoundError if failure == "missing" else ValueError
-    with pytest.raises(expected):
-        validate_reference(settings, COUPLED, runtime_root, mode="llm")
+    return settings
+
+
+def test_original_reference_requires_external_history_setting(tmp_path, monkeypatch):
+    runtime_root = tmp_path / "runtime-without-vendor"
+    runtime_root.mkdir()
+    monkeypatch.delenv("HYDROOPS_FE_WALTER_HISTORY_DIR", raising=False)
+    with pytest.raises(RuntimeError, match="optional historical FE Walter prompts.*HYDROOPS_FE_WALTER_HISTORY_DIR"):
+        validate_reference(_original_reference(), COUPLED, runtime_root, mode="llm")
+
+
+def test_original_reference_rejects_in_repository_history_root(tmp_path, monkeypatch):
+    monkeypatch.setenv("HYDROOPS_FE_WALTER_HISTORY_DIR", str(ROOT))
+    with pytest.raises(ValueError, match="outside the active repository"):
+        validate_reference(_original_reference(), COUPLED, tmp_path, mode="llm")
+
+
+def test_original_reference_rejects_missing_history_root(tmp_path, monkeypatch):
+    missing = tmp_path / "missing-history"
+    monkeypatch.setenv("HYDROOPS_FE_WALTER_HISTORY_DIR", str(missing))
+    with pytest.raises(FileNotFoundError, match="existing external restored repository root"):
+        validate_reference(_original_reference(), COUPLED, tmp_path, mode="llm")
+
+
+def test_historical_prompt_metadata_cannot_escape_repository(tmp_path, monkeypatch):
+    external = tmp_path / "external"
+    external.mkdir()
+    monkeypatch.setenv("HYDROOPS_FE_WALTER_HISTORY_DIR", str(external))
+    real = load_case_profile(tmp_path)
+    data = dict(real.data)
+    defaults = dict(data["default_system_prompts"])
+    defaults["zeroshot"] = {**defaults["zeroshot"], "path": "../../../../outside.txt"}
+    data["default_system_prompts"] = defaults
+    profile = CaseProfile(real.path, data, real.curve, real.source_hashes)
+    with pytest.raises(ValueError, match="escapes the repository root"):
+        historical_prompt_path(profile, "zeroshot")
+
+
+def test_original_reference_rejects_tampered_external_prompt(tmp_path, monkeypatch):
+    restored = _history_root()
+    external = tmp_path / "external"
+    source = restored / "archive" / "fe_walter" / "prompts"
+    shutil.copytree(source, external / "archive" / "fe_walter" / "prompts")
+    (external / "archive" / "fe_walter" / "prompts" / "available_original.txt").write_bytes(b"tampered")
+    monkeypatch.setenv("HYDROOPS_FE_WALTER_HISTORY_DIR", str(external))
+    with pytest.raises(ValueError, match="serialized case profile dependency checksum mismatch"):
+        validate_reference(_original_reference(), COUPLED, tmp_path, mode="llm")
 
 
 def test_external_loader_missing_setting_does_not_import(monkeypatch):

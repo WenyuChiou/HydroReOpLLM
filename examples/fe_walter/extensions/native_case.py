@@ -14,6 +14,7 @@ from datetime import date, datetime
 import hashlib
 import json
 import math
+import os
 from pathlib import Path
 import re
 from typing import Any, Mapping
@@ -184,6 +185,40 @@ def load_case_profile(runtime_root: Path | str) -> CaseProfile:
     })
 
 
+_HISTORY_ENV = "HYDROOPS_FE_WALTER_HISTORY_DIR"
+
+
+def historical_prompt_path(profile: CaseProfile, method: str) -> Path:
+    """Resolve one original prompt from an explicitly restored external tree."""
+    configured = os.environ.get(_HISTORY_ENV)
+    if not configured:
+        raise RuntimeError(
+            "optional historical FE Walter prompts require "
+            f"{_HISTORY_ENV} to point to an external restored repository root"
+        )
+    root = Path(configured).expanduser().resolve()
+    if not root.is_dir():
+        raise FileNotFoundError(
+            f"{_HISTORY_ENV} must point to an existing external restored repository root: {root}"
+        )
+    repository = profile.path.resolve().parents[3]
+    if root == repository or repository in root.parents:
+        raise ValueError(f"{_HISTORY_ENV} must point outside the active repository")
+    declared = (profile.path.parent / profile.data["default_system_prompts"][method]["path"]).resolve()
+    try:
+        relative = declared.relative_to(repository)
+    except ValueError as exc:
+        raise ValueError("serialized default system prompt path escapes the repository root") from exc
+    candidate = (root / relative).resolve()
+    try:
+        candidate.relative_to(root)
+    except ValueError as exc:
+        raise ValueError("historical default system prompt escapes the external history root") from exc
+    if not candidate.is_file():
+        raise FileNotFoundError(f"historical default system prompt is missing: {candidate}")
+    return candidate
+
+
 def read_system_prompt(profile: CaseProfile, method: str, settings: Mapping[str, Any]) -> tuple[str, str, str]:
     original = profile.data["default_system_prompts"][method]
     if settings.get("system_prompt_mode", "original") == "custom":
@@ -194,7 +229,7 @@ def read_system_prompt(profile: CaseProfile, method: str, settings: Mapping[str,
             raise ValueError("system_prompt file changed after validation")
         text = blob.decode("utf-8").replace("\r\n", "\n").replace("\r", "\n")
         return text, original["sha256"], "file"
-    original_path = (profile.path.parent / original["path"]).resolve()
+    original_path = historical_prompt_path(profile, method)
     original_blob = original_path.read_bytes()
     if hashlib.sha256(original_blob).hexdigest() != original["sha256"]:
         raise ValueError("serialized default system prompt checksum mismatch")
