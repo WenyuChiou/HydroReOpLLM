@@ -29,9 +29,9 @@ agents:
         reference:
           profile: fe_walter # This optional original-policy example is FE Walter-specific.
           method: dkp
-          system_prompt: ../prompts/reference/dkp_system.txt
+          system_prompt: ../../../archive/fe_walter/prompts/retrieved_original.txt
           system_prompt_mode: original # Preserve original text, daily builder and native schema.
-          dkp: ../knowledge/DKP_FEWalter_Dam_v1.2.md # Original conditional retrieval.
+          dkp: ../knowledge/operating_rules.md # Original conditional retrieval.
           prompt_storage: false
           hide_availability_line: true
           dkp_no_missing_inputs: true

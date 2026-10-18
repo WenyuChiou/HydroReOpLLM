@@ -16,7 +16,7 @@
 每次實際操作更新蓄水；LLM 方法保留實際放流歷史。
 
 **選用三日季節案例：**使用[季節 YAML](experiment.seasonal.ollama.yaml)與
-[季節 prompt](../prompts/reference/dkp_seasonal_v1_system.txt)。
+[季節 prompt](../prompts/retrieved_knowledge.txt)。
 [共用窗口與水位檢查](../README.zh-TW.md#季節水位)說明日期與判定。
 這份獨立三日季節 YAML 尚未重跑；本頁保存的完整交換仍保留原始指令與 audit 判定。
 目前維護的全年設定，請見英文[2016 年耦合結果](../results.md)。
@@ -30,7 +30,7 @@
 
 ## 2. 了解操作方法
 
-閱讀 [system prompt](../prompts/reference/dkp_system.txt)與
+閱讀 [system prompt](../../../archive/fe_walter/prompts/retrieved_original.txt)與
 [builder 閱讀預覽](prompt_preview.txt)。此預覽不是保存的模型回覆。
 [完整的第一日保存紀錄](../../../examples/fe_walter/reference_outputs/ollama_three_day/dkp/raw/policy_87d975aee46dea6d4818b1f090efec8cc79b1e29a0fc31132d62799f2f3741b6.json)
 包含實際 rendered prompt、檢索摘錄、response schema 與完整 Ollama 回覆。
@@ -233,7 +233,7 @@ Apply these DKP rules to decide the mean release for this interval (cfs).
 
 </details>
 
-[DKP 文件](../knowledge/DKP_FEWalter_Dam_v1.2.md)提供適用的摘錄。
+[DKP 文件](../knowledge/operating_rules.md)提供適用的摘錄。
 Trace 會保存檢索結果及其來源。
 
 在[主教學](../../../tutorials/main.ipynb)中依序查看 **info → rendered prompt →
@@ -370,9 +370,9 @@ agents:
         reference:
           profile: fe_walter
           method: dkp
-          system_prompt: ../prompts/reference/dkp_system.txt
+          system_prompt: ../../../archive/fe_walter/prompts/retrieved_original.txt
           system_prompt_mode: original
-          dkp: ../knowledge/DKP_FEWalter_Dam_v1.2.md
+          dkp: ../knowledge/operating_rules.md
           prompt_storage: false
           hide_availability_line: true
           dkp_no_missing_inputs: true

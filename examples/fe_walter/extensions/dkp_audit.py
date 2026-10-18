@@ -137,9 +137,10 @@ class DKPStrategyAudit:
         self.profile = json_snapshot(profile)
         self.file_pins = {str(p): hashlib.sha256(p.read_bytes()).hexdigest() for p in (self.dkp_path, profile_path, curve_path)}
         from .anik_v3_7 import _ANIK_SHA256, load_anik
-        load_anik(self.project_root)  # Pinned local modules only; constructs no backend.
+        model = load_anik(self.project_root)  # Verified optional reference; constructs no backend.
+        source_dir = Path(model.__file__).resolve().parent
         for name, digest in _ANIK_SHA256.items():
-            self.file_pins[str(self.project_root / "third_party/anik_v3_7" / name)] = digest
+            self.file_pins[str(source_dir / name)] = digest
         self.file_pins[str(Path(__file__).resolve())] = hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
         rubric = {"type": "dkp_strategy", "semantics": profile["semantics"], "profile": self.profile,
                   "knowledge_id": settings["knowledge_id"], "source_files": self.file_pins,

@@ -17,7 +17,7 @@
     "minimum_font_pt": 9,
     "pdf_fonttype": 42,
     "svg_labels": "editable text",
-    "legend_font_pt": 10,
+    "legend_font_pt": 9,
     "primary_figure": "reservoir_operations",
     "primary_height_mm": 160,
     "panels": {
@@ -31,7 +31,8 @@
       "rule": "#526B8A",
       "llm_available": "#BF795E",
       "llm_knowledge": "#4F8A7B"
-    }
+    },
+    "seasonal_reference": "Schematic from seasonal_pool_criteria.json; plotting convention holds 1300 ft through March 31 and begins the illustrative ramp April 1"
   },
   "units": {
     "inflow_cms": "m3/s",
@@ -85,6 +86,10 @@
     "initial_state": {
       "path": "../2016/summary.json",
       "sha256": "07ae6392fd59bbdfd380641b6eda40909fa81ee8a25888687567a7cfe74a9f13"
+    },
+    "seasonal_criteria": {
+      "path": "../../../seasonal_pool_criteria.json",
+      "sha256": "51ba8e957218ced8923c7c22caaa80aec1b1a75eb9a5d19e73a3f0c1f416d4a7"
     }
   },
   "artifacts": {
@@ -95,8 +100,8 @@
     "controlled_release_daily.png": "b3a087e1e40d74cf14789a57f7cac17d03179fd9b40fcedc958d1203de9889c3",
     "controlled_release_daily.svg": "3013a65994ef32e53799a82897b924e5b8365b1d5ebe8c458e2caf4616be20b3",
     "controlled_release_daily.pdf": "ffb03419f1dae1bc6fc777d1b5884182408dd7910395a3191cdd8e824fceecee",
-    "reservoir_operations.png": "4b975f7af9055d41d83ed58165cecbe05c94f94ed069220f0f6ec04df9ab7765",
-    "reservoir_operations.svg": "226a05fe97cd2012a7619525972d71255adb94c7bfe4b372dceaf81ec32bf631",
-    "reservoir_operations.pdf": "9114a9bb8263805277a0f914560fbf7b2cefc551f4e189e66e4e3377e15c60fe"
+    "reservoir_operations.png": "b12fa4a48f8b9f2752e1901b68a69533c9b4b39758730d1af3cebac24bcc02aa",
+    "reservoir_operations.svg": "1c146d1e89be939f2b81f6f6db5ff37817015f2f22fe59ab79bf65216538130f",
+    "reservoir_operations.pdf": "54efed8260ff74bd1ed91b20f0cc049439a371ea082f3e4fb7aded22e5d1be34"
   }
 }

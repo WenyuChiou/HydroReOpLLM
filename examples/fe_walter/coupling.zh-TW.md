@@ -46,7 +46,7 @@ LLM 改變蓄水與下游流量，不修改 GWLF 參數或上游氣象。
 ## 3. 接入由氣象驅動的原生執行
 
 目前的 experiment CLI 已分兩階段連接氣象與水庫操作：`prepare` 計算並保存上游入流，
-`run` 再逐日執行水庫操作與下游 routing，設定入口是 `coupled/current/experiment.yaml`。
+`run` 再逐日執行水庫操作與下游 routing，設定入口是 `coupled/experiment.yaml`。
 以下是進階的**原生 host 整合步驟**，供需要直接將 agent 接入自己 HydroCNHS host 的研究者使用；
 一般使用者可直接使用上述正式入口。
 

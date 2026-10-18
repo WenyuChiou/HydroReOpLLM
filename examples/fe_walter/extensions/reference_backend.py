@@ -93,9 +93,10 @@ def validate_reference(spec, base, runtime_root, *, mode="offline"):
     implicit = {"case_profile": (profile_path, hashlib.sha256(profile_blob).hexdigest())}
     curve = (profile_path.parent / profile_data["elevation_storage_csv"]).resolve()
     implicit["elevation_storage_curve"] = (curve, profile_data["elevation_storage_sha256"])
-    for method, prompt in profile_data["default_system_prompts"].items():
-        implicit[f"default_system_prompt:{method}"] = (
-            (profile_path.parent / prompt["path"]).resolve(), prompt["sha256"])
+    if result["system_prompt_mode"] != "custom":
+        for method, prompt in profile_data["default_system_prompts"].items():
+            implicit[f"default_system_prompt:{method}"] = (
+                (profile_path.parent / prompt["path"]).resolve(), prompt["sha256"])
     for label, (path, expected) in implicit.items():
         actual = hashlib.sha256(path.read_bytes()).hexdigest()
         if actual != expected:
@@ -104,17 +105,6 @@ def validate_reference(spec, base, runtime_root, *, mode="offline"):
     result["profile_sha256"] = implicit["case_profile"][1]
     result["profile_resources_sha256"] = {label: digest for label, (_, digest) in implicit.items()}
 
-    manifest = Path(runtime_root) / "third_party/anik_v3_7/source_manifest.json"
-    metadata = read_json(manifest)
-    expected_names = {"benchmark_release.py", "dkp_llm_release.py", "reservoir_model.py", "zeroshot_llm_release.py"}
-    if not expected_names.issubset(metadata.get("files", {})):
-        raise ValueError("reference manifest does not match fixed V3.7 source contract")
-    pins[str(manifest)] = hashlib.sha256(manifest.read_bytes()).hexdigest()
-    for name, expected in metadata["files"].items():
-        path = manifest.parent / name
-        if hashlib.sha256(path.read_bytes()).hexdigest() != expected:
-            raise ValueError("reference vendor checksum mismatch: " + name)
-        pins[str(path)] = expected
     if result["method"] == "dkp":
         if not isinstance(result.get("dkp"), str) or not result["dkp"].strip():
             raise ValueError("reference requires dkp")

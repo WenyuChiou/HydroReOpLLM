@@ -19,6 +19,7 @@ from unittest.mock import patch
 ROOT = Path(__file__).resolve().parents[1]
 TUTORIALS = ROOT / "tutorials"
 CURRENT = ROOT / "examples/fe_walter/coupled/outputs/current_tutorial"
+SEASONAL_CRITERIA = ROOT / "examples/fe_walter/seasonal_pool_criteria.json"
 NOTEBOOKS = ("main.ipynb", "advanced.ipynb")
 LABELS = {
     "rule": "Rule-based",
@@ -40,7 +41,29 @@ def _add_pool_level_guides(ax):
                     bbox={"facecolor": "white", "edgecolor": "none", "alpha": 0.9, "pad": 1.2})
 
 
-def plot_reservoir_operations(daily):
+def _seasonal_reference_points(criteria, year=2016):
+    """Build a schematic from the four declared seasonal criteria windows."""
+    import pandas as pd
+
+    seasons = {season["id"]: season for season in criteria["seasons"]}
+    if criteria.get("unit") != "ft" or set(seasons) != {
+            "winter_hold", "spring_fill", "summer", "fall_drawdown"}:
+        raise ValueError("unexpected FE Walter seasonal criteria")
+    winter = (float(seasons["winter_hold"]["minimum_ft"])
+              + float(seasons["winter_hold"]["maximum_ft"])) / 2
+    summer = float(seasons["summer"]["maximum_ft"])
+    stamp = lambda mmdd: pd.Timestamp(f"{year}-{mmdd}")
+    # Plotting convention only: retain the winter schematic through March 31,
+    # then illustrate the rise from April 1 to the declared May 10 summer start.
+    spring_ramp_start = pd.Timestamp(year, 4, 1)
+    return pd.DatetimeIndex([
+        pd.Timestamp(year, 1, 1), spring_ramp_start,
+        stamp(seasons["summer"]["start"]), stamp(seasons["fall_drawdown"]["start"]),
+        stamp(seasons["winter_hold"]["start"]), pd.Timestamp(year, 12, 31),
+    ]), [winter, winter, summer, summer, winter, winter]
+
+
+def plot_reservoir_operations(daily, seasonal_criteria=None):
     """Return a paper-width figure of saved elevation and controlled release.
 
     The axes share dates but retain separate units. Each method has its own
@@ -62,7 +85,7 @@ def plot_reservoir_operations(daily):
             gridspec_kw={"height_ratios": [1.55, 1, 1, 1]})
         elevation, *release_axes = axes
         fig.subplots_adjust(left=0.15, right=0.985, bottom=0.095,
-                            top=0.91, hspace=0.5)
+                            top=0.85, hspace=0.5)
         release_max = float(daily["controlled_release_cms"].max()) * 1.08
         release_ticks = MaxNLocator(nbins=3, min_n_ticks=3).tick_values(0, release_max)
         release_max = float(release_ticks[-1])
@@ -81,8 +104,19 @@ def plot_reservoir_operations(daily):
             release.set(ylim=(0, release_max), yticks=release_ticks,
                         ylabel="Water release\n(m³/s)")
             release.set_title(f"({chr(98 + index)}) Water release ({label})", loc="left", fontweight="bold")
-        _add_pool_level_guides(elevation)
-        elevation.set(title="(a) Water elevation", ylabel="Water elevation\n(ft NGVD 29)")
+        if seasonal_criteria is None:
+            seasonal_criteria = json.loads(SEASONAL_CRITERIA.read_text(encoding="utf-8"))
+        seasonal_dates, seasonal_levels = _seasonal_reference_points(seasonal_criteria)
+        elevation.plot(seasonal_dates, seasonal_levels, color="#111111", linestyle="--",
+                       linewidth=1.0, label="Seasonal reference (schematic)", zorder=5)
+        elevation.annotate("Winter target: 1300 ft", xy=(pd.Timestamp("2016-01-12"), seasonal_levels[0]),
+                           xytext=(0, -4), textcoords="offset points", va="top",
+                           fontsize=9, color="#111111",
+                           bbox={"facecolor": "white", "edgecolor": "none", "alpha": 0.85, "pad": 1.0})
+        elevation.annotate("Summer upper limit: 1370 ft",
+                           xy=(pd.Timestamp("2016-06-01"), seasonal_levels[2]),
+                           xytext=(0, 3), textcoords="offset points", fontsize=9, color="#111111")
+        elevation.set(title="(a) Water elevation", ylabel="Water elevation\n(ft)")
         release_axes[-1].set_xlabel("Operation date (2016)")
         for ax in axes:
             ax.title.set_position((0, 1.0))
@@ -99,7 +133,7 @@ def plot_reservoir_operations(daily):
         release_axes[-1].xaxis.set_major_formatter(mdates.DateFormatter("%b"))
         handles, labels = elevation.get_legend_handles_labels()
         fig.legend(handles, labels, loc="upper center", bbox_to_anchor=(0.5, 0.995),
-                   ncol=3, frameon=False, fontsize=10, handlelength=2.1,
+                   ncol=3, frameon=False, fontsize=9, handlelength=2.1,
                    columnspacing=1.0, handletextpad=0.55)
         return fig
 
@@ -154,6 +188,7 @@ def _prepare_current_outputs() -> dict:
     old = pd.read_csv(rule_path)
     new = pd.read_csv(llm_path)
     summary = json.loads(summary_path.read_text(encoding="utf-8"))
+    seasonal_criteria = json.loads(SEASONAL_CRITERIA.read_text(encoding="utf-8"))
     groups = {
         "rule": old.loc[old["method"].eq("rule")].reset_index(drop=True),
         "llm_available": new.loc[new["engine"].eq("framework") & new["method"].eq("llm_available")].reset_index(drop=True),
@@ -225,6 +260,9 @@ def _prepare_current_outputs() -> dict:
     ax.xaxis.set_major_formatter(mdates.DateFormatter("%b"))
     for ext in ("png", "svg", "pdf"):
         path = CURRENT / f"daily_water_elevation.{ext}"
+        if path.exists():
+            figures.append(path)
+            continue
         fig.savefig(path, **({"dpi": raster_dpi} if ext == "png" else {}))
         if ext == "svg":
             path.write_bytes(("\n".join(line.rstrip() for line in path.read_text(encoding="utf-8").splitlines()) + "\n").encode("utf-8"))
@@ -246,13 +284,16 @@ def _prepare_current_outputs() -> dict:
     axes[-1].xaxis.set_major_formatter(mdates.DateFormatter("%b"))
     for ext in ("png", "svg", "pdf"):
         path = CURRENT / f"controlled_release_daily.{ext}"
+        if path.exists():
+            figures.append(path)
+            continue
         fig.savefig(path, **({"dpi": raster_dpi} if ext == "png" else {}))
         if ext == "svg":
             path.write_bytes(("\n".join(line.rstrip() for line in path.read_text(encoding="utf-8").splitlines()) + "\n").encode("utf-8"))
         figures.append(path)
     plt.close(fig)
 
-    fig = plot_reservoir_operations(combined)
+    fig = plot_reservoir_operations(combined, seasonal_criteria)
     for ext in ("png", "svg", "pdf"):
         path = CURRENT / f"reservoir_operations.{ext}"
         fig.savefig(path, **({"dpi": raster_dpi} if ext == "png" else {}))
@@ -268,14 +309,17 @@ def _prepare_current_outputs() -> dict:
         "period": {"start": dates[0], "end": dates[-1], "days_per_method": 366},
         "figure_layout": {"width_mm": paper_width_mm, "png_dpi": raster_dpi,
                           "minimum_font_pt": 9, "pdf_fonttype": 42,
-                          "svg_labels": "editable text", "legend_font_pt": 10,
+                          "svg_labels": "editable text", "legend_font_pt": 9,
                           "primary_figure": "reservoir_operations",
                           "primary_height_mm": 160,
                           "panels": {"a": "Water elevation",
                                      **{chr(98 + index): f"Water release ({label})"
                                         for index, label in enumerate(LABELS.values())}},
                           "release_bar_width_days": 0.72,
-                          "method_colors": METHOD_COLORS},
+                          "method_colors": METHOD_COLORS,
+                          "seasonal_reference": (
+                              "Schematic from seasonal_pool_criteria.json; plotting convention holds "
+                              "1300 ft through March 31 and begins the illustrative ramp April 1")},
         "units": {"inflow_cms": "m3/s", "controlled_release_cms": "m3/s",
                   "spill_cms": "m3/s", "pool_elevation_end_ft": "ft N.G.V.D.",
                   "storage_end_m3": "m3"},
@@ -293,6 +337,8 @@ def _prepare_current_outputs() -> dict:
             "rule_rows": {"path": "../2016/daily.csv", "sha256": _sha(rule_path)},
             "llm_framework_rows": {"path": "../gemma4_2016_comparison/daily.csv", "sha256": _sha(llm_path)},
             "initial_state": {"path": "../2016/summary.json", "sha256": _sha(summary_path)},
+            "seasonal_criteria": {"path": "../../../seasonal_pool_criteria.json",
+                                  "sha256": _sha(SEASONAL_CRITERIA)},
         },
         "artifacts": {},
     }
@@ -336,7 +382,7 @@ The entry names the physical case, dates, output, agent file, hydrology file,
 auditors, and extensions. The LLM entries change the agent and add a model
 profile while retaining the same physical case and hydrology.'''),
         code('''coupled = ROOT / "examples/fe_walter/coupled"
-current_config = coupled / "current"
+current_config = coupled
 for title, name in (("Rule-based entry", "experiment.yaml"),
                     ("LLM with available information entry", "llm_available.yaml"),
                     ("LLM with retrieved knowledge entry", "llm_knowledge.yaml")):
@@ -399,12 +445,13 @@ limit is 1370 ft on May 10–October 14. These guides are study criteria, not
 constraints imposed on each release.'''),
         code('''current = coupled / "outputs/current_tutorial"
 daily = pd.read_csv(current / "daily.csv")
+seasonal_criteria = json.loads((ROOT / "examples/fe_walter/seasonal_pool_criteria.json").read_text(encoding="utf-8"))
 provenance = json.loads((current / "provenance.json").read_text(encoding="utf-8"))
 display(daily.groupby("method_label", sort=False).agg(rows=("date", "size"),
     unique_dates=("date", "nunique"), maximum_release_cms=("controlled_release_cms", "max")))
 display(pd.DataFrame(provenance["validation"]["methods"]).T)'''),
         code('''from tutorials.build_notebooks import plot_reservoir_operations
-fig = plot_reservoir_operations(daily)
+fig = plot_reservoir_operations(daily, seasonal_criteria)
 display(fig)'''),
         md('''## 6. Run a new experiment deliberately
 
@@ -413,11 +460,11 @@ the chosen entry, set a new `run_id` and output, then check and prepare before
 allowing network use.
 
 ```powershell
-Copy-Item examples/fe_walter/coupled/current/llm_available.yaml examples/fe_walter/coupled/current/my-run.yaml
+Copy-Item examples/fe_walter/coupled/llm_available.yaml examples/fe_walter/coupled/my-run.yaml
 # Edit my-run.yaml: set a new run_id and output.
-reservoir-experiment check examples/fe_walter/coupled/current/my-run.yaml
-reservoir-experiment prepare examples/fe_walter/coupled/current/my-run.yaml
-reservoir-experiment run examples/fe_walter/coupled/current/my-run.yaml --allow-network
+reservoir-experiment check examples/fe_walter/coupled/my-run.yaml
+reservoir-experiment prepare examples/fe_walter/coupled/my-run.yaml
+reservoir-experiment run examples/fe_walter/coupled/my-run.yaml --allow-network
 reservoir-experiment verify <new-output-path>/operation
 ```
 

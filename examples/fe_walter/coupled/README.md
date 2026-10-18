@@ -7,11 +7,11 @@ seasonal context. [Review the actual October requests and proposed addition](../
 
 ## Current teaching entry
 
-The maintained entry is [`current/experiment.yaml`](current/experiment.yaml). It connects the
+The maintained entry is [`experiment.yaml`](experiment.yaml). It connects the
 accepted hydrology in [`hydrology.yaml`](hydrology.yaml), the physical network in
 [`reservoirs.json`](reservoirs.json), and the Rule-based agent. Use
-[`current/llm_available.yaml`](current/llm_available.yaml) or
-[`current/llm_knowledge.yaml`](current/llm_knowledge.yaml) to change only the decision method.
+[`llm_available.yaml`](llm_available.yaml) or
+[`llm_knowledge.yaml`](llm_knowledge.yaml) to change only the decision method.
 
 Public method names are **Rule-based**, **LLM with available information**, and
 **LLM with retrieved knowledge**. Provider/model identity appears only in
@@ -21,22 +21,22 @@ settings and provenance.
 
 | File | Role |
 |---|---|
-| [`current/experiment.yaml`](current/experiment.yaml) | Current Rule-based entry |
-| [`current/llm_available.yaml`](current/llm_available.yaml) | Current LLM with available information entry |
-| [`current/llm_knowledge.yaml`](current/llm_knowledge.yaml) | Current LLM with retrieved knowledge entry |
+| [`experiment.yaml`](experiment.yaml) | Current Rule-based entry |
+| [`llm_available.yaml`](llm_available.yaml) | Current LLM with available information entry |
+| [`llm_knowledge.yaml`](llm_knowledge.yaml) | Current LLM with retrieved knowledge entry |
 | [`hydrology.yaml`](hydrology.yaml) | Accepted HydroCNHS model, forcing, and inlet bindings |
 | [`reservoirs.json`](reservoirs.json) | Physical reservoir and routing network |
 | [agents.rule.yaml](agents.rule.yaml), [agents.llm_available.yaml](agents.llm_available.yaml), [agents.llm_knowledge.yaml](agents.llm_knowledge.yaml) | One complete agent file for each method |
 | [auditors.yaml](auditors.yaml) | Optional checks that record operation outcomes |
 | [seasonal_pool_criteria.json](../seasonal_pool_criteria.json) | Canonical daily season and pool bounds used by the optional prompt addition |
-| [`current/models.yaml`](current/models.yaml) | Provider and model provenance/settings |
+| [`models.yaml`](models.yaml) | Provider and model provenance/settings |
 
 ## Commands
 
 ```powershell
-reservoir-experiment check examples/fe_walter/coupled/current/experiment.yaml
-reservoir-experiment prepare examples/fe_walter/coupled/current/experiment.yaml
-reservoir-experiment run examples/fe_walter/coupled/current/experiment.yaml
+reservoir-experiment check examples/fe_walter/coupled/experiment.yaml
+reservoir-experiment prepare examples/fe_walter/coupled/experiment.yaml
+reservoir-experiment run examples/fe_walter/coupled/experiment.yaml
 reservoir-experiment verify runs/fe-walter-current-rule/operation
 ```
 

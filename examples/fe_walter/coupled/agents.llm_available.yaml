@@ -2,7 +2,7 @@
 fe_operator: # Decision-unit ID used in plans and traces.
   reservoir_id: FEWalter # Controlled reservoir ID in reservoirs.json.
   type: llm # Provider-backed operating method.
-  model_profile: reservoir_model # Profile ID from current/models.yaml.
+  model_profile: reservoir_model # Profile ID from models.yaml.
   customization:
     backend: reference_v3_7 # Registered backend ID from the entry's extensions.
     # The backend owns this reference recipe; the framework keeps it opaque.
@@ -12,7 +12,7 @@ fe_operator: # Decision-unit ID used in plans and traces.
         method: zeroshot # Available-information method, without a DKP document.
         consultation_mode: daily # One decision opportunity per operation day.
         response_validation: policy # Validate replies with the backend policy contract.
-        system_prompt: ../prompts/zeroshot_seasonal_v1_system.txt # Relative to this file.
+        system_prompt: ../prompts/available_information.txt # Relative to this file.
         system_prompt_mode: custom # Use the declared system-prompt file.
         seasonal_criteria_file: ../seasonal_pool_criteria.json # Daily study-defined pool window context.
         prompt_storage: false # Do not include storage in the prompt representation.

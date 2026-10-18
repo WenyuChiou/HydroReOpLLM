@@ -19,11 +19,11 @@ The saved results below were produced **before daily seasonal context was added*
 ## 1. Begin at `experiment.yaml`
 
 Run commands from the repository root. The current Rule-based entry is
-[`coupled/current/experiment.yaml`](../examples/fe_walter/coupled/current/experiment.yaml).
+[`coupled/experiment.yaml`](../examples/fe_walter/coupled/experiment.yaml).
 It declares the 2016 dates, physical case, output identity, hydrology, agents,
 auditors, and registered rule extension.
 
-```{literalinclude} ../examples/fe_walter/coupled/current/experiment.yaml
+```{literalinclude} ../examples/fe_walter/coupled/experiment.yaml
 :language: yaml
 ```
 
@@ -40,8 +40,8 @@ auditors, and registered rule extension.
 
 The two LLM entries retain the same case and hydrology:
 
-- [`llm_available.yaml`](../examples/fe_walter/coupled/current/llm_available.yaml)
-- [`llm_knowledge.yaml`](../examples/fe_walter/coupled/current/llm_knowledge.yaml)
+- [`llm_available.yaml`](../examples/fe_walter/coupled/llm_available.yaml)
+- [`llm_knowledge.yaml`](../examples/fe_walter/coupled/llm_knowledge.yaml)
 
 Choose a new `run_id` and output path for any new execution. Resource paths are
 relative to the file that declares them.
@@ -155,27 +155,27 @@ adds its local knowledge document:
 ```
 
 Model identity, sampling controls, context size, timeout, and attempt limit live
-in [models.yaml](../examples/fe_walter/coupled/current/models.yaml). They describe
+in [models.yaml](../examples/fe_walter/coupled/models.yaml). They describe
 the model execution and do not replace the three method names.
 
-```{literalinclude} ../examples/fe_walter/coupled/current/models.yaml
+```{literalinclude} ../examples/fe_walter/coupled/models.yaml
 :language: yaml
 ```
 
 ## 5. Read prompt and knowledge assembly
 
-The [available-information system file](../examples/fe_walter/prompts/zeroshot_seasonal_v1_system.txt)
+The [available-information system file](../examples/fe_walter/prompts/available_information.txt)
 defines the task and structured response:
 
-```{literalinclude} ../examples/fe_walter/prompts/zeroshot_seasonal_v1_system.txt
+```{literalinclude} ../examples/fe_walter/prompts/available_information.txt
 :language: text
 ```
 
 The retrieved-knowledge method uses the current v2 prompt and the configured
-[knowledge file](../examples/fe_walter/knowledge/DKP_FEWalter_Dam_v1.2.md). Its
-[system file](../examples/fe_walter/prompts/dkp_seasonal_v2_system.txt) is:
+[knowledge file](../examples/fe_walter/knowledge/operating_rules.md). Its
+[system file](../examples/fe_walter/prompts/retrieved_knowledge.txt) is:
 
-```{literalinclude} ../examples/fe_walter/prompts/dkp_seasonal_v2_system.txt
+```{literalinclude} ../examples/fe_walter/prompts/retrieved_knowledge.txt
 :language: text
 ```
 
@@ -208,14 +208,14 @@ response schemas, respectively; both return a release proposal to shared physics
 computes the selected hydrology. An LLM run requires the explicit network flag.
 
 Before an LLM run, Ollama must serve the exact installed model tag named in
-[`models.yaml`](../examples/fe_walter/coupled/current/models.yaml) at its configured
+[`models.yaml`](../examples/fe_walter/coupled/models.yaml) at its configured
 URL. See [provider settings](../docs/MODEL_PROVIDERS.md) before enabling
 network access. Reading the saved results requires no inference service.
 
 ```powershell
-reservoir-experiment check examples/fe_walter/coupled/current/experiment.yaml
-reservoir-experiment prepare examples/fe_walter/coupled/current/experiment.yaml
-reservoir-experiment run examples/fe_walter/coupled/current/experiment.yaml
+reservoir-experiment check examples/fe_walter/coupled/experiment.yaml
+reservoir-experiment prepare examples/fe_walter/coupled/experiment.yaml
+reservoir-experiment run examples/fe_walter/coupled/experiment.yaml
 reservoir-experiment verify runs/fe-walter-current-rule/operation
 ```
 

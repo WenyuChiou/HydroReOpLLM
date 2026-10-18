@@ -31,7 +31,7 @@ agents:
         reference:
           profile: fe_walter
           method: zeroshot
-          system_prompt: ../prompts/reference/zeroshot_system.txt
+          system_prompt: ../../../archive/fe_walter/prompts/available_original.txt
           system_prompt_mode: original
           prompt_storage: false
           hide_availability_line: true

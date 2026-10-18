@@ -1,0 +1,17 @@
+{
+  "source": "User supplied C:/Users/wenyu/Downloads/Code.zip",
+  "source_sha256": "a4e1aa628c8e2282e70f68080ba10aa7ade79367fb5ad4aa2d9d9f9ac8673174",
+  "readme_label": "V3.7 / 2026-10-07",
+  "files": {
+    "benchmark_release.py": "f47500e3ccad55929d4069a6800ee24cb50e7605641c9ec8f03c4767d2cafc0a",
+    "dkp_llm_release.py": "0045f524f55cc39551ae4eec26b69d64d8758fcbe470016ad36e6e7ed8a54203",
+    "README.txt": "3b8914fca36281b7fdd0da44605f92d826e610a5cebf30e53be0e8941f6f407b",
+    "reservoir_model.py": "eb159daa1437bdad5d093873fa97eedfc7daa7e482f023b6a5070c1d67ea01c8",
+    "zeroshot_llm_release.py": "e17ce6310b20902c0f6f4e11bce877e90a1ddd9bf128a7ecc0e50b5d18481dff"
+  },
+  "readme_hash_discrepancies": [
+    "reservoir_model.py",
+    "dkp_llm_release.py"
+  ],
+  "licensing": "No license file accompanied this attachment; preserved for local user-authorized research. No public redistribution authorized or performed."
+}

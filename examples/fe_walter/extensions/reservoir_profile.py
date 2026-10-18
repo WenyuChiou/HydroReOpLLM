@@ -26,6 +26,7 @@ from pathlib import Path
 import re
 from typing import Any
 from llm_reservoir_agent.runtime import default_runtime_root
+from .anik_v3_7 import resolve_anik_source_dir
 
 
 SCHEMA_VERSION = "reservoir-prompt-profile.v1"
@@ -36,7 +37,7 @@ _PUBLIC_REQUIRED = {"river", "inflow_reservoir_key", "public_profile", "public_c
 
 def _native_contract(runtime_root: Path | str | None = None):
     root = Path(runtime_root) if runtime_root is not None else default_runtime_root()
-    source = (root / "third_party/anik_v3_7/reservoir_model.py").read_bytes()
+    source = (resolve_anik_source_dir(root) / "reservoir_model.py").read_bytes()
     if hashlib.sha256(source).hexdigest() != _MODEL_SHA256:
         raise ValueError("reservoir profile schema source checksum mismatch")
     tree = ast.parse(source.decode("utf-8"))

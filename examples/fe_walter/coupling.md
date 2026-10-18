@@ -47,7 +47,7 @@ Today's routed consequence is not available before today's release.
 
 The maintained experiment CLI already connects weather to operations in two stages:
 `prepare` computes and saves upstream inflow, then `run` advances reservoir operation
-and downstream routing daily. Its settings start at `coupled/current/experiment.yaml`.
+and downstream routing daily. Its settings start at `coupled/experiment.yaml`.
 The following advanced **native host-integration recipe** is for researchers who
 need to attach agents directly to their own HydroCNHS host rather than use that entry point.
 

@@ -13,20 +13,20 @@ agents:                                    # Three entries = three independent a
     reservoir: R1                          # Must match a controlled reservoir ID in the case.
     mode: offline                          # Fixed fixture action, not an LLM decision.
     release_cms: 5                         # Requested controlled release in m³/s.
-    prompt: ../prompts/daily_release.txt    # User template; not rendered/called in offline mode.
+    prompt: ../templates/legacy/prompts/operator.txt    # User template; not rendered/called in offline mode.
     prompt_version: "1"                    # Prompt revision label; content has a SHA256 too.
     knowledge:                             # DKP/knowledge package ID -> UTF-8 text file.
-      example_rules: ../knowledge/synthetic_rules.md # Imaginary example rules, not real dam policy.
+      example_rules: ../examples/synthetic/knowledge/operating_rules.md # Imaginary example rules, not real dam policy.
     auditors: [release_limits]              # Enabled checks; PASS applies only to these checks.
   middle_operator:                         # Separate state, inputs and trace from R1.
     reservoir: R2                          # Middle reservoir; gets routed upstream outflow.
     mode: offline                          # No LLM request.
     release_cms: 6                         # Requested controlled release in m³/s.
-    prompt: ../prompts/daily_release.txt    # User prompt file, selected per agent.
+    prompt: ../templates/legacy/prompts/operator.txt    # User prompt file, selected per agent.
     auditors: [release_limits]              # Enabled checker IDs.
   downstream_operator:                     # Separate downstream agent.
     reservoir: R3                          # Downstream reservoir ID in the case.
     mode: offline                          # No LLM request.
     release_cms: 6.5                       # Requested controlled release in m³/s.
-    prompt: ../prompts/daily_release.txt    # User prompt file, selected per agent.
+    prompt: ../templates/legacy/prompts/operator.txt    # User prompt file, selected per agent.
     auditors: [release_limits]              # Enabled checker IDs.

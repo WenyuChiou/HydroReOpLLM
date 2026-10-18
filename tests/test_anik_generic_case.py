@@ -75,12 +75,12 @@ class AnikGenericCaseTests(unittest.TestCase):
             scratch = Path(directory)
             extension_dir = scratch / "examples/fe_walter/extensions"
             profile_dir = scratch / "examples/fe_walter/profiles"
-            prompt_dir = scratch / "examples/fe_walter/prompts/reference"
+            prompt_dir = scratch / "archive/fe_walter/prompts"
             curve_dir = scratch / "cases/fe_belt_prompton_offline"
             shutil.copytree(PROJECT_ROOT / "examples/fe_walter/extensions", extension_dir,
                             ignore=shutil.ignore_patterns("__pycache__"))
             shutil.copytree(PROJECT_ROOT / "examples/fe_walter/profiles", profile_dir)
-            shutil.copytree(PROJECT_ROOT / "examples/fe_walter/prompts/reference", prompt_dir)
+            shutil.copytree(PROJECT_ROOT / "archive/fe_walter/prompts", prompt_dir)
             curve_dir.mkdir(parents=True)
             curve = curve_dir / "fe_walter_storage_elevation.csv"
             shutil.copy2(PROJECT_ROOT / "cases/fe_belt_prompton_offline/fe_walter_storage_elevation.csv", curve)
@@ -98,10 +98,10 @@ class AnikGenericCaseTests(unittest.TestCase):
             settings = load_settings(config)
 
             pinned = set(settings.files)
-            profile = profile_dir / "anik_v3_7.json"
+            profile = profile_dir / "reservoir.json"
             self.assertTrue({str(profile.resolve()), str(curve.resolve()),
-                             str((prompt_dir / "zeroshot_system.txt").resolve()),
-                             str((prompt_dir / "dkp_system.txt").resolve())}.issubset(pinned))
+                             str((prompt_dir / "available_original.txt").resolve()),
+                             str((prompt_dir / "retrieved_original.txt").resolve())}.issubset(pinned))
             changed = json.loads(profile.read_text(encoding="utf-8"))
             changed["target_periods"][0]["target_ft"] = 1301.0
             profile.write_text(json.dumps(changed), encoding="utf-8")

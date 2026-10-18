@@ -53,7 +53,7 @@ def test_wrong_profile_identity_stops_check_and_constructor(tmp_path):
     data['agents']['fe_operator']['customization']['parameters']['reference']['responses'] = str(
         PROJECT_ROOT / 'tests/fixtures/zeroshot_responses.json')
     data['agents']['fe_operator']['customization']['parameters']['reference']['system_prompt'] = str(
-        PROJECT_ROOT / 'examples/fe_walter/prompts/reference/zeroshot_system.txt')
+        PROJECT_ROOT / 'archive/fe_walter/prompts/available_original.txt')
     config = tmp_path / 'reference.yaml'
     config.write_text(yaml.safe_dump(_pin_example_extension(data)))
     with pytest.raises(ValueError, match='profile must match physical reservoir_id'):

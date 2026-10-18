@@ -58,12 +58,11 @@ def test_fe_walter_walkthrough_publishes_the_actual_configuration(prepared_manua
     assert "chapter('tutorials/fe_walter'" in navigation
     text = (output / page).read_text(encoding='utf-8')
     assets = (
-        'coupled/experiment.yaml', 'coupled/rule.yaml', 'coupled/llm_available.yaml',
+        'coupled/experiment.yaml', 'coupled/llm_available.yaml',
         'coupled/llm_knowledge.yaml', 'coupled/hydrology.yaml', 'coupled/models.yaml',
         'coupled/agents.rule.yaml', 'coupled/agents.llm_available.yaml',
         'coupled/agents.llm_knowledge.yaml', 'coupled/auditors.yaml', 'coupled/reservoirs.json',
-        'prompts/zeroshot_seasonal_v1_system.txt', 'prompts/dkp_seasonal_v1_system.txt',
-        'prompts/dkp_seasonal_v2_system.txt',
+        'prompts/available_information.txt', 'prompts/retrieved_knowledge.txt',
     )
     for name in assets:
         relative = 'examples/fe_walter/' + name
@@ -73,13 +72,13 @@ def test_fe_walter_walkthrough_publishes_the_actual_configuration(prepared_manua
     # Literalinclude directives must resolve from the canonical tutorial's location.
     import re
     includes = re.findall(r'\{literalinclude\}\s+(\S+)', text)
-    assert '../examples/fe_walter/coupled/current/experiment.yaml' in includes
+    assert '../examples/fe_walter/coupled/experiment.yaml' in includes
     assert '../examples/fe_walter/coupled/agents.rule.yaml' in includes
     assert '../examples/fe_walter/coupled/agents.llm_available.yaml' in includes
     assert '../examples/fe_walter/coupled/agents.llm_knowledge.yaml' in includes
-    assert '../examples/fe_walter/coupled/current/models.yaml' in includes
-    assert '../examples/fe_walter/prompts/zeroshot_seasonal_v1_system.txt' in includes
-    assert '../examples/fe_walter/prompts/dkp_seasonal_v2_system.txt' in includes
+    assert '../examples/fe_walter/coupled/models.yaml' in includes
+    assert '../examples/fe_walter/prompts/available_information.txt' in includes
+    assert '../examples/fe_walter/prompts/retrieved_knowledge.txt' in includes
     for name in includes:
         published = (output / page).parent / name
         source = (ROOT / page).parent / name

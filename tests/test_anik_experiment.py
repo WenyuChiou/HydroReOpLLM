@@ -4,7 +4,8 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-from examples.fe_walter.legacy.anik_adapter import AnikPolicyAdapter, load_anik
+from examples.fe_walter.legacy.anik_adapter import AnikPolicyAdapter
+from reference_oracle import load_anik, require_reference_dir
 from examples.fe_walter.legacy.anik_experiment import JournalBackend, JournalPersistenceError, RunJournal, append_json, native_config, prepare_case
 from examples.fe_walter.legacy.case import PROJECT_ROOT, CFS_TO_CMS
 from examples.fe_walter.legacy.hydrocnhs_bridge import run_hydrocnhs

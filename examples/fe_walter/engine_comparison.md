@@ -20,6 +20,46 @@ The main notebook omits engine-parity tables and the raw daily audit gallery.
 Those materials answer implementation and diagnostic questions, not the
 tutorial's three-method research comparison.
 
+## Reading the Rule-based trajectory
+
+All three saved methods start with 2.457848 million m³ and receive the same
+380.330106 million m³ of inflow in 2016. Daily release columns can look similar
+while accumulating different annual volumes. The [daily CSV](coupled/outputs/current_tutorial/daily.csv)
+gives the following balance; release and spill volumes are the daily rates multiplied by 86,400 seconds.
+
+| Method | Controlled release (million m³) | Spill (million m³) | Storage change (million m³) | Mean release (m³/s) |
+|---|---:|---:|---:|---:|
+| Rule-based | 328.717395 | 0 | +51.612711 | 10.395081 |
+| LLM with available information | 380.616699 | 0 | −0.286593 | 12.036300 |
+| LLM with retrieved knowledge | 380.684224 | 0 | −0.354118 | 12.038436 |
+
+The Rule-based run releases 51.899304 million m³ less than the available-information
+run and 51.966829 million m³ less than the retrieved-knowledge run. Those differences
+match its extra final storage. Across all 1,098 daily records, the largest reconstructed
+water-balance residual is below 1e-7 m³. The saved stage–storage conversion agrees
+within 1.9e-6 ft; no date offset was found. These checks explain the height difference
+without changing the saved trajectories or running another simulation.
+
+The [Rule-based settings](coupled/agents.rule.yaml) select Hanasaki flood-control
+operation with alpha = 0.85. [BenchmarkBackend](../../src/llm_reservoir_agent/benchmark.py)
+uses current inflow, pre-experiment inflow statistics, reservoir capacity, and a storage
+coefficient refreshed at initialization and the start of each operating year. It does
+not read the seasonal pool criteria or adjust release each day to a target elevation.
+Consequently, this trajectory represents that benchmark; it is not a test of a rule
+designed to follow the case’s winter and summer pool criteria. The plotted criteria
+are evaluation guides and do not change decisions.
+
+There are 166 Rule-based days with a negative daily net inflow; each has a
+decreasing saved level. On November 19, inflow is 2.845085 m³/s and release is
+3.712492 m³/s, with zero spill. Storage falls by 74,943.917 m³ and elevation
+decreases from 1394.384674 to 1394.315321 ft. The 0.069 ft fall is small on an
+annual axis, while the reservoir still holds water retained earlier. No day in
+any of the three trajectories has a level change opposite to its net volume change.
+
+The plotted seasonal reference starts rising on April 1. Its spring and autumn
+slopes are schematic, not an official daily schedule or a change to the seasonal
+audit windows. It does not alter model state or release.
+
 ## Reading the retrieved-knowledge trajectory
 
 The current plot covers 2016, with 366 daily decisions per method. The winter
@@ -87,6 +127,7 @@ Offline tests compare full provider requests and independent engine transitions
 using fixed replies. Seasonal boundaries also have an independent expected-date
 table, so two paths sharing the same helper are not the only date check.
 
-No new real replies were generated to validate model behavior. Original
-attachments, third-party source, frozen comparison executors and previous
-research outputs remain unchanged.
+No new real replies were generated to validate model behavior. The supplied
+original program is preserved byte for byte in the verified external
+[recovery package](../../archive/fe_walter/README.md). Frozen comparison
+executors and previous research outputs remain unchanged.

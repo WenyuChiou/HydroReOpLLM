@@ -31,9 +31,9 @@ agents:
         reference:
           profile: fe_walter
           method: dkp
-          system_prompt: ../prompts/reference/dkp_system.txt
+          system_prompt: ../../../archive/fe_walter/prompts/retrieved_original.txt
           system_prompt_mode: original
-          dkp: ../knowledge/DKP_FEWalter_Dam_v1.2.md
+          dkp: ../knowledge/operating_rules.md
           prompt_storage: false
           hide_availability_line: true
           dkp_no_missing_inputs: true

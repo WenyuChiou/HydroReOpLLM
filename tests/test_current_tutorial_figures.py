@@ -10,6 +10,7 @@ import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUTS = ROOT / 'examples/fe_walter/coupled/outputs'
+CRITERIA = ROOT / 'examples/fe_walter/seasonal_pool_criteria.json'
 
 
 def test_current_tutorial_rows_are_exact_saved_framework_and_rule_rows():
@@ -91,7 +92,7 @@ def test_main_notebook_has_exactly_one_combined_result_figure():
     assert 'outputs/current_tutorial/reservoir_operations.png' not in markdown
     assert 'outputs/current_tutorial/daily_water_elevation.png' not in markdown
     assert 'outputs/current_tutorial/controlled_release_daily.png' not in markdown
-    assert 'coupled/current/my-run.yaml' in markdown
+    assert 'coupled/my-run.yaml' in markdown
 
 
 def test_current_figure_manifest_covers_exact_published_bytes():
@@ -145,9 +146,12 @@ def test_result_figures_keep_paper_width_fonts_and_editable_labels():
         for method in ('Rule-based', 'LLM with available information',
                        'LLM with retrieved knowledge'):
             assert method in labels, 'Method labels must remain editable text'
-        if stem != 'controlled_release_daily':
+        if stem == 'daily_water_elevation':
             assert 'Winter target: 1300 ft' in labels
             assert 'Summer limit: 1370 ft' in labels
+        if stem == 'reservoir_operations':
+            assert 'Seasonal reference (schematic)' in labels
+            assert 'Summer upper limit: 1370 ft' in labels
         with Image.open(folder / (stem + '.png')) as image:
             assert abs(image.width - 180 / 25.4 * 600) <= 1
             if stem == 'reservoir_operations':
@@ -166,7 +170,8 @@ def test_combined_figure_has_shared_calendar_exact_lines_and_three_release_rows(
     builder = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(builder)
     daily = pd.read_csv(OUTPUTS / 'current_tutorial/daily.csv')
-    figure = builder.plot_reservoir_operations(daily)
+    criteria = json.loads(CRITERIA.read_text(encoding='utf-8'))
+    figure = builder.plot_reservoir_operations(daily, criteria)
     axes = figure.axes
     try:
         assert len(axes) == 4
@@ -183,13 +188,14 @@ def test_combined_figure_has_shared_calendar_exact_lines_and_three_release_rows(
         data_lines = {line.get_label(): line for line in elevation.lines
                       if line.get_label() in expected_labels}
         assert list(data_lines) == expected_labels
-        assert len(elevation.lines) == 5, 'Three method lines plus two dotted guides'
-        assert sorted(line.get_ydata()[0] for line in elevation.lines
-                      if line.get_linestyle() == ':') == [1300, 1370]
+        assert len(elevation.lines) == 4, 'Three methods and one seasonal schematic'
+        seasonal = next(line for line in elevation.lines
+                        if line.get_label() == 'Seasonal reference (schematic)')
+        assert pd.DatetimeIndex(seasonal.get_xdata()).strftime('%m-%d').tolist() == [
+            '01-01', '04-01', '05-10', '10-15', '11-01', '12-31']
+        assert list(seasonal.get_ydata()) == [1300, 1300, 1370, 1370, 1300, 1300]
         guides = {text.get_text(): text for text in elevation.texts}
-        for label, level in (('Winter target: 1300 ft', 1300),
-                             ('Summer limit: 1370 ft', 1370)):
-            assert guides[label].xy == (0.74, level)
+        for label in ('Winter target: 1300 ft', 'Summer upper limit: 1370 ft'):
             assert guides[label].get_fontsize() >= 9
 
         release_limits = [release.get_ylim() for release in release_axes]
@@ -220,8 +226,13 @@ def test_combined_figure_has_shared_calendar_exact_lines_and_three_release_rows(
         legends = [*figure.legends, elevation.get_legend(),
                    *(axis.get_legend() for axis in release_axes)]
         legend = next(item for item in legends if item is not None)
-        assert [text.get_text() for text in legend.get_texts()] == expected_labels
-        assert min(text.get_fontsize() for text in legend.get_texts()) == 10
+        assert [text.get_text() for text in legend.get_texts()] == expected_labels + [
+            'Seasonal reference (schematic)']
+        assert min(text.get_fontsize() for text in legend.get_texts()) >= 9
+        figure.canvas.draw()
+        renderer = figure.canvas.get_renderer()
+        assert not legend.get_window_extent(renderer).overlaps(
+            elevation.title.get_window_extent(renderer))
     finally:
         import matplotlib.pyplot as plt
         plt.close(figure)

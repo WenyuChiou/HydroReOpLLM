@@ -18,7 +18,7 @@ This method uses the same daily Dam/routing loop with precomputed inflow; the op
 Each implemented operation advances storage; LLM methods retain implemented release history.
 
 **Optional three-day seasonal case:** use the [seasonal YAML](experiment.seasonal.ollama.yaml)
-and [seasonal prompt](../prompts/reference/zeroshot_seasonal_v1_system.txt).
+and [seasonal prompt](../prompts/available_information.txt).
 Read the [shared windows and pool checks](../README.md#seasonal-pool-levels).
 This separate three-day seasonal YAML has not been rerun. Saved exchanges on
 this page retain their original instructions and audit verdicts. See the
@@ -35,7 +35,7 @@ agent: at most three requests, with no retries.
 
 ## 2. Understand the operation method
 
-Read the [system prompt](../prompts/reference/zeroshot_system.txt)
+Read the [system prompt](../../../archive/fe_walter/prompts/available_original.txt)
 and [builder reading preview](prompt_preview.txt). The preview is not the saved
 model reply. The [complete saved day-one record](../../../examples/fe_walter/reference_outputs/ollama_three_day/zero_shot/raw/policy_4e2006ff9c730ed33c23b8f580d2e49e1d6d8a4a643806a24ef48fe689147292.json)
 contains the actual rendered user prompt, response schema and full Ollama reply.
@@ -256,7 +256,7 @@ agents:
         reference:
           profile: fe_walter
           method: zeroshot
-          system_prompt: ../prompts/reference/zeroshot_system.txt
+          system_prompt: ../../../archive/fe_walter/prompts/available_original.txt
           system_prompt_mode: original
           prompt_storage: false
           hide_availability_line: true

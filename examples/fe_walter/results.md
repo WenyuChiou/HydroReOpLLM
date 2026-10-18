@@ -9,6 +9,11 @@ three use the same accepted daily inflow and initial physical state.
 
 ## Reservoir operations
 
+The Rule-based trajectory uses the Hanasaki benchmark, which does not read the
+seasonal pool targets. Its lower cumulative release retains more water: in 2016,
+it released 328.717 million m³, compared with 380.617 and 380.684 million m³
+for the two LLM methods. See the [water-balance diagnosis](engine_comparison.md#reading-the-rule-based-trajectory).
+
 In the retrieved-knowledge run, replies on October 12–14 apply the October
 15–31 drawdown window early. Continued release lowers the pool to **1287.8 ft
 on October 15**. This is saved decision behavior; seasonal audits report it
@@ -26,6 +31,10 @@ Storage also changes with inflow and spill, as shown by the
 1297–1303 ft on November 1–March 14; the summer ceiling applies on
 May 10–October 14. These study criteria do not override a release decision.
 
+The dashed seasonal reference stays at 1300 ft through March and begins rising
+on April 1. Its spring and autumn slopes are illustrative; this visual reference
+does not redefine the study's seasonal audit windows or prescribe daily releases.
+
 Downloads: [combined CSV](coupled/outputs/current_tutorial/daily.csv),
 [provenance](coupled/outputs/current_tutorial/provenance.json),
 [combined SVG](coupled/outputs/current_tutorial/reservoir_operations.svg), and
@@ -42,7 +51,7 @@ and [`results_history.md`](results_history.md) for older experiments.
 
 ![2016 water elevation and controlled release](coupled/outputs/current_tutorial/reservoir_operations.png)
 
-**Figure 1.** Saved 2016 operations. (a) End-of-day water elevation (ft NGVD29),
-with winter target 1300 ft and summer upper limit 1370 ft. (b–d) Daily water
-release (m³/s) for the methods named in each panel. Release excludes spill.
+**Figure 1.** Saved 2016 operations. (a) Daily end levels (ft NGVD29), with a
+schematic reference that rises from April: 1300 ft winter target and 1370 ft
+summer upper limit. (b–d) Implemented water release (m³/s), excluding spill.
 All panels share operation dates; the three release panels share a flow scale.

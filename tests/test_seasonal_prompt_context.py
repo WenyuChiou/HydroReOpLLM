@@ -16,7 +16,7 @@ import yaml
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from examples.fe_walter.extensions.anik_v3_7 import load_anik
+from reference_oracle import load_anik, require_reference_dir
 from examples.fe_walter.extensions.reference_backend import ReferenceBackend, validate_reference
 from examples.fe_walter.extensions.seasonal_prompt_context import (
     SeasonalContextBackend,
@@ -24,13 +24,13 @@ from examples.fe_walter.extensions.seasonal_prompt_context import (
 )
 from llm_reservoir_agent.configured_backend import chat_request
 from llm_reservoir_agent.physics import PhysicalConfig, apply_transition
+from examples.fe_walter.extensions.native_case import load_case_profile, PHYSICAL_ACREFT_TO_M3, CFS_TO_CMS
 
 
 CRITERIA = ROOT / "examples/fe_walter/seasonal_pool_criteria.json"
 COUPLED = ROOT / "examples/fe_walter/coupled"
-ANIK = load_anik(ROOT)
-CFG = next(item for item in ANIK.RESERVOIRS if item.inflow_reservoir_key == "fe_walter")
-VOLUME_FACTOR = ANIK.CF_PER_ACREFT * ANIK.M3_PER_CF
+PROFILE = load_case_profile(ROOT).data
+VOLUME_FACTOR = PHYSICAL_ACREFT_TO_M3
 OPERATION_TARGET = json.loads(CRITERIA.read_text(encoding="utf-8"))["operation_target"]
 MODEL = {
     "provider": "ollama", "model": "fixture-model", "base_url": "http://offline.invalid",
@@ -54,11 +54,11 @@ DATE_CASES = (
 def physical() -> PhysicalConfig:
     return PhysicalConfig(
         reservoir_id="fe_walter",
-        capacity_m3=CFG.capacity_af * VOLUME_FACTOR,
-        dead_storage_m3=CFG.dead_storage_af * VOLUME_FACTOR,
-        initial_storage_m3=CFG.initial_storage_af * VOLUME_FACTOR,
-        minimum_release_cms=CFG.min_release_cfs * ANIK.CFS_TO_CMS,
-        maximum_release_cms=CFG.max_release_cfs * ANIK.CFS_TO_CMS,
+        capacity_m3=PROFILE["capacity_af"] * VOLUME_FACTOR,
+        dead_storage_m3=PROFILE["dead_storage_af"] * VOLUME_FACTOR,
+        initial_storage_m3=PROFILE["initial_storage_af"] * VOLUME_FACTOR,
+        minimum_release_cms=PROFILE["minimum_release_cfs"] * CFS_TO_CMS,
+        maximum_release_cms=PROFILE["maximum_release_cfs"] * CFS_TO_CMS,
     )
 
 
@@ -105,6 +105,8 @@ def raw_settings(method: str) -> dict[str, object]:
 
 
 def native_policy(method: str, backend: object):
+    ANIK = load_anik(ROOT)
+    CFG = next(item for item in ANIK.RESERVOIRS if item.inflow_reservoir_key == "fe_walter")
     zero = sys.modules["zeroshot_llm_release"]
     cfg = replace(CFG, operation_target_description=OPERATION_TARGET,
                   initial_storage_af=physical().initial_storage_m3 / VOLUME_FACTOR)
@@ -128,18 +130,19 @@ def native_policy(method: str, backend: object):
         policy = zero.ZeroShotLLMPolicy(**common)
     else:
         policy = sys.modules["dkp_llm_release"].DKPLLMPolicy(
-            **common, dkp_path=ROOT / "examples/fe_walter/knowledge/DKP_FEWalter_Dam_v1.2.md",
+            **common, dkp_path=ROOT / "examples/fe_walter/knowledge/operating_rules.md",
             include_missing_inputs=not settings["dkp_no_missing_inputs"])
     return cfg, policy
 
 
 def native_decide(cfg, policy, obs):
+    ANIK = load_anik(ROOT)
     storage = obs["state"]["storage_m3"]
     state = ANIK.build_runtime_state(cfg, pd.Timestamp(obs["timestamp"]),
                                      storage / VOLUME_FACTOR, "daily")
     state["step_days"] = 1
     state["storage_af_for_elevation"] = lambda elevation: ANIK.elevation_to_storage_af(cfg, elevation)
-    state["physically_available_release_cfs"] = obs["release_upper_bound_cms"] / ANIK.CFS_TO_CMS
+    state["physically_available_release_cfs"] = obs["release_upper_bound_cms"] / CFS_TO_CMS
     return policy.target_release(pd.Timestamp(obs["timestamp"]), obs["inflow_cms"], storage,
                                  runtime_state=state)
 

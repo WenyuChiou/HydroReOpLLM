@@ -310,7 +310,7 @@ class DKPCompositionTests(unittest.TestCase):
         self.assertEqual(adapter.network_calls, 0)
 
     def test_actual_dkp_layer_keeps_bounded_decision_and_spill_feedback(self):
-        from examples.fe_walter.extensions.anik_v3_7 import load_anik
+        from reference_oracle import load_anik, require_reference_dir
 
         vendor = load_anik(ROOT)
         cfg = next(value for value in vendor.RESERVOIRS if value.name == "F.E. Walter Dam")

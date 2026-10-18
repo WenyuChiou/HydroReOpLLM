@@ -24,6 +24,7 @@ MODEL = {
     "keep_alive": "30m", "seed": None, "timeout_seconds": 120, "api_key_env": None,
     "max_attempts": 2, "retry_delay_seconds": 2,
 }
+CURRENT_MODEL = {**MODEL, "model": "gemma4:12b"}
 # Pins from the unchanged bcb420d physical/weather/prompt inputs.
 SOURCE_PINS = {
     "examples/fe_walter/coupled/reservoirs.json":
@@ -34,14 +35,14 @@ SOURCE_PINS = {
         "2d030c5e53b15ba5ef7dcb0979dd223889870e6f9a41396bb3b1e2adb4e6a826",
     "data/benchmark/fe_walter_statistics.json":
         "44a5d67ef9d256b1710403b641ff0629deff21f196cd1d951823197f0ffcbdf7",
-    "examples/fe_walter/prompts/zeroshot_seasonal_v1_system.txt":
+    "examples/fe_walter/prompts/available_information.txt":
         "0c557d4e51e4bb938d36c65808eb91e9ba5bc29db8b37d958149fee38bae9f75",
-    "examples/fe_walter/prompts/dkp_seasonal_v1_system.txt":
+    "archive/fe_walter/prompts/retrieved_previous.txt":
         "a6fed2a10ba6120701f4098c44a654a1361aa2da6adc83f9ed48ef32881de207",
-    "examples/fe_walter/knowledge/DKP_FEWalter_Dam_v1.2.md":
+    "examples/fe_walter/knowledge/operating_rules.md":
         "7fb3b9e75c1d6a52168049afa80c527a49e606f1c0889e5d14b31f874502b206",
 }
-CONFIRMED_DKP_PROMPT = "examples/fe_walter/prompts/dkp_seasonal_v2_system.txt"
+CONFIRMED_DKP_PROMPT = "examples/fe_walter/prompts/retrieved_knowledge.txt"
 CONFIRMED_DKP_SHA256 = "ae5e19ee4a8f3749d80f06088c7ee7f4cb14997a72d40a9d39c1ab2e51a7bf48"
 
 
@@ -82,14 +83,14 @@ def _legacy_document(method):
         reference = {
             "profile": "fe_walter", "method": "zeroshot" if method == "llm_available" else "dkp",
             "consultation_mode": "daily", "response_validation": "policy",
-            "system_prompt": _resource("../prompts/" + (
-                "zeroshot" if method == "llm_available" else "dkp") + "_seasonal_v1_system.txt"),
+            "system_prompt": _resource("../prompts/available_information.txt" if method == "llm_available"
+                                       else "../../../archive/fe_walter/prompts/retrieved_previous.txt"),
             "system_prompt_mode": "custom", "prompt_storage": False,
             "hide_availability_line": False, "dkp_no_missing_inputs": False,
             "zeroshot_knowledge": "target",
         }
         if method == "llm_knowledge":
-            reference["dkp"] = _resource("../knowledge/DKP_FEWalter_Dam_v1.2.md")
+            reference["dkp"] = _resource("../knowledge/operating_rules.md")
         agent.update(type="llm", model_profile="reservoir_model", customization={
             "backend": "reference_v3_7", "parameters": {"reference": reference},
         })
@@ -100,12 +101,15 @@ def _legacy_document(method):
 
 
 def _confirmed_document(method):
-    """The only approved changes to the previous executable Anik settings."""
+    """Explicit accepted changes from the earlier v1 study to the current one."""
     data = _legacy_document(method)
+    data["run_id"] = "fe-walter-current-" + method
+    data["output"] = _resource("../../../runs/" + data["run_id"])
     if method != "rule":
+        data["models"] = {"reservoir_model": deepcopy(CURRENT_MODEL)}
         ref = data["agents"]["fe_operator"]["customization"]["parameters"]["reference"]
         ref.update(hide_availability_line=True, dkp_no_missing_inputs=True)
-        # New opt-in prompt context is the only additional executable setting.
+        # Keep the approved daily context separate from the preserved v1 fixture.
         ref["seasonal_criteria_file"] = _resource("../seasonal_pool_criteria.json")
         if method == "llm_knowledge":
             ref["system_prompt"] = str((ROOT / CONFIRMED_DKP_PROMPT).resolve())
@@ -131,7 +135,8 @@ def loaded():
 
 def _load(name, cache):
     if name not in cache:
-        cache[name] = load_coupled_settings(COUPLED / (name + ".yaml"), runtime_root=ROOT)
+        filename = "experiment.yaml" if name == "rule" else name + ".yaml"
+        cache[name] = load_coupled_settings(COUPLED / filename, runtime_root=ROOT)
     return cache[name]
 
 
@@ -176,7 +181,7 @@ def test_split_matches_v1_with_only_confirmed_anik_corrections(method, loaded, t
     assert checked.report["output"] == legacy.report["output"]
     assert checked.report["run_id"] == legacy.report["run_id"]
     if method != "rule":
-        assert checked.data["models"] == {"reservoir_model": MODEL}
+        assert checked.data["models"] == {"reservoir_model": CURRENT_MODEL}
         reference = checked.data["agents"]["fe_operator"]["reference"]
         assert Path(reference["system_prompt"]).is_absolute()
         if method == "llm_knowledge":
@@ -195,7 +200,9 @@ def test_previous_v1_documents_still_load_without_rewriting_their_contract(metho
     ref = old.data["agents"]["fe_operator"]["reference"]
     assert ref["hide_availability_line"] is False
     assert ref["dkp_no_missing_inputs"] is False
-    assert ref["system_prompt"].endswith("_seasonal_v1_system.txt")
+    source = ("examples/fe_walter/prompts/available_information.txt" if method == "llm_available"
+              else "archive/fe_walter/prompts/retrieved_previous.txt")
+    assert hashlib.sha256(Path(ref["system_prompt"]).read_bytes()).hexdigest() == SOURCE_PINS[source]
     assert "seasonal_criteria_file" not in ref
     for relative, digest in SOURCE_PINS.items():
         assert hashlib.sha256((ROOT / relative).read_bytes()).hexdigest() == digest
@@ -241,11 +248,11 @@ def test_shared_physics_sources_public_agents_and_output_identity(loaded):
             assert public["model_profile"] == "reservoir_model"
             prompt = "zeroshot" if method == "llm_available" else "dkp"
             if method == "llm_available":
-                required.append(f"examples/fe_walter/prompts/{prompt}_seasonal_v1_system.txt")
+                required.append("examples/fe_walter/prompts/available_information.txt")
             else:
                 assert checked.files[str((ROOT / CONFIRMED_DKP_PROMPT).resolve())] == CONFIRMED_DKP_SHA256
             if method == "llm_knowledge":
-                required.append("examples/fe_walter/knowledge/DKP_FEWalter_Dam_v1.2.md")
+                required.append("examples/fe_walter/knowledge/operating_rules.md")
         for relative in required:
             assert checked.files[str((ROOT / relative).resolve())] == SOURCE_PINS[relative]
     assert "models" not in default.data

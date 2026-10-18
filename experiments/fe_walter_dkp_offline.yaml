@@ -30,10 +30,10 @@ agents:
     release_cms: 5.0                     # Controlled release in m3/s; spill is separate.
     model: local                         # Saved settings only in offline mode.
     response_schema: reservoir-dkp-decision.v1 # Ten fields for a future structured model reply.
-    prompt: ../prompts/daily_dkp_release.txt # Observation, DKP and previous physical feedback.
+    prompt: ../examples/fe_walter/legacy/prompts/operator.txt # Observation, DKP and previous physical feedback.
     prompt_version: "dkp-diagnostic-1"
     knowledge:
-      fe_walter_dkp: ../examples/fe_walter/knowledge/DKP_FEWalter_Dam_v1.2.md # Frozen supplied source.
+      fe_walter_dkp: ../examples/fe_walter/knowledge/operating_rules.md # Frozen supplied source.
     context_file: ../cases/fe_walter_dkp_offline/context.json # Assumptions visible to the agent.
     auditors: [release_limits, dkp_strategy] # Both required; UNKNOWN never counts as PASS.
 

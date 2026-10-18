@@ -9,7 +9,7 @@ from unittest.mock import patch
 
 from examples.fe_walter.legacy.anik_experiment import RunJournal, JournalBackend, append_json, digest
 from examples.fe_walter.legacy.anik_recovery import OffsetPolicy, validate_prefix, acquire_lock, run_recovery
-from examples.fe_walter.legacy.anik_adapter import load_anik
+from reference_oracle import load_anik, require_reference_dir
 from examples.fe_walter.legacy.anik_experiment import native_config, prepare_case
 from examples.fe_walter.legacy.case import PROJECT_ROOT
 from examples.fe_walter.legacy.hydrocnhs_bridge import run_hydrocnhs

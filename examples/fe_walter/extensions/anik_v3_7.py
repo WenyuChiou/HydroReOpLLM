@@ -11,6 +11,7 @@ from __future__ import annotations
 import hashlib
 import importlib
 import math
+import os
 import sys
 from datetime import date, timedelta
 from pathlib import Path
@@ -27,11 +28,33 @@ _ANIK_SHA256 = {
 }
 
 
-def load_anik(project_root: Path | str):
-    """Verify and import the unmodified vendored Anik ``reservoir_model``."""
-
+def resolve_anik_source_dir(project_root: Path | str) -> Path:
+    """Resolve the explicitly configured optional Anik source directory."""
     root = Path(project_root).resolve()
-    vendor = (root / "third_party" / "anik_v3_7").resolve()
+    configured = os.environ.get("HYDROOPS_ANIK_SOURCE_DIR")
+    if configured is None or not configured.strip():
+        raise RuntimeError(
+            "optional legacy Anik reference is unavailable; set "
+            "HYDROOPS_ANIK_SOURCE_DIR to the external Anik V3.7 source directory"
+        )
+    vendor = Path(configured).expanduser().resolve()
+    if not vendor.is_dir():
+        raise FileNotFoundError(
+            f"HYDROOPS_ANIK_SOURCE_DIR is not an existing directory: {vendor}"
+        )
+    try:
+        vendor.relative_to(root)
+    except ValueError:
+        pass
+    else:
+        raise ValueError("HYDROOPS_ANIK_SOURCE_DIR must point outside the project repository")
+    return vendor
+
+
+def load_anik(project_root: Path | str):
+    """Verify and import the optional external Anik ``reservoir_model``."""
+
+    vendor = resolve_anik_source_dir(project_root)
     for filename, expected in _ANIK_SHA256.items():
         path = vendor / filename
         if not path.is_file():

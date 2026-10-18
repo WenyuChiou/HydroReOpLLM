@@ -62,7 +62,7 @@ class AnnualCaseTests(unittest.TestCase):
                        for s in settings]
             self.assertNotEqual(prompts[0], prompts[1])
             self.assertEqual([Path(p).name for p in prompts],
-                             ["zeroshot_seasonal_v1_system.txt", "dkp_seasonal_v2_system.txt"])
+                             ["available_information.txt", "retrieved_knowledge.txt"])
             self.assertTrue(all(Path(p).is_file() for p in prompts))
             for spec in settings:
                 self.assertIsNone(spec["max_calls"])

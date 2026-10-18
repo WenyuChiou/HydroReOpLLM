@@ -15,13 +15,13 @@ agents:                                       # Only controlled reservoirs need 
     reservoir: FEWalter                       # Exact reservoir ID in case.json.
     mode: offline                             # Fixed test decision; no LLM.
     release_cms: 5                            # Requested controlled release, m³/s.
-    prompt: ../prompts/daily_release.txt       # User prompt template; system JSON contract is fixed.
+    prompt: ../templates/legacy/prompts/operator.txt       # User prompt template; system JSON contract is fixed.
     # DKP goes in knowledge: {operating_rules: path/to/FE_rules.md}; provide real rules.
     auditors: [release_limits]                 # Enabled checks for this agent.
   belt_operator:                              # Independent Beltzville agent.
     reservoir: Beltzville                     # Exact reservoir ID in case.json.
     mode: offline                             # Fixed test decision; no LLM.
     release_cms: 3                            # Requested controlled release, m³/s.
-    prompt: ../prompts/daily_release.txt       # Replace with this reservoir's own instructions.
+    prompt: ../templates/legacy/prompts/operator.txt       # Replace with this reservoir's own instructions.
     # DKP goes in knowledge: {operating_rules: path/to/Beltzville_rules.md}.
     auditors: [release_limits]                 # May choose different checks for each agent.

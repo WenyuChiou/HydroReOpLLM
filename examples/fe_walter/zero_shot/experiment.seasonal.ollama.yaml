@@ -34,7 +34,7 @@ agents:
         reference:
           profile: fe_walter
           method: zeroshot
-          system_prompt: ../prompts/zeroshot_seasonal_v1_system.txt
+          system_prompt: ../prompts/available_information.txt
           system_prompt_mode: custom
           prompt_storage: false
           hide_availability_line: true

@@ -157,7 +157,7 @@ class CaseProfile:
 
 
 def case_profile_path() -> Path:
-    return (Path(__file__).resolve().parents[1] / "profiles" / "anik_v3_7.json").resolve()
+    return (Path(__file__).resolve().parents[1] / "profiles" / "reservoir.json").resolve()
 
 
 def load_case_profile(runtime_root: Path | str) -> CaseProfile:
@@ -186,6 +186,14 @@ def load_case_profile(runtime_root: Path | str) -> CaseProfile:
 
 def read_system_prompt(profile: CaseProfile, method: str, settings: Mapping[str, Any]) -> tuple[str, str, str]:
     original = profile.data["default_system_prompts"][method]
+    if settings.get("system_prompt_mode", "original") == "custom":
+        source = Path(settings["system_prompt"])
+        blob = source.read_bytes()
+        source_hash = hashlib.sha256(blob).hexdigest()
+        if source_hash != settings["system_prompt_sha256"]:
+            raise ValueError("system_prompt file changed after validation")
+        text = blob.decode("utf-8").replace("\r\n", "\n").replace("\r", "\n")
+        return text, original["sha256"], "file"
     original_path = (profile.path.parent / original["path"]).resolve()
     original_blob = original_path.read_bytes()
     if hashlib.sha256(original_blob).hexdigest() != original["sha256"]:

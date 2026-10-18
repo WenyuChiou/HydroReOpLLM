@@ -56,24 +56,22 @@ ANNUAL_DOWNLOADS = {
 CONFIG_DOWNLOADS = {
     f"examples/fe_walter/coupled/{name}": name
     for name in (
-        "experiment.yaml", "rule.yaml", "llm_available.yaml", "llm_knowledge.yaml",
-        "llm_available.gemma4.yaml", "llm_knowledge.gemma4.yaml", "models.gemma4.yaml",
+        "experiment.yaml", "llm_available.yaml", "llm_knowledge.yaml",
         "hydrology.yaml", "models.yaml", "agents.rule.yaml", "agents.llm_available.yaml",
         "agents.llm_knowledge.yaml", "auditors.yaml", "reservoirs.json",
     )
 }
 CONFIG_DOWNLOADS.update({
-    f"examples/fe_walter/coupled/current/{name}": f"current-{name}"
-    for name in ("experiment.yaml", "llm_available.yaml", "llm_knowledge.yaml", "models.yaml")
+    f"examples/fe_walter/prompts/{name}": name
+    for name in ("available_information.txt", "retrieved_knowledge.txt")
 })
 CONFIG_DOWNLOADS.update({
-    f"examples/fe_walter/prompts/{name}": name
-    for name in ("zeroshot_seasonal_v1_system.txt", "dkp_seasonal_v1_system.txt",
-                 "dkp_seasonal_v2_system.txt")
+    f"archive/fe_walter/prompts/{name}.txt": f"historical-{name}.txt"
+    for name in ("available_original", "retrieved_original", "retrieved_default", "retrieved_previous")
 })
 CONFIG_DOWNLOADS.update({
     "examples/fe_walter/seasonal_pool_criteria.json": "seasonal_pool_criteria.json",
-    "examples/fe_walter/knowledge/DKP_FEWalter_Dam_v1.2.md": "operating-knowledge.txt",
+    "examples/fe_walter/knowledge/operating_rules.md": "operating-knowledge.txt",
 })
 COMPLETED_DOWNLOADS = {
     f"examples/fe_walter/coupled/outputs/{name}": name

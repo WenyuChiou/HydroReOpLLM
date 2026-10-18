@@ -8,11 +8,16 @@ from types import SimpleNamespace
 
 import pytest
 
-from examples.fe_walter.extensions.anik_v3_7 import load_anik
 from examples.fe_walter.extensions import reservoir_profile
+from reference_oracle import load_anik, require_reference_dir
 
 
 ROOT = Path(__file__).resolve().parents[1]
+
+
+@pytest.fixture(scope="module", autouse=True)
+def reference_dir():
+    return require_reference_dir()
 
 
 @pytest.fixture(scope="module")
@@ -48,7 +53,7 @@ def save(tmp_path, document, name="profile.json"):
     return path
 
 
-def test_builtin_ids_and_identity_match_all_pinned_native_configs(model):
+def test_builtin_ids_and_identity_match_all_pinned_native_configs(model, reference_dir):
     expected = ("prompton", "fe_walter", "beltzville", "wallenpaupack")
     assert reservoir_profile.builtin_profile_ids(ROOT) == expected
     assert tuple(cfg.inflow_reservoir_key for cfg in model.RESERVOIRS) == expected
@@ -61,7 +66,7 @@ def test_builtin_ids_and_identity_match_all_pinned_native_configs(model):
             "profile_id": original.inflow_reservoir_key,
             "profile_source": "pinned_builtin",
             "native_model_sha256": hashlib.sha256(
-                (ROOT / "third_party/anik_v3_7/reservoir_model.py").read_bytes()
+                (reference_dir / "reservoir_model.py").read_bytes()
             ).hexdigest(),
             "reservoir_config": json.loads(json.dumps(asdict(original), allow_nan=False)),
         }
@@ -266,12 +271,15 @@ def test_two_custom_reservoirs_and_reloads_have_independent_mutable_values(tmp_p
     assert first is not second and first is not reloaded
 
 
-def test_pinned_schema_checksum_is_enforced(tmp_path):
-    source = tmp_path / "third_party/anik_v3_7/reservoir_model.py"
+def test_pinned_schema_checksum_is_enforced(tmp_path, reference_dir, monkeypatch):
+    repository = tmp_path / "repository"
+    repository.mkdir()
+    source = tmp_path / "external" / "anik_v3_7" / "reservoir_model.py"
     source.parent.mkdir(parents=True)
-    source.write_bytes((ROOT / "third_party/anik_v3_7/reservoir_model.py").read_bytes() + b"\n")
+    source.write_bytes((reference_dir / "reservoir_model.py").read_bytes() + b"\n")
+    monkeypatch.setenv("HYDROOPS_ANIK_SOURCE_DIR", str(source.parent))
     with pytest.raises(ValueError, match="checksum mismatch"):
-        reservoir_profile.builtin_profile_ids(tmp_path)
+        reservoir_profile.builtin_profile_ids(repository)
 
 
 def test_model_dataclass_schema_drift_is_rejected(tmp_path, document):

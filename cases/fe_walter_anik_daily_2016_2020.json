@@ -20,7 +20,7 @@
   "initial_storage_basis": "Anik V3.7 conservation-pool default; not observed 2016-01-01 storage.",
   "inflow_csv": "data/accepted/fe_walter_inflow_reference_1996_2025.csv.gz",
   "inflow_sha256": "91759fdfbaa3e85b0257a5708391f53d264eb0ef898f94c4e580a391e131b64f",
-  "dkp_path": "examples/fe_walter/knowledge/DKP_FEWalter_Dam_v1.2.md",
+  "dkp_path": "examples/fe_walter/knowledge/operating_rules.md",
   "dkp_sha256": "7fb3b9e75c1d6a52168049afa80c527a49e606f1c0889e5d14b31f874502b206",
   "hydrocnhs_commit": "fdd5097a3fcabb312c6c3739efc71da2d67c47da",
   "downstream_routing": "identity unit hydrograph; Dam integration contract test, not a calibrated downstream river",

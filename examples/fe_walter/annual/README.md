@@ -149,8 +149,8 @@ operating diagnostics and results.
 
 ### Read the current method-specific system messages
 
-The [available-information message](../prompts/zeroshot_seasonal_v1_system.txt)
-and [operating-knowledge message](../prompts/dkp_seasonal_v1_system.txt) preserve
+The [available-information message](../prompts/available_information.txt)
+and [operating-knowledge message](../../../archive/fe_walter/prompts/retrieved_previous.txt) preserve
 their respective native instructions and response-field order. Only the approved
 seasonal-target paragraph differs from the pinned original. The DKP request keeps
 the full native `missing_inputs` field.

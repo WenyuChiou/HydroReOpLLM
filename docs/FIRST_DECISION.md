@@ -91,7 +91,7 @@ Decide the mean release for this interval (cfs).
 The same unchanged messages are also retained in the saved
 [`raw/policy_…json`](../examples/fe_walter/reference_outputs/ollama_three_day/zero_shot/raw/policy_4e2006ff9c730ed33c23b8f580d2e49e1d6d8a4a643806a24ef48fe689147292.json).
 The fixed system message is also stored as
-[`zeroshot_system.txt`](../examples/fe_walter/prompts/reference/zeroshot_system.txt).
+[`zeroshot_system.txt`](../archive/fe_walter/prompts/available_original.txt).
 
 ## 3. Native reply
 

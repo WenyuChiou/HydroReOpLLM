@@ -18,7 +18,7 @@ import pandas as pd
 import pytest
 import yaml
 
-from examples.fe_walter.extensions.anik_v3_7 import load_anik
+from reference_oracle import load_anik, require_reference_dir
 from examples.fe_walter.extensions.seasonal_prompt_context import (
     SeasonalContextBackend, load_seasonal_prompt_context,
 )
@@ -94,7 +94,7 @@ def oracle(method, replies, inflow):
         policy = zero.ZeroShotLLMPolicy(**common)
     else:
         policy = sys.modules["dkp_llm_release"].DKPLLMPolicy(
-            **common, dkp_path=ROOT / "examples/fe_walter/knowledge/DKP_FEWalter_Dam_v1.2.md",
+            **common, dkp_path=ROOT / "examples/fe_walter/knowledge/operating_rules.md",
             include_missing_inputs=False)
     with redirect_stdout(io.StringIO()):
         result = anik.simulate(cfg, policy, inflow, inflow_change_threshold=-1.0,

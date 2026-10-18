@@ -2,7 +2,7 @@
 fe_operator: # Decision-unit ID used in plans and traces.
   reservoir_id: FEWalter # Controlled reservoir ID in reservoirs.json.
   type: llm # Provider-backed operating method.
-  model_profile: reservoir_model # Profile ID from current/models.yaml.
+  model_profile: reservoir_model # Profile ID from models.yaml.
   customization:
     backend: reference_v3_7 # Registered backend ID from the entry's extensions.
     # The backend owns this reference recipe; the framework keeps it opaque.
@@ -12,10 +12,10 @@ fe_operator: # Decision-unit ID used in plans and traces.
         method: dkp # Include the declared domain-knowledge package.
         consultation_mode: daily # One decision opportunity per operation day.
         response_validation: policy # Validate replies with the backend policy contract.
-        system_prompt: ../prompts/dkp_seasonal_v2_system.txt # Relative to this file.
+        system_prompt: ../prompts/retrieved_knowledge.txt # Relative to this file.
         system_prompt_mode: custom # Use the declared system-prompt file.
         seasonal_criteria_file: ../seasonal_pool_criteria.json # Daily study-defined pool window context.
-        dkp: ../knowledge/DKP_FEWalter_Dam_v1.2.md # Knowledge document, relative to this file.
+        dkp: ../knowledge/operating_rules.md # Knowledge document, relative to this file.
         prompt_storage: false # Do not include storage in the prompt representation.
         hide_availability_line: true # Preserve the approved prompt variant.
         dkp_no_missing_inputs: true # Reject incomplete backend inputs.

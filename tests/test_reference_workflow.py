@@ -12,7 +12,7 @@ from unittest.mock import patch
 import pandas as pd
 import yaml
 
-from examples.fe_walter.extensions.anik_v3_7 import load_anik
+from reference_oracle import load_anik, require_reference_dir
 from llm_reservoir_agent.network import PROJECT_ROOT
 from examples.fe_walter.extensions.reference_backend import ReferenceBackend, _FixtureTransport
 from llm_reservoir_agent.context import DecisionContext
@@ -64,7 +64,7 @@ class ReferenceTests(unittest.TestCase):
         model = load_anik(PROJECT_ROOT)
         zero = sys.modules['zeroshot_llm_release']
         cfg = next(c for c in model.RESERVOIRS if c.inflow_reservoir_key == 'fe_walter')
-        cfg = replace(cfg, dkp_path=str(PROJECT_ROOT/'examples/fe_walter/knowledge/DKP_FEWalter_Dam_v1.2.md'))
+        cfg = replace(cfg, dkp_path=str(PROJECT_ROOT/'examples/fe_walter/knowledge/operating_rules.md'))
         for method in ('zeroshot', 'dkp'):
             with self.subTest(method=method):
                 adapter = self.backend(method)
@@ -87,7 +87,7 @@ class ReferenceTests(unittest.TestCase):
                 self.assertEqual(a, original._build_state_prompt(*args))
                 if method == 'dkp':
                     self.assertIn('Retrieved DKP sections', a)
-                    self.assertNotIn((PROJECT_ROOT/'examples/fe_walter/knowledge/DKP_FEWalter_Dam_v1.2.md').read_text(encoding='utf-8'), a)
+                    self.assertNotIn((PROJECT_ROOT/'examples/fe_walter/knowledge/operating_rules.md').read_text(encoding='utf-8'), a)
                     self.assertEqual(adapter._original_prompt_sha256,
                         'c018043ce34a6e47024024ce63622d837dffa686a15523eb97d4bdd4ae678352')
                 else:
@@ -150,7 +150,6 @@ class ReferenceTests(unittest.TestCase):
         physics['capacity_m3'] *= 2
         with self.assertRaisesRegex(ValueError, 'physical configuration'):
             ReferenceBackend(settings.agents['fe_operator']['reference'], physics, runtime_root=PROJECT_ROOT)
-        load_anik(PROJECT_ROOT)
         with self.assertRaisesRegex(ValueError, 'exhausted'):
             _FixtureTransport([]).decide('system', 'state')
 
@@ -193,7 +192,7 @@ class ReferenceTests(unittest.TestCase):
 
     def external_fixture(self, method, *, mode='original', suffix='', crlf=False):
         data = self.fixture(method)
-        blob = (PROJECT_ROOT / f'examples/fe_walter/prompts/reference/{method}_system.txt').read_bytes()
+        blob = (PROJECT_ROOT / ('archive/fe_walter/prompts/' + {'zeroshot': 'available_original.txt', 'dkp': 'retrieved_original.txt'}[method])).read_bytes()
         if crlf:
             blob = blob.replace(b'\n', b'\r\n')
         path = self.root / f'{method}-system.txt'

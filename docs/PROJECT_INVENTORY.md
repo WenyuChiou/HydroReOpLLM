@@ -1,5 +1,39 @@
 # HydroOpsLLM project inventory
 
+## Current code and inputs
+
+| Location | Purpose |
+|---|---|
+| `src/llm_reservoir_agent/` | Generic configuration, providers, decisions, physics, routing and records |
+| `src/hydrocnhs/` | Bundled upstream hydrology, calibration and routing modules |
+| `templates/coupled/` | Commented configuration templates for a new study |
+| `examples/fe_walter/extensions/` | Case formatting, response interpretation and optional compatibility helpers |
+| `examples/fe_walter/coupled/` | One maintained set of experiment, method, model and physical settings |
+| `examples/fe_walter/legacy/` | Compatibility code used by regression tests; excluded from the installed package |
+| `examples/fe_walter/prompts/` | One current system prompt for each LLM method |
+| `examples/fe_walter/knowledge/` | The operating text retrieved by the knowledge method |
+| `examples/synthetic/` | Invented inputs for older demonstration configurations |
+| `archive/fe_walter/` | Historical prompt inputs, source hashes and external recovery instructions |
+| `tests/fixtures/` | Synthetic inputs for tests, separate from research results |
+
+The former root `knowledge/` contained only invented R1/R2/R3 guidance; it now
+lives with the synthetic example. The former root `prompts/` contained compatibility
+templates, now stored with their example or under `templates/legacy/`.
+The supplied original Anik Python files are excluded from the current tree;
+[optional reference checks](../archive/fe_walter/README.md) use a verified external artifact.
+Historical record paths remain as originally recorded.
+
+The case's canonical entry is `coupled/experiment.yaml`. The two LLM entries
+share `coupled/models.yaml`; duplicate version-named entries and the extra
+`current/` directory have been removed. Earlier configurations can be recovered
+from their recorded Git revision, without changing a completed experiment.
+
+Installed wheels contain only the current generic package and bundled HydroCNHS
+modules. Wheel builds use private temporary staging, so modules left in an old
+local `build/lib` directory cannot enter a new distribution.
+
+## Earlier inventory
+
 Cleanup baseline: **1,026 tracked files**, commit
 `fbd9a993731ce979835dcc46f7a9cbad6aa7387b`.
 The [complete inventory](../archive/inventory.csv) records classification,

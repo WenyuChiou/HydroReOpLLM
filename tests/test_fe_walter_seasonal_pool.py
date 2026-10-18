@@ -86,9 +86,9 @@ class SeasonalPoolTests(unittest.TestCase):
     def test_prompt_variants_share_the_versioned_target(self):
         target = pool.load_criteria()["operation_target"]
         for method in ["zeroshot", "dkp"]:
-            text = (ROOT / f"examples/fe_walter/prompts/reference/{method}_seasonal_v1_system.txt").read_text(encoding="utf-8")
+            text = (ROOT / ("examples/fe_walter/prompts/" + {"zeroshot": "available_information.txt", "dkp": "retrieved_knowledge.txt"}[method])).read_text(encoding="utf-8")
             self.assertIn("- Operation target: " + target, text)
-            original = (ROOT / f"examples/fe_walter/prompts/reference/{method}_system.txt").read_text(encoding="utf-8")
+            original = (ROOT / ("archive/fe_walter/prompts/" + {"zeroshot": "available_original.txt", "dkp": "retrieved_original.txt"}[method])).read_text(encoding="utf-8")
             old_line = next(line for line in original.splitlines() if line.startswith("- Operation target:"))
             self.assertEqual(text, original.replace(old_line, "- Operation target: " + target))
 
@@ -111,7 +111,7 @@ class SeasonalPoolTests(unittest.TestCase):
                 self.assertIs(reference["hide_availability_line"], True)
                 self.assertIs(reference["dkp_no_missing_inputs"], True)
                 actual = (path.parent / reference["system_prompt"]).read_text(encoding="utf-8")
-                original = (ROOT / f"examples/fe_walter/prompts/reference/{method}_system.txt").read_text(encoding="utf-8")
+                original = (ROOT / ("archive/fe_walter/prompts/" + {"zeroshot": "available_original.txt", "dkp": "retrieved_original.txt"}[method])).read_text(encoding="utf-8")
                 old_line = next(line for line in original.splitlines() if line.startswith("- Operation target:"))
                 self.assertEqual(actual, original.replace(old_line, "- Operation target: " + target))
 
