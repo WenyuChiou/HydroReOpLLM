@@ -107,7 +107,7 @@ Download [auditors.yaml](../templates/coupled/auditors.yaml).
 
 ## Build the prompt
 
-HydroOpsLLM does not inject a shared system prompt. The supplied text files are
+HydroReOpLLM does not inject a shared system prompt. The supplied text files are
 ordinary user-owned templates using Python `string.Template` placeholders.
 Write `$$` for a literal dollar sign.
 

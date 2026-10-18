@@ -1,4 +1,11 @@
-# HydroOpsLLM editable cover
+# HydroReOpLLM editable cover
+
+## Current display-name revision — 18 October 2026
+
+The author selected HydroReOpLLM. Current editable sources and exports use this brand; Compatibility filenames remain stable; maintained repository links now use HydroReOpLLM. Earlier records below are retained as history. See the accompanying provenance's branding_revision for current hashes and renderer details.
+
+## Earlier design and typography record
+
 
 The existing illustrative cover was selected and merged in PR #26. This revision
 updates its displayed name to HydroOpsLLM and enlarges all four text nodes;

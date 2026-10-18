@@ -1,4 +1,11 @@
-# HydroOpsLLM Figure 1
+# HydroReOpLLM Figure 1
+
+## Current display-name revision — 18 October 2026
+
+The author selected HydroReOpLLM. Current editable sources and exports use this brand; Compatibility filenames remain stable; maintained repository links now use HydroReOpLLM. Earlier records below are retained as history. See the accompanying provenance's branding_revision for current hashes and renderer details.
+
+## Earlier design and typography record
+
 
 The [native draw.io source](../../hydrocnhs-coupling-framework-en.drawio) is canonical.
 Text, boundaries, icon placement and connectors are separate editable objects.

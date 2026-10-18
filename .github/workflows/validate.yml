@@ -41,12 +41,12 @@ jobs:
           reservoir-experiment --help
       - name: Verify wheel outside the source checkout
         run: |
-          python -m pip uninstall -y llm-reservoir-agent
+          python -m pip uninstall -y hydroreopllm llm-reservoir-agent
           python -m pip install --no-deps dist/*.whl
           python -I scripts/check_installed_runtime.py
       - uses: actions/upload-artifact@v4
         with:
-          name: hydroopslm-html-and-package
+          name: hydroreopllm-html-and-package
           path: |
             build/docs
             dist

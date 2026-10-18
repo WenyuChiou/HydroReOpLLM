@@ -1,4 +1,4 @@
-# HydroOpsLLM User Manual
+# HydroReOpLLM User Manual
 
 [English](index.md) | [繁體中文](index.zh-TW.md)
 
@@ -7,7 +7,7 @@
 Add LLM reservoir operators to your HydroCNHS simulation. Learn the common
 settings first, then follow a complete case study and adapt it to your research.
 
-![HydroOpsLLM cover](figures/hydroopslm-cover.png)
+![HydroReOpLLM cover](figures/hydroopslm-cover.png)
 
 ## Contents
 
@@ -28,7 +28,7 @@ settings first, then follow a complete case study and adapt it to your research.
 
 Use the [HydroCNHS tutorials](https://github.com/cylin928/HydroCNHS/tree/main/tutorials)
 for basin construction, hydrological parameters and calibration. This manual
-focuses on reservoir agents and the LLM workflow added by HydroOpsLLM.
+focuses on reservoir agents and the LLM workflow added by HydroReOpLLM.
 
 ## Results notebook
 

@@ -1,6 +1,6 @@
 # Editable figure sources
 
-The main README uses the HydroOpsLM [cover](../hydroopslm-cover.svg) and generic [coupling framework](../hydrocnhs-coupling-framework-en.drawio).
+The main README uses the HydroReOpLLM [cover](../hydroopslm-cover.svg) and generic [coupling framework](../hydrocnhs-coupling-framework-en.drawio).
 [Branding editing instructions](../assets/branding/EDITING.md) describe the cover's native SVG groups and reusable components.
 Edit the coupling framework's native draw.io cards, icons and attached connectors independently;
 [editing instructions](../assets/coupling-framework/EDITING.md) explain exports and icon provenance.
@@ -31,4 +31,4 @@ subbasin is a dummy aggregation node, not a geographic footprint. Dam/outlet
 coordinates are a project record; the inlet is a derived river/lake boundary
 crossing, not a surveyed point. See [exact sources](../../../data/figures/SOURCES.md).
 
-The current HydroOpsLLM Figure 1 is edited in the native draw.io source. The historical generator does not reproduce its reviewed layout; see [current editing/export instructions](../assets/coupling-framework/EDITING.md).
+The current HydroReOpLLM Figure 1 is edited in the native draw.io source. The historical generator does not reproduce its reviewed layout; see [current editing/export instructions](../assets/coupling-framework/EDITING.md).

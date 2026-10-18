@@ -9,7 +9,7 @@
 這個自訂的每日防洪規則透過原生 HydroCNHS Dam API 提出 release 請求。它依據
 [Hanasaki et al. (2006)](https://doi.org/10.1016/j.jhydrol.2005.11.011)及
 [Abeshu et al. (2023), Section 2.3.3](https://gmd.copernicus.org/articles/16/5449/2023/)
-的防洪公式。此規則由 HydroOpsLLM 加入，不是 HydroCNHS 的內建策略。
+的防洪公式。此規則由 HydroReOpLLM 加入，不是 HydroCNHS 的內建策略。
 
 共用 input 與物理假設請先看[共用案例設定](../README.zh-TW.md)。
 
@@ -79,7 +79,7 @@ in global hydrological models.” *Geoscientific Model Development*, 16, 5449–
 此自訂策略將每月防洪公式調整為每日步長。它把
 [來源決策函式](https://github.com/DasanikBD/Delaware-Reservoir-LLM/blob/6c3dc532d712af55db1f4a1d8e018c86249ce7a8/benchmark_release.py)
 固定在 commit `6c3dc532d712af55db1f4a1d8e018c86249ce7a8`（函式 hash `c11a81…`）。
-案例規則保留該決策公式；框架中的方法使用 HydroOpsLLM simulation driver。
+案例規則保留該決策公式；框架中的方法使用 HydroReOpLLM simulation driver。
 原版程式對照另從恢復的來源載入。
 [流程測試原始碼](../../../tests/test_benchmark_workflow.py)
 檢查統計輸入、設定，以及共同模擬介面的使用。

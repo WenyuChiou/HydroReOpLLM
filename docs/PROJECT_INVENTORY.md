@@ -1,4 +1,4 @@
-# HydroOpsLLM project inventory
+# HydroReOpLLM project inventory
 
 ## Current code and inputs
 
@@ -32,6 +32,12 @@ Installed wheels contain only the current generic package and bundled HydroCNHS
 modules. Wheel builds use private temporary staging, so modules left in an old
 local `build/lib` directory cannot enter a new distribution.
 
+The project is named **HydroReOpLLM** and its distribution is `hydroreopllm`.
+Python imports (`llm_reservoir_agent`, `hydrocnhs`), command names and schema IDs
+remain stable. Installed support files retain the `share/llm-reservoir-agent/`
+path used by the runtime. Historical record keys and recovery artifact names
+retain their original spelling.
+
 ## Earlier inventory
 
 Cleanup baseline: **1,026 tracked files**, commit
@@ -61,7 +67,9 @@ catchment runoff. Release can change storage and downstream routed inflow; it
 does not alter hydrological equations or calibrated parameters.
 
 HydroCNHS v1.2.1 is pinned at `fdd5097a3fcabb312c6c3739efc71da2d67c47da`.
-Core/source/license hashes remain preserved. Configuration and C&V use the
+The source manifest preserves the upstream identity and records one versioned
+local patch for `Visual.plot_reg` metric calls. Hydrology and license bytes
+remain unchanged. Configuration and C&V use the
 [original APIs](HYDROLOGY_SETUP.md). Existing calibration is 1990–2010 and
 validation is 2011–2020; no recalibration is part of this cleanup.
 

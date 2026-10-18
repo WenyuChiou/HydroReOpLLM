@@ -1,11 +1,9 @@
 {
-  "source_commit": "8936742e3a27edcffb79f253d47f4c32003bf80d",
   "source_file": "docs/figures/hydroopslm-cover.svg",
-  "source_sha256": "3f20ef7c55684e334f356b4b3c48618e84d63eee2c100f61d4081bd1dbbc923a",
+  "source_sha256": "d519b4b5d44f9f9dfe38d9a6816e0043b437ba20d23ab3d27662a60797ff1b5c",
   "editable_file": "docs/_static/hydroopslm-social-preview.svg",
-  "editable_sha256": "d1b49039505eec239cab72a70361de5755169aca5e72bd2ea9b353b7111c34e9",
-  "editable_sha256_scope": "Committed Git blob bytes with LF line endings",
-  "original_export_input_sha256": "e04bce8df3cf04368fdd7d83ebb2eba29489aeabebe4ac2da5d3e3f6f208ce26",
+  "editable_sha256": "f7ee0cd7ee438925f906e9021f3a76b3969296b73f9934e1778a86bd18781a18",
+  "editable_sha256_scope": "Exact current file bytes; historical identities are retained in historical_records.",
   "export_file": "docs/_static/hydroopslm-social-preview.png",
   "size_px": [
     1280,
@@ -14,12 +12,228 @@
   "adaptation": "Native source SVG nested unchanged with vertical margins; no crop or generated artwork",
   "repo_visibility": "private",
   "scope": "Public documentation sharing preview only",
-  "export_sha256": "06249d1c114f643a5a9cb066714fd3a6543c8a6fa2cbaa32fcec6199ca8c5de2",
-  "export_bytes": 190550,
+  "export_sha256": "733c3de7c81772273778b2dd74b5b35cab90ed529548e2dd1c83f0e4657efe8e",
+  "export_bytes": 171155,
   "renderer": {
-    "node": "v24.19.0",
-    "browser": "154.0.8037.98"
+    "cover_social": "CairoSVG 2.9.0"
   },
-  "selected_on": "2026-10-14",
-  "share_target": "Public HydroOpsLM user manual"
+  "selected_on": "2026-10-18",
+  "share_target": "Public HydroReOpLLM user manual",
+  "branding_revision": {
+    "date": "2026-10-18",
+    "display_name": "HydroReOpLLM",
+    "previous_manifest_sha256": "404d1af9fab3ef500a643931aad72301d7f53b5fb18c89e52f6d7a570909a895",
+    "scope": "Display text and fresh exports only; original historical source/commit records retained.",
+    "renderers": {
+      "diagrams": "draw.io Desktop",
+      "cover_social": "CairoSVG 2.9.0",
+      "pdf_width": "180 mm figure checking convention"
+    },
+    "current_files": {
+      "docs/_static/hydroopslm-social-preview.svg": {
+        "sha256": "f7ee0cd7ee438925f906e9021f3a76b3969296b73f9934e1778a86bd18781a18",
+        "bytes": 157049
+      },
+      "docs/figures/assets/branding/components/dam-downstream.svg": {
+        "sha256": "b62bbdc7b8d8caa04e066eed5948dc81e56bc46fb2137255108c423388bbf8bf",
+        "bytes": 3980
+      },
+      "docs/figures/assets/branding/components/dam-upstream.svg": {
+        "sha256": "ac827451e5fade753ca3b26a80227c7f3f496e058eac6607795b91ebbaa46449",
+        "bytes": 3895
+      },
+      "docs/figures/assets/branding/components/llm-robot.svg": {
+        "sha256": "1639ded77583a36503e2d21ef9a6260d2511af9f9648f6868381def13f7925f9",
+        "bytes": 5581
+      },
+      "docs/figures/assets/branding/components/reservoir-downstream.svg": {
+        "sha256": "dcfc2adef053e8cdffbd18dfae76bf4f847eacd2039a68ba06fa08896d4cd14d",
+        "bytes": 3307
+      },
+      "docs/figures/assets/branding/components/reservoir-upstream.svg": {
+        "sha256": "3c9be7e7493a3d7ba90355912c5aec549c11c0804d9139e4a20cd9f79e3d02ce",
+        "bytes": 3368
+      },
+      "docs/figures/assets/branding/components/river.svg": {
+        "sha256": "b696f74fcf8072978ab118b6c846c86d649fe7d71bb5c89fdb41a51091f24365",
+        "bytes": 3186
+      },
+      "docs/figures/assets/branding/components/water-surface.svg": {
+        "sha256": "fa736fd7619a2d70fe379e673da5bc9fe7e6c1cabba97582a5d87da8850e87da",
+        "bytes": 1936
+      },
+      "docs/figures/assets/branding/hydroopslm-logo.svg": {
+        "sha256": "aecc300574c8728e17d123136a3d606e90a60cd973a183d69d08b8a48fba509a",
+        "bytes": 1671
+      },
+      "docs/figures/hydroopslm-cover.svg": {
+        "sha256": "d519b4b5d44f9f9dfe38d9a6816e0043b437ba20d23ab3d27662a60797ff1b5c",
+        "bytes": 156970
+      },
+      "docs/figures/hydrocnhs-coupling-framework-en.drawio": {
+        "sha256": "1131d69f6d36452c8f96e92a1440e1eaee08aa0d4d981988997b7fa237c17288",
+        "bytes": 15910210
+      },
+      "docs/figures/hydrocnhs-coupling-framework-en.svg": {
+        "sha256": "fd737a0f4ad88e2a55d970be6168a6fe88a4b191dc064765d18c8500cc034bee",
+        "bytes": 17006427
+      },
+      "docs/figures/hydrocnhs-coupling-framework-en.png": {
+        "sha256": "3eff9d5491c011c3af5504841e867207056f0868f8e8a8a2a4a6c6699b14ba00",
+        "bytes": 2003766
+      },
+      "docs/figures/hydrocnhs-coupling-framework-en.pdf": {
+        "sha256": "769d1429ef9ae6fea04c37dffab14d904863d3ef7306a09fe93f7100784c1df6",
+        "bytes": 10259483
+      },
+      "docs/figures/hydroopslm-cover.png": {
+        "sha256": "fade329b1e76f709c4acdf0720e55869e4dfffc6dd3168870bcafccf4fcca35a",
+        "bytes": 273025
+      },
+      "docs/_static/hydroopslm-social-preview.png": {
+        "sha256": "733c3de7c81772273778b2dd74b5b35cab90ed529548e2dd1c83f0e4657efe8e",
+        "bytes": 171155
+      },
+      "docs/figures/assets/branding/hydroopslm-cover-3600.png": {
+        "sha256": "1eb0206c60c1d484afe1a8711251f286058c2ea1e946f6880c3c4123a9ef49c7",
+        "bytes": 653890
+      }
+    },
+    "visual_review": "Parent inspected current native PNG and cropped one-page PDF renderings: brand visible, no clipping/overlap; paper workflow preserves approved geometry. No claim of human-reader or scientific validation."
+  },
+  "historical_records": {
+    "before_name_change": {
+      "source_commit": "8936742e3a27edcffb79f253d47f4c32003bf80d",
+      "source_file": "docs/figures/hydroopslm-cover.svg",
+      "source_sha256": "3f20ef7c55684e334f356b4b3c48618e84d63eee2c100f61d4081bd1dbbc923a",
+      "editable_file": "docs/_static/hydroopslm-social-preview.svg",
+      "editable_sha256": "d1b49039505eec239cab72a70361de5755169aca5e72bd2ea9b353b7111c34e9",
+      "editable_sha256_scope": "Committed Git blob bytes with LF line endings",
+      "original_export_input_sha256": "e04bce8df3cf04368fdd7d83ebb2eba29489aeabebe4ac2da5d3e3f6f208ce26",
+      "export_file": "docs/_static/hydroopslm-social-preview.png",
+      "size_px": [
+        1280,
+        640
+      ],
+      "adaptation": "Native source SVG nested unchanged with vertical margins; no crop or generated artwork",
+      "repo_visibility": "private",
+      "scope": "Public documentation sharing preview only",
+      "export_sha256": "06249d1c114f643a5a9cb066714fd3a6543c8a6fa2cbaa32fcec6199ca8c5de2",
+      "export_bytes": 190550,
+      "renderer": {
+        "node": "v24.19.0",
+        "browser": "154.0.8037.98"
+      },
+      "selected_on": "2026-10-14",
+      "share_target": "Public HydroOpsLM user manual"
+    },
+    "incoming_name_revision_before_consistency_review": {
+      "source_commit": "8936742e3a27edcffb79f253d47f4c32003bf80d",
+      "source_file": "docs/figures/hydroopslm-cover.svg",
+      "source_sha256": "3f20ef7c55684e334f356b4b3c48618e84d63eee2c100f61d4081bd1dbbc923a",
+      "editable_file": "docs/_static/hydroopslm-social-preview.svg",
+      "editable_sha256": "d1b49039505eec239cab72a70361de5755169aca5e72bd2ea9b353b7111c34e9",
+      "editable_sha256_scope": "Committed Git blob bytes with LF line endings",
+      "original_export_input_sha256": "e04bce8df3cf04368fdd7d83ebb2eba29489aeabebe4ac2da5d3e3f6f208ce26",
+      "export_file": "docs/_static/hydroopslm-social-preview.png",
+      "size_px": [
+        1280,
+        640
+      ],
+      "adaptation": "Native source SVG nested unchanged with vertical margins; no crop or generated artwork",
+      "repo_visibility": "private",
+      "scope": "Public documentation sharing preview only",
+      "export_sha256": "733c3de7c81772273778b2dd74b5b35cab90ed529548e2dd1c83f0e4657efe8e",
+      "export_bytes": 190550,
+      "renderer": {
+        "node": "v24.19.0",
+        "browser": "154.0.8037.98"
+      },
+      "selected_on": "2026-10-14",
+      "share_target": "Public HydroReOpLLM user manual",
+      "branding_revision": {
+        "date": "2026-10-18",
+        "display_name": "HydroReOpLLM",
+        "previous_manifest_sha256": "404d1af9fab3ef500a643931aad72301d7f53b5fb18c89e52f6d7a570909a895",
+        "scope": "Display text and fresh exports only; original historical source/commit records retained.",
+        "renderers": {
+          "diagrams": "draw.io Desktop",
+          "cover_social": "CairoSVG 2.9.0",
+          "pdf_width": "180 mm figure checking convention"
+        },
+        "current_files": {
+          "docs\\_static\\hydroopslm-social-preview.svg": {
+            "sha256": "f7ee0cd7ee438925f906e9021f3a76b3969296b73f9934e1778a86bd18781a18",
+            "bytes": 157049
+          },
+          "docs\\figures\\assets\\branding\\components\\dam-downstream.svg": {
+            "sha256": "b62bbdc7b8d8caa04e066eed5948dc81e56bc46fb2137255108c423388bbf8bf",
+            "bytes": 3980
+          },
+          "docs\\figures\\assets\\branding\\components\\dam-upstream.svg": {
+            "sha256": "ac827451e5fade753ca3b26a80227c7f3f496e058eac6607795b91ebbaa46449",
+            "bytes": 3895
+          },
+          "docs\\figures\\assets\\branding\\components\\llm-robot.svg": {
+            "sha256": "1639ded77583a36503e2d21ef9a6260d2511af9f9648f6868381def13f7925f9",
+            "bytes": 5581
+          },
+          "docs\\figures\\assets\\branding\\components\\reservoir-downstream.svg": {
+            "sha256": "dcfc2adef053e8cdffbd18dfae76bf4f847eacd2039a68ba06fa08896d4cd14d",
+            "bytes": 3307
+          },
+          "docs\\figures\\assets\\branding\\components\\reservoir-upstream.svg": {
+            "sha256": "3c9be7e7493a3d7ba90355912c5aec549c11c0804d9139e4a20cd9f79e3d02ce",
+            "bytes": 3368
+          },
+          "docs\\figures\\assets\\branding\\components\\river.svg": {
+            "sha256": "b696f74fcf8072978ab118b6c846c86d649fe7d71bb5c89fdb41a51091f24365",
+            "bytes": 3186
+          },
+          "docs\\figures\\assets\\branding\\components\\water-surface.svg": {
+            "sha256": "fa736fd7619a2d70fe379e673da5bc9fe7e6c1cabba97582a5d87da8850e87da",
+            "bytes": 1936
+          },
+          "docs\\figures\\assets\\branding\\hydroopslm-logo.svg": {
+            "sha256": "aecc300574c8728e17d123136a3d606e90a60cd973a183d69d08b8a48fba509a",
+            "bytes": 1671
+          },
+          "docs\\figures\\hydroopslm-cover.svg": {
+            "sha256": "d519b4b5d44f9f9dfe38d9a6816e0043b437ba20d23ab3d27662a60797ff1b5c",
+            "bytes": 156970
+          },
+          "docs\\figures\\hydrocnhs-coupling-framework-en.drawio": {
+            "sha256": "1131d69f6d36452c8f96e92a1440e1eaee08aa0d4d981988997b7fa237c17288",
+            "bytes": 15910210
+          },
+          "docs\\figures\\hydrocnhs-coupling-framework-en.svg": {
+            "sha256": "fd737a0f4ad88e2a55d970be6168a6fe88a4b191dc064765d18c8500cc034bee",
+            "bytes": 17006427
+          },
+          "docs\\figures\\hydrocnhs-coupling-framework-en.png": {
+            "sha256": "3eff9d5491c011c3af5504841e867207056f0868f8e8a8a2a4a6c6699b14ba00",
+            "bytes": 2003766
+          },
+          "docs\\figures\\hydrocnhs-coupling-framework-en.pdf": {
+            "sha256": "769d1429ef9ae6fea04c37dffab14d904863d3ef7306a09fe93f7100784c1df6",
+            "bytes": 10259483
+          },
+          "docs\\figures\\hydroopslm-cover.png": {
+            "sha256": "fade329b1e76f709c4acdf0720e55869e4dfffc6dd3168870bcafccf4fcca35a",
+            "bytes": 273025
+          },
+          "docs\\_static\\hydroopslm-social-preview.png": {
+            "sha256": "733c3de7c81772273778b2dd74b5b35cab90ed529548e2dd1c83f0e4657efe8e",
+            "bytes": 171155
+          },
+          "docs\\figures\\assets\\branding\\hydroopslm-cover-3600.png": {
+            "sha256": "1eb0206c60c1d484afe1a8711251f286058c2ea1e946f6880c3c4123a9ef49c7",
+            "bytes": 653890
+          }
+        },
+        "visual_review": "Parent inspected current native PNG and cropped one-page PDF renderings: brand visible, no clipping/overlap; paper workflow preserves approved geometry. No claim of human-reader or scientific validation."
+      }
+    }
+  },
+  "source_revision": "Identified by source_sha256 and the containing Git revision."
 }

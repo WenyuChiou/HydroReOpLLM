@@ -2,14 +2,14 @@
 
 [English](README.md) | [繁體中文](README.zh-TW.md)
 
-HydroOpsLLM adds LLM reservoir operators to HydroCNHS. You keep your hydrological
+HydroReOpLLM adds LLM reservoir operators to HydroCNHS. You keep your hydrological
 model and choose how each reservoir makes release decisions: **Rule-based** or
 **LLM**.
 
-![HydroOpsLLM: reservoir operations built on HydroCNHS](figures/hydroopslm-cover.png)
+![HydroReOpLLM: reservoir operations built on HydroCNHS](figures/hydroopslm-cover.png)
 
 HydroCNHS first uses precipitation, temperature and potential evapotranspiration
-(PET) to calculate daily reservoir inflow. HydroOpsLLM saves this inflow for the
+(PET) to calculate daily reservoir inflow. HydroReOpLLM saves this inflow for the
 operation period. Each day, an agent uses the inflow and current reservoir state
 to request a release. The reservoir calculation determines the actual release,
 spill and remaining storage, then routes the outflow downstream. The next day
@@ -46,7 +46,7 @@ The diagram below separates the upstream hydrology calculation from daily
 reservoir decisions. Follow the arrows from weather to inflow, then through
 release, storage and downstream flow.
 
-![HydroOpsLLM core workflow](figures/hydrocnhs-coupling-framework-en.png)
+![HydroReOpLLM core workflow](figures/hydrocnhs-coupling-framework-en.png)
 
 *Figure 1. HydroCNHS provides upstream hydrology and routing. The selected agent
 requests a controlled release; reservoir physics applies it and updates storage.

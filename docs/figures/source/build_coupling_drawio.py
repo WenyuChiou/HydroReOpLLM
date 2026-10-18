@@ -43,7 +43,7 @@ def build(output_dir=None):
     manifest = {
         "source": OUTPUT.name,
         "source_sha256": hashlib.sha256(raw).hexdigest(),
-        "scope": "HydroOpsLLM adds reservoir decisions, checking and records to HydroCNHS.",
+        "scope": "HydroReOpLLM adds reservoir decisions, checking and records to HydroCNHS.",
         "nodes": nodes, "labels": labels, "edges": edges,
         "execution": {
             "hydrology": "precomputed continuous upstream hydrology",

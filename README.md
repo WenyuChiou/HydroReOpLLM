@@ -1,12 +1,12 @@
-# HydroOpsLLM
+# HydroReOpLLM
 
-[![User manual](docs/_static/docs-badge-en.svg)](https://wenyuchiou.github.io/HydroOpsLLM/)
+[![User manual](docs/_static/docs-badge-en.svg)](https://wenyuchiou.github.io/HydroReOpLLM/)
 
 [English](README.md) | [繁體中文](README.zh-TW.md)
 
-HydroOpsLLM adds configurable LLM reservoir operators to HydroCNHS.
+HydroReOpLLM adds configurable LLM reservoir operators to HydroCNHS.
 
-![HydroOpsLLM cover](docs/figures/hydroopslm-cover.png)
+![HydroReOpLLM cover](docs/figures/hydroopslm-cover.png)
 
 HydroCNHS computes streamflow; each reservoir agent requests a release; the physical model applies that decision, updates storage, and routes outflow downstream. The implemented state then informs the next daily decision.
 
@@ -15,14 +15,17 @@ HydroCNHS computes streamflow; each reservoir agent requests a release; the phys
 1. **Install.** Use Python 3.12 and the repository's pinned constraints. Repository access is required while the project is private.
 
    ```sh
-   git clone https://github.com/WenyuChiou/HydroOpsLLM.git
-   cd HydroOpsLLM
+   git clone https://github.com/WenyuChiou/HydroReOpLLM.git
+   cd HydroReOpLLM
    python3.12 -m venv .venv
    source .venv/bin/activate
    python -m pip install -e . -c environment/requirements-bundled.txt
    ```
 
    On Windows PowerShell, create and activate the environment with `py -3.12 -m venv .venv` and `.venv\Scripts\Activate.ps1` before running the same install command.
+
+   The distribution is named `hydroreopllm`; Python imports remain
+   `llm_reservoir_agent` and `hydrocnhs`. Public package publication is pending.
 
 2. **Configure a study.** Read [Configuration overview](docs/INPUT_OUTPUT.md),
    then copy the complete [`templates/coupled`](templates/coupled/README.md)
@@ -46,7 +49,7 @@ HydroCNHS computes streamflow; each reservoir agent requests a release; the phys
 
 Set each agent's `reservoir_id` and `type: rule_based` or `type: llm`. Rule-based agents load a registered rule module; Hanasaki is the selected module in the F.E. Walter example, not a framework-wide requirement. LLM agents select a `model_profile` and `prompt_file`, with optional context or retrieved knowledge under `customization`. The core does not prepend a shared system prompt, although a case extension may assemble one explicitly.
 
-See the [user manual](https://wenyuchiou.github.io/HydroOpsLLM/) for study construction, provider settings, saved replies, audits, and interrupted-run recovery.
+See the [user manual](https://wenyuchiou.github.io/HydroReOpLLM/) for study construction, provider settings, saved replies, audits, and interrupted-run recovery.
 
 ## License and attribution
 

@@ -5,14 +5,14 @@
   {% set share_title = title|striptags ~ " — " ~ project %}
   {% set share_url = site_url if pagename == 'index' else site_url ~ pagename ~ '.html' %}
   <meta property="og:type" content="website">
-  <meta property="og:site_name" content="HydroOpsLLM User Manual">
+  <meta property="og:site_name" content="HydroReOpLLM User Manual">
   <meta property="og:title" content="{{ share_title|e }}">
   <meta property="og:description" content="{{ social_description|e }}">
   <meta property="og:url" content="{{ share_url|e }}">
   <meta property="og:image" content="{{ social_image|e }}">
   <meta property="og:image:width" content="1280">
   <meta property="og:image:height" content="640">
-  <meta property="og:image:alt" content="HydroOpsLLM reservoir and river illustration, built on HydroCNHS">
+  <meta property="og:image:alt" content="HydroReOpLLM reservoir and river illustration, built on HydroCNHS">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="{{ share_title|e }}">
   <meta name="twitter:description" content="{{ social_description|e }}">

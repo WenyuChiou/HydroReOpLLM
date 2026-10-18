@@ -1,5 +1,5 @@
-project = "HydroOpsLLM"
-author = "HydroOpsLLM contributors"
+project = "HydroReOpLLM"
+author = "HydroReOpLLM contributors"
 extensions = ["myst_nb"]
 source_suffix = {".md": "myst-nb", ".ipynb": "myst-nb"}
 root_doc = "index"
@@ -9,7 +9,7 @@ myst_heading_anchors = 4
 html_theme = "alabaster"
 html_title = "Hydrological Simulation with Large Language Model Reservoir Operations"
 html_short_title = project
-html_baseurl = "https://wenyuchiou.github.io/HydroOpsLLM/"
+html_baseurl = "https://wenyuchiou.github.io/HydroReOpLLM/"
 # Sharing services need public absolute URLs, separate from the private repo.
 html_context = {
     "site_url": html_baseurl,
