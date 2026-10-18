@@ -1,24 +1,26 @@
 # Agent layer for the available-information method.
-fe_operator: # Decision-unit ID used in plans and traces.
-  reservoir_id: FEWalter # Controlled reservoir ID in reservoirs.json.
-  type: llm # Provider-backed operating method.
-  model_profile: reservoir_model # Profile ID from models.yaml.
+fe_operator:  # Decision-unit ID used in plans and traces.
+  reservoir_id: FEWalter          # Controlled reservoir ID in reservoirs.json.
+  type: llm                       # Provider-backed operating method.
+  model_profile: reservoir_model  # Profile ID from models.yaml.
   customization:
-    backend: reference_v3_7 # Registered backend ID from the entry's extensions.
+    backend: reference_v3_7  # Registered backend ID from the entry's extensions.
     # The backend owns this reference recipe; the framework keeps it opaque.
     parameters:
       reference:
-        profile: fe_walter # Backend's FE Walter physical/operating profile.
-        method: zeroshot # Available-information method, without a DKP document.
-        consultation_mode: daily # One decision opportunity per operation day.
-        response_validation: policy # Validate replies with the backend policy contract.
-        system_prompt: ../prompts/available_information.txt # Relative to this file.
-        system_prompt_mode: custom # Use the declared system-prompt file.
-        seasonal_criteria_file: ../seasonal_pool_criteria.json # Daily study-defined pool window context.
-        prompt_storage: false # Do not include storage in the prompt representation.
-        hide_availability_line: true # Preserve the approved prompt variant.
-        dkp_no_missing_inputs: true # Reject incomplete backend inputs.
-        zeroshot_knowledge: target # Supply target-operation context, not a DKP file.
+        profile: fe_walter           # Backend's FE Walter physical/operating profile.
+        method: zeroshot             # Available-information method, without a DKP document.
+        consultation_mode: daily     # One decision opportunity per operation day.
+        response_validation: policy  # Validate replies with the backend policy contract.
+        # Relative to this file.
+        system_prompt: ../prompts/available_information.txt
+        system_prompt_mode: custom  # Use the declared system-prompt file.
+        # Daily study-defined pool window context.
+        seasonal_criteria_file: ../seasonal_pool_criteria.json
+        prompt_storage: false         # Do not include storage in the prompt representation.
+        hide_availability_line: true  # Preserve the approved prompt variant.
+        dkp_no_missing_inputs: true   # Reject incomplete backend inputs.
+        zeroshot_knowledge: target    # Supply target-operation context, not a DKP file.
   # Auditor IDs refer to profiles in auditors.yaml.
   auditors:
   - release_limits

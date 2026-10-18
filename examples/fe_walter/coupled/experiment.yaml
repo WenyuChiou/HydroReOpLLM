@@ -1,11 +1,12 @@
 # Rule-based teaching entry. Relative paths start from the file that declares them.
-schema_version: hydroops-coupled-simulation.v2 # Loader format, not the package release.
-run_id: fe-walter-current-rule # Label recorded in run metadata.
-case: reservoirs.json # Physical reservoir and routing network JSON.
-output: ../../../runs/fe-walter-current-rule # Actual folder; change with run_id for a new run.
-start_date: '2016-01-01' # First operation day (included).
-end_date: '2016-12-31' # Last operation day (included).
-max_calls: 0 # Run-wide provider-attempt ceiling; this rule makes no model calls.
+schema_version: hydroops-coupled-simulation.v2  # Loader format, not the package release.
+run_id: fe-walter-current-rule                  # Label recorded in run metadata.
+case: reservoirs.json                           # Physical reservoir and routing network JSON.
+output: ../../../runs/fe-walter-current-rule    # Actual folder; change with run_id for a new run.
+start_date: '2016-01-01'                        # First operation day (included).
+end_date: '2016-12-31'                          # Last operation day (included).
+# Run-wide provider-attempt ceiling; this rule makes no model calls.
+max_calls: 0
 # Agent, audit and hydrology settings are separate reusable layers.
 agents:
   file: agents.rule.yaml

@@ -1,12 +1,14 @@
 # Hydrology layer. These paths are relative to this hydrology.yaml file.
-model: ../../../data/accepted/fe_walter_hydrology.yaml # Accepted HydroCNHS model and warm-up interval.
-forcing: ../../../data/accepted/fe_walter_forcing_1989_2025.csv.gz # Daily weather forcing.
+# Accepted HydroCNHS model and warm-up interval.
+model: ../../../data/accepted/fe_walter_hydrology.yaml
+# Daily weather forcing.
+forcing: ../../../data/accepted/fe_walter_forcing_1989_2025.csv.gz
 # Native outlets listed here receive an explicit zero assigned flow during preparation.
 zero_flow_nodes:
 - __AGGREGATION_OUTLET__
 # Every physical-network local-inflow node maps to one non-overlapping boundary in m3/s.
 inflow_bindings:
   FEW_INFLOW:
-    routed: __AGGREGATION_OUTLET__ # Routed HydroCNHS outlet feeding FE Walter.
+    routed: __AGGREGATION_OUTLET__  # Routed HydroCNHS outlet feeding FE Walter.
   Downstream:
-    constant: 0 # Explicit zero local lateral inflow; upstream release is routed separately.
+    constant: 0  # Explicit zero local lateral inflow; upstream release is routed separately.
