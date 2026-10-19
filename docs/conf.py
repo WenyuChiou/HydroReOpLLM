@@ -28,3 +28,4 @@ html_theme_options = {"page_width": "1280px", "body_max_width": "960px",
 templates_path = ["_templates"]
 html_sidebars = {"**": ["navigation.html"]}
 exclude_patterns = ["_static/**", "_templates/**", "_notebook_downloads/**", "_case_downloads/**", "_hydrology_downloads/**", "_figure_downloads/**", "_config_downloads/**", "_completed_downloads/**", "_tutorial_downloads/**", "_template_downloads/**", "examples/fe_walter/knowledge/**"]
+exclude_patterns.append("_downstream_downloads/**")

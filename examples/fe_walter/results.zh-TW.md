@@ -51,3 +51,23 @@ Rule-based 使用 Hanasaki 規則，決策公式沒有讀取冬夏目標水位�
 (b–d) 實際放水量（cfs），
 不含溢流。藍線為上游模擬入流，與放流共用刻度；放流柱低於藍線時蓄水增加，
 高於藍線時蓄水減少。各圖共用操作日期。*
+
+
+## 下游測站流量
+
+[下游延伸](downstream/README.zh-TW.md)將各方法保存的實際控制放流加上溢流，
+傳遞至 USGS 01447800，再加入移用參數所得的側向逕流。黑線為 366 筆已核准
+USGS 日平均觀測。這是固定保存放流後的條件式比較：原始水庫入流包含整個測站
+集水區，修正邊界後的完整耦合操作仍是另一個實驗。
+[集水區圖](README.zh-TW.md#下游比較的集水區範圍)說明水在壩前與壩後加入的位置。
+
+下載：[逐日分量與觀測](downstream/outputs/daily.csv)、
+[完整評估紀錄](downstream/outputs/report.json)、
+[SVG](downstream/outputs/streamflow.svg)、[PDF](downstream/outputs/streamflow.pdf)。
+詳細指標與邊界假設保留於下游參考。
+
+![三種保存方法與 USGS 01447800 的比較](downstream/outputs/streamflow.png)
+
+**圖 2。** 2016 年條件式下游流量（cfs）。各方法分開與相同 USGS 觀測比較，
+曲線保留日平均值。灰色標示前 20 天使用假定河道初始狀態的期間；其餘 346 天
+納入配對指標。三圖共用日期及流量刻度，觀測只用於結果評估。

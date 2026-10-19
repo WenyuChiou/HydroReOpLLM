@@ -25,6 +25,23 @@ dam/outlet. Water surfaces and rivers share the same blue.[^map-sources]
 [^map-sources]: Esri, CGIAR, USGS, data.pa.gov, TomTom, Garmin, SafeGraph,
     METI/NASA, EPA, NPS, USDA, USFWS, New Jersey Office of GIS, FAO, and NOAA.
 
+## Watershed for the downstream comparison
+
+The downstream study uses [USGS 01447800](https://waterdata.usgs.gov/monitoring-location/USGS-01447800/)
+as its outlet. The complete **gauge watershed** contains the **upstream watershed**
+feeding FE Walter and the **downstream contributing area** joining the river
+between the dam and gauge. Their approximate network areas are 750.811,
+746.471 and 4.341 km², respectively. The old model already covered the gauge
+watershed; separating these water connections is the required boundary correction.
+See the [downstream reference](downstream/README.md) for sources and precision.
+
+![Complete gauge watershed, upstream watershed and downstream contributing area](downstream/outputs/watershed.png)
+
+**Figure 2.** (a) Complete watershed at USGS 01447800 and (b) enlarged area
+below the dam. Blue shading denotes the upstream watershed; orange denotes the
+downstream contributing area. NLDI boundaries use whole network catchments and
+remain approximate at the dam and station positions.
+
 ## Climate and hydrology
 
 The accepted forcing contains daily precipitation, temperature, and PET for
@@ -68,7 +85,7 @@ Downloads: [monthly CSV](hydrology_data/climate/fe_walter_climate_monthly_1989_2
 
 ![Monthly precipitation, PET, and temperature for the modeled F.E. Walter catchment](hydrology_data/climate/fe_walter_climate_1989_2025.png)
 
-**Figure 2.** Area-weighted monthly climate inputs, 1989–2025. Precipitation and
+**Figure 3.** Area-weighted monthly climate inputs, 1989–2025. Precipitation and
 PET are monthly totals (mm/month); temperature is the monthly mean (°C).
 ```
 

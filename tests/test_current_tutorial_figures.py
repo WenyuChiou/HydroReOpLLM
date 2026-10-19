@@ -134,11 +134,14 @@ def test_tutorial_check_rejects_changed_source_pins(monkeypatch):
         builder.check()
 
 
-def test_main_notebook_has_exactly_one_combined_result_figure():
+def test_main_notebook_separates_operations_and_downstream_figures():
     notebook = json.loads((ROOT / 'tutorials/main.ipynb').read_text(encoding='utf-8'))
     figures = [out for cell in notebook['cells'] for out in cell.get('outputs', [])
                if 'image/png' in out.get('data', {})]
-    assert len(figures) == 1
+    assert len(figures) == 2
+    code = '\n'.join(''.join(cell['source']) for cell in notebook['cells'] if cell['cell_type'] == 'code')
+    assert code.count('fig = plot_reservoir_operations(') == 1
+    assert code.count('fig = plot_streamflow(') == 1
     markdown = '\n'.join(''.join(cell['source']) for cell in notebook['cells'] if cell['cell_type'] == 'markdown')
     # A download link is useful; a second inline copy would duplicate the output.
     import re

@@ -1,0 +1,61 @@
+{
+  "schema_version": "fe-walter-downstream-sources.v1",
+  "station": "USGS-01447800",
+  "calendar": "Daily values retain station local calendar dates, not UTC timestamp conversions.",
+  "observations": {
+    "rows": 366,
+    "parameter_code": "00060",
+    "statistic_id": "00003",
+    "source_unit": "ft^3/s",
+    "cfs_to_cms": 0.028316846592,
+    "approved_rows": 366,
+    "missing_values": 0
+  },
+  "files": {
+    "dam_reach_basin.geojson": {
+      "sha256": "d5cae6a339607003c1f6ca088d500673bd49b151647921d62db7fcf39b03590f",
+      "source_url": "https://api.water.usgs.gov/nldi/linked-data/comid/4186393/basin?f=json&simplified=false",
+      "raw_response_sha256": "d5cae6a339607003c1f6ca088d500673bd49b151647921d62db7fcf39b03590f",
+      "retrieved_at": "2026-10-19T14:07:13.009911+00:00"
+    },
+    "gauge_basin.geojson": {
+      "sha256": "e9ddacffca32bac09b1c751d2545bdf3384656616fe64f9318ddc241f8e9ec68",
+      "source_url": "https://api.water.usgs.gov/nldi/linked-data/nwissite/USGS-01447800/basin?f=json&simplified=false",
+      "raw_response_sha256": "e9ddacffca32bac09b1c751d2545bdf3384656616fe64f9318ddc241f8e9ec68",
+      "retrieved_at": "2026-10-19T14:10:53.951549+00:00"
+    },
+    "observations.csv": {
+      "sha256": "8e53c3525dd7750c6c2bb728328a308634039814d781d7ff7e4b5ae7bbf6f7b9",
+      "source_url": "https://api.waterdata.usgs.gov/ogcapi/v0/collections/daily/items?f=json&monitoring_location_id=USGS-01447800&parameter_code=00060&statistic_id=00003&datetime=2016-01-01/2016-12-31&limit=50000",
+      "raw_response_sha256": "2c73c8bc39f6faa5264c118282b514abd2432088bdb2f523478fffc5e1e49c2e",
+      "retrieved_at": "2026-10-19T14:04:57.239214+00:00"
+    },
+    "reach.geojson": {
+      "sha256": "7dc128eb48b7dfc4d4af9f2ebc5c83e70951d95fb2c2d20d7fdc721dda5549dc",
+      "source_url": "https://api.water.usgs.gov/nldi/linked-data/nwissite/USGS-01447800/navigation/UM/flowlines?f=json&distance=8",
+      "raw_response_sha256": "7dc128eb48b7dfc4d4af9f2ebc5c83e70951d95fb2c2d20d7fdc721dda5549dc",
+      "retrieved_at": "2026-10-19T14:04:57.717299+00:00"
+    },
+    "station.json": {
+      "sha256": "2af8fc2f1682fd0346bcb452628d6f7e4e521ea3c639ba53017f56ba7c9ac748",
+      "source_url": "https://api.water.usgs.gov/nldi/linked-data/nwissite/USGS-01447800?f=json",
+      "raw_response_sha256": "2af8fc2f1682fd0346bcb452628d6f7e4e521ea3c639ba53017f56ba7c9ac748",
+      "retrieved_at": "2026-10-19T14:04:57.360172+00:00"
+    },
+    "station_metadata.txt": {
+      "sha256": "37c9a9fa68f69a60fd1ddcafa3d3e0adda141ed567426e9f11d7c8865c8b587d",
+      "source_url": "https://waterservices.usgs.gov/nwis/site/?format=rdb&sites=01447800&siteOutput=expanded",
+      "raw_response_sha256": "37c9a9fa68f69a60fd1ddcafa3d3e0adda141ed567426e9f11d7c8865c8b587d",
+      "retrieved_at": "2026-10-19T14:04:56.524598+00:00"
+    }
+  },
+  "accepted_files": {
+    "data/figures/fe_walter_map.json": "4716a579d0d22efdade8013c619fa7227d9e88f4f26d7e1b0423af307c7b8794",
+    "data/accepted/fe_walter_hydrology.yaml": "1f4878ee4ff49e09b0b6f7bbf5e1d005620c4e380906671dd93ae12fa9400377",
+    "data/accepted/fe_walter_forcing_1989_2025.csv.gz": "2d030c5e53b15ba5ef7dcb0979dd223889870e6f9a41396bb3b1e2adb4e6a826",
+    "examples/fe_walter/coupled/outputs/current_tutorial/daily.csv": "28330ea4c960a2373c60dd98d04cc6ff9c81667d7cfec494c9750d7357400f85"
+  },
+  "network_sources_are_read_only": true,
+  "availability_role": "evaluation_only",
+  "raw_evidence_directory": "External QA archive; raw response hashes and source URLs identify the retained downloads."
+}

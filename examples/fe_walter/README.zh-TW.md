@@ -24,6 +24,20 @@ Bear Creek 匯流處。U.S. Army Corps of Engineers 以洪水風險管理與遊�
 [^map-sources]: Esri、CGIAR、USGS、data.pa.gov、TomTom、Garmin、SafeGraph、
     METI/NASA、EPA、NPS、USDA、USFWS、New Jersey Office of GIS、FAO、NOAA。
 
+## 下游比較的集水區範圍
+
+本階段以下游 [USGS 01447800](https://waterdata.usgs.gov/monitoring-location/USGS-01447800/)
+作為出口。完整的**測站集水區**包含供水至 FE Walter 的**上游集水區**，
+以及在壩口與測站之間加入河道的**下游貢獻區域**，河網近似面積依序為
+750.811、746.471、4.341 km²。舊模型已涵蓋測站集水區，因此需要修正的是
+水量在水庫前後的連接位置。來源與精度詳見[下游參考](downstream/README.zh-TW.md)。
+
+![完整測站集水區、上游集水區與下游貢獻區域](downstream/outputs/watershed.png)
+
+**圖 2。** (a) USGS 01447800 的完整集水範圍；(b) 壩口與測站之間的放大圖。
+藍色為上游集水區，橘色為下游貢獻區域。NLDI 使用完整河網集水單元，
+因此壩口及測站位置的邊界仍為近似值。
+
 ## 氣候與水文
 
 已接受的強迫資料涵蓋 1989–2025 年七個貢獻單元的每日降水、溫度與 PET。
@@ -58,7 +72,7 @@ $$
 
 ![F.E. Walter 模式集水區逐月降水、PET 與溫度](hydrology_data/climate/fe_walter_climate_1989_2025.png)
 
-**圖 2。** 1989–2025 年面積加權月氣象輸入。降水與 PET 為月總量（mm/month），
+**圖 3。** 1989–2025 年面積加權月氣象輸入。降水與 PET 為月總量（mm/month），
 溫度為月平均（°C）。
 ```
 
