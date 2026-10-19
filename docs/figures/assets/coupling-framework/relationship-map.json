@@ -1,6 +1,6 @@
 {
   "source": "hydrocnhs-coupling-framework-en.drawio",
-  "source_sha256": "1131d69f6d36452c8f96e92a1440e1eaee08aa0d4d981988997b7fa237c17288",
+  "source_sha256": "207255d987508e3711cab1e962929fa3f7f6bf7db3de9f1277363fbb07055c8a",
   "scope": "HydroReOpLLM adds reservoir decisions, checking and records to HydroCNHS.",
   "nodes": [
     {
@@ -277,17 +277,10 @@
       "optional": false
     },
     {
-      "id": "checks-icon",
-      "parent": "checks",
+      "id": "ef2-t52SEesGx8S3kSTS-4",
+      "parent": "llm-agent",
       "fill": null,
       "border": null,
-      "optional": false
-    },
-    {
-      "id": "checks-title",
-      "parent": "checks",
-      "fill": "none",
-      "border": "none",
       "optional": false
     },
     {
@@ -337,7 +330,7 @@
       "parent": "llm-module",
       "fill": "#9FC6B6",
       "border": "#41695D",
-      "optional": true
+      "optional": false
     },
     {
       "id": "audit-icon",
@@ -354,17 +347,17 @@
       "optional": false
     },
     {
-      "id": "operating-instructions",
+      "id": "reply-failure-note",
       "parent": "llm-module",
-      "fill": "#EEEEEB",
+      "fill": "none",
       "border": "#6E7A73",
       "optional": false
     },
     {
-      "id": "operating-instructions-title",
-      "parent": "operating-instructions",
-      "fill": "none",
-      "border": "none",
+      "id": "requested-release-label",
+      "parent": "checks-reservoir",
+      "fill": null,
+      "border": null,
       "optional": false
     },
     {
@@ -471,7 +464,7 @@
     "hydro-header": "HydroCNHS",
     "weather-title": "Climate data",
     "input-examples": "P, T, PET",
-    "runoff-title": "Rainfall–runoff",
+    "runoff-title": "Rainfall\u2013runoff",
     "runoff-model-name": "ABCD / GWLF model",
     "upstream-title": "Upstream routing",
     "upstream-model-name": "Lohmann model",
@@ -483,11 +476,12 @@
     "llm-module-header": "LLM decision module",
     "prompt-title": "Prompt construction",
     "llm-title": "Large Language Model",
-    "checks-title": "Response validation",
+    "checks": "Valid reply?",
+    "ef2-t52SEesGx8S3kSTS-4": "<span style=\"color: rgb(64, 80, 84); font-family: Arial; font-size: 24px; font-style: italic; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: center; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: nowrap; text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial; float: none; display: inline !important;\">Yes</span>",
     "knowledge-title": "Optional knowledge",
     "trace-title": "Trace records",
     "audit-title": "Operating-rule check",
-    "operating-instructions-title": "Operating instructions",
+    "reply-failure-note": "Retry or stop",
     "runoff-upstream": "Runoff",
     "upstream-reservoir": "Inflow",
     "reservoir-downstream": "Release + spill",
@@ -495,21 +489,28 @@
     "prompt-model": "Prompt",
     "model-checks": "Model reply",
     "rule-reservoir": "Requested release",
-    "checks-reservoir": "Requested release",
+    "checks-reservoir": "Yes",
+    "requested-release-label": "Requested release",
     "committed-history": "Storage",
-    "proposal-audit": "Release proposal",
-    "agent-trace": "Decision record",
+    "proposal-audit": "Requested release",
     "audit-trace": "Check results",
-    "executed-trace": "Execution record",
     "functional-color-label-0": "Information",
     "functional-color-label-1": "Physical calculations",
     "functional-color-label-2": "Decisions",
     "functional-color-label-3": "Checks & records",
     "optional-border-label": "Optional component",
+    "invalid-reply-branch": "No",
     "inflow-information": "Inflow",
     "information-audit": "Date, inflow & storage"
   },
   "edges": [
+    {
+      "id": "ef2-t52SEesGx8S3kSTS-1",
+      "source": "checks",
+      "target": "trace",
+      "label": "",
+      "style": "edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0;entryY=0.125;entryPerimeter=0;strokeColor=#52745B;strokeWidth=1.8;align=center;verticalAlign=middle;arcSize=2;fontFamily=Arial;fontSize=22;fontColor=#405054;fillColor=#F4F1EA;dashed=0;fontStyle=2;labelBackgroundColor=none;jumpStyle=none;jumpSize=0;startArrow=none;endArrow=block;endFill=1;curved=0;"
+    },
     {
       "id": "forcing-runoff",
       "source": "weather",
@@ -584,8 +585,8 @@
       "id": "checks-reservoir",
       "source": "checks",
       "target": "reservoir",
-      "label": "Requested release",
-      "style": "edgeStyle=none;rounded=0;html=1;strokeColor=#283C40;strokeWidth=3;endArrow=block;endFill=1;startArrow=none;exitX=0.0;exitY=0.9166666666666666;entryX=1.0;entryY=0.8125;exitPerimeter=0;entryPerimeter=0;dashed=0;fontFamily=Arial;fontSize=24;fontStyle=2;fontColor=#405054;labelBackgroundColor=none;align=center;verticalAlign=middle;curved=0;jumpStyle=none;jumpSize=0;"
+      "label": "Yes",
+      "style": "edgeStyle=none;rounded=0;html=1;strokeColor=#283C40;strokeWidth=3;endArrow=block;endFill=1;startArrow=none;exitX=0.0;exitY=0.5;entryX=1.0;entryY=0.8125;exitPerimeter=0;entryPerimeter=0;dashed=0;fontFamily=Arial;fontSize=24;fontStyle=2;fontColor=#405054;labelBackgroundColor=none;align=center;verticalAlign=middle;curved=0;jumpStyle=none;jumpSize=0;"
     },
     {
       "id": "committed-history",
@@ -598,36 +599,22 @@
       "id": "proposal-audit",
       "source": "checks",
       "target": "audit",
-      "label": "Release<br>proposal",
-      "style": "edgeStyle=none;rounded=0;html=1;strokeColor=#52745B;strokeWidth=1.8;endArrow=block;endFill=1;startArrow=none;exitX=1.0;exitY=0.5;entryX=0.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;dashed=0;fontFamily=Arial;fontSize=24;fontStyle=2;fontColor=#405054;labelBackgroundColor=none;align=center;verticalAlign=middle;curved=0;jumpStyle=none;jumpSize=0;"
-    },
-    {
-      "id": "agent-trace",
-      "source": "checks",
-      "target": "trace",
-      "label": "Decision record",
-      "style": "edgeStyle=none;rounded=0;html=1;strokeColor=#52745B;strokeWidth=1.8;endArrow=block;endFill=1;startArrow=none;exitX=0.5;exitY=1;entryX=0.25;entryY=0.0;exitPerimeter=0;entryPerimeter=0;dashed=0;fontFamily=Arial;fontSize=24;fontStyle=2;fontColor=#405054;labelBackgroundColor=none;align=center;verticalAlign=middle;curved=0;jumpStyle=none;jumpSize=0;"
+      "label": "Requested<br>release",
+      "style": "edgeStyle=none;rounded=0;html=1;strokeColor=#52745B;strokeWidth=1.8;endArrow=block;endFill=1;startArrow=none;exitX=1.0;exitY=0.5;entryX=0.0;entryY=0.75;exitPerimeter=0;entryPerimeter=0;dashed=0;fontFamily=Arial;fontSize=22;fontStyle=2;fontColor=#405054;labelBackgroundColor=none;align=center;verticalAlign=middle;curved=0;jumpStyle=none;jumpSize=0;"
     },
     {
       "id": "audit-trace",
       "source": "audit",
       "target": "trace",
-      "label": "Check results",
-      "style": "edgeStyle=none;rounded=0;html=1;strokeColor=#52745B;strokeWidth=1.8;endArrow=block;endFill=1;startArrow=none;exitX=0.5;exitY=1.0;entryX=0.7;entryY=0.0;exitPerimeter=0;entryPerimeter=0;dashed=0;fontFamily=Arial;fontSize=24;fontStyle=2;fontColor=#405054;labelBackgroundColor=none;align=center;verticalAlign=middle;curved=0;jumpStyle=none;jumpSize=0;"
+      "label": "Check<br>results",
+      "style": "edgeStyle=none;rounded=0;html=1;strokeColor=#52745B;strokeWidth=1.8;endArrow=block;endFill=1;startArrow=none;exitX=0.5;exitY=1;entryX=0.5;entryY=0;exitPerimeter=0;entryPerimeter=0;dashed=0;fontFamily=Arial;fontSize=24;fontStyle=2;fontColor=#405054;labelBackgroundColor=none;align=center;verticalAlign=middle;curved=0;jumpStyle=none;jumpSize=0;"
     },
     {
-      "id": "executed-trace",
-      "source": "reservoir",
-      "target": "trace",
-      "label": "Execution record",
-      "style": "edgeStyle=none;rounded=0;html=1;strokeColor=#52745B;strokeWidth=1.8;endArrow=block;endFill=1;startArrow=none;exitX=1.0;exitY=0.9375;entryX=0.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;dashed=0;fontFamily=Arial;fontSize=24;fontStyle=2;fontColor=#405054;labelBackgroundColor=none;align=center;verticalAlign=middle;curved=0;jumpStyle=none;jumpSize=0;"
-    },
-    {
-      "id": "instructions-prompt",
-      "source": "operating-instructions",
-      "target": "prompt",
-      "label": "",
-      "style": "edgeStyle=none;rounded=0;html=1;strokeColor=#283C40;strokeWidth=2.2;endArrow=block;endFill=1;startArrow=none;exitX=0;exitY=0.5;entryX=1;entryY=0.875;exitPerimeter=0;entryPerimeter=0;dashed=0;curved=0;jumpStyle=none;jumpSize=0;"
+      "id": "invalid-reply-branch",
+      "source": "checks",
+      "target": "reply-failure-note",
+      "label": "No",
+      "style": "edgeStyle=none;rounded=0;html=1;strokeColor=#283C40;strokeWidth=2.2;endArrow=block;endFill=1;startArrow=none;exitX=0.5;exitY=1;entryX=0.5;entryY=0;exitPerimeter=0;entryPerimeter=0;dashed=0;fontFamily=Arial;fontSize=24;fontStyle=2;fontColor=#405054;labelBackgroundColor=#FCF5EE;align=center;verticalAlign=middle;curved=0;jumpStyle=none;jumpSize=0;"
     },
     {
       "id": "inflow-information",
@@ -652,104 +639,18 @@
   },
   "line_semantics": {
     "solid": "directed water, decision information or recorded evidence",
-    "dashed_border": "optional knowledge or operating-rule audit",
+    "dashed_border": "optional operating knowledge; the illustrated operating-rule check is required",
     "water": "runoff, inlet, implemented controlled release plus spill"
   },
   "color_semantics": {
-    "information": "neutral gray",
-    "physical_calculations": "blue",
-    "decision_generation": "warm orange",
-    "checks_and_records": "teal",
-    "pale_regions": "grouping and visual emphasis",
-    "dashed_outline": "optional component",
-    "icon_internal_colors": "illustration, not a separate category"
+    "region_fills": "HydroCNHS host versus highlighted LLM decision extension",
+    "decision_cards": "rule-based or LLM decision functions, not source ownership",
+    "validation_and_record_cards": "response validation, operating-rule check and trace; never a PASS/FAIL color"
   },
   "responsibilities": {
-    "response_validation": "Parse the response contract before producing a normalized requested release.",
-    "operating_rule_audit": "Record configured diagnostic criteria; target failure does not resample the model.",
-    "trace_records": "Bind actual messages, proposals, audits and committed physical execution."
+    "response_validation": "Valid reply? parses and checks the response contract; eligible failures retry as configured or stop before physics.",
+    "operating_rule_audit": "Required in the illustrated case; diagnostics finish before physics without automatically changing or vetoing release.",
+    "trace_records": "This view retains LLM inputs, model replies, release requests and check results."
   },
-  "exports": "Accepted PNG, SVG and 180 mm PDF are reviewed separately; this command does not overwrite them.",
-  "branding_revision": {
-    "date": "2026-10-18",
-    "display_name": "HydroReOpLLM",
-    "previous_manifest_sha256": "8cadf395f00ddf905fc2b6e3bb8e29a5c6cb8a10e38af5aae157772ed6cf8434",
-    "scope": "Display text and fresh exports only; original historical source/commit records retained.",
-    "renderers": {
-      "diagrams": "draw.io Desktop",
-      "cover_social": "CairoSVG 2.9.0",
-      "pdf_width": "180 mm figure checking convention"
-    },
-    "current_files": {
-      "docs\\_static\\hydroopslm-social-preview.svg": {
-        "sha256": "f7ee0cd7ee438925f906e9021f3a76b3969296b73f9934e1778a86bd18781a18",
-        "bytes": 157049
-      },
-      "docs\\figures\\assets\\branding\\components\\dam-downstream.svg": {
-        "sha256": "b62bbdc7b8d8caa04e066eed5948dc81e56bc46fb2137255108c423388bbf8bf",
-        "bytes": 3980
-      },
-      "docs\\figures\\assets\\branding\\components\\dam-upstream.svg": {
-        "sha256": "ac827451e5fade753ca3b26a80227c7f3f496e058eac6607795b91ebbaa46449",
-        "bytes": 3895
-      },
-      "docs\\figures\\assets\\branding\\components\\llm-robot.svg": {
-        "sha256": "1639ded77583a36503e2d21ef9a6260d2511af9f9648f6868381def13f7925f9",
-        "bytes": 5581
-      },
-      "docs\\figures\\assets\\branding\\components\\reservoir-downstream.svg": {
-        "sha256": "dcfc2adef053e8cdffbd18dfae76bf4f847eacd2039a68ba06fa08896d4cd14d",
-        "bytes": 3307
-      },
-      "docs\\figures\\assets\\branding\\components\\reservoir-upstream.svg": {
-        "sha256": "3c9be7e7493a3d7ba90355912c5aec549c11c0804d9139e4a20cd9f79e3d02ce",
-        "bytes": 3368
-      },
-      "docs\\figures\\assets\\branding\\components\\river.svg": {
-        "sha256": "b696f74fcf8072978ab118b6c846c86d649fe7d71bb5c89fdb41a51091f24365",
-        "bytes": 3186
-      },
-      "docs\\figures\\assets\\branding\\components\\water-surface.svg": {
-        "sha256": "fa736fd7619a2d70fe379e673da5bc9fe7e6c1cabba97582a5d87da8850e87da",
-        "bytes": 1936
-      },
-      "docs\\figures\\assets\\branding\\hydroopslm-logo.svg": {
-        "sha256": "aecc300574c8728e17d123136a3d606e90a60cd973a183d69d08b8a48fba509a",
-        "bytes": 1671
-      },
-      "docs\\figures\\hydroopslm-cover.svg": {
-        "sha256": "d519b4b5d44f9f9dfe38d9a6816e0043b437ba20d23ab3d27662a60797ff1b5c",
-        "bytes": 156970
-      },
-      "docs\\figures\\hydrocnhs-coupling-framework-en.drawio": {
-        "sha256": "1131d69f6d36452c8f96e92a1440e1eaee08aa0d4d981988997b7fa237c17288",
-        "bytes": 15910210
-      },
-      "docs\\figures\\hydrocnhs-coupling-framework-en.svg": {
-        "sha256": "fd737a0f4ad88e2a55d970be6168a6fe88a4b191dc064765d18c8500cc034bee",
-        "bytes": 17006427
-      },
-      "docs\\figures\\hydrocnhs-coupling-framework-en.png": {
-        "sha256": "3eff9d5491c011c3af5504841e867207056f0868f8e8a8a2a4a6c6699b14ba00",
-        "bytes": 2003766
-      },
-      "docs\\figures\\hydrocnhs-coupling-framework-en.pdf": {
-        "sha256": "769d1429ef9ae6fea04c37dffab14d904863d3ef7306a09fe93f7100784c1df6",
-        "bytes": 10259483
-      },
-      "docs\\figures\\hydroopslm-cover.png": {
-        "sha256": "fade329b1e76f709c4acdf0720e55869e4dfffc6dd3168870bcafccf4fcca35a",
-        "bytes": 273025
-      },
-      "docs\\_static\\hydroopslm-social-preview.png": {
-        "sha256": "733c3de7c81772273778b2dd74b5b35cab90ed529548e2dd1c83f0e4657efe8e",
-        "bytes": 171155
-      },
-      "docs\\figures\\assets\\branding\\hydroopslm-cover-3600.png": {
-        "sha256": "1eb0206c60c1d484afe1a8711251f286058c2ea1e946f6880c3c4123a9ef49c7",
-        "bytes": 653890
-      }
-    },
-    "visual_review": "Parent inspected current native PNG and cropped one-page PDF renderings: brand visible, no clipping/overlap; paper workflow preserves approved geometry. No claim of human-reader or scientific validation."
-  }
+  "exports": "Accepted PNG, SVG and 180 mm PDF are reviewed separately; this command does not overwrite them."
 }

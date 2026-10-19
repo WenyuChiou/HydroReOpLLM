@@ -1,8 +1,8 @@
 # HydroReOpLLM Figure 1
 
-## Current display-name revision — 18 October 2026
+## Current workflow — 19 October 2026
 
-The author selected HydroReOpLLM. Current editable sources and exports use this brand; Compatibility filenames remain stable; maintained repository links now use HydroReOpLLM. Earlier records below are retained as history. See the accompanying provenance's branding_revision for current hashes and renderer details.
+The author approved the v34 layout. Both ends of the horizontal Valid reply? → Trace records connector are attached to their native nodes. Its location and the author’s labels are preserved. Current PNG/SVG/PDF exports match the native source; quality.json records their hashes. Earlier design records remain below and in Git history.
 
 ## Earlier design and typography record
 
@@ -14,23 +14,27 @@ Raster illustrations are embedded; the project logo uses the existing SVG mark.
 ## Meaning and appearance
 
 HydroCNHS supplies rainfall-runoff, routing and the original Dam API.
-HydroOpsLLM adds decision integrations and the shared reservoir calculation.
+HydroReOpLLM supplies decision integrations and the shared reservoir calculation.
 The pale left area shows coupling context, not original source ownership.
 Rule-based and LLM-based agents are alternatives. Both request release;
 implemented controlled release plus spill enters routing once.
 
 Prompt construction receives selected information and optional knowledge.
 Response validation checks the reply's structure and values.
-Operating-rule audit assesses configured criteria and does not replace release.
+Operating-rule check assesses configured criteria without automatically changing or vetoing release.
+It is required in this illustrated case; generic configurations may select their auditors.
 Enabled auditors complete before the physical transition.
-Trace receives decision, audit and execution records. Rule methods can use it too.
+This view focuses Trace records on LLM inputs, replies, release requests and check results.
+Rule methods may also use the generic check and trace interfaces.
+The Valid reply? diamond represents response parsing and structural/numerical validation;
+its No branch summarizes configured retry or stop behavior.
 
 Neutral-gray data cards replace the stark white cards. Blue identifies physical
 calculation, warm tones decision generation, and sage checks/assessment/recording.
 The warmer right scope emphasizes the expanded LLM path. The agent's pale warm
 fill groups its three required steps. The canvas is transparent; the package
 uses a neutral paper fill. Colors do not encode strategy quality or code origin.
-Dashed card borders mean configurable augmentation; a method may require its auditor.
+The dashed card border marks Optional knowledge; Operating-rule check has a solid border.
 All arrows remain solid and directed: blue water, dark decision information/requests,
 sage records. No module, arrow label or route changed in the v15 fill correction.
 
@@ -50,7 +54,7 @@ draw.io --export --format pdf --crop --output docs/figures/hydrocnhs-coupling-fr
 
 Wait for each export. --crop prevents paper-size pagination from cutting the figure.
 The supplied PDF is one page, normalized to 180 mm width; place a fresh native-size
-export at the same width in the manuscript. The supplied PNG is 4252 x 2492 at 600 dpi.
+export at the same width in the manuscript. The supplied PNG is 4252 x 2617 at 600 dpi.
 This is a proposed full-width layout, not a verified journal requirement.
 Inspect actual manuscript placement; single-column reduction is unsuitable.
 
