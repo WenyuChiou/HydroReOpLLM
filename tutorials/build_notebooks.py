@@ -131,7 +131,7 @@ def plot_reservoir_operations(daily, seasonal_criteria=None):
             release.plot(dates, rows["inflow_cms"] * CMS_TO_CFS, color="#2878B5", linewidth=0.8,
                          drawstyle="steps-mid", label="Upstream simulated inflow", zorder=4)
             release.set(ylim=(0, release_max), ylabel="Water release\n(cfs)")
-            release.set_title(f"({chr(98 + index)}) Water release ({label})", loc="left", fontweight="bold")
+            release.set_title(f"({chr(98 + index)}) {label}", loc="left", fontweight="bold")
             release.legend(loc="upper left", frameon=False, fontsize=9,
                            handlelength=2.1, borderaxespad=0.35)
         if seasonal_criteria is None:
@@ -139,7 +139,7 @@ def plot_reservoir_operations(daily, seasonal_criteria=None):
         seasonal_dates, seasonal_levels = _seasonal_reference_points(seasonal_criteria)
         elevation.plot(seasonal_dates, seasonal_levels, color="#111111", linestyle="--",
                        linewidth=1.0, label="Seasonal pool reference", zorder=5)
-        elevation.set(title="(a) Water elevation", ylabel="Water elevation\n(ft)")
+        elevation.set(title="(a)", ylabel="Water elevation\n(ft)")
         release_axes[-1].set_xlabel("Operation date (2016)")
         for ax in axes:
             ax.title.set_position((0, 1.0))

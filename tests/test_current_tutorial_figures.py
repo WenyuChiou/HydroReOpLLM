@@ -238,7 +238,7 @@ def test_combined_figure_has_shared_calendar_exact_lines_and_three_release_rows(
         elevation, *release_axes = axes
         assert all(elevation.get_shared_x_axes().joined(elevation, release)
                    for release in release_axes)
-        assert elevation.get_title().startswith('(a)')
+        assert elevation.get_title() == '(a)'
 
         expected_labels = [
             'Rule-based',
@@ -262,7 +262,7 @@ def test_combined_figure_has_shared_calendar_exact_lines_and_three_release_rows(
         assert all(limits == release_limits[0] for limits in release_limits)
         assert all(np.array_equal(ticks, release_ticks[0]) for ticks in release_ticks)
         for index, (release, label) in enumerate(zip(release_axes, expected_labels, strict=True)):
-            assert release.get_title(loc='left') == f'({chr(98 + index)}) Water release ({label})'
+            assert release.get_title(loc='left') == f'({chr(98 + index)}) {label}'
             assert release.get_ylabel() == 'Water release\n(cfs)'
             method = tuple(builder.LABELS)[index]
             expected = daily.loc[daily['method'] == method].copy()
