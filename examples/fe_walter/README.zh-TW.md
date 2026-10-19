@@ -3,7 +3,7 @@
 [English](README.md) | [繁體中文](README.zh-TW.md)
 
 本案例將已接受的 HydroCNHS 水文結果連接至單一受控水庫，比較
-**Rule-based**、**未使用知識檢索的 LLM** 與 **使用知識檢索的 LLM**
+**Rule-based**、**未提供額外操作知識的 LLM** 與 **提供額外操作知識的 LLM**
 三種決策方法。請先閱讀[維護中的教學](../../tutorials/fe_walter.md)。
 
 ## 地點與研究範圍
@@ -78,7 +78,7 @@ $\Delta t=86{,}400$ s。本簡化案例的直接降水、水庫蒸發、滲漏�
 傳遞總出流。
 
 三種方法共用水文與水庫物理設定。規則法接收已登錄的規則參數與入流統計；可用資訊
-LLM 接收每日狀態、季節指示與短期歷史；使用知識檢索的 LLM 再加上選取的地方指引。
+LLM 接收每日狀態、季節指示與短期歷史；提供額外操作知識的 LLM 再加上選取的地方指引。
 [版本化季節準則](seasonal_pool_criteria.json)是研究設定，不是官方年度操作表。既有
 結果仍使用先前提示；請分別參閱[結果](results.zh-TW.md)與 [prompt review](prompt_review.md)。
 

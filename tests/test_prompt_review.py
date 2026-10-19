@@ -53,7 +53,7 @@ def test_alternate_criteria_preview_records_its_actual_source(tmp_path, monkeypa
 def test_published_requests_preserve_independently_recorded_hashes():
     data = json.loads((STATIC / "prompt-review-data.json").read_text(encoding="utf-8"))
     assert data["kind"] == "historical_actual_requests"
-    assert data["method"] == "LLM with knowledge retrieval"
+    assert data["method"] == "LLM with additional operating knowledge"
     assert [item["date"] for item in data["days"]] == ["2016-10-12", "2016-10-13", "2016-10-14"]
     for index, day in enumerate(data["days"]):
         assert day["internal_record_only"]["sent_to_llm"] is False

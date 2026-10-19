@@ -3,8 +3,7 @@
 [English](README.md) | [繁體中文](README.zh-TW.md)
 
 This case connects accepted HydroCNHS hydrology to one controlled reservoir and
-compares **Rule-based**, **LLM without knowledge retrieval**, and **LLM with
-knowledge retrieval** decisions. Start with the [maintained tutorial](../../tutorials/fe_walter.md).
+compares **Rule-based**, **LLM without additional operating knowledge**, and **LLM with additional operating knowledge** decisions. Start with the [maintained tutorial](../../tutorials/fe_walter.md).
 
 ## Site and study scope
 

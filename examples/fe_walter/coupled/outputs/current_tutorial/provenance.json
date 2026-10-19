@@ -3,8 +3,8 @@
   "purpose": "Saved-data teaching comparison; no new provider request, hydrology run, or reservoir simulation.",
   "methods": [
     "Rule-based",
-    "LLM without knowledge retrieval",
-    "LLM with knowledge retrieval"
+    "LLM without additional operating knowledge",
+    "LLM with additional operating knowledge"
   ],
   "period": {
     "start": "2016-01-01",
@@ -23,17 +23,18 @@
     "panels": {
       "a": "Water elevation",
       "b": "Water release (Rule-based)",
-      "c": "Water release (LLM without knowledge retrieval)",
-      "d": "Water release (LLM with knowledge retrieval)"
+      "c": "Water release (LLM without additional operating knowledge)",
+      "d": "Water release (LLM with additional operating knowledge)"
     },
     "release_bar_width_days": 0.72,
-    "common_inflow": "Gray daily step trace on every release panel; same flow units and dates.",
+    "common_inflow": "Blue upstream simulated daily step trace on every release panel; same flow units and dates.",
     "method_colors": {
       "rule": "#526B8A",
       "llm_available": "#BF795E",
       "llm_knowledge": "#4F8A7B"
     },
-    "seasonal_reference": "Schematic from seasonal_pool_criteria.json; plotting convention holds 1300 ft through March 31 and begins the illustrative ramp April 1"
+    "legend_placement": "Inside each panel, clear of saved curves and bars.",
+    "seasonal_reference": "Approximate R-ZONE timing: April 1 to mid-May (drawn May 15), then drawdown after mid-October (drawn October 15). November 1 is an illustrative return date, not specified by R-ZONE. Levels come from the study criteria; audit windows are unchanged."
   },
   "units": {
     "inflow_cms": "m3/s",
@@ -91,18 +92,22 @@
     "seasonal_criteria": {
       "path": "../../../seasonal_pool_criteria.json",
       "sha256": "51ba8e957218ced8923c7c22caaa80aec1b1a75eb9a5d19e73a3f0c1f416d4a7"
+    },
+    "reference_timing": {
+      "path": "../../../knowledge/operating_rules.md",
+      "sha256": "7fb3b9e75c1d6a52168049afa80c527a49e606f1c0889e5d14b31f874502b206"
     }
   },
   "artifacts": {
-    "daily.csv": "e29ffa3375d2090611d928c2c06e81550e71ca995bf994d7af6d0a31b2f27b1b",
-    "daily_water_elevation.png": "a80176895c4203c0f50835039a5cbf7c8d94f7993e758a29172d57cb196e2226",
-    "daily_water_elevation.svg": "2f9c60b1c8b91e7c5b6b1779dfccd131d34d025e9d97218278db4d9509867f62",
-    "daily_water_elevation.pdf": "b2e566562116fcfb378a119e114feb8f3c9b2737c0f71f39f5694b6167a884fa",
-    "controlled_release_daily.png": "fe0ecd7f3735420c579d873fae7f57caa3a96f3915495ab4805cfb6616afc3cc",
-    "controlled_release_daily.svg": "9501083f295a75fa53b095a4d7b4c6ba0585eb5fcc3c97d4ce99b7f471e2fd61",
-    "controlled_release_daily.pdf": "13bc8d11f50a33207c0af1dcd41d0e0e0121289605b64c6ab63a077060d186fb",
-    "reservoir_operations.png": "21e41220dc423e597a96d06609f4cd1fb10f5967f236a63b1686b2f4c4994d5f",
-    "reservoir_operations.svg": "84951d5f246a4dc4aca10f592e3479f1ee64fa8d1123fd950002757158a52daa",
-    "reservoir_operations.pdf": "6a699d9cc806e9c8bb6ead99cc82960b1384fab2dce1c6636b5b97e9631e21a2"
+    "daily.csv": "28330ea4c960a2373c60dd98d04cc6ff9c81667d7cfec494c9750d7357400f85",
+    "daily_water_elevation.png": "1049c02e2edeb8a3e523b2d8fca1bba44b4fd4aa523c2a1f816deec526754f1f",
+    "daily_water_elevation.svg": "046df1ab3bf4cc5dd07b79a5c484fa21d7256c45ebe1f1adf5485c05e940b3c6",
+    "daily_water_elevation.pdf": "8c63f0571c8ea953d98aa76ea1067661285e9d19ed114d7929abe6c3baaba410",
+    "controlled_release_daily.png": "a416e06409c0122cca51e920cbee979d7f56e8adc7a6bf807f65ab5baba90c6f",
+    "controlled_release_daily.svg": "f17d68aa60d796834cd11f6b52becbac19f75dcb3f2e68d3c70493c47a75bf75",
+    "controlled_release_daily.pdf": "5b94fbfc2622ff94d041cf9d788c91a2136b75542cc7b43774811be510b72b89",
+    "reservoir_operations.png": "81bb619b1fc202bff6e01a78a20ef570d1c4580e1d52598c50c2c964994d982a",
+    "reservoir_operations.svg": "99a7e90d90863eaec9555976e840574f5e0fe901be4a282f33f8a65bf5ddde29",
+    "reservoir_operations.pdf": "00a77b0f0d35488b2bec6a71d6aa23ddb3d8d5eebc8c07a8ad8135f2b9ebdb4c"
   }
 }

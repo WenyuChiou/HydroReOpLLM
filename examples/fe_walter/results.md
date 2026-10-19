@@ -4,7 +4,7 @@ The saved LLM trajectories use the **previous prompts**, without the new daily
 seasonal context. [Review the actual October requests and proposed addition](prompt_review.md). No new model result is shown.
 
 The maintained comparison uses three saved 2016 trajectories: **Rule-based**,
-**LLM without knowledge retrieval**, and **LLM with knowledge retrieval**. All
+**LLM without additional operating knowledge**, and **LLM with additional operating knowledge**. All
 three use the same accepted daily inflow and initial physical state.
 
 ## Reservoir operations
@@ -31,9 +31,10 @@ Storage also changes with inflow and spill, as shown by the
 1297–1303 ft on November 1–March 14; the summer ceiling applies on
 May 10–October 14. These study criteria do not override a release decision.
 
-The dashed seasonal reference stays at 1300 ft through March and begins rising
-on April 1. Its spring and autumn slopes are illustrative; this visual reference
-does not redefine the study's seasonal audit windows or prescribe daily releases.
+The dashed reference follows the approximate [R-ZONE schedule](knowledge/operating_rules.md):
+fill from about April 1 to mid-May, then draw down after mid-October.
+The drawn May 15 and November 1 endpoints illustrate the transitions; R-ZONE
+does not specify an exact winter-return date. Study audit windows remain unchanged.
 
 Downloads: [combined CSV](coupled/outputs/current_tutorial/daily.csv),
 [provenance](coupled/outputs/current_tutorial/provenance.json),
@@ -52,7 +53,8 @@ and [`results_history.md`](results_history.md) for older experiments.
 ![2016 water elevation and controlled release](coupled/outputs/current_tutorial/reservoir_operations.png)
 
 **Figure 1.** Saved 2016 operations. (a) Daily end levels (ft NGVD29), with a
-schematic reference that rises from April: 1300 ft winter target and 1370 ft
-summer upper limit. (b–d) Implemented water release (m³/s), excluding spill.
-Gray lines show the common inflow on the same flow scale. Bars below the line
+schematic R-ZONE reference: 1300 ft winter target, rising from April to mid-May,
+and 1370 ft summer ceiling. The drawn November 1 return is illustrative.
+(b–d) Implemented water release (m³/s), excluding spill.
+Blue lines show the upstream simulated inflow on the same flow scale. Bars below the line
 retain water; bars above it draw from storage. All panels share operation dates.

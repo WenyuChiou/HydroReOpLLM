@@ -51,8 +51,8 @@ python -m pip install -e . -c environment/requirements-bundled.txt
 | 方法 | 設定檔 | 決策輸入 |
 |---|---|---|
 | 規則式（Rule-based） | [`experiment.yaml`](examples/fe_walter/coupled/experiment.yaml) | 已註冊的 Hanasaki 案例規則 |
-| 未使用知識檢索的 LLM | [`llm_available.yaml`](examples/fe_walter/coupled/llm_available.yaml) | 當前操作資訊與設定的提示 |
-| 使用知識檢索的 LLM | [`llm_knowledge.yaml`](examples/fe_walter/coupled/llm_knowledge.yaml) | 當前操作資訊、提示與本機知識文件 |
+| 未提供額外操作知識的 LLM | [`llm_available.yaml`](examples/fe_walter/coupled/llm_available.yaml) | 當前操作資訊與設定的提示 |
+| 提供額外操作知識的 LLM | [`llm_knowledge.yaml`](examples/fe_walter/coupled/llm_knowledge.yaml) | 當前操作資訊、提示與本機知識文件 |
 
 在儲存庫根目錄離線檢查規則式設定：
 

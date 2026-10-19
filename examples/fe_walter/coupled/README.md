@@ -13,8 +13,8 @@ accepted hydrology in [`hydrology.yaml`](hydrology.yaml), the physical network i
 [`llm_available.yaml`](llm_available.yaml) or
 [`llm_knowledge.yaml`](llm_knowledge.yaml) to change only the decision method.
 
-Public method names are **Rule-based**, **LLM without knowledge retrieval**, and
-**LLM with knowledge retrieval**. Provider/model identity appears only in
+Public method names are **Rule-based**, **LLM without additional operating knowledge**, and
+**LLM with additional operating knowledge**. Provider/model identity appears only in
 settings and provenance.
 
 ## Files
@@ -22,8 +22,8 @@ settings and provenance.
 | File | Role |
 |---|---|
 | [`experiment.yaml`](experiment.yaml) | Current Rule-based entry |
-| [`llm_available.yaml`](llm_available.yaml) | Current LLM without knowledge retrieval entry |
-| [`llm_knowledge.yaml`](llm_knowledge.yaml) | Current LLM with knowledge retrieval entry |
+| [`llm_available.yaml`](llm_available.yaml) | Current LLM without additional operating knowledge entry |
+| [`llm_knowledge.yaml`](llm_knowledge.yaml) | Current LLM with additional operating knowledge entry |
 | [`hydrology.yaml`](hydrology.yaml) | Accepted HydroCNHS model, forcing, and inlet bindings |
 | [`reservoirs.json`](reservoirs.json) | Physical reservoir and routing network |
 | [agents.rule.yaml](agents.rule.yaml), [agents.llm_available.yaml](agents.llm_available.yaml), [agents.llm_knowledge.yaml](agents.llm_knowledge.yaml) | One complete agent file for each method |

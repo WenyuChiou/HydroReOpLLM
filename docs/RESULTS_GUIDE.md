@@ -6,8 +6,8 @@ seasonal addition separately; it has no new model replies.
 
 Start with the water level and controlled release. The
 [FE Walter results](../examples/fe_walter/results.md) show the current saved
-2016 comparison: **Rule-based**, **LLM without knowledge retrieval**, and
-**LLM with knowledge retrieval**.
+2016 comparison: **Rule-based**, **LLM without additional operating knowledge**, and
+**LLM with additional operating knowledge**.
 
 ## Read the operation trajectory
 
@@ -48,8 +48,7 @@ one combined teaching figure without running a model or hydrology. Panel A
 compares 2016 end-of-day water elevation in ft NGVD29, including dotted guides
 at 1300 and 1370 ft. Panel B compares daily controlled release in m³/s with
 one row per method, identical flow scales and no spill. All axes share dates; the
-legend names **Rule-based**, **LLM without knowledge retrieval**, and **LLM with
-knowledge retrieval**.
+legend names **Rule-based**, **LLM without additional operating knowledge**, and **LLM with additional operating knowledge**.
 
 ## Follow one decision
 

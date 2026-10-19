@@ -98,7 +98,7 @@ def build(evidence_root: Path) -> dict:
                                               "sent_to_llm": False}})
     return {"schema_version": 1,
             "kind": "historical_actual_requests",
-            "method": "LLM with knowledge retrieval",
+            "method": "LLM with additional operating knowledge",
             "evidence_root": "gemma4-comparison-2016",
             "notice": "Saved requests made before daily seasonal context was added. No new model request.",
             "client_settings": {"timeout_seconds": 120, "maximum_attempts": 2, "retry_delay_seconds": 2,

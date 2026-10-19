@@ -21,6 +21,7 @@ def _temporary_builder(tmp_path):
     builder.ROOT = tmp_path
     builder.CURRENT = tmp_path / 'new-teaching-output'
     builder.SEASONAL_CRITERIA = tmp_path / 'examples/fe_walter/seasonal_pool_criteria.json'
+    builder.OPERATING_KNOWLEDGE = tmp_path / 'examples/fe_walter/knowledge/operating_rules.md'
     relative = Path('examples/fe_walter/coupled/outputs')
     for name in ('2016/daily.csv', '2016/summary.json', 'gemma4_2016_comparison/daily.csv'):
         destination = tmp_path / relative / name
@@ -28,6 +29,9 @@ def _temporary_builder(tmp_path):
         shutil.copyfile(OUTPUTS / name, destination)
     builder.SEASONAL_CRITERIA.parent.mkdir(parents=True, exist_ok=True)
     shutil.copyfile(CRITERIA, builder.SEASONAL_CRITERIA)
+    builder.OPERATING_KNOWLEDGE.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(ROOT / 'examples/fe_walter/knowledge/operating_rules.md',
+                    builder.OPERATING_KNOWLEDGE)
     return builder
 
 
@@ -140,6 +144,10 @@ def test_main_notebook_has_exactly_one_combined_result_figure():
     assert 'outputs/current_tutorial/daily_water_elevation.png' not in markdown
     assert 'outputs/current_tutorial/controlled_release_daily.png' not in markdown
     assert 'coupled/my-run.yaml' in markdown
+    assert 'Blue lines show the upstream simulated inflow' in markdown
+    assert 'Gray lines show the common inflow' not in markdown
+    assert 'dashed R-ZONE reference' in markdown
+    assert 'November 1 return is illustrative' in markdown
 
 
 def test_current_figure_manifest_covers_exact_published_bytes():
@@ -161,7 +169,7 @@ def test_current_figure_manifest_covers_exact_published_bytes():
         if path.suffix == '.svg':
             assert all(line == line.rstrip() for line in path.read_text(encoding='utf-8').splitlines())
     assert hashlib.sha256((folder / 'daily.csv').read_bytes()).hexdigest() == (
-        'e29ffa3375d2090611d928c2c06e81550e71ca995bf994d7af6d0a31b2f27b1b')
+        '28330ea4c960a2373c60dd98d04cc6ff9c81667d7cfec494c9750d7357400f85')
 
 
 def test_result_figures_keep_paper_width_fonts_and_editable_labels():
@@ -190,17 +198,17 @@ def test_result_figures_keep_paper_width_fonts_and_editable_labels():
             assert size is not None, 'Every text label needs an explicit size'
             assert float(size.group(1)) >= 9, 'Paper labels must be at least 9 pt'
         labels = ' '.join(''.join(node.itertext()) for node in text_nodes)
-        for method in ('Rule-based', 'LLM without knowledge retrieval',
-                       'LLM with knowledge retrieval'):
+        for method in ('Rule-based', 'LLM without additional operating knowledge',
+                       'LLM with additional operating knowledge'):
             assert method in labels, 'Method labels must remain editable text'
         if stem == 'daily_water_elevation':
             assert 'Winter target: 1300 ft' in labels
             assert 'Summer limit: 1370 ft' in labels
         if stem == 'reservoir_operations':
             assert 'Seasonal reference (schematic)' in labels
-            assert 'Summer upper limit: 1370 ft' in labels
+            assert 'Summer upper limit: 1370 ft' not in labels
         if stem != 'daily_water_elevation':
-            assert 'Common inflow' in labels
+            assert 'Upstream simulated inflow' in labels
         with Image.open(folder / (stem + '.png')) as image:
             assert abs(image.width - 180 / 25.4 * 600) <= 1
             if stem == 'reservoir_operations':
@@ -231,8 +239,8 @@ def test_combined_figure_has_shared_calendar_exact_lines_and_three_release_rows(
 
         expected_labels = [
             'Rule-based',
-            'LLM without knowledge retrieval',
-            'LLM with knowledge retrieval',
+            'LLM without additional operating knowledge',
+            'LLM with additional operating knowledge',
         ]
         data_lines = {line.get_label(): line for line in elevation.lines
                       if line.get_label() in expected_labels}
@@ -241,11 +249,9 @@ def test_combined_figure_has_shared_calendar_exact_lines_and_three_release_rows(
         seasonal = next(line for line in elevation.lines
                         if line.get_label() == 'Seasonal reference (schematic)')
         assert pd.DatetimeIndex(seasonal.get_xdata()).strftime('%m-%d').tolist() == [
-            '01-01', '04-01', '05-10', '10-15', '11-01', '12-31']
+            '01-01', '04-01', '05-15', '10-15', '11-01', '12-31']
         assert list(seasonal.get_ydata()) == [1300, 1300, 1370, 1370, 1300, 1300]
-        guides = {text.get_text(): text for text in elevation.texts}
-        for label in ('Winter target: 1300 ft', 'Summer upper limit: 1370 ft'):
-            assert guides[label].get_fontsize() >= 9
+        assert not elevation.texts, 'Explain target levels in the caption, clear of the curves'
 
         release_limits = [release.get_ylim() for release in release_axes]
         release_ticks = [release.get_yticks() for release in release_axes]
@@ -259,7 +265,8 @@ def test_combined_figure_has_shared_calendar_exact_lines_and_three_release_rows(
             expected_dates = mdates.date2num(pd.to_datetime(expected['date']))
             assert len(release.lines) == 1
             inflow = release.lines[0]
-            assert inflow.get_label() == 'Common inflow'
+            assert inflow.get_label() == 'Upstream simulated inflow'
+            assert mcolors.to_hex(inflow.get_color()) == '#2878b5'
             assert inflow.get_drawstyle() == 'steps-mid'
             np.testing.assert_allclose(
                 mdates.date2num(inflow.get_xdata()), expected_dates, rtol=0, atol=0)
@@ -282,16 +289,30 @@ def test_combined_figure_has_shared_calendar_exact_lines_and_three_release_rows(
             )
             assert not release.texts, 'Method names belong in panel titles, not over the data'
 
-        legends = [*figure.legends, elevation.get_legend(),
-                   *(axis.get_legend() for axis in release_axes)]
-        legend = next(item for item in legends if item is not None)
-        assert [text.get_text() for text in legend.get_texts()] == expected_labels + [
-            'Seasonal reference (schematic)', 'Common inflow']
-        assert min(text.get_fontsize() for text in legend.get_texts()) >= 9
+        assert not figure.legends, 'Keep the figure height available to the four panels'
+        legend = elevation.get_legend()
+        assert [' '.join(text.get_text().split()) for text in legend.get_texts()] == expected_labels + [
+            'Seasonal reference (schematic)']
         figure.canvas.draw()
         renderer = figure.canvas.get_renderer()
-        assert not legend.get_window_extent(renderer).overlaps(
-            elevation.title.get_window_extent(renderer))
+        for axis in axes:
+            legend = axis.get_legend()
+            assert legend is not None
+            assert min(text.get_fontsize() for text in legend.get_texts()) >= 9
+            box = legend.get_window_extent(renderer)
+            panel = axis.get_window_extent(renderer)
+            assert panel.contains(box.x0, box.y0) and panel.contains(box.x1, box.y1)
+            # The transparent legend may span empty space between curves;
+            # its actual text must remain clear of every curve and bar.
+            for text in legend.get_texts():
+                text_box = text.get_window_extent(renderer)
+                for line in axis.lines:
+                    path = line.get_transform().transform_path(line.get_path())
+                    assert not path.intersects_bbox(text_box, filled=False)
+                assert not any(bar.get_window_extent(renderer).overlaps(text_box)
+                               for bar in axis.patches)
+        for release in release_axes:
+            assert [text.get_text() for text in release.get_legend().get_texts()] == ['Upstream simulated inflow']
     finally:
         import matplotlib.pyplot as plt
         plt.close(figure)
