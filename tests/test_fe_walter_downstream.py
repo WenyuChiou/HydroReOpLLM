@@ -71,7 +71,8 @@ def test_spatial_partition_is_nested_and_preserves_area():
 def test_native_kernel_roundoff_is_explicit_and_bounded():
     routing = json.loads((OUTPUT / "routing.json").read_text())
     kernel, adjustment = channel_kernel(routing["flow_length_m"], routing["parameters"])
-    np.testing.assert_array_equal(kernel, routing["unit_hydrograph"])
+    # Allow absolute floating-point roundoff across Windows/Linux libraries.
+    np.testing.assert_allclose(kernel, routing["unit_hydrograph"], rtol=0, atol=2e-15)
     assert min(kernel) >= 0
     assert sum(kernel) == pytest.approx(1, abs=1e-14)
     assert adjustment["negative_roundoff_mass"] < 1e-12
