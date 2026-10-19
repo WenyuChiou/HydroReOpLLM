@@ -199,6 +199,8 @@ def test_result_figures_keep_paper_width_fonts_and_editable_labels():
         if stem == 'reservoir_operations':
             assert 'Seasonal reference (schematic)' in labels
             assert 'Summer upper limit: 1370 ft' in labels
+        if stem != 'daily_water_elevation':
+            assert 'Common inflow' in labels
         with Image.open(folder / (stem + '.png')) as image:
             assert abs(image.width - 180 / 25.4 * 600) <= 1
             if stem == 'reservoir_operations':
@@ -255,6 +257,15 @@ def test_combined_figure_has_shared_calendar_exact_lines_and_three_release_rows(
             method = tuple(builder.LABELS)[index]
             expected = daily.loc[daily['method'] == method].copy()
             expected_dates = mdates.date2num(pd.to_datetime(expected['date']))
+            assert len(release.lines) == 1
+            inflow = release.lines[0]
+            assert inflow.get_label() == 'Common inflow'
+            assert inflow.get_drawstyle() == 'steps-mid'
+            np.testing.assert_allclose(
+                mdates.date2num(inflow.get_xdata()), expected_dates, rtol=0, atol=0)
+            np.testing.assert_allclose(
+                inflow.get_ydata(), expected['inflow_cms'], rtol=0, atol=0)
+            assert max(inflow.get_ydata()) <= release.get_ylim()[1]
             line = data_lines[label]
             np.testing.assert_allclose(line.get_ydata(), expected['pool_elevation_end_ft'],
                                        rtol=0, atol=0)
@@ -275,7 +286,7 @@ def test_combined_figure_has_shared_calendar_exact_lines_and_three_release_rows(
                    *(axis.get_legend() for axis in release_axes)]
         legend = next(item for item in legends if item is not None)
         assert [text.get_text() for text in legend.get_texts()] == expected_labels + [
-            'Seasonal reference (schematic)']
+            'Seasonal reference (schematic)', 'Common inflow']
         assert min(text.get_fontsize() for text in legend.get_texts()) >= 9
         figure.canvas.draw()
         renderer = figure.canvas.get_renderer()
@@ -305,3 +316,32 @@ def test_saved_storage_gap_equals_cumulative_outflow_gap(method):
         rule['storage_end_m3'] - other['storage_end_m3'],
         cumulative_extra_outflow, rtol=0, atol=1e-5,
     )
+
+
+@pytest.mark.parametrize('method', ['rule', 'llm_available', 'llm_knowledge'])
+def test_saved_annual_fluxes_reconstruct_every_storage_state(method):
+    """The accepted 2016 runs have no reservoir evaporation or seepage losses."""
+    import numpy as np
+
+    daily = pd.read_csv(OUTPUTS / 'current_tutorial/daily.csv')
+    rows = daily.loc[daily['method'].eq(method)]
+    summary = json.loads((OUTPUTS / '2016/summary.json').read_text(encoding='utf-8'))
+    starts = np.r_[float(summary['initial_storage_m3']), rows['storage_end_m3'].to_numpy()[:-1]]
+    expected = starts + (
+        rows['inflow_cms'] - rows['controlled_release_cms'] - rows['spill_cms']
+    ).to_numpy() * 86400.0
+    np.testing.assert_allclose(rows['storage_end_m3'], expected, rtol=0, atol=1e-5)
+
+
+@pytest.mark.parametrize('method', ['rule', 'llm_available', 'llm_knowledge'])
+def test_saved_annual_levels_match_the_tabulated_storage_curve(method):
+    """Check all levels independently of the figure's line and bar rendering."""
+    import numpy as np
+
+    daily = pd.read_csv(OUTPUTS / 'current_tutorial/daily.csv')
+    rows = daily.loc[daily['method'].eq(method)]
+    curve = pd.read_csv(ROOT / 'cases/fe_belt_prompton_offline/fe_walter_storage_elevation.csv')
+    expected = np.interp(rows['storage_end_m3'] / 1233.4818,
+                         curve['storage_acft'], curve['elevation_ft_ngvd29'])
+    # The saved engines serialize the acre-foot conversion at different precision.
+    np.testing.assert_allclose(rows['pool_elevation_end_ft'], expected, rtol=0, atol=2e-6)

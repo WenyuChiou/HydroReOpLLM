@@ -54,4 +54,5 @@ and [`results_history.md`](results_history.md) for older experiments.
 **Figure 1.** Saved 2016 operations. (a) Daily end levels (ft NGVD29), with a
 schematic reference that rises from April: 1300 ft winter target and 1370 ft
 summer upper limit. (b–d) Implemented water release (m³/s), excluding spill.
-All panels share operation dates; the three release panels share a flow scale.
+Gray lines show the common inflow on the same flow scale. Bars below the line
+retain water; bars above it draw from storage. All panels share operation dates.

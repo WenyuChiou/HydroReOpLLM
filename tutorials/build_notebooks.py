@@ -68,6 +68,7 @@ def plot_reservoir_operations(daily, seasonal_criteria=None):
 
     The axes share dates but retain separate units. Each method has its own
     release row, preserving the saved daily rates (m³/s), which exclude spill.
+    A shared inflow trace makes retention and drawdown visible beside release.
     Paper exports and the executed tutorial use this same renderer.
     """
     import matplotlib.dates as mdates
@@ -86,7 +87,7 @@ def plot_reservoir_operations(daily, seasonal_criteria=None):
         elevation, *release_axes = axes
         fig.subplots_adjust(left=0.15, right=0.985, bottom=0.095,
                             top=0.85, hspace=0.5)
-        release_max = float(daily["controlled_release_cms"].max()) * 1.08
+        release_max = float(daily[["controlled_release_cms", "inflow_cms"]].max().max()) * 1.08
         release_ticks = MaxNLocator(nbins=3, min_n_ticks=3).tick_values(0, release_max)
         release_max = float(release_ticks[-1])
         for index, (method, label) in enumerate(LABELS.items()):
@@ -101,6 +102,8 @@ def plot_reservoir_operations(daily, seasonal_criteria=None):
             release.bar(dates, rows["controlled_release_cms"], width=0.72,
                         color=color, linewidth=0, edgecolor="none",
                         antialiased=False, snap=False, zorder=3)
+            release.plot(dates, rows["inflow_cms"], color="#4C5155", linewidth=0.8,
+                         drawstyle="steps-mid", label="Common inflow", zorder=4)
             release.set(ylim=(0, release_max), yticks=release_ticks,
                         ylabel="Water release\n(m³/s)")
             release.set_title(f"({chr(98 + index)}) Water release ({label})", loc="left", fontweight="bold")
@@ -132,8 +135,10 @@ def plot_reservoir_operations(daily, seasonal_criteria=None):
             mdates.MonthLocator(bymonth=(1, 3, 5, 7, 9, 11)))
         release_axes[-1].xaxis.set_major_formatter(mdates.DateFormatter("%b"))
         handles, labels = elevation.get_legend_handles_labels()
+        handles.append(release_axes[0].lines[0])
+        labels.append("Common inflow")
         fig.legend(handles, labels, loc="upper center", bbox_to_anchor=(0.5, 0.995),
-                   ncol=3, frameon=False, fontsize=9, handlelength=2.1,
+                   ncol=2, frameon=False, fontsize=9, handlelength=2.1,
                    columnspacing=1.0, handletextpad=0.55)
         return fig
 
@@ -275,14 +280,18 @@ def _prepare_current_outputs() -> dict:
 
     fig, axes = plt.subplots(3, 1, figsize=(paper_width_mm / 25.4, 125 / 25.4),
                              sharex=True, sharey=True, layout="constrained")
-    ymax = float(combined["controlled_release_cms"].max()) * 1.04
+    ymax = float(combined[["controlled_release_cms", "inflow_cms"]].max().max()) * 1.04
     for panel, (ax, (label, group)) in enumerate(zip(
             axes, combined.groupby("method_label", sort=False), strict=True)):
         ax.bar(pd.to_datetime(group["date"]), group["controlled_release_cms"],
                width=1, color=colors[label], linewidth=0)
+        ax.plot(pd.to_datetime(group["date"]), group["inflow_cms"],
+                color="#4C5155", linewidth=0.8, drawstyle="steps-mid",
+                label="Common inflow")
         ax.set(ylabel="Release (m³/s)", ylim=(0, ymax),
                xlim=(pd.Timestamp(dates[0]), pd.Timestamp(dates[-1])))
         ax.set_title(f"({chr(97 + panel)}) {label}", loc="left", fontweight="bold", pad=4)
+    axes[0].legend(frameon=False, loc="upper right", fontsize=9)
     axes[-1].set_xlabel("2016")
     axes[-1].xaxis.set_major_locator(mdates.MonthLocator(interval=2))
     axes[-1].xaxis.set_major_formatter(mdates.DateFormatter("%b"))
@@ -307,6 +316,7 @@ def _prepare_current_outputs() -> dict:
                                      **{chr(98 + index): f"Water release ({label})"
                                         for index, label in enumerate(LABELS.values())}},
                           "release_bar_width_days": 0.72,
+                          "common_inflow": "Gray daily step trace on every release panel; same flow units and dates.",
                           "method_colors": METHOD_COLORS,
                           "seasonal_reference": (
                               "Schematic from seasonal_pool_criteria.json; plotting convention holds "
@@ -429,7 +439,8 @@ framework LLM rows from `outputs/gemma4_2016_comparison/daily.csv`. It verifies
 units. It performs no interpolation. Four panels share operation dates:
 (a) end-of-day water elevation in feet NGVD 29; (b–d) daily water release in m³/s,
 one method per panel. Water release means implemented controlled release and
-excludes spill. All three release axes use the same scale.
+excludes spill. Gray lines show the common inflow on the same flow scale.
+Release below inflow retains water; release above inflow draws from storage.
 The winter target is 1300 ft (1297–1303 ft on November 1–March 14); the summer
 limit is 1370 ft on May 10–October 14. These guides are study criteria, not
 constraints imposed on each release.'''),
