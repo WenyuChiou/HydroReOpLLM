@@ -102,11 +102,12 @@ class Visual:
             "KGE": "KGE",
         }
         indicators = {}
-        indicators["r"] = Indicator.r(x_obv, y_sim)
-        indicators["r2"] = Indicator.r2(x_obv, y_sim)
-        indicators["rmse"] = Indicator.rmse(x_obv, y_sim)
-        indicators["NSE"] = Indicator.NSE(x_obv, y_sim)
-        indicators["KGE"] = Indicator.KGE(x_obv, y_sim)
+        # Project patch: use the public Indicator API shipped by this upstream commit.
+        indicators["r"] = Indicator.get_r(x_obv, y_sim)
+        indicators["r2"] = Indicator.get_r2(x_obv, y_sim)
+        indicators["rmse"] = Indicator.get_rmse(x_obv, y_sim)
+        indicators["NSE"] = Indicator.get_nse(x_obv, y_sim)
+        indicators["KGE"] = Indicator.get_kge(x_obv, y_sim)
 
         string = "\n".join(
             [

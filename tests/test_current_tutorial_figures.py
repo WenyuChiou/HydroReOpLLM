@@ -13,6 +13,24 @@ OUTPUTS = ROOT / 'examples/fe_walter/coupled/outputs'
 CRITERIA = ROOT / 'examples/fe_walter/seasonal_pool_criteria.json'
 
 
+def _temporary_builder(tmp_path):
+    spec = importlib.util.spec_from_file_location(
+        'temporary_current_figure_builder', ROOT / 'tutorials/build_notebooks.py')
+    builder = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(builder)
+    builder.ROOT = tmp_path
+    builder.CURRENT = tmp_path / 'new-teaching-output'
+    builder.SEASONAL_CRITERIA = tmp_path / 'examples/fe_walter/seasonal_pool_criteria.json'
+    relative = Path('examples/fe_walter/coupled/outputs')
+    for name in ('2016/daily.csv', '2016/summary.json', 'gemma4_2016_comparison/daily.csv'):
+        destination = tmp_path / relative / name
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(OUTPUTS / name, destination)
+    builder.SEASONAL_CRITERIA.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(CRITERIA, builder.SEASONAL_CRITERIA)
+    return builder
+
+
 def test_current_tutorial_rows_are_exact_saved_framework_and_rule_rows():
     current = pd.read_csv(OUTPUTS / 'current_tutorial/daily.csv')
     prior = pd.read_csv(OUTPUTS / '2016/daily.csv')
@@ -37,16 +55,8 @@ def test_current_tutorial_rows_are_exact_saved_framework_and_rule_rows():
     'nan_inflow', 'nan_initial_storage', 'nan_elevation', 'infinite_release', 'nan_summary',
 ])
 def test_current_tutorial_rejects_unmatched_saved_inputs(tmp_path, corruption):
-    spec = importlib.util.spec_from_file_location('current_figure_validation', ROOT / 'tutorials/build_notebooks.py')
-    builder = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(builder)
-    builder.ROOT = tmp_path
-    builder.CURRENT = tmp_path / 'new-teaching-output'
+    builder = _temporary_builder(tmp_path)
     relative = Path('examples/fe_walter/coupled/outputs')
-    for name in ('2016/daily.csv', '2016/summary.json', 'gemma4_2016_comparison/daily.csv'):
-        destination = tmp_path / relative / name
-        destination.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copyfile(OUTPUTS / name, destination)
     path = tmp_path / relative / 'gemma4_2016_comparison/daily.csv'
     daily = pd.read_csv(path)
     index = daily.index[(daily['engine'] == 'framework') & (daily['method'] == 'llm_knowledge')][0]
@@ -70,6 +80,43 @@ def test_current_tutorial_rejects_unmatched_saved_inputs(tmp_path, corruption):
     with pytest.raises((AssertionError, ValueError)):
         builder._prepare_current_outputs()
     assert not builder.CURRENT.exists(), 'Validation must fail before publishing figures'
+
+
+def test_secondary_formats_never_reuse_stale_source_or_renderer_outputs(tmp_path, monkeypatch):
+    from matplotlib.figure import Figure
+
+    builder = _temporary_builder(tmp_path)
+    secondary = [
+        f'{stem}.{ext}'
+        for stem in ('daily_water_elevation', 'controlled_release_daily')
+        for ext in ('png', 'svg', 'pdf')
+    ]
+    marker = {'value': 'renderer-v1'}
+
+    def fake_savefig(_figure, path, **_kwargs):
+        Path(path).write_text(f"{marker['value']}:{Path(path).name}\n", encoding='utf-8')
+
+    monkeypatch.setattr(Figure, 'savefig', fake_savefig)
+    builder._prepare_current_outputs()
+    assert all((builder.CURRENT / name).read_text().startswith('renderer-v1:') for name in secondary)
+
+    # A valid source change must not leave any of the six prior files in place.
+    source = tmp_path / 'examples/fe_walter/coupled/outputs/gemma4_2016_comparison/daily.csv'
+    frame = pd.read_csv(source)
+    row = frame.index[(frame['engine'] == 'framework') & (frame['method'] == 'llm_knowledge')][0]
+    frame.loc[row, 'pool_elevation_end_ft'] += 0.01
+    frame.to_csv(source, index=False)
+    for name in secondary:
+        (builder.CURRENT / name).write_text('stale-source', encoding='utf-8')
+    builder._prepare_current_outputs()
+    assert all((builder.CURRENT / name).read_text().startswith('renderer-v1:') for name in secondary)
+
+    # A renderer/settings revision likewise replaces every format.
+    marker['value'] = 'renderer-v2'
+    for name in secondary:
+        (builder.CURRENT / name).write_text('stale-renderer', encoding='utf-8')
+    builder._prepare_current_outputs()
+    assert all((builder.CURRENT / name).read_text().startswith('renderer-v2:') for name in secondary)
 
 
 def test_tutorial_check_rejects_changed_source_pins(monkeypatch):

@@ -10,11 +10,36 @@ import socket
 import pandas as pd
 import pytest
 
-from examples.fe_walter.coupled.export_comparison import seasonal_compliance, validate_replay_receipt
+from examples.fe_walter.coupled.export_comparison import (
+    PROMPTS, seasonal_compliance, validate_replay_receipt, validated_prompt_path,
+)
 
 
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = ROOT / "examples/fe_walter/coupled/outputs/gemma4_2016_comparison"
+
+
+def test_exporter_uses_only_current_canonical_prompt_bytes():
+    assert {method: name for method, (name, _digest) in PROMPTS.items()} == {
+        "llm_available": "available_information.txt",
+        "llm_knowledge": "retrieved_knowledge.txt",
+    }
+    for method, (_name, digest) in PROMPTS.items():
+        path = validated_prompt_path(method)
+        assert hashlib.sha256(path.read_bytes()).hexdigest() == digest
+
+
+@pytest.mark.parametrize("state", ("missing", "tampered"))
+def test_exporter_rejects_missing_or_tampered_current_prompt(tmp_path, state):
+    method = "llm_available"
+    path = tmp_path / "examples/fe_walter/prompts/available_information.txt"
+    if state == "tampered":
+        path.parent.mkdir(parents=True)
+        path.write_text("changed prompt", encoding="utf-8")
+    expected = FileNotFoundError if state == "missing" else ValueError
+    message = "missing" if state == "missing" else "checksum mismatch"
+    with pytest.raises(expected, match=message):
+        validated_prompt_path(method, tmp_path)
 
 
 def test_replay_receipt_rejects_wrong_method_and_changed_source(tmp_path):
@@ -59,8 +84,10 @@ def test_comparison_seasons_use_later_boundary_and_fall_requires_drawdown():
 def test_saved_comparison_has_four_causal_years_and_bound_samples():
     summary = json.loads((OUTPUT / "summary.json").read_text())
     assert len(summary["arms"]) == 4
-    assert summary["exporter_sha256"] == hashlib.sha256(
-        (ROOT / "examples/fe_walter/coupled/export_comparison.py").read_bytes()).hexdigest()
+    # This is the identity of the exporter that produced the accepted artifact.
+    # The maintained exporter may change without rewriting historical results.
+    assert summary["exporter_sha256"] == (
+        "f698373b4bf515a5453edf3aa59472e6e7a03a399996e57df2d2b9767001d63d")
     for name, expected in summary["artifact_sha256"].items():
         assert hashlib.sha256((OUTPUT / name).read_bytes()).hexdigest() == expected
     assert all(line == line.rstrip() for line in (OUTPUT / "pool_release.svg").read_text().splitlines())

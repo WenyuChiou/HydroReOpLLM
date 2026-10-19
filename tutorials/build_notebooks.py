@@ -165,6 +165,18 @@ def _sha(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def _save_figure_formats(fig, stem: str, figures: list[Path], raster_dpi: int) -> None:
+    """Regenerate every format so provenance cannot describe stale figures."""
+    for ext in ("png", "svg", "pdf"):
+        path = CURRENT / f"{stem}.{ext}"
+        fig.savefig(path, **({"dpi": raster_dpi} if ext == "png" else {}))
+        if ext == "svg":
+            path.write_bytes(("\n".join(
+                line.rstrip() for line in path.read_text(encoding="utf-8").splitlines()
+            ) + "\n").encode("utf-8"))
+        figures.append(path)
+
+
 def _prepare_current_outputs() -> dict:
     """Combine the three approved saved arms and render teaching figures."""
     import matplotlib.dates as mdates
@@ -258,15 +270,7 @@ def _prepare_current_outputs() -> dict:
     ax.legend(frameon=False, loc="center", fontsize=10.5)
     ax.xaxis.set_major_locator(mdates.MonthLocator(interval=2))
     ax.xaxis.set_major_formatter(mdates.DateFormatter("%b"))
-    for ext in ("png", "svg", "pdf"):
-        path = CURRENT / f"daily_water_elevation.{ext}"
-        if path.exists():
-            figures.append(path)
-            continue
-        fig.savefig(path, **({"dpi": raster_dpi} if ext == "png" else {}))
-        if ext == "svg":
-            path.write_bytes(("\n".join(line.rstrip() for line in path.read_text(encoding="utf-8").splitlines()) + "\n").encode("utf-8"))
-        figures.append(path)
+    _save_figure_formats(fig, "daily_water_elevation", figures, raster_dpi)
     plt.close(fig)
 
     fig, axes = plt.subplots(3, 1, figsize=(paper_width_mm / 25.4, 125 / 25.4),
@@ -282,24 +286,11 @@ def _prepare_current_outputs() -> dict:
     axes[-1].set_xlabel("2016")
     axes[-1].xaxis.set_major_locator(mdates.MonthLocator(interval=2))
     axes[-1].xaxis.set_major_formatter(mdates.DateFormatter("%b"))
-    for ext in ("png", "svg", "pdf"):
-        path = CURRENT / f"controlled_release_daily.{ext}"
-        if path.exists():
-            figures.append(path)
-            continue
-        fig.savefig(path, **({"dpi": raster_dpi} if ext == "png" else {}))
-        if ext == "svg":
-            path.write_bytes(("\n".join(line.rstrip() for line in path.read_text(encoding="utf-8").splitlines()) + "\n").encode("utf-8"))
-        figures.append(path)
+    _save_figure_formats(fig, "controlled_release_daily", figures, raster_dpi)
     plt.close(fig)
 
     fig = plot_reservoir_operations(combined, seasonal_criteria)
-    for ext in ("png", "svg", "pdf"):
-        path = CURRENT / f"reservoir_operations.{ext}"
-        fig.savefig(path, **({"dpi": raster_dpi} if ext == "png" else {}))
-        if ext == "svg":
-            path.write_bytes(("\n".join(line.rstrip() for line in path.read_text(encoding="utf-8").splitlines()) + "\n").encode("utf-8"))
-        figures.append(path)
+    _save_figure_formats(fig, "reservoir_operations", figures, raster_dpi)
     plt.close(fig)
 
     manifest = {
