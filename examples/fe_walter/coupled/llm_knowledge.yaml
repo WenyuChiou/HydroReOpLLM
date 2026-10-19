@@ -6,7 +6,7 @@ end_date: '2016-12-31'                          # Last operation day (included).
 run_id: fe-walter-current-llm_knowledge         # Label recorded in run metadata.
 # Actual folder; change with run_id.
 output: ../../../runs/fe-walter-current-llm_knowledge
-max_calls: null  # No run-wide provider-attempt cap; each profile still limits per-decision tries.
+max_calls: null                                 # No run-wide provider-attempt cap; each profile still limits per-decision tries.
 # Model, audit, agent and hydrology files remain distinct reusable layers.
 models:
   file: models.yaml
@@ -17,4 +17,4 @@ agents:
 hydrology:
   file: hydrology.yaml
 extensions:
-  reference_v3_7: ../extensions/__init__.py  # Backend that interprets the agent parameters.
+  reference_v3_7: ../extensions/__init__.py     # Backend that interprets the agent parameters.

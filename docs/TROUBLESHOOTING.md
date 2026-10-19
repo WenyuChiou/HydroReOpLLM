@@ -50,5 +50,5 @@ assume an unrecorded reply means that the provider never received the request.
 
 Use [HydroCNHS tutorials](https://github.com/cylin928/HydroCNHS/tree/main/tutorials)
 for basin construction, runoff/routing parameters and calibration. Use the
-[FE Walter walkthrough](../tutorials/fe_walter.md) for this package's settings,
+[FE Walter walkthrough](../tutorials/README.md) for this package's settings,
 prompts and operation loop.

@@ -1,5 +1,7 @@
 """Published canonical files and the downloadable bundle retain source bytes."""
 import importlib.util
+import html
+import json
 from pathlib import Path
 import zipfile
 
@@ -48,14 +50,14 @@ def test_download_archive_keeps_every_declared_source_and_safe_relative_paths(pr
             assert bundle.read(name) == source.read_bytes(), name
 
 
-def test_fe_walter_walkthrough_publishes_the_actual_configuration(prepared_manual):
-    """Readers can reach the walkthrough and copy the maintained experiment bytes."""
+def test_fe_walter_guide_links_the_notebook_and_preserves_configuration(prepared_manual):
+    """The concise manual links the repository lesson and keeps exact downloads."""
     _, output = prepared_manual
-    page = 'tutorials/fe_walter.md'
+    page = 'tutorials/main.md'
     assert (output / page).is_file()
-    assert 'tutorials/fe_walter' in (output / 'index.md').read_text(encoding='utf-8')
+    assert 'tutorials/main' in (output / 'index.md').read_text(encoding='utf-8')
     navigation = (output / '_templates/navigation.html').read_text(encoding='utf-8')
-    assert "chapter('tutorials/fe_walter'" in navigation
+    assert "chapter('tutorials/main'" in navigation
     text = (output / page).read_text(encoding='utf-8')
     assets = (
         'coupled/experiment.yaml', 'coupled/llm_available.yaml',
@@ -69,22 +71,16 @@ def test_fe_walter_walkthrough_publishes_the_actual_configuration(prepared_manua
         assert (output / relative).read_bytes() == (ROOT / relative).read_bytes(), relative
         download = output / '_config_downloads' / Path(name).name
         assert download.read_bytes() == (ROOT / relative).read_bytes(), relative
-    # Literalinclude directives must resolve from the canonical tutorial's location.
-    import re
-    includes = re.findall(r'\{literalinclude\}\s+(\S+)', text)
-    assert '../examples/fe_walter/coupled/experiment.yaml' in includes
-    assert '../examples/fe_walter/coupled/agents.rule.yaml' in includes
-    assert '../examples/fe_walter/coupled/agents.llm_available.yaml' in includes
-    assert '../examples/fe_walter/coupled/agents.llm_knowledge.yaml' in includes
-    assert '../examples/fe_walter/coupled/models.yaml' in includes
-    assert '../examples/fe_walter/prompts/available_information.txt' in includes
-    assert '../examples/fe_walter/prompts/retrieved_knowledge.txt' in includes
-    for name in includes:
-        published = (output / page).parent / name
-        source = (ROOT / page).parent / name
-        assert published.read_bytes() == source.read_bytes(), name
+    assert '/tree/codex%2Fweather-operation-entry/tutorials' in text
+    assert '/blob/codex%2Fweather-operation-entry/tutorials/main.ipynb' in text
+    assert '{literalinclude}' not in text
+    notebook = json.loads((output / '_notebook_downloads/main.ipynb').read_text(encoding='utf-8'))
+    displayed = '\n'.join(''.join(o.get('data', {}).get('text/html', []))
+                          for c in notebook['cells'] for o in c.get('outputs', []))
+    for name in assets:
+        assert html.escape((ROOT / 'examples/fe_walter' / name).read_text(encoding='utf-8')) in displayed
     landing = (output / 'examples/fe_walter/configuration.md').read_text(encoding='utf-8')
-    assert '../../tutorials/fe_walter.md' in landing
+    assert '/tutorials/README.md' in landing
     assert '{literalinclude}' not in landing
 
 
@@ -139,6 +135,6 @@ def test_current_2016_exports_are_local_exact_and_do_not_replace_history(prepare
             assert '](' + href + ')' in text, (page, name)
     # The maintained tutorial must download the same combined rows as its figures,
     # while the separate historical namespace above remains byte-preserved.
-    tutorial = (output / 'tutorials/fe_walter.md').read_text(encoding='utf-8')
+    tutorial = (output / 'tutorials/main.md').read_text(encoding='utf-8')
     assert '[daily.csv](../_tutorial_downloads/daily.csv)' in tutorial
     assert '[daily.csv](../_completed_downloads/2016-daily.csv)' not in tutorial

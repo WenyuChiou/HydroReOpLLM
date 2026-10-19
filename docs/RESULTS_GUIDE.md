@@ -44,7 +44,7 @@ method used the intended inflow, initial state and reservoir parameters.
 Verification checks saved records and numerical consistency. Seasonal operation
 performance must be evaluated separately; a completed run can miss a target.
 
-The [results notebook](../tutorials/main.ipynb) reads saved data and reproduces
+The [results notebook](../tutorials/README.md) reads saved data and reproduces
 one combined teaching figure without running a model or hydrology. Panel (a)
 compares 2016 end-of-day water elevation in ft NGVD29, with a target pool elevation reference
 that switches vertically between 1300 and 1370 ft on May 15 and October 15.

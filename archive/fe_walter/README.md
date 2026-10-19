@@ -46,7 +46,7 @@ The earlier method YAMLs, prompt snapshots and annual preparation script are
 preserved in `HydroOpsLLM-case-entries-cleanup-20261018-5696dc1` outside this
 repository under `../_recovery/`. The ZIP's 34 files were restored and checked byte
 for byte; the Git bundle was verified before retirement. Historical result files
-remain in the repository. The maintained entry is the [coupled tutorial](../../tutorials/fe_walter.md).
+remain in the repository. The maintained entry is the [coupled tutorial](../../tutorials/README.md).
 
 | Artifact | SHA256 |
 |---|---|

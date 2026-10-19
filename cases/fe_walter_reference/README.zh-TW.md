@@ -2,7 +2,7 @@
 
 [English](README.md) | [繁體中文](README.zh-TW.md)
 
-新研究請依照[目前 FE Walter 教學](../../tutorials/fe_walter.md)設定。
+新研究請依照[目前 FE Walter 教學](../../tutorials/README.md)設定。
 此目錄提供介面測試使用的短期合成資料。
 框架使用案例自己的訊息組合與解析程式；選用的原版程式由 repo 外經雜湊驗證的來源載入。
 

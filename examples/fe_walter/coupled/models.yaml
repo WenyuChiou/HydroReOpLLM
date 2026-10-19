@@ -1,7 +1,7 @@
 # Shared provider profile. Agents select it with model_profile: reservoir_model.
-reservoir_model:  # Reusable profile ID, separate from the provider's model name.
+reservoir_model:                    # Reusable profile ID, separate from the provider's model name.
   provider: ollama                  # Local Ollama HTTP protocol.
-  model: gemma4:12b                 # Exact model tag already installed in Ollama.
+  model: gemma4:12b                 # Required model tag; install it before a live run.
   base_url: http://localhost:11434  # Ollama server root; the loader adds /api/chat.
   temperature: 0.7                  # Dimensionless sampling control (0 to 2).
   max_tokens: 2048                  # Maximum generated tokens; sent to Ollama as num_predict.

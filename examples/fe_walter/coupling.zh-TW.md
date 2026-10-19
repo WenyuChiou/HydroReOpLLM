@@ -2,7 +2,7 @@
 
 [English](coupling.md) | [繁體中文](coupling.zh-TW.md) · [案例](README.zh-TW.md)
 
-先閱讀[目前的 FE Walter 教學](../../tutorials/fe_walter.md)，再在此跟著一天的決策查看共同模擬。
+先閱讀[目前的 FE Walter 教學](../../tutorials/README.md)，再在此跟著一天的決策查看共同模擬。
 三種方法改變決策來源，水庫物理與 routing 使用相同介面。
 
 ## 1. 目前範例執行什麼

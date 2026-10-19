@@ -11,4 +11,4 @@ inflow_bindings:
   FEW_INFLOW:
     routed: __AGGREGATION_OUTLET__  # Routed HydroCNHS outlet feeding FE Walter.
   Downstream:
-    constant: 0  # Explicit zero local lateral inflow; upstream release is routed separately.
+    constant: 0                     # Explicit zero local lateral inflow; upstream release is routed separately.

@@ -18,7 +18,7 @@ The FE Walter example assumes initial storage of 2,457,848.279729185 m³,
 zero reservoir losses and identity downstream routing. Its retained prompt
 reports 110,700 acre-ft capacity, while the physical profile uses 109,878 acre-ft;
 this source discrepancy is preserved for case reproduction. Its approved
-seasonal targets are in the [current tutorial](../tutorials/fe_walter.md).
+seasonal targets are in the [current tutorial](../tutorials/README.md).
 
 Valid replies and balanced water do not establish effective operation. Eligible
 request/reply failures use the configured retry limit. Operation-target misses

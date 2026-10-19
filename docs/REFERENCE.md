@@ -53,7 +53,7 @@ identify its pinned implementation, statistics period and differential tests.
 
 ## Tutorials and maintenance
 
-Read the [main tutorial](../tutorials/main.ipynb) or
+Read the [main tutorial](../tutorials/README.md) or
 [multiple-reservoir tutorial](../tutorials/advanced.ipynb) online, or download
 the original notebooks:
 

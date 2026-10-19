@@ -140,7 +140,9 @@ def test_main_notebook_has_exactly_one_combined_result_figure():
                if 'image/png' in out.get('data', {})]
     assert len(figures) == 1
     markdown = '\n'.join(''.join(cell['source']) for cell in notebook['cells'] if cell['cell_type'] == 'markdown')
-    assert 'outputs/current_tutorial/reservoir_operations.png' not in markdown
+    # A download link is useful; a second inline copy would duplicate the output.
+    import re
+    assert not re.search(r'!\[[^\]]*\]\([^)]*outputs/current_tutorial/reservoir_operations\.png', markdown)
     assert 'outputs/current_tutorial/daily_water_elevation.png' not in markdown
     assert 'outputs/current_tutorial/controlled_release_daily.png' not in markdown
     assert 'coupled/my-run.yaml' in markdown

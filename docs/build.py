@@ -136,9 +136,6 @@ PAGES = {
     **{f"examples/fe_walter/{method}/{name}": f"examples/fe_walter/{method}/{name}"
        for method in ("benchmark", "zero_shot", "dkp")
        for name in ("README.md", "README.zh-TW.md")},
-    "tutorials/README.md": "tutorials/README.md",
-    "tutorials/README.zh-TW.md": "tutorials/README.zh-TW.md",
-    "tutorials/fe_walter.md": "tutorials/fe_walter.md",
     "examples/fe_walter/notebook.md": "tutorials/main.md",
     "tutorials/advanced.ipynb": "tutorials/advanced.ipynb",
     "archive/README.md": "archive/README.md",
@@ -252,6 +249,13 @@ def prepare(source: Path, *, source_ref: str = "main") -> None:
                     'src="_static/hydroopslm-logo.svg"',
                 )
             target.write_text(text, encoding="utf-8")
+    # Preserve old bookmarks without maintaining a second tutorial in Markdown.
+    (source / "tutorials/fe_walter.md").write_text(
+        "---\norphan: true\n---\n\n# F.E. Walter tutorial\n\n"
+        "[Open the outputs and notebook guide](main.md).\n\n"
+        "```{raw} html\n<meta http-equiv=\"refresh\" content=\"0; url=main.html\">\n```\n",
+        encoding="utf-8",
+    )
     # Keep a readable manual hierarchy; notebooks are also downloadable as original bytes.
     downloads = source / "_notebook_downloads"
     downloads.mkdir()
@@ -364,7 +368,7 @@ def prepare(source: Path, *, source_ref: str = "main") -> None:
         "Overview and installation": ["docs/README", "docs/GETTING_STARTED"],
         "Configuration": ["docs/INPUT_OUTPUT", "docs/GLOBAL_SETTINGS", "docs/HYDROLOGY_SETUP",
                           "docs/BUILD_SIMULATION", "docs/CONFIGURATION", "docs/RUNNING"],
-        "Case studies": ["docs/CASE_STUDIES", "examples/fe_walter/README", "tutorials/fe_walter", "tutorials/main"],
+        "Case studies": ["docs/CASE_STUDIES", "examples/fe_walter/README", "tutorials/main"],
         "Results": ["docs/RESULTS_GUIDE", "examples/fe_walter/results"],
         "Troubleshooting": ["docs/TROUBLESHOOTING"],
         "API and reference": ["docs/API_REFERENCE", "docs/PARAMETER_REFERENCE", "docs/REFERENCE", "docs/USER_GUIDE",
@@ -376,7 +380,7 @@ def prepare(source: Path, *, source_ref: str = "main") -> None:
                               "examples/fe_walter/coupled/README", "examples/fe_walter/coupling", "examples/fe_walter/annual/README",
                               *[f"examples/fe_walter/{method}/README" for method in ("benchmark", "zero_shot", "dkp")],
                               "examples/fe_walter/annual/decision_2016_01_01", "examples/fe_walter/annual/results",
-                              "tutorials/README", "docs/MULTI_RESERVOIR", "tutorials/advanced"],
+                              "docs/MULTI_RESERVOIR", "tutorials/advanced"],
         "Historical research": ["examples/fe_walter/results_history"],
         "繁體中文": [path.rsplit(".", 1)[0] for path in PAGES.values()
                    if "zh-TW" in path],

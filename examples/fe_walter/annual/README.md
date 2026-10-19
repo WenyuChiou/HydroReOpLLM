@@ -1,6 +1,6 @@
 # Earlier annual attempt
 
-This page preserves an earlier diagnostic run. Use the [current tutorial](../../../tutorials/fe_walter.md)
+This page preserves an earlier diagnostic run. Use the [current tutorial](../../../tutorials/README.md)
 for configuration and the [2016 results](../results.md) for the maintained three-method comparison.
 
 The saved LLM attempt committed **169 days**, through 17 June 2016. Its 170th

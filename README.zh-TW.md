@@ -63,8 +63,8 @@ reservoir-experiment check examples/fe_walter/coupled/experiment.yaml
 規則式設定採用 Hanasaki 操作規則；LLM 設定則提供季節水位操作資訊。
 [結果指南](examples/fe_walter/results.zh-TW.md)說明這些操作目標的差異。
 
-依序閱讀 [F.E. Walter 教學](tutorials/fe_walter.md)、檢視可執行的
-[主要筆記本](tutorials/main.ipynb)，或閱讀[已儲存結果指南](examples/fe_walter/results.zh-TW.md)。
+依序操作 [F.E. Walter notebook 教學](tutorials/README.md)，從 `experiment.yaml`
+讀到保存的全年結果，或閱讀[結果指南](examples/fe_walter/results.zh-TW.md)。
 已提交的[每日比較資料](examples/fe_walter/coupled/outputs/current_tutorial/daily.csv)與
 [來源紀錄](examples/fe_walter/coupled/outputs/current_tutorial/provenance.json)可直接檢視，無須重新模擬或呼叫 LLM。
 

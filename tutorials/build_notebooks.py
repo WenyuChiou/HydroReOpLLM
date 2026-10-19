@@ -395,120 +395,388 @@ def code(source: str) -> dict:
 
 
 def main_cells() -> list[dict]:
+    return _walkthrough_cells()
+
+
+def _walkthrough_cells() -> list[dict]:
+    """Build the canonical FE Walter lesson from the actual configuration files.
+
+    File contents are read during notebook execution, so saved teaching outputs
+    and the downloadable settings have one source. Execution only loads settings
+    and saved results; the run commands remain Markdown instructions.
+    """
+    setup = code(SETUP + '''
+def show_file(name, *, expanded=True):
+    # Resolve example paths from the repository root in any notebook working directory.
+    path = ROOT / name
+    text = path.read_text(encoding="utf-8")
+    class FileContents:
+        def __repr__(self):
+            return text
+        def _repr_html_(self):
+            content = f'<pre class="prompt-text config-source">{html.escape(text)}</pre>'
+            if expanded:
+                return content
+            return f'<details><summary>{html.escape(path.name)} — complete text</summary>{content}</details>'
+    display(FileContents())
+
+coupled = ROOT / "examples/fe_walter/coupled"
+''')
+    setup["metadata"]["tags"] = ["hide-input"]
     return [
-        md('''# F.E. Walter: from weather to a daily reservoir decision
+        md('''# F.E. Walter: configure a reservoir simulation
 
-Follow the maintained 2016 configuration from `experiment.yaml` through
-hydrology, the reservoir network, a Rule-based operator, and the two LLM
-methods: **Rule-based**, **LLM without additional operating knowledge**, and **LLM with additional operating knowledge**. All three use the same inflow, initial state, and physical parameters.
+## Goal
 
-This notebook reads committed files only. It makes no model request and runs no
-hydrology or reservoir simulation.
+Start with `experiment.yaml`, follow its file references, and change the reservoir
+operator from **Rule-based** to either **LLM without additional operating knowledge**
+or **LLM with additional operating knowledge**. Then inspect the saved 2016 results.
 
-Read the flow from weather through HydroCNHS to saved inflow, then reservoir operations.
+Read the notebook in order:
 
-![Weather to inflow workflow](../docs/figures/fe-walter-weather-workflow.svg)
+1. [Experiment](#1-start-with-experimentyaml)
+2. [Hydrology](#2-connect-hydrology)
+3. [Reservoir and network](#3-define-the-reservoir-and-water-connections)
+4. [Rule-based operator and audit](#4-assign-the-rule-based-operator)
+5. [LLM operator](#5-switch-to-an-llm-operator)
+6. [Model settings](#6-set-the-model-parameters)
+7. [Prompts and knowledge](#7-read-the-prompts-and-operating-knowledge)
+8. [Check settings](#8-check-the-three-configurations)
+9. [Run instructions](#9-run-your-own-experiment)
+10. [Saved results](#10-read-the-saved-2016-results)
 
-[Maintained walkthrough](fe_walter.md) · [Current results](../examples/fe_walter/coupled/README.md#current-saved-2016-results)'''),
-        md("## Setup"), code(SETUP),
-        md('''## 1. Start from the experiment file
+## Setup
 
-The entry names the physical case, dates, output, agent file, hydrology file,
-auditors, and extensions. The LLM entries change the agent and add a model
-profile while retaining the same physical case and hydrology.'''),
-        code('''coupled = ROOT / "examples/fe_walter/coupled"
-current_config = coupled
-for title, name in (("Rule-based entry", "experiment.yaml"),
-                    ("LLM without additional operating knowledge entry", "llm_available.yaml"),
-                    ("LLM with additional operating knowledge entry", "llm_knowledge.yaml")):
-    display(ReadableText(title, (current_config / name).read_text(encoding="utf-8")))'''),
-        md('''## 2. Follow hydrology into the reservoir network
+Complete [installation](../docs/GETTING_STARTED.md) in a local clone. Install JupyterLab in that
+environment with `python -m pip install jupyterlab`. Open `tutorials/main.ipynb` in Jupyter or VS Code,
+select that Python environment, and run cells from top to bottom. Keep the notebook
+inside the clone so its relative file links work.
 
-The accepted HydroCNHS model turns prepared weather and catchment inputs into
-daily inflow. `hydrology.yaml` binds routed flow to `FEW_INFLOW`.
-`reservoirs.json` maps it to node `FEWalter`, with physical case ID `fe_walter`.
-Agent `fe_operator` must name graph node `FEWalter`.
+This lesson reads settings and saved data. It makes no model request and runs no
+hydrology or reservoir simulation. Ollama is needed only when you later choose to
+run an LLM experiment. Open the setup cell below to inspect imports and file helpers.
 
-![Reservoir and agent mapping](../docs/figures/reservoir-agent-mapping.svg)'''),
-        code('''hydrology = (coupled / "hydrology.yaml").read_text(encoding="utf-8")
+[Example folder](../examples/fe_walter/) · [Site and data](../examples/fe_walter/README.md)'''),
+        setup,
+        md('''## 1. Start with experiment.yaml
+
+The experiment file connects the other settings. Begin with the Rule-based entry:
+[experiment.yaml](../examples/fe_walter/coupled/experiment.yaml), in the
+[coupled folder](../examples/fe_walter/coupled/). The next cell displays the complete
+file, including its comments. File paths are resolved relative to the file that
+declares them.'''),
+        code('''show_file("examples/fe_walter/coupled/experiment.yaml")'''),
+        md('''| Field | What to enter and why |
+|---|---|
+| `schema_version` | Required settings format accepted by the loader; independent of the package version. Keep this value. |
+| `run_id` | A label recorded with the run. Choose a new label for a new experiment. |
+| `case` | Path to the physical reservoir and network file, here `reservoirs.json`. |
+| `output` | Directory for this run's generated files. Set a new directory as well as a new `run_id`. |
+| `start_date`, `end_date` | Inclusive operation dates. This example has 366 daily steps in 2016. |
+| `max_calls` | Run-wide LLM attempt budget: `0` for Rule-based; `null` in the LLM entries leaves it uncapped. Per-decision retries are set separately. |
+| `agents.file` | File assigning the operator to the reservoir. See step 4. |
+| `auditors.file` | File defining the checks selected by an operator. See step 4. |
+| `hydrology.file` | File connecting the native hydrology model and weather to network inflow. See step 2. |
+| `extensions` | Python files registering the example's rule or decision backend. Keep the supplied paths for this example. |
+
+The following steps open each referenced file. Keep the shared hydrology and
+physical case when comparing decision methods.'''),
+        md('''## 2. Connect hydrology
+
+[hydrology.yaml](../examples/fe_walter/coupled/hydrology.yaml) connects an accepted
+HydroCNHS model to the reservoir experiment. HydroCNHS is the hydrological software;
+the model defines the subcatchments and flow outlets. Here it uses GWLF runoff
+and Lohmann routing to calculate upstream flow before daily reservoir operation.'''),
+        code('''show_file("examples/fe_walter/coupled/hydrology.yaml")'''),
+        md('''| Field | Input and connection |
+|---|---|
+| `model` | The bundled [native model YAML](../data/accepted/fe_walter_hydrology.yaml), including accepted catchment and routing parameters. |
+| `forcing` | The bundled [1989–2025 weather table](../data/accepted/fe_walter_forcing_1989_2025.csv.gz). Daily precipitation is in mm, temperature in °C, and PET in cm. |
+| `zero_flow_nodes` | Declares the aggregation outlet as a node with no additional local runoff. Upstream routed water still reaches it. |
+| `inflow_bindings.FEW_INFLOW.routed` | Sends the hydrology outlet `__AGGREGATION_OUTLET__` to reservoir inlet `FEW_INFLOW`. |
+| `inflow_bindings.Downstream.constant` | Adds 0 m³/s of local inflow at the downstream node. Reservoir outflow is routed there separately. |
+
+`model` is a YAML key. The manual uses `hydrology.model` to mean its position in
+the experiment settings; it is a field location, rather than a function call.
+
+The weather table contains Daymet precipitation and temperature and PET calculated
+with the Hamon method. The native model has a longer record for hydrological setup;
+the experiment selects only 2016 for reservoir operation. During preparation,
+HydroCNHS produces inflow for these operation dates. The reservoir then advances
+one day at a time. These LLM settings provide daily reservoir state, inflow and
+decision history; they do not pass the complete weather record to the LLM.
+
+To study downstream conditions, connect tributary inflow through
+`inflow_bindings`. Downstream observations, demand or operating limits can be
+selected through a [decision information profile](../docs/INFORMATION.md).
+The generic LLM path can insert a selected profile through `$information`.
+The FE Walter `reference_v3_7` backend uses its own formatter and currently needs
+an adapter change to include these fields. Adding a profile to YAML alone will
+not add downstream measurements to this case's request. Observation timestamps
+and availability determine what the operator may see; completed downstream
+simulation steps can inform later decisions. This lesson keeps the supplied inputs.
+
+See [site and data](../examples/fe_walter/README.md) for sources and the PET equation.
+Use [HydroCNHS tutorials](https://github.com/cylin928/HydroCNHS/tree/main/tutorials) for model construction
+and calibration. The diagram summarizes how the prepared data connect.
+
+![Weather, hydrology and reservoir operation](../docs/figures/fe-walter-weather-workflow.svg)'''),
+        md('''## 3. Define the reservoir and water connections
+
+[reservoirs.json](../examples/fe_walter/coupled/reservoirs.json) defines water storage,
+release limits and the directed network. JSON is displayed without comments so
+the file remains valid; the tables below explain its fields.'''),
+        code('''show_file("examples/fe_walter/coupled/reservoirs.json")
 case = json.loads((coupled / "reservoirs.json").read_text(encoding="utf-8"))
-physical = case["network"]["reservoirs"]["FEWalter"]["physical"]
-display(ReadableText("Complete hydrology.yaml", hydrology))
-display(pd.DataFrame([{"inflow node": "FEW_INFLOW", "reservoir node": "FEWalter",
-    "physical case ID": physical["reservoir_id"], "agent ID": "fe_operator",
-    "initial storage (m³)": physical["initial_storage_m3"], "daily step (s)": physical["dt_seconds"]}]))'''),
-        md('''## 3. Change the decision method
+physical = case["network"]["reservoirs"]["FEWalter"]["physical"]'''),
+        md('''| Name or field | Meaning |
+|---|---|
+| `schema_version` | Physical-case format; `network.schema_version` identifies the network format. Keep the supplied supported versions. |
+| `FEW_INFLOW` | Inlet receiving the routed HydroCNHS flow from step 2. |
+| `FEWalter` | Reservoir node in the operation network. The agent's `reservoir_id` must match this name. |
+| `physical.reservoir_id: fe_walter` | Physical profile identifier, distinct from the network node name. |
+| `connections` | Sends `FEWalter` outflow to `Downstream`. The supplied `[1.0]` unit hydrograph passes it through in the same daily step; this is an explicit routing assumption. |
+| `outlet: Downstream` | Network outlet where routed outflow is recorded. |
+| `live_readiness` | Readiness declaration for this teaching case. Its notes record the initial-state and routing assumptions. |
 
-The Rule-based agent selects a registered rule. The available-information LLM
-receives daily state, seasonal instruction, and short history. The
-retrieved-knowledge LLM adds selected operating guidance. Model identity and
-sampling controls are settings and provenance, not method names.
+Physical fields are required for storage and release calculations. The next table
+reads their actual values from the JSON.'''),
+        code('''units = {"capacity_m3": "m³", "dead_storage_m3": "m³", "initial_storage_m3": "m³",
+         "minimum_release_cms": "m³/s", "maximum_release_cms": "m³/s", "dt_seconds": "s"}
+display(pd.DataFrame([
+    {"field": key, "value": f"{physical[key]:,.6f}".rstrip("0").rstrip("."), "unit": unit}
+    for key, unit in units.items()
+]).set_index("field"))'''),
+        md('''`capacity_m3` is the storage ceiling; `dead_storage_m3` is the lower storage bound.
+`initial_storage_m3` initializes the first day and is an assumed initial condition,
+rather than an observed 1 January 2016 value. Release limits are approximately
+50–10,000 cfs. `dt_seconds: 86400` gives one daily step.
 
-![Prompt and context workflow](../docs/figures/prompt-context-workflow.svg)'''),
-        code('''for title, name in (("Rule-based agent", "agents.rule.yaml"),
-                    ("LLM without additional operating knowledge agent", "agents.llm_available.yaml"),
-                    ("LLM with additional operating knowledge agent", "agents.llm_knowledge.yaml")):
-    display(ReadableText(title, (coupled / name).read_text(encoding="utf-8")))
-display(ReadableText("Model settings and provenance", (current_config / "models.yaml").read_text(encoding="utf-8")))'''),
-        md('''## 4. Inspect actual prompt and retrieved context
+The engine updates storage using inflow minus controlled release and spill over
+the time step. Direct reservoir precipitation, evaporation, seepage and withdrawals
+are zero in this configuration. Catchment PET is already part of the upstream
+hydrology. The daily storage and elevation records describe the resulting state;
+the plotting code reads those saved records. See the [water balance](../examples/fe_walter/README.md#reservoir-experiment)
+for the equation and assumptions.
 
-The saved pairs contain the exact request messages and replies. The parser
-converts cfs to m³/s, then common physics enforces water availability and release
-bounds. These records are examples from the saved run.'''),
-        code('''saved = coupled / "outputs/gemma4_2016_comparison"
-labels = {"llm_available": "LLM without additional operating knowledge", "llm_knowledge": "LLM with additional operating knowledge"}
-for method, label in labels.items():
-    pair = json.loads((saved / f"{method}_pair.json").read_text(encoding="utf-8"))
-    record = pair["engines"]["framework"]
-    display(ReadableText(f"{label}: saved request messages",
-                         json.dumps(record["provider_request"]["messages"], indent=2, ensure_ascii=False)))
-    display(ReadableText(f"{label}: saved reply", record["raw_provider_reply"]["message"]["content"]))
-    display(pd.DataFrame([{"method": label, "saved date": pair["date"],
-                           "controlled release (cfs)": record["physics"]["controlled_release_cms"] * CMS_TO_CFS,
-                           "end elevation (ft)": record["physics"]["pool_elevation_end_ft"]}]))'''),
-        md('''## 5. Compare the three current teaching trajectories
+The agent receives reservoir state and proposes a release. Water then follows the
+network connections shown below.
 
-The builder combines Rule-based rows from `outputs/2016/daily.csv` with the two
-framework LLM rows from `outputs/gemma4_2016_comparison/daily.csv`. It verifies
-366 unique ordered dates per method, common inflow, shared initial state, and
-units. It performs no interpolation. Four panels share operation dates:
-(a) end-of-day water elevation in feet NGVD 29; (b–d) daily water release in cfs,
-one method per panel. Water release means implemented controlled release and
-excludes spill. Blue lines show the upstream simulated inflow on the same flow scale.
-Release below inflow retains water; release above inflow draws from storage.
-The target pool elevation reference switches vertically between the 1300 ft winter target and
-1370 ft summer ceiling on May 15 and October 15. These mid-month markers summarize
-seasonal targets, rather than daily physical water-level changes. Saved operation
-and audit settings are unchanged. The source CSV retains m³/s.'''),
-        code('''current = coupled / "outputs/current_tutorial"
-daily = pd.read_csv(current / "daily.csv")
-seasonal_criteria = json.loads((ROOT / "examples/fe_walter/seasonal_pool_criteria.json").read_text(encoding="utf-8"))
-provenance = json.loads((current / "provenance.json").read_text(encoding="utf-8"))
-display(daily.assign(controlled_release_cfs=daily["controlled_release_cms"] * CMS_TO_CFS)
-    .groupby("method_label", sort=False).agg(rows=("date", "size"),
-    unique_dates=("date", "nunique"), maximum_release_cfs=("controlled_release_cfs", "max")))
-display(pd.DataFrame(provenance["validation"]["methods"]).T)'''),
-        code('''from tutorials.build_notebooks import plot_reservoir_operations
-fig = plot_reservoir_operations(daily, seasonal_criteria)
-display(fig)'''),
-        md('''## 6. Run a new experiment deliberately
+![Reservoir, water connections and operator](../docs/figures/reservoir-agent-mapping.svg)'''),
+        md('''## 4. Assign the Rule-based operator
 
-These commands are documentation and are not executed by this notebook. Copy
-the chosen entry, set a new `run_id` and output, then check and prepare before
-allowing network use.
+[agents.rule.yaml](../examples/fe_walter/coupled/agents.rule.yaml) assigns operator
+`fe_operator` to node `FEWalter`. The rule extension registered in `experiment.yaml`
+provides the Hanasaki policy.'''),
+        code('''show_file("examples/fe_walter/coupled/agents.rule.yaml")'''),
+        md('''| Field | Meaning |
+|---|---|
+| `fe_operator` | Agent ID used for its own state and decision history. |
+| `reservoir_id` | Network node controlled by this agent: `FEWalter`. |
+| `type: rule_based`, `rule: hanasaki` | Select the registered rule and its decision function. |
+| `rule_parameters` | Policy settings: `purpose`, coefficient `alpha`, and the [inflow statistics JSON](../data/benchmark/fe_walter_statistics.json). |
+| `auditors` | Names of checks defined in `auditors.yaml`. |
+
+This rule uses storage, inflow and inflow statistics. Seasonal pool criteria are
+used in evaluating the results; this rule does not use those criteria as daily
+water-level targets.
+
+[auditors.yaml](../examples/fe_walter/coupled/auditors.yaml) defines the shared
+`release_limits` check selected by all three agents.'''),
+        code('''show_file("examples/fe_walter/coupled/auditors.yaml")'''),
+        md('''| Field | Meaning |
+|---|---|
+| `release_limits` | Check profile referenced by `agents.*.auditors`. |
+| `type: release_bounds` | Registered check comparing the proposed release with physical limits in m³/s. |
+| `version` | Version recorded for the check definition. |
+
+The auditor records compliance. The physical engine separately implements release
+and water-availability limits. Seasonal compliance is recorded without resampling
+an LLM response or forcing its release to a seasonal target.'''),
+        md('''## 5. Switch to an LLM operator
+
+Choose one of the supplied experiment entries in the [same folder](../examples/fe_walter/coupled/).
+Each retains the shared hydrology, physical case and dates.
+
+| Method | Experiment entry | Agent file |
+|---|---|---|
+| Rule-based | [experiment.yaml](../examples/fe_walter/coupled/experiment.yaml) | [agents.rule.yaml](../examples/fe_walter/coupled/agents.rule.yaml) |
+| LLM without additional operating knowledge | [llm_available.yaml](../examples/fe_walter/coupled/llm_available.yaml) | [agents.llm_available.yaml](../examples/fe_walter/coupled/agents.llm_available.yaml) |
+| LLM with additional operating knowledge | [llm_knowledge.yaml](../examples/fe_walter/coupled/llm_knowledge.yaml) | [agents.llm_knowledge.yaml](../examples/fe_walter/coupled/agents.llm_knowledge.yaml) |
+
+Read the two complete LLM entries and their agent definitions below. In an LLM
+entry, `models.file` adds the model profiles, `agents.file` selects the LLM agent,
+and `extensions` registers its decision backend. The entries also use distinct
+run labels and output directories.'''),
+        code('''show_file("examples/fe_walter/coupled/llm_available.yaml")
+show_file("examples/fe_walter/coupled/agents.llm_available.yaml")'''),
+        code('''show_file("examples/fe_walter/coupled/llm_knowledge.yaml")
+show_file("examples/fe_walter/coupled/agents.llm_knowledge.yaml")'''),
+        md('''| Agent field | Meaning |
+|---|---|
+| `type: llm` | Select an LLM operator for the same reservoir node. |
+| `model_profile: reservoir_model` | Select the named profile in `models.yaml` (step 6). |
+| `customization.backend` | Registered backend that constructs requests and parses responses. The supplied `reference_v3_7` ID is retained for compatibility. |
+| `parameters.reference.profile` | Select the FE Walter case's prompt variables and physical profile. |
+| `method` | Compatibility IDs `zeroshot` and `dkp` select the two LLM methods in the table above. |
+| `consultation_mode: daily` | Request one decision per operation day, subject to the configured retry policy. |
+| `response_validation: policy` | Validate the structured decision using the supplied policy schema. |
+| `system_prompt`, `system_prompt_mode` | Load the complete custom system instructions from the specified text file. |
+| `seasonal_criteria_file` | Add the date's seasonal window and water-level condition from the shared criteria JSON. |
+| `prompt_storage` | Controls whether storage is displayed in the user message; `false` retains the supplied prompt format. |
+| `hide_availability_line`, `dkp_no_missing_inputs` | Control availability and missing-input text in the supplied prompts. |
+| `zeroshot_knowledge: target` | Retain the baseline target instructions for the method without additional operating knowledge. |
+| `dkp` | Knowledge file used by the method with additional operating knowledge. |
+
+Retain these settings for the supplied comparison. When adapting the example,
+change one source at a time and check the resolved configuration before running.'''),
+        md('''## 6. Set the model parameters
+
+[models.yaml](../examples/fe_walter/coupled/models.yaml) defines `reservoir_model`,
+which both LLM agents select. The same profile keeps their generation settings
+aligned. The notebook only displays this file.'''),
+        code('''show_file("examples/fe_walter/coupled/models.yaml")'''),
+        md('''| Field | Meaning |
+|---|---|
+| `provider`, `base_url` | Ollama and its local HTTP service address. |
+| `model` | Required model tag for a live run. Install that tag before running an LLM experiment. |
+| `temperature` | Sampling temperature, here `0.7`. Different replies can lead to different subsequent reservoir states. |
+| `max_tokens` | Maximum generated tokens per response; mapped to Ollama `num_predict`. |
+| `num_ctx` | Context-window size in tokens. |
+| `think` | Provider thinking-mode setting. |
+| `keep_alive` | How long Ollama retains the loaded model after use. |
+| `seed` | Optional sampling seed; `null` leaves it unspecified. |
+| `timeout_seconds` | Timeout per HTTP attempt in seconds. |
+| `api_key_env` | Optional environment-variable name containing a provider key; unused for this local profile. |
+| `max_attempts`, `retry_delay_seconds` | At most two attempts per decision, separated by two seconds. |
+
+Keep secrets in environment variables. See [model providers](../docs/MODEL_PROVIDERS.md)
+for other supported provider profiles.'''),
+        md('''## 7. Read the prompts and operating knowledge
+
+The system prompt states the task and response format. The user message supplies
+the current date, reservoir conditions and recent decision history. Both methods
+receive seasonal instructions; the knowledge method adds retrieved operating
+guidance. The LLM proposes release; the engine then converts cfs to m³/s and
+applies the physical constraints.
+
+Read the complete current prompt files:
+[available_information.txt](../examples/fe_walter/prompts/available_information.txt)
+and [retrieved_knowledge.txt](../examples/fe_walter/prompts/retrieved_knowledge.txt).
+The filenames are retained as configuration references; the table in step 5 gives
+the current method names.'''),
+        code('''show_file("examples/fe_walter/prompts/available_information.txt", expanded=False)
+show_file("examples/fe_walter/prompts/retrieved_knowledge.txt", expanded=False)'''),
+        md('''The knowledge method reads
+[operating_rules.md](../examples/fe_walter/knowledge/operating_rules.md) from the
+[knowledge folder](../examples/fe_walter/knowledge/). It holds case-specific
+operating guidance used for retrieval. The shared
+[seasonal_pool_criteria.json](../examples/fe_walter/seasonal_pool_criteria.json)
+defines the seasonal windows, their water-level conditions and transition dates.
+The backend derives the applicable window from the simulation date and adds it
+to the daily prompt, without prescribing a release. Expand either file below.'''),
+        code('''show_file("examples/fe_walter/knowledge/operating_rules.md", expanded=False)
+show_file("examples/fe_walter/seasonal_pool_criteria.json", expanded=False)'''),
+        md('''The saved 2016 results in step 10 were generated before this daily seasonal
+context was added. Displaying the current files does not change those historical
+requests or trajectories. The [saved prompt comparison](../examples/fe_walter/prompt_review.md)
+shows the actual October requests and replies, alongside the proposed correction.
+
+The diagram summarizes how instructions, state and optional knowledge form a request.
+
+![Prompt, daily state and optional knowledge](../docs/figures/prompt-context-workflow.svg)'''),
+        md('''## 8. Check the three configurations
+
+`load_coupled_settings` is a Python function that reads the experiment and resolves
+its referenced files. It validates the settings without calling a provider or
+calculating hydrology. The next cell checks all three entries. Expect 366 days,
+zero network calls, and planned LLM decisions of 0, 366 and 366 respectively.'''),
+        code('''from llm_reservoir_agent.coupled import load_coupled_settings
+
+entries = {"Rule-based": "experiment.yaml",
+           "LLM without additional operating knowledge": "llm_available.yaml",
+           "LLM with additional operating knowledge": "llm_knowledge.yaml"}
+checks = []
+for method, filename in entries.items():
+    settings = load_coupled_settings(coupled / filename)
+    report = settings.report
+    checks.append({"method": method, "days": report["days"],
+                   "network calls": report["network_calls"],
+                   "planned LLM decisions": report["planned_llm_calls"]})
+display(pd.DataFrame(checks).set_index("method"))'''),
+        md('''## 9. Run your own experiment
+
+The commands below are instructions for a future run; the notebook does not execute
+them. Work from the repository root. Copy the chosen entry within the `coupled`
+folder so its relative references still resolve. In the copy, set both a new
+`run_id` and a new `output` directory.
+
+| Command | What it does |
+|---|---|
+| `check` | Resolve and validate settings without inference or hydrology. |
+| `prepare` | Calculate and save upstream inflow using the configured HydroCNHS model. |
+| `run` | Advance daily reservoir operation; LLM entries require explicit network permission. |
+| `verify` | Check the saved operation records and physical consistency. Seasonal performance is evaluated separately. |
+
+For an LLM experiment, start the configured provider and install the model first.
+The example below selects the method without additional operating knowledge.
 
 ```powershell
 Copy-Item examples/fe_walter/coupled/llm_available.yaml examples/fe_walter/coupled/my-run.yaml
-# Edit my-run.yaml: set a new run_id and output.
+# Edit my-run.yaml: set a new run_id and output directory.
 reservoir-experiment check examples/fe_walter/coupled/my-run.yaml
 reservoir-experiment prepare examples/fe_walter/coupled/my-run.yaml
 reservoir-experiment run examples/fe_walter/coupled/my-run.yaml --allow-network
 reservoir-experiment verify <new-output-path>/operation
 ```
 
-Use `experiment.yaml` for Rule-based operation or copy `llm_knowledge.yaml` for
-LLM with additional operating knowledge. [Technical engine evidence and historical audits](../examples/fe_walter/engine_comparison.md)
-remain outside this main research narrative.'''),
+For Rule-based operation, copy `experiment.yaml` and omit `--allow-network`.
+For the other LLM method, copy `llm_knowledge.yaml` and retain the network flag.
+Use [running instructions](../docs/RUNNING.md) to inspect generated files or resume
+an interrupted run. Continue below to read results that are already available.'''),
+        md('''## 10. Read the saved 2016 results
+
+The [saved daily CSV](../examples/fe_walter/coupled/outputs/current_tutorial/daily.csv)
+contains 366 dates per method. Its [provenance](../examples/fe_walter/coupled/outputs/current_tutorial/provenance.json)
+identifies the source runs and validation. The teaching table combines Rule-based
+rows from `outputs/2016/daily.csv` with framework LLM rows from
+`outputs/gemma4_2016_comparison/daily.csv`. All methods share inflow and initial
+storage. The following cells read saved values and draw them without interpolation.'''),
+        code('''current = coupled / "outputs/current_tutorial"
+daily = pd.read_csv(current / "daily.csv")
+seasonal_criteria = json.loads((ROOT / "examples/fe_walter/seasonal_pool_criteria.json").read_text(encoding="utf-8"))
+provenance = json.loads((current / "provenance.json").read_text(encoding="utf-8"))
+display(daily.groupby("method_label", sort=False).agg(
+    rows=("date", "size"), unique_dates=("date", "nunique"),
+    first_date=("date", "min"), last_date=("date", "max")))'''),
+        md('''Four panels share operation dates. Panel (a) shows end-of-day water elevation;
+panels (b–d) show each method's daily water release. Blue lines show the upstream simulated inflow
+on the same flow scale. Water release is implemented controlled release and excludes
+spill. When release exceeds inflow, storage supplies the difference; when inflow
+exceeds total outflow, storage rises until capacity is reached.
+
+The target pool elevation reference switches vertically between the 1300 ft winter
+target and 1370 ft summer ceiling on May 15 and October 15. These display markers
+summarize the targets; the criteria file retains the full seasonal windows. The
+summer ceiling is an upper bound, rather than a fixed required elevation.
+
+The plotting function is shared by the notebook and paper exports. The cell below
+only plots saved data.'''),
+        code('''from tutorials.build_notebooks import plot_reservoir_operations
+
+fig = plot_reservoir_operations(daily, seasonal_criteria)
+display(fig)'''),
+        md('''*Figure 1. F.E. Walter reservoir operation, 1 January–31 December 2016.
+Elevation is in feet NGVD 29; release and upstream simulated inflow are in cfs.
+The source CSV retains flows in m³/s. LLM trajectories retain the prompts used by
+their source runs, before daily seasonal context was added.*
+
+Download the accepted [PDF](../examples/fe_walter/coupled/outputs/current_tutorial/reservoir_operations.pdf),
+[SVG](../examples/fe_walter/coupled/outputs/current_tutorial/reservoir_operations.svg)
+or [600 dpi PNG](../examples/fe_walter/coupled/outputs/current_tutorial/reservoir_operations.png).
+See [output files](../examples/fe_walter/notebook.md) for the saved-data inventory
+and [results](../examples/fe_walter/results.md) for interpretation. Detailed engine
+comparisons and historical audits remain in the [technical reference](../examples/fe_walter/engine_comparison.md).'''),
     ]
 
 
@@ -623,10 +891,17 @@ def _notebook(cells: list[dict], name: str, execute: bool) -> dict:
             "cells": cells}
 
 
-def build(*, execute: bool) -> list[dict]:
-    os.chdir(ROOT); _prepare_current_outputs()
+def build(*, execute: bool, notebook: str | None = None) -> list[dict]:
+    """Build one lesson from saved files, or refresh all teaching exports."""
+    os.chdir(ROOT)
+    if notebook is None:
+        _prepare_current_outputs()
+    elif notebook not in NOTEBOOKS:
+        raise ValueError(f"Unknown notebook: {notebook}")
     receipts = []
     for name, cells in {"main.ipynb": main_cells(), "advanced.ipynb": advanced_cells()}.items():
+        if notebook is not None and name != notebook:
+            continue
         path = TUTORIALS / name
         path.write_text(json.dumps(_notebook(cells, name, execute), indent=1, ensure_ascii=False) + "\n",
                         encoding="utf-8", newline="\n")
@@ -659,12 +934,14 @@ def check() -> list[dict]:
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--execute", action="store_true"); parser.add_argument("--check", action="store_true")
+    parser.add_argument("--notebook", choices=NOTEBOOKS,
+                        help="Build only this notebook; preserve existing figure exports and other notebooks")
     args = parser.parse_args()
     if not args.execute and not args.check:
         parser.error("choose --execute or --check")
     result = []
     if args.execute:
-        result.extend(build(execute=True))
+        result.extend(build(execute=True, notebook=args.notebook))
     if args.check:
         result.extend(check())
     print(json.dumps(result, indent=2, ensure_ascii=False))

@@ -2,7 +2,7 @@
 
 [English](coupling.md) | [繁體中文](coupling.zh-TW.md) · [Case study](README.md)
 
-Start with the [maintained FE Walter tutorial](../../tutorials/fe_walter.md), then follow one daily decision here.
+Start with the [maintained FE Walter tutorial](../../tutorials/README.md), then follow one daily decision here.
 The three methods change the decision source; reservoir physics and routing use the same interfaces.
 
 ## 1. What the current example runs
