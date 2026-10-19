@@ -15,13 +15,13 @@ from llm_reservoir_agent.workflow import load_settings, run_settings
 
 @pytest.mark.parametrize('method', ['zeroshot', 'dkp'])
 def test_actual_history_matches_previous_implemented_release(method):
-    original = PROJECT_ROOT / f'experiments/fe_walter_reference_{method}.yaml'
+    original = PROJECT_ROOT / f'tests/fixtures/fe_walter_current/{method}.yaml'
     data = yaml.safe_load(original.read_text(encoding='utf-8'))
     data['extensions'] = {key: str((original.parent / value).resolve())
                           for key, value in data.get('extensions', {}).items()}
     data['case'] = str((original.parent / data['case']).resolve())
-    spec = data['agents']['fe_operator']['reference']
-    for key in ('responses', 'dkp'):
+    spec = data['agents']['fe_operator']['customization']['parameters']['reference']
+    for key in ('system_prompt', 'responses', 'dkp'):
         if key in spec:
             spec[key] = str((original.parent / spec[key]).resolve())
     with tempfile.TemporaryDirectory() as folder, patch('urllib.request.urlopen', side_effect=AssertionError('network forbidden')):
@@ -45,15 +45,15 @@ def test_actual_history_matches_previous_implemented_release(method):
 
 
 def test_non_fe_native_dkp_fails_before_execution(tmp_path):
-    original = PROJECT_ROOT / 'experiments/fe_walter_reference_dkp.yaml'
+    original = PROJECT_ROOT / 'tests/fixtures/fe_walter_current/dkp.yaml'
     data = yaml.safe_load(original.read_text(encoding='utf-8'))
     data['extensions'] = {key: str((original.parent / value).resolve())
                           for key, value in data.get('extensions', {}).items()}
     data['case'] = str((original.parent / data['case']).resolve())
     data['output'] = str(tmp_path/'run')
-    spec = data['agents']['fe_operator']['reference']
+    spec = data['agents']['fe_operator']['customization']['parameters']['reference']
     spec['profile'] = 'beltzville'
-    for key in ('responses','dkp'):
+    for key in ('system_prompt','responses','dkp'):
         spec[key] = str((original.parent/spec[key]).resolve())
     config = tmp_path/'experiment.yaml'
     config.write_text(yaml.safe_dump(data),encoding='utf-8')

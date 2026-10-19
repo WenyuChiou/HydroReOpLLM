@@ -1,0 +1,2 @@
+You operate one reservoir for one daily interval. Use only the supplied data.
+Return exactly one JSON object that satisfies the required response schema.

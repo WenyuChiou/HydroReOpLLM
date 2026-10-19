@@ -1,5 +1,39 @@
 # HydroOpsLLM project inventory
 
+## Current code and inputs
+
+| Location | Purpose |
+|---|---|
+| `src/llm_reservoir_agent/` | Generic configuration, providers, decisions, physics, routing and records |
+| `src/hydrocnhs/` | Bundled upstream hydrology, calibration and routing modules |
+| `templates/coupled/` | Commented configuration templates for a new study |
+| `examples/fe_walter/extensions/` | Case formatting, response interpretation and optional compatibility helpers |
+| `examples/fe_walter/coupled/` | One maintained set of experiment, method, model and physical settings |
+| `examples/fe_walter/legacy/` | Compatibility code used by regression tests; excluded from the installed package |
+| `examples/fe_walter/prompts/` | One current system prompt for each LLM method |
+| `examples/fe_walter/knowledge/` | The operating text retrieved by the knowledge method |
+| `examples/synthetic/` | Invented inputs for older demonstration configurations |
+| `archive/fe_walter/` | Historical source hashes and external recovery instructions |
+| `tests/fixtures/` | Synthetic inputs for tests, separate from research results |
+
+The former root `knowledge/` contained only invented R1/R2/R3 guidance; it now
+lives with the synthetic example. The former root `prompts/` contained compatibility
+templates, now stored with their example or under `templates/legacy/`.
+The supplied original Anik Python files are excluded from the current tree;
+[optional reference checks](../archive/fe_walter/README.md) use a verified external artifact.
+Historical record paths remain as originally recorded.
+
+The case's canonical entry is `coupled/experiment.yaml`. The two LLM entries
+share `coupled/models.yaml`; duplicate version-named entries and the extra
+`current/` directory have been removed. Earlier configurations can be recovered
+from their recorded Git revision, without changing a completed experiment.
+
+Installed wheels contain only the current generic package and bundled HydroCNHS
+modules. Wheel builds use private temporary staging, so modules left in an old
+local `build/lib` directory cannot enter a new distribution.
+
+## Earlier inventory
+
 Cleanup baseline: **1,026 tracked files**, commit
 `fbd9a993731ce979835dcc46f7a9cbad6aa7387b`.
 The [complete inventory](../archive/inventory.csv) records classification,
@@ -18,7 +52,7 @@ dependencies, original bytes/hash and destination. The
 
 ## Data flow
 
-`run_experiment.py` → validate YAML/input/source pins → reservoir-local backend
+`reservoir-experiment` → read settings and prepare upstream inflow → reservoir-local backend
 → requested release → checker → common physics → native Dam API/routing
 → implemented outcome → next observation and audit/trace.
 
@@ -33,14 +67,11 @@ validation is 2011–2020; no recalibration is part of this cleanup.
 
 ## Evidence and limits
 
-Saved Ollama results contain three requests per LLM method, `gemma3:4b`,
-temperature 0.7. LLM operation with available information has **2 PASS / 1 FAIL**;
-LLM operation with retrieved knowledge has **3 FAIL**.
-Execution and water balance do not certify an operating policy. Initial
-storage, identity downstream routing and zero losses are teaching assumptions.
+The current tutorial uses the saved 2016 Rule-based baseline and the two current
+framework LLM trajectories, each with 366 daily records. Model settings and
+source hashes are retained with the result provenance. Read the
+[current results](../examples/fe_walter/results.md) for water level and controlled release.
 
-The three real reservoirs lie on separate branches. Their saved January test
-models reservoir contributions, not complete downstream river discharge.
-Historical 2016–2020 results, audit failures, 13 known failed requests and
-attempt 1289's unknown result/cost remain intact. Source license boundaries
-and private-repository status are unchanged.
+The historical three-day, three-reservoir and 2016–2020 studies remain separate
+evidence. Their old model settings, failed requests and unknown costs are
+preserved; they are not the inputs to the current tutorial.

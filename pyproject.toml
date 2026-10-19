@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=68"]
+requires = ["setuptools>=70.1"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -11,7 +11,7 @@ dependencies = ["joblib", "matplotlib", "numpy", "pandas", "ruamel.yaml", "scipy
 
 [project.optional-dependencies]
 hydrocnhs = [] # Compatibility extra: the complete pinned source is now bundled.
-test = ["pytest>=8", "pytest-subtests"]
+test = ["pytest>=8", "pytest-subtests", "setuptools>=70.1"]
 docs = ["sphinx>=8,<9", "myst-nb>=1.2,<2"]
 
 [project.scripts]
@@ -21,6 +21,12 @@ reservoir-experiment = "llm_reservoir_agent.workflow:main"
 [tool.setuptools.packages.find]
 where = ["src"]
 
+[tool.setuptools.package-dir]
+scripts = "scripts"
+
+[tool.setuptools.cmdclass]
+bdist_wheel = "scripts.package_build.FreshWheel"
+
 [tool.setuptools.package-data]
 hydrocnhs = ["Config_logging.yaml"]
 
@@ -28,5 +34,5 @@ hydrocnhs = ["Config_logging.yaml"]
 "share/llm-reservoir-agent/hydrocnhs" = ["third_party/hydrocnhs/LICENSE", "third_party/hydrocnhs/SOURCE.json", "third_party/hydrocnhs/upstream-pyproject.toml"]
 "share/llm-reservoir-agent/environment" = ["environment/hydrocnhs-core.json"]
 "share/llm-reservoir-agent/examples" = ["examples/llm_reservoir_abm.py"]
-# The Anik source oracle is repository-only; case extensions live in examples.
+# The original-program oracle is external and opt-in; case extensions live in examples.
 "share/llm-reservoir-agent" = ["THIRD_PARTY_NOTICES.md"]

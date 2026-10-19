@@ -1,19 +1,26 @@
-"""Translate user-facing agent choices into the existing execution contract.
+"""Translate one reservoir agent section into the execution contract.
 
-Configuration owns file resolution; workflow owns resource/model validation.
-This pure adapter performs no I/O and contains no site, prompt or seasonal rules.
-Legacy specifications pass through unchanged, so historical provenance remains
-readable. A specification must use one vocabulary, without implicit overrides.
+The global experiment chooses the case and dates; each agent chooses a reservoir
+and operating method; model and auditor profiles are referenced by ID. File
+resolution belongs to :mod:`configuration`, while workflow validates resources
+and builds providers. This pure adapter performs no I/O and contains no site,
+prompt or seasonal rules. Legacy specifications pass through unchanged, so
+historical provenance remains readable. A specification must use one vocabulary,
+without implicit overrides.
 """
 from copy import deepcopy
 
 
+# Beginner-facing fields name the controlled reservoir, method and shared profiles.
 _PUBLIC = {'reservoir_id', 'type', 'rule', 'rule_parameters', 'model_profile',
            'prompt_file', 'auditors', 'customization'}
+# Advanced fields remain available inside ``customization`` for explicit use.
 _ADVANCED = {'prompt_version', 'prompt_variables', 'context_providers', 'knowledge',
              'context', 'context_file', 'information', 'response_schema', 'fallback_models'}
+# Legacy names are accepted on their own, but never mixed with the public vocabulary.
 _LEGACY = {'reservoir', 'mode', 'strategy', 'model', 'prompt', 'benchmark',
            'release_cms', 'agent_type', *_ADVANCED}
+# Extensions receive only these declared customization controls and opaque parameters.
 _CUSTOM = {*_ADVANCED, 'system_prompt_file', 'backend', 'parameters', 'execution'}
 
 

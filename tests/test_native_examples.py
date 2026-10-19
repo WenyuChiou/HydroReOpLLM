@@ -14,8 +14,8 @@ from llm_reservoir_agent.workflow import load_settings, run_settings, verify_set
 ROOT = Path(__file__).resolve().parents[1]
 EXAMPLES = (
     "examples/fe_walter/benchmark/experiment.yaml",
-    "examples/fe_walter/zero_shot/experiment.tutorial.yaml",
-    "examples/fe_walter/dkp/experiment.tutorial.yaml",
+    "tests/fixtures/fe_walter_current/zeroshot.yaml",
+    "tests/fixtures/fe_walter_current/dkp.yaml",
 )
 
 

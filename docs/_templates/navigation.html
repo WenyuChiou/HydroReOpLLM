@@ -14,48 +14,50 @@
     {{ chapter('docs/README', 'Overview') }}
     {{ chapter('docs/GETTING_STARTED', 'Installation') }}
   </ul>
-  <h3>02 · Inputs and outputs</h3>
+  <h3>02 · Configuration</h3>
   <ul class="manual-navigation">
-    {{ chapter('docs/INPUT_OUTPUT', 'Data, units and records') }}
-    {{ chapter('docs/HYDROLOGY_SETUP', 'HydroCNHS prerequisites') }}
-    {{ chapter('docs/WEATHER_INPUTS', 'Weather input reference') }}
+    {{ chapter('docs/INPUT_OUTPUT', 'Configuration overview') }}
+    {{ chapter('docs/GLOBAL_SETTINGS', 'Global settings') }}
+    {{ chapter('docs/HYDROLOGY_SETUP', 'Hydrology') }}
+    {{ chapter('docs/BUILD_SIMULATION', 'Reservoirs and network') }}
+    {{ chapter('docs/CONFIGURATION', 'Agents and LLM') }}
+    {{ chapter('docs/RUNNING', 'Check and run') }}
   </ul>
-  <h3>03 · Configure agents</h3>
+  <h3>03 · Case studies</h3>
   <ul class="manual-navigation">
-    {{ chapter('docs/CONFIGURATION', 'Agents, prompts and context') }}
-    {{ chapter('docs/BUILD_SIMULATION', 'Build a coupled simulation') }}
-    {{ chapter('docs/MULTI_RESERVOIR', 'Reservoir networks') }}
-    {{ chapter('docs/MODEL_PROVIDERS', 'Model providers') }}
-    {{ chapter('docs/INFORMATION', 'Available information') }}
+    {{ chapter('docs/CASE_STUDIES', 'FE Walter study guide') }}
+    {{ chapter('examples/fe_walter/README', 'FE Walter: site and data') }}
+    {{ chapter('tutorials/fe_walter', 'FE Walter: step by step') }}
+    {{ chapter('tutorials/main', 'FE Walter: output files') }}
   </ul>
-  <h3>04 · Tutorials</h3>
+  <h3>04 · Results</h3>
   <ul class="manual-navigation">
-    {{ chapter('tutorials/fe_walter', 'FE Walter · files to decisions') }}
-    {{ chapter('tutorials/main', 'Saved three-method comparison') }}
-    {{ chapter('tutorials/advanced', 'Multiple reservoirs') }}
-    {{ chapter('examples/fe_walter/coupled/README', 'Weather-to-operation commands') }}
+    {{ chapter('docs/RESULTS_GUIDE', 'Read your results') }}
+    {{ chapter('examples/fe_walter/results', 'FE Walter: water level and release') }}
   </ul>
-  <h3>05 · Results and recovery</h3>
+  <h3>05 · Troubleshooting</h3>
   <ul class="manual-navigation">
-    {{ chapter('docs/RESULTS_GUIDE', 'Outputs, audit and trace') }}
-    {{ chapter('docs/RUNNING', 'Resources and interruptions') }}
-    {{ chapter('examples/fe_walter/results', 'FE Walter saved decisions') }}
+    {{ chapter('docs/TROUBLESHOOTING', 'Find and resolve a problem') }}
   </ul>
-  <h3>06 · API documentation</h3>
+  <h3>06 · API reference</h3>
   <ul class="manual-navigation">
     {{ chapter('docs/API_REFERENCE', 'Python API documentation') }}
     {{ chapter('docs/PARAMETER_REFERENCE', 'Configuration reference') }}
     {{ chapter('docs/CODE_STRUCTURE', 'Code structure and daily loop') }}
   </ul>
   <details class="manual-reference">
-    <summary>Case evidence and reference</summary>
+    <summary>Technical reference</summary>
     <ul class="manual-navigation">
-      {{ chapter('examples/fe_walter/README', 'FE Walter site and setup') }}
       {{ chapter('examples/fe_walter/hydrology', 'Hydrology and C&V evidence') }}
-      {{ chapter('examples/fe_walter/annual/README', 'Historical annual attempt') }}
-      {{ chapter('examples/fe_walter/benchmark/README', 'Rule-based operation', true) }}
-      {{ chapter('examples/fe_walter/zero_shot/README', 'LLM · available information', true) }}
-      {{ chapter('examples/fe_walter/dkp/README', 'LLM · retrieved knowledge', true) }}
+      {{ chapter('docs/TEMPLATES', 'Configuration file list') }}
+      {{ chapter('docs/WEATHER_INPUTS', 'Weather formats and preparation') }}
+      {{ chapter('docs/MODEL_PROVIDERS', 'Model providers') }}
+      {{ chapter('docs/INFORMATION', 'Optional information') }}
+      {{ chapter('docs/RECORDS', 'Decision records and audits') }}
+      {{ chapter('examples/fe_walter/prompt_review', 'October prompts and replies') }}
+      {{ chapter('examples/fe_walter/engine_comparison', 'Original/framework comparison') }}
+      {{ chapter('examples/fe_walter/results_history', 'Historical research evidence') }}
+      {{ chapter('examples/fe_walter/coupled/README', 'Run commands and engine comparison') }}
       {{ chapter('docs/LLM_MODULES', 'Prompts and modules') }}
       {{ chapter('docs/REFERENCE', 'Sources and citation') }}
       {{ chapter('docs/BUILDING', 'Build the manual') }}

@@ -1,8 +1,9 @@
 """Independent annual Anik oracle versus the production coupled entry.
 
 Replay accepted upstream inflows and fixed replies, never a real LLM or a new
-hydrological simulation. Only the approved seasonal target curve is substituted
-in the original simulator. Its water balance is independent of our physics.
+hydrological simulation. The approved target curve and optional daily prompt
+context are supplied through the original policy entry. Its water balance is
+independent of our physics.
 """
 from contextlib import redirect_stdout
 from copy import deepcopy
@@ -17,7 +18,10 @@ import pandas as pd
 import pytest
 import yaml
 
-from examples.fe_walter.extensions.anik_v3_7 import load_anik
+from reference_oracle import load_anik, require_reference_dir
+from examples.fe_walter.extensions.seasonal_prompt_context import (
+    SeasonalContextBackend, load_seasonal_prompt_context,
+)
 from llm_reservoir_agent.coupled import load_coupled_settings, run_coupled
 from llm_reservoir_agent.verification import verify_run
 
@@ -80,12 +84,17 @@ def oracle(method, replies, inflow):
             calls.append((system, prompt, schema or zero.DECISION_SCHEMA))
             return deepcopy(replies[len(calls) - 1])
 
-    common = dict(info=info, backend=FixedReplies(), audit_action="record", max_audit_revisions=0)
+    # The original policy still builds its own prompt and runs native physics.
+    # Its thin backend wrapper adds only the approved daily context, matching
+    # the opt-in field now enabled in the two current agent files.
+    context = load_seasonal_prompt_context(ROOT / "examples/fe_walter/seasonal_pool_criteria.json")
+    common = dict(info=info, backend=SeasonalContextBackend(FixedReplies(), context),
+                  audit_action="record", max_audit_revisions=0)
     if method == "llm_available":
         policy = zero.ZeroShotLLMPolicy(**common)
     else:
         policy = sys.modules["dkp_llm_release"].DKPLLMPolicy(
-            **common, dkp_path=ROOT / "examples/fe_walter/knowledge/DKP_FEWalter_Dam_v1.2.md",
+            **common, dkp_path=ROOT / "examples/fe_walter/knowledge/operating_rules.md",
             include_missing_inputs=False)
     with redirect_stdout(io.StringIO()):
         result = anik.simulate(cfg, policy, inflow, inflow_change_threshold=-1.0,

@@ -36,8 +36,7 @@ class ReferenceLiveTests(unittest.TestCase):
         self.temp.cleanup()
 
     def settings(self, method, provider='ollama', ready=True, run_suffix=''):
-        folder = 'zero_shot' if method == 'zeroshot' else method
-        p = PROJECT_ROOT / f'examples/fe_walter/{folder}/experiment.llm.yaml'
+        p = PROJECT_ROOT / f'tests/fixtures/fe_walter_current/{method}.live.yaml'
         data = yaml.safe_load(p.read_text(encoding='utf-8'))
         case = json.loads((p.parent / data['case']).resolve().read_text())
         (self.root / 'inflows.csv').write_bytes((PROJECT_ROOT / 'cases/fe_walter_reference/inflows.csv').read_bytes())
@@ -61,8 +60,8 @@ class ReferenceLiveTests(unittest.TestCase):
         return json.loads((PROJECT_ROOT/f'cases/fe_walter_reference/{method}_responses.json').read_text())['responses']
 
     def test_shipped_live_plans_are_network_free_and_blocked(self):
-        for folder in ('zero_shot', 'dkp'):
-            settings = load_settings(PROJECT_ROOT/f'examples/fe_walter/{folder}/experiment.llm.yaml')
+        for method in ('zeroshot', 'dkp'):
+            settings = load_settings(PROJECT_ROOT/f'tests/fixtures/fe_walter_current/{method}.live.yaml')
             self.assertFalse(settings.report['live_ready'])
             self.assertEqual(settings.report['planned_llm_calls'], 3)
             self.assertEqual(settings.report['network_calls'], 0)

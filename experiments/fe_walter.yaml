@@ -15,7 +15,7 @@ agents:                                   # Number of entries = number of agents
     reservoir: FEWalter                   # Exact controlled reservoir ID in the case.
     mode: offline                         # Fixed test decision; llm uses a model instead.
     release_cms: 5                        # Offline requested release, in m³/s; not fallback.
-    prompt: ../prompts/daily_release.txt   # User-instruction template; system JSON rules are fixed.
+    prompt: ../templates/legacy/prompts/operator.txt   # User-instruction template; system JSON rules are fixed.
     prompt_version: "1"                   # Update when revising the prompt; text is also hashed.
     # DKP: add knowledge: {operating_rules: path/to/your_rules.md} for this reservoir.
     # Static input: optional context: {purpose: ...}, or context_file: path/to/input.json.

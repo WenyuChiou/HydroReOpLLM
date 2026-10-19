@@ -1,0 +1,31 @@
+# Public split-file format for one coupled HydroCNHS and reservoir simulation.
+schema_version: hydroops-coupled-simulation.v2
+
+# User-filled identifier written into provenance records.
+run_id: YOUR_RUN_ID
+# User-filled, unused destination directory, relative to this file.
+output: YOUR_OUTPUT_DIRECTORY
+# Physical reservoir and network file, relative to this file.
+case: reservoirs.yaml
+# User-filled inclusive operation window inside the native hydrology period.
+start_date: 'YOUR_START_DATE_YYYY-MM-DD'
+end_date: 'YOUR_END_DATE_YYYY-MM-DD'
+# Optional total provider-attempt ceiling, including retries; null means no ceiling.
+max_calls: null
+
+# Each {file: ...} replaces the complete section. It is not a deep merge.
+hydrology:
+  file: hydrology.yaml
+# The starter selects the Rule-based operator. Use agents.llm.yaml for an LLM.
+agents:
+  file: agents.rule.yaml
+models:
+  file: models.yaml
+information:
+  file: information.yaml
+auditors:
+  file: auditors.yaml
+
+# Registered user code. The key is the ID used by agents.rule.yaml.
+extensions:
+  user_registered_rule: extensions/user_registered_rule/__init__.py

@@ -18,6 +18,12 @@ FIGURE_DOWNLOADS = {
     f"docs/figures/hydrocnhs-coupling-framework-en.{ext}": f"hydroopsllm-figure1.{ext}"
     for ext in ("png", "pdf")
 }
+FIGURE_DOWNLOADS.update({
+    f"docs/figures/{name}.{ext}": f"{name}.{ext}"
+    for name in ("simulation-stages", "reservoir-agent-mapping",
+                 "prompt-context-workflow", "fe-walter-weather-workflow")
+    for ext in ("drawio", "svg")
+})
 MAP_DOWNLOADS = {
     **{f"docs/figures/fe-walter-catchment.{ext}": f"fe-walter-catchment.{ext}"
        for ext in ("png", "svg", "pdf")},
@@ -31,8 +37,14 @@ HYDROLOGY_DOWNLOADS = {
     "data/accepted/fe_walter_hydrology.yaml": "fe_walter_hydrology.yaml",
     "data/accepted/historical_manifest.json": "historical_manifest.json",
 }
+HYDROLOGY_DOWNLOADS.update({
+    f"examples/fe_walter/hydrology_data/climate/{name}": name
+    for name in ("fe_walter_climate_monthly_1989_2025.csv",
+                 "fe_walter_climate_1989_2025.png", "fe_walter_climate_1989_2025.svg",
+                 "fe_walter_climate_1989_2025.pdf")
+})
+HYDROLOGY_DOWNLOADS["examples/fe_walter/hydrology_data/climate/provenance.json"] = "climate-provenance.json"
 ANNUAL_DOWNLOADS = {
-    "examples/fe_walter/annual/outputs/custom_system_prompt_20261016.txt": "custom_system_prompt_20261016.txt",
     **{
     f"examples/fe_walter/annual/outputs/{name}": name for name in (
         "daily.csv", "attempt_summary.json", "failed_reply_2016_06_18.txt",
@@ -43,20 +55,18 @@ ANNUAL_DOWNLOADS = {
 CONFIG_DOWNLOADS = {
     f"examples/fe_walter/coupled/{name}": name
     for name in (
-        "experiment.yaml", "rule.yaml", "llm_available.yaml", "llm_knowledge.yaml",
-        "llm_available.gemma4.yaml", "llm_knowledge.gemma4.yaml", "models.gemma4.yaml",
+        "experiment.yaml", "llm_available.yaml", "llm_knowledge.yaml",
         "hydrology.yaml", "models.yaml", "agents.rule.yaml", "agents.llm_available.yaml",
         "agents.llm_knowledge.yaml", "auditors.yaml", "reservoirs.json",
     )
 }
 CONFIG_DOWNLOADS.update({
-    f"examples/fe_walter/coupled/current/{name}": f"current-{name}"
-    for name in ("experiment.yaml", "llm_available.yaml", "llm_knowledge.yaml", "models.yaml")
+    f"examples/fe_walter/prompts/{name}": name
+    for name in ("available_information.txt", "retrieved_knowledge.txt")
 })
 CONFIG_DOWNLOADS.update({
-    f"examples/fe_walter/prompts/{name}": name
-    for name in ("zeroshot_seasonal_v1_system.txt", "dkp_seasonal_v1_system.txt",
-                 "dkp_seasonal_v2_system.txt")
+    "examples/fe_walter/seasonal_pool_criteria.json": "seasonal_pool_criteria.json",
+    "examples/fe_walter/knowledge/operating_rules.md": "operating-knowledge.txt",
 })
 COMPLETED_DOWNLOADS = {
     f"examples/fe_walter/coupled/outputs/{name}": name
@@ -65,7 +75,7 @@ COMPLETED_DOWNLOADS = {
 }
 YEAR_DOWNLOADS = {
     f"examples/fe_walter/coupled/outputs/2016/{name}": f"2016-{name}"
-    for name in ("daily.csv", "summary.json", "pins.json", "pool_release.svg",
+    for name in ("daily.csv", "summary.json", "pins.json", "pool_release.png", "pool_release.svg",
                  "pool_release.pdf", "llm_available_decision.json", "llm_knowledge_decision.json")
 }
 COMPARISON_DOWNLOADS = {
@@ -73,6 +83,22 @@ COMPARISON_DOWNLOADS = {
     for name in ("daily.csv", "summary.json", "pool_release.png", "pool_release.svg",
                  "pool_release.pdf", "llm_available_pair.json", "llm_knowledge_pair.json")
 }
+TUTORIAL_DOWNLOADS = {
+    f"examples/fe_walter/coupled/outputs/current_tutorial/{name}": name
+    for name in (
+        "daily.csv", "provenance.json",
+        "daily_water_elevation.png", "daily_water_elevation.svg", "daily_water_elevation.pdf",
+        "controlled_release_daily.png", "controlled_release_daily.svg", "controlled_release_daily.pdf",
+        "reservoir_operations.png", "reservoir_operations.svg", "reservoir_operations.pdf",
+    )
+}
+# Generic templates are maintained once and included verbatim in the chapters.
+TEMPLATE_FILES = (
+    "experiment.yaml", "hydrology.yaml", "reservoirs.yaml", "agents.rule.yaml",
+    "agents.llm.yaml", "models.yaml", "auditors.yaml", "information.yaml",
+    "prompts/system.txt", "prompts/operator.txt", "extensions/user_registered_rule/__init__.py",
+)
+TEMPLATE_DOWNLOADS = {"templates/coupled/" + name: name for name in TEMPLATE_FILES}
 MULTI_RESERVOIR_FILES = (
     "agents.llm.yaml", "agents.rule.yaml", "auditors.yaml", "experiment.llm.yaml",
     "experiment.yaml", "forcing.csv", "hydrology.yaml", "information.yaml",
@@ -103,13 +129,17 @@ PAGES = {
     "examples/fe_walter/coupling.zh-TW.md": "examples/fe_walter/coupling.zh-TW.md",
     "examples/fe_walter/results.md": "examples/fe_walter/results.md",
     "examples/fe_walter/results.zh-TW.md": "examples/fe_walter/results.zh-TW.md",
+    "examples/fe_walter/results_history.md": "examples/fe_walter/results_history.md",
+    "examples/fe_walter/results_history.zh-TW.md": "examples/fe_walter/results_history.zh-TW.md",
+    "examples/fe_walter/engine_comparison.md": "examples/fe_walter/engine_comparison.md",
+    "examples/fe_walter/prompt_review.md": "examples/fe_walter/prompt_review.md",
     **{f"examples/fe_walter/{method}/{name}": f"examples/fe_walter/{method}/{name}"
        for method in ("benchmark", "zero_shot", "dkp")
        for name in ("README.md", "README.zh-TW.md")},
     "tutorials/README.md": "tutorials/README.md",
     "tutorials/README.zh-TW.md": "tutorials/README.zh-TW.md",
     "tutorials/fe_walter.md": "tutorials/fe_walter.md",
-    "tutorials/main.ipynb": "tutorials/main.ipynb",
+    "examples/fe_walter/notebook.md": "tutorials/main.md",
     "tutorials/advanced.ipynb": "tutorials/advanced.ipynb",
     "archive/README.md": "archive/README.md",
     **{f"docs/{name}": f"docs/{name}" for name in (
@@ -118,7 +148,9 @@ PAGES = {
         "LIVE_READINESS.md", "auditor_plugins.md", "PROJECT_INVENTORY.md", "BUILDING.md",
         "GETTING_STARTED.md", "BUILD_SIMULATION.md", "BUILD_SIMULATION.zh-TW.md", "INFORMATION.md", "INFORMATION.zh-TW.md",
         "CONFIGURATION.md", "MODEL_PROVIDERS.md", "MULTI_RESERVOIR.md", "INPUT_OUTPUT.md", "API_REFERENCE.md",
+        "GLOBAL_SETTINGS.md", "TEMPLATES.md", "CASE_STUDIES.md",
         "PARAMETER_REFERENCE.md", "RESULTS_GUIDE.md", "REFERENCE.md", "RUNNING.md", "CODE_STRUCTURE.md", "WEATHER_INPUTS.md",
+        "TROUBLESHOOTING.md", "RECORDS.md",
     )},
 }
 # Match the inner image in a linked badge before its enclosing Markdown link.
@@ -171,6 +203,18 @@ def prepare(source: Path, *, source_ref: str = "main") -> None:
             elif not match[1].startswith("!") and relative in COMPARISON_DOWNLOADS:
                 import os
                 output = source / "_completed_downloads" / COMPARISON_DOWNLOADS[relative]
+                value = Path(os.path.relpath(output, (source / destination).parent)).as_posix()
+            elif not match[1].startswith("!") and relative in TUTORIAL_DOWNLOADS:
+                import os
+                output = source / "_tutorial_downloads" / TUTORIAL_DOWNLOADS[relative]
+                value = Path(os.path.relpath(output, (source / destination).parent)).as_posix()
+            elif not match[1].startswith("!") and relative in TEMPLATE_DOWNLOADS:
+                import os
+                output = source / "_template_downloads" / TEMPLATE_DOWNLOADS[relative]
+                value = Path(os.path.relpath(output, (source / destination).parent)).as_posix()
+            elif relative.startswith("docs/_static/"):
+                import os
+                output = source / "_static" / target.relative_to(ROOT / "docs/_static")
                 value = Path(os.path.relpath(output, (source / destination).parent)).as_posix()
             elif not match[1].startswith("!") and relative in MULTI_RESERVOIR_DOWNLOADS:
                 import os
@@ -240,6 +284,16 @@ def prepare(source: Path, *, source_ref: str = "main") -> None:
         target = source / relative
         target.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(ROOT / relative, target)
+    template_downloads = source / "_template_downloads"
+    template_downloads.mkdir()
+    for relative, name in TEMPLATE_DOWNLOADS.items():
+        for target in (template_downloads / name, source / relative):
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(ROOT / relative, target)
+    with zipfile.ZipFile(template_downloads / "coupled-configuration.zip", "w",
+                         compression=zipfile.ZIP_DEFLATED) as bundle:
+        for name in (*TEMPLATE_FILES, "README.md"):
+            bundle.write(ROOT / "templates/coupled" / name, arcname="coupled/" + name)
     completed_downloads = source / "_completed_downloads"
     completed_downloads.mkdir()
     for relative, name in COMPLETED_DOWNLOADS.items():
@@ -254,6 +308,14 @@ def prepare(source: Path, *, source_ref: str = "main") -> None:
     # Only these curated comparison assets are published; raw HTTP journals stay private.
     for relative, name in COMPARISON_DOWNLOADS.items():
         shutil.copyfile(ROOT / relative, completed_downloads / name)
+        canonical = source / relative
+        canonical.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(ROOT / relative, canonical)
+    # Publish only the current three-method teaching data and its two figures.
+    tutorial_downloads = source / "_tutorial_downloads"
+    tutorial_downloads.mkdir()
+    for relative, name in TUTORIAL_DOWNLOADS.items():
+        shutil.copyfile(ROOT / relative, tutorial_downloads / name)
         canonical = source / relative
         canonical.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(ROOT / relative, canonical)
@@ -288,11 +350,6 @@ def prepare(source: Path, *, source_ref: str = "main") -> None:
         target = source / relative
         target.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(ROOT / relative, target)
-    # The rejected historical prompt remains distinct from active config downloads.
-    relative = "examples/fe_walter/annual/outputs/custom_system_prompt_20261016.txt"
-    target = source / relative
-    target.parent.mkdir(parents=True, exist_ok=True)
-    shutil.copyfile(ROOT / relative, target)
     # Publish selected original-byte case evidence for local viewing and downloads.
     case_downloads = source / "_case_downloads/dkp_2016_2020"
     case_downloads.mkdir(parents=True)
@@ -305,18 +362,22 @@ def prepare(source: Path, *, source_ref: str = "main") -> None:
         shutil.copyfile(item, case_downloads / item.name)
     groups = {
         "Overview and installation": ["docs/README", "docs/GETTING_STARTED"],
-        "Inputs and outputs": ["docs/INPUT_OUTPUT", "docs/HYDROLOGY_SETUP", "docs/WEATHER_INPUTS"],
-        "Configure agents": ["docs/CONFIGURATION", "docs/BUILD_SIMULATION", "docs/MULTI_RESERVOIR",
-                             "docs/MODEL_PROVIDERS", "docs/LLM_MODULES", "docs/INFORMATION"],
-        "Tutorials": ["tutorials/fe_walter", "tutorials/README", "tutorials/main", "tutorials/advanced",
-                      "examples/fe_walter/README", "examples/fe_walter/configuration", "examples/fe_walter/hydrology",
-                      "examples/fe_walter/coupled/README", "examples/fe_walter/coupling", "examples/fe_walter/annual/README",
-                      *[f"examples/fe_walter/{method}/README" for method in ("benchmark", "zero_shot", "dkp")]],
-        "Results and recovery": ["docs/RESULTS_GUIDE", "docs/RUNNING", "examples/fe_walter/results",
-                                 "examples/fe_walter/annual/decision_2016_01_01", "examples/fe_walter/annual/results"],
+        "Configuration": ["docs/INPUT_OUTPUT", "docs/GLOBAL_SETTINGS", "docs/HYDROLOGY_SETUP",
+                          "docs/BUILD_SIMULATION", "docs/CONFIGURATION", "docs/RUNNING"],
+        "Case studies": ["docs/CASE_STUDIES", "examples/fe_walter/README", "tutorials/fe_walter", "tutorials/main"],
+        "Results": ["docs/RESULTS_GUIDE", "examples/fe_walter/results"],
+        "Troubleshooting": ["docs/TROUBLESHOOTING"],
         "API and reference": ["docs/API_REFERENCE", "docs/PARAMETER_REFERENCE", "docs/REFERENCE", "docs/USER_GUIDE",
                               "docs/CODE_STRUCTURE", "docs/PROJECT_INVENTORY", "archive/README", "repository",
-                              "docs/BUILDING", "docs/auditor_plugins", "docs/LIVE_READINESS"],
+                              "docs/BUILDING", "docs/auditor_plugins", "docs/LIVE_READINESS", "docs/RECORDS",
+                              "docs/TEMPLATES", "docs/WEATHER_INPUTS", "docs/MODEL_PROVIDERS", "docs/INFORMATION", "docs/LLM_MODULES",
+                              "examples/fe_walter/prompt_review",
+                              "examples/fe_walter/engine_comparison", "examples/fe_walter/configuration", "examples/fe_walter/hydrology",
+                              "examples/fe_walter/coupled/README", "examples/fe_walter/coupling", "examples/fe_walter/annual/README",
+                              *[f"examples/fe_walter/{method}/README" for method in ("benchmark", "zero_shot", "dkp")],
+                              "examples/fe_walter/annual/decision_2016_01_01", "examples/fe_walter/annual/results",
+                              "tutorials/README", "docs/MULTI_RESERVOIR", "tutorials/advanced"],
+        "Historical research": ["examples/fe_walter/results_history"],
         "繁體中文": [path.rsplit(".", 1)[0] for path in PAGES.values()
                    if "zh-TW" in path],
     }

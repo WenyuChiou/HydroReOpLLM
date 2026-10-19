@@ -1,0 +1,15 @@
+# Optional sources visible only through a selected profile.
+sources:
+  operating_target:
+    type: static
+    quantity: target_release
+    unit: m3/s
+    location: YOUR_RESERVOIR_ID
+    # User-filled target; it is information, not a physical constraint.
+    value: YOUR_INFORMATION_VALUE
+profiles:
+  operator_view:
+    fields:
+      operating_target_cms:
+        source: operating_target
+        required: true

@@ -3,12 +3,15 @@ import shutil
 import sys
 import tempfile
 import unittest
+import os
+from unittest.mock import patch
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from examples.fe_walter.extensions.anik_v3_7 import AnikPolicyAdapter, load_anik
+from examples.fe_walter.extensions.anik_v3_7 import AnikPolicyAdapter
+from reference_oracle import load_anik, require_reference_dir
 from examples.fe_walter.legacy.physics import PhysicalConfig, apply_transition
 
 
@@ -95,17 +98,17 @@ class LoadAnikTests(unittest.TestCase):
         self.assertIs(loaded, ANIK)
         self.assertEqual(
             Path(loaded.__file__).resolve(),
-            (ROOT / "third_party" / "anik_v3_7" / "reservoir_model.py").resolve(),
+            (require_reference_dir() / "reservoir_model.py").resolve(),
         )
 
     def test_rejects_changed_vendor_source_before_import(self):
         with tempfile.TemporaryDirectory() as directory:
-            copied = Path(directory) / "third_party" / "anik_v3_7"
-            shutil.copytree(ROOT / "third_party" / "anik_v3_7", copied)
+            copied = Path(directory) / "native"
+            shutil.copytree(require_reference_dir(), copied)
             path = copied / "reservoir_model.py"
             path.write_bytes(path.read_bytes() + b"\n# changed\n")
-            with self.assertRaisesRegex(RuntimeError, "checksum mismatch"):
-                load_anik(directory)
+            with patch.dict(os.environ, {"HYDROOPS_ANIK_SOURCE_DIR": str(copied)}), self.assertRaisesRegex(RuntimeError, "checksum mismatch"):
+                load_anik(ROOT)
 
 
 class AdapterTests(unittest.TestCase):

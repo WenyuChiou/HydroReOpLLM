@@ -1,67 +1,50 @@
 # HydroOpsLLM
 
 [![使用手冊](docs/_static/docs-badge-zh-TW.svg)](https://wenyuchiou.github.io/HydroOpsLLM/)
-![Python 3.12](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)
 
 [English](README.md) | [繁體中文](README.zh-TW.md)
 
-HydroOpsLLM 將大型語言模型的決策接入 HydroCNHS 水文模擬，用於水庫操作研究。
+HydroOpsLLM 在 HydroCNHS 上加入可設定的 LLM 水庫操作功能。
 
 ![HydroOpsLLM 封面](docs/figures/hydroopslm-cover.png)
 
-HydroCNHS 計算流量，各水庫的 agent 提出放流需求，再由物理模型實施、更新蓄水並演算下游出流。實施結果供下一日決策使用。在 YAML 為每個 agent 設定 `reservoir_id` 與 `type: rule_based` 或 `type: llm`。
+HydroCNHS 計算流量；每個水庫 agent 提出放流需求；物理模型執行該決策、更新蓄水量，並將出流向下游遞送。執行後的狀態再提供給下一日決策。
 
-## 安裝
+## 從這裡開始
 
-使用 Python 3.12。專案維持私人期間需要 repo 存取權。
+1. **安裝。** 使用 Python 3.12 與 repository 鎖定的相依套件版本。專案為私人 repository 期間，需要存取權限。
 
-```sh
-git clone https://github.com/WenyuChiou/HydroOpsLLM.git
-cd HydroOpsLLM
-```
+   ```sh
+   git clone https://github.com/WenyuChiou/HydroOpsLLM.git
+   cd HydroOpsLLM
+   python3.12 -m venv .venv
+   source .venv/bin/activate
+   python -m pip install -e . -c environment/requirements-bundled.txt
+   ```
 
-建立並啟用環境：
+   在 Windows PowerShell 中，先以 `py -3.12 -m venv .venv` 與 `.venv\Scripts\Activate.ps1` 建立並啟用環境，再執行相同的安裝指令。
 
-```sh
-# Linux / macOS
-python3.12 -m venv .venv
-source .venv/bin/activate
-```
+2. **設定研究。** 先讀[設定總覽](docs/INPUT_OUTPUT.md)，再複製完整的
+   [`templates/coupled`](templates/coupled/README.md) 起始範本。檔案索引分開列出
+   實驗、已接受水文、物理網路、agent、模型、prompt、資訊與 auditor。替換所有必要
+   placeholder 後，執行 `reservoir-experiment check <your-experiment.yaml>`；
+   `check` 不會執行水文模擬或呼叫模型。
 
-```powershell
-# Windows PowerShell
-py -3.12 -m venv .venv
-.venv\Scripts\Activate.ps1
-```
+3. **依序閱讀 [F.E. Walter 教學](tutorials/fe_walter.md)。** 教學把通用設定套用到
+   一個研究案例，並比較 **Rule-based**、**LLM with available information** 與
+   **LLM with retrieved knowledge**。[主 notebook](tutorials/main.ipynb)只讀取
+   repository 內已提交的證據，不會呼叫模型。
 
-```sh
-python --version
-python -m pip install -e . -c environment/requirements-bundled.txt
-```
+4. **查看[已儲存的結果](examples/fe_walter/results.zh-TW.md)。** 合併操作圖與完整精度
+   資料表可供檢視，不需要重新執行推論或水文模擬。這些保存曲線沿用來源執行時的
+   prompt 與 context。
 
-## 執行小型範例
+## 決策方法
 
-這個四天的合成範例包含兩座獨立水庫，各有自己的河川出口。使用規則式操作，不需模型或 API key。
+請為每個 agent 設定 `reservoir_id`，並選擇 `type: rule_based` 或 `type: llm`。Rule-based agent 會載入已註冊的規則模組；Hanasaki 是 F.E. Walter 範例選用的模組，並非框架的必要條件。LLM agent 會選擇 `model_profile` 與 `prompt_file`，也可在 `customization` 中加入 context 或檢索知識。核心不會自動加入共用 system prompt，但案例 extension 可明確組合一個 system prompt。
 
-```sh
-reservoir-experiment check examples/multiple_reservoirs/experiment.yaml
-reservoir-experiment prepare examples/multiple_reservoirs/experiment.yaml
-reservoir-experiment run examples/multiple_reservoirs/experiment.yaml
-reservoir-experiment verify runs/independent-rivers-rule/operation --require-offline
-```
+[使用手冊](https://wenyuchiou.github.io/HydroOpsLLM/)說明研究建置、模型供應商設定、已儲存回覆、稽核與中斷後續跑。
 
-`prepare` 先依水文模型的完整初始化期間，從氣象資料計算入流；`run` 再逐日推進水庫操作與下游演算。目前上游逕流在操作迴圈開始前準備完成。
+## 授權與引用
 
-依[建立模擬](docs/BUILD_SIMULATION.md)設定水文、水庫參數與 agent。[F.E. Walter 案例](examples/fe_walter/README.md)以同一個物理案例說明三種方法：Rule-based、LLM 與可用資訊、LLM 與檢索知識。
-
-## 設定 LLM
-
-每個 LLM agent 選擇 `model_profile` 與 `prompt_file`，並可在 `customization` 加入知識或 context。核心不會自動加入共用 system prompt。原生介面支援 **OpenAI、Anthropic Claude、Google Gemini 與 Ollama**，另保留 OpenAI-compatible 介面。
-
-`check` 預覽設定與 prompt，不呼叫模型。新的 LLM 執行需明確指定 `--allow-network`。憑證、參數、重試與 fallback 設定見[模型設定](docs/USER_GUIDE.md)。
-
-[使用手冊](https://wenyuchiou.github.io/HydroOpsLLM/)依序說明輸入準備、code 架構、原始回覆、audit 與中斷續跑。Notebook 與教學結果可直接查看，不需重新推論。
-
-## 授權與來源
-
-專案授權待定。HydroCNHS 保留其 [BSD 3-Clause 授權](licenses/HydroCNHS-BSD-3-Clause.txt)。另見[第三方聲明](THIRD_PARTY_NOTICES.md)及[來源與引用](docs/REFERENCE.md)。
+專案授權待定。HydroCNHS 保留其 [BSD 3-Clause 授權](licenses/HydroCNHS-BSD-3-Clause.txt)。另見[第三方軟體聲明](THIRD_PARTY_NOTICES.md)與[來源及引用](docs/REFERENCE.md)。

@@ -14,12 +14,14 @@ from datetime import date, datetime
 import hashlib
 import json
 import math
+import os
 from pathlib import Path
 import re
 from typing import Any, Mapping
 
 from llm_reservoir_agent.audit import json_snapshot
 from llm_reservoir_agent.context import ContextValue, DecisionContext
+from .seasonal_prompt_context import SeasonalPromptContext
 
 
 CFS_TO_CMS = 0.028316847
@@ -156,7 +158,7 @@ class CaseProfile:
 
 
 def case_profile_path() -> Path:
-    return (Path(__file__).resolve().parents[1] / "profiles" / "anik_v3_7.json").resolve()
+    return (Path(__file__).resolve().parents[1] / "profiles" / "reservoir.json").resolve()
 
 
 def load_case_profile(runtime_root: Path | str) -> CaseProfile:
@@ -183,9 +185,51 @@ def load_case_profile(runtime_root: Path | str) -> CaseProfile:
     })
 
 
+_HISTORY_ENV = "HYDROOPS_FE_WALTER_HISTORY_DIR"
+
+
+def historical_prompt_path(profile: CaseProfile, method: str) -> Path:
+    """Resolve one original prompt from an explicitly restored external tree."""
+    configured = os.environ.get(_HISTORY_ENV)
+    if not configured:
+        raise RuntimeError(
+            "optional historical FE Walter prompts require "
+            f"{_HISTORY_ENV} to point to an external restored repository root"
+        )
+    root = Path(configured).expanduser().resolve()
+    if not root.is_dir():
+        raise FileNotFoundError(
+            f"{_HISTORY_ENV} must point to an existing external restored repository root: {root}"
+        )
+    repository = profile.path.resolve().parents[3]
+    if root == repository or repository in root.parents:
+        raise ValueError(f"{_HISTORY_ENV} must point outside the active repository")
+    declared = (profile.path.parent / profile.data["default_system_prompts"][method]["path"]).resolve()
+    try:
+        relative = declared.relative_to(repository)
+    except ValueError as exc:
+        raise ValueError("serialized default system prompt path escapes the repository root") from exc
+    candidate = (root / relative).resolve()
+    try:
+        candidate.relative_to(root)
+    except ValueError as exc:
+        raise ValueError("historical default system prompt escapes the external history root") from exc
+    if not candidate.is_file():
+        raise FileNotFoundError(f"historical default system prompt is missing: {candidate}")
+    return candidate
+
+
 def read_system_prompt(profile: CaseProfile, method: str, settings: Mapping[str, Any]) -> tuple[str, str, str]:
     original = profile.data["default_system_prompts"][method]
-    original_path = (profile.path.parent / original["path"]).resolve()
+    if settings.get("system_prompt_mode", "original") == "custom":
+        source = Path(settings["system_prompt"])
+        blob = source.read_bytes()
+        source_hash = hashlib.sha256(blob).hexdigest()
+        if source_hash != settings["system_prompt_sha256"]:
+            raise ValueError("system_prompt file changed after validation")
+        text = blob.decode("utf-8").replace("\r\n", "\n").replace("\r", "\n")
+        return text, original["sha256"], "file"
+    original_path = historical_prompt_path(profile, method)
     original_blob = original_path.read_bytes()
     if hashlib.sha256(original_blob).hexdigest() != original["sha256"]:
         raise ValueError("serialized default system prompt checksum mismatch")
@@ -337,8 +381,10 @@ class DKPRetriever:
 class NativePromptFormatter:
     """Build one exact native user message as a ConfiguredBackend prompt callback."""
 
-    def __init__(self, profile: CaseProfile, settings: Mapping[str, Any], dkp_path: Path | None):
+    def __init__(self, profile: CaseProfile, settings: Mapping[str, Any], dkp_path: Path | None,
+                 seasonal_context: SeasonalPromptContext | None = None):
         self.profile, self.settings = profile, settings
+        self.seasonal_context = seasonal_context
         self.history: list[dict[str, Any]] = []
         self.retriever = None if dkp_path is None else DKPRetriever(dkp_path)
         self.last_runtime: dict[str, Any] | None = None
@@ -393,6 +439,8 @@ class NativePromptFormatter:
             self.last_headings = []
             lines += ["", "Decide the mean release for this interval (cfs)."]
         prompt = "\n".join(lines)
+        if self.seasonal_context is not None:
+            prompt = self.seasonal_context.inject(prompt, day)
         self.last_runtime = runtime
         self.last_variables = {
             "schema_version": "reservoir-daily-inputs.v1", "reservoir_profile": self.profile.profile_id,
@@ -404,6 +452,11 @@ class NativePromptFormatter:
             "history_semantics": "prior requested and implemented outflows; appended after physical commit",
             "target_period": runtime["target_period"],
         }
+        if self.seasonal_context is not None:
+            self.last_variables["seasonal_prompt_context"] = {
+                **self.seasonal_context.provenance,
+                "window": self.seasonal_context.for_date(day).window_id,
+            }
         return ContextValue(prompt, {"source": "fe_walter.native_prompt", "date": day.isoformat()})
 
     def commit(self, record: Mapping[str, Any]) -> None:

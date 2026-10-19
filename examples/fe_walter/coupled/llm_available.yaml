@@ -1,10 +1,13 @@
-schema_version: hydroops-coupled-simulation.v2
-case: reservoirs.json
-start_date: '2016-01-01'
-end_date: '2016-12-31'
-run_id: fe-walter-coupled-llm_available
-output: ../../../runs/fe-walter-coupled-llm_available
-max_calls: null
+# LLM entry using available operating information. Paths are relative to this file.
+schema_version: hydroops-coupled-simulation.v2  # Loader format, not the package release.
+case: reservoirs.json                           # Physical reservoir and routing network JSON.
+start_date: '2016-01-01'                        # First operation day (included).
+end_date: '2016-12-31'                          # Last operation day (included).
+run_id: fe-walter-current-llm_available         # Label recorded in run metadata.
+# Actual folder; change with run_id.
+output: ../../../runs/fe-walter-current-llm_available
+max_calls: null  # No run-wide provider-attempt cap; each profile still limits per-decision tries.
+# Model, audit, agent and hydrology files remain distinct reusable layers.
 models:
   file: models.yaml
 auditors:
@@ -14,4 +17,4 @@ agents:
 hydrology:
   file: hydrology.yaml
 extensions:
-  reference_v3_7: ../extensions/__init__.py
+  reference_v3_7: ../extensions/__init__.py  # Backend that interprets the agent parameters.

@@ -325,7 +325,8 @@ class MultiReservoirAcceptance(Base):
         self.assertFalse(shared.decisions)
 
     def test_wrapped_policy_isolation_at_both_entrypoints(self):
-        from examples.fe_walter.extensions.anik_v3_7 import AnikPolicyAdapter, load_anik
+        from examples.fe_walter.extensions.anik_v3_7 import AnikPolicyAdapter
+        from reference_oracle import load_anik, require_reference_dir
         vendor = load_anik(PROJECT_ROOT)
         cfg = next(value for value in vendor.RESERVOIRS if value.name == "F.E. Walter Dam")
         config, rows = network(count=2, days=1)

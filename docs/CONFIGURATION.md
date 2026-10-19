@@ -1,241 +1,147 @@
-# Configure agents, prompts, and context
+# Rule-based and LLM operators
 
-Start from the four-day independent-river fixture in
-[`examples/multiple_reservoirs`](../examples/multiple_reservoirs/experiment.yaml).
-It is a connection test for an accepted HydroCNHS model, reservoir network, and
-operator. It is not a calibrated basin or a validated operating policy.
+An operator agent controls one physical reservoir. Choose `type: rule_based` to
+run explicitly registered user code without a model request, or `type: llm` to
+request a release from a configured provider. Both methods return the same
+controlled release action to common reservoir physics and routing.
 
-For your own study, complete HydroCNHS basin construction, parameter derivation,
-and calibration/validation first. Use the
-[official HydroCNHS manual and tutorials](https://cylin928.github.io/HydroCNHS/),
-then follow [Build a simulation](BUILD_SIMULATION.md) to connect that accepted
-model to HydroOpsLLM.
+## Start with a Rule-based operator
 
-## Make the first rule-based run
+Use a deterministic user rule to verify IDs, dates, physics, routing, and saved
+evidence before introducing a live provider. The template registers a minimal
+user-owned rule named `user_registered_rule`; replace its controller or
+parameters with the rule your study evaluates.
 
-The generic fixture uses one v2 entry file:
+Download [agents.rule.yaml](../templates/coupled/agents.rule.yaml), browse the
+[template folder](TEMPLATES.md), and inspect the included
+[rule package](../templates/coupled/extensions/user_registered_rule/__init__.py).
 
-```yaml
-schema_version: hydroops-coupled-simulation.v2
-run_id: independent-rivers-rule
-output: ../../runs/independent-rivers-rule
-case: reservoirs.yaml
-start_date: '2020-02-28'
-end_date: '2020-03-02'
-max_calls: null
-hydrology: {file: hydrology.yaml}
-agents: {file: agents.rule.yaml}
-models: {file: models.yaml}
-information: {file: information.yaml}
-auditors: {file: auditors.yaml}
-extensions:
-  local_retrieval: extensions/__init__.py
-  hanasaki: ../rules/hanasaki/__init__.py
+```{literalinclude} ../templates/coupled/agents.rule.yaml
+:language: yaml
 ```
 
-Edit these files in this order:
+| Field | Purpose and units | Required? | User-filled or referenced value |
+|---|---|---|---|
+| Agent key | Stable operator ID | Required | Replace `YOUR_AGENT_ID` |
+| `reservoir_id` | Physical reservoir controlled by this agent | Required | Key from `reservoirs.yaml` |
+| `type` | Public method classification | Required | `rule_based` |
+| `rule` | Registered extension ID | Required | Key from `experiment.extensions` |
+| `rule_parameters` | Opaque settings interpreted by that rule | Required by selected rule | User values and rule-owned units |
+| `auditors` | Diagnostic checks applied to decisions | Optional | Unique IDs from `auditors.yaml` |
 
-| File | Required change for a new study |
-|---|---|
-| `experiment.yaml` | Set dates, output, case, and referenced section files. |
-| `hydrology.yaml` | Point to the accepted HydroCNHS model and forcing; bind incremental local flow to operation nodes. |
-| `reservoirs.yaml` | Define reservoir state, physical limits, connections, and exact terminal outlets. |
-| `agents.rule.yaml` | Assign exactly one agent to every controlled reservoir. |
-| `models.yaml` | Required by this split example; used only by LLM agents. |
+Rule modules implement `validate_backend()` and `build_backend()`. Their backend
+provides `decide(observation)`, `policy_id`, and `network_calls = 0`. The common
+engine remains responsible for storage, spill, routing, auditing, and records.
 
-A rule agent needs no model or prompt:
+## Switch to an LLM operator
 
-```yaml
-operator_a:
-  reservoir_id: lake_a
-  type: rule_based
-  rule: hanasaki
-  rule_parameters:
-    alpha: 0.85
-    inflow_statistics_file: statistics_a.json
-  auditors: [bounds]
+After the Rule-based setup verifies, point `experiment.yaml` from
+`agents.rule.yaml` to `agents.llm.yaml`. The complete LLM agent file keeps model,
+prompt, information, and audit choices explicit.
+
+Download [agents.llm.yaml](../templates/coupled/agents.llm.yaml) or browse the
+[complete template folder](TEMPLATES.md).
+
+```{literalinclude} ../templates/coupled/agents.llm.yaml
+:language: yaml
 ```
 
-`rule` is the ID of a registered rule extension. `rule_parameters` contains
-settings interpreted by that extension. Hanasaki is this fixture's example
-inflow-history rule; it is not a framework default. Register and test your own
-module for operating curves, water supply, hydropower, or another controller.
+| Field | Purpose and units | Required? | User-filled or referenced value |
+|---|---|---|---|
+| Agent key | Stable operator ID | Required | Replace `YOUR_AGENT_ID` |
+| `reservoir_id` | Physical reservoir controlled by this agent | Required | Key from `reservoirs.yaml` |
+| `type` | Public method classification | Required | `llm` |
+| `model_profile` | Provider settings selected by ID | Required | Profile key from `models.yaml` |
+| `prompt_file` | User message template | Required for the configured backend | Path relative to the agent file |
+| `customization.system_prompt_file` | Explicit system message | Optional | Path relative to the agent file |
+| `customization.prompt_version` | User prompt provenance label | Optional | Nonempty text |
+| `customization.information` | Decision information profile | Optional | Profile ID from `information.yaml` |
+| `customization.fallback_models` | Ordered alternate model profiles | Optional | List of model IDs; default empty |
+| `auditors` | Diagnostic checks | Optional | Unique IDs from `auditors.yaml` |
 
-Run the complete rule path from the repository root:
+Each controlled reservoir must have exactly one unique operator. Model profiles
+may be shared, but reservoir state and committed history remain separate.
 
-```powershell
-reservoir-experiment check examples/multiple_reservoirs/experiment.yaml
-reservoir-experiment prepare examples/multiple_reservoirs/experiment.yaml
-reservoir-experiment run examples/multiple_reservoirs/experiment.yaml
-reservoir-experiment verify runs/independent-rivers-rule/operation
+## Configure a model profile
+
+The model catalog holds provider connection and generation settings. A profile
+is validated during `check` without provider discovery or a network request.
+Replace `YOUR_MODEL` with the exact model ID selected for the study.
+
+Download [models.yaml](../templates/coupled/models.yaml) or read the
+[provider-specific reference](MODEL_PROVIDERS.md).
+
+```{literalinclude} ../templates/coupled/models.yaml
+:language: yaml
 ```
 
-Success means the four operation dates were written and `verify` accepted the
-saved links, hashes, and water accounting. It does not validate policy quality.
-Next, inspect the output as described in [Results, audit, and trace](RESULTS_GUIDE.md).
+| Field | Purpose | Required? |
+|---|---|---|
+| `provider` | Request and reply adapter | Required |
+| `model` | Provider model ID | Required |
+| `base_url` | Final HTTP(S) API base URL | Required |
+| `api_key_env` | Environment variable containing a key | Optional; needed by authenticated services |
+| `temperature`, `max_tokens` | Generation controls | Optional |
+| `timeout_seconds` | Per-attempt timeout | Optional; default 60 |
+| `max_attempts` | Bounded attempts for this profile | Optional; default 1 |
+| `retry_delay_seconds` | Delay between retryable attempts | Optional; default 2 |
 
-## Switch one reservoir to an LLM
+## Select diagnostic auditors
 
-After the rule run verifies the connections, the smallest general LLM agent is:
+Auditors inspect a proposed action and its context. They write findings but do
+not change release, storage, or routing. Agents select auditor IDs from this
+shared catalog.
 
-```yaml
-operator_a:
-  reservoir_id: lake_a
-  type: llm
-  model_profile: local
-  prompt_file: prompts/operator.txt
+Download [auditors.yaml](../templates/coupled/auditors.yaml).
+
+```{literalinclude} ../templates/coupled/auditors.yaml
+:language: yaml
 ```
 
-All four keys are required for this general agent. `reservoir_id` selects the
-physical reservoir. `type` selects LLM operation. `model_profile` selects a
-profile ID from the model catalog. `prompt_file` is a nonempty user-instruction
-template, resolved relative to this agent file.
+| Field | Purpose and units | Required? |
+|---|---|---|
+| Auditor key | ID listed by an agent | Required |
+| `type` | Configured check | Required; `release_bounds` or `field_range` |
+| `version` | User provenance label | Optional; default `1` |
+| `tolerance_cms` | Allowed release-bound tolerance, m³/s | Optional; default `0` |
 
-HydroOpsLLM does not add a common system prompt. Add one only when your study
-defines it explicitly:
+## Build the prompt
 
-```yaml
-operator_a:
-  reservoir_id: lake_a
-  type: llm
-  model_profile: local
-  prompt_file: prompts/operator.txt
-  customization:
-    system_prompt_file: prompts/system.txt
+HydroOpsLLM does not inject a shared system prompt. The supplied text files are
+ordinary user-owned templates using Python `string.Template` placeholders.
+Write `$$` for a literal dollar sign.
+
+Download [operator.txt](../templates/coupled/prompts/operator.txt) and
+[system.txt](../templates/coupled/prompts/system.txt).
+
+```{literalinclude} ../templates/coupled/prompts/operator.txt
+:language: text
 ```
 
-Configure the matching `local` catalog entry in
-[Model providers](MODEL_PROVIDERS.md). Then use the supplied LLM entry file:
-
-```powershell
-reservoir-experiment check examples/multiple_reservoirs/experiment.llm.yaml
-reservoir-experiment prepare examples/multiple_reservoirs/experiment.llm.yaml
-reservoir-experiment run examples/multiple_reservoirs/experiment.llm.yaml --allow-network
-reservoir-experiment verify runs/independent-rivers-mixed/operation
+```{literalinclude} ../templates/coupled/prompts/system.txt
+:language: text
 ```
 
-Live `run` and unfinished decisions during `resume` require `--allow-network`.
-Rule agents, checks, and replay paths do not make live requests.
+| Placeholder | Value | Required by template? |
+|---|---|---|
+| `$agent_id` | Current operator ID as JSON | Optional |
+| `$observation` | Current protected hydrology and reservoir state | Usually required |
+| `$previous_transition` | Previous committed observation, action, and physics; `null` on day one | Optional |
+| `$information` | Selected causal information snapshot | Requires an information profile |
+| `$knowledge` | Hash-pinned text from the agent knowledge mapping | Requires configured knowledge |
 
-## Understand catalogs, profiles, and paths
+<a id="add-dynamic-context-with-an-extension"></a>
 
-A **catalog** is a named collection shared by the experiment, such as all model
-profiles or all auditors. A **profile** is one named entry in a catalog. An agent
-sees a profile only when it selects that profile ID.
+Selecting information or context does not automatically place it in a prompt;
+the template must contain its placeholder. Conversely, remove `$information`
+when the agent does not select an information profile. Custom fixed values use
+`prompt_variables`; custom retrieval or computation uses `context_providers`
+that return a provenance-bearing `ContextValue`.
 
-The top-level experiment owns shared dates, output, physical case, hydrology,
-and catalogs. Each agent chooses its reservoir, method, model, prompt,
-information profile, and auditors. Information visibility never creates a water
-connection; only `network.connections` and `outlets` move water.
+Live `run` and any unfinished LLM decisions during `resume` require explicit
+network permission. Rule-based agents and `check` do not call a model provider.
+![Prompt construction and response validation](figures/prompt-context-workflow.svg)
 
-`hydrology`, `models`, `agents`, `auditors`, and `information` may be inline or
-exactly `{file: path}`. A file reference cannot also contain inline values, and
-the loader does not deep-merge files. Every path is relative to the file that
-declares it. Missing files and reference cycles stop validation.
-
-New work should use `hydroops-coupled-simulation.v2`. Older inline v1 files
-remain accepted.
-
-## Add prompt data only when needed
-
-Both user and optional system templates use Python `string.Template` syntax.
-Write `$$` for a literal dollar sign. Built-in placeholders are:
-
-| Placeholder | Value |
-|---|---|
-| `$agent_id` | JSON agent ID |
-| `$observation` | Protected current hydrology and static context |
-| `$previous_transition` | Previous committed observation, action, and physics; `null` on day one |
-| `$knowledge` | Hash-pinned full text from the agent's `knowledge` mapping |
-| `$information` | Selected `decision-information.v1` snapshot; requires an information profile |
-
-Add fixed values, knowledge, selected information, custom context, retry, and
-fallback controls under `customization`:
-
-```yaml
-operator_a:
-  reservoir_id: lake_a
-  type: llm
-  model_profile: openai_primary
-  prompt_file: prompts/operator.txt
-  customization:
-    prompt_version: '1'
-    prompt_variables:
-      purpose: flood-season demonstration
-    fallback_models: [anthropic_primary, local]
-```
-
-Prompt-variable aliases must be identifiers, cannot replace built-in names, and
-must be unique across fixed and dynamic context. See [Decision information](INFORMATION.md)
-for observations and forecasts available at a decision time.
-
-## Add dynamic context with an extension
-
-Use a context provider for study-specific retrieval or computation:
-
-```yaml
-customization:
-  context_providers:
-    guidance:
-      extension: local_retrieval
-      config: {documents: knowledge/guidance.json}
-      preview: 'Offline preview used by check.'
-```
-
-`check` uses `preview`; it does not invoke the callback or access a network
-source. At decision time, `build_context(config)` returns a callback. The
-callback receives an immutable `DecisionContext` with `agent_id`, `observation`,
-and `previous_transition`, and returns:
-
-```python
-ContextValue(
-    value="selected guidance",
-    provenance={
-        "source_sha256": "...",
-        "query": "...",
-        "document_ids": ["guide-1"],
-        "available_at": "2020-02-27T00:00:00Z",
-    },
-    available=True,
-)
-```
-
-HydroOpsLLM includes a small local JSON selector, not a general vector-database
-connector. Pin source bytes and retain provenance. A **source pin** records the
-exact source bytes, usually with a hash, so another researcher can identify the
-input used. Context and information cannot modify storage, inflow, or limits.
-
-## Keep retry and fallback explicit
-
-`customization.fallback_models` is an ordered list of model profile IDs and
-defaults to an empty list. Each profile uses its own bounded `max_attempts`.
-The provider ledger records every attempt, actual provider and model, request
-hash, response metadata, and error.
-
-Authentication and configuration errors are terminal. Audit FAIL, physical
-failure, and evidence-write failure never select another model. Fallback is an
-availability policy, not evidence that different models implement the same
-operating policy.
-
-## Preserve advanced backend and history semantics
-
-`customization.backend` selects an explicitly registered extension, and
-`customization.parameters` contains its backend-specific settings. An extension
-that constructs its own messages may omit `prompt_file`; it must validate and
-pin its prompt resources. `customization.execution: replay` is an offline test
-option for custom LLM backends. The F.E. Walter extension preserves Anik's
-message construction; it does not define defaults for general agents.
-
-A rule module implements `validate_backend`, `build_backend`, and `rebase_agent`.
-Its backend supplies `decide(observation)`, a `policy_id`, and `network_calls=0`.
-The common engine still applies physics, routing, audits, and trace writing.
-
-**Committed history** means completed decision days already saved to disk with
-their action, physical transition, and evidence. Resume verifies this saved
-prefix, skips its decisions, and can reuse captured replies. It cannot guarantee
-that an external service received an in-flight request exactly once.
-
-For reproducibility, retain the complete split configuration, source hashes,
-prompts, context provenance, provider records, initial state, physics, routing,
-audits, runtime, and provider identifiers. Plan storage retention before a long
-run. No supplied provider profile establishes speed, cost, or decision quality.
+*Figure 2. State, completed history and the template form the messages; the
+dashed arrow adds optional context. The LLM also receives a response schema.
+Validation produces the release proposal. [Editable draw.io source](figures/prompt-context-workflow.drawio).*

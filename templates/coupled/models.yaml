@@ -1,0 +1,16 @@
+# Shared provider profile selected by agents.llm.yaml.
+primary:
+  # Required provider ID: openai, anthropic, gemini, ollama, or openai_compatible.
+  provider: openai
+  # Required user-selected provider model ID. No example model is implied.
+  model: YOUR_MODEL
+  # Required final API base URL, without credentials, query, or fragment.
+  base_url: https://api.openai.com/v1
+  # Optional environment-variable name containing the API key.
+  api_key_env: OPENAI_API_KEY
+  # Optional generation and bounded retry controls.
+  temperature: 0.0
+  max_tokens: 1024
+  timeout_seconds: 60
+  max_attempts: 2
+  retry_delay_seconds: 2

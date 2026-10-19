@@ -2,7 +2,7 @@
 
 [English](coupling.md) | [繁體中文](coupling.zh-TW.md) · [案例](README.zh-TW.md)
 
-先閱讀[水文、參數與 C&V](hydrology.zh-TW.md)，再跟著一天的決策查看共同模擬。
+先閱讀[目前的 FE Walter 教學](../../tutorials/fe_walter.md)，再在此跟著一天的決策查看共同模擬。
 三種方法改變決策來源，水庫物理與 routing 使用相同介面。
 
 ## 1. 目前範例執行什麼
@@ -45,9 +45,10 @@ LLM 改變蓄水與下游流量，不修改 GWLF 參數或上游氣象。
 
 ## 3. 接入由氣象驅動的原生執行
 
-由氣象驅動的研究使用原生 HydroCNHS 模型與相同 Dam agent。
-以下是 **host 整合步驟**。給定的 experiment CLI 執行預先模擬入流的案例，
-沒有 weather-mode YAML 開關。本次更新沒有提供已完成驗收的 FE Walter 氣象至 LM 完整設定。
+目前的 experiment CLI 已分兩階段連接氣象與水庫操作：`prepare` 計算並保存上游入流，
+`run` 再逐日執行水庫操作與下游 routing，設定入口是 `coupled/experiment.yaml`。
+以下是進階的**原生 host 整合步驟**，供需要直接將 agent 接入自己 HydroCNHS host 的研究者使用；
+一般使用者可直接使用上述正式入口。
 
 1. **準備另一份原生模型。** 複製水文設定，保留真實子集水區的氣象、面積、GWLF 參數與 Lohmann routing。
    水文 warm-up／前置狀態與水庫初始蓄水需分別準備。
@@ -94,7 +95,7 @@ LLM 改變蓄水與下游流量，不修改 GWLF 參數或上游氣象。
 | 決策 → 證據 | Requested／implemented release、原始 audit 與 trace 來源保持連結 |
 
 保存的三日範例僅驗證給定入流的整合。
-氣象到操作的執行證據，請見英文[2016 年耦合結果](coupled/README.md#verified-2016-results)。
+氣象到操作的執行證據，請見英文[2016 年耦合結果](results.md)。
 保存檔驗證不代表操作策略已通過驗收。
 
 接著閱讀[規則式操作](benchmark/README.zh-TW.md)、

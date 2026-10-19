@@ -5,13 +5,13 @@
 The configured decision path is:
 
 ```text
-immutable decision context
-  → explicit system and user templates
+current inflow, reservoir state and saved history
+  → rendered user and optional system messages
   → provider request and bounded attempts
-  → strict operation proposal
+  → validated requested release
   → audit
   → physical implementation and routing
-  → committed feedback
+  → saved result for the next day
 ```
 
 HydroCNHS supplies hydrology, native Dam integration and routing. The model

@@ -2,39 +2,53 @@
 
 [English](README.md) | [繁體中文](README.zh-TW.md)
 
-HydroOpsLLM couples reservoir decisions to hydrological simulation with HydroCNHS.
-Preparation first computes full-period weather-driven hydrology and selects the
-reservoir inflow boundaries. During daily operation, the LLM uses available
-information to propose a release.
+HydroOpsLLM adds LLM reservoir operators to HydroCNHS. You keep your hydrological
+model and choose how each reservoir makes release decisions: **Rule-based** or
+**LLM**.
 
-The reservoir calculation determines implemented release, spill and storage,
-then routes outflow downstream. Updated conditions inform the next decision,
-forming a repeated simulation cycle. The current case uses daily time steps.
-A rule-based agent can use the same reservoir calculation for comparison.
-Each reservoir selects `type: rule_based` with a registered rule, or `type: llm`
-with a model profile and explicit prompt. Reservoir decisions do not alter the
-precomputed weather-to-runoff simulation.
+![HydroOpsLLM: reservoir operations built on HydroCNHS](figures/hydroopslm-cover.png)
+
+HydroCNHS first uses precipitation, temperature and potential evapotranspiration
+(PET) to calculate daily reservoir inflow. HydroOpsLLM saves this inflow for the
+operation period. Each day, an agent uses the inflow and current reservoir state
+to request a release. The reservoir calculation determines the actual release,
+spill and remaining storage, then routes the outflow downstream. The next day
+starts from the updated state.
+
+The simulation has two stages: calculate upstream inflow, then run
+daily reservoir operations and downstream routing. Reservoir decisions do not
+change the upstream rainfall–runoff calculation.
 
 ## Read the manual
 
-| Step | Chapter | What to do |
-|---|---|---|
-| 1 | [Installation](GETTING_STARTED.md) | Install the package and check the command-line entry. |
-| 2 | [Inputs and outputs](INPUT_OUTPUT.md) | Separate global, hydrology, reservoir/coupling and agent settings; check data units. |
-| 3 | [Build a simulation](BUILD_SIMULATION.md), [configure an agent](CONFIGURATION.md) and [model providers](MODEL_PROVIDERS.md) | Learn the common setup, switch Rule-based to LLM, then set the model, prompt and optional knowledge. |
-| 4 | [F.E. Walter case study](../examples/fe_walter/README.md) and [worked tutorial](../tutorials/fe_walter.md) | Connect the map, operating purpose and data to actual YAML, prompt design and daily decisions. |
-| 5 | [Results](RESULTS_GUIDE.md) and [Recovery](RUNNING.md) | Read the latest annual results, inspect records and resume interrupted runs. |
-| 6 | [Python API](API_REFERENCE.md) and [code structure](CODE_STRUCTURE.md) | Find function contracts, extension points and their implementation modules. |
+| Chapter | What you will learn |
+|---|---|
+| [Overview](README.md) | Understand inflow, decisions, reservoir physics and routing. |
+| [Installation](GETTING_STARTED.md) | Install the package and check its command. |
+| [Configuration overview](INPUT_OUTPUT.md) | See the files and the order in which to fill them. |
+| [Global settings](GLOBAL_SETTINGS.md) | Set dates, run identity and output paths. |
+| [Hydrology](HYDROLOGY_SETUP.md) | Supply the accepted native model and weather. |
+| [Reservoirs and network](BUILD_SIMULATION.md) | Connect inflow, storage and downstream paths. |
+| [Agents and LLM](CONFIGURATION.md) | Select a rule or a model, prompt and optional context. |
+| [Check and run](RUNNING.md) | Check files, prepare inflow, run operations and verify records. |
+| [Case studies](CASE_STUDIES.md) | Follow complete examples after learning the settings. |
+| [Results](RESULTS_GUIDE.md) | Read water elevation and controlled release. |
+| [Troubleshooting](TROUBLESHOOTING.md) | Diagnose input, response and interruption problems. |
+| [API reference](API_REFERENCE.md) | Find functions and extension interfaces. |
 
-For catchment construction and calibration, follow the linked
-[HydroCNHS prerequisites](HYDROLOGY_SETUP.md).
+For basin construction and calibration, follow the
+[HydroCNHS tutorials](https://github.com/cylin928/HydroCNHS/tree/main/tutorials).
+This manual explains the added reservoir and LLM workflow.
 
 ## Core workflow
 
+The diagram below separates the upstream hydrology calculation from daily
+reservoir decisions. Follow the arrows from weather to inflow, then through
+release, storage and downstream flow.
+
 ![HydroOpsLLM core workflow](figures/hydrocnhs-coupling-framework-en.png)
 
-Continuous upstream hydrology is precomputed. The daily cycle then renders a
-decision, validates its response, applies physics, routes outflow downstream and
-commits the transition for the next decision. Response validation checks the
-action contract; diagnostic audit evaluates the decision; the recorder preserves
-the evidence. These are separate responsibilities.
+*Figure 1. HydroCNHS provides upstream hydrology and routing. The selected agent
+requests a controlled release; reservoir physics applies it and updates storage.
+Response validation checks the model reply, audits evaluate configured operating
+criteria, and the recorder saves the decision and physical result.*

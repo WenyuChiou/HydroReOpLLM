@@ -1,71 +1,36 @@
 # HydroOpsLLM 使用手冊
 
+[English](index.md) | [繁體中文](index.zh-TW.md)
+
 **Hydrological Simulation with Large Language Model Reservoir Operations**
 
-在耦合水文模擬中設定水庫操作。先學會通用設定與 LLM 決策流程，
-再以 F.E. Walter 的地點背景、資料與 prompt 設計一個水庫操作研究。
+在 HydroCNHS 模擬上加入 LLM 水庫操作。先逐步了解共通設定，再依完整案例調整為自己的研究。
 
 ![HydroOpsLLM 封面](figures/hydroopslm-cover.png)
 
-:::: {container} reading-route
-
-::: {container} route-step
-
-[01 · 了解框架](README.zh-TW.md)
-
-水文、水庫決策，以及連結它們的紀錄。
-
-
-:::
-
-::: {container} route-step
-
-[02 · 設定水庫 agent（英文）](CONFIGURATION.md)
-
-選擇 Rule-based 或 LLM、模型參數、prompt 與可用資訊。
-
-
-:::
-
-::: {container} route-step
-
-[03 · 設計 F.E. Walter 案例](../examples/fe_walter/README.zh-TW.md)
-
-先了解地圖、水庫目的及使用資料，再逐步設定案例並解讀結果。
-
-:::
-
-::::
-
 ## 目錄
 
-| 依序閱讀 | 內容 |
+| 章節 | 要學會的事 |
 |---|---|
-| [Overview](README.zh-TW.md) 與[安裝](GETTING_STARTED.md) | 本套件新增的功能與安裝方式。 |
-| [輸入與輸出（英文）](INPUT_OUTPUT.md) | 相對於原生 HydroCNHS 新增的 experiment YAML、資料格式、單位與輸出。 |
-| [設定 agent（英文）](CONFIGURATION.md) 與[建立模擬](BUILD_SIMULATION.zh-TW.md) | 選擇規則或 LLM、對應水庫、設定 prompt 與模型。 |
-| [F.E. Walter 案例](../examples/fe_walter/README.zh-TW.md)與[實作教學（英文）](../tutorials/fe_walter.md) | 從地圖、水庫目的與資料開始，再設計 prompt、執行並解讀研究。 |
-| [結果（英文）](RESULTS_GUIDE.md) 與[續跑（英文）](RUNNING.md) | 查看決策、audit、實際流量及中斷紀錄。 |
-| [Python API 文件（英文）](API_REFERENCE.md) | 函數參數、回傳值及擴充介面。 |
-| [設定參考（英文）](PARAMETER_REFERENCE.md) 與[程式架構（英文）](CODE_STRUCTURE.md) | 查詢欄位及對應的實作。 |
+| [概覽](README.zh-TW.md) | 了解入流、決策、水庫物理與河道遞送。 |
+| [安裝](GETTING_STARTED.md) | 安裝套件並檢查指令。 |
+| [設定總覽](INPUT_OUTPUT.md) | 了解各檔案與填寫順序。 |
+| [全域設定](GLOBAL_SETTINGS.md) | 設定日期、執行名稱與輸出路徑。 |
+| [水文](HYDROLOGY_SETUP.md) | 提供已接受的原生模型與氣象資料。 |
+| [水庫與河網](BUILD_SIMULATION.zh-TW.md) | 連接入流、蓄水與下游。 |
+| [Agents 與 LLM](CONFIGURATION.md) | 選擇規則或模型、prompt 與選用資訊。 |
+| [檢查與執行](RUNNING.md) | 檢查檔案、準備入流、執行操作與查核紀錄。 |
+| [FE Walter 案例](CASE_STUDIES.md) | 把設定套用到水庫、資料與保存結果。 |
+| [結果](RESULTS_GUIDE.md) | 查看水位與控制放流。 |
+| [問題排查](TROUBLESHOOTING.md) | 診斷輸入、回覆與中斷問題。 |
+| [API 文件](API_REFERENCE.md) | 查詢函數與擴充介面。 |
 
-未更動的水文建模與校正方法請依照 [HydroCNHS 官方教學](https://github.com/cylin928/HydroCNHS/tree/main/tutorials)。
-本手冊說明新增的輸入、agent 設定、LLM 行為、耦合與紀錄。
+詳細章節以英文維護。集水區建置、水文參數與校正方法請依
+[HydroCNHS 官方教學](https://github.com/cylin928/HydroCNHS/tree/main/tutorials)。
 
-## 框架概念
+## 教學 Notebook
 
-![HydroOpsLLM 概念圖](figures/hydrocnhs-coupling-framework-en.png)
+{download}`FE Walter 結果 <_notebook_downloads/main.ipynb>`
 
-HydroCNHS 先預算連續上游降雨逕流與 routing；逐日循環再透過原生 Dam API
-接入規則或 LLM 決策、回覆驗證、水庫物理計算、下游 routing 與已提交狀態回饋。
-回覆驗證檢查 action 介面，診斷 audit 評估行為，recorder 保存證據。
-
-## 配套 notebooks
-
-{download}`主教學 <_notebook_downloads/main.ipynb>` ·
-{download}`多水庫 <_notebook_downloads/advanced.ipynb>`
-
-下載檔保留原始 notebooks 與已保存輸出。集水區建模與校正／驗證請依 [HydroCNHS 手冊](https://cylin928.github.io/HydroCNHS/)。
-[來源與引用](REFERENCE.md)說明原框架及新增操作方法。
-
-[English](index.md)
+Notebook 讀取保存資料，不發送模型請求，也不重跑水文。
+[資料來源與引用](REFERENCE.md)提供框架及案例文獻。

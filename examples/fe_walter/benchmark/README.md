@@ -1,4 +1,9 @@
-# FE Walter: rule-based benchmark
+# FE Walter: Rule-based reference
+
+> Historical reference: this page preserves earlier settings and saved decisions.
+> Start new work from the [current FE Walter tutorial](../../../tutorials/fe_walter.md)
+> and read the [current annual results](../results.md).
+
 
 [English](README.md) | [繁體中文](README.zh-TW.md) · [FE Walter case](../README.md)
 
@@ -7,7 +12,7 @@ HydroCNHS Dam API. It follows [Hanasaki et al. (2006)](https://doi.org/10.1016/j
 and the flood-control formulation in [Abeshu et al. (2023), Section 2.3.3](https://gmd.copernicus.org/articles/16/5449/2023/).
 The rule is added by HydroOpsLLM; it is not a built-in HydroCNHS policy.
 
-Shared input and physical assumptions are defined in the [common case setup](../README.md#common-case-setup).
+Shared input and physical assumptions are defined in the [common case setup](../README.md#reservoir-experiment).
 
 First review [the case hydrology](../hydrology.md) and [the coupled daily workflow](../coupling.md).
 This method uses the same daily Dam/routing loop with precomputed inflow; the operation run does not recalculate GWLF.
@@ -49,7 +54,7 @@ and enters routing once. Next-day history uses implemented release.
 | 2016-01-02 | 22.353047 | 17.490024 | 17.490024 | 0.000000 | 3,485,122.95 |
 | 2016-01-03 | 14.193931 | 11.137442 | 11.137442 | 0.000000 | 3,749,203.61 |
 
-[Full 2016–2020 results and decision records](../results.md)
+[Historical 2016–2020 results and decision records](../results_history.md)
 
 The table shows this method's saved three-day trajectory, not a policy-performance
 assessment. Downloads retain full precision. The linked five-year results belong
@@ -77,110 +82,19 @@ in global hydrological models.” *Geoscientific Model Development*, 16, 5449–
 This custom policy adapts the monthly flood-control formulation to daily steps.
 It pins the [source decision function](https://github.com/DasanikBD/Delaware-Reservoir-LLM/blob/6c3dc532d712af55db1f4a1d8e018c86249ce7a8/benchmark_release.py)
 at commit `6c3dc532d712af55db1f4a1d8e018c86249ce7a8` (function hash `c11a81…`).
-That function is distinct from the unchanged V3.7 vendor source used for LLM
-prompt and audit compatibility. Only the decision function is adapted; all
-methods use the HydroOpsLLM simulation driver. The
+The case rule retains that decision formulation; framework methods use the
+HydroOpsLLM simulation driver. Original-program comparisons use a separately
+restored source artifact. The
 [workflow test source](../../../tests/test_benchmark_workflow.py)
 checks statistics inputs, configuration and use of the common simulation interfaces.
 
 ## Files and commands
 
-<details>
-<summary>Expand settings, file locations and commands</summary>
+For a new study, use [coupled/experiment.yaml](../coupled/experiment.yaml) and follow
+[the current tutorial](../../../tutorials/fe_walter.md) for checking, execution and verification.
+That entry connects the common hydrology, reservoir network and Rule-based agent.
 
-The exact configuration behind the saved result is
-[`tutorials/config/fe_walter_tutorial_benchmark.yaml`](../../../tutorials/config/fe_walter_tutorial_benchmark.yaml).
-For a new output, start from
-[experiment.hydroopslm.offline.yaml](experiment.hydroopslm.offline.yaml). It selects `type: rule_based`, `rule: hanasaki`, `rule_parameters.purpose: flood_control`
-and `max_calls: 0`. It uses [frozen 1996–2015 statistics](../../../data/benchmark/fe_walter_statistics.json),
-before the demonstration period. It needs no model or prompt.
-
-<details>
-<summary>Current rule configuration (expand)</summary>
-
-```yaml
-# HydroOpsLM offline teaching run; original settings/results are preserved.
-# Rule-based daily benchmark; no prompt, model or network is used.
-schema_version: llm-reservoir-experiment.v1
-run_id: hydroopslm-fe-walter-benchmark
-case: ../../../cases/fe_walter_reference/case.json # Same physical case as both LLM methods.
-output: ../../../runs/hydroopslm-fe-walter-benchmark # Change both IDs for another run; never overwrite.
-start_date: '2016-01-01'
-end_date: '2016-01-03'
-max_calls: 0
-agents:
-  fe_operator: # Decision unit ID; one per controlled reservoir.
-    reservoir_id: FEWalter # Must match the reservoir node in the case.
-    type: rule_based
-    rule: hanasaki
-    rule_parameters:
-      purpose: flood_control # This adapter supports flood_control and other; no hydropower optimization.
-      alpha: 0.85 # Published capacity reduction factor; not a newly calibrated parameter.
-      inflow_statistics_file: ../../../data/benchmark/fe_walter_statistics.json # Frozen 1996–2015 climatology, before the run.
-    auditors: [release_limits]
-auditors:
-  release_limits:
-    type: release_bounds
-    version: '1' # Checks the requested release against the common physical/available-water bounds.
-extensions:
-  hanasaki: ../../rules/hanasaki/__init__.py
-```
-
-</details>
-
-For a new run, copy it beside its original:
-
-```powershell
-Copy-Item examples/fe_walter/benchmark/experiment.hydroopslm.offline.yaml examples/fe_walter/benchmark/my-run.yaml
-```
-
-In `my-run.yaml`, set `run_id: fe-walter-benchmark-my-run` and
-`output: ../../../runs/fe-walter-benchmark-my-run`. Keep the remaining settings for this first
-demonstration. An existing output folder must not be reused.
-
-### Check the configuration
-
-Validate your copied configuration from the repository folder:
-
-```powershell
-python run_experiment.py check examples/fe_walter/benchmark/my-run.yaml
-```
-
-This checks the configuration without inference or a model request.
-Expect three daily steps, one controlled reservoir, `planned_llm_calls: 0`,
-`max_calls: 0`, and zero network calls.
-
-### Execute a new run
-
-The [saved three-day result](../../../examples/fe_walter/reference_outputs/rule_three_day/) is already available.
-Only execute the following if you intend to start a new simulation:
-
-```powershell
-python run_experiment.py run examples/fe_walter/benchmark/my-run.yaml
-```
-
-The benchmark is deterministic and makes no model request.
-
-### Verify saved outputs
-
-Verify the existing saved result without rerunning its simulation:
-
-```powershell
-python run_experiment.py verify examples/fe_walter/reference_outputs/rule_three_day --require-offline
-```
-
-After your new run, use `runs/fe-walter-benchmark-my-run` instead. Verification checks execution
-evidence; it does not establish that the operating policy is good.
-
-Inspect the saved decision:
-
-```powershell
-python tutorials/inspect_decision_flow.py examples/fe_walter/reference_outputs/rule_three_day --require-offline
-```
-
-`decisions.jsonl`, `raw/`, `audit.jsonl`, `physics.jsonl` and `backend_events.jsonl`
-link the information and proposal to checks and execution. The notebook separates
-the recorded checker result from a current contract recheck. The inspector makes
-no model request. See [results and troubleshooting](../../../docs/RESULTS_GUIDE.md).
-
-</details>
+This folder retains [experiment.yaml](experiment.yaml) as a three-day offline
+compatibility fixture, alongside the saved historical evidence above. Its duplicate
+alias was retired with identical inputs and rule parameters. Earlier commands and
+settings remain in the verified [recovery package](../../../archive/fe_walter/README.md).

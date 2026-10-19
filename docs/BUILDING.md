@@ -39,8 +39,8 @@ python scripts/check_docs_site.py build/docs
 ```
 
 Open `build/docs/index.html`. This is the documentation-site home, with chapter
-navigation, three examples, single/multiple-reservoir tutorials and downloadable
-notebooks. The notebook downloads retain the original committed bytes.
+navigation, the FE Walter case and its downloadable results notebook. Notebook
+downloads retain the original committed bytes.
 Tables and figures come from saved MIME outputs.
 MyST-NB execution is **off**: building the site does not run a simulation, start
 Ollama or call a provider. Source/data links lead to the private GitHub repo and
@@ -59,7 +59,7 @@ remain unchanged.
 ## 繁體中文
 
 在完整 repo 使用上方安裝及建置指令，再開啟 `build/docs/index.html`。
-文件站提供中英文首頁、章節目錄、三個範例、單／多水庫教學及 notebook 下載，
+文件站提供中英文首頁、章節目錄、FE Walter 三方法案例及結果 notebook 下載，
 直接顯示保存的表格／圖片；下載檔保留已提交 notebook 的原始 bytes。
 MyST-NB 不執行 cells；建置不啟動 Ollama、呼叫 provider 或執行模擬。
 [線上文件站](https://wenyuchiou.github.io/HydroOpsLLM/)由 GitHub Pages 提供；README 的文件 badge 可直接進入。
@@ -77,6 +77,6 @@ data bundle needs an explicit YAML `case_root`.
 
 ## Branch previews
 
-For source links to follow a preview branch, build with `python docs/build.py --source-ref codex/manual-book-v1`. The default is `main` for the published manual.
+For preview source links, use `python docs/build.py --source-ref YOUR_BRANCH`, replacing `YOUR_BRANCH` with your branch name. The published manual defaults to `main`.
 
 分支預覽可用 `--source-ref` 指定原始碼連結的版本；正式文件預設使用 `main`。

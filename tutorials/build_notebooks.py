@@ -1,10 +1,8 @@
-"""Build and validate the two saved-evidence HydroOpsLM tutorials.
+"""Build the saved-evidence tutorials and current teaching figures.
 
-The executable cells only read accepted repository snapshots. Execution blocks
-socket and urllib access, never calls a provider, and records rich HTML/PNG MIME
-outputs without requiring a Jupyter kernel.
+Cells read repository files only. Execution blocks socket and urllib access,
+never calls a provider, and never runs hydrology or reservoir simulation.
 """
-
 from __future__ import annotations
 
 import argparse
@@ -18,16 +16,126 @@ import platform
 from pathlib import Path
 from unittest.mock import patch
 
-
 ROOT = Path(__file__).resolve().parents[1]
 TUTORIALS = ROOT / "tutorials"
-ASSETS = TUTORIALS / "assets"
+CURRENT = ROOT / "examples/fe_walter/coupled/outputs/current_tutorial"
+SEASONAL_CRITERIA = ROOT / "examples/fe_walter/seasonal_pool_criteria.json"
 NOTEBOOKS = ("main.ipynb", "advanced.ipynb")
-OLD_NOTEBOOKS = tuple(f"{index:02d}_{name}.ipynb" for index, name in enumerate((
-    "overview", "input_and_map", "yaml", "benchmark", "zero_shot", "dkp",
-    "audit_trace", "multi_and_custom", "ollama_workflow",
-)))
+LABELS = {
+    "rule": "Rule-based",
+    "llm_available": "LLM with available information",
+    "llm_knowledge": "LLM with retrieved knowledge",
+}
+METHOD_COLORS = {"rule": "#526B8A", "llm_available": "#BF795E",
+                 "llm_knowledge": "#4F8A7B"}
 
+
+def _add_pool_level_guides(ax):
+    """Label the case's winter setpoint and summer ceiling, not hard constraints."""
+    for level, label in ((1300, "Winter target: 1300 ft"),
+                         (1370, "Summer limit: 1370 ft")):
+        ax.axhline(level, color="#7B8185", linestyle=":", linewidth=0.8)
+        ax.annotate(label, xy=(0.74, level), xycoords=("axes fraction", "data"),
+                    xytext=(0, 3), textcoords="offset points", ha="right", va="bottom",
+                    fontsize=9, color="#525B61", zorder=5,
+                    bbox={"facecolor": "white", "edgecolor": "none", "alpha": 0.9, "pad": 1.2})
+
+
+def _seasonal_reference_points(criteria, year=2016):
+    """Build a schematic from the four declared seasonal criteria windows."""
+    import pandas as pd
+
+    seasons = {season["id"]: season for season in criteria["seasons"]}
+    if criteria.get("unit") != "ft" or set(seasons) != {
+            "winter_hold", "spring_fill", "summer", "fall_drawdown"}:
+        raise ValueError("unexpected FE Walter seasonal criteria")
+    winter = (float(seasons["winter_hold"]["minimum_ft"])
+              + float(seasons["winter_hold"]["maximum_ft"])) / 2
+    summer = float(seasons["summer"]["maximum_ft"])
+    stamp = lambda mmdd: pd.Timestamp(f"{year}-{mmdd}")
+    # Plotting convention only: retain the winter schematic through March 31,
+    # then illustrate the rise from April 1 to the declared May 10 summer start.
+    spring_ramp_start = pd.Timestamp(year, 4, 1)
+    return pd.DatetimeIndex([
+        pd.Timestamp(year, 1, 1), spring_ramp_start,
+        stamp(seasons["summer"]["start"]), stamp(seasons["fall_drawdown"]["start"]),
+        stamp(seasons["winter_hold"]["start"]), pd.Timestamp(year, 12, 31),
+    ]), [winter, winter, summer, summer, winter, winter]
+
+
+def plot_reservoir_operations(daily, seasonal_criteria=None):
+    """Return a paper-width figure of saved elevation and controlled release.
+
+    The axes share dates but retain separate units. Each method has its own
+    release row, preserving the saved daily rates (m³/s), which exclude spill.
+    Paper exports and the executed tutorial use this same renderer.
+    """
+    import matplotlib.dates as mdates
+    import matplotlib.pyplot as plt
+    from matplotlib.ticker import MaxNLocator
+    import pandas as pd
+
+    style = {"font.family": "Arial", "font.size": 10,
+             "axes.labelsize": 10, "axes.titlesize": 11,
+             "xtick.labelsize": 9, "ytick.labelsize": 9,
+             "pdf.fonttype": 42, "svg.fonttype": "none", "axes.grid": False}
+    with plt.rc_context(style):
+        fig, axes = plt.subplots(
+            4, 1, figsize=(180 / 25.4, 160 / 25.4), sharex=True,
+            gridspec_kw={"height_ratios": [1.55, 1, 1, 1]})
+        elevation, *release_axes = axes
+        fig.subplots_adjust(left=0.15, right=0.985, bottom=0.095,
+                            top=0.85, hspace=0.5)
+        release_max = float(daily["controlled_release_cms"].max()) * 1.08
+        release_ticks = MaxNLocator(nbins=3, min_n_ticks=3).tick_values(0, release_max)
+        release_max = float(release_ticks[-1])
+        for index, (method, label) in enumerate(LABELS.items()):
+            rows = daily.loc[daily["method"].eq(method)]
+            dates = pd.to_datetime(rows["date"])
+            color = METHOD_COLORS[method]
+            elevation.plot(dates, rows["pool_elevation_end_ft"], label=label,
+                           color=color, linestyle=("-", "--", "-.")[index], linewidth=1.35)
+            release = release_axes[index]
+            # Every bar has the same width in days. Avoid outlines and pixel
+            # snapping, which can obscure gaps in a dense annual raster image.
+            release.bar(dates, rows["controlled_release_cms"], width=0.72,
+                        color=color, linewidth=0, edgecolor="none",
+                        antialiased=False, snap=False, zorder=3)
+            release.set(ylim=(0, release_max), yticks=release_ticks,
+                        ylabel="Water release\n(m³/s)")
+            release.set_title(f"({chr(98 + index)}) Water release ({label})", loc="left", fontweight="bold")
+        if seasonal_criteria is None:
+            seasonal_criteria = json.loads(SEASONAL_CRITERIA.read_text(encoding="utf-8"))
+        seasonal_dates, seasonal_levels = _seasonal_reference_points(seasonal_criteria)
+        elevation.plot(seasonal_dates, seasonal_levels, color="#111111", linestyle="--",
+                       linewidth=1.0, label="Seasonal reference (schematic)", zorder=5)
+        elevation.annotate("Winter target: 1300 ft", xy=(pd.Timestamp("2016-01-12"), seasonal_levels[0]),
+                           xytext=(0, -4), textcoords="offset points", va="top",
+                           fontsize=9, color="#111111",
+                           bbox={"facecolor": "white", "edgecolor": "none", "alpha": 0.85, "pad": 1.0})
+        elevation.annotate("Summer upper limit: 1370 ft",
+                           xy=(pd.Timestamp("2016-06-01"), seasonal_levels[2]),
+                           xytext=(0, 3), textcoords="offset points", fontsize=9, color="#111111")
+        elevation.set(title="(a) Water elevation", ylabel="Water elevation\n(ft)")
+        release_axes[-1].set_xlabel("Operation date (2016)")
+        for ax in axes:
+            ax.title.set_position((0, 1.0))
+            ax.title.set_horizontalalignment("left")
+            ax.title.set_fontweight("bold")
+            ax.spines[["top", "right"]].set_visible(False)
+            ax.grid(axis="y", color="#DCE1E1", linewidth=0.45, zorder=0)
+            ax.grid(axis="x", color="#E8ECEC", linewidth=0.4, zorder=0)
+        release_axes[-1].set_xlim(
+            pd.to_datetime(daily["date"]).min() - pd.Timedelta(days=0.5),
+            pd.to_datetime(daily["date"]).max() + pd.Timedelta(days=0.5))
+        release_axes[-1].xaxis.set_major_locator(
+            mdates.MonthLocator(bymonth=(1, 3, 5, 7, 9, 11)))
+        release_axes[-1].xaxis.set_major_formatter(mdates.DateFormatter("%b"))
+        handles, labels = elevation.get_legend_handles_labels()
+        fig.legend(handles, labels, loc="upper center", bbox_to_anchor=(0.5, 0.995),
+                   ncol=3, frameon=False, fontsize=9, handlelength=2.1,
+                   columnspacing=1.0, handletextpad=0.55)
+        return fig
 
 SETUP = '''from pathlib import Path
 import html, json, re, sys
@@ -36,352 +144,394 @@ sys.path.insert(0, str(ROOT / "src"))
 sys.path.insert(0, str(ROOT))
 import pandas as pd
 import matplotlib.pyplot as plt
-from llm_reservoir_agent.workflow import load_settings
-from llm_reservoir_agent.verification import verify_run
-from tutorials.inspect_decision_flow import load_decision_flow
 
 class ReadableText:
-    """Render preserved text as a readable notebook block."""
     def __init__(self, title, text):
         self.title, self.text = title, text
     def _repr_markdown_(self):
         fence = "`" * max(4, 1 + max((len(run) for run in re.findall(r"`+", self.text)), default=0))
         return f"#### {self.title}\\n\\n{fence}text\\n{self.text}\\n{fence}"
     def _repr_html_(self):
-        return f'<h4>{html.escape(self.title)}</h4><pre class="prompt-text">{html.escape(self.text)}</pre>'
-
-def jsonl(path):
-    return [json.loads(line) for line in Path(path).read_text(encoding="utf-8").splitlines()]
+        return f'<h4>{html.escape(self.title)}</h4><pre>{html.escape(self.text)}</pre>'
 
 pd.set_option("display.max_colwidth", 120)
-plt.rcParams.update({"figure.figsize": (9, 4.8), "axes.grid": True, "figure.dpi": 120})
+plt.rcParams.update({"figure.dpi": 120, "axes.grid": True, "grid.alpha": 0.25,
+                     "font.family": "Arial", "font.size": 11, "axes.titlesize": 12,
+                     "axes.labelsize": 11, "legend.fontsize": 11})
 '''
 
 
-def md(text: str) -> dict:
-    return {
-        "cell_type": "markdown",
-        "id": "m-placeholder",
-        "metadata": {},
-        "source": text.strip().splitlines(True),
+def _sha(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def _prepare_current_outputs() -> dict:
+    """Combine the three approved saved arms and render teaching figures."""
+    import matplotlib.dates as mdates
+    import matplotlib.pyplot as plt
+    import numpy as np
+    import pandas as pd
+
+    # Authoring size is the intended paper width, so fonts need no downscaling.
+    # Embed TrueType fonts in PDF; keep SVG labels as editable text.
+    paper_width_mm, raster_dpi = 180, 600
+    plt.rcParams.update({"font.family": "Arial", "font.size": 10,
+                         "axes.titlesize": 10, "axes.labelsize": 10,
+                         "xtick.labelsize": 9, "ytick.labelsize": 9,
+                         "legend.fontsize": 9, "pdf.fonttype": 42,
+                         "svg.fonttype": "none"})
+
+    root = ROOT / "examples/fe_walter/coupled/outputs"
+    rule_path = root / "2016/daily.csv"
+    llm_path = root / "gemma4_2016_comparison/daily.csv"
+    summary_path = root / "2016/summary.json"
+    old = pd.read_csv(rule_path)
+    new = pd.read_csv(llm_path)
+    summary = json.loads(summary_path.read_text(encoding="utf-8"))
+    seasonal_criteria = json.loads(SEASONAL_CRITERIA.read_text(encoding="utf-8"))
+    groups = {
+        "rule": old.loc[old["method"].eq("rule")].reset_index(drop=True),
+        "llm_available": new.loc[new["engine"].eq("framework") & new["method"].eq("llm_available")].reset_index(drop=True),
+        "llm_knowledge": new.loc[new["engine"].eq("framework") & new["method"].eq("llm_knowledge")].reset_index(drop=True),
     }
+    dates = pd.date_range("2016-01-01", "2016-12-31").strftime("%Y-%m-%d").tolist()
+    initial = float(summary["initial_storage_m3"])
+    if not np.isfinite(initial):
+        raise ValueError("initial storage must be finite")
+    reference = groups["llm_available"]["inflow_cms"]
+    checks = {}
+    for method, group in groups.items():
+        if len(group) != 366 or group["date"].nunique() != 366:
+            raise ValueError(f"{method}: expected 366 rows with unique dates")
+        if group["date"].tolist() != dates:
+            raise ValueError(f"{method}: dates are not the ordered 2016 calendar")
+        numeric = ["inflow_cms", "pool_elevation_end_ft", "controlled_release_cms",
+                   "spill_cms", "storage_end_m3"]
+        if method != "rule":
+            numeric.append("storage_start_m3")
+        if not np.isfinite(group[numeric].to_numpy(dtype=float)).all():
+            raise ValueError(f"{method}: required numeric values must be finite")
+        delta = (group["inflow_cms"] - reference).abs()
+        if float(delta.max()) >= 1e-10:
+            raise ValueError(f"{method}: inflow differs from the shared series")
+        if method == "rule":
+            start = float(group.loc[0, "storage_end_m3"] - (
+                group.loc[0, "inflow_cms"] - group.loc[0, "controlled_release_cms"]
+                - group.loc[0, "spill_cms"]) * 86400.0)
+        else:
+            start = float(group.loc[0, "storage_start_m3"])
+        if abs(start - initial) >= 1e-8:
+            raise ValueError(f"{method}: initial storage differs from the accepted state")
+        checks[method] = {
+            "rows": 366, "unique_dates": 366, "date_start": dates[0], "date_end": dates[-1],
+            "max_inflow_difference_from_reference_cms": float(delta.max()),
+            "initial_storage_m3": start,
+        }
+
+    columns = ["method", "date", "inflow_cms", "pool_elevation_end_ft",
+               "controlled_release_cms", "spill_cms", "storage_end_m3"]
+    frames = []
+    for method, group in groups.items():
+        part = group[columns].copy()
+        part.insert(1, "method_label", LABELS[method])
+        part.insert(2, "source_engine", "rule" if method == "rule" else "framework")
+        part.insert(3, "source_export", "../2016/daily.csv" if method == "rule"
+                    else "../gemma4_2016_comparison/daily.csv")
+        frames.append(part)
+    combined = pd.concat(frames, ignore_index=True)
+    if len(combined) != 1098:
+        raise ValueError("combined tutorial export must contain 1,098 rows")
+    CURRENT.mkdir(parents=True, exist_ok=True)
+    csv_path = CURRENT / "daily.csv"
+    combined.to_csv(csv_path, index=False, lineterminator="\n")
+
+    colors = {LABELS[method]: color for method, color in METHOD_COLORS.items()}
+    figures = []
+    fig, ax = plt.subplots(figsize=(paper_width_mm / 25.4, 82 / 25.4),
+                           layout="constrained")
+    for label, group in combined.groupby("method_label", sort=False):
+        ax.plot(pd.to_datetime(group["date"]), group["pool_elevation_end_ft"],
+                label=label, color=colors[label], linewidth=1.1)
+    _add_pool_level_guides(ax)
+    ax.set(ylabel="Water elevation (ft NGVD 29)", xlabel="2016",
+           xlim=(pd.Timestamp(dates[0]), pd.Timestamp(dates[-1])))
+    ax.legend(frameon=False, loc="center", fontsize=10.5)
+    ax.xaxis.set_major_locator(mdates.MonthLocator(interval=2))
+    ax.xaxis.set_major_formatter(mdates.DateFormatter("%b"))
+    for ext in ("png", "svg", "pdf"):
+        path = CURRENT / f"daily_water_elevation.{ext}"
+        if path.exists():
+            figures.append(path)
+            continue
+        fig.savefig(path, **({"dpi": raster_dpi} if ext == "png" else {}))
+        if ext == "svg":
+            path.write_bytes(("\n".join(line.rstrip() for line in path.read_text(encoding="utf-8").splitlines()) + "\n").encode("utf-8"))
+        figures.append(path)
+    plt.close(fig)
+
+    fig, axes = plt.subplots(3, 1, figsize=(paper_width_mm / 25.4, 125 / 25.4),
+                             sharex=True, sharey=True, layout="constrained")
+    ymax = float(combined["controlled_release_cms"].max()) * 1.04
+    for panel, (ax, (label, group)) in enumerate(zip(
+            axes, combined.groupby("method_label", sort=False), strict=True)):
+        ax.bar(pd.to_datetime(group["date"]), group["controlled_release_cms"],
+               width=1, color=colors[label], linewidth=0)
+        ax.set(ylabel="Release (m³/s)", ylim=(0, ymax),
+               xlim=(pd.Timestamp(dates[0]), pd.Timestamp(dates[-1])))
+        ax.set_title(f"({chr(97 + panel)}) {label}", loc="left", fontweight="bold", pad=4)
+    axes[-1].set_xlabel("2016")
+    axes[-1].xaxis.set_major_locator(mdates.MonthLocator(interval=2))
+    axes[-1].xaxis.set_major_formatter(mdates.DateFormatter("%b"))
+    for ext in ("png", "svg", "pdf"):
+        path = CURRENT / f"controlled_release_daily.{ext}"
+        if path.exists():
+            figures.append(path)
+            continue
+        fig.savefig(path, **({"dpi": raster_dpi} if ext == "png" else {}))
+        if ext == "svg":
+            path.write_bytes(("\n".join(line.rstrip() for line in path.read_text(encoding="utf-8").splitlines()) + "\n").encode("utf-8"))
+        figures.append(path)
+    plt.close(fig)
+
+    fig = plot_reservoir_operations(combined, seasonal_criteria)
+    for ext in ("png", "svg", "pdf"):
+        path = CURRENT / f"reservoir_operations.{ext}"
+        fig.savefig(path, **({"dpi": raster_dpi} if ext == "png" else {}))
+        if ext == "svg":
+            path.write_bytes(("\n".join(line.rstrip() for line in path.read_text(encoding="utf-8").splitlines()) + "\n").encode("utf-8"))
+        figures.append(path)
+    plt.close(fig)
+
+    manifest = {
+        "schema_version": "fe-walter-current-tutorial.v1",
+        "purpose": "Saved-data teaching comparison; no new provider request, hydrology run, or reservoir simulation.",
+        "methods": list(LABELS.values()),
+        "period": {"start": dates[0], "end": dates[-1], "days_per_method": 366},
+        "figure_layout": {"width_mm": paper_width_mm, "png_dpi": raster_dpi,
+                          "minimum_font_pt": 9, "pdf_fonttype": 42,
+                          "svg_labels": "editable text", "legend_font_pt": 9,
+                          "primary_figure": "reservoir_operations",
+                          "primary_height_mm": 160,
+                          "panels": {"a": "Water elevation",
+                                     **{chr(98 + index): f"Water release ({label})"
+                                        for index, label in enumerate(LABELS.values())}},
+                          "release_bar_width_days": 0.72,
+                          "method_colors": METHOD_COLORS,
+                          "seasonal_reference": (
+                              "Schematic from seasonal_pool_criteria.json; plotting convention holds "
+                              "1300 ft through March 31 and begins the illustrative ramp April 1")},
+        "units": {"inflow_cms": "m3/s", "controlled_release_cms": "m3/s",
+                  "spill_cms": "m3/s", "pool_elevation_end_ft": "ft N.G.V.D.",
+                  "storage_end_m3": "m3"},
+        "validation": {
+            "date_policy": "Exact ordered dates; no interpolation.",
+            "inflow_policy": "Absolute tolerance 1e-10 m3/s for CSV serialization.",
+            "initial_state_policy": "LLM storage_start_m3 and Rule-based first-step mass-balance reconstruction.",
+            "expected_initial_storage_m3": initial, "methods": checks,
+        },
+        "provenance_note": (
+            "These saved curves retain the prompts and context recorded by their source runs; "
+            "no new daily or live-date context was supplied for this rendering."
+        ),
+        "sources": {
+            "rule_rows": {"path": "../2016/daily.csv", "sha256": _sha(rule_path)},
+            "llm_framework_rows": {"path": "../gemma4_2016_comparison/daily.csv", "sha256": _sha(llm_path)},
+            "initial_state": {"path": "../2016/summary.json", "sha256": _sha(summary_path)},
+            "seasonal_criteria": {"path": "../../../seasonal_pool_criteria.json",
+                                  "sha256": _sha(SEASONAL_CRITERIA)},
+        },
+        "artifacts": {},
+    }
+    for path in [csv_path, *figures]:
+        manifest["artifacts"][path.name] = _sha(path)
+    (CURRENT / "provenance.json").write_text(
+        json.dumps(manifest, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    return manifest
+
+
+def md(text: str) -> dict:
+    return {"cell_type": "markdown", "id": "m", "metadata": {}, "source": text.strip().splitlines(True)}
 
 
 def code(source: str) -> dict:
-    return {
-        "cell_type": "code",
-        "id": "c-placeholder",
-        "metadata": {},
-        "source": source.strip().splitlines(True),
-        "execution_count": None,
-        "outputs": [],
-    }
+    return {"cell_type": "code", "id": "c", "metadata": {}, "source": source.strip().splitlines(True),
+            "execution_count": None, "outputs": []}
 
 
 def main_cells() -> list[dict]:
     return [
-        md('''# Main tutorial: F.E. Walter weather to daily operation
+        md('''# F.E. Walter: from weather to a daily reservoir decision
 
-Follow the current 2016 example: **Rule-based**, **LLM with available
-information**, and **LLM with retrieved knowledge**. All methods share the
-accepted hydrology, physical initial state and routing. The model is selected
-inside `current/models.yaml`; the experiment filename identifies the method.
+Follow the maintained 2016 configuration from `experiment.yaml` through
+hydrology, the reservoir network, a Rule-based operator, and the two LLM
+methods: **Rule-based**, **LLM with available information**, and **LLM with
+retrieved knowledge**. All three use the same inflow, initial state, and physical parameters.
 
-This notebook reads committed annual results and recorded provider messages.
-It makes no model request and runs no hydrology or reservoir simulation.
+This notebook reads committed files only. It makes no model request and runs no
+hydrology or reservoir simulation.
 
-![HydroOpsLM coupling concept](../docs/figures/hydrocnhs-coupling-framework-en.png)
+Read the flow from weather through HydroCNHS to saved inflow, then reservoir operations.
 
-[Configuration walkthrough](fe_walter.md) ·
-[Current annual comparison](../examples/fe_walter/coupled/README.md#verified-2016-results)'''),
-        md('''## Setup
+![Weather to inflow workflow](../docs/figures/fe-walter-weather-workflow.svg)
 
-The builder blocks socket and urllib access. Tables and plots below are
-recreated from saved files, including the independent Anik engine comparison.'''),
-        code(SETUP),
-        md('''## 1. Read the shared physical case and accepted inflow
+[Maintained walkthrough](fe_walter.md) · [Current results](../examples/fe_walter/coupled/README.md#current-saved-2016-results)'''),
+        md("## Setup"), code(SETUP),
+        md('''## 1. Start from the experiment file
 
-The native weather model covers 1989–2025 and supplies the selected 366 days of
-2016. Initial storage **2,457,848.279729185 m³ (1,992.61 acre-ft)** is an
-assumption. Reservoir losses are zero; downstream `UH=[1.0]` is identity routing.
-
-![F.E. Walter catchment](../docs/figures/fe-walter-catchment.png)'''),
+The entry names the physical case, dates, output, agent file, hydrology file,
+auditors, and extensions. The LLM entries change the agent and add a model
+profile while retaining the same physical case and hydrology.'''),
         code('''coupled = ROOT / "examples/fe_walter/coupled"
-annual = coupled / "outputs/gemma4_2016_comparison"
-summary = json.loads((annual / "summary.json").read_text(encoding="utf-8"))
-daily = pd.read_csv(annual / "daily.csv")
+current_config = coupled
+for title, name in (("Rule-based entry", "experiment.yaml"),
+                    ("LLM with available information entry", "llm_available.yaml"),
+                    ("LLM with retrieved knowledge entry", "llm_knowledge.yaml")):
+    display(ReadableText(title, (current_config / name).read_text(encoding="utf-8")))'''),
+        md('''## 2. Follow hydrology into the reservoir network
+
+The accepted HydroCNHS model turns prepared weather and catchment inputs into
+daily inflow. `hydrology.yaml` binds routed flow to `FEW_INFLOW`.
+`reservoirs.json` maps it to node `FEWalter`, with physical case ID `fe_walter`.
+Agent `fe_operator` must name graph node `FEWalter`.
+
+![Reservoir and agent mapping](../docs/figures/reservoir-agent-mapping.svg)'''),
+        code('''hydrology = (coupled / "hydrology.yaml").read_text(encoding="utf-8")
 case = json.loads((coupled / "reservoirs.json").read_text(encoding="utf-8"))
 physical = case["network"]["reservoirs"]["FEWalter"]["physical"]
-labels = {"rule": "Rule-based", "llm_available": "LLM with available information",
-          "llm_knowledge": "LLM with retrieved knowledge"}
-display(pd.DataFrame([{"field": key, "value": physical[key]}
-                      for key in ("initial_storage_m3", "capacity_m3", "minimum_release_cms",
-                                  "maximum_release_cms", "dt_seconds")]))
-inflow = daily.loc[(daily["engine"] == "framework") & (daily["method"] == "llm_available"),
-                   ["date", "inflow_cms"]]
-display(inflow.head().rename(columns={"inflow_cms": "prepared inflow (m³/s)"}))
-display(pd.DataFrame([summary["period"]]))'''),
-        md('''## 2. Choose an experiment and check its settings
+display(ReadableText("Complete hydrology.yaml", hydrology))
+display(pd.DataFrame([{"inflow node": "FEW_INFLOW", "reservoir node": "FEWalter",
+    "physical case ID": physical["reservoir_id"], "agent ID": "fe_operator",
+    "initial storage (m³)": physical["initial_storage_m3"], "daily step (s)": physical["dt_seconds"]}]))'''),
+        md('''## 3. Change the decision method
 
-Start with `current/experiment.yaml` for Rule-based operation. The LLM entries
-select the same case agent and `current/models.yaml`. A local check validates
-references and previews placeholder observations; it does not simulate inflow
-or contact the provider. The configured model is `gemma4:12b`, temperature 0.7,
-2048 output tokens, context 16384, thinking off and a 120-second timeout.
-Each daily decision allows at most two attempts, with a two-second retry delay.
-The LLM entries have no total call cap (`max_calls: null`).'''),
-        code('''from llm_reservoir_agent.coupled import load_coupled_settings
-import yaml
-configs = {"Rule-based": "experiment.yaml",
-           "LLM with available information": "llm_available.yaml",
-           "LLM with retrieved knowledge": "llm_knowledge.yaml"}
-plans = []
-for method, name in configs.items():
-    path = coupled / "current" / name
-    report = load_coupled_settings(path).report
-    plans.append({"method": method, "days": report["days"],
-                  "planned daily model decisions": report["planned_llm_calls"],
-                  "max calls": report["max_calls"], "configuration": str(path.relative_to(ROOT))})
-display(pd.DataFrame(plans))
-display(ReadableText("Selected model profile: current/models.yaml",
-                     (coupled / "current/models.yaml").read_text(encoding="utf-8")))'''),
-        md('''## 3. Inspect actual prompts, reply and implemented release
+The Rule-based agent selects a registered rule. The available-information LLM
+receives daily state, seasonal instruction, and short history. The
+retrieved-knowledge LLM adds selected operating guidance. Model identity and
+sampling controls are settings and provenance, not method names.
 
-The saved pairs contain complete provider requests and replies from the current
-annual comparison. Both snapshots are from 2 January 2016. The engines differ
-in the available-information pair and agree in the retrieved-knowledge pair.
-The available-information method receives
-daily state and history; the retrieved-knowledge method also receives selected
-operating document sections. The approved seasonal targets and response fields
-remain visible in the actual messages.
+![Prompt and context workflow](../docs/figures/prompt-context-workflow.svg)'''),
+        code('''for title, name in (("Rule-based agent", "agents.rule.yaml"),
+                    ("LLM with available information agent", "agents.llm_available.yaml"),
+                    ("LLM with retrieved knowledge agent", "agents.llm_knowledge.yaml")):
+    display(ReadableText(title, (coupled / name).read_text(encoding="utf-8")))
+display(ReadableText("Model settings and provenance", (current_config / "models.yaml").read_text(encoding="utf-8")))'''),
+        md('''## 4. Inspect actual prompt and retrieved context
 
-The parser converts cfs to m³/s; common physics applies water availability,
-release bounds and spill. The implemented outcome updates the next day's state.
-These are preserved execution records, not new provider calls.'''),
-        code('''pairs = {}
-for slug in ("llm_available", "llm_knowledge"):
-    pair = json.loads((annual / f"{slug}_pair.json").read_text(encoding="utf-8"))
-    pairs[slug] = pair
+The saved pairs contain the exact request messages and replies. The parser
+converts cfs to m³/s, then common physics enforces water availability and release
+bounds. These records are examples from the saved run.'''),
+        code('''saved = coupled / "outputs/gemma4_2016_comparison"
+labels = {"llm_available": "LLM with available information", "llm_knowledge": "LLM with retrieved knowledge"}
+for method, label in labels.items():
+    pair = json.loads((saved / f"{method}_pair.json").read_text(encoding="utf-8"))
     record = pair["engines"]["framework"]
-    request = record["provider_request"]
-    display(ReadableText(f"{labels[slug]}: saved date {pair['date']}",
-                         json.dumps({"model": request["model"], "options": request["options"],
-                                     "think": request["think"]}, indent=2)))
-    for message in request["messages"]:
-        display(ReadableText(f"{labels[slug]}: complete {message['role']} message", message["content"]))
-    display(ReadableText(f"{labels[slug]}: complete response schema", json.dumps(request["format"], indent=2)))
-    display(ReadableText(f"{labels[slug]}: actual saved reply",
-                         record["raw_provider_reply"]["message"]["content"]))
-    display(pd.DataFrame([record["physics"]]))'''),
-        md('''## 4. Compare saved annual trajectories
+    display(ReadableText(f"{label}: saved request messages",
+                         json.dumps(record["provider_request"]["messages"], indent=2, ensure_ascii=False)))
+    display(ReadableText(f"{label}: saved reply", record["raw_provider_reply"]["message"]["content"]))
+    display(pd.DataFrame([{"method": label, "saved date": pair["date"],
+                           "controlled release (m³/s)": record["physics"]["controlled_release_cms"],
+                           "end elevation (ft)": record["physics"]["pool_elevation_end_ft"]}]))'''),
+        md('''## 5. Compare the three current teaching trajectories
 
-The two LLM trajectories below are the HydroOpsLLM arms of the current Gemma 4
-comparison. The Rule-based trajectory is the preserved annual baseline, with
-the same accepted inflow and physical state; it requires zero model calls.
-Older LLM trajectories in that baseline export are excluded. No saved result
-is overwritten or relabeled as a new execution.'''),
-        code('''baseline = pd.read_csv(coupled / "outputs/2016/daily.csv")
-rule = baseline.loc[baseline["method"] == "rule"].copy()
-framework = daily.loc[daily["engine"] == "framework"].copy()
-comparison = pd.concat([rule, framework], ignore_index=True)
-comparison["method label"] = comparison["method"].map(labels)
-for slug, group in comparison.groupby("method"):
-    assert len(group) == 366 and group["date"].nunique() == 366
-    assert group["date"].tolist() == inflow["date"].tolist()
-    assert (abs(group["inflow_cms"].to_numpy() - inflow["inflow_cms"].to_numpy()) < 1e-10).all()
-display(comparison[["method label", "date", "inflow_cms", "controlled_release_cms",
-                    "spill_cms", "pool_elevation_end_ft", "storage_end_m3"]].groupby("method label", sort=False).head(3))'''),
-        code('''fig, axes = plt.subplots(2, 1, figsize=(11, 7), sharex=True)
-for method, group in comparison.groupby("method label", sort=False):
-    dates = pd.to_datetime(group["date"])
-    axes[0].plot(dates, group["pool_elevation_end_ft"], label=method)
-    axes[1].plot(dates, group["controlled_release_cms"], label=method)
-axes[0].axhline(1300, color="gray", linestyle=":")
-axes[0].axhline(1370, color="gray", linestyle=":")
-axes[0].set(ylabel="End-of-day pool (ft NGVD29)", title="Saved 2016 F.E. Walter operation")
-axes[1].set(ylabel="Controlled release (m³/s)", xlabel="2016 date")
-axes[0].legend(loc="upper left", fontsize=8)
-fig.tight_layout()
-export = ROOT / "tutorials/assets/fe_walter_three_method.png"
-export.parent.mkdir(parents=True, exist_ok=True)
-fig.savefig(export, dpi=160, bbox_inches="tight", metadata={"Software": "HydroOpsLM tutorial"})
+The builder combines Rule-based rows from `outputs/2016/daily.csv` with the two
+framework LLM rows from `outputs/gemma4_2016_comparison/daily.csv`. It verifies
+366 unique ordered dates per method, common inflow, shared initial state, and
+units. It performs no interpolation. Four panels share operation dates:
+(a) end-of-day water elevation in feet NGVD 29; (b–d) daily water release in m³/s,
+one method per panel. Water release means implemented controlled release and
+excludes spill. All three release axes use the same scale.
+The winter target is 1300 ft (1297–1303 ft on November 1–March 14); the summer
+limit is 1370 ft on May 10–October 14. These guides are study criteria, not
+constraints imposed on each release.'''),
+        code('''current = coupled / "outputs/current_tutorial"
+daily = pd.read_csv(current / "daily.csv")
+seasonal_criteria = json.loads((ROOT / "examples/fe_walter/seasonal_pool_criteria.json").read_text(encoding="utf-8"))
+provenance = json.loads((current / "provenance.json").read_text(encoding="utf-8"))
+display(daily.groupby("method_label", sort=False).agg(rows=("date", "size"),
+    unique_dates=("date", "nunique"), maximum_release_cms=("controlled_release_cms", "max")))
+display(pd.DataFrame(provenance["validation"]["methods"]).T)'''),
+        code('''from tutorials.build_notebooks import plot_reservoir_operations
+fig = plot_reservoir_operations(daily, seasonal_criteria)
 display(fig)'''),
-        md('''## 5. Read completion, physics and operating outcomes separately
+        md('''## 6. Run a new experiment deliberately
 
-The saved comparison records 366 completed days and 366 actual HTTP attempts
-for each LLM arm, with no retry or fallback. The table reports the saved
-seasonal end-pool checks for each engine. Winter means November 1–March 14,
-within 1297–1303 ft. Completion and water balance do not establish acceptable
-operation: read the November 1 and seasonal results alongside the trajectories.
-
-Independent replies at temperature 0.7 can produce different trajectories.
-The same-reply replay in the saved summary isolates engineering equivalence.'''),
-        code('''rows = []
-for name, arm in summary["arms"].items():
-    engine, slug = name.split("-", 1)
-    compliance = arm["seasonal_end_pool_compliance"]
-    rows.append({"method": labels[slug], "engine": engine,
-                 "completed days": arm["completed_days"], "actual HTTP attempts": arm["http_attempts"],
-                 "winter compliant days": compliance["winter"]["compliant_days"],
-                 "winter days": compliance["winter"]["days"],
-                 "November 1 end pool (ft)": compliance["november_1_end_pool_ft"],
-                 "saved max balance residual (m³)": arm["max_mass_balance_residual_m3"]})
-display(pd.DataFrame(rows))
-current_balance = (daily["storage_end_m3"] - daily["storage_start_m3"]
-                   - (daily["inflow_cms"] - daily["controlled_release_cms"] - daily["spill_cms"]) * 86400)
-display(pd.DataFrame([{"check": "current arithmetic recheck of saved CSV water balance",
-                       "max absolute residual (m³)": current_balance.abs().max(),
-                       "saved rows checked": len(daily)}]))
-display(pd.DataFrame([{"method": labels[slug],
-                      "exact native requests replayed": values["same_real_reply_replay"]["native_payloads_exact"],
-                      "exact framework requests replayed": values["same_real_reply_replay"]["framework_payloads_exact"]}
-                     for slug, values in summary["comparisons"].items()]))'''),
-        md('''## Optional new execution
-
-The notebook never executes the commands below. Keep an experiment copy beside
-its source, choose a new `run_id` and `output`, and review the model profile.
-`check` is offline; `prepare` computes hydrology, unless verified preparation is
-explicitly reused. Only the LLM `run` requests decisions with `--allow-network`.
+These commands are documentation and are not executed by this notebook. Copy
+the chosen entry, set a new `run_id` and output, then check and prepare before
+allowing network use.
 
 ```powershell
-Copy-Item examples/fe_walter/coupled/current/llm_available.yaml examples/fe_walter/coupled/current/my-run.yaml
-# Edit my-run.yaml: choose a new run_id and output.
-reservoir-experiment check examples/fe_walter/coupled/current/my-run.yaml
-reservoir-experiment prepare examples/fe_walter/coupled/current/my-run.yaml
-reservoir-experiment run examples/fe_walter/coupled/current/my-run.yaml --allow-network
+Copy-Item examples/fe_walter/coupled/llm_available.yaml examples/fe_walter/coupled/my-run.yaml
+# Edit my-run.yaml: set a new run_id and output.
+reservoir-experiment check examples/fe_walter/coupled/my-run.yaml
+reservoir-experiment prepare examples/fe_walter/coupled/my-run.yaml
+reservoir-experiment run examples/fe_walter/coupled/my-run.yaml --allow-network
 reservoir-experiment verify <new-output-path>/operation
 ```
 
-For LLM with retrieved knowledge, copy `current/llm_knowledge.yaml` instead.
-
-[Full configuration and audit/trace walkthrough](fe_walter.md) ·
-[Saved comparison summary](../examples/fe_walter/coupled/outputs/gemma4_2016_comparison/summary.json) ·
-[Recorded available-information pair](../examples/fe_walter/coupled/outputs/gemma4_2016_comparison/llm_available_pair.json) ·
-[Recorded retrieved-knowledge pair](../examples/fe_walter/coupled/outputs/gemma4_2016_comparison/llm_knowledge_pair.json)'''),
+Use `experiment.yaml` for Rule-based operation or copy `llm_knowledge.yaml` for
+LLM with retrieved knowledge. [Technical engine evidence and historical audits](../examples/fe_walter/engine_comparison.md)
+remain outside this main research narrative.'''),
     ]
 
 
 def advanced_cells() -> list[dict]:
     return [
-        md('''# Advanced tutorial: topology, passive outlets, and your own data
+        md('''# Advanced tutorial: a small generic multi-reservoir configuration
 
-This notebook reads the accepted 31-day, three-reservoir snapshot. It does not
-run a new network simulation. The example demonstrates parallel tributary
-topology, isolated reservoir state, a physical passive outlet, and the settings
-that must change for another catchment.
+This notebook reads `examples/multiple_reservoirs`. It explains IDs, topology,
+method mixing, and state separation without executing a simulation or provider.'''),
+        md("## Setup"), code(SETUP),
+        md('''## 1. Begin with complete maintained source files
 
-![Accepted three-reservoir month](../examples/fe_walter/reference_outputs/multi_reservoir_month/figures/overview.png)'''),
-        md('''## Setup
+The experiment delegates hydrology, physical network, agents, models,
+information, auditors, and extensions to separate files. Paths are relative to
+the file that declares them.'''),
+        code('''example = ROOT / "examples/multiple_reservoirs"
+for title, name in (("Rule-only experiment", "experiment.yaml"),
+                    ("Mixed-method experiment", "experiment.llm.yaml"),
+                    ("Physical network", "reservoirs.yaml"), ("Hydrology bindings", "hydrology.yaml")):
+    display(ReadableText(title, (example / name).read_text(encoding="utf-8")))'''),
+        md('''## 2. Keep node, reservoir, and agent IDs distinct
 
-All tables and plots come from `examples/fe_walter/reference_outputs/multi_reservoir_month/baseline`
-and its accepted causality comparison.'''),
-        code(SETUP),
-        md('''## 1. Read the saved topology
+`inlet_a` and `inlet_b` are nodes. `lake_a` and `lake_b` are reservoir keys.
+`operator_a` and `operator_b` are agents. Each agent's `reservoir_id` must match
+one reservoir key, and its history belongs only to that reservoir.'''),
+        code('''import yaml
+network = yaml.safe_load((example / "reservoirs.yaml").read_text(encoding="utf-8"))["network"]
+agents = yaml.safe_load((example / "agents.llm.yaml").read_text(encoding="utf-8"))
+display(pd.DataFrame([{"agent ID": a, "reservoir ID": s["reservoir_id"],
+    "inflow node": network["reservoirs"][s["reservoir_id"]]["inflow_node"], "type": s["type"]}
+    for a, s in agents.items()]))
+display(ReadableText("Mixed Rule-based and LLM agents", (example / "agents.llm.yaml").read_text(encoding="utf-8")))'''),
+        md('''## 3. Choose topology explicitly
 
-FE Walter and Beltzville contribute to the Lehigh branch; Prompton contributes
-to the Lackawaxen branch. These are parallel tributaries, not a three-dam
-cascade. The managed outlet is the sum of these contributions, not full river
-discharge.'''),
-        code('''month = ROOT / "examples/fe_walter/reference_outputs/multi_reservoir_month"
-baseline = month / "baseline"
-experiment = json.loads((baseline / "experiment.json").read_text(encoding="utf-8"))
-network = experiment["network"]
-reservoir_rows = []
-for name, settings in network["reservoirs"].items():
-    physical = settings["physical"]
-    reservoir_rows.append({
-        "reservoir": name,
-        "mode": settings["operation_mode"],
-        "initial storage (m³)": physical["initial_storage_m3"],
-        "minimum release (m³/s)": physical["minimum_release_cms"],
-        "maximum release (m³/s)": physical["maximum_release_cms"],
-    })
-connections = pd.DataFrame([{
-    "source": edge["source"], "target": edge["target"],
-    "unit hydrograph": str(edge["unit_hydrograph"]),
-} for edge in network["connections"]])
-display(pd.DataFrame(reservoir_rows))
-display(connections)'''),
-        md('''## 2. Passive outlet and state isolation
+The fixture has independent parallel branches: `inlet_a → lake_a → river_a`
+and `inlet_b → lake_b → river_b`. A parallel confluence points both reservoirs
+to one junction. A series layout sends an upstream reservoir to a downstream
+reservoir inlet. Apply each local inflow once and justify every unit hydrograph.'''),
+        code('''display(pd.DataFrame([
+    {"layout": "independent", "connections": "lake_a→river_a; lake_b→river_b", "outlets": "river_a, river_b"},
+    {"layout": "parallel", "connections": "lake_a→junction; lake_b→junction", "outlets": "junction"},
+    {"layout": "series", "connections": "lake_a→inlet_b; lake_b→outlet", "outlets": "outlet"}]))'''),
+        md('''## 4. Mix methods without mixing state
 
-Prompton has no LLM agent. Its saved discharge is computed from a provisional
-storage–discharge curve and daily water balance. The two pulse experiments show
-that changing one controlled reservoir changes its own subsequent storage and
-downstream contribution while sibling natural inflow and physical transitions
-remain byte-for-byte equivalent.'''),
-        code('''summary = json.loads((baseline / "summary.json").read_text(encoding="utf-8"))["summary"]
-comparison = json.loads((month / "comparison.json").read_text(encoding="utf-8"))
-passive = network["reservoirs"]["Prompton"]["passive_outlet"]
-status = pd.DataFrame([{
-    "days": summary["days"],
-    "reservoirs": summary["reservoir_count"],
-    "reservoir-days": sum(summary["completed_reservoir_days"].values()),
-    "model calls": summary["observed_network_calls"],
-    "audit counts": str(summary["audit_counts"]),
-    "operating strategy accepted": summary["operating_strategy_accepted"],
-    "passive rating validated": passive["provenance"]["operationally_validated"],
-}])
-pulses = pd.DataFrame([{
-    "scenario": name,
-    "reservoir": values["reservoir"],
-    "date": values["date"],
-    "release increment (m³/s)": values["requested_increment_cms"],
-    "final own-storage decrease (m³)": values["final_storage_decrease_m3"],
-    "siblings unchanged": values["sibling_natural_inflow_and_physical_transitions_equal"],
-} for name, values in comparison["scenarios"].items()])
-display(status)
-display(pulses)'''),
-        code('''trajectory = pd.read_csv(baseline / "reservoir_trajectory.csv")
-trajectory["date"] = trajectory["date"].str[:10]
-display(trajectory[["date", "reservoir_id", "inflow_cms", "total_outflow_cms", "storage_end_m3"]].head(9).rename(columns={
-    "inflow_cms": "inflow (m³/s)", "total_outflow_cms": "outflow (m³/s)",
-    "storage_end_m3": "end storage (m³)"}))
-fig, ax = plt.subplots()
-for reservoir, group in trajectory.groupby("reservoir_id"):
-    ax.plot(group["date"], group["storage_end_m3"] / 1e6, label=reservoir)
-ax.set(title="Saved January 2016 reservoir storage", ylabel="Storage (million m³)", xlabel="Date")
-ax.legend()
-dates = trajectory["date"].drop_duplicates().tolist()
-ax.set_xticks([dates[index] for index in (0, 7, 14, 21, 30)])
-ax.tick_params(axis="x", rotation=45)
-export = ROOT / "tutorials/assets/three_reservoir_month.png"
-export.parent.mkdir(parents=True, exist_ok=True)
-fig.savefig(export, dpi=160, bbox_inches="tight", metadata={"Software": "HydroOpsLM tutorial"})
-display(fig)'''),
-        md('''## 3. Routing and audit limits
+The mixed file assigns an LLM to `lake_a` and a Rule-based operator to `lake_b`.
+Separate agent IDs, reservoir IDs, histories, and outputs prevent one reservoir's
+decision history from becoming another's state. A shared model profile does not
+create shared conversation history.'''),
+        code('''display(pd.DataFrame([{"agent ID": a, "reservoir ID": s["reservoir_id"],
+    "method": "LLM" if s["type"] == "llm" else "Rule-based",
+    "local retrieval": bool(s.get("customization", {}).get("context_providers")),
+    "state key": f"{a}:{s['reservoir_id']}"} for a, s in agents.items()]))'''),
+        md('''## 5. Adapt the fixture
 
-The accepted snapshot independently verifies native routing and mass balance,
-but `UH=[1]` remains uncalibrated. All 93 strategy audits are `UNKNOWN` because
-this fixture has no operating-policy auditor. File and physics acceptance do
-not establish strategy quality or live readiness.'''),
-        code('''checks = pd.DataFrame([
-    ("max system residual", summary["max_system_balance_residual_m3"], "m³"),
-    ("final channel storage", summary["final_channel_storage_m3"], "m³"),
-    ("natural inputs changed", comparison["natural_hydrologic_inputs_changed"], "boolean"),
-    ("routing calibrated", comparison["routing_calibrated"], "boolean"),
-    ("outlet is full river", comparison["outlet_represents_full_river"], "boolean"),
-    ("delayed reservoir transitions unchanged", comparison["delay"]["reservoir_transitions_unchanged"], "boolean"),
-    ("delayed final in-transit storage", comparison["delay"]["final_in_transit_storage_m3"], "m³"),
-], columns=["check", "value", "unit"])
-display(checks)'''),
-        md('''## 4. Bring your own catchment
+Replace synthetic forcing, basin parameters, reservoir physics, topology,
+routing, prompts, knowledge, model settings, and auditors with site evidence.
+First check hydrology, units, mass balance, topology, and state isolation with an
+offline or Rule-based operator; enable an LLM after the physical path is clear.
 
-Use the generic YAML/module manual for syntax and the native HydroCNHS workflow
-for forcing, routing, calibration, and validation. Do not copy FE Walter facts,
-capacities, prompts, knowledge, targets, or auditors into another reservoir.'''),
-        code('''own_data = pd.DataFrame([
-    ("Hydrology", "Own forcing, basin geometry, parameters, C&V period", "Native HydroCNHS setup"),
-    ("Network", "Reservoir nodes, junctions, local inflow applied once, calibrated UH", "Case JSON"),
-    ("Physics", "Storage limits, initial state, outlets, losses, units", "Reservoir physical profile"),
-    ("Decision", "Own prompt, knowledge, schema, model budget", "Experiment YAML / modules"),
-    ("Audit", "Versioned reservoir-specific operating rules", "Auditor configuration"),
-    ("Readiness", "Offline fixtures, conservation, routing, provenance, explicit live approval", "Verification evidence"),
-], columns=["layer", "replace with site-specific evidence", "where to configure"])
-display(own_data)'''),
-        md('''[Generic YAML settings](../docs/USER_GUIDE.md) ·
-[Module interfaces](../docs/LLM_MODULES.md) ·
-[Native HydroCNHS hydrology and C&V](../docs/HYDROLOGY_SETUP.md) ·
-[Accepted three-reservoir evidence](../examples/fe_walter/reference_outputs/multi_reservoir_month/README.md)'''),
+[Generic configuration](../docs/USER_GUIDE.md) · [HydroCNHS setup](../docs/HYDROLOGY_SETUP.md) ·
+[Multiple-reservoir source files](../examples/multiple_reservoirs/)'''),
     ]
 
 
@@ -398,49 +548,28 @@ def _rich_data(value) -> dict:
         if rendered is not None:
             return {"text/html": rendered, "text/plain": repr(value)}
     if value.__class__.__module__.startswith("matplotlib") and value.__class__.__name__ == "Figure":
-        image = io.BytesIO()
-        value.savefig(image, format="png", dpi=120, bbox_inches="tight",
-                      metadata={"Software": "HydroOpsLM tutorial"})
-        return {
-            "image/png": base64.b64encode(image.getvalue()).decode("ascii"),
-            "text/plain": repr(value),
-        }
+        image = io.BytesIO(); value.savefig(image, format="png", dpi=120, bbox_inches="tight")
+        return {"image/png": base64.b64encode(image.getvalue()).decode("ascii"), "text/plain": repr(value)}
     return {"text/plain": str(value)}
 
 
 def _execute(cells: list[dict], notebook_name: str) -> None:
-    namespace = {"__name__": "__main__"}
-    execution_count = 0
+    namespace = {"__name__": "__main__"}; count = 0
     for cell in cells:
         if cell["cell_type"] != "code":
             continue
-        execution_count += 1
-        displays = []
-
-        def display(*values):
-            displays.extend(values)
-
-        namespace["display"] = display
-        stream = io.StringIO()
-        source = "".join(cell["source"])
-        with (
-            contextlib.redirect_stdout(stream),
-            patch("socket.socket.connect", side_effect=AssertionError("tutorial network forbidden")),
-            patch("urllib.request.build_opener", side_effect=AssertionError("tutorial HTTP forbidden")),
-            patch("urllib.request.urlopen", side_effect=AssertionError("tutorial HTTP forbidden")),
-        ):
+        count += 1; displays = []
+        namespace["display"] = lambda *values: displays.extend(values)
+        stream = io.StringIO(); source = "".join(cell["source"])
+        with (contextlib.redirect_stdout(stream),
+              patch("socket.socket.connect", side_effect=AssertionError("tutorial network forbidden")),
+              patch("urllib.request.build_opener", side_effect=AssertionError("tutorial HTTP forbidden")),
+              patch("urllib.request.urlopen", side_effect=AssertionError("tutorial HTTP forbidden"))):
             exec(compile(source, notebook_name, "exec"), namespace)
-        cell["execution_count"] = execution_count
-        outputs = []
-        if stream.getvalue():
-            outputs.append({
-                "output_type": "stream", "name": "stdout",
-                "text": stream.getvalue().splitlines(True),
-            })
-        outputs.extend({
-            "output_type": "display_data", "metadata": {}, "data": _rich_data(value),
-        } for value in displays)
-        cell["outputs"] = outputs
+        cell["execution_count"] = count
+        cell["outputs"] = ([{"output_type": "stream", "name": "stdout", "text": stream.getvalue().splitlines(True)}]
+                           if stream.getvalue() else [])
+        cell["outputs"].extend({"output_type": "display_data", "metadata": {}, "data": _rich_data(v)} for v in displays)
 
 
 def _notebook(cells: list[dict], name: str, execute: bool) -> dict:
@@ -448,79 +577,50 @@ def _notebook(cells: list[dict], name: str, execute: bool) -> dict:
         cell["id"] = ("m" if cell["cell_type"] == "markdown" else "c") + str(index)
     if execute:
         _execute(cells, name)
-    return {
-        "nbformat": 4,
-        "nbformat_minor": 5,
-        "metadata": {
-            "kernelspec": {"name": "python3", "language": "python", "display_name": "Python 3"},
-            "language_info": {"name": "python", "version": platform.python_version()},
-            "tutorial_mode": "saved-evidence-only",
-            "execution_method": "ordered pure-Python cells with socket/urllib blocked",
-        },
-        "cells": cells,
-    }
+    return {"nbformat": 4, "nbformat_minor": 5,
+            "metadata": {"kernelspec": {"name": "python3", "language": "python", "display_name": "Python 3"},
+                         "language_info": {"name": "python", "version": platform.python_version()},
+                         "tutorial_mode": "saved-evidence-only",
+                         "execution_method": "ordered pure-Python cells with socket/urllib blocked"},
+            "cells": cells}
 
 
 def build(*, execute: bool) -> list[dict]:
-    os.chdir(ROOT)
-    ASSETS.mkdir(parents=True, exist_ok=True)
-    specs = {"main.ipynb": main_cells(), "advanced.ipynb": advanced_cells()}
+    os.chdir(ROOT); _prepare_current_outputs()
     receipts = []
-    for name, cells in specs.items():
-        notebook = _notebook(cells, name, execute)
+    for name, cells in {"main.ipynb": main_cells(), "advanced.ipynb": advanced_cells()}.items():
         path = TUTORIALS / name
-        path.write_text(json.dumps(notebook, indent=1, ensure_ascii=False) + "\n",
+        path.write_text(json.dumps(_notebook(cells, name, execute), indent=1, ensure_ascii=False) + "\n",
                         encoding="utf-8", newline="\n")
-        receipts.append({
-            "path": str(path.relative_to(ROOT)),
-            "code_cells": sum(cell["cell_type"] == "code" for cell in cells),
-            "executed": execute,
-            "sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
-        })
+        receipts.append({"path": str(path.relative_to(ROOT)), "executed": execute, "sha256": _sha(path)})
     return receipts
 
 
 def check() -> list[dict]:
-    forbidden = ("run_settings(", "subprocess.", "urlopen(", "requests.", "ollama.chat")
     reports = []
-    for old in OLD_NOTEBOOKS:
-        if (TUTORIALS / old).exists():
-            raise AssertionError(f"obsolete notebook remains: {old}")
     for name in NOTEBOOKS:
-        path = TUTORIALS / name
-        notebook = json.loads(path.read_text(encoding="utf-8"))
-        if notebook.get("nbformat") != 4 or notebook.get("metadata", {}).get("tutorial_mode") != "saved-evidence-only":
-            raise AssertionError(f"invalid notebook metadata: {name}")
-        code_cells = [cell for cell in notebook["cells"] if cell["cell_type"] == "code"]
-        source = "\n".join("".join(cell["source"]) for cell in code_cells)
-        hits = [token for token in forbidden if token in source]
-        if hits:
-            raise AssertionError(f"forbidden executable path in {name}: {hits}")
-        if any(cell.get("execution_count") is None for cell in code_cells):
-            raise AssertionError(f"unexecuted code cell in {name}")
-        mime_types = {
-            mime for cell in code_cells for output in cell.get("outputs", [])
-            for mime in output.get("data", {})
-        }
-        if not {"text/html", "image/png"} <= mime_types:
-            raise AssertionError(f"missing rich table/figure output in {name}: {sorted(mime_types)}")
-        reports.append({
-            "path": str(path.relative_to(ROOT)),
-            "cells": len(notebook["cells"]),
-            "code_cells": len(code_cells),
-            "mime_types": sorted(mime_types),
-            "sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
-        })
-    for asset in (ASSETS / "fe_walter_three_method.png", ASSETS / "three_reservoir_month.png"):
-        if not asset.is_file() or asset.stat().st_size == 0:
-            raise AssertionError(f"missing standalone plot: {asset.relative_to(ROOT)}")
+        path = TUTORIALS / name; notebook = json.loads(path.read_text(encoding="utf-8"))
+        assert notebook["metadata"]["tutorial_mode"] == "saved-evidence-only"
+        cells = [c for c in notebook["cells"] if c["cell_type"] == "code"]
+        source = "\n".join("".join(c["source"]) for c in cells)
+        assert not any(token in source for token in ("run_settings(", "subprocess.", "urlopen(", "requests.", "ollama.chat"))
+        assert all(c.get("execution_count") is not None for c in cells)
+        mime = {m for c in cells for o in c.get("outputs", []) for m in o.get("data", {})}
+        assert "text/html" in mime
+        if name == "main.ipynb":
+            assert "image/png" in mime
+        reports.append({"path": str(path.relative_to(ROOT)), "cells": len(notebook["cells"]), "mime_types": sorted(mime), "sha256": _sha(path)})
+    manifest = json.loads((CURRENT / "provenance.json").read_text(encoding="utf-8"))
+    for source in manifest["sources"].values():
+        assert _sha(CURRENT / source["path"]) == source["sha256"]
+    for name, digest in manifest["artifacts"].items():
+        assert _sha(CURRENT / name) == digest
     return reports
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--execute", action="store_true", help="build both notebooks and execute saved-data cells")
-    parser.add_argument("--check", action="store_true", help="validate the two executed notebooks without rewriting")
+    parser.add_argument("--execute", action="store_true"); parser.add_argument("--check", action="store_true")
     args = parser.parse_args()
     if not args.execute and not args.check:
         parser.error("choose --execute or --check")

@@ -11,8 +11,12 @@ HydroCNHS-Delaware-Demo commit `8d59dcac2f9d06fe16030f68826b425d492c9529`.
 Selected source hashes and explicit prototype assumptions are recorded in
 `data/accepted/manifest.json`.
 
-The user-supplied Anik V3.7 `Code.zip` is preserved byte-for-byte in
-`third_party/anik_v3_7/`. DKP v1.2 is preserved in `examples/fe_walter/knowledge/`.
-`source_manifest.json` records actual attachment hashes and discrepancies with
-README-declared hashes. No license was included in that attachment; this is a
-user-authorized local research integration, without a redistribution claim.
+The supplied Anik V3.7 program is preserved byte for byte in an external recovery
+package and is not distributed in the current source tree or wheel. Optional
+comparisons load hash-verified sources through `HYDROOPS_ANIK_SOURCE_DIR`; see the
+[recovery index](archive/fe_walter/README.md). Its
+[source manifest](archive/fe_walter/original_source_manifest.json) records the
+attachment hashes and discrepancies with README-declared hashes. No license was
+included in that attachment; no redistribution right is claimed. The case's
+operating reference is preserved in
+[`examples/fe_walter/knowledge/operating_rules.md`](examples/fe_walter/knowledge/operating_rules.md).

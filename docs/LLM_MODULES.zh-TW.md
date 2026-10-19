@@ -2,16 +2,16 @@
 
 [English](LLM_MODULES.md) | [繁體中文](LLM_MODULES.zh-TW.md)
 
-設定的決策路徑如下，從不可變的決策輸入開始，到已提交的回饋結束：
+每天先讀取入流、水庫狀態與已保存歷史，再組成 prompt、取得並驗證回覆，最後實作放流與保存結果：
 
 ```text
-immutable decision context
-  → explicit system and user templates
+current inflow, reservoir state and saved history
+  → rendered user and optional system messages
   → provider request and bounded attempts
-  → strict operation proposal
+  → validated requested release
   → audit
   → physical implementation and routing
-  → committed feedback
+  → saved result for the next day
 ```
 
 HydroCNHS 提供水文、原生 Dam 整合與 routing。

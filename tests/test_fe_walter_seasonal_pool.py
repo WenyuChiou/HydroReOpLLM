@@ -86,34 +86,29 @@ class SeasonalPoolTests(unittest.TestCase):
     def test_prompt_variants_share_the_versioned_target(self):
         target = pool.load_criteria()["operation_target"]
         for method in ["zeroshot", "dkp"]:
-            text = (ROOT / f"examples/fe_walter/prompts/reference/{method}_seasonal_v1_system.txt").read_text(encoding="utf-8")
+            text = (ROOT / ("examples/fe_walter/prompts/" + {"zeroshot": "available_information.txt", "dkp": "retrieved_knowledge.txt"}[method])).read_text(encoding="utf-8")
             self.assertIn("- Operation target: " + target, text)
-            original = (ROOT / f"examples/fe_walter/prompts/reference/{method}_system.txt").read_text(encoding="utf-8")
-            old_line = next(line for line in original.splitlines() if line.startswith("- Operation target:"))
-            self.assertEqual(text, original.replace(old_line, "- Operation target: " + target))
 
-    def test_active_aniks_change_only_the_approved_operation_target(self):
-        """Test the executable entries, rather than unused reference copies."""
+    def test_active_entries_use_the_canonical_current_prompts(self):
         target = pool.load_criteria()["operation_target"]
         entries = (
-            ("coupled/agents.llm_available.yaml", "zeroshot", True),
-            ("coupled/agents.llm_knowledge.yaml", "dkp", True),
-            ("zero_shot/experiment.seasonal.ollama.yaml", "zeroshot", False),
-            ("dkp/experiment.seasonal.ollama.yaml", "dkp", False),
+            ("coupled/agents.llm_available.yaml", "zeroshot"),
+            ("coupled/agents.llm_knowledge.yaml", "dkp"),
         )
-        for name, method, split in entries:
+        for name, method in entries:
             with self.subTest(entry=name):
                 path = ROOT / "examples/fe_walter" / name
                 data = yaml.safe_load(path.read_text(encoding="utf-8"))
-                agent = data["fe_operator"] if split else next(iter(data["agents"].values()))
+                agent = data["fe_operator"]
                 reference = agent["customization"]["parameters"]["reference"]
                 self.assertIs(reference["prompt_storage"], False)
                 self.assertIs(reference["hide_availability_line"], True)
                 self.assertIs(reference["dkp_no_missing_inputs"], True)
                 actual = (path.parent / reference["system_prompt"]).read_text(encoding="utf-8")
-                original = (ROOT / f"examples/fe_walter/prompts/reference/{method}_system.txt").read_text(encoding="utf-8")
-                old_line = next(line for line in original.splitlines() if line.startswith("- Operation target:"))
-                self.assertEqual(actual, original.replace(old_line, "- Operation target: " + target))
+                canonical = ROOT / "examples/fe_walter/prompts" / {
+                    "zeroshot": "available_information.txt", "dkp": "retrieved_knowledge.txt"}[method]
+                self.assertEqual(actual, canonical.read_text(encoding="utf-8"))
+                self.assertIn("- Operation target: " + target, actual)
 
     def test_november_first_requires_winter_pool_even_if_run_completed(self):
         for level, status in [(1300.0, "PASS"), (1390.8590831121244, "FAIL"),
@@ -135,8 +130,11 @@ class FigureManualTests(unittest.TestCase):
             home = (target / "index.md").read_text(encoding="utf-8")
             overview = (target / "docs/README.md").read_text(encoding="utf-8")
             for page in (home, overview):
-                self.assertIn("hydrocnhs-coupling-framework-en.png", page)
+                self.assertIn("hydroopslm-cover.png", page)
                 self.assertNotIn("_figure_downloads/", page)
+            # Keep the core workflow in the Overview and its original figure
+            # downloads byte-exact; the landing page uses the existing cover.
+            self.assertIn("hydrocnhs-coupling-framework-en.png", overview)
             for ext in ["png", "pdf"]:
                 name = "hydroopsllm-figure1." + ext
                 self.assertEqual((target / "_figure_downloads" / name).read_bytes(),

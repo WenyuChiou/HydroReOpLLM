@@ -3,6 +3,7 @@ from copy import deepcopy
 import hashlib
 import importlib
 import json
+import os
 from pathlib import Path
 import tempfile
 import unittest
@@ -60,8 +61,30 @@ class WorkflowTests(unittest.TestCase):
     def test_shipped_profiles_check_without_network_or_output_creation(self):
         with patch('urllib.request.urlopen', side_effect=AssertionError('network forbidden')):
             for path in (PROJECT_ROOT/'experiments').glob('*.yaml'):
-                settings = load_settings(path)
-                self.assertEqual(settings.report['network_calls'],0)
+                with self.subTest(profile=path.name):
+                    data = yaml.safe_load(path.read_text(encoding='utf-8'))
+                    original_audit = any(
+                        audit.get('type') == 'dkp_strategy'
+                        for audit in data.get('auditors', {}).values()
+                    )
+                    if original_audit and not os.environ.get('HYDROOPS_ANIK_SOURCE_DIR'):
+                        # The frozen diagnostic requires the optional original
+                        # source; current framework profiles must still load.
+                        with self.assertRaisesRegex(RuntimeError, 'HYDROOPS_ANIK_SOURCE_DIR'):
+                            load_settings(path)
+                    elif (any(agent.get('reference', {}).get('profile') == 'fe_walter'
+                              for agent in data.get('agents', {}).values())
+                          and not os.environ.get('HYDROOPS_FE_WALTER_HISTORY_DIR')):
+                        with self.assertRaisesRegex(RuntimeError, 'HYDROOPS_FE_WALTER_HISTORY_DIR'):
+                            load_settings(path)
+                    else:
+                        settings = load_settings(path)
+                        self.assertEqual(settings.report['network_calls'],0)
+            for method in ('zeroshot', 'dkp'):
+                path = PROJECT_ROOT / f'tests/fixtures/fe_walter_current/{method}.yaml'
+                with self.subTest(current_method=method):
+                    settings = load_settings(path)
+                    self.assertEqual(settings.report['network_calls'], 0)
         actual = load_settings(PROJECT_ROOT/'experiments/fe_belt_prompton.yaml')
         self.assertEqual(actual.report['agent_count'],2)
         self.assertEqual(actual.report['passive_reservoir_count'],1)
@@ -114,7 +137,7 @@ class WorkflowTests(unittest.TestCase):
         data['models']={'local':dict(provider='ollama',model='test',base_url='http://localhost:11434')}
         data['max_calls']=14
         for a in data['agents'].values():
-            a.update(mode='llm',model='local',prompt=str(PROJECT_ROOT/'prompts/daily_release.txt'))
+            a.update(mode='llm',model='local',prompt=str(PROJECT_ROOT/'templates/legacy/prompts/operator.txt'))
             a.pop('release_cms')
         settings=load_settings(self.save(data));transport=Mock()
         with self.assertRaises(ValueError):run_settings(settings,allow_network=True,transport=transport)

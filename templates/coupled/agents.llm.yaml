@@ -1,0 +1,18 @@
+# Alternate operator file. Point experiment.yaml agents.file here to use it.
+YOUR_AGENT_ID:
+  # Must match a key in reservoirs.yaml network.reservoirs.
+  reservoir_id: YOUR_RESERVOIR_ID
+  type: llm
+  # Must match a profile ID in models.yaml.
+  model_profile: primary
+  # Paths are relative to this agent file.
+  prompt_file: prompts/operator.txt
+  customization:
+    # Optional, explicit system message; no system prompt is injected by default.
+    system_prompt_file: prompts/system.txt
+    # User version for prompt provenance.
+    prompt_version: '1'
+    # Optional profile from information.yaml. Remove this key and the
+    # $information line in the prompt together when no extra data is needed.
+    information: operator_view
+  auditors: [release_bounds]

@@ -16,9 +16,10 @@ from llm_reservoir_agent.network import PROJECT_ROOT
 from llm_reservoir_agent.prompt import PromptSpec
 from llm_reservoir_agent.verification import verify_run
 from llm_reservoir_agent.workflow import load_settings, run_settings
+from reference_oracle import require_reference_dir
 
 
-DKP = PROJECT_ROOT / 'examples/fe_walter/knowledge/DKP_FEWalter_Dam_v1.2.md'
+DKP = PROJECT_ROOT / 'examples/fe_walter/knowledge/operating_rules.md'
 CURVE = PROJECT_ROOT / 'cases/fe_belt_prompton_offline/fe_walter_storage_elevation.csv'
 CONFIG = PROJECT_ROOT / 'experiments/fe_walter_dkp_offline.yaml'
 
@@ -40,6 +41,7 @@ def observation():
 
 
 def plugin(tmp_path, *, target=True, required=None):
+    require_reference_dir()
     profile = json.loads((PROJECT_ROOT / 'cases/fe_walter_dkp_offline/audit_profile.json').read_bytes())
     profile['curve_source']['path'] = str(CURVE)
     profile['required_inputs'] = [] if required is None else required
@@ -123,6 +125,7 @@ def test_unverified_target_and_unsupported_losses_remain_unknown(tmp_path):
 
 
 def plugin_from_path(path):
+    require_reference_dir()
     return DKPStrategyAudit('dkp',dict(type='dkp_strategy',knowledge_id='rules',profile=str(path)),
                             base_path=path.parent,knowledge_paths={'rules':DKP},project_root=PROJECT_ROOT)
 
@@ -231,6 +234,7 @@ def test_invented_citation_neutral_claim_and_clipped_preview_are_visible(tmp_pat
 
 
 def external_config(tmp_path):
+    require_reference_dir()
     data=yaml.safe_load(CONFIG.read_text(encoding='utf-8'))
     base=CONFIG.parent
     for key in ('case','output'):data[key]=str((base/data[key]).resolve())

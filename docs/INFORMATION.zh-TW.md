@@ -2,158 +2,51 @@
 
 [English](INFORMATION.md) | [繁體中文](INFORMATION.zh-TW.md)
 
-決策資訊是 agent 決策當時可取得欄位的明確快照，選取時遵守因果性。
-它不會取代受保護的 host observation，也不會建立水流連接。
+決策資訊是在決策時間由 operator 明確選取的額外型別資料，例如已發布預報或
+操作目標。profile 只公開具名欄位並檢查時間因果性，不會改變水流網路、入流、
+蓄水或放流限制。
 
-v2 experiment 使用一個 `information` section：
+下載 [information.yaml](../templates/coupled/information.yaml)，或瀏覽
+[完整模板資料夾](TEMPLATES.md)。
 
-```yaml
-information: {file: information.yaml}
+```{literalinclude} ../templates/coupled/information.yaml
+:language: yaml
 ```
 
-Section 檔案包含 `sources` 與 `profiles`：
+| 欄位 | 用途與單位 | 必要性 | 使用者填寫或參照值 |
+|---|---|---|---|
+| `sources` | 可用資料來源目錄 | 必須有此 section，可為空 | 使用者定義 source ID |
+| `type` | 資料來源 adapter | 每個 source 必填 | `static`、`csv`、`simulation` 或已註冊 `extension` |
+| `quantity` | 物理量或研究量名稱 | 必填 | 使用者定義文字 |
+| `unit` | 原始資料單位 | 必填 | 必須符合底層數值 |
+| `location` | 穩定空間標籤 | 必填 | 適用的網路 ID 或自訂位置 |
+| `datum` | 結構化參考資訊 | 選填 | 可轉為 JSON 的 mapping |
+| `value` | 常數值 | `static` 必填 | 使用者資料 |
+| `path` | 時序資料檔 | `csv` 必填 | 相對於本檔的路徑 |
+| `kind` | 時序資料解釋 | `csv` 必填 | `observation` 或 `forecast` |
+| `profiles` | agent 選取的具名視圖 | 必須有此 section，可為空 | 使用者定義 profile ID |
+| `fields.<alias>.source` | 以安全別名公開的 source | 必填 | 本檔 source ID |
+| `required` | 缺漏或過期時是否停止決策 | 選填，預設 `true` | 布林值 |
+| `unit` | 要求的相容輸出單位 | 選填 | 支援的相容單位 |
+| `history` | 保留的合格樣本數 | 選填，預設 `1` | 正整數 |
+| `max_age_seconds` | 最大因果資料年齡 | 選填 | 非負秒數 |
 
-```yaml
-sources:
-  storage_target:
-    type: static
-    quantity: storage_target
-    unit: m3
-    location: lake_a
-    value: 750000
-  observed_inflow:
-    type: csv
-    kind: observation
-    path: data/inflow_observations.csv
-    quantity: inflow
-    unit: m3/s
-    location: lake_a
+observation CSV 欄位為 `valid_time,available_at,value`；forecast CSV 欄位為
+`issued_at,valid_time,available_at,value`。時間戳必須含 `Z` 或明確 UTC offset。
+observation 在決策時必須已有效且可取得；forecast 可以描述未來時間，但 issue
+與 availability 時間必須已發生。
 
-profiles:
-  operator_view:
-    fields:
-      target_m3: {source: storage_target}
-      recent_inflow:
-        source: observed_inflow
-        history: 2
-        max_age_seconds: 172800
-```
+simulation source 讀取目前或先前已提交的 host 值，支援 `inflow`、`storage`、
+`release`、`flow`。其他水庫的狀態或放流與 routed flow 使用已提交步驟；location
+標籤本身不會自動讀取物理資料。
 
-CSV 路徑以 `information.yaml` 的位置解析。
-舊版 v1 inline experiment 可繼續使用 `information_sources` 與 `information_profiles`，
-但不可將這些舊欄位與 v2 的 `information` section 混用。
+支援 m³/s 與 cfs、m³ 與 acre-ft、m 與 ft 的轉換。非必要資訊若缺漏，會成為
+明確的 `MISSING` 與 `value: null`，不會被改成零。
 
-## 從 agent 選擇 profile
+LLM agent 以 `customization.information` 選取 profile，並在 prompt 放入
+`$information`。Rule-based agent 可選取同一 profile，從
+`observation.context.decision_information` 讀取欄位。選取一個 profile 不會公開
+目錄中的其他 source。
 
-Agent 選擇一個 profile，並由 prompt 明確放入 `$information`：
-
-```yaml
-operator_a:
-  reservoir_id: lake_a
-  type: llm
-  model_profile: local
-  prompt_file: prompts/operator_with_information.txt
-  customization:
-    system_prompt_file: prompts/system.txt
-    information: operator_view
-```
-
-```text
-Current physical observation: $observation
-Selected causal information: $information
-```
-
-Profile 與 placeholder 必須一起設定。
-選擇 profile 不會公開 catalog 中的每個來源。
-
-## 來源類型
-
-每個來源都宣告 `type`、`quantity`、`unit` 與 `location`。
-`datum` 是選用的結構化 metadata。
-
-| 類型 | 附加欄位 | 選取意義 |
-|---|---|---|
-| `static` | `value` | 固定的 JSON 值，永遠可用。 |
-| `csv`，observation | `path`、`kind: observation` | 最新的合格實際樣本。 |
-| `csv`，forecast | `path`、`kind: forecast` | 從最新合格發報週期選出最早的合格預報時段。 |
-| `simulation` | 無 | 目前或先前已提交步驟中符合因果性的 host 值。 |
-| `extension` | 已註冊的 provider 與參數 | 由明確註冊的資訊 provider 提供紀錄。 |
-
-Observation CSV 欄位為 `valid_time,available_at,value`。
-Forecast CSV 欄位為 `issued_at,valid_time,available_at,value`。
-時間戳必須包含 `Z` 或明確的 UTC offset；CSV bytes 與解析後的樣本都會固定。
-
-Simulation 的 quantity 為 `inflow`、`storage`、`release` 或 `flow`。
-正在決策的水庫可取得當前入流與蓄水；其他水庫的狀態或放流，以及 routed flow，
-都取自先前已提交的步驟。Label 不會自動選取物理資料。
-
-## Profile 欄位控制
-
-| 選項 | 預設值 | 意義 |
-|---|---|---|
-| `source` | 必填 | 此 prompt-safe alias 選取的來源。 |
-| `required` | `true` | 資料缺失或過期時，在發出請求前停止。 |
-| `unit` | 來源單位 | 支援的輸出單位轉換。 |
-| `history` | `1` | 保留的合格樣本數，須為正整數。 |
-| `max_age_seconds` | 無限制 | 最大因果資料年齡。 |
-
-支援的轉換為 m³/s ↔ cfs、m³ ↔ acre-ft，以及 m ↔ ft。
-非必要資訊缺失時，會明確產生 `MISSING` 紀錄並設為 `value: null`，
-絕不會悄悄改成零。
-
-對 observation 而言，`valid_time` 與 `available_at` 都不得晚於決策時間。
-同一 valid time 採用最新可取得的修訂。
-對 forecast 而言，選取決策當時可取得的最新發報週期，
-並保留等於或晚於決策時間的預報時段。Forecast age 從 `issued_at` 起算。
-
-## 區分資訊與 prompt context
-
-具型別與時間戳、且可能用於 outcome checks 的來源，使用 information profile。
-固定文字或 JSON 使用 `prompt_variables`。
-自訂計算或檢索使用 `context_providers`，回傳附有來源紀錄的 `ContextValue`。
-
-三者都會成為 prompt 輸入，但都不能覆寫當前入流、蓄水、放流界限、水庫物理或河網。
-雙水庫範例的 `local_retrieval` extension 示範 context callback；
-它不是資訊來源，也不依賴向量資料庫。
-
-## 代入模板的快照
-
-`$information` 是 `decision-information.v1` JSON object，
-包含 `schema_version`、`decision_time` 與 `fields`。每個 alias 記錄：
-
-- `AVAILABLE` 或 `MISSING` 狀態；
-- 值、單位、quantity 與 location；
-- 來源 ID 與 kind；
-- 適用時的 valid time、available time 與預報發報時間；
-- 選取的歷史樣本；
-- 來源 hash 或 provider version；
-- datum metadata 或缺失原因。
-
-選定的快照會複製到 `observation.context.decision_information`，
-並與代入後的訊息一起保存。這記錄了選取哪些資訊，
-不代表資訊正確或足以支援操作。
-
-## 控制點 outcome checks
-
-`outcome_check` 在 routing 後評估 routed flow。
-它是診斷功能，不會修正放流或最佳化河網：
-
-```yaml
-outcome_checks:
-  downstream_minimum:
-    node: river_a
-    minimum_information: {agent: operator_a, field: required_flow_cms}
-    maximum_cms: 250
-    tolerance_cms: 1.0e-9
-```
-
-每個 check 都指定一個節點與至少一個界限。
-界限可為非負 scalar，或該 agent 在同一 timestep 選取的一個數值欄位。
-非必要資訊缺失時，結果為 `UNKNOWN`。
-結果寫入 `outcome_audit.jsonl`，不改變歷史決策 audit、routing 或放流。
-
-教學案例使用的每日模擬入流是指定的 forcing。
-日期標籤本身不能證明該觀測值在真實世界當時可取得。
-
-[Prompt 與 context 設定](CONFIGURATION.md) ·
-[LLM 模組](LLM_MODULES.md) · [結果與 trace](RESULTS_GUIDE.md)
+固定 prompt 文字或 JSON 使用 `prompt_variables`；自訂檢索或計算使用
+`context_providers`。這些資訊可以保留來源紀錄，但不會因此取得改寫水庫物理的權限。

@@ -1,66 +1,52 @@
 # HydroOpsLLM
 
 [![User manual](docs/_static/docs-badge-en.svg)](https://wenyuchiou.github.io/HydroOpsLLM/)
-![Python 3.12](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)
 
 [English](README.md) | [繁體中文](README.zh-TW.md)
 
-HydroOpsLLM couples large language model decisions with HydroCNHS hydrological simulation for reservoir operations.
+HydroOpsLLM adds configurable LLM reservoir operators to HydroCNHS.
 
 ![HydroOpsLLM cover](docs/figures/hydroopslm-cover.png)
 
-HydroCNHS computes streamflow. Each reservoir agent requests a release; the physical model implements it, updates storage and routes outflow downstream. The implemented result informs the next daily decision. In YAML, set each agent's `reservoir_id` and `type: rule_based` or `type: llm`.
+HydroCNHS computes streamflow; each reservoir agent requests a release; the physical model applies that decision, updates storage, and routes outflow downstream. The implemented state then informs the next daily decision.
 
-## Installation
+## Start here
 
-Use Python 3.12. Repository access is required while the project is private.
+1. **Install.** Use Python 3.12 and the repository's pinned constraints. Repository access is required while the project is private.
 
-```sh
-git clone https://github.com/WenyuChiou/HydroOpsLLM.git
-cd HydroOpsLLM
-```
+   ```sh
+   git clone https://github.com/WenyuChiou/HydroOpsLLM.git
+   cd HydroOpsLLM
+   python3.12 -m venv .venv
+   source .venv/bin/activate
+   python -m pip install -e . -c environment/requirements-bundled.txt
+   ```
 
-Create and activate an environment:
+   On Windows PowerShell, create and activate the environment with `py -3.12 -m venv .venv` and `.venv\Scripts\Activate.ps1` before running the same install command.
 
-```sh
-# Linux / macOS
-python3.12 -m venv .venv
-source .venv/bin/activate
-```
+2. **Configure a study.** Read [Configuration overview](docs/INPUT_OUTPUT.md),
+   then copy the complete [`templates/coupled`](templates/coupled/README.md)
+   starter. Its file index separates the experiment, accepted hydrology,
+   physical network, agents, models, prompts, information, and auditors. Run
+   `reservoir-experiment check <your-experiment.yaml>` after replacing every
+   required placeholder; `check` runs neither hydrology nor a model request.
 
-```powershell
-# Windows PowerShell
-py -3.12 -m venv .venv
-.venv\Scripts\Activate.ps1
-```
+3. **Follow the [F.E. Walter tutorial](tutorials/fe_walter.md).** It applies the
+   general configuration to one research case and compares **Rule-based**,
+   **LLM with available information**, and **LLM with retrieved knowledge**. The
+   [main notebook](tutorials/main.ipynb) reads committed evidence and makes no
+   model request.
 
-```sh
-python --version
-python -m pip install -e . -c environment/requirements-bundled.txt
-```
+4. **Inspect the [saved results](examples/fe_walter/results.md).** The combined
+   operations figure and full-precision table support review without rerunning
+   inference or hydrology. These saved curves retain the prompts and context of
+   their source runs.
 
-## Run a small example
+## Decision methods
 
-This four-day synthetic example has two independent reservoirs and separate river outlets. It uses rule-based operation and needs no model or API key.
+Set each agent's `reservoir_id` and `type: rule_based` or `type: llm`. Rule-based agents load a registered rule module; Hanasaki is the selected module in the F.E. Walter example, not a framework-wide requirement. LLM agents select a `model_profile` and `prompt_file`, with optional context or retrieved knowledge under `customization`. The core does not prepend a shared system prompt, although a case extension may assemble one explicitly.
 
-```sh
-reservoir-experiment check examples/multiple_reservoirs/experiment.yaml
-reservoir-experiment prepare examples/multiple_reservoirs/experiment.yaml
-reservoir-experiment run examples/multiple_reservoirs/experiment.yaml
-reservoir-experiment verify runs/independent-rivers-rule/operation --require-offline
-```
-
-`prepare` computes weather-derived inflow over the hydrological model's full initialization period. `run` then advances reservoir operations and downstream routing each day. Upstream runoff is currently prepared before the operation loop.
-
-Follow [Build a simulation](docs/BUILD_SIMULATION.md) to set hydrology, reservoir parameters and agents. The [F.E. Walter case](examples/fe_walter/README.md) uses one physical case with three operation methods: Rule-based, LLM with available information, and LLM with retrieved knowledge.
-
-## Configure an LLM
-
-Each LLM agent selects `model_profile` and `prompt_file`, with optional knowledge or context under `customization`. No common system prompt is automatically added. Native interfaces support **OpenAI, Anthropic Claude, Google Gemini and Ollama**, with an additional OpenAI-compatible interface.
-
-`check` previews configuration and prompts without calling a model. New LLM execution requires explicit `--allow-network`. See [Model configuration](docs/USER_GUIDE.md) for credentials, parameters, retry and fallback settings.
-
-The [user manual](https://wenyuchiou.github.io/HydroOpsLLM/) explains input preparation, code structure, saved raw replies, audits and interrupted-run recovery. Notebooks and teaching results can be inspected without new inference.
+See the [user manual](https://wenyuchiou.github.io/HydroOpsLLM/) for study construction, provider settings, saved replies, audits, and interrupted-run recovery.
 
 ## License and attribution
 

@@ -1,163 +1,113 @@
-# F.E. Walter 案例
+# F.E. Walter 水庫研究案例
 
 [English](README.md) | [繁體中文](README.zh-TW.md)
 
-完成[建立通用模擬](../../docs/BUILD_SIMULATION.zh-TW.md)後，再使用這個研究案例。
-本案例把同一份已確認的 HydroCNHS 水文邊界與同一個水庫物理模型，套用到三種操作
-方法：規則範例、使用可用資訊的 LLM，以及使用檢索知識的 LLM。三種方法共用物理
-計算，因此差異可追溯到決策輸入與邏輯，而不是不同的水量計算。
-
-目前設定的逐步操作見
-[F.E. Walter：設定水庫 agent](../../tutorials/fe_walter.md)。
+本案例將已接受的 HydroCNHS 水文結果連接至單一受控水庫，比較
+**Rule-based**、**LLM with available information** 與 **LLM with retrieved
+knowledge** 三種決策方法。請先閱讀[維護中的教學](../../tutorials/fe_walter.md)。
 
 ## 地點與研究範圍
 
-F.E. Walter Dam 位於 Pennsylvania 州 White Haven 附近、Lehigh River 與 Bear
-Creek 交會處，橫跨 Carbon 與 Luzerne counties。水壩建於 1961 年。官方核定用途為
-**Flood Risk Management** 與 **Recreation**。在蓄水量與防洪優先順序允許時，放流也
-支援下游泛舟與釣魚。資料來源為 U.S. Army Corps of Engineers 的
-[專案頁](https://www.nap.usace.army.mil/Missions/Civil-Works/Francis-E-Walter-Dam/)、
-[重新評估研究](https://www.nap.usace.army.mil/Missions/Factsheets/Fact-Sheet-Article-View/Article/490871/francis-e-walter-dam-re-evaluation-study/)，以及
-[流量管理計畫與時程](https://www.nap.usace.army.mil/Missions/Civil-Works/Francis-E-Walter-Dam/Flow-Management-Plan-Schedule/)。
+F.E. Walter Dam 位於 Pennsylvania 州 White Haven 附近、Lehigh River 與
+Bear Creek 匯流處。U.S. Army Corps of Engineers 以洪水風險管理與遊憩為
+主要任務；季節性放流也可支援下游泛舟與釣魚 [[1]](#fe-walter-ref-1-zh)。
 
 ```{figure-md} fe-walter-study-area-zh-tw
 :class: study-area-figure
 
 ![F.E. Walter 模式集水區、河流、水壩與測站](../../docs/figures/fe-walter-catchment.png)
 
-**圖 1。** 模式子集水區、水壩、測站與 1996–2025 年平均年降水量。
-框線標出水庫位置，水面與河流採用相同藍色；菱形表示水壩／出口。
-七個實際模式貢獻單元合計 **750.811 km²**；這是模式集水區面積，不是官方水庫水面
-或專案土地面積。原生模型中另有 1 ha 的人工匯總出口，此面積不計入上述總和。
-**資料來源：** Esri、CGIAR、USGS、data.pa.gov、TomTom、Garmin、SafeGraph、
-METI/NASA、EPA、NPS、USDA、USFWS、New Jersey Office of GIS、FAO、NOAA。
+**圖 1。** 模式子集水區、水壩、測站與 1996–2025 年平均年降水量。框線標出水庫
+位置，菱形表示水壩／出口；水面與河流採用相同藍色。[^map-sources]
 ```
 
-## 已接受的水文邊界
+[^map-sources]: Esri、CGIAR、USGS、data.pa.gov、TomTom、Garmin、SafeGraph、
+    METI/NASA、EPA、NPS、USDA、USFWS、New Jersey Office of GIS、FAO、NOAA。
 
-上游採半分佈式模型。七個地理子集水區各自保留氣象、面積、緯度、土地與土壤屬性、
-河長。GWLF 計算產流，Lohmann routing 將水送達壩址。操作實驗使用產生的每日入口
-流量；更換 operator 不會重新校正水文。
+## 氣候與水文
 
-| 資料或期間 | 本案例用途 |
-|---|---|
-| 每日氣象 | Daymet V4 R1 降水、最低溫與最高溫，依 polygon overlap 加權 |
-| 有紀錄的氣象補值 | nClimGrid-Daily 僅補 leap year 的 12 月 31 日，不作一般缺值填補 |
-| PET | 由日平均溫與子集水區緯度計算 HydroCNHS Hamon PET |
-| 土地覆蓋 | NLCD 2021，以 60 m 彙整，並假設整段歷史模擬期間固定不變 |
-| 土壤 | SSURGO polygons 與 NRCS Soil Data Access 屬性；未使用 gSSURGO raster |
-| 原生連續期間 | 1989–2025；1989 為暖機期 |
-| 校正／驗證 | 1990–2010／2011–2020，測站 USGS 01447500 |
-| 前推期間 | 2021–2025；屬前推模擬，不是新增測站驗證 |
+已接受的強迫資料涵蓋 1989–2025 年七個貢獻單元的每日降水、溫度與 PET。
+降水及最低／最高溫來自 Daymet V4 R1 [[2]](#fe-walter-ref-2-zh)；nClimGrid-Daily 只補入
+有紀錄的閏年 12 月 31 日資料 [[3]](#fe-walter-ref-3-zh)。下圖先依單元面積加權，再將每日
+降水與既有 PET 加總為月總量，並計算每日平均溫度的月平均。這只是一項顯示用
+彙整：既有 PET 由 cm 轉為 mm，沒有重新計算 PET 或重採樣氣象資料。
 
-USGS 01447500 涵蓋七區中的兩區；其餘五區不是各自有測站的獨立驗證單元。
-已接受的資料與指標見[水文、參數與 C&V](hydrology.zh-TW.md)。建立及校正其他流域時，
-使用 [HydroCNHS 官方手冊](https://cylin928.github.io/HydroCNHS/)與
-[HydroCNHS 設定](../../docs/HYDROLOGY_SETUP.md)；本頁不重複原生建模與校正流程。
+HydroCNHS 依原生程式 [[4]](#fe-walter-ref-4-zh) 計算每日 Hamon PET：
 
-## 共用物理假設
+$$
+\mathrm{PET}=\left(\frac{D}{12}\right)^2\exp\left(\frac{T}{16}\right)
+\quad \text{mm day}^{-1},
+$$
 
-| 項目 | 設定與解釋 |
-|---|---|
-| 水庫 | 一座受控 F.E. Walter 水庫與一個決策單元 |
-| 入流 | 凍結的每日 HydroCNHS 模擬入口流量，m³/s |
-| 初始蓄水 | 2,457,848.279729185 m³（1,992.61 acre-ft）；整合假設，不是 2016 年 1 月觀測值 |
-| 水庫損失 | 水庫核心中的直接降水、蒸發、滲漏與取水皆為零 |
-| 下游 routing | Identity unit hydrograph，`UH=[1.0]`；介面假設，不是已校正旅行時間 |
-| 物理計算 | 更新一次蓄水；實施控制放流加 spill，只注入下游 routing 一次 |
+其中 $D$ 為依緯度與年內日期計算的日照時數，$T$ 為日平均溫度（°C）。當 $T\leq0$ °C 時，
+程式將 PET 設為零，並以 cm/day 儲存。PET 與降水、溫度共同驅動集水區逕流
+模式；本案例的水庫損失設為零，因此 PET 不會直接當作水庫蒸發量扣除。
 
-LLM 不會提供集水區入流，也不負責水量計算。共用物理核心對所有方法套用可用水量與
-放流限制，計算蓄水與 spill，再將實施出流送往下游。
+七個單元總面積為 750.811 km²。校準利用觀測流量調整水文參數；獨立驗證則固定這些參數，改用不同期間
+評估。本案例在 USGS 01447500 [[5]](#fe-walter-ref-5-zh) 以 1990–2010 年校準、2011–2020 年
+驗證。該測站涵蓋七個單元中的兩個；其餘五個單元沒有獨立測站驗證。期間、指標、
+參數與 2021–2025 年固定參數前推模擬詳見[水文、參數與校準／驗證](hydrology.zh-TW.md)。
 
-## 區分水文輸入與 LLM 每日可見資訊
+下載：[月資料 CSV](hydrology_data/climate/fe_walter_climate_monthly_1989_2025.csv)、
+[來源與彙整紀錄](hydrology_data/climate/provenance.json)、
+[SVG](hydrology_data/climate/fe_walter_climate_1989_2025.svg)、
+[PDF](hydrology_data/climate/fe_walter_climate_1989_2025.pdf)。
 
-| 資訊 | 水文／物理用途 | LLM 用途 |
-|---|---|---|
-| Daymet 氣象、PET、土地、土壤、HydroCNHS 參數 | 產生已接受的每日入口流量 | 不會自動提供給 LLM |
-| 日期、入口流量、當日起始水位及最多兩筆已完成決策 | 描述當日操作狀態 | 納入每日訊息；本例不顯示另外的蓄水體積欄位 |
-| 季節操作目標 | 不改變水文 | 明確納入目前兩種 LLM 方法 |
-| 檢索操作指引 | 不改變水文或物理 | 只有檢索知識方法使用 |
-| 提議放流 | 依物理狀態與限制檢查 | 由選定規則或 LLM 方法產生 |
+```{figure-md} fe-walter-climate-forcing-zh-tw
+:class: climate-figure
 
-這個區隔避免把水文輸入當成未說明的模型知識。保存的訊息與 trace 顯示每個每日 LLM
-決策實際可使用的內容。
+![F.E. Walter 模式集水區逐月降水、PET 與溫度](hydrology_data/climate/fe_walter_climate_1989_2025.png)
 
-## 從目前 2016 設定開始
+**圖 2。** 1989–2025 年面積加權月氣象輸入。降水與 PET 為月總量（mm/month），
+溫度為月平均（°C）。
+```
 
-目前維護的對照使用 `gemma4:12b`、temperature 0.7 與明確的 v2 入口檔：
+## 水庫實驗
 
-| 方法輸入 | 檔案 |
-|---|---|
-| 使用可用資訊的 LLM | [`coupled/current/llm_available.yaml`](coupled/current/llm_available.yaml) |
-| 使用檢索知識的 LLM | [`coupled/current/llm_knowledge.yaml`](coupled/current/llm_knowledge.yaml) |
-| 共用模型 profile | [`coupled/current/models.yaml`](coupled/current/models.yaml) |
-| 規則範例 | [規則式操作](benchmark/README.zh-TW.md) |
+操作實驗從連續水文結果中選取 2016 年入流；更換操作方法不會改變或重新校準
+水文。共用物理層對每日時段套用
 
-舊 Gemma 3 檔案保持原樣，作為保存輸入；不能用它們宣稱重現目前 Gemma 4 對照。
-確切檔案、指令、成功檢查與輸出位置見[設定教學](../../tutorials/fe_walter.md)。
+$$
+S_{t+1}=S_t+\left(Q_{\mathrm{in},t}-Q_{\mathrm{rel},t}-Q_{\mathrm{spill},t}\right)\Delta t,
+$$
+
+其中 $S$ 是蓄水量（m³），$Q_{\mathrm{in}}$ 是水文入流，$Q_{\mathrm{rel}}$ 是實際
+控制放流，$Q_{\mathrm{spill}}$ 是溢流（三者皆為 m³/s），且
+$\Delta t=86{,}400$ s。本簡化案例的直接降水、水庫蒸發、滲漏與取水皆為零。
+操作方法提出放流量；共用物理層檢查可行性、更新蓄水與溢流，並以 `UH=[1.0]`
+傳遞總出流。
+
+三種方法共用水文與水庫物理設定。規則法接收已登錄的規則參數與入流統計；可用資訊
+LLM 接收每日狀態、季節指示與短期歷史；檢索知識 LLM 再加上選取的地方指引。
+[版本化季節準則](seasonal_pool_criteria.json)是研究設定，不是官方年度操作表。既有
+結果仍使用先前提示；請分別參閱[結果](results.zh-TW.md)與 [prompt review](prompt_review.md)。
 
 ## 季節水位
 
-目前案例使用四個**研究自訂**的水位合規窗口，單位為 ft N.G.V.D.。目前兩種 prompt
-使用相同窗口；這些設定不是官方逐年操作時程。
+研究的冬季目標為 1300 ft，在 11 月 1 日至 3 月 14 日以 1297–1303 ft 檢查；
+夏季上限為 1370 ft，適用於 5 月 10 日至 10 月 14 日，並非固定水位或下限。
+其餘過渡窗口見 [seasonal_pool_criteria.json](seasonal_pool_criteria.json)。
+這些準則用於記錄操作表現，不會改寫模型決策。
 
-| 季節 | 日期，含首尾日 | 水位檢查 |
-|---|---|---|
-| 冬季維持 | 11 月 1 日–3 月 14 日 | 1297–1303 ft，接近 1300 ft 保育水位 |
-| 春季蓄水 | 3 月 15 日–5 月 9 日 | 1300–1370 ft |
-| 夏季 | 5 月 10 日–10 月 14 日 | 不高於 1370 ft；此檢查不設下限 |
-| 秋季降水位 | 10 月 15 日–10 月 31 日 | 1300–1370 ft，且水位下降 |
+## 參考資料
 
-3/15、5/10、10/15 歸入後一季；水位上下限均包含端點。
-[季節規格](seasonal_pool_criteria.json)保存日期、區間與共同英文指令：冬季維持
-1300 ft 附近，春季在水文條件允許時向 1370 ft 蓄水，夏季不超過 1370 ft，秋季從
-10/15 開始降水位，朝 11/1 回到 1300 ft。
+(fe-walter-ref-1-zh)=
+[1] U.S. Army Corps of Engineers, Philadelphia District。
+[Francis E. Walter Dam](https://www.nap.usace.army.mil/Missions/Civil-Works/Francis-E-Walter-Dam/)。
 
-### 檢查保存的水位序列
+(fe-walter-ref-2-zh)=
+[2] Thornton, M. M., et al. (2022)。
+[Daymet: Daily Surface Weather Data on a 1-km Grid for North America, Version 4 R1](https://doi.org/10.3334/ORNLDAAC/2129)。
 
-```sh
-python examples/fe_walter/check_pool_levels.py examples/fe_walter/reference_outputs/long_term_dkp/plotted_daily.csv --output runs/fe-walter-seasonal-pool-v1.csv
-```
+(fe-walter-ref-3-zh)=
+[3] NOAA National Centers for Environmental Information。
+[nClimGrid-Daily](https://www.ncei.noaa.gov/products/land-based-station/nclimgrid-daily)。
 
-在 repo 根目錄使用新的輸出檔名執行。程式另存包含輸入與規格 hash 的 CSV，拒絕覆寫
-既有檔案；不執行模型、模擬或策略 audit。
+(fe-walter-ref-4-zh)=
+[4] HydroCNHS。
+[原生 Hamon PET 程式](../../src/hydrocnhs/rainfall_runoff_model/pet_hamon.py)，依據
+Hamon (1961)，[*Estimating Potential Evapotranspiration*](https://doi.org/10.1061/JYCEAJ.0000599)。
 
-保存的 `pool_elevation_start_ft` 是每日起始 snapshot，不代表日內最高或日末合規。
-秋季「下降」表示低於前一個連續日；持平會判 `FAIL`，包含已到 1300 ft。缺少或非
-有限水位，以及缺少秋季前一日紀錄時判 `UNKNOWN`；觀察到超出區間仍判 `FAIL`。
-不額外加入數值容差。原版 decision audits 保留原有目標邏輯。上述歷史序列並非使用
-修訂 prompt 產生。
-
-## 透過共用物理比較方法
-
-| 方法 | 決策來源 | 方法專用輸入 |
-|---|---|---|
-| [規則式操作](benchmark/README.zh-TW.md) | Hanasaki-based 每日防洪範例 | 規則參數與歷史統計 |
-| [使用可用資訊的 LLM](zero_shot/README.zh-TW.md) | 案例指令與每日狀態 | 目前 Gemma 4 profile 與明確案例 prompt |
-| [使用檢索知識的 LLM](dkp/README.zh-TW.md) | 相同介面加上檢索指引 | 目前 Gemma 4 profile、prompt 與知識來源 |
-
-規則參考 [Hanasaki et al. (2006)](https://doi.org/10.1016/j.jhydrol.2005.11.011)
-與 [Abeshu et al. (2023), Section 2.3.3](https://gmd.copernicus.org/articles/16/5449/2023/)
-的防洪公式。它是已註冊的案例規則，不是 HydroCNHS 原生操作政策。
-[每日耦合章節](coupling.zh-TW.md)說明三種方法如何通過相同水庫物理與下游 routing。
-
-## 查看結果
-
-目前與歷史結果應分開閱讀。先讀英文
-[最新 Gemma 4 對照](coupled/README.md#verified-2016-results)。
-[歷史結果與決策紀錄](results.zh-TW.md)保存較早的 2020 教學與 2016–2020 研究。
-
-| 保存證據 | 期間與模型 | 用途 |
-|---|---|---|
-| 目前原版程式／框架對照 | 2016-01-01–12-31；每套引擎、每種 LLM 方法各 366 日；`gemma4:12b`、temperature 0.7 | 水位、控制放流、季節合規與相同回覆工程檢查 |
-| 較早三方法全年範例 | 2016-01-01–12-31；每種方法 366 日；LLM 使用 `gemma3:4b`、temperature 0.7 | 保存較早設定，與目前對照分開 |
-| 歷史三日教學 | 2016-01-01–01-03；LLM 使用 `gemma3:4b`、temperature 0.7 | 保存教學 snapshot 與原始 audit verdict；不是目前首次執行路徑 |
-| 一年結果教學 | 2020-01-01–12-31；歷史檢索知識紀錄中的 366 日 | 季節操作與個別決策 |
-| 歷史檢索知識實驗 | 2016-01-01–2020-12-31；`gemma4:12b`、temperature 0.7 | 完整 1,827 日軌跡與決策行為 |
-
-五年紀錄屬歷史檢索知識實驗；沒有提供配對的五年規則式或可用資訊軌跡。三日教學
-與歷史實驗的模型版本、程式來源不同。三日季節 YAML 已完成 offline check 但未重跑；
-保存 exchanges 保留原始指令與 verdicts。
-
-[主 notebook](../../tutorials/main.ipynb)保存歷史三日教學；
-[進階 notebook](../../tutorials/advanced.ipynb)說明多水庫。
+(fe-walter-ref-5-zh)=
+[5] U.S. Geological Survey。
+[USGS 01447500, Lehigh River at Stoddartsville, Pennsylvania](https://waterdata.usgs.gov/monitoring-location/USGS-01447500/)。

@@ -24,15 +24,17 @@ from llm_reservoir_agent.prompt import PromptSpec, RenderedPromptContext
 from .native_case import (
     ACTION_SCHEMA, CFS_TO_CMS, PHYSICAL_ACREFT_TO_M3, NativePromptFormatter,
     NativeResponseParser, ZERO_SCHEMA, case_profile_path, dkp_schema, load_case_profile,
-    native_audit, read_system_prompt,
+    historical_prompt_path, native_audit, read_system_prompt,
 )
+from .seasonal_prompt_context import load_seasonal_prompt_context
 
 
 def validate_reference(spec, base, runtime_root, *, mode="offline"):
     """Resolve files and pin source evidence without importing vendor modules."""
     allowed = {"method", "profile", "responses", "prompt_storage", "hide_availability_line",
                "dkp_no_missing_inputs", "zeroshot_knowledge", "dkp", "system_prompt",
-               "system_prompt_mode", "profile_file", "consultation_mode", "response_validation"}
+               "system_prompt_mode", "profile_file", "consultation_mode", "response_validation",
+               "seasonal_criteria_file"}
     if not isinstance(spec, dict) or set(spec) - allowed:
         raise ValueError("reference requires known reference strategy settings")
     result = dict(spec)
@@ -75,15 +77,27 @@ def validate_reference(spec, base, runtime_root, *, mode="offline"):
     elif result["system_prompt_mode"] == "custom":
         raise ValueError("custom system_prompt_mode requires a system_prompt file")
 
-    profile_path = case_profile_path()
+    if "seasonal_criteria_file" in result:
+        value = result["seasonal_criteria_file"]
+        if not isinstance(value, str) or not value.strip():
+            raise ValueError("seasonal_criteria_file must be a nonempty file path")
+        path = (Path(base) / value).resolve()
+        context = load_seasonal_prompt_context(path)
+        result["seasonal_criteria_file"] = str(path)
+        result["seasonal_criteria_sha256"] = context.sha256
+        pins[str(path)] = context.sha256
+
+    profile = load_case_profile(runtime_root)
+    profile_path = profile.path
     profile_blob = profile_path.read_bytes()
     profile_data = read_json(profile_path)
     implicit = {"case_profile": (profile_path, hashlib.sha256(profile_blob).hexdigest())}
     curve = (profile_path.parent / profile_data["elevation_storage_csv"]).resolve()
     implicit["elevation_storage_curve"] = (curve, profile_data["elevation_storage_sha256"])
-    for method, prompt in profile_data["default_system_prompts"].items():
-        implicit[f"default_system_prompt:{method}"] = (
-            (profile_path.parent / prompt["path"]).resolve(), prompt["sha256"])
+    if result["system_prompt_mode"] != "custom":
+        for method, prompt in profile_data["default_system_prompts"].items():
+            implicit[f"default_system_prompt:{method}"] = (
+                historical_prompt_path(profile, method), prompt["sha256"])
     for label, (path, expected) in implicit.items():
         actual = hashlib.sha256(path.read_bytes()).hexdigest()
         if actual != expected:
@@ -92,17 +106,6 @@ def validate_reference(spec, base, runtime_root, *, mode="offline"):
     result["profile_sha256"] = implicit["case_profile"][1]
     result["profile_resources_sha256"] = {label: digest for label, (_, digest) in implicit.items()}
 
-    manifest = Path(runtime_root) / "third_party/anik_v3_7/source_manifest.json"
-    metadata = read_json(manifest)
-    expected_names = {"benchmark_release.py", "dkp_llm_release.py", "reservoir_model.py", "zeroshot_llm_release.py"}
-    if not expected_names.issubset(metadata.get("files", {})):
-        raise ValueError("reference manifest does not match fixed V3.7 source contract")
-    pins[str(manifest)] = hashlib.sha256(manifest.read_bytes()).hexdigest()
-    for name, expected in metadata["files"].items():
-        path = manifest.parent / name
-        if hashlib.sha256(path.read_bytes()).hexdigest() != expected:
-            raise ValueError("reference vendor checksum mismatch: " + name)
-        pins[str(path)] = expected
     if result["method"] == "dkp":
         if not isinstance(result.get("dkp"), str) or not result["dkp"].strip():
             raise ValueError("reference requires dkp")
@@ -271,7 +274,12 @@ class ReferenceBackend:
         if "system_prompt" in settings: self._source_hashes["system_prompt"] = settings["system_prompt_sha256"]
         dkp_path = Path(settings["dkp"]) if settings["method"] == "dkp" else None
         if dkp_path is not None: self._source_hashes["dkp"] = hashlib.sha256(dkp_path.read_bytes()).hexdigest()
-        self._formatter = NativePromptFormatter(self._profile, settings, dkp_path)
+        seasonal_context = None
+        if "seasonal_criteria_file" in settings:
+            seasonal_context = load_seasonal_prompt_context(
+                settings["seasonal_criteria_file"], settings["seasonal_criteria_sha256"])
+            self._source_hashes["seasonal_criteria"] = seasonal_context.sha256
+        self._formatter = NativePromptFormatter(self._profile, settings, dkp_path, seasonal_context)
         self._parser = NativeResponseParser(settings["method"], not settings["dkp_no_missing_inputs"],
             expected["minimum_release_cms"], expected["maximum_release_cms"])
         if mode == "offline":

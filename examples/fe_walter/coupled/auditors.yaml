@@ -1,3 +1,4 @@
+# Audit layer. Agents select this reusable profile by the release_limits ID.
 release_limits:
-  type: release_bounds
-  version: '1'
+  type: release_bounds  # Report whether proposed release is within physical bounds (m3/s).
+  version: '1'          # Auditor-rubric version, separate from package and YAML schema versions.

@@ -1,5 +1,8 @@
 # Historical recovery index
 
+The [F.E. Walter reference input index](fe_walter/README.md) records the later
+separation of current prompts, historical inputs and the external original program.
+
 [File inventory](inventory.csv) records all **1,026** pre-cleanup tracked paths,
 their dependencies, original bytes/SHA256 and disposition.
 
@@ -29,11 +32,12 @@ line endings. Compare each file with `inventory.csv`. Do not overwrite an active
 checkout or rerun an experiment to inspect it. Ignored runs, environments and
 credentials are excluded; existing local evidence remains in its original place.
 
-Required helpers remain under `src/delaware_operations` and `third_party`:
-the formal DKP adapter/auditor uses the preserved original policy loader.
-The historical recovery module requires its restored launchers and original
-revision. Existing console entrypoints, accepted inputs, C&V, raw replies,
-audit failures and unknown costs remain preserved.
+Maintained framework modules are under `src/llm_reservoir_agent`; case extensions
+are under `examples/fe_walter/extensions`. The
+optional original-program comparison now loads the verified external artifact
+described in the [F.E. Walter recovery index](fe_walter/README.md). Historical
+launchers require their restored original revision. Accepted inputs, C&V,
+raw replies, audit failures and unknown costs remain preserved.
 
 歷史入口與文件已移至 repo 外的恢復包；原始 hash 及去向見 CSV。
 正式操作使用 `run_experiment.py`。恢復到新目錄並逐項核對 bytes，

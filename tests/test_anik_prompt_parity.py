@@ -31,7 +31,7 @@ def host_api():
     """Single relocation seam for the case extension and generic physics."""
     try:
         from examples.fe_walter.extensions.reference_backend import ReferenceBackend
-        from examples.fe_walter.extensions.anik_v3_7 import load_anik
+        from reference_oracle import load_anik, require_reference_dir
     except ImportError:  # Temporary compatibility until the extension move lands.
         from llm_reservoir_agent.reference_backend import ReferenceBackend
         from llm_reservoir_agent.plugins.anik_v3_7 import load_anik
@@ -131,7 +131,7 @@ def native_oracle(method, backend):
         policy = zero.ZeroShotLLMPolicy(**common)
     else:
         policy = sys.modules["dkp_llm_release"].DKPLLMPolicy(
-            **common, dkp_path=ROOT / "examples/fe_walter/knowledge/DKP_FEWalter_Dam_v1.2.md",
+            **common, dkp_path=ROOT / "examples/fe_walter/knowledge/operating_rules.md",
             include_missing_inputs=True)
     return cfg, policy
 
@@ -174,7 +174,7 @@ class AnikPromptParityTests(unittest.TestCase):
                     "system_prompt_sha256": __import__("hashlib").sha256(prompt_path.read_bytes()).hexdigest(),
                 }
                 if method == "dkp":
-                    settings["dkp"] = str(ROOT / "examples/fe_walter/knowledge/DKP_FEWalter_Dam_v1.2.md")
+                    settings["dkp"] = str(ROOT / "examples/fe_walter/knowledge/operating_rules.md")
                 host = REFERENCE_BACKEND(settings, physical_dict(), runtime_root=ROOT)
 
                 storage = physical().capacity_m3
@@ -212,8 +212,8 @@ class AnikPromptParityTests(unittest.TestCase):
         specs = [read_configuration(path)[0]["agents"]["fe_operator"]["reference"]
                  for path in paths]
         self.assertEqual([spec["method"] for spec in specs], ["zeroshot", "dkp"])
-        self.assertTrue(specs[0]["system_prompt"].endswith("zeroshot_seasonal_v1_system.txt"))
-        self.assertTrue(specs[1]["system_prompt"].endswith("dkp_seasonal_v2_system.txt"))
+        self.assertTrue(specs[0]["system_prompt"].endswith("available_information.txt"))
+        self.assertTrue(specs[1]["system_prompt"].endswith("retrieved_knowledge.txt"))
         self.assertTrue(all(spec["dkp_no_missing_inputs"] is True for spec in specs))
         self.assertTrue(all(spec["hide_availability_line"] is True for spec in specs))
         self.assertTrue(all("prompt.txt" not in spec["system_prompt"] for spec in specs))

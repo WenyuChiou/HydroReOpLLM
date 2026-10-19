@@ -1,50 +1,95 @@
-# Run the two-reservoir example
+# Optional multi-reservoir configuration
 
-This example shows how one experiment can contain two independent water systems.
-`lake_a` drains to `river_a`; `lake_b` drains to `river_b`. Both terminal nodes
-appear in `outlets`. There is no artificial connection between them.
+Read [Build a simulation](BUILD_SIMULATION.md),
+[HydroCNHS setup](HYDROLOGY_SETUP.md), and
+[Configure agents](CONFIGURATION.md) before this optional case. Those chapters
+define the general workflow. This page applies it to two independent water
+systems: `lake_a` drains to `river_a`, and `lake_b` drains to `river_b`. The
+configuration creates no water connection between them.
 
-{download}`Download the complete example bundle <../_multiple_reservoir_downloads/hydroopslm-multiple-reservoirs.zip>`
+## Know what this fixture establishes
 
-The bundle contains the top-level experiments, split YAML sections, HydroCNHS
-model and forcing, physical case, prompts, retrieval extension, local guidance,
-benchmark statistics and their reference CSV files.
+The synthetic weather fixture covers five days, 2020-02-27 through 2020-03-02.
+The operation window covers four days, 2020-02-28 through 2020-03-02. The first
+weather day initializes the hydrology model before the first reservoir decision.
 
-## Know what the example establishes
+The hydrological parameters are copied teaching values, and the forcing is
+synthetic. The reference inflows support the rule-based baseline. This four-day
+fixture checks software wiring: file references, IDs, routing, model adapters,
+and evidence links. It is not a calibration or validation result and does not
+establish an operating policy.
 
-The five-day weather fixture covers 2020-02-27 through 2020-03-02. The operation
-period covers four days, 2020-02-28 through 2020-03-02. The short first day lets
-the hydrology model initialize before the first reservoir decision.
-
-The hydrological parameters are copied teaching values and the forcing is
-synthetic. The reference inflows support the benchmark configuration. This case
-checks configuration, routing, model-adapter and evidence connections. It is not
-a calibration/validation result and does not establish an operating policy.
-
-## Read the files in dependency order
+## Read every source file
 
 | File | Role |
 |---|---|
-| `experiment.yaml` | Offline rule-based entry; references `agents.rule.yaml`. |
-| `experiment.llm.yaml` | Mixed entry; references `agents.llm.yaml`. |
-| `model.yaml`, `forcing.csv`, `hydrology.yaml` | Native full-period hydrology and operation inlet bindings. |
-| `reservoirs.yaml` | Two physical reservoirs, two routing paths and exact terminal outlets. |
-| `agents.rule.yaml` | One `type: rule_based`, `rule: hanasaki` agent for each reservoir. |
-| `agents.llm.yaml` | `type: llm` for `lake_a`; Hanasaki rule for `lake_b`. |
-| `models.yaml` | Ollama, OpenAI, Anthropic and Gemini profile examples. |
-| `prompts/system.txt`, `prompts/operator.txt` | Explicit configured system and user messages. |
-| `information.yaml` | Empty source/profile catalog, ready for study-specific information. |
-| `extensions/__init__.py` | Local retrieval callback for the `$guidance` prompt alias. |
-| `knowledge/guidance.json` | Two local teaching documents with availability times. |
-| `auditors.yaml` | Release-bound check used by both agents. |
-| `statistics_*.json`, `reference_*.csv` | Pinned synthetic benchmark inputs and provenance. |
+| [`experiment.yaml`](../examples/multiple_reservoirs/experiment.yaml) | Offline rule-based entry. |
+| [`experiment.llm.yaml`](../examples/multiple_reservoirs/experiment.llm.yaml) | Mixed rule and LLM entry. |
+| [`hydrology.yaml`](../examples/multiple_reservoirs/hydrology.yaml) | Native model, forcing, and operation inflow bindings. |
+| [`model.yaml`](../examples/multiple_reservoirs/model.yaml) | Complete synthetic native HydroCNHS model. |
+| [`forcing.csv`](../examples/multiple_reservoirs/forcing.csv) | Five-day synthetic weather table. |
+| [`reservoirs.yaml`](../examples/multiple_reservoirs/reservoirs.yaml) | Two physical reservoirs, separate routing paths, and terminal outlets. |
+| [`agents.rule.yaml`](../examples/multiple_reservoirs/agents.rule.yaml) | Two rule-based agents. |
+| [`agents.llm.yaml`](../examples/multiple_reservoirs/agents.llm.yaml) | One LLM agent and one rule-based agent. |
+| [`models.yaml`](../examples/multiple_reservoirs/models.yaml) | Model profile configuration and provider provenance fields. |
+| [`auditors.yaml`](../examples/multiple_reservoirs/auditors.yaml) | Release-bound auditor selected by both agents. |
+| [`information.yaml`](../examples/multiple_reservoirs/information.yaml) | Empty optional information catalog. |
+| [`prompts/system.txt`](../examples/multiple_reservoirs/prompts/system.txt) | Explicit optional system instructions. |
+| [`prompts/operator.txt`](../examples/multiple_reservoirs/prompts/operator.txt) | User message template and `$guidance` placeholder. |
+| [`extensions/__init__.py`](../examples/multiple_reservoirs/extensions/__init__.py) | Local retrieval callback for `$guidance`. |
+| [`knowledge/guidance.json`](../examples/multiple_reservoirs/knowledge/guidance.json) | Two local teaching documents with availability times. |
+| [`statistics_a.json`](../examples/multiple_reservoirs/statistics_a.json) | Pinned synthetic rule statistics for `lake_a`. |
+| [`statistics_b.json`](../examples/multiple_reservoirs/statistics_b.json) | Pinned synthetic rule statistics for `lake_b`. |
+| [`reference_a.csv`](../examples/multiple_reservoirs/reference_a.csv) | Reference inflow provenance for `lake_a`. |
+| [`reference_b.csv`](../examples/multiple_reservoirs/reference_b.csv) | Reference inflow provenance for `lake_b`. |
 
-Paths inside each file are relative to that file. The top-level loader does not
-merge a referenced section with inline values.
+Paths inside each file are relative to that file. A referenced section replaces
+the complete section; the loader does not merge it with inline values.
 
-## Run both reservoirs with rules
+{download}`Download the complete example bundle <../_multiple_reservoir_downloads/hydroopslm-multiple-reservoirs.zip>`
 
-From the repository root:
+## Read the complete rule-based configuration
+
+The entry file selects the physical case and complete section files:
+
+```{literalinclude} ../examples/multiple_reservoirs/experiment.yaml
+:language: yaml
+```
+
+The hydrology section connects the native model and forcing to operation nodes:
+
+```{literalinclude} ../examples/multiple_reservoirs/hydrology.yaml
+:language: yaml
+```
+
+The physical case defines both reservoir paths and their separate outlets:
+
+```{literalinclude} ../examples/multiple_reservoirs/reservoirs.yaml
+:language: yaml
+```
+
+The rule catalog assigns one operator to each controlled reservoir:
+
+```{literalinclude} ../examples/multiple_reservoirs/agents.rule.yaml
+:language: yaml
+```
+
+The complete auditor and information catalogs are also part of the entry:
+
+```{literalinclude} ../examples/multiple_reservoirs/auditors.yaml
+:language: yaml
+```
+
+```{literalinclude} ../examples/multiple_reservoirs/information.yaml
+:language: yaml
+```
+
+`start_date` and `end_date` select the four operation days inside the five-day
+native period. Each reservoir names its own `inflow_node`. The two connections
+route implemented controlled release plus spill to different terminal outlets.
+Each rule agent names one reservoir and its pinned synthetic statistics.
+
+Run the offline path from the repository root:
 
 ```powershell
 reservoir-experiment check examples/multiple_reservoirs/experiment.yaml
@@ -53,30 +98,46 @@ reservoir-experiment run examples/multiple_reservoirs/experiment.yaml
 reservoir-experiment verify runs/independent-rivers-rule/operation
 ```
 
-This path makes no model request. `check` performs no simulation. `prepare` runs
-full-period hydrology, then writes four daily operation boundaries. `run` advances
-both reservoir systems. `verify` checks recorded source links and water accounting.
+`check` performs no simulation. `prepare` runs the five-day synthetic hydrology
+and selects four operation boundaries. `run` advances both reservoir systems.
+`verify` checks recorded source links, routing, and water accounting. None of
+these checks establishes scientific adequacy or policy quality.
 
-## Follow one water path
+## Read the complete mixed configuration
 
-For `lake_a`, the files connect as follows:
+The mixed entry changes the selected agent file and run identity while retaining
+the same physical and hydrological fixture:
 
-```text
-forcing.csv basin_a
-  → model.yaml GWLF + Lohmann
-  → hydrology.yaml inlet_a binding
-  → reservoirs.yaml lake_a storage and release
-  → reservoirs.yaml river_a routing
-  → outlets: [river_a, river_b]
+```{literalinclude} ../examples/multiple_reservoirs/experiment.llm.yaml
+:language: yaml
 ```
 
-`river_a` and `river_b` have explicit zero local flow. Routed reservoir outflow
-still reaches them through the network connection. An information source could
-describe a gauge at either river, but would not alter this water graph.
+Its agent catalog assigns LLM operation to `lake_a` and rule operation to
+`lake_b`:
 
-## Switch one reservoir to an LLM
+```{literalinclude} ../examples/multiple_reservoirs/agents.llm.yaml
+:language: yaml
+```
 
-Use the prepared mixed entry:
+The complete model catalog records selectable provider and model settings:
+
+```{literalinclude} ../examples/multiple_reservoirs/models.yaml
+:language: yaml
+```
+
+Model names, provider settings, and sampling controls are configuration and
+provenance. They are not results. The user template is selected by `prompt_file`;
+the optional system template is selected by
+`customization.system_prompt_file`. HydroOpsLLM does not add a common system
+prompt.
+
+`check` renders the declared preview for `$guidance` without executing the local
+retrieval callback. A live decision calls `build_context`, which returns the
+selected document IDs, source hash, query, and availability time with the value.
+This fixture has no vector-database dependency.
+
+To create new evidence, select and configure an available profile, choose a new
+`run_id` and output directory, then run:
 
 ```powershell
 reservoir-experiment check examples/multiple_reservoirs/experiment.llm.yaml
@@ -85,41 +146,52 @@ reservoir-experiment run examples/multiple_reservoirs/experiment.llm.yaml --allo
 reservoir-experiment verify runs/independent-rivers-mixed/operation
 ```
 
-The default mixed entry selects the `local` Ollama profile for `lake_a` and keeps
-`lake_b` on the Hanasaki rule. Install the named local model and start Ollama before
-the run. To use a cloud profile, replace `operator_a.model_profile` in `agents.llm.yaml`
-with the chosen profile ID, replace its `YOUR_*_MODEL` value in `models.yaml`,
-set the named API-key environment variable, and choose a new `run_id` and output.
+No provider call was performed to create this documentation. A live run creates
+new evidence for the exact model, service, prompts, and context selected at that
+time.
 
-The user template is selected by `prompt_file`; the optional system template is
-selected by `customization.system_prompt_file`. No common system prompt is added.
-The example explicitly supplies two files:
+## Match IDs and follow the water paths
 
-```text
-system.txt: response contract and general operating boundary
-operator.txt: purpose, current observation, committed history and $guidance
-```
+| Link | Field |
+|---|---|
+| Native runoff or routed outlet to operation inlet | `inflow_bindings` in `hydrology.yaml` |
+| Operation inlet to reservoir | Reservoir `inflow_node` in `reservoirs.yaml` |
+| Agent to reservoir | Agent `reservoir_id` |
+| Reservoir to downstream node | `network.connections` in `reservoirs.yaml` |
+| Terminal nodes | `network.outlets` in `reservoirs.yaml` |
 
-`check` renders the declared `preview` for `$guidance`. It does not execute the
-retrieval callback. During a real decision, `build_context` selects local guidance
-and returns its document IDs, source hash, query and availability time with the
-value. The example has no vector-database dependency.
+For `lake_a`, `basin_a` weather enters the native model, the hydrology binding
+supplies `inlet_a`, the physical case advances `lake_a`, and its connection
+routes outflow to `river_a`. The `lake_b` path is parallel and ends at `river_b`.
+Both river nodes declare zero added local flow; routed reservoir outflow still
+reaches them. An information source can describe either river without creating a
+water connection.
 
-No provider call was performed to create this documentation. Running the mixed
-entry creates new evidence for the exact model and service you select.
+For reservoirs in series, connect upstream outflow to the next inlet and bind
+only additional local runoff there. Parallel tributaries join at a named
+junction. Independent systems retain separate outlets.
 
-## Inspect each system separately
+![A hydrological source, inlet, reservoir and agent](figures/reservoir-agent-mapping.svg)
 
-Use `reservoir_trajectory.csv` to compare requested release, implemented release,
-spill and storage for `lake_a` and `lake_b`. Use `network_flows.csv` to confirm
-that `river_a` and `river_b` remain separate. For the LLM agent, join the decision
-record to its raw prompt, provider ledger, response, audit and physics record by
+*Figure 3. Water follows the blue path from a hydrological source through an
+inlet and reservoir to a downstream node. The agent receives reservoir state and
+requests release through the orange information path. File IDs establish these
+links; names and map positions do not.*
+
+## Inspect the four-day outputs
+
+Use `reservoir_trajectory.csv` to inspect requested release, implemented release,
+spill, and storage for each reservoir. Use `network_flows.csv` to confirm that
+`river_a` and `river_b` remain separate. For an LLM agent, join the decision
+record to its prompt, provider ledger, response, audit, and physics record by
 decision ID.
 
-If an interruption occurs, use `resume` with a new output directory. Committed
-decisions are skipped and captured replies are reused when valid. A future request
-may still be observed more than once by an external service if a crash occurs
-after the service accepts it but before the local evidence commit completes.
+If a run is interrupted, preserve the partial output and use `resume` with a new
+output directory. Committed decisions are skipped, and captured replies are
+reused when valid. An external service may still observe an in-flight request
+more than once if a crash occurs after acceptance but before the local evidence
+commit.
 
-Continue with [results and audit](RESULTS_GUIDE.md) or the
-[complete parameter reference](PARAMETER_REFERENCE.md).
+Continue with [Results, audit, and trace](RESULTS_GUIDE.md), or open the
+[advanced notebook](../tutorials/advanced.ipynb) for an offline inspection of
+this configuration.
