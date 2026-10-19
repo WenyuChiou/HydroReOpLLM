@@ -3,8 +3,8 @@
   "purpose": "Saved-data teaching comparison; no new provider request, hydrology run, or reservoir simulation.",
   "methods": [
     "Rule-based",
-    "LLM with available information",
-    "LLM with retrieved knowledge"
+    "LLM without additional operating knowledge",
+    "LLM with additional operating knowledge"
   ],
   "period": {
     "start": "2016-01-01",
@@ -23,16 +23,25 @@
     "panels": {
       "a": "Water elevation",
       "b": "Water release (Rule-based)",
-      "c": "Water release (LLM with available information)",
-      "d": "Water release (LLM with retrieved knowledge)"
+      "c": "Water release (LLM without additional operating knowledge)",
+      "d": "Water release (LLM with additional operating knowledge)"
     },
     "release_bar_width_days": 0.72,
+    "common_inflow": "Blue upstream simulated daily step trace on every release panel; cfs and common dates.",
     "method_colors": {
       "rule": "#526B8A",
       "llm_available": "#BF795E",
       "llm_knowledge": "#4F8A7B"
     },
-    "seasonal_reference": "Schematic from seasonal_pool_criteria.json; plotting convention holds 1300 ft through March 31 and begins the illustrative ramp April 1"
+    "legend_placement": "Upper left inside each panel; measured y-axis headroom keeps legends above data. Elevation legend: two aligned columns, short reference entries above paired LLM labels.",
+    "seasonal_reference": "Target pool elevation: winter 1300 ft and summer 1370 ft references with vertical switches on May 15 and October 15, as agreed for the display. These mid-month markers summarize R-ZONE seasonal levels, not physical water-level jumps. Saved operation targets and study audit windows are unchanged."
+  },
+  "flow_display": {
+    "unit": "cfs",
+    "source_unit": "m3/s",
+    "factor": 35.31466672148859,
+    "cubic_foot_m3": 0.028316846592,
+    "source_csv": "daily.csv retains its original *_cms values and units."
   },
   "units": {
     "inflow_cms": "m3/s",
@@ -90,18 +99,22 @@
     "seasonal_criteria": {
       "path": "../../../seasonal_pool_criteria.json",
       "sha256": "51ba8e957218ced8923c7c22caaa80aec1b1a75eb9a5d19e73a3f0c1f416d4a7"
+    },
+    "reference_timing": {
+      "path": "../../../knowledge/operating_rules.md",
+      "sha256": "7fb3b9e75c1d6a52168049afa80c527a49e606f1c0889e5d14b31f874502b206"
     }
   },
   "artifacts": {
-    "daily.csv": "cf3187a46b10298974684dd41cbb46880057b9968cf5a2f9ecfca4b2dcd9d62e",
-    "daily_water_elevation.png": "087a3a75a98127b7cb704b9126a93978129ccce5719b2fcdd1c7822cbfe91268",
-    "daily_water_elevation.svg": "f72b43e918be5c43da48f9d99d03ca9ee7698d3f29c5901a05c8ca9b520361d9",
-    "daily_water_elevation.pdf": "bc53fb431ab7560fa148a08fd62bcabe1e8b2ab0f6904c6c5796ac7f43924503",
-    "controlled_release_daily.png": "b3a087e1e40d74cf14789a57f7cac17d03179fd9b40fcedc958d1203de9889c3",
-    "controlled_release_daily.svg": "3013a65994ef32e53799a82897b924e5b8365b1d5ebe8c458e2caf4616be20b3",
-    "controlled_release_daily.pdf": "ffb03419f1dae1bc6fc777d1b5884182408dd7910395a3191cdd8e824fceecee",
-    "reservoir_operations.png": "b12fa4a48f8b9f2752e1901b68a69533c9b4b39758730d1af3cebac24bcc02aa",
-    "reservoir_operations.svg": "1c146d1e89be939f2b81f6f6db5ff37817015f2f22fe59ab79bf65216538130f",
-    "reservoir_operations.pdf": "54efed8260ff74bd1ed91b20f0cc049439a371ea082f3e4fb7aded22e5d1be34"
+    "daily.csv": "28330ea4c960a2373c60dd98d04cc6ff9c81667d7cfec494c9750d7357400f85",
+    "daily_water_elevation.png": "e81697eb15789a37cecc4b020cf3eef9aa886669515417ece8d1c4c64fa8d986",
+    "daily_water_elevation.svg": "31063a2d1966c35f109803a778c23bb60f847fd56036d4e4be8fbd72a3844203",
+    "daily_water_elevation.pdf": "508de36d1fdf4442be92c473592fdd4ac64f42ecbc44d14a649880fcb768fdbd",
+    "controlled_release_daily.png": "375d3d17cd93043a3cbc25123e2ed61341c8e4fca395cc29c4d27d05ef7ae67f",
+    "controlled_release_daily.svg": "37352ce2dad9175407a1749fd53e5e776c7fd3be6e654f80a8f45967a624c672",
+    "controlled_release_daily.pdf": "abf11f720b17ac58253163e89bbab9afdb5efd8ac0199be8bac511b30d53f60c",
+    "reservoir_operations.png": "c56f1227357fb12fe2ce009996aaf9b0cd85ad30f4952763bbc9df8f09debe05",
+    "reservoir_operations.svg": "0994af3ca0b7a1bcf2c50538af63c36771f7a08c00d8a7ac76a2192b6d75b137",
+    "reservoir_operations.pdf": "30c500f48a34a8a75cf3f95cc409d17e53e96e886d2930c5562fdc13fed32598"
   }
 }

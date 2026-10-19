@@ -62,8 +62,8 @@ The maintained example offers three experiment entries:
 | Method | Configuration | Decision input |
 |---|---|---|
 | Rule-based | [`experiment.yaml`](examples/fe_walter/coupled/experiment.yaml) | Registered Hanasaki case rule |
-| LLM with available information | [`llm_available.yaml`](examples/fe_walter/coupled/llm_available.yaml) | Current operating information and configured prompt |
-| LLM with retrieved knowledge | [`llm_knowledge.yaml`](examples/fe_walter/coupled/llm_knowledge.yaml) | Current operating information, prompt, and local knowledge document |
+| LLM without additional operating knowledge | [`llm_available.yaml`](examples/fe_walter/coupled/llm_available.yaml) | Current operating information and configured prompt |
+| LLM with additional operating knowledge | [`llm_knowledge.yaml`](examples/fe_walter/coupled/llm_knowledge.yaml) | Current operating information, prompt, and local knowledge document |
 
 Check the Rule-based configuration offline from the repository root:
 

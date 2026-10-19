@@ -4,7 +4,7 @@ The saved LLM trajectories use the **previous prompts**, without the new daily
 seasonal context. [Review the actual October requests and proposed addition](prompt_review.md). No new model result is shown.
 
 The maintained comparison uses three saved 2016 trajectories: **Rule-based**,
-**LLM with available information**, and **LLM with retrieved knowledge**. All
+**LLM without additional operating knowledge**, and **LLM with additional operating knowledge**. All
 three use the same accepted daily inflow and initial physical state.
 
 ## Reservoir operations
@@ -31,9 +31,12 @@ Storage also changes with inflow and spill, as shown by the
 1297–1303 ft on November 1–March 14; the summer ceiling applies on
 May 10–October 14. These study criteria do not override a release decision.
 
-The dashed seasonal reference stays at 1300 ft through March and begins rising
-on April 1. Its spring and autumn slopes are illustrative; this visual reference
-does not redefine the study's seasonal audit windows or prescribe daily releases.
+The **Target pool elevation** reference uses the seasonal levels in
+[R-ZONE](knowledge/operating_rules.md): 1300 ft in winter and 1370 ft in summer,
+with vertical switches on May 15 and October 15. These
+mid-month markers summarize seasonal targets; they do not describe physical
+water-level jumps. Saved operation and audit settings remain unchanged.
+Flow is shown in cfs; the source CSV retains m³/s.
 
 Downloads: [combined CSV](coupled/outputs/current_tutorial/daily.csv),
 [provenance](coupled/outputs/current_tutorial/provenance.json),
@@ -51,7 +54,8 @@ and [`results_history.md`](results_history.md) for older experiments.
 
 ![2016 water elevation and controlled release](coupled/outputs/current_tutorial/reservoir_operations.png)
 
-**Figure 1.** Saved 2016 operations. (a) Daily end levels (ft NGVD29), with a
-schematic reference that rises from April: 1300 ft winter target and 1370 ft
-summer upper limit. (b–d) Implemented water release (m³/s), excluding spill.
-All panels share operation dates; the three release panels share a flow scale.
+**Figure 1.** Saved 2016 operations. (a) Daily end levels (ft NGVD29) and seasonal
+target pool elevation reference: 1300 ft winter target and 1370 ft summer ceiling, switching vertically
+on May 15 and October 15. (b–d) Implemented water release (cfs), excluding spill.
+Blue lines show upstream simulated inflow on the same scale. Bars below the line
+retain water; bars above it draw from storage. All panels share operation dates.

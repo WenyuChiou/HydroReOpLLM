@@ -20,29 +20,39 @@ ROOT = Path(__file__).resolve().parents[1]
 TUTORIALS = ROOT / "tutorials"
 CURRENT = ROOT / "examples/fe_walter/coupled/outputs/current_tutorial"
 SEASONAL_CRITERIA = ROOT / "examples/fe_walter/seasonal_pool_criteria.json"
+OPERATING_KNOWLEDGE = ROOT / "examples/fe_walter/knowledge/operating_rules.md"
 NOTEBOOKS = ("main.ipynb", "advanced.ipynb")
 LABELS = {
     "rule": "Rule-based",
-    "llm_available": "LLM with available information",
-    "llm_knowledge": "LLM with retrieved knowledge",
+    "llm_available": "LLM without additional operating knowledge",
+    "llm_knowledge": "LLM with additional operating knowledge",
 }
 METHOD_COLORS = {"rule": "#526B8A", "llm_available": "#BF795E",
                  "llm_knowledge": "#4F8A7B"}
+CMS_TO_CFS = 1 / 0.028316846592  # Exact international foot: (0.3048 m)^3.
+FIGURE_FONT_FAMILY = "Arial"
 
 
-def _add_pool_level_guides(ax):
-    """Label the case's winter setpoint and summer ceiling, not hard constraints."""
-    for level, label in ((1300, "Winter target: 1300 ft"),
-                         (1370, "Summer limit: 1370 ft")):
-        ax.axhline(level, color="#7B8185", linestyle=":", linewidth=0.8)
-        ax.annotate(label, xy=(0.74, level), xycoords=("axes fraction", "data"),
-                    xytext=(0, 3), textcoords="offset points", ha="right", va="bottom",
-                    fontsize=9, color="#525B61", zorder=5,
-                    bbox={"facecolor": "white", "edgecolor": "none", "alpha": 0.9, "pad": 1.2})
+def _legend_label(label):
+    """Wrap long method names while preserving their full display wording."""
+    return label.replace(" operating knowledge", "\noperating knowledge")
+
+
+def _add_elevation_legend(axis):
+    """Align the two short entries above the two wrapped LLM method names."""
+    handles, labels = axis.get_legend_handles_labels()
+    by_label = dict(zip(labels, handles, strict=True))
+    # Matplotlib fills columns first: these entries form two matching rows.
+    order = [LABELS["rule"], LABELS["llm_available"],
+             "Target pool elevation", LABELS["llm_knowledge"]]
+    return axis.legend(
+        [by_label[label] for label in order], [_legend_label(label) for label in order],
+        loc="upper left", ncol=2, alignment="left", frameon=False, fontsize=9,
+        handlelength=2.4, handletextpad=0.65, columnspacing=1.8, labelspacing=0.65)
 
 
 def _seasonal_reference_points(criteria, year=2016):
-    """Build a schematic from the four declared seasonal criteria windows."""
+    """Show seasonal levels with vertical switches at the two mid-month markers."""
     import pandas as pd
 
     seasons = {season["id"]: season for season in criteria["seasons"]}
@@ -52,43 +62,60 @@ def _seasonal_reference_points(criteria, year=2016):
     winter = (float(seasons["winter_hold"]["minimum_ft"])
               + float(seasons["winter_hold"]["maximum_ft"])) / 2
     summer = float(seasons["summer"]["maximum_ft"])
-    stamp = lambda mmdd: pd.Timestamp(f"{year}-{mmdd}")
-    # Plotting convention only: retain the winter schematic through March 31,
-    # then illustrate the rise from April 1 to the declared May 10 summer start.
-    spring_ramp_start = pd.Timestamp(year, 4, 1)
+    # The agreed display uses vertical switches on May 15 and October 15.
+    # Repeated dates make the transitions vertical without interpolating a
+    # daily target or changing the saved operation/audit settings.
     return pd.DatetimeIndex([
-        pd.Timestamp(year, 1, 1), spring_ramp_start,
-        stamp(seasons["summer"]["start"]), stamp(seasons["fall_drawdown"]["start"]),
-        stamp(seasons["winter_hold"]["start"]), pd.Timestamp(year, 12, 31),
+        pd.Timestamp(year, 1, 1), pd.Timestamp(year, 5, 15),
+        pd.Timestamp(year, 5, 15), pd.Timestamp(year, 10, 15),
+        pd.Timestamp(year, 10, 15), pd.Timestamp(year, 12, 31),
     ]), [winter, winter, summer, summer, winter, winter]
+
+
+def _reserve_legend_headroom(axes, lower, maximum, *, flow=False):
+    """Keep upper-left legends above all data, using actual rendered text size."""
+    from matplotlib.ticker import MaxNLocator
+
+    figure = axes[0].figure
+    figure.canvas.draw()
+    renderer = figure.canvas.get_renderer()
+    reserved = max(ax.get_legend().get_window_extent(renderer).height
+                   / ax.get_window_extent(renderer).height for ax in axes) + 0.09
+    if reserved >= 0.8:
+        raise ValueError("legend needs a taller panel at the required font size")
+    upper = lower + (maximum - lower) / (1 - reserved)
+    ticks = (MaxNLocator(nbins=3, min_n_ticks=3, steps=[1, 2, 5, 10])
+             .tick_values(0, upper)) if flow else None
+    for ax in axes:
+        ax.set_ylim(lower, upper)
+        if flow:
+            ax.set_yticks(ticks[ticks <= upper])
 
 
 def plot_reservoir_operations(daily, seasonal_criteria=None):
     """Return a paper-width figure of saved elevation and controlled release.
 
     The axes share dates but retain separate units. Each method has its own
-    release row, preserving the saved daily rates (m³/s), which exclude spill.
+    release row, converting saved m³/s to cfs for display, excluding spill.
+    A shared inflow trace makes retention and drawdown visible beside release.
     Paper exports and the executed tutorial use this same renderer.
     """
     import matplotlib.dates as mdates
     import matplotlib.pyplot as plt
-    from matplotlib.ticker import MaxNLocator
     import pandas as pd
 
-    style = {"font.family": "Arial", "font.size": 10,
+    style = {"font.family": FIGURE_FONT_FAMILY, "font.size": 10,
              "axes.labelsize": 10, "axes.titlesize": 11,
              "xtick.labelsize": 9, "ytick.labelsize": 9,
              "pdf.fonttype": 42, "svg.fonttype": "none", "axes.grid": False}
     with plt.rc_context(style):
         fig, axes = plt.subplots(
             4, 1, figsize=(180 / 25.4, 160 / 25.4), sharex=True,
-            gridspec_kw={"height_ratios": [1.55, 1, 1, 1]})
+            gridspec_kw={"height_ratios": [2.3, 1, 1, 1]})
         elevation, *release_axes = axes
         fig.subplots_adjust(left=0.15, right=0.985, bottom=0.095,
-                            top=0.85, hspace=0.5)
-        release_max = float(daily["controlled_release_cms"].max()) * 1.08
-        release_ticks = MaxNLocator(nbins=3, min_n_ticks=3).tick_values(0, release_max)
-        release_max = float(release_ticks[-1])
+                            top=0.955, hspace=0.43)
+        release_max = float(daily[["controlled_release_cms", "inflow_cms"]].max().max()) * CMS_TO_CFS
         for index, (method, label) in enumerate(LABELS.items()):
             rows = daily.loc[daily["method"].eq(method)]
             dates = pd.to_datetime(rows["date"])
@@ -98,25 +125,21 @@ def plot_reservoir_operations(daily, seasonal_criteria=None):
             release = release_axes[index]
             # Every bar has the same width in days. Avoid outlines and pixel
             # snapping, which can obscure gaps in a dense annual raster image.
-            release.bar(dates, rows["controlled_release_cms"], width=0.72,
+            release.bar(dates, rows["controlled_release_cms"] * CMS_TO_CFS, width=0.72,
                         color=color, linewidth=0, edgecolor="none",
                         antialiased=False, snap=False, zorder=3)
-            release.set(ylim=(0, release_max), yticks=release_ticks,
-                        ylabel="Water release\n(m³/s)")
-            release.set_title(f"({chr(98 + index)}) Water release ({label})", loc="left", fontweight="bold")
+            release.plot(dates, rows["inflow_cms"] * CMS_TO_CFS, color="#2878B5", linewidth=0.8,
+                         drawstyle="steps-mid", label="Upstream simulated inflow", zorder=4)
+            release.set(ylim=(0, release_max), ylabel="Water release\n(cfs)")
+            release.set_title(f"({chr(98 + index)}) {label}", loc="left", fontweight="bold")
+            release.legend(loc="upper left", frameon=False, fontsize=9,
+                           handlelength=2.1, borderaxespad=0.35)
         if seasonal_criteria is None:
             seasonal_criteria = json.loads(SEASONAL_CRITERIA.read_text(encoding="utf-8"))
         seasonal_dates, seasonal_levels = _seasonal_reference_points(seasonal_criteria)
         elevation.plot(seasonal_dates, seasonal_levels, color="#111111", linestyle="--",
-                       linewidth=1.0, label="Seasonal reference (schematic)", zorder=5)
-        elevation.annotate("Winter target: 1300 ft", xy=(pd.Timestamp("2016-01-12"), seasonal_levels[0]),
-                           xytext=(0, -4), textcoords="offset points", va="top",
-                           fontsize=9, color="#111111",
-                           bbox={"facecolor": "white", "edgecolor": "none", "alpha": 0.85, "pad": 1.0})
-        elevation.annotate("Summer upper limit: 1370 ft",
-                           xy=(pd.Timestamp("2016-06-01"), seasonal_levels[2]),
-                           xytext=(0, 3), textcoords="offset points", fontsize=9, color="#111111")
-        elevation.set(title="(a) Water elevation", ylabel="Water elevation\n(ft)")
+                       linewidth=1.0, label="Target pool elevation", zorder=5)
+        elevation.set(title="(a)", ylabel="Water elevation\n(ft)")
         release_axes[-1].set_xlabel("Operation date (2016)")
         for ax in axes:
             ax.title.set_position((0, 1.0))
@@ -131,10 +154,11 @@ def plot_reservoir_operations(daily, seasonal_criteria=None):
         release_axes[-1].xaxis.set_major_locator(
             mdates.MonthLocator(bymonth=(1, 3, 5, 7, 9, 11)))
         release_axes[-1].xaxis.set_major_formatter(mdates.DateFormatter("%b"))
-        handles, labels = elevation.get_legend_handles_labels()
-        fig.legend(handles, labels, loc="upper center", bbox_to_anchor=(0.5, 0.995),
-                   ncol=3, frameon=False, fontsize=9, handlelength=2.1,
-                   columnspacing=1.0, handletextpad=0.55)
+        _add_elevation_legend(elevation)
+        minimum = float(daily["pool_elevation_end_ft"].min()) - 5
+        maximum = max(float(daily["pool_elevation_end_ft"].max()), max(seasonal_levels))
+        _reserve_legend_headroom([elevation], minimum, maximum)
+        _reserve_legend_headroom(release_axes, 0, release_max, flow=True)
         return fig
 
 SETUP = '''from pathlib import Path
@@ -144,6 +168,7 @@ sys.path.insert(0, str(ROOT / "src"))
 sys.path.insert(0, str(ROOT))
 import pandas as pd
 import matplotlib.pyplot as plt
+from tutorials.build_notebooks import CMS_TO_CFS
 
 class ReadableText:
     def __init__(self, title, text):
@@ -187,7 +212,7 @@ def _prepare_current_outputs() -> dict:
     # Authoring size is the intended paper width, so fonts need no downscaling.
     # Embed TrueType fonts in PDF; keep SVG labels as editable text.
     paper_width_mm, raster_dpi = 180, 600
-    plt.rcParams.update({"font.family": "Arial", "font.size": 10,
+    plt.rcParams.update({"font.family": FIGURE_FONT_FAMILY, "font.size": 10,
                          "axes.titlesize": 10, "axes.labelsize": 10,
                          "xtick.labelsize": 9, "ytick.labelsize": 9,
                          "legend.fontsize": 9, "pdf.fonttype": 42,
@@ -264,10 +289,14 @@ def _prepare_current_outputs() -> dict:
     for label, group in combined.groupby("method_label", sort=False):
         ax.plot(pd.to_datetime(group["date"]), group["pool_elevation_end_ft"],
                 label=label, color=colors[label], linewidth=1.1)
-    _add_pool_level_guides(ax)
+    reference_dates, reference_levels = _seasonal_reference_points(seasonal_criteria)
+    ax.plot(reference_dates, reference_levels, color="#111111", linestyle="--",
+            linewidth=1.0, label="Target pool elevation")
     ax.set(ylabel="Water elevation (ft NGVD 29)", xlabel="2016",
            xlim=(pd.Timestamp(dates[0]), pd.Timestamp(dates[-1])))
-    ax.legend(frameon=False, loc="center", fontsize=10.5)
+    _add_elevation_legend(ax)
+    _reserve_legend_headroom([ax], float(combined["pool_elevation_end_ft"].min()) - 5,
+                             float(combined["pool_elevation_end_ft"].max()))
     ax.xaxis.set_major_locator(mdates.MonthLocator(interval=2))
     ax.xaxis.set_major_formatter(mdates.DateFormatter("%b"))
     _save_figure_formats(fig, "daily_water_elevation", figures, raster_dpi)
@@ -275,14 +304,19 @@ def _prepare_current_outputs() -> dict:
 
     fig, axes = plt.subplots(3, 1, figsize=(paper_width_mm / 25.4, 125 / 25.4),
                              sharex=True, sharey=True, layout="constrained")
-    ymax = float(combined["controlled_release_cms"].max()) * 1.04
+    ymax = float(combined[["controlled_release_cms", "inflow_cms"]].max().max()) * CMS_TO_CFS
     for panel, (ax, (label, group)) in enumerate(zip(
             axes, combined.groupby("method_label", sort=False), strict=True)):
-        ax.bar(pd.to_datetime(group["date"]), group["controlled_release_cms"],
+        ax.bar(pd.to_datetime(group["date"]), group["controlled_release_cms"] * CMS_TO_CFS,
                width=1, color=colors[label], linewidth=0)
-        ax.set(ylabel="Release (m³/s)", ylim=(0, ymax),
+        ax.plot(pd.to_datetime(group["date"]), group["inflow_cms"] * CMS_TO_CFS,
+                color="#2878B5", linewidth=0.8, drawstyle="steps-mid",
+                label="Upstream simulated inflow")
+        ax.set(ylabel="Water release (cfs)", ylim=(0, ymax),
                xlim=(pd.Timestamp(dates[0]), pd.Timestamp(dates[-1])))
         ax.set_title(f"({chr(97 + panel)}) {label}", loc="left", fontweight="bold", pad=4)
+        ax.legend(frameon=False, loc="upper left", fontsize=9)
+    _reserve_legend_headroom(axes, 0, ymax, flow=True)
     axes[-1].set_xlabel("2016")
     axes[-1].xaxis.set_major_locator(mdates.MonthLocator(interval=2))
     axes[-1].xaxis.set_major_formatter(mdates.DateFormatter("%b"))
@@ -307,10 +341,19 @@ def _prepare_current_outputs() -> dict:
                                      **{chr(98 + index): f"Water release ({label})"
                                         for index, label in enumerate(LABELS.values())}},
                           "release_bar_width_days": 0.72,
+                          "common_inflow": "Blue upstream simulated daily step trace on every release panel; cfs and common dates.",
                           "method_colors": METHOD_COLORS,
+                          "legend_placement": (
+                              "Upper left inside each panel; measured y-axis headroom keeps legends above data. "
+                              "Elevation legend: two aligned columns, short reference entries above paired LLM labels."),
                           "seasonal_reference": (
-                              "Schematic from seasonal_pool_criteria.json; plotting convention holds "
-                              "1300 ft through March 31 and begins the illustrative ramp April 1")},
+                              "Target pool elevation: winter 1300 ft and summer 1370 ft references with vertical switches "
+                              "on May 15 and October 15, as agreed for the display. These mid-month "
+                              "markers summarize R-ZONE seasonal levels, not physical water-level jumps. "
+                              "Saved operation targets and study audit windows are unchanged.")},
+        "flow_display": {"unit": "cfs", "source_unit": "m3/s", "factor": CMS_TO_CFS,
+                         "cubic_foot_m3": 0.028316846592,
+                         "source_csv": "daily.csv retains its original *_cms values and units."},
         "units": {"inflow_cms": "m3/s", "controlled_release_cms": "m3/s",
                   "spill_cms": "m3/s", "pool_elevation_end_ft": "ft N.G.V.D.",
                   "storage_end_m3": "m3"},
@@ -330,6 +373,8 @@ def _prepare_current_outputs() -> dict:
             "initial_state": {"path": "../2016/summary.json", "sha256": _sha(summary_path)},
             "seasonal_criteria": {"path": "../../../seasonal_pool_criteria.json",
                                   "sha256": _sha(SEASONAL_CRITERIA)},
+            "reference_timing": {"path": "../../../knowledge/operating_rules.md",
+                                 "sha256": _sha(OPERATING_KNOWLEDGE)},
         },
         "artifacts": {},
     }
@@ -355,8 +400,7 @@ def main_cells() -> list[dict]:
 
 Follow the maintained 2016 configuration from `experiment.yaml` through
 hydrology, the reservoir network, a Rule-based operator, and the two LLM
-methods: **Rule-based**, **LLM with available information**, and **LLM with
-retrieved knowledge**. All three use the same inflow, initial state, and physical parameters.
+methods: **Rule-based**, **LLM without additional operating knowledge**, and **LLM with additional operating knowledge**. All three use the same inflow, initial state, and physical parameters.
 
 This notebook reads committed files only. It makes no model request and runs no
 hydrology or reservoir simulation.
@@ -375,8 +419,8 @@ profile while retaining the same physical case and hydrology.'''),
         code('''coupled = ROOT / "examples/fe_walter/coupled"
 current_config = coupled
 for title, name in (("Rule-based entry", "experiment.yaml"),
-                    ("LLM with available information entry", "llm_available.yaml"),
-                    ("LLM with retrieved knowledge entry", "llm_knowledge.yaml")):
+                    ("LLM without additional operating knowledge entry", "llm_available.yaml"),
+                    ("LLM with additional operating knowledge entry", "llm_knowledge.yaml")):
     display(ReadableText(title, (current_config / name).read_text(encoding="utf-8")))'''),
         md('''## 2. Follow hydrology into the reservoir network
 
@@ -402,8 +446,8 @@ sampling controls are settings and provenance, not method names.
 
 ![Prompt and context workflow](../docs/figures/prompt-context-workflow.svg)'''),
         code('''for title, name in (("Rule-based agent", "agents.rule.yaml"),
-                    ("LLM with available information agent", "agents.llm_available.yaml"),
-                    ("LLM with retrieved knowledge agent", "agents.llm_knowledge.yaml")):
+                    ("LLM without additional operating knowledge agent", "agents.llm_available.yaml"),
+                    ("LLM with additional operating knowledge agent", "agents.llm_knowledge.yaml")):
     display(ReadableText(title, (coupled / name).read_text(encoding="utf-8")))
 display(ReadableText("Model settings and provenance", (current_config / "models.yaml").read_text(encoding="utf-8")))'''),
         md('''## 4. Inspect actual prompt and retrieved context
@@ -412,7 +456,7 @@ The saved pairs contain the exact request messages and replies. The parser
 converts cfs to m³/s, then common physics enforces water availability and release
 bounds. These records are examples from the saved run.'''),
         code('''saved = coupled / "outputs/gemma4_2016_comparison"
-labels = {"llm_available": "LLM with available information", "llm_knowledge": "LLM with retrieved knowledge"}
+labels = {"llm_available": "LLM without additional operating knowledge", "llm_knowledge": "LLM with additional operating knowledge"}
 for method, label in labels.items():
     pair = json.loads((saved / f"{method}_pair.json").read_text(encoding="utf-8"))
     record = pair["engines"]["framework"]
@@ -420,7 +464,7 @@ for method, label in labels.items():
                          json.dumps(record["provider_request"]["messages"], indent=2, ensure_ascii=False)))
     display(ReadableText(f"{label}: saved reply", record["raw_provider_reply"]["message"]["content"]))
     display(pd.DataFrame([{"method": label, "saved date": pair["date"],
-                           "controlled release (m³/s)": record["physics"]["controlled_release_cms"],
+                           "controlled release (cfs)": record["physics"]["controlled_release_cms"] * CMS_TO_CFS,
                            "end elevation (ft)": record["physics"]["pool_elevation_end_ft"]}]))'''),
         md('''## 5. Compare the three current teaching trajectories
 
@@ -428,18 +472,21 @@ The builder combines Rule-based rows from `outputs/2016/daily.csv` with the two
 framework LLM rows from `outputs/gemma4_2016_comparison/daily.csv`. It verifies
 366 unique ordered dates per method, common inflow, shared initial state, and
 units. It performs no interpolation. Four panels share operation dates:
-(a) end-of-day water elevation in feet NGVD 29; (b–d) daily water release in m³/s,
+(a) end-of-day water elevation in feet NGVD 29; (b–d) daily water release in cfs,
 one method per panel. Water release means implemented controlled release and
-excludes spill. All three release axes use the same scale.
-The winter target is 1300 ft (1297–1303 ft on November 1–March 14); the summer
-limit is 1370 ft on May 10–October 14. These guides are study criteria, not
-constraints imposed on each release.'''),
+excludes spill. Blue lines show the upstream simulated inflow on the same flow scale.
+Release below inflow retains water; release above inflow draws from storage.
+The target pool elevation reference switches vertically between the 1300 ft winter target and
+1370 ft summer ceiling on May 15 and October 15. These mid-month markers summarize
+seasonal targets, rather than daily physical water-level changes. Saved operation
+and audit settings are unchanged. The source CSV retains m³/s.'''),
         code('''current = coupled / "outputs/current_tutorial"
 daily = pd.read_csv(current / "daily.csv")
 seasonal_criteria = json.loads((ROOT / "examples/fe_walter/seasonal_pool_criteria.json").read_text(encoding="utf-8"))
 provenance = json.loads((current / "provenance.json").read_text(encoding="utf-8"))
-display(daily.groupby("method_label", sort=False).agg(rows=("date", "size"),
-    unique_dates=("date", "nunique"), maximum_release_cms=("controlled_release_cms", "max")))
+display(daily.assign(controlled_release_cfs=daily["controlled_release_cms"] * CMS_TO_CFS)
+    .groupby("method_label", sort=False).agg(rows=("date", "size"),
+    unique_dates=("date", "nunique"), maximum_release_cfs=("controlled_release_cfs", "max")))
 display(pd.DataFrame(provenance["validation"]["methods"]).T)'''),
         code('''from tutorials.build_notebooks import plot_reservoir_operations
 fig = plot_reservoir_operations(daily, seasonal_criteria)
@@ -460,7 +507,7 @@ reservoir-experiment verify <new-output-path>/operation
 ```
 
 Use `experiment.yaml` for Rule-based operation or copy `llm_knowledge.yaml` for
-LLM with retrieved knowledge. [Technical engine evidence and historical audits](../examples/fe_walter/engine_comparison.md)
+LLM with additional operating knowledge. [Technical engine evidence and historical audits](../examples/fe_walter/engine_comparison.md)
 remain outside this main research narrative.'''),
     ]
 

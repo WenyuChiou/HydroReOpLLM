@@ -21,6 +21,7 @@ def _temporary_builder(tmp_path):
     builder.ROOT = tmp_path
     builder.CURRENT = tmp_path / 'new-teaching-output'
     builder.SEASONAL_CRITERIA = tmp_path / 'examples/fe_walter/seasonal_pool_criteria.json'
+    builder.OPERATING_KNOWLEDGE = tmp_path / 'examples/fe_walter/knowledge/operating_rules.md'
     relative = Path('examples/fe_walter/coupled/outputs')
     for name in ('2016/daily.csv', '2016/summary.json', 'gemma4_2016_comparison/daily.csv'):
         destination = tmp_path / relative / name
@@ -28,6 +29,9 @@ def _temporary_builder(tmp_path):
         shutil.copyfile(OUTPUTS / name, destination)
     builder.SEASONAL_CRITERIA.parent.mkdir(parents=True, exist_ok=True)
     shutil.copyfile(CRITERIA, builder.SEASONAL_CRITERIA)
+    builder.OPERATING_KNOWLEDGE.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(ROOT / 'examples/fe_walter/knowledge/operating_rules.md',
+                    builder.OPERATING_KNOWLEDGE)
     return builder
 
 
@@ -140,6 +144,10 @@ def test_main_notebook_has_exactly_one_combined_result_figure():
     assert 'outputs/current_tutorial/daily_water_elevation.png' not in markdown
     assert 'outputs/current_tutorial/controlled_release_daily.png' not in markdown
     assert 'coupled/my-run.yaml' in markdown
+    assert 'Blue lines show the upstream simulated inflow' in markdown
+    assert 'Gray lines show the common inflow' not in markdown
+    assert 'target pool elevation reference switches vertically' in markdown
+    assert 'May 15 and October 15' in markdown
 
 
 def test_current_figure_manifest_covers_exact_published_bytes():
@@ -154,6 +162,9 @@ def test_current_figure_manifest_covers_exact_published_bytes():
     }
     assert set(manifest['artifacts']) == expected
     assert manifest['figure_layout']['primary_height_mm'] == 160
+    assert manifest['flow_display']['unit'] == 'cfs'
+    assert manifest['flow_display']['source_unit'] == 'm3/s'
+    assert manifest['flow_display']['factor'] == pytest.approx(1 / 0.3048**3)
     assert 'no new daily or live-date context' in manifest['provenance_note']
     for name, digest in manifest['artifacts'].items():
         path = folder / name
@@ -161,7 +172,7 @@ def test_current_figure_manifest_covers_exact_published_bytes():
         if path.suffix == '.svg':
             assert all(line == line.rstrip() for line in path.read_text(encoding='utf-8').splitlines())
     assert hashlib.sha256((folder / 'daily.csv').read_bytes()).hexdigest() == (
-        'cf3187a46b10298974684dd41cbb46880057b9968cf5a2f9ecfca4b2dcd9d62e')
+        '28330ea4c960a2373c60dd98d04cc6ff9c81667d7cfec494c9750d7357400f85')
 
 
 def test_result_figures_keep_paper_width_fonts_and_editable_labels():
@@ -190,15 +201,15 @@ def test_result_figures_keep_paper_width_fonts_and_editable_labels():
             assert size is not None, 'Every text label needs an explicit size'
             assert float(size.group(1)) >= 9, 'Paper labels must be at least 9 pt'
         labels = ' '.join(''.join(node.itertext()) for node in text_nodes)
-        for method in ('Rule-based', 'LLM with available information',
-                       'LLM with retrieved knowledge'):
+        for method in ('Rule-based', 'LLM without additional operating knowledge',
+                       'LLM with additional operating knowledge'):
             assert method in labels, 'Method labels must remain editable text'
-        if stem == 'daily_water_elevation':
-            assert 'Winter target: 1300 ft' in labels
-            assert 'Summer limit: 1370 ft' in labels
-        if stem == 'reservoir_operations':
-            assert 'Seasonal reference (schematic)' in labels
-            assert 'Summer upper limit: 1370 ft' in labels
+        if stem != 'controlled_release_daily':
+            assert 'Target pool elevation' in labels
+        if stem != 'daily_water_elevation':
+            assert 'cfs' in labels
+        if stem != 'daily_water_elevation':
+            assert 'Upstream simulated inflow' in labels
         with Image.open(folder / (stem + '.png')) as image:
             assert abs(image.width - 180 / 25.4 * 600) <= 1
             if stem == 'reservoir_operations':
@@ -206,7 +217,8 @@ def test_result_figures_keep_paper_width_fonts_and_editable_labels():
             assert image.info['dpi'][0] == pytest.approx(600, abs=1)
 
 
-def test_combined_figure_has_shared_calendar_exact_lines_and_three_release_rows():
+@pytest.mark.parametrize('font_family', ['Arial', 'DejaVu Sans'])
+def test_combined_figure_has_shared_calendar_exact_lines_and_three_release_rows(font_family):
     """The four panels must share dates and preserve every saved daily value."""
     import matplotlib.colors as mcolors
     import matplotlib.dates as mdates
@@ -218,6 +230,7 @@ def test_combined_figure_has_shared_calendar_exact_lines_and_three_release_rows(
     spec.loader.exec_module(builder)
     daily = pd.read_csv(OUTPUTS / 'current_tutorial/daily.csv')
     criteria = json.loads(CRITERIA.read_text(encoding='utf-8'))
+    builder.FIGURE_FONT_FAMILY = font_family
     figure = builder.plot_reservoir_operations(daily, criteria)
     axes = figure.axes
     try:
@@ -225,35 +238,45 @@ def test_combined_figure_has_shared_calendar_exact_lines_and_three_release_rows(
         elevation, *release_axes = axes
         assert all(elevation.get_shared_x_axes().joined(elevation, release)
                    for release in release_axes)
-        assert elevation.get_title().startswith('(a)')
+        assert elevation.get_title() == '(a)'
 
         expected_labels = [
             'Rule-based',
-            'LLM with available information',
-            'LLM with retrieved knowledge',
+            'LLM without additional operating knowledge',
+            'LLM with additional operating knowledge',
         ]
         data_lines = {line.get_label(): line for line in elevation.lines
                       if line.get_label() in expected_labels}
         assert list(data_lines) == expected_labels
         assert len(elevation.lines) == 4, 'Three methods and one seasonal schematic'
         seasonal = next(line for line in elevation.lines
-                        if line.get_label() == 'Seasonal reference (schematic)')
+                        if line.get_label() == 'Target pool elevation')
         assert pd.DatetimeIndex(seasonal.get_xdata()).strftime('%m-%d').tolist() == [
-            '01-01', '04-01', '05-10', '10-15', '11-01', '12-31']
-        assert list(seasonal.get_ydata()) == [1300, 1300, 1370, 1370, 1300, 1300]
-        guides = {text.get_text(): text for text in elevation.texts}
-        for label in ('Winter target: 1300 ft', 'Summer upper limit: 1370 ft'):
-            assert guides[label].get_fontsize() >= 9
+            '01-01', '05-15', '05-15', '10-15', '10-15', '12-31']
+        np.testing.assert_allclose(seasonal.get_ydata(),
+            [1300, 1300, 1370, 1370, 1300, 1300])
+        assert not elevation.texts, 'Explain target levels in the caption, clear of the curves'
 
         release_limits = [release.get_ylim() for release in release_axes]
         release_ticks = [release.get_yticks() for release in release_axes]
         assert all(limits == release_limits[0] for limits in release_limits)
         assert all(np.array_equal(ticks, release_ticks[0]) for ticks in release_ticks)
         for index, (release, label) in enumerate(zip(release_axes, expected_labels, strict=True)):
-            assert release.get_title(loc='left') == f'({chr(98 + index)}) Water release ({label})'
-            assert release.get_ylabel() == 'Water release\n(m³/s)'
-            expected = daily.loc[daily['method_label'] == label].copy()
+            assert release.get_title(loc='left') == f'({chr(98 + index)}) {label}'
+            assert release.get_ylabel() == 'Water release\n(cfs)'
+            method = tuple(builder.LABELS)[index]
+            expected = daily.loc[daily['method'] == method].copy()
             expected_dates = mdates.date2num(pd.to_datetime(expected['date']))
+            assert len(release.lines) == 1
+            inflow = release.lines[0]
+            assert inflow.get_label() == 'Upstream simulated inflow'
+            assert mcolors.to_hex(inflow.get_color()) == '#2878b5'
+            assert inflow.get_drawstyle() == 'steps-mid'
+            np.testing.assert_allclose(
+                mdates.date2num(inflow.get_xdata()), expected_dates, rtol=0, atol=0)
+            np.testing.assert_allclose(
+                inflow.get_ydata(), expected['inflow_cms'] / 0.3048**3, rtol=1e-14, atol=1e-12)
+            assert max(inflow.get_ydata()) <= release.get_ylim()[1]
             line = data_lines[label]
             np.testing.assert_allclose(line.get_ydata(), expected['pool_elevation_end_ft'],
                                        rtol=0, atol=0)
@@ -266,20 +289,88 @@ def test_combined_figure_has_shared_calendar_exact_lines_and_three_release_rows(
             np.testing.assert_allclose(centers, expected_dates, rtol=0, atol=1e-10)
             np.testing.assert_allclose(
                 [bar.get_height() for bar in release.patches],
-                expected['controlled_release_cms'], rtol=0, atol=0,
+                expected['controlled_release_cms'] / 0.3048**3, rtol=1e-14, atol=1e-12,
             )
             assert not release.texts, 'Method names belong in panel titles, not over the data'
 
-        legends = [*figure.legends, elevation.get_legend(),
-                   *(axis.get_legend() for axis in release_axes)]
-        legend = next(item for item in legends if item is not None)
-        assert [text.get_text() for text in legend.get_texts()] == expected_labels + [
-            'Seasonal reference (schematic)']
-        assert min(text.get_fontsize() for text in legend.get_texts()) >= 9
+        assert not figure.legends, 'Keep the figure height available to the four panels'
+        legend = elevation.get_legend()
+        assert [' '.join(text.get_text().split()) for text in legend.get_texts()] == [
+            expected_labels[0], expected_labels[1], 'Target pool elevation', expected_labels[2]]
         figure.canvas.draw()
         renderer = figure.canvas.get_renderer()
-        assert not legend.get_window_extent(renderer).overlaps(
-            elevation.title.get_window_extent(renderer))
+        text_boxes = [text.get_window_extent(renderer) for text in legend.get_texts()]
+        assert text_boxes[0].y0 == pytest.approx(text_boxes[2].y0), 'Align the short top row'
+        assert text_boxes[1].y0 == pytest.approx(text_boxes[3].y0), 'Align the wrapped LLM row'
+        assert text_boxes[0].x0 == pytest.approx(text_boxes[1].x0), 'Align the left column'
+        assert text_boxes[2].x0 == pytest.approx(text_boxes[3].x0), 'Align the right column'
+        for axis in axes:
+            legend = axis.get_legend()
+            assert legend is not None
+            assert min(text.get_fontsize() for text in legend.get_texts()) >= 9
+            box = legend.get_window_extent(renderer)
+            panel = axis.get_window_extent(renderer)
+            assert panel.contains(box.x0, box.y0) and panel.contains(box.x1, box.y1)
+            assert box.x0 - panel.x0 < panel.width * 0.03, 'Legend belongs in the upper left'
+            assert panel.y1 - box.y1 < panel.height * 0.08
+            for line in axis.lines:
+                path = line.get_transform().transform_path(line.get_path())
+                finite = path.vertices[np.isfinite(path.vertices).all(axis=1)]
+                assert finite[:, 1].max() < box.y0, 'Reserve headroom above all data'
+                assert not path.intersects_bbox(box, filled=False)
+            assert not any(bar.get_window_extent(renderer).overlaps(box) for bar in axis.patches)
+        for release in release_axes:
+            assert [text.get_text() for text in release.get_legend().get_texts()] == ['Upstream simulated inflow']
     finally:
         import matplotlib.pyplot as plt
         plt.close(figure)
+
+
+@pytest.mark.parametrize('method', ['llm_available', 'llm_knowledge'])
+def test_saved_storage_gap_equals_cumulative_outflow_gap(method):
+    """Shared inflow and initial storage leave only the accumulated outflow gap."""
+    import numpy as np
+
+    daily = pd.read_csv(OUTPUTS / 'current_tutorial/daily.csv')
+    rule = daily.loc[daily['method'].eq('rule')].set_index('date')
+    other = daily.loc[daily['method'].eq(method)].set_index('date')
+    assert rule.index.equals(other.index)
+    np.testing.assert_allclose(rule['inflow_cms'], other['inflow_cms'],
+                               rtol=0, atol=1e-10)
+    cumulative_extra_outflow = (
+        other['controlled_release_cms'] + other['spill_cms']
+        - rule['controlled_release_cms'] - rule['spill_cms']
+    ).cumsum() * 86400.0
+    np.testing.assert_allclose(
+        rule['storage_end_m3'] - other['storage_end_m3'],
+        cumulative_extra_outflow, rtol=0, atol=1e-5,
+    )
+
+
+@pytest.mark.parametrize('method', ['rule', 'llm_available', 'llm_knowledge'])
+def test_saved_annual_fluxes_reconstruct_every_storage_state(method):
+    """The accepted 2016 runs have no reservoir evaporation or seepage losses."""
+    import numpy as np
+
+    daily = pd.read_csv(OUTPUTS / 'current_tutorial/daily.csv')
+    rows = daily.loc[daily['method'].eq(method)]
+    summary = json.loads((OUTPUTS / '2016/summary.json').read_text(encoding='utf-8'))
+    starts = np.r_[float(summary['initial_storage_m3']), rows['storage_end_m3'].to_numpy()[:-1]]
+    expected = starts + (
+        rows['inflow_cms'] - rows['controlled_release_cms'] - rows['spill_cms']
+    ).to_numpy() * 86400.0
+    np.testing.assert_allclose(rows['storage_end_m3'], expected, rtol=0, atol=1e-5)
+
+
+@pytest.mark.parametrize('method', ['rule', 'llm_available', 'llm_knowledge'])
+def test_saved_annual_levels_match_the_tabulated_storage_curve(method):
+    """Check all levels independently of the figure's line and bar rendering."""
+    import numpy as np
+
+    daily = pd.read_csv(OUTPUTS / 'current_tutorial/daily.csv')
+    rows = daily.loc[daily['method'].eq(method)]
+    curve = pd.read_csv(ROOT / 'cases/fe_belt_prompton_offline/fe_walter_storage_elevation.csv')
+    expected = np.interp(rows['storage_end_m3'] / 1233.4818,
+                         curve['storage_acft'], curve['elevation_ft_ngvd29'])
+    # The saved engines serialize the acre-foot conversion at different precision.
+    np.testing.assert_allclose(rows['pool_elevation_end_ft'], expected, rtol=0, atol=2e-6)

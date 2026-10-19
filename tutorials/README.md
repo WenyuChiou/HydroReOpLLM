@@ -9,7 +9,7 @@ saved 2016 results.
 
 | Notebook | Purpose |
 |---|---|
-| [Main](main.ipynb) | Compare **Rule-based**, **LLM with available information**, and **LLM with retrieved knowledge** using saved annual data. |
+| [Main](main.ipynb) | Compare **Rule-based**, **LLM without additional operating knowledge**, and **LLM with additional operating knowledge** using saved annual data. |
 
 The main notebook reads committed evidence only. Its default path makes no model
 request, download, hydrology run, or reservoir simulation.

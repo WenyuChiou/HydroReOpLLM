@@ -21,8 +21,7 @@ and attribution.
 | Native hydrology, parameters and C&V | [HydroCNHS setup](HYDROLOGY_SETUP.md) |
 
 The generic YAML is a configuration reference. The public F.E. Walter examples
-are Rule-based benchmark, LLM operation with available information, and LLM
-operation with retrieved knowledge. Historical machine IDs remain in provenance.
+are Rule-based benchmark, LLM without additional operating knowledge, and LLM with additional operating knowledge. Historical machine IDs remain in provenance.
 
 ## Cite the original hydrological framework
 

@@ -30,8 +30,8 @@ gives the following balance; release and spill volumes are the daily rates multi
 | Method | Controlled release (million m³) | Spill (million m³) | Storage change (million m³) | Mean release (m³/s) |
 |---|---:|---:|---:|---:|
 | Rule-based | 328.717395 | 0 | +51.612711 | 10.395081 |
-| LLM with available information | 380.616699 | 0 | −0.286593 | 12.036300 |
-| LLM with retrieved knowledge | 380.684224 | 0 | −0.354118 | 12.038436 |
+| LLM without additional operating knowledge | 380.616699 | 0 | −0.286593 | 12.036300 |
+| LLM with additional operating knowledge | 380.684224 | 0 | −0.354118 | 12.038436 |
 
 The Rule-based run releases 51.899304 million m³ less than the available-information
 run and 51.966829 million m³ less than the retrieved-knowledge run. Those differences
@@ -56,9 +56,10 @@ decreases from 1394.384674 to 1394.315321 ft. The 0.069 ft fall is small on an
 annual axis, while the reservoir still holds water retained earlier. No day in
 any of the three trajectories has a level change opposite to its net volume change.
 
-The plotted seasonal reference starts rising on April 1. Its spring and autumn
-slopes are schematic, not an official daily schedule or a change to the seasonal
-audit windows. It does not alter model state or release.
+The plotted **Target pool elevation** reference switches vertically between the
+1300 ft winter target and 1370 ft summer ceiling on May 15 and October 15.
+These display markers leave the saved seasonal audit windows, model state,
+and release unchanged.
 
 ## Reading the retrieved-knowledge trajectory
 

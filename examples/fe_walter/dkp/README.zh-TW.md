@@ -1,4 +1,4 @@
-# 使用檢索知識的 LLM
+# 提供額外操作知識的 LLM
 
 [English](README.md) | [繁體中文](README.zh-TW.md)
 

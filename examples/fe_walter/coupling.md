@@ -102,7 +102,7 @@ For weather-to-operation execution evidence, read the
 Saved-file verification does not establish operating-policy acceptance.
 
 Continue with [rule-based operation](benchmark/README.md),
-[LLM with available information](zero_shot/README.md), or [LLM with retrieved knowledge](dkp/README.md).
+[LLM without additional operating knowledge](zero_shot/README.md), or [LLM with additional operating knowledge](dkp/README.md).
 
 Source details: [native HydroCNHS setup](../../docs/HYDROLOGY_SETUP.md) ·
 [native simulation](../../src/hydrocnhs/hydrocnhs.py) ·

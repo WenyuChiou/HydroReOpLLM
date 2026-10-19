@@ -6,8 +6,8 @@ seasonal addition separately; it has no new model replies.
 
 Start with the water level and controlled release. The
 [FE Walter results](../examples/fe_walter/results.md) show the current saved
-2016 comparison: **Rule-based**, **LLM with available information**, and
-**LLM with retrieved knowledge**.
+2016 comparison: **Rule-based**, **LLM without additional operating knowledge**, and
+**LLM with additional operating knowledge**.
 
 ## Read the operation trajectory
 
@@ -29,8 +29,9 @@ Requested release may differ from actual controlled release when physical
 limits or available water constrain the request.
 
 Water elevation is derived from storage using a reservoir-specific curve; the
-generic framework stores volumes. The current FE Walter plots use feet NGVD29 for water level and m³/s for
-controlled release. The case prompt expresses release in cfs before parsing. Keep the units in every figure caption.
+generic framework stores volumes. The current FE Walter plots use feet NGVD29 for
+water level and cfs for flow; stored flow data retain m³/s. The case prompt also
+expresses release in cfs before parsing. Keep the units in every figure caption.
 
 ## Verify before comparing methods
 
@@ -44,12 +45,12 @@ Verification checks saved records and numerical consistency. Seasonal operation
 performance must be evaluated separately; a completed run can miss a target.
 
 The [results notebook](../tutorials/main.ipynb) reads saved data and reproduces
-one combined teaching figure without running a model or hydrology. Panel A
-compares 2016 end-of-day water elevation in ft NGVD29, including dotted guides
-at 1300 and 1370 ft. Panel B compares daily controlled release in m³/s with
-one row per method, identical flow scales and no spill. All axes share dates; the
-legend names **Rule-based**, **LLM with available information**, and **LLM with
-retrieved knowledge**.
+one combined teaching figure without running a model or hydrology. Panel (a)
+compares 2016 end-of-day water elevation in ft NGVD29, with a target pool elevation reference
+that switches vertically between 1300 and 1370 ft on May 15 and October 15.
+Panels (b–d) compare daily controlled release in cfs, one method per row,
+with blue upstream simulated inflow, identical flow scales and no spill. All axes share dates; the
+legend names **Rule-based**, **LLM without additional operating knowledge**, and **LLM with additional operating knowledge**.
 
 ## Follow one decision
 

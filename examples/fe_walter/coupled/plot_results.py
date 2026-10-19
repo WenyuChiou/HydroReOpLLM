@@ -18,8 +18,8 @@ def main():
                          "svg.fonttype": "none", "pdf.fonttype": 42})
     fig, axes = plt.subplots(2, 1, figsize=(10, 6.5), sharex=True, layout="constrained")
     methods = [("rule", "Rule-based", "#687C87"),
-               ("llm_available", "LLM with available information", "#C17852"),
-               ("llm_knowledge", "LLM with retrieved knowledge", "#2D8679")]
+               ("llm_available", "LLM without additional operating knowledge", "#C17852"),
+               ("llm_knowledge", "LLM with additional operating knowledge", "#2D8679")]
     for method, label, color in methods:
         daily = table[table.method == method]
         axes[0].plot(daily.date, daily.pool_elevation_end_ft, label=label, color=color, lw=1.35)
