@@ -47,11 +47,24 @@ Supported conversions are m³/s and cfs, m³ and acre-ft, and m and ft. Missing
 optional information becomes an explicit `MISSING` value with `value: null`; it
 is never changed to zero.
 
-An LLM agent selects the profile with `customization.information` and places
-`$information` in its prompt. A Rule-based agent may select the same profile and
+An LLM agent selects the profile with `customization.information`. The generic
+prompt uses `$information`; the FE Walter backend appends the selected snapshot
+to its existing user message. A Rule-based agent may select the same profile and
 read the resulting fields from `observation.context.decision_information`.
 Selecting one profile does not expose the rest of the source catalog.
 
 Use `prompt_variables` for fixed prompt text or JSON and `context_providers` for
 custom retrieval or computation. Those inputs may carry provenance, but they do
 not gain authority over reservoir physics.
+
+For FE Walter, follow [additional decision inputs](../examples/fe_walter/extensions/retrieval/README.md).
+It connects a downstream station CSV and a retrieval callback to either LLM
+method. The complete [information template](../tutorials/config/fe_walter_information.yaml)
+uses explicitly labelled synthetic data. The [notebook](../tutorials/README.md)
+shows where these optional fields fit into the existing experiment.
+
+Custom backends opt in with `supports_prompt_context = True`. The workflow then
+validates and source-pins their `context_providers`, supplies lazy per-agent
+callbacks to `build_backend`, and binds the chosen information profile. Existing
+custom backends retain their declared contracts. See the
+[FE adapter](../examples/fe_walter/extensions/__init__.py) for the implementation.

@@ -1,0 +1,17 @@
+# Optional information layer for the FE Walter notebook.
+# Synthetic interface data only; replace the CSV with your station observations.
+sources:
+  downstream_gauge:
+    type: csv
+    kind: observation
+    quantity: flow
+    unit: cfs
+    location: synthetic-downstream-station
+    path: ../../tests/fixtures/fe_walter_information/gauge.csv
+profiles:
+  downstream_conditions:
+    fields:
+      station_flow:
+        source: downstream_gauge  # Source ID declared above.
+        unit: cfs                 # Unit displayed in the prompt.
+        required: true            # Stop before a request when no causal value exists.

@@ -14,15 +14,21 @@ from .seasonal_prompt_context import (
     load_seasonal_prompt_context,
 )
 
+# Opt in to the framework's source-pinned, lazily constructed prompt callbacks.
+supports_prompt_context = True
+
 
 def validate_backend(spec, *, base_path, runtime_root, physical, mode, days, model, auditor_settings):
-    allowed = {"reservoir", "mode", "strategy", "reference", "auditors"}
+    allowed = {"reservoir", "mode", "strategy", "reference", "auditors",
+               "prompt_variables", "context_providers"}
     if mode == "llm":
         allowed.add("model")
     if set(spec) - allowed:
         raise ValueError("reference extension accepts native reference settings only")
     if mode == "llm" and model is None:
         raise ValueError("LLM reference requires a known model profile")
+    if "native_prompt" in set(spec.get("prompt_variables", {})) | set(spec.get("context_providers", {})):
+        raise ValueError("native_prompt is reserved by the FE Walter formatter")
     checks = spec.get("auditors", [])
     if not isinstance(checks, list) or not all(isinstance(a, str) for a in checks):
         raise ValueError("reference auditors must be unique configured IDs")
@@ -37,10 +43,14 @@ def validate_backend(spec, *, base_path, runtime_root, physical, mode, days, mod
     return {"reference": reference}, pins
 
 
-def build_backend(settings, *, physical, runtime_root, mode, model, transport):
+def build_backend(settings, *, physical, runtime_root, mode, model, transport,
+                  agent_id="fe_walter", context_providers=None):
     return ReferenceBackend(settings["reference"], physical,
                             runtime_root=runtime_root, mode=mode,
-                            model=model, transport=transport)
+                            model=model, transport=transport, agent_id=agent_id,
+                            information=settings.get("information"),
+                            prompt_variables=settings.get("prompt_variables"),
+                            context_providers=context_providers)
 
 
 def validate_auditor(settings):

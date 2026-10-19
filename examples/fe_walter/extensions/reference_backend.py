@@ -7,6 +7,7 @@ case-local pure formatter in :mod:`native_case`.
 from __future__ import annotations
 
 from datetime import datetime, timedelta
+from functools import partial
 import hashlib
 import json
 import math
@@ -229,24 +230,54 @@ class _ReferenceChatTransport:
                     "retry_errors": [item["error_class"] for item in attempts if item["error_class"]]}
 
 
-def _exact_messages(rendered: RenderedPromptContext):
+def _exact_messages(rendered: RenderedPromptContext, *, include_information=False):
+    """Keep the native request, then append only explicitly selected extra inputs.
+
+    Observation profiles carry units and causal timestamps. Context callbacks
+    carry their own query, passages and provenance in the core request trace.
+    Neither source changes the physical inflow or the response schema.
+    """
+    user = rendered.rendered_user
+    if include_information:
+        observed = rendered.observation["observed_hydrology"]
+        information = observed.get("context", {}).get("decision_information")
+        if information is None:
+            raise ValueError("FE Walter prompt requires its bound information profile")
+        user += "\n\nAdditional decision information (with units and availability):\n" + json.dumps(
+            information, sort_keys=True, ensure_ascii=False, allow_nan=False)
+    for name, value in sorted(rendered.variables.items()):
+        if name == "native_prompt":
+            continue
+        text = value if isinstance(value, str) else json.dumps(
+            value, sort_keys=True, ensure_ascii=False, allow_nan=False)
+        user += f"\n\nAdditional context: {name}\n{text}"
     return [{"role": "system", "content": rendered.rendered_system},
-            {"role": "user", "content": rendered.rendered_user}]
+            {"role": "user", "content": user}]
 
 
 def preview_backend(settings, physical, runtime_root):
     """Return config-time prompt/schema identity without retrieval or callbacks."""
+    agent_settings = settings
     settings = settings["reference"]
     profile = load_case_profile(runtime_root)
     system, _, _ = read_system_prompt(profile, settings["method"], settings)
     schema = ZERO_SCHEMA if settings["method"] == "zeroshot" else dkp_schema(not settings["dkp_no_missing_inputs"])
-    return {"kind": "config_preview", "messages": [{"role": "system", "content": system}],
-            "response_json_schema": json_snapshot(schema), "model_used": False}
+    result = {"kind": "config_preview", "messages": [{"role": "system", "content": system}],
+              "response_json_schema": json_snapshot(schema), "model_used": False}
+    if agent_settings.get("information") or agent_settings.get("prompt_variables") or agent_settings.get("preview_context"):
+        result["additional_inputs"] = {
+            "information_profile": agent_settings.get("information"),
+            "prompt_variables": json_snapshot(agent_settings.get("prompt_variables", {})),
+            "context_previews": json_snapshot(agent_settings.get("preview_context", {})),
+            "preview_only": True,
+        }
+    return result
 
 
 class ReferenceBackend:
     """Per-agent FE Walter behavior composed over :class:`ConfiguredBackend`."""
-    def __init__(self, settings, physical, *, runtime_root, mode="offline", model=None, transport=None):
+    def __init__(self, settings, physical, *, runtime_root, mode="offline", model=None, transport=None,
+                 agent_id="fe_walter", information=None, prompt_variables=None, context_providers=None):
         if mode not in ("offline", "llm"): raise ValueError("reference mode must be offline or llm")
         self._settings, self._mode = dict(settings), mode
         if "profile_sha256" in settings:
@@ -296,9 +327,14 @@ class ReferenceBackend:
             + ("_custom_system" if settings.get("system_prompt_mode") == "custom" else ""),
             version="3.7+custom-system" if settings.get("system_prompt_mode") == "custom" else "3.7",
             template="$native_prompt", system_template=system)
-        self._core = ConfiguredBackend(agent_id="fe_walter", mode="llm", prompt_spec=spec,
+        variables = dict(prompt_variables or {})
+        if "native_prompt" in variables or "native_prompt" in (context_providers or {}):
+            raise ValueError("native_prompt is reserved by the FE Walter formatter")
+        self._core = ConfiguredBackend(agent_id=agent_id, mode="llm", prompt_spec=spec,
             knowledge_texts={}, model=provider_model, transport=self._fixture,
-            prompt_variables={"native_prompt": self._formatter}, message_builder=_exact_messages,
+            prompt_variables={"native_prompt": self._formatter, **variables},
+            context_providers=context_providers,
+            message_builder=partial(_exact_messages, include_information=information is not None),
             response_parser=self._parser, response_json_schema=self._parser.schema)
         self.policy_id = spec.strategy_id
         self._latest_trace = self._latest_audit = self._pending = None

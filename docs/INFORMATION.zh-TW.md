@@ -43,10 +43,20 @@ simulation source 讀取目前或先前已提交的 host 值，支援 `inflow`�
 支援 m³/s 與 cfs、m³ 與 acre-ft、m 與 ft 的轉換。非必要資訊若缺漏，會成為
 明確的 `MISSING` 與 `value: null`，不會被改成零。
 
-LLM agent 以 `customization.information` 選取 profile，並在 prompt 放入
-`$information`。Rule-based agent 可選取同一 profile，從
+LLM agent 以 `customization.information` 選取 profile。通用 prompt 使用
+`$information`；FE Walter 後端則把選取的完整快照附加至既有 user message。
+Rule-based agent 可選取同一 profile，從
 `observation.context.decision_information` 讀取欄位。選取一個 profile 不會公開
 目錄中的其他 source。
 
 固定 prompt 文字或 JSON 使用 `prompt_variables`；自訂檢索或計算使用
 `context_providers`。這些資訊可以保留來源紀錄，但不會因此取得改寫水庫物理的權限。
+
+FE Walter 的兩個 LLM 情境均可依[自訂決策資訊說明](../examples/fe_walter/extensions/retrieval/README.md)，
+連接下游測站 CSV 與檢索 callback。完整的[資訊模板](../tutorials/config/fe_walter_information.yaml)
+使用已明確標示的合成測試資料；[notebook](../tutorials/README.md) 說明如何在既有實驗加入選用欄位。
+
+自訂後端可用 `supports_prompt_context = True` 啟用這項連接。
+工作流程會驗證 `context_providers`、記錄來源檔雜湊，將每個 agent 的延遲建立 callback
+傳入 `build_backend`，並綁定選取的資訊 profile。其他自訂後端維持既有宣告。
+實作可參考 [FE adapter](../examples/fe_walter/extensions/__init__.py)。

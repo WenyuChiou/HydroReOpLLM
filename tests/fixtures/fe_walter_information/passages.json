@@ -1,0 +1,9 @@
+{
+  "available_at": "2015-12-31T00:00:00Z",
+  "passages": [
+    {
+      "document_id": "synthetic-operating-note",
+      "text": "Synthetic test passage: consider the supplied downstream flow. This is not an official operating rule."
+    }
+  ]
+}
