@@ -30,9 +30,10 @@ Use the [HydroCNHS tutorials](https://github.com/cylin928/HydroCNHS/tree/main/tu
 for basin construction, hydrological parameters and calibration. This manual
 focuses on reservoir agents and the LLM workflow added by HydroReOpLLM.
 
-## Results notebook
+## Tutorial notebook
 
-{download}`FE Walter results notebook <_notebook_downloads/main.ipynb>`
+Open the [FE Walter tutorials folder](../tutorials/), follow its README, or
+{download}`download the notebook <_notebook_downloads/main.ipynb>`.
 
 The notebook reads saved data. It makes no model request and does not rerun
 hydrology. [Sources and citation](REFERENCE.md) identifies the

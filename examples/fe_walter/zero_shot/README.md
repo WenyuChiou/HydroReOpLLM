@@ -2,7 +2,7 @@
 
 [English](README.md) | [繁體中文](README.zh-TW.md)
 
-Follow the [FE Walter tutorial](../../../tutorials/fe_walter.md) from the shared
+Follow the [FE Walter tutorial](../../../tutorials/README.md) from the shared
 `experiment.yaml`, then select this method. The maintained files are:
 
 | File | Purpose |

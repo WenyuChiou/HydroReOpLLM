@@ -1,8 +1,13 @@
-# F.E. Walter output files
+# F.E. Walter outputs and notebook
 
 The saved 2016 experiment has 366 daily records for each of the three methods.
 The manual shows the [water elevation and water release figure](results.md).
 Use the files below to inspect the values or prepare your own figure.
+
+For the step-by-step tutorial, open the repository's [tutorials folder](../../tutorials/).
+Its README introduces [main.ipynb](../../tutorials/main.ipynb), from `experiment.yaml`
+through hydrology, the reservoir, agents and saved results. Run it in a local
+clone after [installation](../../docs/GETTING_STARTED.md).
 
 | File | Contents |
 |---|---|
@@ -15,7 +20,6 @@ The water elevation is the state at the end of that same operation day. Storage
 also depends on inflow and spill; a large release alone does not determine whether
 the water level rises or falls.
 
-For Python code and detailed outputs, open the
-[complete notebook in `tutorials/`](../../tutorials/main.ipynb) or
-{download}`download it <../_notebook_downloads/main.ipynb>`.
+You can also
+{download}`download the notebook <../_notebook_downloads/main.ipynb>`.
 It reads saved data and makes no model request or hydrology calculation.

@@ -6,7 +6,7 @@ three decision methods. Follow these steps in order.
 | Step | Read | Purpose |
 |---|---|---|
 | 1 | [Site and data](../examples/fe_walter/README.md) | Understand the reservoir, climate inputs and study criteria. |
-| 2 | [Configure the experiment](../tutorials/fe_walter.md) | Connect hydrology, reservoir physics and the selected operator. |
+| 2 | [Configure the experiment](../tutorials/README.md) | Connect hydrology, reservoir physics and the selected operator. |
 | 3 | [Output files](../examples/fe_walter/notebook.md) | Find daily values, the figure and the optional Python notebook. |
 
 The [results page](../examples/fe_walter/results.md) compares saved 2016 water

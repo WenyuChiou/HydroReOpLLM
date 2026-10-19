@@ -1,7 +1,7 @@
 # FE Walter: Rule-based reference
 
 > Historical reference: this page preserves earlier settings and saved decisions.
-> Start new work from the [current FE Walter tutorial](../../../tutorials/fe_walter.md)
+> Start new work from the [current FE Walter tutorial](../../../tutorials/README.md)
 > and read the [current annual results](../results.md).
 
 
@@ -65,7 +65,7 @@ differs from the LLM operating audit, so the counts cannot rank the methods.
 The [complete saved day-one rule record](../../../examples/fe_walter/reference_outputs/rule_three_day/raw/policy_a55e8402dabaa06d6127816db201078ccaff0234147efb071c505797a92cdd3a.json)
 records the input, daily-rule provenance, requested release and source hashes.
 
-[View the main tutorial](../../../tutorials/main.ipynb) ·
+[View the main tutorial](../../../tutorials/README.md) ·
 [Module reference](../../../docs/LLM_MODULES.md) ·
 [Multiple reservoirs](../../../tutorials/advanced.ipynb)
 
@@ -91,7 +91,7 @@ checks statistics inputs, configuration and use of the common simulation interfa
 ## Files and commands
 
 For a new study, use [coupled/experiment.yaml](../coupled/experiment.yaml) and follow
-[the current tutorial](../../../tutorials/fe_walter.md) for checking, execution and verification.
+[the current tutorial](../../../tutorials/README.md) for checking, execution and verification.
 That entry connects the common hydrology, reservoir network and Rule-based agent.
 
 This folder retains [experiment.yaml](experiment.yaml) as a three-day offline

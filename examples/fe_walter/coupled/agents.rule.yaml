@@ -1,8 +1,8 @@
 # Agent layer. fe_operator is the decision-unit ID used in plans and traces.
 fe_operator:
-  reservoir_id: FEWalter  # Controlled reservoir ID in reservoirs.json.
-  type: rule_based        # Deterministic method: no model profile or provider.
-  rule: hanasaki          # Generic registered rule ID; Hanasaki is this example's module.
+  reservoir_id: FEWalter    # Controlled reservoir ID in reservoirs.json.
+  type: rule_based          # Deterministic method: no model profile or provider.
+  rule: hanasaki            # Generic registered rule ID; Hanasaki is this example's module.
   # Parameters belong to that module rather than to the core agent schema.
   rule_parameters:
     purpose: flood_control  # Hanasaki operating-purpose category.

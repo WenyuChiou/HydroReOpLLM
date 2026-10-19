@@ -30,7 +30,8 @@
 
 ## 教學 Notebook
 
-{download}`FE Walter 結果 <_notebook_downloads/main.ipynb>`
+開啟 [FE Walter 教學資料夾](../tutorials/)，依 README 操作 notebook，或
+{download}`下載 notebook <_notebook_downloads/main.ipynb>`。
 
 Notebook 讀取保存資料，不發送模型請求，也不重跑水文。
 [資料來源與引用](REFERENCE.md)提供框架及案例文獻。

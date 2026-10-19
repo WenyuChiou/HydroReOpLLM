@@ -2,7 +2,7 @@
 
 [English](README.md) | [繁體中文](README.zh-TW.md)
 
-Follow the [current FE Walter tutorial](../../tutorials/fe_walter.md) for a new study.
+Follow the [current FE Walter tutorial](../../tutorials/README.md) for a new study.
 This directory supplies short synthetic fixtures for interface tests.
 The framework uses our case formatter and parser; the optional original program is loaded separately from a hash-verified external artifact.
 

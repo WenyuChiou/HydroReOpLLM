@@ -75,8 +75,8 @@ The Rule-based entry uses Hanasaki's operating rule; seasonal pool guidance is
 supplied to the LLM entries. The [saved-results guide](examples/fe_walter/results.md)
 explains these different operating objectives.
 
-Follow the [F.E. Walter tutorial](tutorials/fe_walter.md), inspect the executable
-[main notebook](tutorials/main.ipynb), or read the [saved-results guide](examples/fe_walter/results.md).
+Follow the [F.E. Walter notebook tutorial](tutorials/README.md) from `experiment.yaml`
+to the saved annual results, or read the [results guide](examples/fe_walter/results.md).
 The committed [daily comparison](examples/fe_walter/coupled/outputs/current_tutorial/daily.csv)
 and [provenance record](examples/fe_walter/coupled/outputs/current_tutorial/provenance.json)
 can be inspected directly, with no simulation or LLM request.

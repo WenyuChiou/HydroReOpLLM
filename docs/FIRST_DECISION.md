@@ -1,6 +1,6 @@
 # Read a reservoir decision
 
-Start with the [FE Walter tutorial](../tutorials/fe_walter.md), then read the
+Start with the [FE Walter tutorial](../tutorials/README.md), then read the
 [saved outputs](../examples/fe_walter/results.md). The [prompt comparison](../examples/fe_walter/prompt_review.md)
 shows complete historical requests and replies separately from proposed instructions.
 

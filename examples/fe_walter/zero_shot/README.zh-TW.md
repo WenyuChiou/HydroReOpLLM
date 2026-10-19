@@ -2,7 +2,7 @@
 
 [English](README.md) | [繁體中文](README.zh-TW.md)
 
-從 [FE Walter 教學](../../../tutorials/fe_walter.md)的共用
+從 [FE Walter 教學](../../../tutorials/README.md)的共用
 `experiment.yaml` 開始，再選擇這個方法。目前維護的檔案如下：
 
 | 檔案 | 用途 |

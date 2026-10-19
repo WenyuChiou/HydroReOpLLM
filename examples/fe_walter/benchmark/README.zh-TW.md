@@ -1,6 +1,6 @@
 # F.E. Walter：規則式基準
 
-> 歷史參考：本頁保存較早設定與決策紀錄。新的研究請從[最新版 FE Walter 教學](../../../tutorials/fe_walter.md)開始，
+> 歷史參考：本頁保存較早設定與決策紀錄。新的研究請從[最新版 FE Walter 教學](../../../tutorials/README.md)開始，
 > 並查看[目前全年結果](../results.zh-TW.md)。
 
 
@@ -62,7 +62,7 @@ release、spill 與 ending storage。總出流是 controlled release 加 spill�
 [完整的第一日規則紀錄](../../../examples/fe_walter/reference_outputs/rule_three_day/raw/policy_a55e8402dabaa06d6127816db201078ccaff0234147efb071c505797a92cdd3a.json)
 保存輸入、每日規則 provenance、請求放流與來源 hash。
 
-[查看主教學](../../../tutorials/main.ipynb) ·
+[查看主教學](../../../tutorials/README.md) ·
 [模組參考](../../../docs/LLM_MODULES.md) ·
 [多座水庫](../../../tutorials/advanced.ipynb)
 
@@ -88,7 +88,7 @@ in global hydrological models.” *Geoscientific Model Development*, 16, 5449–
 ## 檔案與命令
 
 新研究請使用 [coupled/experiment.yaml](../coupled/experiment.yaml)，並依照
-[目前教學](../../../tutorials/fe_walter.md)檢查、執行與驗證。
+[目前教學](../../../tutorials/README.md)檢查、執行與驗證。
 此入口連接共用水文、水庫河網及 Rule-based agent。
 
 此資料夾保留 [experiment.yaml](experiment.yaml)，作為三天的離線相容性測試設定，

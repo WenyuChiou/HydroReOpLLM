@@ -1,6 +1,6 @@
 # Python API documentation
 
-Start with the [F.E. Walter tutorial](../tutorials/fe_walter.md)
+Start with the [F.E. Walter tutorial](../tutorials/README.md)
 when configuring a study. This reference explains the selected Python interfaces
 behind the CLI and the contracts needed to add a rule, parser or context source.
 The [code structure](CODE_STRUCTURE.md) maps the remaining implementation modules.
