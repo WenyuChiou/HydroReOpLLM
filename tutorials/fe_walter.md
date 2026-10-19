@@ -2,7 +2,7 @@
 
 This is the maintained tutorial source for the F.E. Walter research example.
 It uses the same inflow, initial state, and physical parameters for **Rule-based**,
-**LLM with available information**, and **LLM with retrieved knowledge**.
+**LLM without knowledge retrieval**, and **LLM with knowledge retrieval**.
 
 Read in order: [experiment](#1-begin-at-experimentyaml) →
 [hydrology](#2-connect-accepted-hydrology) →

@@ -8,7 +8,7 @@
 
 | Notebook | 用途 |
 |---|---|
-| [主教學](main.ipynb) | 用保存全年資料比較 **Rule-based**、**LLM with available information** 與 **LLM with retrieved knowledge**。 |
+| [主教學](main.ipynb) | 用保存全年資料比較 **Rule-based**、**未使用知識檢索的 LLM** 與 **使用知識檢索的 LLM**。 |
 
 Notebook 只讀取 repository 內保存的證據；預設流程不呼叫模型、不下載、不執行
 水文或水庫模擬。

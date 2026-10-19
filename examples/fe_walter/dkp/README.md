@@ -1,4 +1,4 @@
-# LLM with retrieved knowledge
+# LLM with knowledge retrieval
 
 [English](README.md) | [繁體中文](README.zh-TW.md)
 

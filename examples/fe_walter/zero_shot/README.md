@@ -1,4 +1,4 @@
-# LLM with available information
+# LLM without knowledge retrieval
 
 [English](README.md) | [繁體中文](README.zh-TW.md)
 

@@ -1,4 +1,4 @@
-# 使用可用資訊的 LLM
+# 未使用知識檢索的 LLM
 
 [English](README.md) | [繁體中文](README.zh-TW.md)
 

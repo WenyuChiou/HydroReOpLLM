@@ -23,8 +23,8 @@ SEASONAL_CRITERIA = ROOT / "examples/fe_walter/seasonal_pool_criteria.json"
 NOTEBOOKS = ("main.ipynb", "advanced.ipynb")
 LABELS = {
     "rule": "Rule-based",
-    "llm_available": "LLM with available information",
-    "llm_knowledge": "LLM with retrieved knowledge",
+    "llm_available": "LLM without knowledge retrieval",
+    "llm_knowledge": "LLM with knowledge retrieval",
 }
 METHOD_COLORS = {"rule": "#526B8A", "llm_available": "#BF795E",
                  "llm_knowledge": "#4F8A7B"}
@@ -355,8 +355,7 @@ def main_cells() -> list[dict]:
 
 Follow the maintained 2016 configuration from `experiment.yaml` through
 hydrology, the reservoir network, a Rule-based operator, and the two LLM
-methods: **Rule-based**, **LLM with available information**, and **LLM with
-retrieved knowledge**. All three use the same inflow, initial state, and physical parameters.
+methods: **Rule-based**, **LLM without knowledge retrieval**, and **LLM with knowledge retrieval**. All three use the same inflow, initial state, and physical parameters.
 
 This notebook reads committed files only. It makes no model request and runs no
 hydrology or reservoir simulation.
@@ -375,8 +374,8 @@ profile while retaining the same physical case and hydrology.'''),
         code('''coupled = ROOT / "examples/fe_walter/coupled"
 current_config = coupled
 for title, name in (("Rule-based entry", "experiment.yaml"),
-                    ("LLM with available information entry", "llm_available.yaml"),
-                    ("LLM with retrieved knowledge entry", "llm_knowledge.yaml")):
+                    ("LLM without knowledge retrieval entry", "llm_available.yaml"),
+                    ("LLM with knowledge retrieval entry", "llm_knowledge.yaml")):
     display(ReadableText(title, (current_config / name).read_text(encoding="utf-8")))'''),
         md('''## 2. Follow hydrology into the reservoir network
 
@@ -402,8 +401,8 @@ sampling controls are settings and provenance, not method names.
 
 ![Prompt and context workflow](../docs/figures/prompt-context-workflow.svg)'''),
         code('''for title, name in (("Rule-based agent", "agents.rule.yaml"),
-                    ("LLM with available information agent", "agents.llm_available.yaml"),
-                    ("LLM with retrieved knowledge agent", "agents.llm_knowledge.yaml")):
+                    ("LLM without knowledge retrieval agent", "agents.llm_available.yaml"),
+                    ("LLM with knowledge retrieval agent", "agents.llm_knowledge.yaml")):
     display(ReadableText(title, (coupled / name).read_text(encoding="utf-8")))
 display(ReadableText("Model settings and provenance", (current_config / "models.yaml").read_text(encoding="utf-8")))'''),
         md('''## 4. Inspect actual prompt and retrieved context
@@ -412,7 +411,7 @@ The saved pairs contain the exact request messages and replies. The parser
 converts cfs to m³/s, then common physics enforces water availability and release
 bounds. These records are examples from the saved run.'''),
         code('''saved = coupled / "outputs/gemma4_2016_comparison"
-labels = {"llm_available": "LLM with available information", "llm_knowledge": "LLM with retrieved knowledge"}
+labels = {"llm_available": "LLM without knowledge retrieval", "llm_knowledge": "LLM with knowledge retrieval"}
 for method, label in labels.items():
     pair = json.loads((saved / f"{method}_pair.json").read_text(encoding="utf-8"))
     record = pair["engines"]["framework"]
@@ -460,7 +459,7 @@ reservoir-experiment verify <new-output-path>/operation
 ```
 
 Use `experiment.yaml` for Rule-based operation or copy `llm_knowledge.yaml` for
-LLM with retrieved knowledge. [Technical engine evidence and historical audits](../examples/fe_walter/engine_comparison.md)
+LLM with knowledge retrieval. [Technical engine evidence and historical audits](../examples/fe_walter/engine_comparison.md)
 remain outside this main research narrative.'''),
     ]
 

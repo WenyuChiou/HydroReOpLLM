@@ -2,8 +2,8 @@
 
 [English](results.md) | [繁體中文](results.zh-TW.md)
 
-比較同一 FE Walter 案例的三種方法：**Rule-based**、**LLM with available information**、
-**LLM with retrieved knowledge**。期間為 2016-01-01 至 2016-12-31，共 366 天。
+比較同一 FE Walter 案例的三種方法：**Rule-based**、**未使用知識檢索的 LLM**、
+**使用知識檢索的 LLM**。期間為 2016-01-01 至 2016-12-31，共 366 天。
 下圖使用舊 prompt 產生的框架結果，尚未加入新的當日季節資訊，沒有新增模型請求。
 [10 月原文對照](prompt_review.md)把歷史請求與擬修改提示分開展示。
 

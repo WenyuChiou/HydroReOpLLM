@@ -3,8 +3,8 @@
   "purpose": "Saved-data teaching comparison; no new provider request, hydrology run, or reservoir simulation.",
   "methods": [
     "Rule-based",
-    "LLM with available information",
-    "LLM with retrieved knowledge"
+    "LLM without knowledge retrieval",
+    "LLM with knowledge retrieval"
   ],
   "period": {
     "start": "2016-01-01",
@@ -23,8 +23,8 @@
     "panels": {
       "a": "Water elevation",
       "b": "Water release (Rule-based)",
-      "c": "Water release (LLM with available information)",
-      "d": "Water release (LLM with retrieved knowledge)"
+      "c": "Water release (LLM without knowledge retrieval)",
+      "d": "Water release (LLM with knowledge retrieval)"
     },
     "release_bar_width_days": 0.72,
     "method_colors": {
@@ -93,15 +93,15 @@
     }
   },
   "artifacts": {
-    "daily.csv": "cf3187a46b10298974684dd41cbb46880057b9968cf5a2f9ecfca4b2dcd9d62e",
-    "daily_water_elevation.png": "087a3a75a98127b7cb704b9126a93978129ccce5719b2fcdd1c7822cbfe91268",
-    "daily_water_elevation.svg": "f72b43e918be5c43da48f9d99d03ca9ee7698d3f29c5901a05c8ca9b520361d9",
-    "daily_water_elevation.pdf": "bc53fb431ab7560fa148a08fd62bcabe1e8b2ab0f6904c6c5796ac7f43924503",
-    "controlled_release_daily.png": "b3a087e1e40d74cf14789a57f7cac17d03179fd9b40fcedc958d1203de9889c3",
-    "controlled_release_daily.svg": "3013a65994ef32e53799a82897b924e5b8365b1d5ebe8c458e2caf4616be20b3",
-    "controlled_release_daily.pdf": "ffb03419f1dae1bc6fc777d1b5884182408dd7910395a3191cdd8e824fceecee",
-    "reservoir_operations.png": "b12fa4a48f8b9f2752e1901b68a69533c9b4b39758730d1af3cebac24bcc02aa",
-    "reservoir_operations.svg": "1c146d1e89be939f2b81f6f6db5ff37817015f2f22fe59ab79bf65216538130f",
-    "reservoir_operations.pdf": "54efed8260ff74bd1ed91b20f0cc049439a371ea082f3e4fb7aded22e5d1be34"
+    "daily.csv": "e29ffa3375d2090611d928c2c06e81550e71ca995bf994d7af6d0a31b2f27b1b",
+    "daily_water_elevation.png": "a80176895c4203c0f50835039a5cbf7c8d94f7993e758a29172d57cb196e2226",
+    "daily_water_elevation.svg": "255380f0dae6e672f5b7527b66833eecc2a9cbfcca1e76e3199f296c8c1affd5",
+    "daily_water_elevation.pdf": "ef01f24626b445a86dfc1a07bacc57160f5e1449ffab60de426b2c99dab29d12",
+    "controlled_release_daily.png": "11bbded85eeabc655f58bd60cdb72bbe8947036bea0f4554ff8a4a23423db44c",
+    "controlled_release_daily.svg": "51406ecc7977ef852c829f8383aa5b92455047d331de6da4d4d3fd81125aaad3",
+    "controlled_release_daily.pdf": "6d43bcda240de1b6d6f331cf258de960943a8ea28c2f47eb2dafa1046987472e",
+    "reservoir_operations.png": "361981448553eeff67b68629436569615c59ee2c324fb5f283c0fd18264b6637",
+    "reservoir_operations.svg": "71934f645fbb4ab82ab96755e034e47f3e79ea68a4204a64273b85d3c7c9155a",
+    "reservoir_operations.pdf": "c7312b15a079e42ade2f2046652e116eae3954b20c56b6039033a13429fc3036"
   }
 }

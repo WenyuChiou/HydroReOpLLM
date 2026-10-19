@@ -4,7 +4,7 @@ The saved LLM trajectories use the **previous prompts**, without the new daily
 seasonal context. [Review the actual October requests and proposed addition](prompt_review.md). No new model result is shown.
 
 The maintained comparison uses three saved 2016 trajectories: **Rule-based**,
-**LLM with available information**, and **LLM with retrieved knowledge**. All
+**LLM without knowledge retrieval**, and **LLM with knowledge retrieval**. All
 three use the same accepted daily inflow and initial physical state.
 
 ## Reservoir operations

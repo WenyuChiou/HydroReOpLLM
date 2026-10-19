@@ -161,7 +161,7 @@ def test_current_figure_manifest_covers_exact_published_bytes():
         if path.suffix == '.svg':
             assert all(line == line.rstrip() for line in path.read_text(encoding='utf-8').splitlines())
     assert hashlib.sha256((folder / 'daily.csv').read_bytes()).hexdigest() == (
-        'cf3187a46b10298974684dd41cbb46880057b9968cf5a2f9ecfca4b2dcd9d62e')
+        'e29ffa3375d2090611d928c2c06e81550e71ca995bf994d7af6d0a31b2f27b1b')
 
 
 def test_result_figures_keep_paper_width_fonts_and_editable_labels():
@@ -190,8 +190,8 @@ def test_result_figures_keep_paper_width_fonts_and_editable_labels():
             assert size is not None, 'Every text label needs an explicit size'
             assert float(size.group(1)) >= 9, 'Paper labels must be at least 9 pt'
         labels = ' '.join(''.join(node.itertext()) for node in text_nodes)
-        for method in ('Rule-based', 'LLM with available information',
-                       'LLM with retrieved knowledge'):
+        for method in ('Rule-based', 'LLM without knowledge retrieval',
+                       'LLM with knowledge retrieval'):
             assert method in labels, 'Method labels must remain editable text'
         if stem == 'daily_water_elevation':
             assert 'Winter target: 1300 ft' in labels
@@ -229,8 +229,8 @@ def test_combined_figure_has_shared_calendar_exact_lines_and_three_release_rows(
 
         expected_labels = [
             'Rule-based',
-            'LLM with available information',
-            'LLM with retrieved knowledge',
+            'LLM without knowledge retrieval',
+            'LLM with knowledge retrieval',
         ]
         data_lines = {line.get_label(): line for line in elevation.lines
                       if line.get_label() in expected_labels}
@@ -252,7 +252,8 @@ def test_combined_figure_has_shared_calendar_exact_lines_and_three_release_rows(
         for index, (release, label) in enumerate(zip(release_axes, expected_labels, strict=True)):
             assert release.get_title(loc='left') == f'({chr(98 + index)}) Water release ({label})'
             assert release.get_ylabel() == 'Water release\n(m³/s)'
-            expected = daily.loc[daily['method_label'] == label].copy()
+            method = tuple(builder.LABELS)[index]
+            expected = daily.loc[daily['method'] == method].copy()
             expected_dates = mdates.date2num(pd.to_datetime(expected['date']))
             line = data_lines[label]
             np.testing.assert_allclose(line.get_ydata(), expected['pool_elevation_end_ft'],
@@ -283,3 +284,24 @@ def test_combined_figure_has_shared_calendar_exact_lines_and_three_release_rows(
     finally:
         import matplotlib.pyplot as plt
         plt.close(figure)
+
+
+@pytest.mark.parametrize('method', ['llm_available', 'llm_knowledge'])
+def test_saved_storage_gap_equals_cumulative_outflow_gap(method):
+    """Shared inflow and initial storage leave only the accumulated outflow gap."""
+    import numpy as np
+
+    daily = pd.read_csv(OUTPUTS / 'current_tutorial/daily.csv')
+    rule = daily.loc[daily['method'].eq('rule')].set_index('date')
+    other = daily.loc[daily['method'].eq(method)].set_index('date')
+    assert rule.index.equals(other.index)
+    np.testing.assert_allclose(rule['inflow_cms'], other['inflow_cms'],
+                               rtol=0, atol=1e-10)
+    cumulative_extra_outflow = (
+        other['controlled_release_cms'] + other['spill_cms']
+        - rule['controlled_release_cms'] - rule['spill_cms']
+    ).cumsum() * 86400.0
+    np.testing.assert_allclose(
+        rule['storage_end_m3'] - other['storage_end_m3'],
+        cumulative_extra_outflow, rtol=0, atol=1e-5,
+    )
