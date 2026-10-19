@@ -66,7 +66,7 @@ Secondary standalone exports: [elevation SVG](outputs/current_tutorial/daily_wat
 ![Water elevation and controlled release](outputs/current_tutorial/reservoir_operations.png)
 
 **Figure 1.** Saved 2016 operations: (a) end-of-day water elevation (ft NGVD29),
-with a seasonal reference switching between 1300 and 1370 ft on May 15 and October 15;
+with a target pool elevation reference switching between 1300 and 1370 ft on May 15 and October 15;
 (b–d) daily controlled release and blue upstream simulated inflow (cfs),
 with identical flow scales and no spill. Panels share dates and method colors.
 The [study audit criteria](../README.md#seasonal-pool-levels) retain their own

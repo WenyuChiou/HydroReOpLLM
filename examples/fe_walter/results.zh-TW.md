@@ -22,7 +22,7 @@ Rule-based 使用 Hanasaki 規則，決策公式沒有讀取冬夏目標水位�
 3 月 14 日的 1297–1303 ft；夏季上限適用於 5 月 10 日至 10 月 14 日。
 這些研究準則不會改寫放流決策。
 
-季節參考依 [R-ZONE](knowledge/operating_rules.md)，冬季目標為 1300 ft、夏季上限為
+目標水位參考線（**Target pool elevation**）依 [R-ZONE](knowledge/operating_rules.md)，冬季目標為 1300 ft、夏季上限為
 1370 ft，於 5 月 15 日與 10 月 15 日垂直切換。這兩個月中標記用來概括季節目標，
 不代表實際水位瞬間跳升或下降。保存的操作設定與 audit 窗口保持原樣。
 圖中流量採 cfs，來源 CSV 保留原始 m³/s。
@@ -46,7 +46,7 @@ Rule-based 使用 Hanasaki 規則，決策公式沒有讀取冬夏目標水位�
 
 ![2016 年水位與控制放流](coupled/outputs/current_tutorial/reservoir_operations.png)
 
-*圖 1。2016 年保存的操作結果。(a) 日末水位（ft NGVD29）與季節參考線：
+*圖 1。2016 年保存的操作結果。(a) 日末水位（ft NGVD29）與目標水位參考線（Target pool elevation）：
 冬季目標 1300 ft、夏季上限 1370 ft，於 5 月 15 日與 10 月 15 日垂直切換。
 (b–d) 實際放水量（cfs），
 不含溢流。藍線為上游模擬入流，與放流共用刻度；放流柱低於藍線時蓄水增加，

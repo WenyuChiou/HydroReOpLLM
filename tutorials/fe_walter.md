@@ -248,7 +248,7 @@ remain available without interrupting the main workflow.
 ![2016 water elevation and water release](../examples/fe_walter/coupled/outputs/current_tutorial/reservoir_operations.png)
 
 **Figure 4.** Saved 2016 operations. (a) End-of-day water elevation (ft NGVD29),
-with a seasonal reference switching between 1300 and 1370 ft on May 15 and October 15.
+with a target pool elevation reference switching between 1300 and 1370 ft on May 15 and October 15.
 (b–d) Daily water release and blue upstream simulated inflow (cfs) for the methods
 in the panel titles. Release excludes spill;
 all panels share operation dates, and the three release panels share a flow scale.

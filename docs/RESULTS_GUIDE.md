@@ -46,7 +46,7 @@ performance must be evaluated separately; a completed run can miss a target.
 
 The [results notebook](../tutorials/main.ipynb) reads saved data and reproduces
 one combined teaching figure without running a model or hydrology. Panel (a)
-compares 2016 end-of-day water elevation in ft NGVD29, with a seasonal reference
+compares 2016 end-of-day water elevation in ft NGVD29, with a target pool elevation reference
 that switches vertically between 1300 and 1370 ft on May 15 and October 15.
 Panels (b–d) compare daily controlled release in cfs, one method per row,
 with blue upstream simulated inflow, identical flow scales and no spill. All axes share dates; the

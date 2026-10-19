@@ -146,7 +146,7 @@ def test_main_notebook_has_exactly_one_combined_result_figure():
     assert 'coupled/my-run.yaml' in markdown
     assert 'Blue lines show the upstream simulated inflow' in markdown
     assert 'Gray lines show the common inflow' not in markdown
-    assert 'seasonal reference switches vertically' in markdown
+    assert 'target pool elevation reference switches vertically' in markdown
     assert 'May 15 and October 15' in markdown
 
 
@@ -205,7 +205,7 @@ def test_result_figures_keep_paper_width_fonts_and_editable_labels():
                        'LLM with additional operating knowledge'):
             assert method in labels, 'Method labels must remain editable text'
         if stem != 'controlled_release_daily':
-            assert 'Seasonal pool reference' in labels
+            assert 'Target pool elevation' in labels
         if stem != 'daily_water_elevation':
             assert 'cfs' in labels
         if stem != 'daily_water_elevation':
@@ -250,7 +250,7 @@ def test_combined_figure_has_shared_calendar_exact_lines_and_three_release_rows(
         assert list(data_lines) == expected_labels
         assert len(elevation.lines) == 4, 'Three methods and one seasonal schematic'
         seasonal = next(line for line in elevation.lines
-                        if line.get_label() == 'Seasonal pool reference')
+                        if line.get_label() == 'Target pool elevation')
         assert pd.DatetimeIndex(seasonal.get_xdata()).strftime('%m-%d').tolist() == [
             '01-01', '05-15', '05-15', '10-15', '10-15', '12-31']
         np.testing.assert_allclose(seasonal.get_ydata(),
@@ -296,7 +296,7 @@ def test_combined_figure_has_shared_calendar_exact_lines_and_three_release_rows(
         assert not figure.legends, 'Keep the figure height available to the four panels'
         legend = elevation.get_legend()
         assert [' '.join(text.get_text().split()) for text in legend.get_texts()] == [
-            expected_labels[0], expected_labels[1], 'Seasonal pool reference', expected_labels[2]]
+            expected_labels[0], expected_labels[1], 'Target pool elevation', expected_labels[2]]
         figure.canvas.draw()
         renderer = figure.canvas.get_renderer()
         text_boxes = [text.get_window_extent(renderer) for text in legend.get_texts()]

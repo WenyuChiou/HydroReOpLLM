@@ -34,7 +34,7 @@
       "llm_knowledge": "#4F8A7B"
     },
     "legend_placement": "Upper left inside each panel; measured y-axis headroom keeps legends above data. Elevation legend: two aligned columns, short reference entries above paired LLM labels.",
-    "seasonal_reference": "Winter 1300 ft and summer 1370 ft references with vertical switches on May 15 and October 15, as agreed for the display. These mid-month markers summarize R-ZONE seasonal levels, not physical water-level jumps. Saved operation targets and study audit windows are unchanged."
+    "seasonal_reference": "Target pool elevation: winter 1300 ft and summer 1370 ft references with vertical switches on May 15 and October 15, as agreed for the display. These mid-month markers summarize R-ZONE seasonal levels, not physical water-level jumps. Saved operation targets and study audit windows are unchanged."
   },
   "flow_display": {
     "unit": "cfs",
@@ -107,14 +107,14 @@
   },
   "artifacts": {
     "daily.csv": "28330ea4c960a2373c60dd98d04cc6ff9c81667d7cfec494c9750d7357400f85",
-    "daily_water_elevation.png": "aa175a2bb2bbd23bd63f70c92075913b0e262ee52fbaa60dc20a123a4236b1ed",
-    "daily_water_elevation.svg": "66804e5a9138a2a0a158176b8bf611008f52cfc8afa1fc8a77b87b7e800e55c5",
-    "daily_water_elevation.pdf": "d1fa1b1f8fd11607ed6b950c86bf69c7024238ab36443c4b95da148fea9f3802",
+    "daily_water_elevation.png": "e81697eb15789a37cecc4b020cf3eef9aa886669515417ece8d1c4c64fa8d986",
+    "daily_water_elevation.svg": "31063a2d1966c35f109803a778c23bb60f847fd56036d4e4be8fbd72a3844203",
+    "daily_water_elevation.pdf": "508de36d1fdf4442be92c473592fdd4ac64f42ecbc44d14a649880fcb768fdbd",
     "controlled_release_daily.png": "375d3d17cd93043a3cbc25123e2ed61341c8e4fca395cc29c4d27d05ef7ae67f",
-    "controlled_release_daily.svg": "c16ff34bf9d820de337ef79cf0c886410a10a29d5c87912d54350dad1ec420e2",
-    "controlled_release_daily.pdf": "93e6824fe5ccd02cb8133070fd51f17bc1fc473e1dc8e0d4aaeea8ef79db9d49",
-    "reservoir_operations.png": "baaa79c57be4d889eed92912941d4e438cd34493add1ace7768fb22ccf338d19",
-    "reservoir_operations.svg": "1ad4da1641db697c3b7637e342eaeb6c1722c4aba6a3a9059087a2badf74da66",
-    "reservoir_operations.pdf": "5406a238d1528495b3a8cdd12bb392ce4d6a244fdee5a646d8bf2031291e345f"
+    "controlled_release_daily.svg": "37352ce2dad9175407a1749fd53e5e776c7fd3be6e654f80a8f45967a624c672",
+    "controlled_release_daily.pdf": "abf11f720b17ac58253163e89bbab9afdb5efd8ac0199be8bac511b30d53f60c",
+    "reservoir_operations.png": "c56f1227357fb12fe2ce009996aaf9b0cd85ad30f4952763bbc9df8f09debe05",
+    "reservoir_operations.svg": "0994af3ca0b7a1bcf2c50538af63c36771f7a08c00d8a7ac76a2192b6d75b137",
+    "reservoir_operations.pdf": "30c500f48a34a8a75cf3f95cc409d17e53e96e886d2930c5562fdc13fed32598"
   }
 }

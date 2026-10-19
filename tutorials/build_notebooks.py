@@ -44,7 +44,7 @@ def _add_elevation_legend(axis):
     by_label = dict(zip(labels, handles, strict=True))
     # Matplotlib fills columns first: these entries form two matching rows.
     order = [LABELS["rule"], LABELS["llm_available"],
-             "Seasonal pool reference", LABELS["llm_knowledge"]]
+             "Target pool elevation", LABELS["llm_knowledge"]]
     return axis.legend(
         [by_label[label] for label in order], [_legend_label(label) for label in order],
         loc="upper left", ncol=2, alignment="left", frameon=False, fontsize=9,
@@ -138,7 +138,7 @@ def plot_reservoir_operations(daily, seasonal_criteria=None):
             seasonal_criteria = json.loads(SEASONAL_CRITERIA.read_text(encoding="utf-8"))
         seasonal_dates, seasonal_levels = _seasonal_reference_points(seasonal_criteria)
         elevation.plot(seasonal_dates, seasonal_levels, color="#111111", linestyle="--",
-                       linewidth=1.0, label="Seasonal pool reference", zorder=5)
+                       linewidth=1.0, label="Target pool elevation", zorder=5)
         elevation.set(title="(a)", ylabel="Water elevation\n(ft)")
         release_axes[-1].set_xlabel("Operation date (2016)")
         for ax in axes:
@@ -291,7 +291,7 @@ def _prepare_current_outputs() -> dict:
                 label=label, color=colors[label], linewidth=1.1)
     reference_dates, reference_levels = _seasonal_reference_points(seasonal_criteria)
     ax.plot(reference_dates, reference_levels, color="#111111", linestyle="--",
-            linewidth=1.0, label="Seasonal pool reference")
+            linewidth=1.0, label="Target pool elevation")
     ax.set(ylabel="Water elevation (ft NGVD 29)", xlabel="2016",
            xlim=(pd.Timestamp(dates[0]), pd.Timestamp(dates[-1])))
     _add_elevation_legend(ax)
@@ -347,7 +347,7 @@ def _prepare_current_outputs() -> dict:
                               "Upper left inside each panel; measured y-axis headroom keeps legends above data. "
                               "Elevation legend: two aligned columns, short reference entries above paired LLM labels."),
                           "seasonal_reference": (
-                              "Winter 1300 ft and summer 1370 ft references with vertical switches "
+                              "Target pool elevation: winter 1300 ft and summer 1370 ft references with vertical switches "
                               "on May 15 and October 15, as agreed for the display. These mid-month "
                               "markers summarize R-ZONE seasonal levels, not physical water-level jumps. "
                               "Saved operation targets and study audit windows are unchanged.")},
@@ -476,7 +476,7 @@ units. It performs no interpolation. Four panels share operation dates:
 one method per panel. Water release means implemented controlled release and
 excludes spill. Blue lines show the upstream simulated inflow on the same flow scale.
 Release below inflow retains water; release above inflow draws from storage.
-The seasonal reference switches vertically between the 1300 ft winter target and
+The target pool elevation reference switches vertically between the 1300 ft winter target and
 1370 ft summer ceiling on May 15 and October 15. These mid-month markers summarize
 seasonal targets, rather than daily physical water-level changes. Saved operation
 and audit settings are unchanged. The source CSV retains m³/s.'''),
