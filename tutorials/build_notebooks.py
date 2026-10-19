@@ -29,13 +29,8 @@ LABELS = {
 }
 METHOD_COLORS = {"rule": "#526B8A", "llm_available": "#BF795E",
                  "llm_knowledge": "#4F8A7B"}
-
-
-def _add_pool_level_guides(ax):
-    """Label the case's winter setpoint and summer ceiling, not hard constraints."""
-    for level, label in ((1300, "Winter target: 1300 ft"),
-                         (1370, "Summer limit: 1370 ft")):
-        ax.axhline(level, color="#7B8185", linestyle=":", linewidth=0.8, label=label)
+CMS_TO_CFS = 1 / 0.028316846592  # Exact international foot: (0.3048 m)^3.
+FIGURE_FONT_FAMILY = "Arial"
 
 
 def _legend_label(label):
@@ -43,8 +38,21 @@ def _legend_label(label):
     return label.replace(" operating knowledge", "\noperating knowledge")
 
 
+def _add_elevation_legend(axis):
+    """Align the two short entries above the two wrapped LLM method names."""
+    handles, labels = axis.get_legend_handles_labels()
+    by_label = dict(zip(labels, handles, strict=True))
+    # Matplotlib fills columns first: these entries form two matching rows.
+    order = [LABELS["rule"], LABELS["llm_available"],
+             "Seasonal pool reference", LABELS["llm_knowledge"]]
+    return axis.legend(
+        [by_label[label] for label in order], [_legend_label(label) for label in order],
+        loc="upper left", ncol=2, alignment="left", frameon=False, fontsize=9,
+        handlelength=2.4, handletextpad=0.65, columnspacing=1.8, labelspacing=0.65)
+
+
 def _seasonal_reference_points(criteria, year=2016):
-    """Illustrate the approximate R-ZONE schedule; leave study audits unchanged."""
+    """Show seasonal levels with vertical switches at the two mid-month markers."""
     import pandas as pd
 
     seasons = {season["id"]: season for season in criteria["seasons"]}
@@ -54,30 +62,49 @@ def _seasonal_reference_points(criteria, year=2016):
     winter = (float(seasons["winter_hold"]["minimum_ft"])
               + float(seasons["winter_hold"]["maximum_ft"])) / 2
     summer = float(seasons["summer"]["maximum_ft"])
-    # R-ZONE says about April 1, mid-May and mid-October. May 15 and October 15
-    # visualize those approximate dates. November 1 is a display convention:
-    # the text does not specify the exact return date or either daily slope.
+    # The agreed display uses vertical switches on May 15 and October 15.
+    # Repeated dates make the transitions vertical without interpolating a
+    # daily target or changing the saved operation/audit settings.
     return pd.DatetimeIndex([
-        pd.Timestamp(year, 1, 1), pd.Timestamp(year, 4, 1),
+        pd.Timestamp(year, 1, 1), pd.Timestamp(year, 5, 15),
         pd.Timestamp(year, 5, 15), pd.Timestamp(year, 10, 15),
-        pd.Timestamp(year, 11, 1), pd.Timestamp(year, 12, 31),
+        pd.Timestamp(year, 10, 15), pd.Timestamp(year, 12, 31),
     ]), [winter, winter, summer, summer, winter, winter]
+
+
+def _reserve_legend_headroom(axes, lower, maximum, *, flow=False):
+    """Keep upper-left legends above all data, using actual rendered text size."""
+    from matplotlib.ticker import MaxNLocator
+
+    figure = axes[0].figure
+    figure.canvas.draw()
+    renderer = figure.canvas.get_renderer()
+    reserved = max(ax.get_legend().get_window_extent(renderer).height
+                   / ax.get_window_extent(renderer).height for ax in axes) + 0.09
+    if reserved >= 0.8:
+        raise ValueError("legend needs a taller panel at the required font size")
+    upper = lower + (maximum - lower) / (1 - reserved)
+    ticks = (MaxNLocator(nbins=3, min_n_ticks=3, steps=[1, 2, 5, 10])
+             .tick_values(0, upper)) if flow else None
+    for ax in axes:
+        ax.set_ylim(lower, upper)
+        if flow:
+            ax.set_yticks(ticks[ticks <= upper])
 
 
 def plot_reservoir_operations(daily, seasonal_criteria=None):
     """Return a paper-width figure of saved elevation and controlled release.
 
     The axes share dates but retain separate units. Each method has its own
-    release row, preserving the saved daily rates (m³/s), which exclude spill.
+    release row, converting saved m³/s to cfs for display, excluding spill.
     A shared inflow trace makes retention and drawdown visible beside release.
     Paper exports and the executed tutorial use this same renderer.
     """
     import matplotlib.dates as mdates
     import matplotlib.pyplot as plt
-    from matplotlib.ticker import MaxNLocator
     import pandas as pd
 
-    style = {"font.family": "Arial", "font.size": 10,
+    style = {"font.family": FIGURE_FONT_FAMILY, "font.size": 10,
              "axes.labelsize": 10, "axes.titlesize": 11,
              "xtick.labelsize": 9, "ytick.labelsize": 9,
              "pdf.fonttype": 42, "svg.fonttype": "none", "axes.grid": False}
@@ -88,9 +115,7 @@ def plot_reservoir_operations(daily, seasonal_criteria=None):
         elevation, *release_axes = axes
         fig.subplots_adjust(left=0.15, right=0.985, bottom=0.095,
                             top=0.955, hspace=0.43)
-        release_max = float(daily[["controlled_release_cms", "inflow_cms"]].max().max()) * 1.08
-        release_ticks = MaxNLocator(nbins=3, min_n_ticks=3).tick_values(0, release_max)
-        release_max = float(release_ticks[-1])
+        release_max = float(daily[["controlled_release_cms", "inflow_cms"]].max().max()) * CMS_TO_CFS
         for index, (method, label) in enumerate(LABELS.items()):
             rows = daily.loc[daily["method"].eq(method)]
             dates = pd.to_datetime(rows["date"])
@@ -100,21 +125,20 @@ def plot_reservoir_operations(daily, seasonal_criteria=None):
             release = release_axes[index]
             # Every bar has the same width in days. Avoid outlines and pixel
             # snapping, which can obscure gaps in a dense annual raster image.
-            release.bar(dates, rows["controlled_release_cms"], width=0.72,
+            release.bar(dates, rows["controlled_release_cms"] * CMS_TO_CFS, width=0.72,
                         color=color, linewidth=0, edgecolor="none",
                         antialiased=False, snap=False, zorder=3)
-            release.plot(dates, rows["inflow_cms"], color="#2878B5", linewidth=0.8,
+            release.plot(dates, rows["inflow_cms"] * CMS_TO_CFS, color="#2878B5", linewidth=0.8,
                          drawstyle="steps-mid", label="Upstream simulated inflow", zorder=4)
-            release.set(ylim=(0, release_max), yticks=release_ticks,
-                        ylabel="Water release\n(m³/s)")
+            release.set(ylim=(0, release_max), ylabel="Water release\n(cfs)")
             release.set_title(f"({chr(98 + index)}) Water release ({label})", loc="left", fontweight="bold")
-            release.legend(loc="upper right", frameon=False, fontsize=9,
+            release.legend(loc="upper left", frameon=False, fontsize=9,
                            handlelength=2.1, borderaxespad=0.35)
         if seasonal_criteria is None:
             seasonal_criteria = json.loads(SEASONAL_CRITERIA.read_text(encoding="utf-8"))
         seasonal_dates, seasonal_levels = _seasonal_reference_points(seasonal_criteria)
         elevation.plot(seasonal_dates, seasonal_levels, color="#111111", linestyle="--",
-                       linewidth=1.0, label="Seasonal reference (schematic)", zorder=5)
+                       linewidth=1.0, label="Seasonal pool reference", zorder=5)
         elevation.set(title="(a) Water elevation", ylabel="Water elevation\n(ft)")
         release_axes[-1].set_xlabel("Operation date (2016)")
         for ax in axes:
@@ -130,11 +154,11 @@ def plot_reservoir_operations(daily, seasonal_criteria=None):
         release_axes[-1].xaxis.set_major_locator(
             mdates.MonthLocator(bymonth=(1, 3, 5, 7, 9, 11)))
         release_axes[-1].xaxis.set_major_formatter(mdates.DateFormatter("%b"))
-        handles, labels = elevation.get_legend_handles_labels()
-        elevation.legend(handles, [_legend_label(label) for label in labels],
-                         loc="center", bbox_to_anchor=(0.52, 0.43),
-                         frameon=False, fontsize=9, handlelength=2.1,
-                         handletextpad=0.55, labelspacing=0.35)
+        _add_elevation_legend(elevation)
+        minimum = float(daily["pool_elevation_end_ft"].min()) - 5
+        maximum = max(float(daily["pool_elevation_end_ft"].max()), max(seasonal_levels))
+        _reserve_legend_headroom([elevation], minimum, maximum)
+        _reserve_legend_headroom(release_axes, 0, release_max, flow=True)
         return fig
 
 SETUP = '''from pathlib import Path
@@ -144,6 +168,7 @@ sys.path.insert(0, str(ROOT / "src"))
 sys.path.insert(0, str(ROOT))
 import pandas as pd
 import matplotlib.pyplot as plt
+from tutorials.build_notebooks import CMS_TO_CFS
 
 class ReadableText:
     def __init__(self, title, text):
@@ -187,7 +212,7 @@ def _prepare_current_outputs() -> dict:
     # Authoring size is the intended paper width, so fonts need no downscaling.
     # Embed TrueType fonts in PDF; keep SVG labels as editable text.
     paper_width_mm, raster_dpi = 180, 600
-    plt.rcParams.update({"font.family": "Arial", "font.size": 10,
+    plt.rcParams.update({"font.family": FIGURE_FONT_FAMILY, "font.size": 10,
                          "axes.titlesize": 10, "axes.labelsize": 10,
                          "xtick.labelsize": 9, "ytick.labelsize": 9,
                          "legend.fontsize": 9, "pdf.fonttype": 42,
@@ -264,12 +289,14 @@ def _prepare_current_outputs() -> dict:
     for label, group in combined.groupby("method_label", sort=False):
         ax.plot(pd.to_datetime(group["date"]), group["pool_elevation_end_ft"],
                 label=label, color=colors[label], linewidth=1.1)
-    _add_pool_level_guides(ax)
+    reference_dates, reference_levels = _seasonal_reference_points(seasonal_criteria)
+    ax.plot(reference_dates, reference_levels, color="#111111", linestyle="--",
+            linewidth=1.0, label="Seasonal pool reference")
     ax.set(ylabel="Water elevation (ft NGVD 29)", xlabel="2016",
            xlim=(pd.Timestamp(dates[0]), pd.Timestamp(dates[-1])))
-    handles, labels = ax.get_legend_handles_labels()
-    ax.legend(handles, [_legend_label(label) for label in labels], frameon=False,
-              loc="center", bbox_to_anchor=(0.61, 0.44), fontsize=9)
+    _add_elevation_legend(ax)
+    _reserve_legend_headroom([ax], float(combined["pool_elevation_end_ft"].min()) - 5,
+                             float(combined["pool_elevation_end_ft"].max()))
     ax.xaxis.set_major_locator(mdates.MonthLocator(interval=2))
     ax.xaxis.set_major_formatter(mdates.DateFormatter("%b"))
     _save_figure_formats(fig, "daily_water_elevation", figures, raster_dpi)
@@ -277,18 +304,19 @@ def _prepare_current_outputs() -> dict:
 
     fig, axes = plt.subplots(3, 1, figsize=(paper_width_mm / 25.4, 125 / 25.4),
                              sharex=True, sharey=True, layout="constrained")
-    ymax = float(combined[["controlled_release_cms", "inflow_cms"]].max().max()) * 1.04
+    ymax = float(combined[["controlled_release_cms", "inflow_cms"]].max().max()) * CMS_TO_CFS
     for panel, (ax, (label, group)) in enumerate(zip(
             axes, combined.groupby("method_label", sort=False), strict=True)):
-        ax.bar(pd.to_datetime(group["date"]), group["controlled_release_cms"],
+        ax.bar(pd.to_datetime(group["date"]), group["controlled_release_cms"] * CMS_TO_CFS,
                width=1, color=colors[label], linewidth=0)
-        ax.plot(pd.to_datetime(group["date"]), group["inflow_cms"],
+        ax.plot(pd.to_datetime(group["date"]), group["inflow_cms"] * CMS_TO_CFS,
                 color="#2878B5", linewidth=0.8, drawstyle="steps-mid",
                 label="Upstream simulated inflow")
-        ax.set(ylabel="Release (m³/s)", ylim=(0, ymax),
+        ax.set(ylabel="Water release (cfs)", ylim=(0, ymax),
                xlim=(pd.Timestamp(dates[0]), pd.Timestamp(dates[-1])))
         ax.set_title(f"({chr(97 + panel)}) {label}", loc="left", fontweight="bold", pad=4)
-    axes[0].legend(frameon=False, loc="upper right", fontsize=9)
+        ax.legend(frameon=False, loc="upper left", fontsize=9)
+    _reserve_legend_headroom(axes, 0, ymax, flow=True)
     axes[-1].set_xlabel("2016")
     axes[-1].xaxis.set_major_locator(mdates.MonthLocator(interval=2))
     axes[-1].xaxis.set_major_formatter(mdates.DateFormatter("%b"))
@@ -313,14 +341,19 @@ def _prepare_current_outputs() -> dict:
                                      **{chr(98 + index): f"Water release ({label})"
                                         for index, label in enumerate(LABELS.values())}},
                           "release_bar_width_days": 0.72,
-                          "common_inflow": "Blue upstream simulated daily step trace on every release panel; same flow units and dates.",
+                          "common_inflow": "Blue upstream simulated daily step trace on every release panel; cfs and common dates.",
                           "method_colors": METHOD_COLORS,
-                          "legend_placement": "Inside each panel, clear of saved curves and bars.",
+                          "legend_placement": (
+                              "Upper left inside each panel; measured y-axis headroom keeps legends above data. "
+                              "Elevation legend: two aligned columns, short reference entries above paired LLM labels."),
                           "seasonal_reference": (
-                              "Approximate R-ZONE timing: April 1 to mid-May (drawn May 15), "
-                              "then drawdown after mid-October (drawn October 15). November 1 "
-                              "is an illustrative return date, not specified by R-ZONE. "
-                              "Levels come from the study criteria; audit windows are unchanged.")},
+                              "Winter 1300 ft and summer 1370 ft references with vertical switches "
+                              "on May 15 and October 15, as agreed for the display. These mid-month "
+                              "markers summarize R-ZONE seasonal levels, not physical water-level jumps. "
+                              "Saved operation targets and study audit windows are unchanged.")},
+        "flow_display": {"unit": "cfs", "source_unit": "m3/s", "factor": CMS_TO_CFS,
+                         "cubic_foot_m3": 0.028316846592,
+                         "source_csv": "daily.csv retains its original *_cms values and units."},
         "units": {"inflow_cms": "m3/s", "controlled_release_cms": "m3/s",
                   "spill_cms": "m3/s", "pool_elevation_end_ft": "ft N.G.V.D.",
                   "storage_end_m3": "m3"},
@@ -431,7 +464,7 @@ for method, label in labels.items():
                          json.dumps(record["provider_request"]["messages"], indent=2, ensure_ascii=False)))
     display(ReadableText(f"{label}: saved reply", record["raw_provider_reply"]["message"]["content"]))
     display(pd.DataFrame([{"method": label, "saved date": pair["date"],
-                           "controlled release (m³/s)": record["physics"]["controlled_release_cms"],
+                           "controlled release (cfs)": record["physics"]["controlled_release_cms"] * CMS_TO_CFS,
                            "end elevation (ft)": record["physics"]["pool_elevation_end_ft"]}]))'''),
         md('''## 5. Compare the three current teaching trajectories
 
@@ -439,20 +472,21 @@ The builder combines Rule-based rows from `outputs/2016/daily.csv` with the two
 framework LLM rows from `outputs/gemma4_2016_comparison/daily.csv`. It verifies
 366 unique ordered dates per method, common inflow, shared initial state, and
 units. It performs no interpolation. Four panels share operation dates:
-(a) end-of-day water elevation in feet NGVD 29; (b–d) daily water release in m³/s,
+(a) end-of-day water elevation in feet NGVD 29; (b–d) daily water release in cfs,
 one method per panel. Water release means implemented controlled release and
 excludes spill. Blue lines show the upstream simulated inflow on the same flow scale.
 Release below inflow retains water; release above inflow draws from storage.
-The dashed R-ZONE reference illustrates a 1300 ft winter target, filling from
-about April 1 to mid-May, and a 1370 ft summer ceiling. Drawdown begins after
-mid-October; the drawn November 1 return is illustrative. The unchanged study
-audit windows remain separate and do not override releases.'''),
+The seasonal reference switches vertically between the 1300 ft winter target and
+1370 ft summer ceiling on May 15 and October 15. These mid-month markers summarize
+seasonal targets, rather than daily physical water-level changes. Saved operation
+and audit settings are unchanged. The source CSV retains m³/s.'''),
         code('''current = coupled / "outputs/current_tutorial"
 daily = pd.read_csv(current / "daily.csv")
 seasonal_criteria = json.loads((ROOT / "examples/fe_walter/seasonal_pool_criteria.json").read_text(encoding="utf-8"))
 provenance = json.loads((current / "provenance.json").read_text(encoding="utf-8"))
-display(daily.groupby("method_label", sort=False).agg(rows=("date", "size"),
-    unique_dates=("date", "nunique"), maximum_release_cms=("controlled_release_cms", "max")))
+display(daily.assign(controlled_release_cfs=daily["controlled_release_cms"] * CMS_TO_CFS)
+    .groupby("method_label", sort=False).agg(rows=("date", "size"),
+    unique_dates=("date", "nunique"), maximum_release_cfs=("controlled_release_cfs", "max")))
 display(pd.DataFrame(provenance["validation"]["methods"]).T)'''),
         code('''from tutorials.build_notebooks import plot_reservoir_operations
 fig = plot_reservoir_operations(daily, seasonal_criteria)

@@ -31,10 +31,11 @@ Storage also changes with inflow and spill, as shown by the
 1297–1303 ft on November 1–March 14; the summer ceiling applies on
 May 10–October 14. These study criteria do not override a release decision.
 
-The dashed reference follows the approximate [R-ZONE schedule](knowledge/operating_rules.md):
-fill from about April 1 to mid-May, then draw down after mid-October.
-The drawn May 15 and November 1 endpoints illustrate the transitions; R-ZONE
-does not specify an exact winter-return date. Study audit windows remain unchanged.
+The [R-ZONE reference](knowledge/operating_rules.md) shows 1300 ft in winter and
+1370 ft in summer, with vertical switches on May 15 and October 15. These
+mid-month markers summarize seasonal targets; they do not describe physical
+water-level jumps. Saved operation and audit settings remain unchanged.
+Flow is shown in cfs; the source CSV retains m³/s.
 
 Downloads: [combined CSV](coupled/outputs/current_tutorial/daily.csv),
 [provenance](coupled/outputs/current_tutorial/provenance.json),
@@ -52,9 +53,8 @@ and [`results_history.md`](results_history.md) for older experiments.
 
 ![2016 water elevation and controlled release](coupled/outputs/current_tutorial/reservoir_operations.png)
 
-**Figure 1.** Saved 2016 operations. (a) Daily end levels (ft NGVD29), with a
-schematic R-ZONE reference: 1300 ft winter target, rising from April to mid-May,
-and 1370 ft summer ceiling. The drawn November 1 return is illustrative.
-(b–d) Implemented water release (m³/s), excluding spill.
-Blue lines show the upstream simulated inflow on the same flow scale. Bars below the line
+**Figure 1.** Saved 2016 operations. (a) Daily end levels (ft NGVD29) and seasonal
+reference: 1300 ft winter target and 1370 ft summer ceiling, switching vertically
+on May 15 and October 15. (b–d) Implemented water release (cfs), excluding spill.
+Blue lines show upstream simulated inflow on the same scale. Bars below the line
 retain water; bars above it draw from storage. All panels share operation dates.

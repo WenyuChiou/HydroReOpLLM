@@ -65,12 +65,12 @@ Secondary standalone exports: [elevation SVG](outputs/current_tutorial/daily_wat
 
 ![Water elevation and controlled release](outputs/current_tutorial/reservoir_operations.png)
 
-**Figure 1.** Saved 2016 operations: (A) end-of-day water elevation in ft NGVD 29;
-(B) daily controlled release in m³/s, in three rows with identical flow scales
-and no spill. All axes share dates
-and method colors. Labeled guides mark the 1300 ft winter target and 1370 ft
-summer upper limit; see the [seasonal criteria](../README.md#seasonal-pool-levels)
-for their applicable dates and tolerance band.
+**Figure 1.** Saved 2016 operations: (a) end-of-day water elevation (ft NGVD29),
+with a seasonal reference switching between 1300 and 1370 ft on May 15 and October 15;
+(b–d) daily controlled release and blue upstream simulated inflow (cfs),
+with identical flow scales and no spill. Panels share dates and method colors.
+The [study audit criteria](../README.md#seasonal-pool-levels) retain their own
+confirmed windows and tolerance band. The source CSV retains m³/s.
 
 <a id="earlier-2016-configuration-preserved"></a>
 

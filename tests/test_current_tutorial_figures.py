@@ -146,8 +146,8 @@ def test_main_notebook_has_exactly_one_combined_result_figure():
     assert 'coupled/my-run.yaml' in markdown
     assert 'Blue lines show the upstream simulated inflow' in markdown
     assert 'Gray lines show the common inflow' not in markdown
-    assert 'dashed R-ZONE reference' in markdown
-    assert 'November 1 return is illustrative' in markdown
+    assert 'seasonal reference switches vertically' in markdown
+    assert 'May 15 and October 15' in markdown
 
 
 def test_current_figure_manifest_covers_exact_published_bytes():
@@ -162,6 +162,9 @@ def test_current_figure_manifest_covers_exact_published_bytes():
     }
     assert set(manifest['artifacts']) == expected
     assert manifest['figure_layout']['primary_height_mm'] == 160
+    assert manifest['flow_display']['unit'] == 'cfs'
+    assert manifest['flow_display']['source_unit'] == 'm3/s'
+    assert manifest['flow_display']['factor'] == pytest.approx(1 / 0.3048**3)
     assert 'no new daily or live-date context' in manifest['provenance_note']
     for name, digest in manifest['artifacts'].items():
         path = folder / name
@@ -201,12 +204,10 @@ def test_result_figures_keep_paper_width_fonts_and_editable_labels():
         for method in ('Rule-based', 'LLM without additional operating knowledge',
                        'LLM with additional operating knowledge'):
             assert method in labels, 'Method labels must remain editable text'
-        if stem == 'daily_water_elevation':
-            assert 'Winter target: 1300 ft' in labels
-            assert 'Summer limit: 1370 ft' in labels
-        if stem == 'reservoir_operations':
-            assert 'Seasonal reference (schematic)' in labels
-            assert 'Summer upper limit: 1370 ft' not in labels
+        if stem != 'controlled_release_daily':
+            assert 'Seasonal pool reference' in labels
+        if stem != 'daily_water_elevation':
+            assert 'cfs' in labels
         if stem != 'daily_water_elevation':
             assert 'Upstream simulated inflow' in labels
         with Image.open(folder / (stem + '.png')) as image:
@@ -216,7 +217,8 @@ def test_result_figures_keep_paper_width_fonts_and_editable_labels():
             assert image.info['dpi'][0] == pytest.approx(600, abs=1)
 
 
-def test_combined_figure_has_shared_calendar_exact_lines_and_three_release_rows():
+@pytest.mark.parametrize('font_family', ['Arial', 'DejaVu Sans'])
+def test_combined_figure_has_shared_calendar_exact_lines_and_three_release_rows(font_family):
     """The four panels must share dates and preserve every saved daily value."""
     import matplotlib.colors as mcolors
     import matplotlib.dates as mdates
@@ -228,6 +230,7 @@ def test_combined_figure_has_shared_calendar_exact_lines_and_three_release_rows(
     spec.loader.exec_module(builder)
     daily = pd.read_csv(OUTPUTS / 'current_tutorial/daily.csv')
     criteria = json.loads(CRITERIA.read_text(encoding='utf-8'))
+    builder.FIGURE_FONT_FAMILY = font_family
     figure = builder.plot_reservoir_operations(daily, criteria)
     axes = figure.axes
     try:
@@ -247,10 +250,11 @@ def test_combined_figure_has_shared_calendar_exact_lines_and_three_release_rows(
         assert list(data_lines) == expected_labels
         assert len(elevation.lines) == 4, 'Three methods and one seasonal schematic'
         seasonal = next(line for line in elevation.lines
-                        if line.get_label() == 'Seasonal reference (schematic)')
+                        if line.get_label() == 'Seasonal pool reference')
         assert pd.DatetimeIndex(seasonal.get_xdata()).strftime('%m-%d').tolist() == [
-            '01-01', '04-01', '05-15', '10-15', '11-01', '12-31']
-        assert list(seasonal.get_ydata()) == [1300, 1300, 1370, 1370, 1300, 1300]
+            '01-01', '05-15', '05-15', '10-15', '10-15', '12-31']
+        np.testing.assert_allclose(seasonal.get_ydata(),
+            [1300, 1300, 1370, 1370, 1300, 1300])
         assert not elevation.texts, 'Explain target levels in the caption, clear of the curves'
 
         release_limits = [release.get_ylim() for release in release_axes]
@@ -259,7 +263,7 @@ def test_combined_figure_has_shared_calendar_exact_lines_and_three_release_rows(
         assert all(np.array_equal(ticks, release_ticks[0]) for ticks in release_ticks)
         for index, (release, label) in enumerate(zip(release_axes, expected_labels, strict=True)):
             assert release.get_title(loc='left') == f'({chr(98 + index)}) Water release ({label})'
-            assert release.get_ylabel() == 'Water release\n(m³/s)'
+            assert release.get_ylabel() == 'Water release\n(cfs)'
             method = tuple(builder.LABELS)[index]
             expected = daily.loc[daily['method'] == method].copy()
             expected_dates = mdates.date2num(pd.to_datetime(expected['date']))
@@ -271,7 +275,7 @@ def test_combined_figure_has_shared_calendar_exact_lines_and_three_release_rows(
             np.testing.assert_allclose(
                 mdates.date2num(inflow.get_xdata()), expected_dates, rtol=0, atol=0)
             np.testing.assert_allclose(
-                inflow.get_ydata(), expected['inflow_cms'], rtol=0, atol=0)
+                inflow.get_ydata(), expected['inflow_cms'] / 0.3048**3, rtol=1e-14, atol=1e-12)
             assert max(inflow.get_ydata()) <= release.get_ylim()[1]
             line = data_lines[label]
             np.testing.assert_allclose(line.get_ydata(), expected['pool_elevation_end_ft'],
@@ -285,16 +289,21 @@ def test_combined_figure_has_shared_calendar_exact_lines_and_three_release_rows(
             np.testing.assert_allclose(centers, expected_dates, rtol=0, atol=1e-10)
             np.testing.assert_allclose(
                 [bar.get_height() for bar in release.patches],
-                expected['controlled_release_cms'], rtol=0, atol=0,
+                expected['controlled_release_cms'] / 0.3048**3, rtol=1e-14, atol=1e-12,
             )
             assert not release.texts, 'Method names belong in panel titles, not over the data'
 
         assert not figure.legends, 'Keep the figure height available to the four panels'
         legend = elevation.get_legend()
-        assert [' '.join(text.get_text().split()) for text in legend.get_texts()] == expected_labels + [
-            'Seasonal reference (schematic)']
+        assert [' '.join(text.get_text().split()) for text in legend.get_texts()] == [
+            expected_labels[0], expected_labels[1], 'Seasonal pool reference', expected_labels[2]]
         figure.canvas.draw()
         renderer = figure.canvas.get_renderer()
+        text_boxes = [text.get_window_extent(renderer) for text in legend.get_texts()]
+        assert text_boxes[0].y0 == pytest.approx(text_boxes[2].y0), 'Align the short top row'
+        assert text_boxes[1].y0 == pytest.approx(text_boxes[3].y0), 'Align the wrapped LLM row'
+        assert text_boxes[0].x0 == pytest.approx(text_boxes[1].x0), 'Align the left column'
+        assert text_boxes[2].x0 == pytest.approx(text_boxes[3].x0), 'Align the right column'
         for axis in axes:
             legend = axis.get_legend()
             assert legend is not None
@@ -302,15 +311,14 @@ def test_combined_figure_has_shared_calendar_exact_lines_and_three_release_rows(
             box = legend.get_window_extent(renderer)
             panel = axis.get_window_extent(renderer)
             assert panel.contains(box.x0, box.y0) and panel.contains(box.x1, box.y1)
-            # The transparent legend may span empty space between curves;
-            # its actual text must remain clear of every curve and bar.
-            for text in legend.get_texts():
-                text_box = text.get_window_extent(renderer)
-                for line in axis.lines:
-                    path = line.get_transform().transform_path(line.get_path())
-                    assert not path.intersects_bbox(text_box, filled=False)
-                assert not any(bar.get_window_extent(renderer).overlaps(text_box)
-                               for bar in axis.patches)
+            assert box.x0 - panel.x0 < panel.width * 0.03, 'Legend belongs in the upper left'
+            assert panel.y1 - box.y1 < panel.height * 0.08
+            for line in axis.lines:
+                path = line.get_transform().transform_path(line.get_path())
+                finite = path.vertices[np.isfinite(path.vertices).all(axis=1)]
+                assert finite[:, 1].max() < box.y0, 'Reserve headroom above all data'
+                assert not path.intersects_bbox(box, filled=False)
+            assert not any(bar.get_window_extent(renderer).overlaps(box) for bar in axis.patches)
         for release in release_axes:
             assert [text.get_text() for text in release.get_legend().get_texts()] == ['Upstream simulated inflow']
     finally:
