@@ -1,5 +1,5 @@
 {
-  "revision": "v15",
+  "revision": "v23 HydroReOpLLM branding, synchronized to the author-approved v22 workflow",
   "previous_quality_sha256": "ab6452efa986f4eeb2928dce046649fa36efc4a02dbac81c525b91c6dde704c7",
   "source_of_truth": "Native draw.io; historical generator does not reproduce this reviewed layout.",
   "correction_history": [
@@ -32,43 +32,134 @@
     "editability_test": "PASS final candidate copy label changed, audit icon moved and attached request-audit endpoint changed; reopened/exported in draw.io 26.0.4 and rendered PNG 0aac17ca inspected"
   },
   "current_visual_qa": {
-    "parent_pdf_render": "Complete full-width96dpi rendering inspected; complete frame,logo,labels and16routes visible.",
-    "html_preview": "1280x720 actual browser: figure loaded at4252px; no horizontaloverflow; currentPNG/PDF downloadsHTTP200. Seasonal table and2Copybuttons visible. Final conciseOverview recheck recorded in PR evidence.",
-    "independent_review": "See the final staged-diff review recorded in the PR/commit; historical reviews above do not certify this revision.",
-    "human_comprehension": "UNMEASURED",
-    "journal_compliance": "NOT CLAIMED"
+    "date": "2026-10-18",
+    "scope": "Parent image review of renamed approved workflow; no scientific or human-reader certification",
+    "png_px": [
+      4252,
+      2617
+    ],
+    "pdf_pages": 1,
+    "pdf_check_width_mm": 180,
+    "brand_visible": true,
+    "clipping_or_overlap_observed": false,
+    "earlier_records": "Preserved in the external research revision backup and historical_visual_qa."
   },
   "delivery": {
     "width_mm": 180,
     "png_pixels": [
       4252,
-      2492
+      2617
     ],
     "png_dpi": 600,
     "pdf_pages": 1
   },
   "color_semantics": {
-    "neutral": "Data sources/views; pale neutral package context.",
-    "blue": "Hydrological and reservoir calculations.",
-    "warm": "Decision generation; pale warm scope emphasizes the expanded LLM path.",
-    "sage": "Validation,assessment and recording;not PASS/FAIL."
+    "information": "neutral gray",
+    "physical_calculations": "blue",
+    "decision_generation": "warm orange",
+    "checks_and_records": "teal",
+    "pale_regions": "grouping and visual emphasis",
+    "dashed_outline": "optional component",
+    "icon_internal_colors": "illustration, not a separate category"
   },
   "artifacts": {
     "docs/figures/hydrocnhs-coupling-framework-en.drawio": {
-      "bytes": 15902103,
-      "sha256": "cdc75f87ffccbee20663bab9815d6a71d5940cf55138b96d094c5da4774bf187"
+      "bytes": 15910210,
+      "sha256": "1131d69f6d36452c8f96e92a1440e1eaee08aa0d4d981988997b7fa237c17288"
     },
     "docs/figures/hydrocnhs-coupling-framework-en.svg": {
-      "bytes": 16804170,
-      "sha256": "7b357b656bd39b91f6ee5abcf8729e10dfd922ba6f5d8a8f74cf144c6913200f"
+      "bytes": 17006427,
+      "sha256": "fd737a0f4ad88e2a55d970be6168a6fe88a4b191dc064765d18c8500cc034bee"
     },
     "docs/figures/hydrocnhs-coupling-framework-en.pdf": {
-      "bytes": 10336245,
-      "sha256": "0fbb06760aad665588d4c11d842d971499a39ada5fa6a87b8b70290e07a46338"
+      "bytes": 10259483,
+      "sha256": "769d1429ef9ae6fea04c37dffab14d904863d3ef7306a09fe93f7100784c1df6"
     },
     "docs/figures/hydrocnhs-coupling-framework-en.png": {
-      "bytes": 1023595,
-      "sha256": "09e3ff05097dcadd62609f9e7f6fac4772e8f58e2dbd994847c1904cbc2e5af9"
+      "bytes": 2003766,
+      "sha256": "3eff9d5491c011c3af5504841e867207056f0868f8e8a8a2a4a6c6699b14ba00"
     }
+  },
+  "branding_revision": {
+    "date": "2026-10-18",
+    "display_name": "HydroReOpLLM",
+    "previous_manifest_sha256": "f00ba24c3e814377fbc6fff763cd8aa1bd4558a533cd9129991dffb4322aeb22",
+    "scope": "Display text and fresh exports only; original historical source/commit records retained.",
+    "renderers": {
+      "diagrams": "draw.io Desktop",
+      "cover_social": "CairoSVG 2.9.0",
+      "pdf_width": "180 mm figure checking convention"
+    },
+    "current_files": {
+      "docs\\_static\\hydroopslm-social-preview.svg": {
+        "sha256": "f7ee0cd7ee438925f906e9021f3a76b3969296b73f9934e1778a86bd18781a18",
+        "bytes": 157049
+      },
+      "docs\\figures\\assets\\branding\\components\\dam-downstream.svg": {
+        "sha256": "b62bbdc7b8d8caa04e066eed5948dc81e56bc46fb2137255108c423388bbf8bf",
+        "bytes": 3980
+      },
+      "docs\\figures\\assets\\branding\\components\\dam-upstream.svg": {
+        "sha256": "ac827451e5fade753ca3b26a80227c7f3f496e058eac6607795b91ebbaa46449",
+        "bytes": 3895
+      },
+      "docs\\figures\\assets\\branding\\components\\llm-robot.svg": {
+        "sha256": "1639ded77583a36503e2d21ef9a6260d2511af9f9648f6868381def13f7925f9",
+        "bytes": 5581
+      },
+      "docs\\figures\\assets\\branding\\components\\reservoir-downstream.svg": {
+        "sha256": "dcfc2adef053e8cdffbd18dfae76bf4f847eacd2039a68ba06fa08896d4cd14d",
+        "bytes": 3307
+      },
+      "docs\\figures\\assets\\branding\\components\\reservoir-upstream.svg": {
+        "sha256": "3c9be7e7493a3d7ba90355912c5aec549c11c0804d9139e4a20cd9f79e3d02ce",
+        "bytes": 3368
+      },
+      "docs\\figures\\assets\\branding\\components\\river.svg": {
+        "sha256": "b696f74fcf8072978ab118b6c846c86d649fe7d71bb5c89fdb41a51091f24365",
+        "bytes": 3186
+      },
+      "docs\\figures\\assets\\branding\\components\\water-surface.svg": {
+        "sha256": "fa736fd7619a2d70fe379e673da5bc9fe7e6c1cabba97582a5d87da8850e87da",
+        "bytes": 1936
+      },
+      "docs\\figures\\assets\\branding\\hydroopslm-logo.svg": {
+        "sha256": "aecc300574c8728e17d123136a3d606e90a60cd973a183d69d08b8a48fba509a",
+        "bytes": 1671
+      },
+      "docs\\figures\\hydroopslm-cover.svg": {
+        "sha256": "d519b4b5d44f9f9dfe38d9a6816e0043b437ba20d23ab3d27662a60797ff1b5c",
+        "bytes": 156970
+      },
+      "docs\\figures\\hydrocnhs-coupling-framework-en.drawio": {
+        "sha256": "1131d69f6d36452c8f96e92a1440e1eaee08aa0d4d981988997b7fa237c17288",
+        "bytes": 15910210
+      },
+      "docs\\figures\\hydrocnhs-coupling-framework-en.svg": {
+        "sha256": "fd737a0f4ad88e2a55d970be6168a6fe88a4b191dc064765d18c8500cc034bee",
+        "bytes": 17006427
+      },
+      "docs\\figures\\hydrocnhs-coupling-framework-en.png": {
+        "sha256": "3eff9d5491c011c3af5504841e867207056f0868f8e8a8a2a4a6c6699b14ba00",
+        "bytes": 2003766
+      },
+      "docs\\figures\\hydrocnhs-coupling-framework-en.pdf": {
+        "sha256": "769d1429ef9ae6fea04c37dffab14d904863d3ef7306a09fe93f7100784c1df6",
+        "bytes": 10259483
+      },
+      "docs\\figures\\hydroopslm-cover.png": {
+        "sha256": "fade329b1e76f709c4acdf0720e55869e4dfffc6dd3168870bcafccf4fcca35a",
+        "bytes": 273025
+      },
+      "docs\\_static\\hydroopslm-social-preview.png": {
+        "sha256": "733c3de7c81772273778b2dd74b5b35cab90ed529548e2dd1c83f0e4657efe8e",
+        "bytes": 171155
+      },
+      "docs\\figures\\assets\\branding\\hydroopslm-cover-3600.png": {
+        "sha256": "1eb0206c60c1d484afe1a8711251f286058c2ea1e946f6880c3c4123a9ef49c7",
+        "bytes": 653890
+      }
+    },
+    "visual_review": "Parent inspected current native PNG and cropped one-page PDF renderings: brand visible, no clipping/overlap; paper workflow preserves approved geometry. No claim of human-reader or scientific validation."
   }
 }

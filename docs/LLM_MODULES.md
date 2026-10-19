@@ -77,7 +77,7 @@ the callback or its network dependencies. At run time, availability metadata
 cannot be later than the decision time. Returned values and provenance are copied
 before rendering and retained in the trace.
 
-A project can connect its own retrieval system here. HydroOpsLLM includes a local
+A project can connect its own retrieval system here. HydroReOpLLM includes a local
 JSON selection example and no bundled vector-database connector.
 
 ## Provider adapters

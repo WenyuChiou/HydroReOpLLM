@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:ns1="http://www.inkscape.org/namespaces/inkscape" width="1280" height="640" viewBox="0 0 1800 900" role="img" aria-labelledby="social-title social-description"><title id="social-title">HydroOpsLM, built on HydroCNHS</title><desc id="social-description">Selected reservoir and river cover, shown in full with solid margins for a two-to-one sharing card. Conceptual illustration; not simulation results.</desc><rect x="0" y="0" width="1800" height="900" fill="#FDFDFB" /><svg width="1800" height="600" viewBox="0 0 1800 600" version="1.1" role="img" aria-labelledby="title description" x="0" y="150">
-  <title id="title">HydroOpsLM illustrative watershed cover</title>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:ns1="http://www.inkscape.org/namespaces/inkscape" width="1280" height="640" viewBox="0 0 1800 900" role="img" aria-labelledby="social-title social-description"><title id="social-title">HydroReOpLLM, built on HydroCNHS</title><desc id="social-description">Selected reservoir and river cover, shown in full with solid margins for a two-to-one sharing card. Conceptual illustration; not simulation results.</desc><rect x="0" y="0" width="1800" height="900" fill="#FDFDFB" /><svg width="1800" height="600" viewBox="0 0 1800 600" version="1.1" role="img" aria-labelledby="title description" x="0" y="150">
+  <title id="title">HydroReOpLLM illustrative watershed cover</title>
   <desc id="description">Native editable illustration refining the reservoir-focus cover. Same original title, subtitle, attribution, basin, enlarged pools and dam-side LLM symbols. Layered hill slopes, sparse contour texture, shoreline trees and rocks, rounded robot housings, operation arms, water foam and shadows all use vector geometry. Light comes from the upper left; shadows fall toward the lower right. Gate openings and flows are illustrative, without quantitative claims.</desc>
   <defs>
     <linearGradient id="land-wash" x1="0" y1="0" x2="1" y2="0.65">
@@ -386,7 +386,7 @@
     </g>
   </g>
   <g id="project-title" ns1:label="project-title">
-    <text id="cover-title" x="75" y="285" font-family="Georgia" font-size="86" fill="#153E50" font-weight="normal" letter-spacing="-2.4" text-anchor="start">HydroOpsLM</text>
+    <text id="cover-title" x="75" y="285" font-family="Georgia" font-size="86" fill="#153E50" font-weight="normal" letter-spacing="-2.4" text-anchor="start">HydroReOpLLM</text>
   </g>
   <g id="project-subtitle" ns1:label="project-subtitle">
     <text id="coupled-subtitle-line-1" x="78" y="345" font-size="32" font-family="Georgia" fill="#52666C" font-weight="normal" text-anchor="start">Coupled human–water modeling</text>

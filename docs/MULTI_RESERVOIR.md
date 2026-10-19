@@ -128,7 +128,7 @@ The complete model catalog records selectable provider and model settings:
 Model names, provider settings, and sampling controls are configuration and
 provenance. They are not results. The user template is selected by `prompt_file`;
 the optional system template is selected by
-`customization.system_prompt_file`. HydroOpsLLM does not add a common system
+`customization.system_prompt_file`. HydroReOpLLM does not add a common system
 prompt.
 
 `check` renders the declared preview for `$guidance` without executing the local

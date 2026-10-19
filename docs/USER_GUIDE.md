@@ -2,7 +2,7 @@
 
 [English](USER_GUIDE.md) | [繁體中文](USER_GUIDE.zh-TW.md)
 
-Keep your accepted HydroCNHS hydrology. HydroOpsLLM adds reservoir storage,
+Keep your accepted HydroCNHS hydrology. HydroReOpLLM adds reservoir storage,
 water connections and an operator for each controlled reservoir. Follow the
 chapters below in order; each configuration chapter shows its complete file.
 
@@ -30,4 +30,4 @@ spill and remaining storage. The next day starts from that result.
 
 Use the [HydroCNHS tutorials](https://github.com/cylin928/HydroCNHS/tree/main/tutorials)
 for basin construction, parameter estimation, calibration and validation.
-This manual explains the reservoir and LLM functions added by HydroOpsLLM.
+This manual explains the reservoir and LLM functions added by HydroReOpLLM.

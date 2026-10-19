@@ -5,7 +5,7 @@ your own operation method and how to report its provenance.
 
 ## Framework name
 
-**HydroOpsLLM — Hydrological Simulation with Large Language Model Reservoir Operations.**
+**HydroReOpLLM — Hydrological Simulation with Large Language Model Reservoir Operations.**
 Hydro refers to hydrological simulation, Ops to reservoir operations, and LLM to
 large language models. The name identifies this extension; HydroCNHS retains its original name
 and attribution.
@@ -26,7 +26,7 @@ operation with retrieved knowledge. Historical machine IDs remain in provenance.
 
 ## Cite the original hydrological framework
 
-HydroOpsLLM uses HydroCNHS for hydrological modeling, river routing and the Dam API.
+HydroReOpLLM uses HydroCNHS for hydrological modeling, river routing and the Dam API.
 Use the [original HydroCNHS documentation](https://cylin928.github.io/HydroCNHS/)
 for those capabilities and cite its paper:
 
@@ -35,7 +35,7 @@ Hydrological Model for Coupled Natural Human Systems.” *Journal of Water
 Resources Planning and Management*, 148(12), 06022005.
 [DOI](https://doi.org/10.1061/(ASCE)WR.1943-5452.0001630).
 
-Record the HydroOpsLLM Git commit, input hashes and experiment settings separately.
+Record the HydroReOpLLM Git commit, input hashes and experiment settings separately.
 
 ## Cite the rule-based benchmark
 

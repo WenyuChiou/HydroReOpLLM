@@ -75,7 +75,7 @@ YAML 的 `preview` 值只供設定驗證使用。
 回傳值與來源紀錄會在代入模板前複製，並保存於 trace。
 
 專案可在此接入自己的檢索系統。
-HydroOpsLLM 提供本機 JSON 選取範例，沒有內建向量資料庫 connector。
+HydroReOpLLM 提供本機 JSON 選取範例，沒有內建向量資料庫 connector。
 
 ## Provider adapters
 

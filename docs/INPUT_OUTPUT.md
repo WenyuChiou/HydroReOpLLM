@@ -1,6 +1,6 @@
 # Configuration overview
 
-HydroOpsLLM keeps an accepted HydroCNHS model as the hydrology source and adds
+HydroReOpLLM keeps an accepted HydroCNHS model as the hydrology source and adds
 explicit files for reservoir physics, operation agents, model providers, and
 decision evidence. A new study follows this route:
 

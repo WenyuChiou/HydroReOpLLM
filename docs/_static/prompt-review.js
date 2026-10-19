@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       body.append(make('p', 'Same: system, retrieved text, schema and model settings. Different: user state/history and replies.', 'review-parity'));
       body.append(block('Actual user prompt differences · exact changed lines', day.user_differences, `${day.date}-user-differences.json`));
       const columns = make('div', undefined, 'review-columns');
-      [['anik', 'Anik'], ['hydroopsllm', 'HydroOpsLLM']].forEach(([key, name]) => {
+      [['anik', 'Anik'], ['hydroopsllm', 'HydroReOpLLM']].forEach(([key, name]) => {
         const record = day[key]; const section = make('section');
         section.append(make('h3', name));
         const prefix = `${day.date}-${key}`;
@@ -69,7 +69,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       body.append(make('p', 'The text below is a separate preview. Historical requests above remain unchanged.'));
       body.append(block('Daily seasonal context · same text for both engines', candidate.added_context, `${day.date}-proposed-context.txt`));
       body.append(block('Proposed Anik user prompt', candidate.anik_user_preview, `${day.date}-anik-proposed-user.txt`));
-      body.append(block('Proposed HydroOpsLLM user prompt', candidate.hydroopsllm_user_preview, `${day.date}-hydroopsllm-proposed-user.txt`));
+      body.append(block('Proposed HydroReOpLLM user prompt', candidate.hydroopsllm_user_preview, `${day.date}-hydroopsllm-proposed-user.txt`));
     }
     select.addEventListener('change', show); show();
   } catch (error) { root.textContent = `${error.message} Use the complete evidence download below.`; }

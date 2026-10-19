@@ -1,4 +1,4 @@
-# HydroOpsLLM 使用手冊
+# HydroReOpLLM 使用手冊
 
 [English](index.md) | [繁體中文](index.zh-TW.md)
 
@@ -6,7 +6,7 @@
 
 在 HydroCNHS 模擬上加入 LLM 水庫操作。先逐步了解共通設定，再依完整案例調整為自己的研究。
 
-![HydroOpsLLM 封面](figures/hydroopslm-cover.png)
+![HydroReOpLLM 封面](figures/hydroopslm-cover.png)
 
 ## 目錄
 

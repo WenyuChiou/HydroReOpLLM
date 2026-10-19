@@ -1,10 +1,10 @@
 {
-  "project": "HydroOpsLLM",
-  "status": "user_approved_cover_typography_pending_repository_integration",
+  "project": "HydroReOpLLM",
+  "status": "current_name_revision_reviewed_draft",
   "attribution": "Built on HydroCNHS",
   "master": "docs/figures/hydroopslm-cover.svg",
-  "authoring": "native SVG paths/groups/text; original CairoSVG exports; current cover Inkscape 1.4 exports",
-  "logo": "Existing reservoir\u2013dam\u2013river project mark; placement scale removed for independent use",
+  "authoring": "Native SVG master; current cover/social exports recorded as CairoSVG 2.9.0; diagrams exported by draw.io Desktop.",
+  "logo": "Existing reservoir–dam–river project mark; placement scale removed for independent use",
   "scientific_scope": "Conceptual illustration; gate openings and flow widths do not represent measured or simulated data",
   "fonts": [
     "Georgia",
@@ -16,23 +16,23 @@
   "files": [
     {
       "file": "docs/figures/hydroopslm-cover.svg",
-      "sha256": "a18b0defa628aab5c6a749ed605412739d9b8b0a18494be621083eb35316d850",
-      "bytes": 156968
+      "sha256": "d519b4b5d44f9f9dfe38d9a6816e0043b437ba20d23ab3d27662a60797ff1b5c",
+      "bytes": 156970
     },
     {
       "file": "docs/figures/hydroopslm-cover.png",
-      "sha256": "9834ecfc17eb13e6a02d3d02d03672eb2a40a68f6c931dff4b841db4d5006f20",
-      "bytes": 311893
+      "sha256": "fade329b1e76f709c4acdf0720e55869e4dfffc6dd3168870bcafccf4fcca35a",
+      "bytes": 273025
     },
     {
       "file": "docs/figures/assets/branding/hydroopslm-cover-3600.png",
-      "sha256": "c3b05fc19dd474549cd2fee4a114d82bb3955fce6aca5d51c59885743e492b42",
-      "bytes": 748091
+      "sha256": "1eb0206c60c1d484afe1a8711251f286058c2ea1e946f6880c3c4123a9ef49c7",
+      "bytes": 653890
     },
     {
       "file": "docs/figures/assets/branding/hydroopslm-logo.svg",
-      "sha256": "a27a182a8895171dcb50d67ea55a0573d9ec1a560907195c6ffd9d69fbabf17f",
-      "bytes": 1669
+      "sha256": "aecc300574c8728e17d123136a3d606e90a60cd973a183d69d08b8a48fba509a",
+      "bytes": 1671
     },
     {
       "file": "docs/figures/assets/branding/hydroopslm-logo.png",
@@ -56,38 +56,38 @@
     },
     {
       "file": "docs/figures/assets/branding/components/dam-upstream.svg",
-      "sha256": "80cedaf0af61bd5609fe19230d796c8023a71d8477c11911fcdfc9116b4516c3",
-      "bytes": 3893
+      "sha256": "ac827451e5fade753ca3b26a80227c7f3f496e058eac6607795b91ebbaa46449",
+      "bytes": 3895
     },
     {
       "file": "docs/figures/assets/branding/components/dam-downstream.svg",
-      "sha256": "37e3a99714fc9c96fe700a5bb2f7d64510e755447210c378599a3230b7e97fd5",
-      "bytes": 3978
+      "sha256": "b62bbdc7b8d8caa04e066eed5948dc81e56bc46fb2137255108c423388bbf8bf",
+      "bytes": 3980
     },
     {
       "file": "docs/figures/assets/branding/components/llm-robot.svg",
-      "sha256": "9908dba456fec22c6ce667fd505786e9d9261c9f4fd8c3aec1052bfb7fdc599e",
-      "bytes": 5579
+      "sha256": "1639ded77583a36503e2d21ef9a6260d2511af9f9648f6868381def13f7925f9",
+      "bytes": 5581
     },
     {
       "file": "docs/figures/assets/branding/components/reservoir-upstream.svg",
-      "sha256": "2140a5dcd6834952156814d6e62edc848ec46a05fabd137debf19cf5e2dd69da",
-      "bytes": 3366
+      "sha256": "3c9be7e7493a3d7ba90355912c5aec549c11c0804d9139e4a20cd9f79e3d02ce",
+      "bytes": 3368
     },
     {
       "file": "docs/figures/assets/branding/components/reservoir-downstream.svg",
-      "sha256": "6828279e896ba51323a872f767d7e4fdaa2b8fd6bb77cd1a9d50eee0ac3dc1f9",
-      "bytes": 3305
+      "sha256": "dcfc2adef053e8cdffbd18dfae76bf4f847eacd2039a68ba06fa08896d4cd14d",
+      "bytes": 3307
     },
     {
       "file": "docs/figures/assets/branding/components/water-surface.svg",
-      "sha256": "92fb3b7e9308c7be161d58a57dd6e065d0061d868588991a5d0e3fe85aaef0a2",
-      "bytes": 1934
+      "sha256": "fa736fd7619a2d70fe379e673da5bc9fe7e6c1cabba97582a5d87da8850e87da",
+      "bytes": 1936
     },
     {
       "file": "docs/figures/assets/branding/components/river.svg",
-      "sha256": "3f2e6f45097613070a24c7ae312bada4fe858aedfe8d34d80e7d255a3b8cae10",
-      "bytes": 3184
+      "sha256": "b696f74fcf8072978ab118b6c846c86d649fe7d71bb5c89fdb41a51091f24365",
+      "bytes": 3186
     }
   ],
   "typography_revision": {
@@ -101,5 +101,381 @@
     ],
     "historical_drawio": "Embedded PNG plus two labels; not current illustration master"
   },
-  "typography_approved_on": "2026-10-16"
+  "typography_approved_on": "2026-10-16",
+  "branding_revision": {
+    "date": "2026-10-18",
+    "display_name": "HydroReOpLLM",
+    "previous_manifest_sha256": "6061cdb67f9dd10b0db6d2d7a8b938b18e5c8f7bc0ec2274f92f6bbf1d1b4bf0",
+    "scope": "Display text and fresh exports only; original historical source/commit records retained.",
+    "renderers": {
+      "diagrams": "draw.io Desktop",
+      "cover_social": "CairoSVG 2.9.0",
+      "pdf_width": "180 mm figure checking convention"
+    },
+    "current_files": {
+      "docs/_static/hydroopslm-social-preview.svg": {
+        "sha256": "f7ee0cd7ee438925f906e9021f3a76b3969296b73f9934e1778a86bd18781a18",
+        "bytes": 157049
+      },
+      "docs/figures/assets/branding/components/dam-downstream.svg": {
+        "sha256": "b62bbdc7b8d8caa04e066eed5948dc81e56bc46fb2137255108c423388bbf8bf",
+        "bytes": 3980
+      },
+      "docs/figures/assets/branding/components/dam-upstream.svg": {
+        "sha256": "ac827451e5fade753ca3b26a80227c7f3f496e058eac6607795b91ebbaa46449",
+        "bytes": 3895
+      },
+      "docs/figures/assets/branding/components/llm-robot.svg": {
+        "sha256": "1639ded77583a36503e2d21ef9a6260d2511af9f9648f6868381def13f7925f9",
+        "bytes": 5581
+      },
+      "docs/figures/assets/branding/components/reservoir-downstream.svg": {
+        "sha256": "dcfc2adef053e8cdffbd18dfae76bf4f847eacd2039a68ba06fa08896d4cd14d",
+        "bytes": 3307
+      },
+      "docs/figures/assets/branding/components/reservoir-upstream.svg": {
+        "sha256": "3c9be7e7493a3d7ba90355912c5aec549c11c0804d9139e4a20cd9f79e3d02ce",
+        "bytes": 3368
+      },
+      "docs/figures/assets/branding/components/river.svg": {
+        "sha256": "b696f74fcf8072978ab118b6c846c86d649fe7d71bb5c89fdb41a51091f24365",
+        "bytes": 3186
+      },
+      "docs/figures/assets/branding/components/water-surface.svg": {
+        "sha256": "fa736fd7619a2d70fe379e673da5bc9fe7e6c1cabba97582a5d87da8850e87da",
+        "bytes": 1936
+      },
+      "docs/figures/assets/branding/hydroopslm-logo.svg": {
+        "sha256": "aecc300574c8728e17d123136a3d606e90a60cd973a183d69d08b8a48fba509a",
+        "bytes": 1671
+      },
+      "docs/figures/hydroopslm-cover.svg": {
+        "sha256": "d519b4b5d44f9f9dfe38d9a6816e0043b437ba20d23ab3d27662a60797ff1b5c",
+        "bytes": 156970
+      },
+      "docs/figures/hydrocnhs-coupling-framework-en.drawio": {
+        "sha256": "1131d69f6d36452c8f96e92a1440e1eaee08aa0d4d981988997b7fa237c17288",
+        "bytes": 15910210
+      },
+      "docs/figures/hydrocnhs-coupling-framework-en.svg": {
+        "sha256": "fd737a0f4ad88e2a55d970be6168a6fe88a4b191dc064765d18c8500cc034bee",
+        "bytes": 17006427
+      },
+      "docs/figures/hydrocnhs-coupling-framework-en.png": {
+        "sha256": "3eff9d5491c011c3af5504841e867207056f0868f8e8a8a2a4a6c6699b14ba00",
+        "bytes": 2003766
+      },
+      "docs/figures/hydrocnhs-coupling-framework-en.pdf": {
+        "sha256": "769d1429ef9ae6fea04c37dffab14d904863d3ef7306a09fe93f7100784c1df6",
+        "bytes": 10259483
+      },
+      "docs/figures/hydroopslm-cover.png": {
+        "sha256": "fade329b1e76f709c4acdf0720e55869e4dfffc6dd3168870bcafccf4fcca35a",
+        "bytes": 273025
+      },
+      "docs/_static/hydroopslm-social-preview.png": {
+        "sha256": "733c3de7c81772273778b2dd74b5b35cab90ed529548e2dd1c83f0e4657efe8e",
+        "bytes": 171155
+      },
+      "docs/figures/assets/branding/hydroopslm-cover-3600.png": {
+        "sha256": "1eb0206c60c1d484afe1a8711251f286058c2ea1e946f6880c3c4123a9ef49c7",
+        "bytes": 653890
+      }
+    },
+    "visual_review": "Parent inspected current native PNG and cropped one-page PDF renderings: brand visible, no clipping/overlap; paper workflow preserves approved geometry. No claim of human-reader or scientific validation."
+  },
+  "historical_records": {
+    "before_name_change": {
+      "project": "HydroOpsLLM",
+      "status": "user_approved_cover_typography_pending_repository_integration",
+      "attribution": "Built on HydroCNHS",
+      "master": "docs/figures/hydroopslm-cover.svg",
+      "authoring": "native SVG paths/groups/text; original CairoSVG exports; current cover Inkscape 1.4 exports",
+      "logo": "Existing reservoir–dam–river project mark; placement scale removed for independent use",
+      "scientific_scope": "Conceptual illustration; gate openings and flow widths do not represent measured or simulated data",
+      "fonts": [
+        "Georgia",
+        "Segoe UI"
+      ],
+      "component_scope": "native compound groups with self-contained viewBox/defs and per-component ID prefixes",
+      "external_image_generation_used": false,
+      "cross_editor_import_tested": false,
+      "files": [
+        {
+          "file": "docs/figures/hydroopslm-cover.svg",
+          "sha256": "a18b0defa628aab5c6a749ed605412739d9b8b0a18494be621083eb35316d850",
+          "bytes": 156968
+        },
+        {
+          "file": "docs/figures/hydroopslm-cover.png",
+          "sha256": "9834ecfc17eb13e6a02d3d02d03672eb2a40a68f6c931dff4b841db4d5006f20",
+          "bytes": 311893
+        },
+        {
+          "file": "docs/figures/assets/branding/hydroopslm-cover-3600.png",
+          "sha256": "c3b05fc19dd474549cd2fee4a114d82bb3955fce6aca5d51c59885743e492b42",
+          "bytes": 748091
+        },
+        {
+          "file": "docs/figures/assets/branding/hydroopslm-logo.svg",
+          "sha256": "a27a182a8895171dcb50d67ea55a0573d9ec1a560907195c6ffd9d69fbabf17f",
+          "bytes": 1669
+        },
+        {
+          "file": "docs/figures/assets/branding/hydroopslm-logo.png",
+          "sha256": "818f3ac729d4cbc39a7fbae6f4848ba53c8c9c248b85302ba0c82f876f2ef86f",
+          "bytes": 42964
+        },
+        {
+          "file": "docs/figures/assets/branding/logo-64.png",
+          "sha256": "0253b9cf42222289dd5a79d0b49e24bafca867e8650b0b611dca1ab17c95b4ba",
+          "bytes": 2277
+        },
+        {
+          "file": "docs/figures/assets/branding/logo-32.png",
+          "sha256": "fde0d348368f52d873a791380c0aa1c1299eb2f834cbfa680c7d02ab384359fa",
+          "bytes": 1117
+        },
+        {
+          "file": "docs/figures/assets/branding/components-preview.png",
+          "sha256": "c44e742c59bb434efbdfaf2c7624383d3dbcd7966c4e94d2f7fafb180fc31f1a",
+          "bytes": 96454
+        },
+        {
+          "file": "docs/figures/assets/branding/components/dam-upstream.svg",
+          "sha256": "80cedaf0af61bd5609fe19230d796c8023a71d8477c11911fcdfc9116b4516c3",
+          "bytes": 3893
+        },
+        {
+          "file": "docs/figures/assets/branding/components/dam-downstream.svg",
+          "sha256": "37e3a99714fc9c96fe700a5bb2f7d64510e755447210c378599a3230b7e97fd5",
+          "bytes": 3978
+        },
+        {
+          "file": "docs/figures/assets/branding/components/llm-robot.svg",
+          "sha256": "9908dba456fec22c6ce667fd505786e9d9261c9f4fd8c3aec1052bfb7fdc599e",
+          "bytes": 5579
+        },
+        {
+          "file": "docs/figures/assets/branding/components/reservoir-upstream.svg",
+          "sha256": "2140a5dcd6834952156814d6e62edc848ec46a05fabd137debf19cf5e2dd69da",
+          "bytes": 3366
+        },
+        {
+          "file": "docs/figures/assets/branding/components/reservoir-downstream.svg",
+          "sha256": "6828279e896ba51323a872f767d7e4fdaa2b8fd6bb77cd1a9d50eee0ac3dc1f9",
+          "bytes": 3305
+        },
+        {
+          "file": "docs/figures/assets/branding/components/water-surface.svg",
+          "sha256": "92fb3b7e9308c7be161d58a57dd6e065d0061d868588991a5d0e3fe85aaef0a2",
+          "bytes": 1934
+        },
+        {
+          "file": "docs/figures/assets/branding/components/river.svg",
+          "sha256": "3f2e6f45097613070a24c7ae312bada4fe858aedfe8d34d80e7d255a3b8cae10",
+          "bytes": 3184
+        }
+      ],
+      "typography_revision": {
+        "title_px": 100,
+        "subtitle_px": 40,
+        "credit_px": 32,
+        "all_non_text_geometry_unchanged": true,
+        "rendered_font_fallbacks": [
+          "Noto Serif",
+          "OpenAI Sans"
+        ],
+        "historical_drawio": "Embedded PNG plus two labels; not current illustration master"
+      },
+      "typography_approved_on": "2026-10-16"
+    },
+    "incoming_name_revision_before_consistency_review": {
+      "project": "HydroReOpLLM",
+      "status": "user_approved_cover_typography_pending_repository_integration",
+      "attribution": "Built on HydroCNHS",
+      "master": "docs/figures/hydroopslm-cover.svg",
+      "authoring": "native SVG paths/groups/text; original CairoSVG exports; current cover Inkscape 1.4 exports",
+      "logo": "Existing reservoir–dam–river project mark; placement scale removed for independent use",
+      "scientific_scope": "Conceptual illustration; gate openings and flow widths do not represent measured or simulated data",
+      "fonts": [
+        "Georgia",
+        "Segoe UI"
+      ],
+      "component_scope": "native compound groups with self-contained viewBox/defs and per-component ID prefixes",
+      "external_image_generation_used": false,
+      "cross_editor_import_tested": false,
+      "files": [
+        {
+          "file": "docs/figures/hydroopslm-cover.svg",
+          "sha256": "d519b4b5d44f9f9dfe38d9a6816e0043b437ba20d23ab3d27662a60797ff1b5c",
+          "bytes": 156970
+        },
+        {
+          "file": "docs/figures/hydroopslm-cover.png",
+          "sha256": "fade329b1e76f709c4acdf0720e55869e4dfffc6dd3168870bcafccf4fcca35a",
+          "bytes": 273025
+        },
+        {
+          "file": "docs/figures/assets/branding/hydroopslm-cover-3600.png",
+          "sha256": "1eb0206c60c1d484afe1a8711251f286058c2ea1e946f6880c3c4123a9ef49c7",
+          "bytes": 653890
+        },
+        {
+          "file": "docs/figures/assets/branding/hydroopslm-logo.svg",
+          "sha256": "a27a182a8895171dcb50d67ea55a0573d9ec1a560907195c6ffd9d69fbabf17f",
+          "bytes": 1669
+        },
+        {
+          "file": "docs/figures/assets/branding/hydroopslm-logo.png",
+          "sha256": "818f3ac729d4cbc39a7fbae6f4848ba53c8c9c248b85302ba0c82f876f2ef86f",
+          "bytes": 42964
+        },
+        {
+          "file": "docs/figures/assets/branding/logo-64.png",
+          "sha256": "0253b9cf42222289dd5a79d0b49e24bafca867e8650b0b611dca1ab17c95b4ba",
+          "bytes": 2277
+        },
+        {
+          "file": "docs/figures/assets/branding/logo-32.png",
+          "sha256": "fde0d348368f52d873a791380c0aa1c1299eb2f834cbfa680c7d02ab384359fa",
+          "bytes": 1117
+        },
+        {
+          "file": "docs/figures/assets/branding/components-preview.png",
+          "sha256": "c44e742c59bb434efbdfaf2c7624383d3dbcd7966c4e94d2f7fafb180fc31f1a",
+          "bytes": 96454
+        },
+        {
+          "file": "docs/figures/assets/branding/components/dam-upstream.svg",
+          "sha256": "80cedaf0af61bd5609fe19230d796c8023a71d8477c11911fcdfc9116b4516c3",
+          "bytes": 3893
+        },
+        {
+          "file": "docs/figures/assets/branding/components/dam-downstream.svg",
+          "sha256": "37e3a99714fc9c96fe700a5bb2f7d64510e755447210c378599a3230b7e97fd5",
+          "bytes": 3978
+        },
+        {
+          "file": "docs/figures/assets/branding/components/llm-robot.svg",
+          "sha256": "9908dba456fec22c6ce667fd505786e9d9261c9f4fd8c3aec1052bfb7fdc599e",
+          "bytes": 5579
+        },
+        {
+          "file": "docs/figures/assets/branding/components/reservoir-upstream.svg",
+          "sha256": "2140a5dcd6834952156814d6e62edc848ec46a05fabd137debf19cf5e2dd69da",
+          "bytes": 3366
+        },
+        {
+          "file": "docs/figures/assets/branding/components/reservoir-downstream.svg",
+          "sha256": "6828279e896ba51323a872f767d7e4fdaa2b8fd6bb77cd1a9d50eee0ac3dc1f9",
+          "bytes": 3305
+        },
+        {
+          "file": "docs/figures/assets/branding/components/water-surface.svg",
+          "sha256": "92fb3b7e9308c7be161d58a57dd6e065d0061d868588991a5d0e3fe85aaef0a2",
+          "bytes": 1934
+        },
+        {
+          "file": "docs/figures/assets/branding/components/river.svg",
+          "sha256": "3f2e6f45097613070a24c7ae312bada4fe858aedfe8d34d80e7d255a3b8cae10",
+          "bytes": 3184
+        }
+      ],
+      "typography_revision": {
+        "title_px": 100,
+        "subtitle_px": 40,
+        "credit_px": 32,
+        "all_non_text_geometry_unchanged": true,
+        "rendered_font_fallbacks": [
+          "Noto Serif",
+          "OpenAI Sans"
+        ],
+        "historical_drawio": "Embedded PNG plus two labels; not current illustration master"
+      },
+      "typography_approved_on": "2026-10-16",
+      "branding_revision": {
+        "date": "2026-10-18",
+        "display_name": "HydroReOpLLM",
+        "previous_manifest_sha256": "6061cdb67f9dd10b0db6d2d7a8b938b18e5c8f7bc0ec2274f92f6bbf1d1b4bf0",
+        "scope": "Display text and fresh exports only; original historical source/commit records retained.",
+        "renderers": {
+          "diagrams": "draw.io Desktop",
+          "cover_social": "CairoSVG 2.9.0",
+          "pdf_width": "180 mm figure checking convention"
+        },
+        "current_files": {
+          "docs\\_static\\hydroopslm-social-preview.svg": {
+            "sha256": "f7ee0cd7ee438925f906e9021f3a76b3969296b73f9934e1778a86bd18781a18",
+            "bytes": 157049
+          },
+          "docs\\figures\\assets\\branding\\components\\dam-downstream.svg": {
+            "sha256": "b62bbdc7b8d8caa04e066eed5948dc81e56bc46fb2137255108c423388bbf8bf",
+            "bytes": 3980
+          },
+          "docs\\figures\\assets\\branding\\components\\dam-upstream.svg": {
+            "sha256": "ac827451e5fade753ca3b26a80227c7f3f496e058eac6607795b91ebbaa46449",
+            "bytes": 3895
+          },
+          "docs\\figures\\assets\\branding\\components\\llm-robot.svg": {
+            "sha256": "1639ded77583a36503e2d21ef9a6260d2511af9f9648f6868381def13f7925f9",
+            "bytes": 5581
+          },
+          "docs\\figures\\assets\\branding\\components\\reservoir-downstream.svg": {
+            "sha256": "dcfc2adef053e8cdffbd18dfae76bf4f847eacd2039a68ba06fa08896d4cd14d",
+            "bytes": 3307
+          },
+          "docs\\figures\\assets\\branding\\components\\reservoir-upstream.svg": {
+            "sha256": "3c9be7e7493a3d7ba90355912c5aec549c11c0804d9139e4a20cd9f79e3d02ce",
+            "bytes": 3368
+          },
+          "docs\\figures\\assets\\branding\\components\\river.svg": {
+            "sha256": "b696f74fcf8072978ab118b6c846c86d649fe7d71bb5c89fdb41a51091f24365",
+            "bytes": 3186
+          },
+          "docs\\figures\\assets\\branding\\components\\water-surface.svg": {
+            "sha256": "fa736fd7619a2d70fe379e673da5bc9fe7e6c1cabba97582a5d87da8850e87da",
+            "bytes": 1936
+          },
+          "docs\\figures\\assets\\branding\\hydroopslm-logo.svg": {
+            "sha256": "aecc300574c8728e17d123136a3d606e90a60cd973a183d69d08b8a48fba509a",
+            "bytes": 1671
+          },
+          "docs\\figures\\hydroopslm-cover.svg": {
+            "sha256": "d519b4b5d44f9f9dfe38d9a6816e0043b437ba20d23ab3d27662a60797ff1b5c",
+            "bytes": 156970
+          },
+          "docs\\figures\\hydrocnhs-coupling-framework-en.drawio": {
+            "sha256": "1131d69f6d36452c8f96e92a1440e1eaee08aa0d4d981988997b7fa237c17288",
+            "bytes": 15910210
+          },
+          "docs\\figures\\hydrocnhs-coupling-framework-en.svg": {
+            "sha256": "fd737a0f4ad88e2a55d970be6168a6fe88a4b191dc064765d18c8500cc034bee",
+            "bytes": 17006427
+          },
+          "docs\\figures\\hydrocnhs-coupling-framework-en.png": {
+            "sha256": "3eff9d5491c011c3af5504841e867207056f0868f8e8a8a2a4a6c6699b14ba00",
+            "bytes": 2003766
+          },
+          "docs\\figures\\hydrocnhs-coupling-framework-en.pdf": {
+            "sha256": "769d1429ef9ae6fea04c37dffab14d904863d3ef7306a09fe93f7100784c1df6",
+            "bytes": 10259483
+          },
+          "docs\\figures\\hydroopslm-cover.png": {
+            "sha256": "fade329b1e76f709c4acdf0720e55869e4dfffc6dd3168870bcafccf4fcca35a",
+            "bytes": 273025
+          },
+          "docs\\_static\\hydroopslm-social-preview.png": {
+            "sha256": "733c3de7c81772273778b2dd74b5b35cab90ed529548e2dd1c83f0e4657efe8e",
+            "bytes": 171155
+          },
+          "docs\\figures\\assets\\branding\\hydroopslm-cover-3600.png": {
+            "sha256": "1eb0206c60c1d484afe1a8711251f286058c2ea1e946f6880c3c4123a9ef49c7",
+            "bytes": 653890
+          }
+        },
+        "visual_review": "Parent inspected current native PNG and cropped one-page PDF renderings: brand visible, no clipping/overlap; paper workflow preserves approved geometry. No claim of human-reader or scientific validation."
+      }
+    }
+  }
 }

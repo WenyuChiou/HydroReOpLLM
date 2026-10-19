@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="320" height="183" viewBox="0 0 320 183" version="1.1" role="img" aria-labelledby="asset-reservoir-downstream-reservoir-downstream-title asset-reservoir-downstream-reservoir-downstream-description">
-  <title id="asset-reservoir-downstream-reservoir-downstream-title">HydroOpsLM native component: reservoir-downstream</title>
+  <title id="asset-reservoir-downstream-reservoir-downstream-title">HydroReOpLLM native component: reservoir-downstream</title>
   <desc id="asset-reservoir-downstream-reservoir-downstream-description">Compound native SVG group extracted without redesign from the illustrative cover. Transparent, self-contained viewBox and namespaced IDs; no bitmap. Import/drag behavior in other editors has not been tested.</desc>
   <defs>
     <linearGradient id="asset-reservoir-downstream-lake-depth" x1="0" y1="0" x2="1" y2="1">

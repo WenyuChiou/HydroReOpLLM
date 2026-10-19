@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="1800" height="600" viewBox="0 0 1800 600" version="1.1" role="img" aria-labelledby="title description">
-  <title id="title">HydroOpsLLM illustrative watershed cover</title>
+  <title id="title">HydroReOpLLM illustrative watershed cover</title>
   <desc id="description">Native editable illustration refining the reservoir-focus cover. Same original title, subtitle, attribution, basin, enlarged pools and dam-side LLM symbols. Layered hill slopes, sparse contour texture, shoreline trees and rocks, rounded robot housings, operation arms, water foam and shadows all use vector geometry. Light comes from the upper left; shadows fall toward the lower right. Gate openings and flows are illustrative, without quantitative claims.</desc>
   <defs>
     <linearGradient id="land-wash" x1="0" y1="0" x2="1" y2="0.65">
@@ -386,7 +386,7 @@
     </g>
   </g>
   <g id="project-title" inkscape:label="project-title">
-    <text id="cover-title" x="75" y="279" font-family="Georgia" font-size="100" fill="#153E50" font-weight="normal" letter-spacing="-2.4" text-anchor="start">HydroOpsLLM</text>
+    <text id="cover-title" x="75" y="279" font-family="Georgia" font-size="100" fill="#153E50" font-weight="normal" letter-spacing="-2.4" text-anchor="start">HydroReOpLLM</text>
   </g>
   <g id="project-subtitle" inkscape:label="project-subtitle">
     <text id="coupled-subtitle-line-1" x="78" y="347" font-size="40" font-family="Georgia" fill="#52666C" font-weight="normal" text-anchor="start">Coupled human–water modeling</text>

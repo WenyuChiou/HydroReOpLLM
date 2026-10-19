@@ -10,7 +10,7 @@
 This custom daily flood-control rule requests release through the native
 HydroCNHS Dam API. It follows [Hanasaki et al. (2006)](https://doi.org/10.1016/j.jhydrol.2005.11.011)
 and the flood-control formulation in [Abeshu et al. (2023), Section 2.3.3](https://gmd.copernicus.org/articles/16/5449/2023/).
-The rule is added by HydroOpsLLM; it is not a built-in HydroCNHS policy.
+The rule is added by HydroReOpLLM; it is not a built-in HydroCNHS policy.
 
 Shared input and physical assumptions are defined in the [common case setup](../README.md#reservoir-experiment).
 
@@ -83,7 +83,7 @@ This custom policy adapts the monthly flood-control formulation to daily steps.
 It pins the [source decision function](https://github.com/DasanikBD/Delaware-Reservoir-LLM/blob/6c3dc532d712af55db1f4a1d8e018c86249ce7a8/benchmark_release.py)
 at commit `6c3dc532d712af55db1f4a1d8e018c86249ce7a8` (function hash `c11a81…`).
 The case rule retains that decision formulation; framework methods use the
-HydroOpsLLM simulation driver. Original-program comparisons use a separately
+HydroReOpLLM simulation driver. Original-program comparisons use a separately
 restored source artifact. The
 [workflow test source](../../../tests/test_benchmark_workflow.py)
 checks statistics inputs, configuration and use of the common simulation interfaces.

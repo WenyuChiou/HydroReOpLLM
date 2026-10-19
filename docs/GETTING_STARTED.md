@@ -9,8 +9,8 @@ Python 3.12 is the minimum supported version and the version used in CI.
 Use it with the project's pinned dependency constraints:
 
 ```powershell
-git clone https://github.com/WenyuChiou/HydroOpsLLM.git
-cd HydroOpsLLM
+git clone https://github.com/WenyuChiou/HydroReOpLLM.git
+cd HydroReOpLLM
 python -m venv .venv
 .venv\Scripts\Activate.ps1
 python -m pip install -e . -c environment/requirements-bundled.txt
@@ -18,6 +18,11 @@ python -m pip install -e . -c environment/requirements-bundled.txt
 
 Repository access is required while the project is private. On Linux/macOS,
 activate the environment with `source .venv/bin/activate`.
+
+The distribution name is `hydroreopllm`. Python code continues to import
+`llm_reservoir_agent` and `hydrocnhs`; existing command names and configuration
+schemas remain supported. Install from this repository while a public release
+and project license are being prepared.
 
 Installation does not download or start an LLM. Select the provider and model
 later in the agent's model profile.

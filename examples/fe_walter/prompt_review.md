@@ -5,10 +5,10 @@ This page shows the **actual saved requests** for October 12–14, 2016, in
 copy or download its complete text. No model was rerun for this review.
 
 The system prompt, retrieved text, reply schema and provider parameters match
-between Anik and HydroOpsLLM. Their user prompts differ because earlier model
+between Anik and HydroReOpLLM. Their user prompts differ because earlier model
 replies had already changed reservoir state and decision history.
 
-| Date | Anik: start elevation / requested release | HydroOpsLLM: start elevation / requested release |
+| Date | Anik: start elevation / requested release | HydroReOpLLM: start elevation / requested release |
 |---|---:|---:|
 | October 12 | 1250.00 ft / 50 cfs | 1336.55 ft / 1000 cfs |
 | October 13 | 1269.67 ft / 50 cfs | 1328.83 ft / 1000 cfs |
@@ -48,7 +48,7 @@ and dates while leaving the release decision to the model. Summer retains
 
 The separate [daily context preview](../../docs/_static/seasonal-context-preview.json)
 shows the added text for these dates. It is a **proposed request**, not a
-historical request or a new model reply. Original Anik and HydroOpsLLM use the
+historical request or a new model reply. Original Anik and HydroReOpLLM use the
 same text. Offline date and request tests can verify its construction; they
 cannot prove that a real model will now apply every date correctly.
 
