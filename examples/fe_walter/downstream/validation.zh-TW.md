@@ -98,7 +98,7 @@ Notebook 提供三種明確動作的完整命令：
 
 ![Lehighton 校準及獨立驗證期間的實測與模擬逐日流量。](outputs/hydrology_validation/hydrology_validation.png)
 
-*圖 2．Lehighton（USGS 01449000）逐日流量：(a) 1990–2010 年校準；(b) 2011–2020 年獨立驗證；(c–d) 對應期間的逐日比較，採對數座標並標示 1:1 線。兩段期間皆以 White Haven（USGS 01447800）實測流量作為上游邊界。流量單位為 cfs，1989 年暖機期間不列入圖中。*
+*圖 2．Lehighton（USGS 01449000）逐日流量：(a) 1990–2010 年校準；(b) 2011–2020 年獨立驗證。兩段期間皆以 White Haven（USGS 01447800）實測流量作為上游邊界。流量單位為 cfs，1989 年暖機期間不列入圖中。*
 
 這項檢驗支持兩站間逕流與 routing 的整體表現，協助解讀後續 Hanasaki／LLM 的比較。若取得支流觀測，可進一步約束個別子集水區。
 

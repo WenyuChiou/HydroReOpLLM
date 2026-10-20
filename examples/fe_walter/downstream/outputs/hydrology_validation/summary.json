@@ -186,7 +186,7 @@
     "daily_run_sha256": "11db0d0c25aa7144427e6354cb28115d29268ea9b4d8ba8a16b668e1992c0f76",
     "report_sha256": "71b2c3d60874cfed84ca42f9a648b41e9c75d7c43cccf3b2bf0bdee9c40a6901",
     "verified_export_summary_sha256": "78b907f6b26cd27352f1137e9b127de55fee6839fb3883ab5ccfa947eadddd84",
-    "figure_verification_sha256": "6b37cacfe16e9b5b9b0214bfe37c3c363685597735bd5d81bad6d1db319a0b8e",
+    "figure_verification_sha256": "95a7783390dcde131b9b19afd0fcd1ec6b7737aa3ce77df56f4576c08a20369d",
     "execution_input_sha256": [
       {
         "filename": "observations.csv",
@@ -251,22 +251,26 @@
     ],
     "upstream_boundary": "USGS 01447800 White Haven observed discharge",
     "downstream_evaluation": "USGS 01449000 Lehighton",
-    "archival_scope": "Full immutable input, model, candidate and command evidence retained outside the repository."
+    "archival_scope": "Full immutable input, model, candidate and command evidence retained outside the repository.",
+    "figure_source_sha256": "41c4591379fd1eb433caa4dd6ed0d1882c14d8f61cc796a57fa0cd7984c5f949"
   },
   "figure_design": {
     "figure_mm": [
       180.0,
-      160.0
+      90.0
     ],
     "font_family": "Arial",
     "minimum_text_size_pt": 9,
     "png_dpi": 600,
-    "scatter_axes": "log-log"
+    "panels": [
+      "calibration",
+      "validation"
+    ]
   },
   "output_sha256": {
-    "hydrology_validation.pdf": "93269f44f2a337190d2f4d9db698d3d2cc867878428109268ba3e91ab3294885",
-    "hydrology_validation.svg": "d079575ec0672d3665f0d2d4210f8a60855b100b5beb6ad42d435bb788d247b1",
-    "hydrology_validation.png": "31eb89df5144ff3f5fdce1221955e7c46962c924022e7a167c6b50954b188967",
+    "hydrology_validation.pdf": "ba75c9acf1c942f830511382c0a500863dd0fbbdc7fafa852bf70c1390ce0413",
+    "hydrology_validation.svg": "cc4d2c48743139f92bbb26e78fc29003096bdbae368a429fc8b8714393f577e2",
+    "hydrology_validation.png": "0520176538f50156213cd96544a975e3712e07d9df82607f66e9891049a61ef5",
     "daily.csv": "498f52c7a830addfb3d9467f5bd976de515a33237572e18fdc108ea2a5fe7f43",
     "calibration_progress.svg": "50234263ba1777a0169af926402024a3448980c81f5d9540aabf121e106b8ee7",
     "calibration_progress.pdf": "e19721e54d9143d959c8647553614264302fa8e5ca1e538039c311a8200634dd",

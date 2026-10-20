@@ -98,7 +98,7 @@ Download the {download}`daily flow data <outputs/hydrology_validation/daily.csv>
 
 ![Observed and simulated daily discharge at Lehighton during calibration and independent validation.](outputs/hydrology_validation/hydrology_validation.png)
 
-*Figure 2. Daily discharge at Lehighton (USGS 01449000): (a) calibration, 1990–2010; (b) independent validation, 2011–2020; (c–d) corresponding daily comparisons on logarithmic axes, with the 1:1 line. White Haven (USGS 01447800) supplies the observed upstream boundary in both periods. Discharge is in cfs; the 1989 warm-up is omitted.*
+*Figure 2. Daily discharge at Lehighton (USGS 01449000): (a) calibration, 1990–2010; (b) independent validation, 2011–2020. White Haven (USGS 01447800) supplies the observed upstream boundary in both periods. Discharge is in cfs; the 1989 warm-up is omitted.*
 
 This observation-boundary test evaluates the combined intervening runoff and routing. Its results help interpret the later Hanasaki/LLM comparison. Separate tributary observations would provide additional constraints on individual subcatchments.
 
