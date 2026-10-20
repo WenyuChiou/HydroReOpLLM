@@ -9,9 +9,12 @@
 | Notebook | 用途 |
 |---|---|
 | [主教學](main.ipynb) | 逐一閱讀完整設定、檢查三種決策方法，再查看保存的全年結果。 |
+| [下游驗證](downstream_validation.ipynb) | 準備 White Haven 至 Lehighton 的實測邊界檢驗，檢查輸入，再依序進行校準與獨立驗證。 |
 
-Notebook 只讀取 repository 內保存的證據；預設流程不呼叫模型、不下載、不執行
+主 notebook 只讀取 repository 內保存的證據；預設流程不呼叫模型、不下載、不執行
 水文或水庫模擬。
+
+下游 notebook 預設只檢查輸入準備。下載、原生固定參數試算與校準都需明確開啟各自的開關；教學內沒有 LLM 執行。
 
 ## 開啟 notebook
 

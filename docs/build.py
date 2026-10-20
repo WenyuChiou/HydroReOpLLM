@@ -96,7 +96,8 @@ TUTORIAL_DOWNLOADS = {
 DOWNSTREAM_DOWNLOADS = {
     "examples/fe_walter/downstream/" + name: name
     for name in (
-        "prepare.py", "plot.py", "inputs/observations.csv", "inputs/source_manifest.json",
+        "prepare.py", "plot.py", "prepare_observations.py", "validate.py", "validation.yaml", "calibration.yaml",
+        "inputs/observations.csv", "inputs/source_manifest.json",
         "inputs/gauge_basin.geojson", "inputs/dam_reach_basin.geojson", "inputs/reach.geojson",
         "inputs/station.json", "inputs/station_metadata.txt",
         "outputs/daily.csv", "outputs/lateral_inflow.csv", "outputs/routing_tail.csv",
@@ -106,9 +107,12 @@ DOWNSTREAM_DOWNLOADS = {
         "outputs/watershed.png", "outputs/watershed.svg", "outputs/watershed.pdf",
     )
 }
+DOWNSTREAM_DOWNLOADS["tutorials/downstream_validation.ipynb"] = "downstream_validation.ipynb"
 FIGURE_DOWNLOADS.update({
     "docs/figures/downstream-workflow.drawio": "downstream-workflow.drawio",
     "docs/figures/downstream-workflow.svg": "downstream-workflow.svg",
+    "docs/figures/downstream-validation.drawio": "downstream-validation.drawio",
+    "docs/figures/downstream-validation.svg": "downstream-validation.svg",
 })
 TEMPLATE_FILES = (
     "experiment.yaml", "hydrology.yaml", "reservoirs.yaml", "agents.rule.yaml",
@@ -148,6 +152,8 @@ PAGES = {
     "examples/fe_walter/results.zh-TW.md": "examples/fe_walter/results.zh-TW.md",
     "examples/fe_walter/downstream/README.md": "examples/fe_walter/downstream/README.md",
     "examples/fe_walter/downstream/README.zh-TW.md": "examples/fe_walter/downstream/README.zh-TW.md",
+    "examples/fe_walter/downstream/validation.md": "examples/fe_walter/downstream/validation.md",
+    "examples/fe_walter/downstream/validation.zh-TW.md": "examples/fe_walter/downstream/validation.zh-TW.md",
     "examples/fe_walter/results_history.md": "examples/fe_walter/results_history.md",
     "examples/fe_walter/results_history.zh-TW.md": "examples/fe_walter/results_history.zh-TW.md",
     "examples/fe_walter/engine_comparison.md": "examples/fe_walter/engine_comparison.md",
@@ -408,6 +414,7 @@ def prepare(source: Path, *, source_ref: str = "main") -> None:
                               "examples/fe_walter/prompt_review",
                               "examples/fe_walter/engine_comparison", "examples/fe_walter/configuration", "examples/fe_walter/hydrology",
                               "examples/fe_walter/downstream/README",
+                              "examples/fe_walter/downstream/validation",
                               "examples/fe_walter/coupled/README", "examples/fe_walter/coupling", "examples/fe_walter/annual/README",
                               *[f"examples/fe_walter/{method}/README" for method in ("benchmark", "zero_shot", "dkp")],
                               "examples/fe_walter/annual/decision_2016_01_01", "examples/fe_walter/annual/results",

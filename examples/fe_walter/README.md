@@ -12,7 +12,7 @@ Lehigh River and Bear Creek. The U.S. Army Corps of Engineers operates it for
 flood-risk management and recreation, with seasonal releases that can also
 support downstream boating and fishing [[1]](#fe-walter-ref-1).
 
-The study area includes both downstream gauges, White Haven and Lehighton. The [existing downstream comparison](downstream/README.md) evaluates White Haven; the extension to Lehighton is being designed.
+The study area includes both downstream gauges, White Haven and Lehighton. The [downstream hydrology workflow](downstream/validation.md) prepares an observed-boundary test between them; its lower model and daily inputs remain to be supplied. The [saved downstream comparison](downstream/README.md) evaluates White Haven using the historical 2016 decisions.
 
 Map downloads: [PDF](../../docs/figures/fe-walter-catchment.pdf), [SVG](../../docs/figures/fe-walter-catchment.svg), and [editable ArcGIS project](../../data/figures/manual_map/fe-walter-arcgis-source.zip).
 
