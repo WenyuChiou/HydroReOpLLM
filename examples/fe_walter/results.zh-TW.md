@@ -59,7 +59,7 @@ Rule-based 使用 Hanasaki 規則，決策公式沒有讀取冬夏目標水位�
 傳遞至 USGS 01447800，再加入移用參數所得的側向逕流。黑線為 366 筆已核准
 USGS 日平均觀測。這是固定保存放流後的條件式比較：原始水庫入流包含整個測站
 集水區，修正邊界後的完整耦合操作仍是另一個實驗。
-[集水區圖](README.zh-TW.md#下游比較的集水區範圍)說明水在壩前與壩後加入的位置。
+[研究區域圖](README.zh-TW.md#地點與研究範圍)標示 White Haven 與 Lehighton；此處保存的比較涵蓋 White Haven。
 
 下載：[逐日分量與觀測](downstream/outputs/daily.csv)、
 [完整評估紀錄](downstream/outputs/report.json)、

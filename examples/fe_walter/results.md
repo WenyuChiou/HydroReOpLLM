@@ -68,8 +68,8 @@ controlled release plus spill to USGS 01447800 and adds transferred lateral runo
 Black curves show the 366 approved USGS daily means. This is a comparison
 conditional on the saved releases: their original inlet included the whole
 gauge watershed. Corrected coupled operation remains a separate experiment.
-The [watershed map](README.md#watershed-for-the-downstream-comparison) explains
-which water enters above and below the dam.
+The [study area map](README.md#site-and-study-scope) locates White Haven and
+Lehighton. This saved comparison covers White Haven.
 
 Downloads: [daily components and observations](downstream/outputs/daily.csv),
 [full evaluation report](downstream/outputs/report.json),
