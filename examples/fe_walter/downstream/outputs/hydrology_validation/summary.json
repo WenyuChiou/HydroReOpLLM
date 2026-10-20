@@ -186,7 +186,7 @@
     "daily_run_sha256": "11db0d0c25aa7144427e6354cb28115d29268ea9b4d8ba8a16b668e1992c0f76",
     "report_sha256": "71b2c3d60874cfed84ca42f9a648b41e9c75d7c43cccf3b2bf0bdee9c40a6901",
     "verified_export_summary_sha256": "78b907f6b26cd27352f1137e9b127de55fee6839fb3883ab5ccfa947eadddd84",
-    "figure_verification_sha256": "95a7783390dcde131b9b19afd0fcd1ec6b7737aa3ce77df56f4576c08a20369d",
+    "figure_verification_sha256": "ca1ca2e664cb9d017acb04bbe8a05972895d2594ca9ee4d2a344c14aef9b92df",
     "execution_input_sha256": [
       {
         "filename": "observations.csv",
@@ -252,12 +252,12 @@
     "upstream_boundary": "USGS 01447800 White Haven observed discharge",
     "downstream_evaluation": "USGS 01449000 Lehighton",
     "archival_scope": "Full immutable input, model, candidate and command evidence retained outside the repository.",
-    "figure_source_sha256": "41c4591379fd1eb433caa4dd6ed0d1882c14d8f61cc796a57fa0cd7984c5f949"
+    "figure_source_sha256": "27c2cb87a43d6e87fd43f09f83ab82ffb6098fd05de484f567dd5c11c6f282e5"
   },
   "figure_design": {
     "figure_mm": [
       180.0,
-      90.0
+      150.0
     ],
     "font_family": "Arial",
     "minimum_text_size_pt": 9,
@@ -265,12 +265,18 @@
     "panels": [
       "calibration",
       "validation"
-    ]
+    ],
+    "layout": [
+      2,
+      1
+    ],
+    "station_name": "Lehigh River at Lehighton, PA",
+    "station_id": "01449000"
   },
   "output_sha256": {
-    "hydrology_validation.pdf": "ba75c9acf1c942f830511382c0a500863dd0fbbdc7fafa852bf70c1390ce0413",
-    "hydrology_validation.svg": "cc4d2c48743139f92bbb26e78fc29003096bdbae368a429fc8b8714393f577e2",
-    "hydrology_validation.png": "0520176538f50156213cd96544a975e3712e07d9df82607f66e9891049a61ef5",
+    "hydrology_validation.pdf": "c033dd5da8d654f9989dbd2f797f80fe88c8349067d4878908278e4948a3ef95",
+    "hydrology_validation.svg": "49a34c9d7594bd24592361cb472ef9cbe67f719cc4c00b2c2aa105a9a49b31f6",
+    "hydrology_validation.png": "30dd7e199a0182041721dacc11406328b1e9b2e86d66fbf5ce078bcaaad0d3ab",
     "daily.csv": "498f52c7a830addfb3d9467f5bd976de515a33237572e18fdc108ea2a5fe7f43",
     "calibration_progress.svg": "50234263ba1777a0169af926402024a3448980c81f5d9540aabf121e106b8ee7",
     "calibration_progress.pdf": "e19721e54d9143d959c8647553614264302fa8e5ca1e538039c311a8200634dd",

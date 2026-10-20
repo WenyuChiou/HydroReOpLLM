@@ -96,9 +96,9 @@ Notebook 提供三種明確動作的完整命令：
 
 可下載{download}`逐日流量 <outputs/hydrology_validation/daily.csv>`、{download}`九區參數表 <outputs/hydrology_validation/regionalization.csv>`、{download}`模型選擇表 <outputs/hydrology_validation/model_selection.csv>`及{download}`來源與指標摘要 <outputs/hydrology_validation/summary.json>`。圖檔提供 {download}`PDF <outputs/hydrology_validation/hydrology_validation.pdf>`、{download}`可編輯 SVG <outputs/hydrology_validation/hydrology_validation.svg>` 與 {download}`600 dpi PNG <outputs/hydrology_validation/hydrology_validation.png>`。完整輸入、候選參數、原生模型及失敗證據保留於 repository 外的研究紀錄。
 
-![Lehighton 校準及獨立驗證期間的實測與模擬逐日流量。](outputs/hydrology_validation/hydrology_validation.png)
+![Lehigh River at Lehighton, PA（USGS 01449000）的實測與模擬逐日流量，上列為校準，下列為驗證。](outputs/hydrology_validation/hydrology_validation.png)
 
-*圖 2．Lehighton（USGS 01449000）逐日流量：(a) 1990–2010 年校準；(b) 2011–2020 年獨立驗證。兩段期間皆以 White Haven（USGS 01447800）實測流量作為上游邊界。流量單位為 cfs，1989 年暖機期間不列入圖中。*
+*圖 2．Lehigh River at Lehighton, PA（USGS 01449000）逐日流量：(a，上列) 1990–2010 年校準；(b，下列) 2011–2020 年獨立驗證。兩段期間皆以 Lehigh River at White Haven, PA（USGS 01447800）實測流量作為上游邊界。兩列採用相同流量刻度，單位為 cfs；1989 年暖機期間不列入圖中。*
 
 這項檢驗支持兩站間逕流與 routing 的整體表現，協助解讀後續 Hanasaki／LLM 的比較。若取得支流觀測，可進一步約束個別子集水區。
 
