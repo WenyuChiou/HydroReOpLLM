@@ -221,7 +221,12 @@ def write_results(output: Path, context: dict, native: dict, report: dict) -> No
     simulated = native["routed"][settings["downstream"]["model_node"]]
     metrics = evaluate_periods(days, simulated, observed["cms"], {k: settings["periods"][k] for k in ("calibration", "validation")}, eligible=observed["eligible"])
     ledger = verify_routing(context, native)
-    write_json(output / "routing_kernels.json", {"kernels": [{"source": a, "outlet": b, "weights": [float(v) for v in values]} for (a, b), values in native["unit_hydrographs"].items()]})
+    compatibility = native["routing_compatibility"]
+    write_json(output / "routing_kernels.json", {
+        "compatibility": compatibility,
+        "kernels": [{"source": a, "outlet": b, "weights": [float(v) for v in values]}
+                    for (a, b), values in native["unit_hydrographs"].items()],
+    })
     first_year = date.fromisoformat(settings["periods"]["calibration"][0]).year
     last_year = date.fromisoformat(settings["periods"]["validation"][1]).year
     annual = {str(year): [max(f"{year}-01-01", settings["periods"]["calibration"][0]), min(f"{year}-12-31", settings["periods"]["validation"][1])] for year in range(first_year, last_year + 1)}
@@ -235,6 +240,7 @@ def write_results(output: Path, context: dict, native: dict, report: dict) -> No
     report.update(stage="fixed_parameter_run", status="executed", metrics=metrics, annual_metrics=annual_metrics, routing_check=ledger,
                   interpretation="Observed upstream boundary; combined lower-watershed and routing evaluation. Reservoir operators are evaluated separately.")
     report["executed"]["native_hydrology"] = True
+    report["routing_compatibility"] = compatibility
     report["daily_sha256"] = sha(output / "daily.csv")
     report["routing_kernels_sha256"] = sha(output / "routing_kernels.json")
     write_json(output / "report.json", report)
@@ -293,12 +299,16 @@ def read_calibration(path: Path, weather: dict) -> dict:
         raise ValueError("Declare parameter bounds and native Pars targets before calibration.")
     used, names = set(), set()
     for group in recipe["parameters"]:
-        if set(group) != {"name", "mode", "bounds", "paths"} or not isinstance(group["name"], str) or not group["name"].strip() or group["name"] in names or group["mode"] not in ("set", "scale"):
+        if not {"name", "mode", "bounds", "paths"} <= set(group) or set(group) - {"name", "mode", "bounds", "paths", "clip"} or not isinstance(group["name"], str) or not group["name"].strip() or group["name"] in names or group["mode"] not in ("set", "scale"):
             raise ValueError("Calibration groups require unique names, set/scale mode, bounds and paths.")
         names.add(group["name"])
         bounds = group["bounds"]
         if not isinstance(bounds, list) or len(bounds) != 2 or any(type(x) not in (int, float) or not math.isfinite(x) for x in bounds) or bounds[0] >= bounds[1]:
             raise ValueError("Parameter bounds must contain two finite increasing numbers.")
+        if "clip" in group:
+            limits = group["clip"]
+            if group["mode"] != "scale" or not isinstance(limits, list) or len(limits) != 2 or any(type(x) not in (int, float) or not math.isfinite(x) for x in limits) or limits[0] >= limits[1]:
+                raise ValueError("Optional clip requires scale mode and two finite increasing native parameter limits.")
         if not isinstance(group["paths"], list) or not group["paths"]:
             raise ValueError("Each parameter group must name its native parameter targets.")
         for keys in group["paths"]:
@@ -343,7 +353,10 @@ def apply_parameters(weather: dict, recipe: dict, values) -> dict:
             target = candidate["model"]
             for key in keys[:-1]:
                 target = target[key]
-            target[keys[-1]] = target[keys[-1]] * number if group["mode"] == "scale" else number
+            updated = target[keys[-1]] * number if group["mode"] == "scale" else number
+            if "clip" in group:
+                updated = min(group["clip"][1], max(group["clip"][0], updated))
+            target[keys[-1]] = updated
     return candidate
 
 

@@ -26,7 +26,10 @@ def _mock_weather():
                 "2024-03-01": [30.0, 4.0, 0.3],
             }
         },
-        "model": {"Routing": {"boundary": {}, "target": {"boundary": {}}}},
+        "model": {"Routing": {"boundary": {}, "target": {"boundary": {
+            "Inputs": {"FlowLength": 1000.0},
+            "Pars": {"GShape": 1.0, "GScale": 1.0, "Velo": 1.0, "Diff": 1.0},
+        }}}},
     }
 
 
@@ -53,6 +56,7 @@ def _install_fake_native(monkeypatch, tmp_path, *, corrupt=False, bad_output=Fal
 
         def run(self, **kwargs):
             calls.append(("run", kwargs))
+            self.dc.UH_Lohmann = deepcopy(kwargs["assigned_UH"])
             values = kwargs["assigned_Q"]["boundary"]
             return {
                 "boundary": values,
@@ -63,6 +67,9 @@ def _install_fake_native(monkeypatch, tmp_path, *, corrupt=False, bad_output=Fal
         __file__=str(native_file), Model=Model, create_rn_gen=lambda seed: ("seed", seed)
     )
     monkeypatch.setitem(sys.modules, "hydrocnhs", module)
+    monkeypatch.setitem(sys.modules, "hydrocnhs.routing", types.SimpleNamespace(
+        form_UH_Lohmann=lambda inputs, pars: [0.0, 1.0],
+    ))
     return calls
 
 
@@ -78,7 +85,7 @@ def test_observation_replaces_only_selected_dummy_and_preserves_native_model(mon
     assert run["assigned_Q"]["target"].tolist() == [0.0, 0.0, 0.0]
     assert run["prec"]["local"].tolist() == [1.0, 2.0, 3.0]
     assert run["pet"]["local"].tolist() == [0.1, 0.2, 0.3]
-    assert "assigned_UH" not in run
+    assert run["assigned_UH"][("boundary", "target")].tolist() == [0.0, 1.0, 0.0]
     assert calls[0][1]["Path"] == {"WD": str(tmp_path), "Modules": ""}
     assert "boundary" not in calls[0][1]["Routing"]
     assert "boundary" in calls[0][1]["Routing"]["target"]
@@ -168,7 +175,8 @@ def test_evaluate_periods_rejects_calendar_and_interval_errors(dates, periods, m
         evaluate_periods(dates, [1.0] * len(dates), [1.0] * len(dates), periods)
 
 
-def test_real_native_observed_boundary_keeps_channel_routing():
+@pytest.mark.parametrize("known_kernel", [None, [1.0], [0.2, 0.3, 0.5]])
+def test_real_native_observed_boundary_keeps_channel_routing(known_kernel, monkeypatch):
     yaml = pytest.importorskip("yaml")
     native = yaml.safe_load((ROOT / "data/accepted/fe_walter_hydrology.yaml").read_text())
     source = native["WaterSystem"]["Outlets"][0]
@@ -205,8 +213,18 @@ def test_real_native_observed_boundary_keeps_channel_routing():
         "model": native,
     }
 
+    if known_kernel is not None:
+        import numpy as np
+        import hydrocnhs.routing
+        monkeypatch.setattr(hydrocnhs.routing, "form_UH_Lohmann", lambda inputs, pars: np.asarray(known_kernel))
     result = simulate_observed_boundary(weather, "boundary", [10, 0, 0, 0, 0], ROOT)
 
     assert result["routed"]["boundary"] == pytest.approx([10, 0, 0, 0, 0])
-    assert result["routed"]["target"][0] < 10.0
-    assert sum(result["routed"]["target"][1:]) > 0.0
+    if known_kernel is None:
+        assert result["routed"]["target"][0] < 10.0
+        assert sum(result["routed"]["target"][1:]) > 0.0
+    else:
+        expected = np.convolve([10, 0, 0, 0, 0], known_kernel)[:5]
+        assert result["routed"]["target"] == pytest.approx(expected)
+        assert result["unit_hydrographs"][("boundary", "target")] == pytest.approx(known_kernel)
+        assert result["routing_compatibility"]["physical_weights_changed"] is False

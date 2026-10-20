@@ -188,6 +188,35 @@ def test_parameter_groups_preserve_source_and_local_differences():
         case.apply_parameters(weather, recipe(), [0.6])
 
 
+def test_mapped_parameter_scaling_keeps_declared_physical_limits(tmp_path):
+    weather = {"model": {"RainfallRunoff": {
+        "LOW": {"Pars": {"CN2": 70.0}}, "HIGH": {"Pars": {"CN2": 95.0}},
+    }}}
+    config = recipe()
+    config["parameters"] = [{"name": "m_CN2", "mode": "scale", "bounds": [0.3, 1.2],
+                             "clip": [25, 100], "paths": [["RainfallRunoff", u, "Pars", "CN2"] for u in ["LOW", "HIGH"]]}]
+    path = tmp_path / "calibration.yaml"
+    path.write_text(yaml.safe_dump(config))
+    loaded = case.read_calibration(path, weather)
+    low = case.apply_parameters(weather, loaded, [0.3])
+    high = case.apply_parameters(weather, loaded, [1.2])
+    assert [low["model"]["RainfallRunoff"][u]["Pars"]["CN2"] for u in ["LOW", "HIGH"]] == [25, 28.5]
+    assert [high["model"]["RainfallRunoff"][u]["Pars"]["CN2"] for u in ["LOW", "HIGH"]] == [84, 100]
+    assert weather["model"]["RainfallRunoff"]["LOW"]["Pars"]["CN2"] == 70
+
+
+@pytest.mark.parametrize("limits", [[100, 25], [25, float("nan")], [True, 100], [25]])
+def test_mapped_parameter_limits_are_validated(tmp_path, limits):
+    weather = {"model": {"RainfallRunoff": {"LOCAL": {"Pars": {"Res": 0.2}}}}}
+    config = recipe()
+    config["parameters"][0].update(mode="scale", clip=limits)
+    path = tmp_path / "calibration.yaml"
+    path.write_text(yaml.safe_dump(config))
+    with pytest.raises(ValueError, match="clip"):
+        case.read_calibration(path, weather)
+
+
+
 def test_independent_routing_preserves_late_water_and_detects_shift():
     context = {"settings": {"upstream": {"model_node": "WHITE_HAVEN", "station_id": "01447800"}, "downstream": {"model_node": "LEHIGHTON"}},
                "weather": {"model": {"Routing": {"WHITE_HAVEN": {"WHITE_HAVEN": {}}, "LEHIGHTON": {"WHITE_HAVEN": {}, "LOCAL": {}, "LEHIGHTON": {}}}}},
@@ -218,7 +247,8 @@ def test_fixed_parameter_exports_separate_metrics_and_flow_units(tmp_path):
     report, context = case.preflight(path, folder / "observations.csv", folder / "source_manifest.json")
     context["weather"] = {"model": {"Routing": {"WHITE_HAVEN": {"WHITE_HAVEN": {}}, "LEHIGHTON": {"WHITE_HAVEN": {}, "LOCAL": {}, "LEHIGHTON": {}}}}}
     native = {"runoff": {"LOCAL": [100 * case.CFS_TO_CMS] * 7}, "routed": {"LEHIGHTON": [(200 + i) * case.CFS_TO_CMS for i in range(7)]},
-              "unit_hydrographs": {("WHITE_HAVEN", "LEHIGHTON"): [1], ("LOCAL", "LEHIGHTON"): [1], ("LEHIGHTON", "LEHIGHTON"): [1]}}
+              "unit_hydrographs": {("WHITE_HAVEN", "LEHIGHTON"): [1], ("LOCAL", "LEHIGHTON"): [1], ("LEHIGHTON", "LEHIGHTON"): [1]},
+              "routing_compatibility": {"physical_weights_changed": False, "padding_weights_per_route": 1}}
     case.write_results(tmp_path, context, native, report)
     result = json.loads((tmp_path / "report.json").read_text())
     assert result["metrics"]["calibration"]["kge"] == pytest.approx(1)
@@ -229,6 +259,9 @@ def test_fixed_parameter_exports_separate_metrics_and_flow_units(tmp_path):
         rows = list(csv.DictReader(handle))
     assert float(rows[-1]["downstream_simulated_cfs"]) == pytest.approx(206)
     assert (tmp_path / "routing_kernels.json").is_file()
+    kernels = json.loads((tmp_path / "routing_kernels.json").read_text())
+    assert kernels["compatibility"] == native["routing_compatibility"]
+    assert result["routing_compatibility"] == kernels["compatibility"]
 
 
 def test_calibration_never_exposes_validation_to_native_search(tmp_path, monkeypatch):

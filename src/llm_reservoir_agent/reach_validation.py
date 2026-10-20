@@ -61,6 +61,8 @@ def simulate_observed_boundary(weather, boundary_node, upstream_cms, runtime_roo
     root = Path(runtime_root)
     package = Path(hydrocnhs.__file__).resolve().parent
     _verify_native_core(root, package)
+    from hydrocnhs.routing import form_UH_Lohmann
+
     model_config = deepcopy(weather["model"])
     model_config["Path"] = {"WD": str(root), "Modules": ""}
     # The observed series is already flow at this routing outlet.  Keep it as
@@ -73,6 +75,21 @@ def simulate_observed_boundary(weather, boundary_node, upstream_cms, runtime_roo
     }
     assigned = {unit: np.zeros(len(dates)) for unit in zero}
     assigned[boundary_node] = np.asarray(observed)
+    kernels, assigned_kernels = {}, {}
+    for outlet, sources in model_config["Routing"].items():
+        for source, route in sources.items():
+            parameters = deepcopy(route["Pars"])
+            if source in assigned:
+                parameters.update(GShape=None, GScale=None)
+            kernel = np.asarray(form_UH_Lohmann(route["Inputs"], parameters), dtype=float)
+            if kernel.ndim != 1 or not len(kernel) or not np.isfinite(kernel).all() or (kernel < -1e-12).any() or not np.isclose(kernel.sum(), 1, atol=1e-12, rtol=0):
+                raise ArithmeticError("Native routing kernel is invalid before assignment")
+            kernels[(source, outlet)] = kernel.copy()
+            # The pinned native routing step omits the last array element.
+            # One trailing zero retains every physical weight, including a
+            # single-weight impulse, through the public assigned_UH interface.
+            # Native source bytes and the canonical kernel remain unchanged.
+            assigned_kernels[(source, outlet)] = np.pad(kernel, (0, 1))
     model = hydrocnhs.Model(
         model_config,
         name="HydroReOpLLMObservedBoundary",
@@ -89,15 +106,17 @@ def simulate_observed_boundary(weather, boundary_node, upstream_cms, runtime_roo
         prec={unit: values[:, 0] / 10 for unit, values in series.items()},
         pet={unit: values[:, 2] for unit, values in series.items()},
         assigned_Q=assigned,
+        assigned_UH=assigned_kernels,
         disable=True,
     )
     if boundary_node not in routed or not np.array_equal(np.asarray(routed[boundary_node]), np.asarray(observed)):
         raise ArithmeticError("native routing changed the observed upstream boundary")
     runoff = {unit: model.dc.Q_runoff[unit] for unit in weather["units"]}
-    unit_hydrographs = {
-        key: np.asarray(values).copy()
-        for key, values in model.dc.UH_Lohmann.items()
-    }
+    if set(model.dc.UH_Lohmann) != set(assigned_kernels) or any(
+        not np.array_equal(np.asarray(model.dc.UH_Lohmann[key]), expected)
+        for key, expected in assigned_kernels.items()
+    ):
+        raise ArithmeticError("Native routing changed an assigned kernel")
     if len(dates) != len(observed):
         raise ArithmeticError("native hydrology output dates differ from the observed boundary")
     for values in [*routed.values(), *runoff.values()]:
@@ -112,7 +131,14 @@ def simulate_observed_boundary(weather, boundary_node, upstream_cms, runtime_roo
         "dates": list(dates),
         "runoff": runoff,
         "routed": routed,
-        "unit_hydrographs": unit_hydrographs,
+        "unit_hydrographs": kernels,
+        "routing_compatibility": {
+            "method": "native canonical UH plus one trailing zero via assigned_UH",
+            "reason": "pinned run_step_Lohmann omits the final array element",
+            "native_source_modified": False,
+            "physical_weights_changed": False,
+            "padding_weights_per_route": 1,
+        },
     }
 
 
