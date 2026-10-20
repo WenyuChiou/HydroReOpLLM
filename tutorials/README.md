@@ -9,9 +9,12 @@ saved 2016 results.
 | Notebook | Purpose |
 |---|---|
 | [Main](main.ipynb) | Read each complete configuration, check the three decision methods, then inspect saved annual results. |
+| [Downstream validation](downstream_validation.ipynb) | Prepare the White Haven–Lehighton observation-boundary test, check inputs, and follow the separate calibration and validation stages. |
 
 The main notebook reads committed evidence only. Its default path makes no model
 request, download, hydrology run, or reservoir simulation.
+
+The downstream notebook checks input readiness by default. Downloads, native fixed parameter runs and calibration each require an explicit switch; the notebook contains no LLM execution.
 
 ## Open the notebook
 

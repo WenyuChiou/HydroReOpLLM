@@ -1,0 +1,54 @@
+{
+  "catchment_partition.geojson": {
+    "sha256": "442fac72566a22ecf8f1ebc22e802970f21a6b02b693eab3d25b44ef5a4e1aa4",
+    "bytes": 924513
+  },
+  "daily.csv": {
+    "sha256": "9ca4a2dedf1adc99611710d4d24dcb20f423a0a7f2b51541cc967cffaf49672b",
+    "bytes": 187217
+  },
+  "lateral_inflow.csv": {
+    "sha256": "761376917666becdd3fe387210ac6cab64adc82953c43282981a735054de7707",
+    "bytes": 11874
+  },
+  "partition.json": {
+    "sha256": "a9336d538b891e230001e20474bb1036d2b93b6c3c78c25c0654086d0dfaed4d",
+    "bytes": 1960
+  },
+  "report.json": {
+    "sha256": "7686119da4810d9488814635d70f8962d12cb30a7ca1fcbb5edc060bbcf43b02",
+    "bytes": 11395
+  },
+  "routing.json": {
+    "sha256": "8d428ff7513fa6789d9c965b1f8126d1ac950f44140dc1a54ad94d29b02519bd",
+    "bytes": 4115
+  },
+  "routing_tail.csv": {
+    "sha256": "1dc0c31cbdd3f8530aba08b11b05004cd27b8feb746b20d42c49f7f00a7e46ec",
+    "bytes": 8544
+  },
+  "streamflow.pdf": {
+    "sha256": "1cfec2b6c368f506b4a64a0f3f5c994f01b17fa4d634714216e2f4200673e10f",
+    "bytes": 59458
+  },
+  "streamflow.png": {
+    "sha256": "efefaf9f972bb4472d2f2402ce737ed34819076fce41cd0c4aea09e419b1eb57",
+    "bytes": 497550
+  },
+  "streamflow.svg": {
+    "sha256": "b07a4102ff57a830133ce646992b88f43ec8e433e5b6d3998c0db9ee8e372795",
+    "bytes": 107570
+  },
+  "watershed.pdf": {
+    "sha256": "d26ab24ee3d1c4fe0d2daf6d6d94e5ead7f24d1c8bb53b38372cc3f9f9875bff",
+    "bytes": 167364
+  },
+  "watershed.png": {
+    "sha256": "8b4068cb2323c184f9a7946d3ca8ac6e2ff213156a9c738cce6ab46dbff9df41",
+    "bytes": 461168
+  },
+  "watershed.svg": {
+    "sha256": "69b4a838adedbf7bfdacc6d8fc35a639cc8a9da7370d5c2cc5f207d4d4d178fb",
+    "bytes": 474964
+  }
+}

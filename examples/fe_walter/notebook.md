@@ -12,6 +12,7 @@ clone after [installation](../../docs/GETTING_STARTED.md).
 | File | Contents |
 |---|---|
 | [daily.csv](coupled/outputs/current_tutorial/daily.csv) | Date, method, inflow, end-of-day water elevation, water release, spill and storage. |
+| [Downstream flow CSV](downstream/outputs/daily.csv) | Routed saved reservoir outflow, lateral runoff and USGS 01447800 observations; see the [downstream reference](downstream/README.md). |
 | [provenance.json](coupled/outputs/current_tutorial/provenance.json) | Source runs, units, period and file hashes. |
 | [SVG](coupled/outputs/current_tutorial/reservoir_operations.svg) / [PDF](coupled/outputs/current_tutorial/reservoir_operations.pdf) / [PNG](coupled/outputs/current_tutorial/reservoir_operations.png) | One figure: (a) water elevation; (b)–(d) water release for the three methods. |
 

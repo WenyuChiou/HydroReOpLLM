@@ -93,6 +93,37 @@ TUTORIAL_DOWNLOADS = {
     )
 }
 # Generic templates are maintained once and included verbatim in the chapters.
+DOWNSTREAM_DOWNLOADS = {
+    "examples/fe_walter/downstream/" + name: name
+    for name in (
+        "prepare.py", "plot.py", "prepare_observations.py", "validate.py", "validation.yaml", "calibration.yaml",
+        "inputs/observations.csv", "inputs/source_manifest.json",
+        "inputs/gauge_basin.geojson", "inputs/dam_reach_basin.geojson", "inputs/reach.geojson",
+        "inputs/station.json", "inputs/station_metadata.txt",
+        "outputs/daily.csv", "outputs/lateral_inflow.csv", "outputs/routing_tail.csv",
+        "outputs/partition.json", "outputs/catchment_partition.geojson", "outputs/routing.json",
+        "outputs/report.json", "outputs/manifest.json",
+        "outputs/streamflow.png", "outputs/streamflow.svg", "outputs/streamflow.pdf",
+        "outputs/watershed.png", "outputs/watershed.svg", "outputs/watershed.pdf",
+    )
+}
+DOWNSTREAM_DOWNLOADS["tutorials/downstream_validation.ipynb"] = "downstream_validation.ipynb"
+# Publish the curated C&V files; full research inputs and search records stay external.
+DOWNSTREAM_DOWNLOADS.update({
+    "examples/fe_walter/downstream/outputs/hydrology_validation/" + name:
+    "outputs/hydrology_validation/" + name
+    for name in (
+        "calibration_progress.pdf", "calibration_progress.svg", "daily.csv",
+        "hydrology_validation.pdf", "hydrology_validation.png", "hydrology_validation.svg",
+        "model_selection.csv", "regionalization.csv", "summary.json",
+    )
+})
+FIGURE_DOWNLOADS.update({
+    "docs/figures/downstream-workflow.drawio": "downstream-workflow.drawio",
+    "docs/figures/downstream-workflow.svg": "downstream-workflow.svg",
+    "docs/figures/downstream-validation.drawio": "downstream-validation.drawio",
+    "docs/figures/downstream-validation.svg": "downstream-validation.svg",
+})
 TEMPLATE_FILES = (
     "experiment.yaml", "hydrology.yaml", "reservoirs.yaml", "agents.rule.yaml",
     "agents.llm.yaml", "models.yaml", "auditors.yaml", "information.yaml",
@@ -129,6 +160,10 @@ PAGES = {
     "examples/fe_walter/coupling.zh-TW.md": "examples/fe_walter/coupling.zh-TW.md",
     "examples/fe_walter/results.md": "examples/fe_walter/results.md",
     "examples/fe_walter/results.zh-TW.md": "examples/fe_walter/results.zh-TW.md",
+    "examples/fe_walter/downstream/README.md": "examples/fe_walter/downstream/README.md",
+    "examples/fe_walter/downstream/README.zh-TW.md": "examples/fe_walter/downstream/README.zh-TW.md",
+    "examples/fe_walter/downstream/validation.md": "examples/fe_walter/downstream/validation.md",
+    "examples/fe_walter/downstream/validation.zh-TW.md": "examples/fe_walter/downstream/validation.zh-TW.md",
     "examples/fe_walter/results_history.md": "examples/fe_walter/results_history.md",
     "examples/fe_walter/results_history.zh-TW.md": "examples/fe_walter/results_history.zh-TW.md",
     "examples/fe_walter/engine_comparison.md": "examples/fe_walter/engine_comparison.md",
@@ -204,6 +239,10 @@ def prepare(source: Path, *, source_ref: str = "main") -> None:
             elif not match[1].startswith("!") and relative in TUTORIAL_DOWNLOADS:
                 import os
                 output = source / "_tutorial_downloads" / TUTORIAL_DOWNLOADS[relative]
+                value = Path(os.path.relpath(output, (source / destination).parent)).as_posix()
+            elif not match[1].startswith("!") and relative in DOWNSTREAM_DOWNLOADS:
+                import os
+                output = source / "_downstream_downloads" / DOWNSTREAM_DOWNLOADS[relative]
                 value = Path(os.path.relpath(output, (source / destination).parent)).as_posix()
             elif not match[1].startswith("!") and relative in TEMPLATE_DOWNLOADS:
                 import os
@@ -323,6 +362,13 @@ def prepare(source: Path, *, source_ref: str = "main") -> None:
         canonical = source / relative
         canonical.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(ROOT / relative, canonical)
+    for relative, name in DOWNSTREAM_DOWNLOADS.items():
+        download = source / "_downstream_downloads" / name
+        download.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(ROOT / relative, download)
+        canonical = source / relative
+        canonical.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(ROOT / relative, canonical)
     for name in ("llm_available_reply.txt", "llm_knowledge_reply.txt"):
         relative = "examples/fe_walter/coupled/outputs/2016/" + name
         shutil.copyfile(ROOT / relative, source / relative)
@@ -377,6 +423,8 @@ def prepare(source: Path, *, source_ref: str = "main") -> None:
                               "docs/TEMPLATES", "docs/WEATHER_INPUTS", "docs/MODEL_PROVIDERS", "docs/INFORMATION", "docs/LLM_MODULES",
                               "examples/fe_walter/prompt_review",
                               "examples/fe_walter/engine_comparison", "examples/fe_walter/configuration", "examples/fe_walter/hydrology",
+                              "examples/fe_walter/downstream/README",
+                              "examples/fe_walter/downstream/validation",
                               "examples/fe_walter/coupled/README", "examples/fe_walter/coupling", "examples/fe_walter/annual/README",
                               *[f"examples/fe_walter/{method}/README" for method in ("benchmark", "zero_shot", "dkp")],
                               "examples/fe_walter/annual/decision_2016_01_01", "examples/fe_walter/annual/results",

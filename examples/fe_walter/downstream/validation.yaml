@@ -1,0 +1,30 @@
+# White Haven to Lehighton: observed upstream boundary and native hydrology.
+# Copy this file to your study directory. All file paths are relative to it.
+schema_version: 1                           # Version of this validation configuration.
+
+upstream:
+  station_id: "01447800"                    # USGS White Haven; daily mean discharge.
+  model_node: WHITE_HAVEN                   # Assigned native routing outlet, without local runoff.
+downstream:
+  station_id: "01449000"                    # USGS Lehighton; independent comparison location.
+  model_node: LEHIGHTON                     # Native routing outlet receiving all intervening flow.
+
+periods:
+  warmup: ["1989-01-01", "1989-12-31"]      # Initialize hydrological and river states; omit from scores.
+  calibration: ["1990-01-01", "2010-12-31"] # Adjust lower-watershed parameters using this period only.
+  validation: ["2011-01-01", "2020-12-31"]  # Evaluate the fixed parameters on independent years.
+  evaluation: ["2021-01-01", "2025-12-31"]  # Reserved for the later three-operator comparison.
+
+observations:
+  file: null                                # Required: observations.csv from prepare_observations.py.
+  source_manifest: null                     # Required: its source_manifest.json, retaining raw hashes.
+  require_approved: true                    # Include USGS A records; preserve other flags in exports.
+  include_estimated: true                   # Include A,e records and report their counts separately.
+
+hydrology:
+  model: null                               # Required: NEW lower-watershed native HydroCNHS YAML.
+  forcing: null                             # Required: complete per-unit daily P (mm), T (C), PET (cm).
+  zero_flow_nodes: [WHITE_HAVEN, LEHIGHTON] # Computational outlets have no weather-generated runoff.
+
+partition_file: null                        # Required: checked White Haven/Lehighton basins and lower units.
+calibration_file: calibration.yaml          # Needed for calibrate: complete its parameter groups and GA budget.

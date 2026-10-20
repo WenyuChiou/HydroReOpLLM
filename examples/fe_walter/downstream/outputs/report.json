@@ -1,0 +1,270 @@
+{
+  "period": {
+    "start": "2016-01-01",
+    "end": "2016-12-31",
+    "days_per_method": 366
+  },
+  "station": "USGS-01447800",
+  "real_model_requests": 0,
+  "new_reservoir_operations": 0,
+  "new_runoff_unit_simulations": 2,
+  "scientific_status": "Conditional saved-release comparison; boundary-corrected coupled LLM trajectories have not been run.",
+  "historical_boundary_issue": "The saved inlet includes the whole gauge basin, including the lateral area. Saved releases retain that historical input. The new routing is conditional on those releases and cannot validate corrected closed-loop reservoir operation.",
+  "partition": {
+    "gauge_basin_km2": 750.8113498107182,
+    "dam_reach_basin_km2": 746.4706746896685,
+    "lateral_area_km2": 4.340675121057479,
+    "reach_length_m": 1398.4562137090757,
+    "dam_snap_distance_m": 20.2423911853159,
+    "gauge_snap_distance_m": 35.5496637136239,
+    "dam_point_to_reach_end_m": 43.39581264825908,
+    "boundary_precision": "Whole NHDPlusV2 catchments at the dam reach outlet and gauge reach outlet; not a surveyed split at either point.",
+    "parts": [
+      {
+        "source_unit": "FEW-D-01",
+        "original_area_m2": 41184294.79142502,
+        "upstream_area_m2": 41184294.791424975,
+        "lateral_area_m2": 0.0,
+        "lateral_fraction": 0.0
+      },
+      {
+        "source_unit": "FEW-D-02",
+        "original_area_m2": 200921373.5797237,
+        "upstream_area_m2": 200921373.5797247,
+        "lateral_area_m2": 0.0,
+        "lateral_fraction": 0.0
+      },
+      {
+        "source_unit": "FEW-R-01",
+        "original_area_m2": 132846024.06496534,
+        "upstream_area_m2": 132845822.72490683,
+        "lateral_area_m2": 201.34005300725198,
+        "lateral_fraction": 1.5155896040124708e-06
+      },
+      {
+        "source_unit": "FEW-R-02",
+        "original_area_m2": 67875484.84166817,
+        "upstream_area_m2": 63535011.06066953,
+        "lateral_area_m2": 4340473.781004471,
+        "lateral_fraction": 0.0639475915513445
+      },
+      {
+        "source_unit": "FEW-X-01",
+        "original_area_m2": 68787900.64214163,
+        "upstream_area_m2": 68787900.64214163,
+        "lateral_area_m2": 0.0,
+        "lateral_fraction": 0.0
+      },
+      {
+        "source_unit": "FEW-X-02",
+        "original_area_m2": 82002245.1022243,
+        "upstream_area_m2": 82002245.10222445,
+        "lateral_area_m2": 0.0,
+        "lateral_fraction": 0.0
+      },
+      {
+        "source_unit": "FEW-X-03",
+        "original_area_m2": 157194026.7885362,
+        "upstream_area_m2": 157194026.7885533,
+        "lateral_area_m2": 0.0,
+        "lateral_fraction": 0.0
+      }
+    ]
+  },
+  "lateral_transfers": [
+    {
+      "source_unit": "FEW-R-01",
+      "new_area_ha": 0.020134005300725198,
+      "parent_climate_and_parameters_reused": true,
+      "native_runoff_days": 13514,
+      "within_catchment_kernel": [
+        0.998277252856721,
+        0.0017125390711507649,
+        1.0139378831319767e-05,
+        6.820472675528322e-08,
+        4.849850521182475e-10,
+        3.5582647939236267e-12,
+        2.6645352591003757e-14,
+        2.220446049250313e-16
+      ]
+    },
+    {
+      "source_unit": "FEW-R-02",
+      "new_area_ha": 434.0473781004471,
+      "parent_climate_and_parameters_reused": true,
+      "native_runoff_days": 13514,
+      "within_catchment_kernel": [
+        0.998277252856721,
+        0.0017125390711507649,
+        1.0139378831319767e-05,
+        6.820472675528322e-08,
+        4.849850521182475e-10,
+        3.5582647939236267e-12,
+        2.6645352591003757e-14,
+        2.220446049250313e-16
+      ]
+    }
+  ],
+  "source_manifest": {
+    "schema_version": "fe-walter-downstream-sources.v1",
+    "station": "USGS-01447800",
+    "calendar": "Daily values retain station local calendar dates, not UTC timestamp conversions.",
+    "observations": {
+      "rows": 366,
+      "parameter_code": "00060",
+      "statistic_id": "00003",
+      "source_unit": "ft^3/s",
+      "cfs_to_cms": 0.028316846592,
+      "approved_rows": 366,
+      "missing_values": 0
+    },
+    "files": {
+      "dam_reach_basin.geojson": {
+        "sha256": "d5cae6a339607003c1f6ca088d500673bd49b151647921d62db7fcf39b03590f",
+        "source_url": "https://api.water.usgs.gov/nldi/linked-data/comid/4186393/basin?f=json&simplified=false",
+        "raw_response_sha256": "d5cae6a339607003c1f6ca088d500673bd49b151647921d62db7fcf39b03590f",
+        "retrieved_at": "2026-10-19T14:07:13.009911+00:00"
+      },
+      "gauge_basin.geojson": {
+        "sha256": "e9ddacffca32bac09b1c751d2545bdf3384656616fe64f9318ddc241f8e9ec68",
+        "source_url": "https://api.water.usgs.gov/nldi/linked-data/nwissite/USGS-01447800/basin?f=json&simplified=false",
+        "raw_response_sha256": "e9ddacffca32bac09b1c751d2545bdf3384656616fe64f9318ddc241f8e9ec68",
+        "retrieved_at": "2026-10-19T14:10:53.951549+00:00"
+      },
+      "observations.csv": {
+        "sha256": "8e53c3525dd7750c6c2bb728328a308634039814d781d7ff7e4b5ae7bbf6f7b9",
+        "source_url": "https://api.waterdata.usgs.gov/ogcapi/v0/collections/daily/items?f=json&monitoring_location_id=USGS-01447800&parameter_code=00060&statistic_id=00003&datetime=2016-01-01/2016-12-31&limit=50000",
+        "raw_response_sha256": "2c73c8bc39f6faa5264c118282b514abd2432088bdb2f523478fffc5e1e49c2e",
+        "retrieved_at": "2026-10-19T14:04:57.239214+00:00"
+      },
+      "reach.geojson": {
+        "sha256": "7dc128eb48b7dfc4d4af9f2ebc5c83e70951d95fb2c2d20d7fdc721dda5549dc",
+        "source_url": "https://api.water.usgs.gov/nldi/linked-data/nwissite/USGS-01447800/navigation/UM/flowlines?f=json&distance=8",
+        "raw_response_sha256": "7dc128eb48b7dfc4d4af9f2ebc5c83e70951d95fb2c2d20d7fdc721dda5549dc",
+        "retrieved_at": "2026-10-19T14:04:57.717299+00:00"
+      },
+      "station.json": {
+        "sha256": "2af8fc2f1682fd0346bcb452628d6f7e4e521ea3c639ba53017f56ba7c9ac748",
+        "source_url": "https://api.water.usgs.gov/nldi/linked-data/nwissite/USGS-01447800?f=json",
+        "raw_response_sha256": "2af8fc2f1682fd0346bcb452628d6f7e4e521ea3c639ba53017f56ba7c9ac748",
+        "retrieved_at": "2026-10-19T14:04:57.360172+00:00"
+      },
+      "station_metadata.txt": {
+        "sha256": "37c9a9fa68f69a60fd1ddcafa3d3e0adda141ed567426e9f11d7c8865c8b587d",
+        "source_url": "https://waterservices.usgs.gov/nwis/site/?format=rdb&sites=01447800&siteOutput=expanded",
+        "raw_response_sha256": "37c9a9fa68f69a60fd1ddcafa3d3e0adda141ed567426e9f11d7c8865c8b587d",
+        "retrieved_at": "2026-10-19T14:04:56.524598+00:00"
+      }
+    },
+    "accepted_files": {
+      "data/figures/fe_walter_map.json": "4716a579d0d22efdade8013c619fa7227d9e88f4f26d7e1b0423af307c7b8794",
+      "data/accepted/fe_walter_hydrology.yaml": "1f4878ee4ff49e09b0b6f7bbf5e1d005620c4e380906671dd93ae12fa9400377",
+      "data/accepted/fe_walter_forcing_1989_2025.csv.gz": "2d030c5e53b15ba5ef7dcb0979dd223889870e6f9a41396bb3b1e2adb4e6a826",
+      "examples/fe_walter/coupled/outputs/current_tutorial/daily.csv": "28330ea4c960a2373c60dd98d04cc6ff9c81667d7cfec494c9750d7357400f85"
+    },
+    "network_sources_are_read_only": true,
+    "availability_role": "evaluation_only",
+    "raw_evidence_directory": "External QA archive; raw response hashes and source URLs identify the retained downloads."
+  },
+  "runtime": {
+    "core_manifest_sha256": "859076b340741ff2d599767597c439a15b7a1b23f6c6ef8648964522b21650a4",
+    "adapter_sha256": "a4f4f1c1fe136dd6691f5a0b12eb6941d39f55c08c17b6ea74db80442c09af37",
+    "downstream_helper_sha256": "c2422a815638764ed38742c6c9ef2bdae3fd4d1bbc529f6b1b457dea994d4b77",
+    "python": "3.14.0",
+    "numpy": "2.4.2",
+    "pandas": "2.3.3"
+  },
+  "methods": {
+    "rule": {
+      "metrics": {
+        "paired_days": 346,
+        "missing_days": 0,
+        "excluded_days": 20,
+        "mae_cms": 5.185956356596666,
+        "rmse_cms": 8.581806038182824,
+        "bias_cms": -0.28354109691028406,
+        "relative_volume_bias": -0.02734281285612799,
+        "nse": -0.006327147254439502,
+        "kge": 0.546611600624711,
+        "kge_method": "2009",
+        "kge_components": {
+          "correlation": 0.6233801211259286,
+          "variability_ratio": 1.2509399890612913,
+          "mean_ratio": 0.9726571871438721
+        },
+        "undefined_metrics": {}
+      },
+      "ledger": {
+        "volumes_input_m3": 330629886.2752703,
+        "output_m3": 330629886.2752702,
+        "comparison_output_m3": 330448963.8005762,
+        "tail_volume_m3": 180922.4746940136,
+        "max_balance_residual_m3": 3.204622771590948e-07,
+        "initialization_days": 20
+      }
+    },
+    "llm_available": {
+      "metrics": {
+        "paired_days": 346,
+        "missing_days": 0,
+        "excluded_days": 20,
+        "mae_cms": 6.720204321290351,
+        "rmse_cms": 11.515697697807664,
+        "bias_cms": 1.354235103872484,
+        "relative_volume_bias": 0.13059340396112204,
+        "nse": -0.8120171782254624,
+        "kge": 0.23250219707609454,
+        "kge_method": "2009",
+        "kge_components": {
+          "correlation": 0.567309347511243,
+          "variability_ratio": 1.620303989656461,
+          "mean_ratio": 1.1305934039611218
+        },
+        "undefined_metrics": {}
+      },
+      "ledger": {
+        "volumes_input_m3": 382529190.5244957,
+        "output_m3": 382529190.5244956,
+        "comparison_output_m3": 382135686.86062133,
+        "tail_volume_m3": 393503.66387426853,
+        "max_balance_residual_m3": 2.5986810214817524e-07,
+        "initialization_days": 20
+      }
+    },
+    "llm_knowledge": {
+      "metrics": {
+        "paired_days": 346,
+        "missing_days": 0,
+        "excluded_days": 20,
+        "mae_cms": 6.71908765258989,
+        "rmse_cms": 11.451116452116207,
+        "bias_cms": 1.1868924274865553,
+        "relative_volume_bias": 0.1144559920193469,
+        "nse": -0.7917502012902589,
+        "kge": 0.2499321154056121,
+        "kge_method": "2009",
+        "kge_components": {
+          "correlation": 0.552911048524519,
+          "variability_ratio": 1.591280920425581,
+          "mean_ratio": 1.1144559920193469
+        },
+        "undefined_metrics": {}
+      },
+      "ledger": {
+        "volumes_input_m3": 382596716.01052576,
+        "output_m3": 382596716.01052576,
+        "comparison_output_m3": 382390945.08267415,
+        "tail_volume_m3": 205770.92785161734,
+        "max_balance_residual_m3": 2.8603244572877884e-07,
+        "initialization_days": 20
+      }
+    }
+  },
+  "assumptions": [
+    "Daily means retain the USGS station's local calendar dates; no UTC date shift or subdaily inference.",
+    "NLDI whole-catchment boundaries are used; the station's partial reach catchment is not split. Exact local drainage requires a finer delineation.",
+    "The lateral area inherits its parent unit's saved climate and soil parameters; no independent calibration.",
+    "Channel routing starts empty; initial kernel-length-minus-one days are excluded from metrics. Full tail volume is exported.",
+    "Gauge agreement describes reproduction of actual operations and hydrology, not the optimality of an alternative operator."
+  ]
+}

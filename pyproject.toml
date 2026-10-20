@@ -17,6 +17,7 @@ Documentation = "https://wenyuchiou.github.io/HydroReOpLLM/"
 hydrocnhs = [] # Compatibility extra: the complete pinned source is now bundled.
 test = ["pytest>=8", "pytest-subtests", "setuptools>=70.1"]
 docs = ["sphinx>=8,<9", "myst-nb>=1.2,<2"]
+gis = ["shapely>=2,<3", "pyproj>=3,<4"]
 
 [project.scripts]
 llm-reservoir-daily = "llm_reservoir_agent.experiment:main"

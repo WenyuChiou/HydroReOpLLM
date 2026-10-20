@@ -1,6 +1,6 @@
 {
   "schema": "hydroopslm.native_arcgis_map_source.v2",
-  "method": "Native ArcGIS project adapted to FE Walter only; original project unchanged; no reference-PNG crop",
+  "method": "Native ArcGIS study-area map extended to Lehighton, retaining the F. E. Walter upstream watershed and original Daymet methodology.",
   "original_project": {
     "bytes": 50893,
     "sha256": "3d7d96c2c0cddade63f9494f612c2bf147e5844785fdd2f88c0ad5fbb61a4329"
@@ -9,28 +9,31 @@
   "original_reference_png_sha256": "eac9fd260fd86ca4e11fa9d9566db6e86f412873f099a439df2871047996d67e",
   "package": {
     "file": "fe-walter-arcgis-source.zip",
-    "bytes": 2524560,
-    "sha256": "a796d721e151d13325b459f88481c102dd53c2e3eca51f43d6f1b04a5622acdc",
-    "aprx": "p30/FE_Walter_DRB_manual_v9.aprx",
+    "bytes": 1996125,
+    "sha256": "04d64f8d3e4f4be747e3b610a2b9381c1ef75d3a6c624b9634294dc909e611fa",
+    "aprx": "project/study-area.aprx",
     "picture_source": "../commondata/pictures/layout_overlay.svg (relative to APRX)"
   },
   "exports": {
-    "fe-walter-catchment.pdf": {
-      "bytes": 1720048,
-      "sha256": "996093caed87288686ffd3e66e027ac9a781efdb9109b221efe52f1636ace5cc"
-    },
     "fe-walter-catchment.png": {
-      "bytes": 2658118,
-      "sha256": "39c0c9e733e64b857d242794a15f6bd05532020e04296ec08c18b245b41a8e07"
+      "bytes": 2405716,
+      "sha256": "ab04fb7854c446413e591c72de573b97dae56d490c24cf08b5f6bc4f1e97c825"
     },
     "fe-walter-catchment.svg": {
-      "bytes": 15154879,
-      "sha256": "9053ccd8e0070a0514edaa8155b23f7135568b9e31b02f7f4c1cdafdc2d11b38"
+      "bytes": 19015302,
+      "sha256": "3428a34d0af8b71d847a67928ee4037e4eebaa7f640a99bb6b7b2a31afffd783"
+    },
+    "fe-walter-catchment.pdf": {
+      "bytes": 2899803,
+      "sha256": "2a1e6a95748c2f30c96f1bbc6a1c2d94ba4b1ffb58b5eca87ba9022de47c10ef"
     }
   },
   "exporter": {
-    "bytes": 3605,
-    "sha256": "b4df390c0bbb5b2ccfc32e7d534782256ce80544c8e2563a0e465bf1aa9a47d6"
+    "tool": "ArcGIS Pro",
+    "version": "3.2",
+    "python": "3.9.18",
+    "editable_source": "Native APRX plus default-namespace SVG overlay",
+    "checks": "Relocation, native title/inset edit, SVG legend/connector edit, save/reopen and actual render; original preview unchanged"
   },
   "map_content": {
     "layout_inches": [
@@ -38,174 +41,86 @@
       8.35
     ],
     "panels": [
-      "CONUS Locator",
-      "Delaware River Basin Overview",
-      "F. E. Walter Detail"
+      "CONUS locator",
+      "Delaware River Basin overview",
+      "Study watershed detail",
+      "F. E. Walter Reservoir inset"
     ],
-    "hierarchy": "Separate CONUS and DRB frames with geometry-derived location/extent leaders to the enlarged FE detail",
-    "station": "USGS 01447500",
-    "reservoir_markers": "F. E. Walter only",
+    "stations": [
+      {
+        "id": "01447500",
+        "name": "Stoddartsville",
+        "position": "upstream of reservoir",
+        "symbol": "orange triangle"
+      },
+      {
+        "id": "01447800",
+        "name": "White Haven",
+        "position": "downstream of dam",
+        "symbol": "red circle"
+      },
+      {
+        "id": "01449000",
+        "name": "Lehighton",
+        "position": "study watershed outlet",
+        "symbol": "purple circle"
+      }
+    ],
+    "watershed_boundaries": {
+      "study_outlet": "Lehighton (USGS 01449000)",
+      "upstream_outlet": "F. E. Walter Dam",
+      "study_area_km2": 1525.215212315,
+      "upstream_area_km2": 746.47067469,
+      "precision": "Preserved NLDI whole-catchment geometry; exact local dam/gauge divides are approximate.",
+      "package_layers": [
+        "commondata/lehighton/gauge_basin.shp",
+        "commondata/lehighton/FEW_basin.shp"
+      ]
+    },
+    "subbasins": {
+      "accepted_upper": 7,
+      "prepared_lower": 9,
+      "status": "Lower units are spatial preparation; downstream calibration and coupled operation have not been performed."
+    },
     "precipitation": {
-      "source": "Frozen Daymet V4 R1 mean annual precipitation",
+      "source": "Preserved Daymet V4 R1",
       "period": "1996-2025",
       "units": "mm/year",
-      "actual_min": 1318.8409423828,
-      "actual_max": 1539.0002441406,
       "display_min": 1300,
-      "display_max": 1550,
-      "colorizer": "RasterStretchColorizer MinimumMaximum with custom min/max",
-      "ramp_samples": 256,
-      "stops": [
-        "#fbf3d0",
-        "#a8d5ba",
-        "#47b5b2",
-        "#2e7fae",
-        "#253b8f"
-      ],
-      "colorbar_encoding": {
-        "type": "256 solid vector rectangles from native CIMFixedColorRamp",
-        "first": [
-          251,
-          243,
-          208,
-          100
-        ],
-        "last": [
-          37,
-          59,
-          143,
-          100
-        ],
-        "range": [
-          1300,
-          1550
-        ],
-        "border_svg_px": 0.6,
-        "no_white_endpoint": true,
-        "palette_sha256": "1b47a917f09d4bbb8099c388f4f80d56d4c1821325583b37af290ecb41a02930",
-        "swatch_overlap_svg_px": 1.02
-      }
-    },
-    "services": [
-      {
-        "identity": "Esri World Terrain Base",
-        "transparency_percent": 60
-      },
-      {
-        "identity": "Esri World Hillshade",
-        "transparency_percent": 68
-      },
-      {
-        "identity": "Esri World Terrain Reference",
-        "transparency_percent": 78
-      }
-    ],
-    "service_attribution": "Service credits retained off-page in the source layout; all provider names appear in normal-size case captions.",
-    "locator_leaders": {
-      "geometry": "Two straight segments without arrowheads; CONUS leader reprojected to the resized frame from its unchanged map coordinate",
-      "stroke": "#111111",
-      "width_svg_px": 0.9
+      "display_max": 1600,
+      "display_raster": "commondata/raster_data/Daymet_Lehighton_1996_2025.tif",
+      "display_raster_sha256": "d1d30b8f1293f3357ddf2dc9c33ee16094d3ed3448d8381807a8224a86e5b9bc",
+      "grid": "Original 1-km source values; display clipped to study watershed",
+      "colorbar_encoding": "256 vector swatches; original palette retained, dark-blue right endpoint"
     },
     "annotations": {
+      "font_family": "Arial",
+      "legend_font_svg_px": 24,
+      "colorbar_title_font_svg_px": 24,
+      "colorbar_tick_font_svg_px": 23,
       "removed": [
-        "Study area context",
-        "CONUS",
-        "F. E. Walter catchment"
+        "Area below FE Walter",
+        "Dam and White Haven"
       ],
-      "DRB_title_font_pt": 25,
-      "legend": "Two-row gauge and dam/outlet legend, 28 SVG px; reservoir identified by geographic callout box",
-      "colorbar": "256 solid vector swatches from native raster colorizer, 1300–1550 mm/year; thin neutral border; dark-blue right endpoint",
-      "dam_name": "F. E. Walter Reservoir",
-      "map_frames_and_camera_extents": "FE detail/DRB overview unchanged; CONUS resized and its leader recomputed from the original geographic anchor",
-      "picture_bounds_inches": [
-        0,
-        0,
-        16,
-        8.35
-      ],
-      "DRB_title_position": "Centered in the gap between the smaller CONUS locator and DRB overview",
-      "dam_name_background": "Name in white margin, orthogonal leader ends at bounding box around actual water polygon",
-      "station_label": "USGS 01447500 appears once in the legend; only the station marker remains on the map.",
-      "north_arrows": "ArcGIS Compass North 1, centered,0.60inch height; linked to respective native mapframes",
-      "dam_label_svg_position": [
-        810,
-        650
-      ],
-      "legend_font_size_svg_px": 28,
-      "dam_name_font_size_svg_px": 28,
-      "point_symbols_pt": {
-        "dam_outlet": 18,
-        "usgs_gauge": 14.0,
-        "white_outline": 0.9
-      },
-      "river_symbol": {
-        "blue_width_pt": 1.8,
-        "casing_width_pt": 2.8,
-        "blue_rgb": [
-          23,
-          108,
-          155
-        ],
-        "casing": "Separate white layer of the same features below the blue layer"
-      },
-      "reservoir_label_leader": {
-        "geometry": "Orthogonal, no arrowhead",
-        "endpoint": "West boundary of the box enclosing the actual water polygon, rather than the outlet point"
-      },
-      "DRB_rivers": {
-        "mainstem_width_pt": 1.3,
-        "tributary_width_pt": 0.85,
-        "rgb": [
-          23,
-          108,
-          155
-        ],
-        "coastal_bay_thematic_polygon_visible": false,
-        "coastal_geometry_unchanged": true
-      },
-      "colorbar_tick_font_svg_px": 25,
-      "colorbar_title_font_svg_px": 30,
-      "reservoir_water_rgb": [
-        23,
-        108,
-        155,
-        100
-      ],
-      "reservoir_area_callout_svg": [
-        858.3690342656613,
-        535.5414054026282,
-        55.742331835423556,
-        80.44211483124593
-      ],
-      "dam_marker_size_pt": 18
+      "major_watershed_legend": [
+        "Study watershed",
+        "F. E. Walter watershed"
+      ]
     }
   },
   "scale_and_extent_checks": {
-    "detail": {
-      "frame_width_in": 10.5,
-      "frame_height_in": 7.1,
-      "actual_camera_width_m": 59155.132988325786,
-      "bar_distance_m": 10000,
-      "bar_length_in": 1.7749938964843788,
-      "equation_error_m": 0
-    },
-    "overview": {
-      "frame_width_in": 4.4,
-      "frame_height_in": 4.65,
-      "actual_camera_width_m": 431869.3923912565,
-      "bar_distance_m": 100000,
-      "bar_length_in": 1.0188265428205607,
-      "equation_error_m": 0
-    },
-    "zoom_polygon": "Created from detail_frame.camera.getExtent() after setExtent/aspect adjustment"
+    "status": "Native main map expanded to Lehighton; local reservoir inset added",
+    "main_scale_bar_km": 20,
+    "DRB_scale_bar_km": 100,
+    "source_layout": "project/study-area.aprx"
   },
   "limitations": [
-    "Online Esri basemap layers remain service-backed; local vectors and Daymet rasters are packaged.",
-    "No graticule was added; coordinate decoration was omitted rather than approximated.",
-    "Original master APRX was not modified.",
-    "Saved exports have fixed hashes. Re-exported live Esri basemaps may differ as service content changes.",
-    "The exporter resolves packaged editable picture sources relative to the APRX before export.",
-    "Map export uses a short-lived ArcPy child; extraction cleanup occurs after that process exits and releases Windows layer locks."
+    "Terrain basemaps require network access in ArcGIS; all thematic layers are included locally.",
+    "Future Esri service content can change a fresh export; published files have fixed hashes.",
+    "NLDI whole-catchment boundaries approximate exact dam and gauge divides.",
+    "Nine lower subbasins are spatial preparation and have not been calibrated or simulated.",
+    "Existing saved downstream curves evaluate White Haven only; the two-gauge experiment remains in design.",
+    "Programmatic overlay edits must retain the default SVG namespace for ArcGIS Pro 3.2."
   ],
   "revisions": [
     {
@@ -579,6 +494,321 @@
           "sha256": "9053ccd8e0070a0514edaa8155b23f7135568b9e31b02f7f4c1cdafdc2d11b38"
         }
       }
+    },
+    {
+      "date": "2026-10-19",
+      "request": "Revise original right study-area panel, enlarge extent and retain same basemap; remove duplicate main-manual map.",
+      "parent_package_sha256": "a796d721e151d13325b459f88481c102dd53c2e3eca51f43d6f1b04a5622acdc",
+      "original_detail_extent": [
+        1656272.433505837,
+        2180500.0,
+        1715427.566494163,
+        2220500.0
+      ],
+      "detail_extent": [
+        1653314.6768564207,
+        2177500.0,
+        1718385.3231435793,
+        2221500.0
+      ],
+      "basemap_services_unchanged": [
+        {
+          "name": "World Terrain Reference",
+          "source": "https:\\www.arcgis.com\\sharing\\rest\\content\\items\\a1428704b268492e84747ea1a69e4315\\resources\\styles\\root.json",
+          "transparency": 78.0
+        },
+        {
+          "name": "World Terrain Base",
+          "source": "https:\\cdn.arcgis.com\\sharing\\rest\\content\\items\\33064a20de0c48d2bb61efa8faca93a8\\resources\\styles\\root.json",
+          "transparency": 60.0
+        },
+        {
+          "name": "World Hillshade",
+          "source": "https://services.arcgisonline.com/arcgis/rest/services/Elevation/World_Hillshade/MapServer",
+          "transparency": 68.0
+        }
+      ],
+      "precipitation_data_colorbar_unchanged": true,
+      "legend_footprint_watershed_intersection_m2": 0.0,
+      "changed_existing_members": [
+        "README.txt",
+        "commondata/arcgis-source-v4/fe_walter_zoom_extent.shp",
+        "commondata/arcgis-source-v4/fe_walter_zoom_extent.shx",
+        "p30/FE_Walter_DRB_manual_v9.aprx",
+        "commondata/pictures/layout_overlay.svg"
+      ],
+      "unchanged_existing_members": 128,
+      "added_gis_members": 24,
+      "broken_sources": [],
+      "exports": {
+        "fe-walter-catchment.pdf": {
+          "bytes": 1850707,
+          "sha256": "f5881b50a2cd163df3d3690a8da754de339c13274e3dd6951bb3f3c11d2259ee"
+        },
+        "fe-walter-catchment.png": {
+          "bytes": 2801256,
+          "sha256": "63eb5678785d3768905804034f9c32f81d99dc82586cd77623342a23fff3abe6"
+        },
+        "fe-walter-catchment.svg": {
+          "bytes": 16337352,
+          "sha256": "05115aae5534db031a00baad7baaae17dae89fc1cf8e4b66c97697da9f63a6b0"
+        }
+      },
+      "edit_script_sha256": "b5c561c071f4671cb321da40f380c61d69cb99253b6014b0b0f68f2515465d94"
+    },
+    {
+      "date": "2026-10-19",
+      "request": "Draw study area for the near-dam USGS gauge, show reservoir upstream watershed separately, and use the same mean annual precipitation throughout.",
+      "parent_package_sha256": "5dac1a0e3760b018cbccdc65f90a495a3a679ab51fe8808ce2f9536ec05a1ceb",
+      "precipitation_colorizer_exactly_unchanged": true,
+      "original_valid_rainfall_cells_unchanged": true,
+      "new_display_raster": "commondata/raster_data/Daymet_FE_Walter_study_area_1996_2025.tif",
+      "original_gis_raster_members_preserved": 107,
+      "new_below_dam_fill": "transparent",
+      "exports": {
+        "fe-walter-catchment.png": {
+          "bytes": 2798898,
+          "sha256": "32f43f16e899274c07f4f922f45ed59d4659bcca9117197cf4b46ebf22465055"
+        },
+        "fe-walter-catchment.svg": {
+          "bytes": 16337548,
+          "sha256": "3321a6e3e3c5611a1d0ba55f46434d286a7920a462155bea18efbbbb2cdaf31b"
+        },
+        "fe-walter-catchment.pdf": {
+          "bytes": 1851843,
+          "sha256": "6ee8ce132f72e962ed8d09803a2f2f23588fe8d17929676700e2e0f432a428e8"
+        }
+      }
+    },
+    {
+      "date": "2026-10-19",
+      "request": "Author-approved two-gauge study area with two main watershed outlines, station names and IDs, and outlet caption",
+      "parent_manual_snapshot": {
+        "package": {
+          "file": "fe-walter-arcgis-source.zip",
+          "bytes": 2909785,
+          "sha256": "e56d40c7b13773cd10c3bc9135cdd976c621cc82398884907f783d3c00010363",
+          "aprx": "p30/FE_Walter_DRB_manual_v9.aprx",
+          "picture_source": "../commondata/pictures/layout_overlay.svg (relative to APRX)"
+        },
+        "exports": {
+          "fe-walter-catchment.png": {
+            "bytes": 2798898,
+            "sha256": "32f43f16e899274c07f4f922f45ed59d4659bcca9117197cf4b46ebf22465055"
+          },
+          "fe-walter-catchment.svg": {
+            "bytes": 16337548,
+            "sha256": "3321a6e3e3c5611a1d0ba55f46434d286a7920a462155bea18efbbbb2cdaf31b"
+          },
+          "fe-walter-catchment.pdf": {
+            "bytes": 1851843,
+            "sha256": "6ee8ce132f72e962ed8d09803a2f2f23588fe8d17929676700e2e0f432a428e8"
+          }
+        },
+        "exporter": {
+          "bytes": 3605,
+          "sha256": "b4df390c0bbb5b2ccfc32e7d534782256ce80544c8e2563a0e465bf1aa9a47d6"
+        },
+        "map_content": {
+          "layout_inches": [
+            16,
+            8.35
+          ],
+          "panels": [
+            "CONUS Locator",
+            "Delaware River Basin Overview",
+            "F. E. Walter Detail"
+          ],
+          "hierarchy": "Separate CONUS and DRB frames with geometry-derived location/extent leaders to the enlarged FE detail",
+          "station": "USGS 01447500 and USGS 01447800",
+          "reservoir_markers": "F. E. Walter only",
+          "precipitation": {
+            "source": "Frozen Daymet V4 R1 mean annual precipitation",
+            "period": "1996-2025",
+            "units": "mm/year",
+            "actual_min": 1318.8409423828125,
+            "actual_max": 1539.000244140625,
+            "display_min": 1300,
+            "display_max": 1550,
+            "colorizer": "RasterStretchColorizer MinimumMaximum with custom min/max",
+            "ramp_samples": 256,
+            "stops": [
+              "#fbf3d0",
+              "#a8d5ba",
+              "#47b5b2",
+              "#2e7fae",
+              "#253b8f"
+            ],
+            "colorbar_encoding": {
+              "type": "256 solid vector rectangles from native CIMFixedColorRamp",
+              "first": [
+                251,
+                243,
+                208,
+                100
+              ],
+              "last": [
+                37,
+                59,
+                143,
+                100
+              ],
+              "range": [
+                1300,
+                1550
+              ],
+              "border_svg_px": 0.6,
+              "no_white_endpoint": true,
+              "palette_sha256": "1b47a917f09d4bbb8099c388f4f80d56d4c1821325583b37af290ecb41a02930",
+              "swatch_overlap_svg_px": 1.02
+            },
+            "display_raster": "commondata/raster_data/Daymet_FE_Walter_study_area_1996_2025.tif",
+            "display_raster_sha256": "a6835e94154469f1bde4d517cc8d86d607b066fac4c97773de6f28ea5f11028a",
+            "regional_source_sha256": "6ebe09d9aca1d20f2b5918dbb38c2a29c2da88bab26ac99be9f56cbb8b91082a",
+            "display_grid": "1 km; source grid and values retained; cell selection uses all touched study-area cells; no interpolation or NoData filling",
+            "source_valid_coverage_fraction": {
+              "gauge_basin": 0.976343235580753,
+              "dam_reach_basin": 0.9776219585695156,
+              "lateral_area": 0.7564398367895823
+            }
+          },
+          "services": [
+            {
+              "identity": "Esri World Terrain Base",
+              "transparency_percent": 60
+            },
+            {
+              "identity": "Esri World Hillshade",
+              "transparency_percent": 68
+            },
+            {
+              "identity": "Esri World Terrain Reference",
+              "transparency_percent": 78
+            }
+          ],
+          "service_attribution": "Service credits retained off-page in the source layout; all provider names appear in normal-size case captions.",
+          "locator_leaders": {
+            "geometry": "Two straight segments without arrowheads; CONUS leader reprojected to the resized frame from its unchanged map coordinate",
+            "stroke": "#111111",
+            "width_svg_px": 0.9
+          },
+          "annotations": {
+            "removed": [
+              "Study area context",
+              "CONUS",
+              "F. E. Walter catchment"
+            ],
+            "DRB_title_font_pt": 25,
+            "legend": "USGS 01447500, USGS 01447800, Dam / outlet, Study watershed, Upstream watershed, Area below dam. Brown below-dam boundary has transparent fill.",
+            "colorbar": "256 solid vector swatches from native raster colorizer, 1300–1550 mm/year; thin neutral border; dark-blue right endpoint",
+            "dam_name": "F. E. Walter Reservoir",
+            "map_frames_and_camera_extents": "Only the FE detail camera is enlarged; CONUS/DRB cameras, original basemap providers/transparencies and precipitation data/colorizer are retained.",
+            "picture_bounds_inches": [
+              0,
+              0,
+              16,
+              8.35
+            ],
+            "DRB_title_position": "Centered in the gap between the smaller CONUS locator and DRB overview",
+            "dam_name_background": "Name in white margin, orthogonal leader ends at bounding box around actual water polygon",
+            "station_label": "Both USGS IDs appear in the legend; station points remain at their recorded coordinates.",
+            "north_arrows": "ArcGIS Compass North 1, centered,0.60inch height; linked to respective native mapframes",
+            "dam_label_svg_position": [
+              810,
+              650
+            ],
+            "legend_font_size_svg_px": 28,
+            "dam_name_font_size_svg_px": 28,
+            "point_symbols_pt": {
+              "dam_outlet": 18,
+              "usgs_gauge": 14.0,
+              "white_outline": 0.9,
+              "usgs_downstream_gauge": 12.0
+            },
+            "river_symbol": {
+              "blue_width_pt": 1.8,
+              "casing_width_pt": 2.8,
+              "blue_rgb": [
+                23,
+                108,
+                155
+              ],
+              "casing": "Separate white layer of the same features below the blue layer"
+            },
+            "reservoir_label_leader": {
+              "geometry": "Orthogonal, no arrowhead",
+              "endpoint": "West boundary of the box enclosing the actual water polygon, rather than the outlet point"
+            },
+            "DRB_rivers": {
+              "mainstem_width_pt": 1.3,
+              "tributary_width_pt": 0.85,
+              "rgb": [
+                23,
+                108,
+                155
+              ],
+              "coastal_bay_thematic_polygon_visible": false,
+              "coastal_geometry_unchanged": true
+            },
+            "colorbar_tick_font_svg_px": 25,
+            "colorbar_title_font_svg_px": 30,
+            "reservoir_water_rgb": [
+              23,
+              108,
+              155,
+              100
+            ],
+            "reservoir_area_callout_svg": [
+              875.0627584233289,
+              510.90127763875284,
+              50.3112107594759,
+              72.76555893749651
+            ],
+            "dam_marker_size_pt": 18
+          },
+          "stations": [
+            {
+              "id": "01447500",
+              "role": "upstream hydrology calibration",
+              "symbol": "orange triangle"
+            },
+            {
+              "id": "01447800",
+              "role": "downstream discharge evaluation",
+              "symbol": "red circle"
+            }
+          ],
+          "watershed_boundaries": {
+            "source_file": "examples/fe_walter/downstream/outputs/catchment_partition.geojson",
+            "sha256": "442fac72566a22ecf8f1ebc22e802970f21a6b02b693eab3d25b44ef5a4e1aa4",
+            "precision": "Whole NHDPlusV2 catchments; approximate at dam and gauge points.",
+            "gauge_area_km2": 750.8113498107182,
+            "upstream_area_km2": 746.4706746896685,
+            "downstream_area_km2": 4.340675121057479
+          }
+        },
+        "scale_and_extent_checks": {
+          "detail": {
+            "frame_width_in": 10.5,
+            "frame_height_in": 7.1,
+            "actual_camera_width_m": 65070.6462871586,
+            "bar_distance_m": 10000,
+            "bar_length_in": 1.6136308149857934,
+            "equation_error_m": 1.8189894035458565e-12
+          },
+          "overview": {
+            "frame_width_in": 4.4,
+            "frame_height_in": 4.65,
+            "actual_camera_width_m": 431869.3923912565,
+            "bar_distance_m": 100000,
+            "bar_length_in": 1.0188265428205607,
+            "equation_error_m": 0
+          },
+          "zoom_polygon": "Created from detail_frame.camera.getExtent() after setExtent/aspect adjustment"
+        }
+      },
+      "source_package_sha256": "04d64f8d3e4f4be747e3b610a2b9381c1ef75d3a6c624b9634294dc909e611fa",
+      "scientific_note": "Cartography only; no change to accepted hydrology, saved reservoir decisions, or downstream simulation."
     }
   ]
 }

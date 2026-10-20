@@ -12,14 +12,24 @@ Lehigh River and Bear Creek. The U.S. Army Corps of Engineers operates it for
 flood-risk management and recreation, with seasonal releases that can also
 support downstream boating and fishing [[1]](#fe-walter-ref-1).
 
+The study area includes both downstream gauges, White Haven and Lehighton. The [downstream hydrology workflow](downstream/validation.md) prepares an observed-boundary test between them; its lower model and daily inputs remain to be supplied. The [saved downstream comparison](downstream/README.md) evaluates White Haven using the historical 2016 decisions.
+
+Map downloads: [PDF](../../docs/figures/fe-walter-catchment.pdf), [SVG](../../docs/figures/fe-walter-catchment.svg), and [editable ArcGIS project](../../data/figures/manual_map/fe-walter-arcgis-source.zip).
+
 ```{figure-md} fe-walter-study-area
 :class: study-area-figure
 
-![F.E. Walter modeled catchment, rivers, dam, and gauge](../../docs/figures/fe-walter-catchment.png)
+![Study watershed at Lehighton, F. E. Walter watershed, and USGS streamflow gauges](../../docs/figures/fe-walter-catchment.png)
 
-**Figure 1.** Modeled subcatchments, dam, gauge, and 1996–2025 mean annual
-precipitation. The callout locates the reservoir area; the diamond marks the
-dam/outlet. Water surfaces and rivers share the same blue.[^map-sources]
+**Figure 1. Study area in the Lehigh River basin, Pennsylvania, USA.** The study
+watershed (black outline) drains to the USGS streamflow gauge at Lehighton (01449000).
+Within it, the F. E. Walter watershed (teal outline) drains to F. E. Walter Dam. The
+part of the study watershed outside the F. E. Walter watershed contributes runoff to the
+Lehigh River and its tributaries between the dam and Lehighton. Stoddartsville
+(01447500) is upstream of the reservoir; White Haven (01447800) is downstream of the
+dam. The inset shows the reservoir, dam, and White Haven gauge. Internal boundaries
+delineate subbasins. Shading shows Daymet [[2]](#fe-walter-ref-2) mean annual
+precipitation for 1996–2025 (mm/year).[^map-sources]
 ```
 
 [^map-sources]: Esri, CGIAR, USGS, data.pa.gov, TomTom, Garmin, SafeGraph,

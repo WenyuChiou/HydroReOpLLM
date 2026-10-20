@@ -444,6 +444,7 @@ Read the notebook in order:
 8. [Check settings](#8-check-the-three-configurations)
 9. [Run instructions](#9-run-your-own-experiment)
 10. [Saved results](#10-read-the-saved-2016-results)
+11. [Downstream flow](#11-compare-flow-at-the-downstream-station)
 
 ## Setup
 
@@ -826,6 +827,30 @@ or [600 dpi PNG](../examples/fe_walter/coupled/outputs/current_tutorial/reservoi
 See [output files](../examples/fe_walter/notebook.md) for the saved-data inventory
 and [results](../examples/fe_walter/results.md) for interpretation. Detailed engine
 comparisons and historical audits remain in the [technical reference](../examples/fe_walter/engine_comparison.md).'''),
+        md('''## 11. Compare flow at the downstream station
+
+The [watershed map](../examples/fe_walter/downstream/outputs/watershed.png) separates
+water entering FE Walter from runoff joining the river below the dam. The
+[downstream daily CSV](../examples/fe_walter/downstream/outputs/daily.csv) contains
+saved release plus spill routed to USGS 01447800, lateral runoff and observations.
+This cell reads the saved comparison; it makes no model request or hydrology run.
+
+The old reservoir inlet included the whole gauge watershed. These curves hold
+its historical releases fixed. The [downstream reference](../examples/fe_walter/downstream/README.md)
+explains the corrected configuration, transferred parameters and boundary precision.
+USGS observations are used only for evaluation.'''),
+        code('''from examples.fe_walter.downstream.plot import plot_streamflow
+
+downstream = ROOT / "examples/fe_walter/downstream/outputs"
+gauge_daily = pd.read_csv(downstream / "daily.csv")
+assert gauge_daily.groupby("method")["date"].nunique().eq(366).all()
+fig = plot_streamflow(gauge_daily)
+display(fig)'''),
+        md('''*Figure 2. Conditional downstream daily mean discharge (cfs), 2016.
+Each saved method is compared against USGS 01447800. Grey shading marks the
+20-day initial-channel assumption; 346 days remain for paired evaluation.
+Boundary-corrected coupled LLM trajectories have not been run.*'''),
+
     ]
 
 

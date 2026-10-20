@@ -1,0 +1,5 @@
+label,model_role,calibration_selection_kge,selected,evaluated_individuals,recorded_generations,first_generation,last_generation,training_winner_kge,reported_calibration_kge,reported_validation_kge,validation_evaluated_for_final_reporting,validation_used_for_parameter_selection
+transferred_reference,original donor transfer,0.8964023736314963,False,,,,,0.8964023736314963,0.8964023736314963,0.8489531931942363,True,False
+seed-112358,new lower calibration,0.9143904193838462,False,1210,31,0,30,0.9143904193838462,,,False,False
+seed-271828,new lower calibration,0.9288178413179189,False,1210,31,0,30,0.9288178413179189,,,False,False
+seed-314159,new lower calibration,0.9350456214268003,True,1210,31,0,30,0.9350456214268003,0.9350456214268003,0.8691405712969543,True,False

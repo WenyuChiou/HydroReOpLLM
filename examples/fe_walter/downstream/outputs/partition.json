@@ -1,0 +1,61 @@
+{
+  "gauge_basin_km2": 750.8113498107182,
+  "dam_reach_basin_km2": 746.4706746896685,
+  "lateral_area_km2": 4.340675121057479,
+  "reach_length_m": 1398.4562137090757,
+  "dam_snap_distance_m": 20.2423911853159,
+  "gauge_snap_distance_m": 35.5496637136239,
+  "dam_point_to_reach_end_m": 43.39581264825908,
+  "boundary_precision": "Whole NHDPlusV2 catchments at the dam reach outlet and gauge reach outlet; not a surveyed split at either point.",
+  "parts": [
+    {
+      "source_unit": "FEW-D-01",
+      "original_area_m2": 41184294.79142502,
+      "upstream_area_m2": 41184294.791424975,
+      "lateral_area_m2": 0.0,
+      "lateral_fraction": 0.0
+    },
+    {
+      "source_unit": "FEW-D-02",
+      "original_area_m2": 200921373.5797237,
+      "upstream_area_m2": 200921373.5797247,
+      "lateral_area_m2": 0.0,
+      "lateral_fraction": 0.0
+    },
+    {
+      "source_unit": "FEW-R-01",
+      "original_area_m2": 132846024.06496534,
+      "upstream_area_m2": 132845822.72490683,
+      "lateral_area_m2": 201.34005300725198,
+      "lateral_fraction": 1.5155896040124708e-06
+    },
+    {
+      "source_unit": "FEW-R-02",
+      "original_area_m2": 67875484.84166817,
+      "upstream_area_m2": 63535011.06066953,
+      "lateral_area_m2": 4340473.781004471,
+      "lateral_fraction": 0.0639475915513445
+    },
+    {
+      "source_unit": "FEW-X-01",
+      "original_area_m2": 68787900.64214163,
+      "upstream_area_m2": 68787900.64214163,
+      "lateral_area_m2": 0.0,
+      "lateral_fraction": 0.0
+    },
+    {
+      "source_unit": "FEW-X-02",
+      "original_area_m2": 82002245.1022243,
+      "upstream_area_m2": 82002245.10222445,
+      "lateral_area_m2": 0.0,
+      "lateral_fraction": 0.0
+    },
+    {
+      "source_unit": "FEW-X-03",
+      "original_area_m2": 157194026.7885362,
+      "upstream_area_m2": 157194026.7885533,
+      "lateral_area_m2": 0.0,
+      "lateral_fraction": 0.0
+    }
+  ]
+}

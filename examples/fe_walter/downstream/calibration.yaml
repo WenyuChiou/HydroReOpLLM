@@ -1,0 +1,19 @@
+# Native HydroCNHS GA_DEAP settings for the new lower watershed.
+# Select the parameter groups and scientific bounds after preparing its attributes.
+seed: 7                                     # Reproducible optimizer seed; independent of any LLM setting.
+parameters: []                              # Required groups: name, mode (set/scale), bounds, native Pars paths.
+ga:
+  min_or_max: max                           # Maximize KGE; roulette receives positive 1/(2-KGE).
+  pop_size: null                            # Required: even population size, at least 2.
+  num_ellite: 1                             # Number of best candidates retained each generation.
+  prob_cross: 0.5                           # Crossover probability, dimensionless.
+  prob_mut: 0.1                             # Mutation probability, dimensionless.
+  stochastic: false                         # GWLF/Lohmann uses deterministic physical calculations.
+  max_gen: null                             # Required: number of generations after initialization.
+  sampling_method: LHC                      # Native Latin hypercube initialization.
+  drop_record: false                        # Keep all optimizer generation records.
+  paral_cores: 1                            # One calibration worker; avoid competing CPU runs.
+  paral_verbose: 0                          # Joblib progress verbosity.
+  auto_save: true                           # Preserve native optimizer state in the new output directory.
+  print_level: 1                            # Print each generation's progress.
+  plot: false                               # Keep automated runs free of interactive windows.

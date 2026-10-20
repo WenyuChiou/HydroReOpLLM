@@ -59,3 +59,27 @@ target pool elevation reference: 1300 ft winter target and 1370 ft summer ceilin
 on May 15 and October 15. (b–d) Implemented water release (cfs), excluding spill.
 Blue lines show upstream simulated inflow on the same scale. Bars below the line
 retain water; bars above it draw from storage. All panels share operation dates.
+
+
+## Downstream discharge
+
+The [downstream extension](downstream/README.md) routes each method's saved
+controlled release plus spill to USGS 01447800 and adds transferred lateral runoff.
+Black curves show the 366 approved USGS daily means. This is a comparison
+conditional on the saved releases: their original inlet included the whole
+gauge watershed. Corrected coupled operation remains a separate experiment.
+The [study area map](README.md#site-and-study-scope) locates White Haven and
+Lehighton. This saved comparison covers White Haven.
+
+Downloads: [daily components and observations](downstream/outputs/daily.csv),
+[full evaluation report](downstream/outputs/report.json),
+[SVG](downstream/outputs/streamflow.svg), [PDF](downstream/outputs/streamflow.pdf).
+Detailed metrics and boundary assumptions remain in the downstream reference.
+
+![Three saved methods compared with USGS 01447800](downstream/outputs/streamflow.png)
+
+**Figure 2.** Conditional 2016 downstream discharge (cfs), shown separately for
+each saved method against the same USGS reference. Curves retain daily means.
+Grey shading marks the first 20 days with assumed initial channel storage;
+the remaining 346 days enter the paired metrics. All panels share flow and date
+scales. Observations are used only for evaluation.

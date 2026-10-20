@@ -52,14 +52,15 @@ def validate(site: Path) -> dict[str, int]:
                 raise ValueError(f"Missing HTML anchor in {file}: {href}")
             count += 1
     downloads = list((site / "_downloads").rglob("*.ipynb"))
-    if len(downloads) != 2:
-        raise ValueError(f"Expected two original notebook downloads, found {len(downloads)}")
+    notebook_names = ("main.ipynb", "advanced.ipynb", "downstream_validation.ipynb")
+    if len(downloads) != len(notebook_names):
+        raise ValueError(f"Expected {len(notebook_names)} original notebook downloads, found {len(downloads)}")
     root = Path(__file__).resolve().parents[1]
-    for name in ("main.ipynb", "advanced.ipynb"):
+    for name in notebook_names:
         matches = [file for file in downloads if file.name == name]
         if len(matches) != 1 or matches[0].read_bytes() != (root / "tutorials" / name).read_bytes():
             raise ValueError(f"Notebook download differs from committed source: {name}")
-    return {"html_pages": len(pages), "local_references": count, "notebook_downloads": 2}
+    return {"html_pages": len(pages), "local_references": count, "notebook_downloads": len(downloads)}
 
 
 def main() -> None:
