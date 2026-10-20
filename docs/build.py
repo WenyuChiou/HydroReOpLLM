@@ -108,6 +108,16 @@ DOWNSTREAM_DOWNLOADS = {
     )
 }
 DOWNSTREAM_DOWNLOADS["tutorials/downstream_validation.ipynb"] = "downstream_validation.ipynb"
+# Publish the curated C&V files; full research inputs and search records stay external.
+DOWNSTREAM_DOWNLOADS.update({
+    "examples/fe_walter/downstream/outputs/hydrology_validation/" + name:
+    "outputs/hydrology_validation/" + name
+    for name in (
+        "calibration_progress.pdf", "calibration_progress.svg", "daily.csv",
+        "hydrology_validation.pdf", "hydrology_validation.png", "hydrology_validation.svg",
+        "model_selection.csv", "regionalization.csv", "summary.json",
+    )
+})
 FIGURE_DOWNLOADS.update({
     "docs/figures/downstream-workflow.drawio": "downstream-workflow.drawio",
     "docs/figures/downstream-workflow.svg": "downstream-workflow.svg",

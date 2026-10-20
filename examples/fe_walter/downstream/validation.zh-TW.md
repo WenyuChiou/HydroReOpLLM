@@ -42,9 +42,30 @@
 
 分區範圍為 **Lehighton 集水區扣除 White Haven 集水區**。JSON 包含 `crs`、`upstream_gauge`、`downstream_gauge`、`upstream_basin`、`downstream_basin`、`subbasins` 與 `outlet_precision`。兩個 basin 欄位採用 GeoJSON geometry；`subbasins` 為 GeoJSON Feature 清單，各項的 `properties.subbasin_id` 對應原生模型。每個下游分區與實測邊界都只貢獻一次水量，檢查結果也保留測站分界的精度說明。
 
-各校準群組設定 `name`、`mode`、`bounds` 與 `paths`。`set` 將同一數值填入列出的原生 `Pars` 欄位；`scale` 將各欄位的初始值乘上共同係數，保留分區間差異。參數範圍與群組依已準備的物理屬性及水文假設決定。原先接受的上游模型另行保留。
+各校準群組設定 `name`、`mode`、`bounds` 與 `paths`。`set` 將同一數值填入列出的原生 `Pars` 欄位；`scale` 將各欄位的初始值乘上共同係數，再以選用的 `clip: [minimum, maximum]` 將結果限制於指定物理範圍。參數範圍與群組依已準備的物理屬性及水文假設決定。原先接受的上游模型另行保留。
 
 搜尋以最大化 KGE（2009）為目標。輪盤選擇使用正值 `1 / (2 - KGE)`；即使 KGE 為負值，仍保留其優劣順序。各候選紀錄同時保留兩個值；原生搜尋摘要顯示轉換後的選擇分數，最終校準及驗證報告則保留原始 KGE。
+
+## 參數化與區域化
+
+新增下游模型包含九個產流分區，合計 **774.404 km²**。各區保留自己的面積、緯度、氣象與河道路徑長度。逐日降雨及溫度來自 Daymet，潛在蒸發散使用 Hamon 方法計算。1989–2020 年的氣象資料共 105,192 個「分區－日期」組合，來源紀錄另外標示八個閏年 12 月 31 日的補充資料。
+
+土地覆蓋與土壤提供初始空間差異。NLCD 2021 各類土地覆蓋比例與 NRCS 土壤水文群比例決定綜合曲線數 $CN_i$；上層 100 cm 土壤的可用儲水量 $AWS_i$（mm）決定初始根區容量。共同校準係數給出
+
+$$
+\begin{aligned}
+CN2_i &= \operatorname{clip}(m_{CN2}CN_i,25,100),\\
+Ur_i &= \operatorname{clip}(m_{Ur}\tfrac{AWS_i}{10},1,15)\;\mathrm{cm}.
+\end{aligned}
+$$
+
+`clip` 會將數值限制於指定區間。這裡的區域化是將共同係數套用到各區物理屬性：九區共用兩個係數，`CN2` 與 `Ur` 可隨各區屬性不同；達到截限時，多個分區也可能具有相同值。其餘七個 GWLF 與四個 Lohmann 參數採共同值，因此搜尋共有 **13 個參數群組**；分區面積與已量測的河道路徑保持固定。
+
+參數移用的參考模型使用已接受上游模型的係數；新增下游校準則從各區物理屬性出發，在明列範圍內搜尋。三個固定隨機種子各使用 40 個個體，最大世代設定為 30。程式依校準 KGE 比較參考模型及三個搜尋結果，先固定選定模型，再計算驗證分數。下游此次以 KGE 為單一目標；上游既有校準保留原本的綜合目標。
+
+各區產流沿完整路徑傳遞到 Lehighton 的匯流出口；White Haven 實測流量另沿約 55.4 km 的河道路徑傳遞。White Haven 使用河道流速與擴散參數，各區產流另包含集水區匯流參數。這項單一匯流出口的設定，使用各區到出口的整段路徑概括中間河段。原生輸出會與獨立卷積核對，並納入比較期間之後才抵達的水量。
+
+歷史期間固定使用 NLCD 2021。土壤平均值依回傳資料中的有效紀錄計算：回傳土壤面積中，85.6–98.6% 具有有效水文群，97.4–99.7% 具有有效儲水屬性；缺少屬性的部分保留於來源紀錄。Lehighton 觀測約束整體產流與 routing，個別支流參數仍採用共同參數假設。
 
 ## 執行與輸出
 
@@ -60,9 +81,24 @@ Notebook 提供三種明確動作的完整命令：
 
 預設納入帶有 `A,e` 的 USGS 估計值，並分別統計其數量。敏感度檢查時可明確修改品質政策。上游邊界若有缺日或被政策排除，程式會停止原生計算，不做插值；下游缺測仍會出現在評分筆數中。
 
-## 目前準備狀態
+## 保存的校準與驗證結果
 
-已保存兩站 1989–2020 年的歷史流量，**每站 11,688 個有效日期，沒有缺日**。原始回應、逐日表與來源紀錄保留在 repository 外的研究證據中。研究區域圖上的九個下游分區目前完成地理準備；真實校準與驗證開始前，還需補上完整逐日氣象、原生模型及以 White Haven 為邊界的分區檢查檔。
+三個固定隨機種子的原生搜尋共完成 **3,630 次參數評估**。程式將參數移用模型列為參考，依校準 KGE 選出 `seed-314159`，先固定其參數，再計算驗證分數。兩段期間皆延續 1989 年初始化後的狀態；2021–2025 年保留給後續操作比較。
+
+| 參數模型 | 期間 | 配對日期 | KGE（2009） | NSE | 水量偏差 |
+|---|---|---:|---:|---:|---:|
+| 上游參數移用 | 校準 | 7,670 | 0.896 | 0.798 | -0.65% |
+| 上游參數移用 | 驗證 | 3,653 | 0.849 | 0.783 | -1.48% |
+| 選定下游校準 | 校準 | 7,670 | 0.935 | 0.877 | +1.87% |
+| 選定下游校準 | 驗證 | 3,653 | 0.869 | 0.875 | +2.99% |
+
+正的水量偏差表示模擬流量超過實測流量。這些分數反映使用 White Haven 實測上游邊界時的產流與 routing 表現。完成指定搜尋代表已執行該評估範圍，可另下載{download}`搜尋進度 SVG <outputs/hydrology_validation/calibration_progress.svg>` 與 {download}`PDF <outputs/hydrology_validation/calibration_progress.pdf>` 檢視進展。
+
+可下載{download}`逐日流量 <outputs/hydrology_validation/daily.csv>`、{download}`九區參數表 <outputs/hydrology_validation/regionalization.csv>`、{download}`模型選擇表 <outputs/hydrology_validation/model_selection.csv>`及{download}`來源與指標摘要 <outputs/hydrology_validation/summary.json>`。圖檔提供 {download}`PDF <outputs/hydrology_validation/hydrology_validation.pdf>`、{download}`可編輯 SVG <outputs/hydrology_validation/hydrology_validation.svg>` 與 {download}`600 dpi PNG <outputs/hydrology_validation/hydrology_validation.png>`。完整輸入、候選參數、原生模型及失敗證據保留於 repository 外的研究紀錄。
+
+![Lehighton 校準及獨立驗證期間的實測與模擬逐日流量。](outputs/hydrology_validation/hydrology_validation.png)
+
+*圖 2．Lehighton（USGS 01449000）逐日流量：(a) 1990–2010 年校準；(b) 2011–2020 年獨立驗證；(c–d) 對應期間的逐日比較，採對數座標並標示 1:1 線。兩段期間皆以 White Haven（USGS 01447800）實測流量作為上游邊界。流量單位為 cfs，1989 年暖機期間不列入圖中。*
 
 這項檢驗支持兩站間逕流與 routing 的整體表現，協助解讀後續 Hanasaki／LLM 的比較。若取得支流觀測，可進一步約束個別子集水區。
 

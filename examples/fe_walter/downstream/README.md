@@ -1,4 +1,4 @@
-# Downstream flow at USGS 01447800
+# Saved 2016 flow at White Haven
 
 [English](README.md) | [繁體中文](README.zh-TW.md)
 
@@ -6,6 +6,10 @@ This extension compares flow at [USGS 01447800](https://waterdata.usgs.gov/monit
 just below FE Walter, with the three saved 2016 operation methods. The comparison
 holds their actual releases fixed. The observations are used only for evaluation.
 Open the [tutorial notebook](../../../tutorials/main.ipynb) to read the saved outputs.
+
+The [downstream calibration and validation reference](validation.md) describes
+the separate White Haven–Lehighton hydrology test. The parameters and scores
+below belong to this saved 2016 comparison.
 
 ## Watershed and water connections
 

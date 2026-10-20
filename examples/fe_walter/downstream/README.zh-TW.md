@@ -1,10 +1,13 @@
-# USGS 01447800 的下游流量
+# 保存的 2016 年 White Haven 流量
 
 [English](README.md) | [繁體中文](README.zh-TW.md)
 
 這項延伸將 FE Walter 三種方法保存的 2016 年實際出水，傳遞到緊鄰壩下的
 [USGS 01447800](https://waterdata.usgs.gov/monitoring-location/USGS-01447800/)，再與觀測比較。
 放流決策保持原樣；觀測只用於結果評估。[教學 Notebook](../../../tutorials/main.ipynb) 可直接讀取保存的輸出。
+
+[下游校準與驗證參考](validation.zh-TW.md)另行說明 White Haven 至 Lehighton 的水文檢驗。
+以下參數與分數屬於這份保存的 2016 年比較。
 
 ## 集水區與水流連接
 

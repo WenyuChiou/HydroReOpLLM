@@ -63,4 +63,6 @@ examples/fe_walter/reference_outputs/**/figures/*.svg -text whitespace=-blank-at
 
 # Preserve native SVG path spacing and empty trailing fields in the USGS RDB.
 examples/fe_walter/downstream/outputs/*.svg -text whitespace=-blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol
+# C&V vector exports retain Matplotlib's recorded path spacing.
+examples/fe_walter/downstream/outputs/hydrology_validation/*.svg -text whitespace=-blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol
 examples/fe_walter/downstream/inputs/station_metadata.txt -text whitespace=-blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
