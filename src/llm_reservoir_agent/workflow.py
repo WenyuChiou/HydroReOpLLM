@@ -60,6 +60,42 @@ def _path(base, value, label):
     return (base / _text(value, label)).resolve()
 
 
+def _prompt_bindings(spec, extensions, base_path, files):
+    """Validate fixed values and lazy retrieval factories without running them."""
+    from .configured_backend import ConfiguredBackend
+    import re
+
+    variables = json_snapshot(spec.get("prompt_variables", {}), label="prompt_variables")
+    provider_specs = spec.get("context_providers", {})
+    if not isinstance(variables, dict):
+        raise ValueError("prompt_variables must be a mapping")
+    if not isinstance(provider_specs, dict):
+        raise ValueError("context_providers must map aliases to extension configurations")
+    names = set(variables) | set(provider_specs)
+    if any(not isinstance(name, str) or re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", name) is None
+           for name in names):
+        raise ValueError("custom prompt binding names must be identifiers")
+    if names & ConfiguredBackend._BUILTINS:
+        raise ValueError("custom prompt bindings use reserved names")
+    if set(variables) & set(provider_specs):
+        raise ValueError("prompt variables and context aliases must be unique")
+    preview_context, context_factories = {}, {}
+    for alias, provider_spec in provider_specs.items():
+        _mapping(provider_spec, {"extension", "config", "preview"}, "context provider")
+        plugin = extensions.get(provider_spec.get("extension"))
+        if plugin is None or not callable(getattr(plugin, "build_context", None)):
+            raise ValueError("context provider requires a registered build_context extension")
+        if "preview" not in provider_spec:
+            raise ValueError("context provider requires an explicit offline preview value")
+        config = json_snapshot(provider_spec.get("config", {}), label="context configuration")
+        if callable(getattr(plugin, "validate_context", None)):
+            config, context_pins = plugin.validate_context(config, base_path=base_path)
+            files.update(context_pins)
+        preview_context[alias] = json_snapshot(provider_spec["preview"], label="context preview")
+        context_factories[alias] = (plugin, config)
+    return variables, preview_context, context_factories
+
+
 @dataclass
 class ExperimentSettings:
     path: Path
@@ -207,12 +243,15 @@ def load_settings(path, *, runtime_root=PROJECT_ROOT, information_providers=None
                      or any(p.kind == inspect.Parameter.VAR_KEYWORD for p in parameters.values()) else {})
             # Information selection is independent of the rule algorithm. The
             # runtime supplies only causal, published records in observation.context.
-            selected_information = spec.get('information') if agent_type == 'rule_based' else None
+            supports_context = getattr(extension, 'supports_prompt_context', False) is True
+            selected_information = (spec.get('information')
+                                    if agent_type == 'rule_based' or supports_context else None)
             if selected_information is not None and (not isinstance(selected_information, str)
                                                      or selected_information not in profiles):
-                raise ValueError('rule references an unknown information profile')
+                raise ValueError('agent references an unknown information profile')
             plugin_spec = ({k: v for k, v in spec.items() if k != 'information'}
-                           if agent_type == 'rule_based' else spec)
+                           if agent_type == 'rule_based' or supports_context else spec)
+            bindings = _prompt_bindings(spec, extensions, path.parent, files) if supports_context else None
             normalized, pins = extension.validate_backend(
                 plugin_spec, base_path=path.parent, runtime_root=runtime_root,
                 physical=physical, mode=mode, days=len(rows), model=models.get(model_id),
@@ -225,6 +264,10 @@ def load_settings(path, *, runtime_root=PROJECT_ROOT, information_providers=None
                                      **normalized, model=models.get(model_id),
                                      extension_runtime=extension,
                                      audit_plugins=[ConfiguredAudit(a, auditors[a]) for a in checks])
+            if supports_context:
+                variables, preview_context, context_factories = bindings
+                agents[identifier].update(prompt_variables=variables, preview_context=preview_context,
+                                          context_factories=context_factories)
             if selected_information is not None:
                 agents[identifier]['information'] = selected_information
             continue
@@ -249,29 +292,7 @@ def load_settings(path, *, runtime_root=PROJECT_ROOT, information_providers=None
             files[str(resource)] = hashlib.sha256(blob).hexdigest()
         if not templates["user"].strip():
             raise ValueError("prompt.user must contain text")
-        variables = json_snapshot(spec.get("prompt_variables", {}), label="prompt_variables")
-        provider_specs = spec.get("context_providers", {})
-        if not isinstance(provider_specs, dict):
-            raise ValueError("context_providers must map aliases to extension configurations")
-        preview_context, context_factories = {}, {}
-        for alias, provider_spec in provider_specs.items():
-            _text(alias, "context alias")
-            _mapping(provider_spec, {"extension", "config", "preview"}, "context provider")
-            plugin = extensions.get(provider_spec.get("extension"))
-            if plugin is None or not callable(getattr(plugin, "build_context", None)):
-                raise ValueError("context provider requires a registered build_context extension")
-            if "preview" not in provider_spec:
-                raise ValueError("context provider requires an explicit offline preview value")
-            config = json_snapshot(provider_spec.get("config", {}), label="context configuration")
-            if callable(getattr(plugin, "validate_context", None)):
-                config, context_pins = plugin.validate_context(config, base_path=path.parent)
-                files.update(context_pins)
-            preview_context[alias] = json_snapshot(provider_spec["preview"], label="context preview")
-            context_factories[alias] = (plugin, config)
-        if not isinstance(variables, dict):
-            raise ValueError("prompt_variables must be a mapping")
-        if set(variables) & set(preview_context):
-            raise ValueError("prompt variables and context aliases must be unique")
+        variables, preview_context, context_factories = _prompt_bindings(spec, extensions, path.parent, files)
         placeholders = set()
         for template in templates.values():
             identifiers = Template(template).get_identifiers()
@@ -473,10 +494,14 @@ def run_settings(settings, *, allow_network=False, runtime_root=PROJECT_ROOT, tr
             physical = current.network["reservoirs"][agent["reservoir"]]["physical"]
             from .rule_based import RuleBasedBackend, no_model_transport
             is_rule = agent.get('agent_type') == 'rule_based'
+            context_options = {}
+            if getattr(agent['extension_runtime'], 'supports_prompt_context', False) is True:
+                context_options = dict(agent_id=identifier, context_providers=contexts_for(
+                    agent, physical['reservoir_id']))
             backend = agent["extension_runtime"].build_backend(
                 agent, physical=physical, runtime_root=runtime_root,
                 mode=agent["mode"], model=None if is_rule else agent["model"],
-                transport=no_model_transport if is_rule else bounded_transport)
+                transport=no_model_transport if is_rule else bounded_transport, **context_options)
             if is_rule:
                 backend = RuleBasedBackend(backend, agent['strategy'])
             backends[agent["reservoir"]] = AuditedBackend(backend, agent["audit_plugins"])

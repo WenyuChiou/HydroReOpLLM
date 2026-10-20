@@ -510,11 +510,12 @@ To study downstream conditions, connect tributary inflow through
 `inflow_bindings`. Downstream observations, demand or operating limits can be
 selected through a [decision information profile](../docs/INFORMATION.md).
 The generic LLM path can insert a selected profile through `$information`.
-The FE Walter `reference_v3_7` backend uses its own formatter and currently needs
-an adapter change to include these fields. Adding a profile to YAML alone will
-not add downstream measurements to this case's request. Observation timestamps
-and availability determine what the operator may see; completed downstream
-simulation steps can inform later decisions. This lesson keeps the supplied inputs.
+The FE Walter `reference_v3_7` backend appends the selected profile to its native
+user message. Both LLM methods also support fixed prompt variables and custom
+retrieval callbacks. The optional example after step 7 shows the settings.
+Observation timestamps and availability determine what the operator may see;
+completed downstream simulation steps can inform later decisions. The supplied
+annual comparison keeps its original inputs.
 
 See [site and data](../examples/fe_walter/README.md) for sources and the PET equation.
 Use [HydroCNHS tutorials](https://github.com/cylin928/HydroCNHS/tree/main/tutorials) for model construction
@@ -685,6 +686,54 @@ shows the actual October requests and replies, alongside the proposed correction
 The diagram summarizes how instructions, state and optional knowledge form a request.
 
 ![Prompt, daily state and optional knowledge](../docs/figures/prompt-context-workflow.svg)'''),
+        md('''### Optional: add downstream observations and retrieved passages
+
+Use a copy of an LLM entry and its agent file. Add the experiment's
+`information.file` reference to
+[fe_walter_information.yaml](config/fe_walter_information.yaml). The complete
+file below selects a downstream flow in cfs. Its
+[CSV](../tests/fixtures/fe_walter_information/gauge.csv) contains synthetic
+interface data; replace it with your observations for a study.'''),
+        code('''show_file("tutorials/config/fe_walter_information.yaml")'''),
+        md('''In the agent's existing `customization` block, retain `backend` and
+`parameters`, then add these optional fields:
+
+```yaml
+information: downstream_conditions  # Profile ID from the information file.
+prompt_variables:
+  study_note: Your study-specific instructions.
+context_providers:
+  operating_context:                 # Label shown in the added prompt section.
+    extension: saved_retrieval       # Registry ID declared in the experiment.
+    config:
+      passages_file: ../../../tests/fixtures/fe_walter_information/passages.json
+      query: downstream operating guidance
+    preview:                         # A check-time value; no retrieval is executed.
+      query: preview only
+      passages: []
+```
+
+From the `coupled` folder, the experiment additions are
+`information: {file: ../../../tutorials/config/fe_walter_information.yaml}` and
+`saved_retrieval: ../extensions/retrieval/__init__.py` inside `extensions`.
+The existing backend registration stays in that mapping. Relative paths start
+from the file that declares them.
+
+| Field | What reaches the request |
+|---|---|
+| `information` | Selected station values, units and availability under Additional decision information. |
+| `prompt_variables` | Fixed text or JSON under a section labelled by its key. |
+| `context_providers` | The callback's text or JSON, with its query and document IDs. |
+| `preview` | Only the configuration preview. The callback supplies the decision-time value. |
+
+The [local retrieval adapter](../examples/fe_walter/extensions/retrieval/__init__.py)
+reads saved synthetic passages through `build_context(config)`. Register your
+own callback with the same interface to connect a vector database. It receives
+an immutable `DecisionContext` and returns a `ContextValue` containing the query,
+passages and provenance. Required unavailable inputs and callback errors stop
+before a provider request. See the [adapter guide](../examples/fe_walter/extensions/retrieval/README.md)
+for timestamps, source pins, retry and resume behavior. These cells only display
+settings; they perform no retrieval, model request or simulation.'''),
         md('''## 8. Check the three configurations
 
 `load_coupled_settings` is a Python function that reads the experiment and resolves

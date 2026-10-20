@@ -43,6 +43,14 @@ reservoir-experiment verify runs/fe-walter-current-rule/operation
 Copy an entry and set a new `run_id` and output for new work. LLM execution also
 requires `--allow-network`.
 
+## Optional decision information
+
+Both LLM entries support selected downstream station flows and custom retrieved
+text. Follow [additional decision inputs](../extensions/retrieval/README.md) and
+the [notebook](../../../tutorials/README.md) to add them in a copy of the settings.
+The station observation affects the prompt; hydrological inflow still comes from
+`hydrology.yaml`. The supplied 2016 results keep their original inputs.
+
 <a id="verified-2016-results"></a>
 
 ## Current saved 2016 results
