@@ -48,7 +48,4 @@ release, storage and downstream flow.
 
 ![HydroReOpLLM core workflow](figures/hydrocnhs-coupling-framework-en.png)
 
-*Figure 1. HydroCNHS provides upstream hydrology and routing. The selected agent
-requests a controlled release; reservoir physics applies it and updates storage.
-Response validation checks the model reply, audits evaluate configured operating
-criteria, and the recorder saves the decision and physical result.*
+*Figure 1. HydroCNHS supplies upstream hydrology and routing. The selected agent requests release; reservoir calculations apply physical limits and update storage. Valid reply? parses and checks the LLM reply. Invalid replies follow the configured retry or stop path. Operating-rule check is required in the illustrated case and records diagnostics without automatically changing or vetoing release. Trace records retain LLM inputs, replies, requests and check results. See the [figure interpretation](figures/FIGURE1.md) for details.*

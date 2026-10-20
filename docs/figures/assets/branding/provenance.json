@@ -154,20 +154,56 @@
         "bytes": 156970
       },
       "docs/figures/hydrocnhs-coupling-framework-en.drawio": {
-        "sha256": "1131d69f6d36452c8f96e92a1440e1eaee08aa0d4d981988997b7fa237c17288",
-        "bytes": 15910210
+        "sha256": "207255d987508e3711cab1e962929fa3f7f6bf7db3de9f1277363fbb07055c8a",
+        "bytes": 14645946,
+        "baseline_approval": {
+          "date": "2026-10-19",
+          "decision": "Author approved synchronizing v34 source records only",
+          "rationale": "Matches the author-approved Figure 1 v34 with attached connector and synchronized exports",
+          "previous": {
+            "sha256": "1131d69f6d36452c8f96e92a1440e1eaee08aa0d4d981988997b7fa237c17288",
+            "bytes": 15910210
+          }
+        }
       },
       "docs/figures/hydrocnhs-coupling-framework-en.svg": {
-        "sha256": "fd737a0f4ad88e2a55d970be6168a6fe88a4b191dc064765d18c8500cc034bee",
-        "bytes": 17006427
+        "sha256": "07745a6cbb01963219bd68dd1c609dfd80ac35d6b1929938afa880ae25f785c5",
+        "bytes": 15681725,
+        "baseline_approval": {
+          "date": "2026-10-19",
+          "decision": "Author approved synchronizing v34 source records only",
+          "rationale": "Matches the author-approved Figure 1 v34 with attached connector and synchronized exports",
+          "previous": {
+            "sha256": "fd737a0f4ad88e2a55d970be6168a6fe88a4b191dc064765d18c8500cc034bee",
+            "bytes": 17006427
+          }
+        }
       },
       "docs/figures/hydrocnhs-coupling-framework-en.png": {
-        "sha256": "3eff9d5491c011c3af5504841e867207056f0868f8e8a8a2a4a6c6699b14ba00",
-        "bytes": 2003766
+        "sha256": "e7ff3d2036bcc8e6c68fdc6c31a70c574702ba6800d62ea9b590ecf87565f71c",
+        "bytes": 1863364,
+        "baseline_approval": {
+          "date": "2026-10-19",
+          "decision": "Author approved synchronizing v34 source records only",
+          "rationale": "Matches the author-approved Figure 1 v34 with attached connector and synchronized exports",
+          "previous": {
+            "sha256": "3eff9d5491c011c3af5504841e867207056f0868f8e8a8a2a4a6c6699b14ba00",
+            "bytes": 2003766
+          }
+        }
       },
       "docs/figures/hydrocnhs-coupling-framework-en.pdf": {
-        "sha256": "769d1429ef9ae6fea04c37dffab14d904863d3ef7306a09fe93f7100784c1df6",
-        "bytes": 10259483
+        "sha256": "6c60811b5e84328b5aaf3f6ef427690327ed862b7e3f24d9e6116b99c489a047",
+        "bytes": 9426130,
+        "baseline_approval": {
+          "date": "2026-10-19",
+          "decision": "Author approved synchronizing v34 source records only",
+          "rationale": "Matches the author-approved Figure 1 v34 with attached connector and synchronized exports",
+          "previous": {
+            "sha256": "769d1429ef9ae6fea04c37dffab14d904863d3ef7306a09fe93f7100784c1df6",
+            "bytes": 10259483
+          }
+        }
       },
       "docs/figures/hydroopslm-cover.png": {
         "sha256": "fade329b1e76f709c4acdf0720e55869e4dfffc6dd3168870bcafccf4fcca35a",

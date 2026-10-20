@@ -1,6 +1,6 @@
 {
-  "revision": "v23 HydroReOpLLM branding, synchronized to the author-approved v22 workflow",
-  "previous_quality_sha256": "ab6452efa986f4eeb2928dce046649fa36efc4a02dbac81c525b91c6dde704c7",
+  "revision": "Author-approved v34, 19 October 2026; native horizontal trace connector attached",
+  "previous_quality_sha256": "22dcfe1bcc53cf7d9c8da43c246d572b8a7b0114c280433d396ac2deec67f289",
   "source_of_truth": "Native draw.io; historical generator does not reproduce this reviewed layout.",
   "correction_history": [
     "Round20 independent REVISE: Prompt text on border and audit spacing.",
@@ -19,7 +19,8 @@
     "Revision29 configurable Available information plus External data; two independent cold readers, first-use model roles and causality clarified in caption. Release request restored after targeted relation check. Existing generated icons and native Dam API retained.",
     "Revision30 targeted clarification: Reservoir operation via native Dam API, simulation feedback plus external records, decision audit before physics, and trace finalized after physics. No PASS gate, second operation engine, icon generation, or broad layout change.",
     "v13/v14: simplified vertical workflow, separately labeled16arrows, HydroOpsLLM name and existing SVG logo.",
-    "v15: replace white data/agent areas with neutral/warm fills; no module,edge,label,or geometry change from v14."
+    "v15: replace white data/agent areas with neutral/warm fills; no module,edge,label,or geometry change from v14.",
+    "v34: author-approved smaller validity diamond, Yes/No paths, retry/stop note, consistent requested-release labels, solid case check, and author shared trace branch; both ends of the new horizontal connector attached. No research execution."
   ],
   "historical_visual_qa": {
     "full_png": "worker visual PASS at 1856x1066, candidate 05ae6ada; parent review pending",
@@ -32,17 +33,22 @@
     "editability_test": "PASS final candidate copy label changed, audit icon moved and attached request-audit endpoint changed; reopened/exported in draw.io 26.0.4 and rendered PNG 0aac17ca inspected"
   },
   "current_visual_qa": {
-    "date": "2026-10-18",
-    "scope": "Parent image review of renamed approved workflow; no scientific or human-reader certification",
+    "date": "2026-10-19",
+    "scope": "Native structure, full PNG and final PDF preview review of the author-approved layout",
     "png_px": [
       4252,
       2617
     ],
     "pdf_pages": 1,
     "pdf_check_width_mm": 180,
-    "brand_visible": true,
-    "clipping_or_overlap_observed": false,
-    "earlier_records": "Preserved in the external research revision backup and historical_visual_qa."
+    "source_cells": 85,
+    "directed_edges": 18,
+    "all_edges_attached": true,
+    "diagonal_segments": 0,
+    "shared_information_stem": "The trace and check information paths share a horizontal stem in the author layout.",
+    "human_comprehension": "not assessed",
+    "journal_compliance": "not claimed",
+    "text_or_node_collision_observed": false
   },
   "delivery": {
     "width_mm": 180,
@@ -64,20 +70,20 @@
   },
   "artifacts": {
     "docs/figures/hydrocnhs-coupling-framework-en.drawio": {
-      "bytes": 15910210,
-      "sha256": "1131d69f6d36452c8f96e92a1440e1eaee08aa0d4d981988997b7fa237c17288"
+      "bytes": 14645946,
+      "sha256": "207255d987508e3711cab1e962929fa3f7f6bf7db3de9f1277363fbb07055c8a"
     },
     "docs/figures/hydrocnhs-coupling-framework-en.svg": {
-      "bytes": 17006427,
-      "sha256": "fd737a0f4ad88e2a55d970be6168a6fe88a4b191dc064765d18c8500cc034bee"
-    },
-    "docs/figures/hydrocnhs-coupling-framework-en.pdf": {
-      "bytes": 10259483,
-      "sha256": "769d1429ef9ae6fea04c37dffab14d904863d3ef7306a09fe93f7100784c1df6"
+      "bytes": 15681725,
+      "sha256": "07745a6cbb01963219bd68dd1c609dfd80ac35d6b1929938afa880ae25f785c5"
     },
     "docs/figures/hydrocnhs-coupling-framework-en.png": {
-      "bytes": 2003766,
-      "sha256": "3eff9d5491c011c3af5504841e867207056f0868f8e8a8a2a4a6c6699b14ba00"
+      "bytes": 1863364,
+      "sha256": "e7ff3d2036bcc8e6c68fdc6c31a70c574702ba6800d62ea9b590ecf87565f71c"
+    },
+    "docs/figures/hydrocnhs-coupling-framework-en.pdf": {
+      "bytes": 9426130,
+      "sha256": "6c60811b5e84328b5aaf3f6ef427690327ed862b7e3f24d9e6116b99c489a047"
     }
   },
   "branding_revision": {
@@ -160,6 +166,7 @@
         "bytes": 653890
       }
     },
-    "visual_review": "Parent inspected current native PNG and cropped one-page PDF renderings: brand visible, no clipping/overlap; paper workflow preserves approved geometry. No claim of human-reader or scientific validation."
+    "visual_review": "Parent inspected current native PNG and cropped one-page PDF renderings: brand visible, no clipping/overlap; paper workflow preserves approved geometry. No claim of human-reader or scientific validation.",
+    "historical": true
   }
 }

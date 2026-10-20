@@ -53,18 +53,18 @@ def build(output_dir=None):
         },
         "line_semantics": {
             "solid": "directed water, decision information or recorded evidence",
-            "dashed_border": "optional knowledge or operating-rule audit",
+            "dashed_border": "optional operating knowledge; the illustrated operating-rule check is required",
             "water": "runoff, inlet, implemented controlled release plus spill",
         },
         "color_semantics": {
             "region_fills": "HydroCNHS host versus highlighted LLM decision extension",
             "decision_cards": "rule-based or LLM decision functions, not source ownership",
-            "validation_and_record_cards": "response validation, optional audit and trace; never a PASS/FAIL color",
+            "validation_and_record_cards": "response validation, operating-rule check and trace; never a PASS/FAIL color",
         },
         "responsibilities": {
-            "response_validation": "Parse the response contract before producing a normalized requested release.",
-            "operating_rule_audit": "Record configured diagnostic criteria; target failure does not resample the model.",
-            "trace_records": "Bind actual messages, proposals, audits and committed physical execution.",
+            "response_validation": "Valid reply? parses and checks the response contract; eligible failures retry as configured or stop before physics.",
+            "operating_rule_audit": "Required in the illustrated case; diagnostics finish before physics without automatically changing or vetoing release.",
+            "trace_records": "This view retains LLM inputs, model replies, release requests and check results.",
         },
         "exports": "Accepted PNG, SVG and 180 mm PDF are reviewed separately; this command does not overwrite them.",
     }

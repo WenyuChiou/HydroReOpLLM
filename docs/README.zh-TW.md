@@ -41,5 +41,4 @@ HydroReOpLLM 保存操作期間的入流；每天由 agent 根據入流及當前
 
 ![HydroReOpLLM 核心流程](figures/hydrocnhs-coupling-framework-en.png)
 
-*圖 1。HydroCNHS 提供上游水文與 routing。Agent 提出控制放流，水庫物理計算實作放流並更新蓄水。
-回覆驗證檢查模型回覆；audit 評估已設定的操作條件；recorder 保存決策與物理結果。*
+*圖 1。HydroCNHS 提供上游水文與 routing。選定的 agent 請求放流，水庫計算依物理限制實作放流並更新蓄水。Valid reply? 解析並檢查 LLM 回覆；無效回覆依設定重試或停止。圖示案例要求執行 Operating-rule check，記錄診斷而不自動改寫或否決放流。Trace records 保存 LLM 輸入、回覆、放流請求與檢查結果。詳見[圖說與流程界線](figures/FIGURE1.md)。*
