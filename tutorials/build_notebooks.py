@@ -1000,10 +1000,50 @@ def _notebook(cells: list[dict], name: str, execute: bool) -> dict:
             "cells": cells}
 
 
+def _retain_execution(cells: list[dict], name: str, path: Path) -> dict:
+    """Keep verified outputs only when every executable cell is unchanged.
+
+    Documentation builds must not erase the completed lesson or silently attach
+    old outputs to changed computation. Explicit execution refreshes the record.
+    """
+    current = _notebook(cells, name, execute=False)
+    previous = json.loads(path.read_text(encoding="utf-8"))
+    old = [cell for cell in previous["cells"] if cell["cell_type"] == "code"]
+    new = [cell for cell in current["cells"] if cell["cell_type"] == "code"]
+    if ([cell["source"] for cell in new] != [cell["source"] for cell in old]
+            or previous["metadata"].get("execution_dependencies") != _operation_dependencies()
+            or not old
+            or [cell.get("execution_count") for cell in old] != list(range(1, len(old) + 1))
+            or any(output["output_type"] == "error" for cell in old for output in cell.get("outputs", []))
+            or sum("image/png" in output.get("data", {}) for cell in old for output in cell.get("outputs", [])) != 2
+            or not any("text/html" in output.get("data", {}) for cell in old for output in cell.get("outputs", []))):
+        raise ValueError("Operation lesson needs a completed execution matching its code cells")
+    for target, source in zip(new, old, strict=True):
+        target["execution_count"] = source["execution_count"]
+        target["outputs"] = source["outputs"]
+    current["metadata"] = previous["metadata"]
+    return current
+
+
+def _operation_dependencies() -> dict[str, str]:
+    """Bind retained results to their current case inputs and implementation."""
+    case = ROOT / "examples/fe_walter/operation"
+    provenance = json.loads((case / "provenance.json").read_text(encoding="utf-8"))
+    paths = {case / name for name in provenance["originals"]}
+    paths.update(case / name for name in provenance["artifacts"])
+    paths.update(ROOT / name for name in provenance["shared_dependencies"])
+    paths.update((ROOT / "src/llm_reservoir_agent").rglob("*.py"))
+    paths.update(case.rglob("*.py"))
+    paths.add(case / "provenance.json")
+    return {path.relative_to(ROOT).as_posix(): hashlib.sha256(
+        path.read_bytes().replace(b"\r\n", b"\n") if path.suffix == ".py" else path.read_bytes()).hexdigest()
+        for path in sorted(paths)}
+
+
 def build(*, execute: bool, notebook: str | None = None) -> list[dict]:
     """Build lessons; the operation lesson executes only when explicitly selected.
 
-    A complete build keeps that lesson's outputs empty for the reader's own run.
+    A complete build retains that lesson's matching execution outputs.
     Select operation.ipynb with execute=True to verify its real CPU simulation.
     """
     os.chdir(ROOT)
@@ -1022,7 +1062,12 @@ def build(*, execute: bool, notebook: str | None = None) -> list[dict]:
         cells = builders[name]()
         path = TUTORIALS / name
         run_cells = execute and (name != "operation.ipynb" or notebook == name)
-        path.write_text(json.dumps(_notebook(cells, name, run_cells), indent=1, ensure_ascii=False) + "\n",
+        document = (_retain_execution(cells, name, path)
+                    if name == "operation.ipynb" and notebook is None
+                    else _notebook(cells, name, run_cells))
+        if name == "operation.ipynb" and run_cells:
+            document["metadata"]["execution_dependencies"] = _operation_dependencies()
+        path.write_text(json.dumps(document, indent=1, ensure_ascii=False) + "\n",
                         encoding="utf-8", newline="\n")
         receipts.append({"path": str(path.relative_to(ROOT)), "executed": run_cells, "sha256": _sha(path)})
     return receipts
@@ -1047,16 +1092,14 @@ def check() -> list[dict]:
         if name == "main.ipynb":
             assert "image/png" in mime
         if name == "operation.ipynb":
+            _retain_execution(operation_cells(), name, path)
             assert "check_preparation" in source
             assert "prepare_coupled(simulation, progress=True)" in source
             assert "run_settings(operation_settings, progress=True" in source
             assert "plot_run(run_output" in source
             counts = [c.get("execution_count") for c in cells]
-            assert all(c is None for c in counts) or all(c is not None for c in counts)
-            if all(c is None for c in counts):
-                assert all(c.get("outputs") == [] for c in cells)
-            else:
-                assert "image/png" in mime
+            assert counts == list(range(1, len(cells) + 1))
+            assert "image/png" in mime and "text/html" in mime
         reports.append({"path": str(path.relative_to(ROOT)), "cells": len(notebook["cells"]), "mime_types": sorted(mime), "sha256": _sha(path)})
     manifest = json.loads((CURRENT / "provenance.json").read_text(encoding="utf-8"))
     for source in manifest["sources"].values():

@@ -14,7 +14,8 @@ rule, and compare water elevation and downstream flow with observations.
 The operation period is **2021–2025 (1,826 days)**.
 
 Run the cells in order: **settings → hydrology → operation → checks → figures**.
-The notebook is distributed with empty outputs so you can see your own run.
+Verified tables and figures from the completed run are included below.
+Rerun the cells to calculate your own results in a fresh output folder.
 All computation is local. LLM settings are introduced at the end for a later comparison.
 
 ## Setup

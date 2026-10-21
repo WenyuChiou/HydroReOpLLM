@@ -12,7 +12,7 @@ reservoir operation, water-balance checks, and figures drawn from your own run.
 | [Historical 2016 walkthrough](main.ipynb) | Read each complete configuration and inspect the accepted 2016 teaching results. These LLM curves predate daily seasonal context and are not five-year results. |
 | [Downstream validation](downstream_validation.ipynb) | Prepare the White Haven–Lehighton observation-boundary test, check inputs, and follow the separate calibration and validation stages. |
 
-The five-year lesson is distributed with empty outputs. Its cells run local CPU
+The five-year lesson includes the completed run's tables and figures. Its cells run local CPU
 simulations using the accepted inputs and parameters, then call the plotting
 function on the new results. It makes no LLM request or download. The historical
 notebook continues to read saved evidence.
@@ -42,7 +42,7 @@ python tutorials/build_notebooks.py --check
 The first command executes the real hydrology and Rule-based lesson and saves its
 outputs in a fresh `runs/fe-walter-tutorial-*` directory. Existing research results
 remain unchanged. A complete build without `--notebook` executes historical lessons
-from saved data and leaves the operation lesson ready to run with empty outputs.
+from saved data and retains the operation lesson's matching execution outputs.
 
 [Generic configuration](../docs/INPUT_OUTPUT.md) ·
 [HydroCNHS setup](../docs/HYDROLOGY_SETUP.md) ·
