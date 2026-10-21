@@ -1,16 +1,25 @@
-# F.E. Walter outputs and notebook
+# F.E. Walter outputs and notebooks
 
-The saved 2016 experiment has 366 daily records for each of the three methods.
-The manual shows the [water elevation and water release figure](results.md).
-Use the files below to inspect the values or prepare your own figure.
+Start with the current [2021–2025 operation tutorial](../../tutorials/operation.ipynb).
+It reads the complete prepared settings, runs an offline preflight, and displays
+the completed Rule-based baseline. The two five-year LLM methods are prepared but
+have not been executed. Download the baseline inputs, daily files, figures, and
+score summary from the [operation folder](operation/README.md).
 
-For the step-by-step tutorial, open the repository's [tutorials folder](../../tutorials/).
-Its README introduces [main.ipynb](../../tutorials/main.ipynb), from `experiment.yaml`
-through hydrology, the reservoir, agents and saved results. Run it in a local
-clone after [installation](../../docs/GETTING_STARTED.md).
+The [historical 2016 walkthrough](../../tutorials/main.ipynb) remains available for
+the accepted configuration route and its 366 daily records per method. Those LLM
+trajectories were generated before daily seasonal context was added and must not
+be presented as five-year results.
+
+Run either notebook in a local clone after
+[installation](../../docs/GETTING_STARTED.md). Both routes read saved evidence and
+make no model request or hydrology calculation.
+Browse the repository's [tutorials folder](../../tutorials/) for both lessons and
+their build instructions.
 
 | File | Contents |
 |---|---|
+| [Five-year operation files](operation/README.md) | Current 2021–2025 prepared settings, Rule-based baseline, figures, scores, and limitations. |
 | [daily.csv](coupled/outputs/current_tutorial/daily.csv) | Date, method, inflow, end-of-day water elevation, water release, spill and storage. |
 | [Downstream flow CSV](downstream/outputs/daily.csv) | Routed saved reservoir outflow, lateral runoff and USGS 01447800 observations; see the [downstream reference](downstream/README.md). |
 | [provenance.json](coupled/outputs/current_tutorial/provenance.json) | Source runs, units, period and file hashes. |
@@ -21,6 +30,5 @@ The water elevation is the state at the end of that same operation day. Storage
 also depends on inflow and spill; a large release alone does not determine whether
 the water level rises or falls.
 
-You can also
-{download}`download the notebook <../_notebook_downloads/main.ipynb>`.
-It reads saved data and makes no model request or hydrology calculation.
+You can also {download}`download the five-year notebook <../_notebook_downloads/operation.ipynb>`
+or {download}`download the historical notebook <../_notebook_downloads/main.ipynb>`.

@@ -1,0 +1,659 @@
+Path:
+  WD: ''
+  Modules: ''
+WaterSystem:
+  StartDate: 1989/01/01
+  EndDate: 2025/12/31
+  DataLength: 13514
+  NumSubbasins: 23
+  Outlets:
+  - FEW-D-01
+  - FEW-D-02
+  - FEW-R-01
+  - FEW-R-02
+  - FEW-X-01
+  - FEW-X-02
+  - FEW-X-03
+  - __AGGREGATION_OUTLET__
+  - FEW-L-01
+  - FEW-L-02
+  - __LATERAL_OUTLET__
+  - FEW-DS-01
+  - FEW-DS-02
+  - FEW-DS-03
+  - FEW-DS-04
+  - FEW-DS-05
+  - FEW-DS-06
+  - FEW-DS-07
+  - FEW-DS-08
+  - FEW-DS-09
+  - WHITE_HAVEN
+  - LEHIGHTON
+  - __PREPARATION_COLLECTOR__
+  NodeGroups: []
+  RainfallRunoff: GWLF
+  Routing: Lohmann
+  ABM: null
+RainfallRunoff:
+  FEW-D-01:
+    Inputs:
+      Area: 4118.429479142502
+      Latitude: 41.175861513154125
+      S0: 2.0
+      U0: 10.0
+      SnowS: 5.0
+    Pars:
+      CN2: 33.59888849552719
+      IS: 0.39231949899005636
+      Res: 0.31124074061913504
+      Sep: 0.2083763352177614
+      Alpha: 0.008265514706237301
+      Beta: 0.0546837045692684
+      Ur: 8.12653020081903
+      Kc: 0.8493605974017071
+      Df: 0.5050611615107022
+  FEW-D-02:
+    Inputs:
+      Area: 20092.13735797237
+      Latitude: 41.21624911542694
+      S0: 2.0
+      U0: 10.0
+      SnowS: 5.0
+    Pars:
+      CN2: 32.409445051365715
+      IS: 0.39231949899005636
+      Res: 0.31124074061913504
+      Sep: 0.2083763352177614
+      Alpha: 0.008265514706237301
+      Beta: 0.0546837045692684
+      Ur: 7.408453814814839
+      Kc: 0.8493605974017071
+      Df: 0.5050611615107022
+  FEW-R-01:
+    Inputs:
+      Area: 13284.582272490683
+      Latitude: 41.201256200232876
+      S0: 2.0
+      U0: 10.0
+      SnowS: 5.0
+    Pars:
+      CN2: 32.37751271841197
+      IS: 0.39231949899005636
+      Res: 0.31124074061913504
+      Sep: 0.2083763352177614
+      Alpha: 0.008265514706237301
+      Beta: 0.0546837045692684
+      Ur: 7.084872628640687
+      Kc: 0.8493605974017071
+      Df: 0.5050611615107022
+  FEW-R-02:
+    Inputs:
+      Area: 6353.501106066953
+      Latitude: 41.120023322527
+      S0: 2.0
+      U0: 10.0
+      SnowS: 5.0
+    Pars:
+      CN2: 31.797621022337232
+      IS: 0.39231949899005636
+      Res: 0.31124074061913504
+      Sep: 0.2083763352177614
+      Alpha: 0.008265514706237301
+      Beta: 0.0546837045692684
+      Ur: 7.504400309457329
+      Kc: 0.8493605974017071
+      Df: 0.5050611615107022
+  FEW-X-01:
+    Inputs:
+      Area: 6878.790064214162
+      Latitude: 41.1244846966141
+      S0: 2.0
+      U0: 10.0
+      SnowS: 5.0
+    Pars:
+      CN2: 34.23231141914252
+      IS: 0.39231949899005636
+      Res: 0.31124074061913504
+      Sep: 0.2083763352177614
+      Alpha: 0.008265514706237301
+      Beta: 0.0546837045692684
+      Ur: 7.498839502916631
+      Kc: 0.8493605974017071
+      Df: 0.5050611615107022
+  FEW-X-02:
+    Inputs:
+      Area: 8200.224510222431
+      Latitude: 41.05515578340916
+      S0: 2.0
+      U0: 10.0
+      SnowS: 5.0
+    Pars:
+      CN2: 30.0454318294198
+      IS: 0.39231949899005636
+      Res: 0.31124074061913504
+      Sep: 0.2083763352177614
+      Alpha: 0.008265514706237301
+      Beta: 0.0546837045692684
+      Ur: 8.445274570560075
+      Kc: 0.8493605974017071
+      Df: 0.5050611615107022
+  FEW-X-03:
+    Inputs:
+      Area: 15719.402678853618
+      Latitude: 41.155395614504194
+      S0: 2.0
+      U0: 10.0
+      SnowS: 5.0
+    Pars:
+      CN2: 33.04438927168118
+      IS: 0.39231949899005636
+      Res: 0.31124074061913504
+      Sep: 0.2083763352177614
+      Alpha: 0.008265514706237301
+      Beta: 0.0546837045692684
+      Ur: 8.034675101997326
+      Kc: 0.8493605974017071
+      Df: 0.5050611615107022
+  __AGGREGATION_OUTLET__:
+    Inputs:
+      Area: 1.0
+      Latitude: 0.0
+      S0: 2.0
+      U0: 10.0
+      SnowS: 5.0
+    Pars:
+      CN2: 75.0
+      IS: 0.1
+      Res: 0.05
+      Sep: 0.01
+      Alpha: 0.3
+      Beta: 0.1
+      Ur: 10.0
+      Kc: 1.0
+      Df: 0.5
+  FEW-L-01:
+    Inputs:
+      Area: 0.020134005300725198
+      Latitude: 41.201256200232876
+      S0: 2.0
+      U0: 10.0
+      SnowS: 5.0
+    Pars:
+      CN2: 32.37751271841197
+      IS: 0.39231949899005636
+      Res: 0.31124074061913504
+      Sep: 0.2083763352177614
+      Alpha: 0.008265514706237301
+      Beta: 0.0546837045692684
+      Ur: 7.084872628640687
+      Kc: 0.8493605974017071
+      Df: 0.5050611615107022
+  FEW-L-02:
+    Inputs:
+      Area: 434.0473781004471
+      Latitude: 41.120023322527
+      S0: 2.0
+      U0: 10.0
+      SnowS: 5.0
+    Pars:
+      CN2: 31.797621022337232
+      IS: 0.39231949899005636
+      Res: 0.31124074061913504
+      Sep: 0.2083763352177614
+      Alpha: 0.008265514706237301
+      Beta: 0.0546837045692684
+      Ur: 7.504400309457329
+      Kc: 0.8493605974017071
+      Df: 0.5050611615107022
+  __LATERAL_OUTLET__:
+    Inputs:
+      Area: 1.0
+      Latitude: 0.0
+      S0: 2.0
+      U0: 10.0
+      SnowS: 5.0
+    Pars:
+      CN2: 75.0
+      IS: 0.1
+      Res: 0.05
+      Sep: 0.01
+      Alpha: 0.3
+      Beta: 0.1
+      Ur: 10.0
+      Kc: 1.0
+      Df: 0.5
+  FEW-DS-01:
+    Inputs:
+      Area: 2651.4932711315273
+      Latitude: 41.03228686895611
+      S0: 2.0
+      U0: 10.0
+      SnowS: 5.0
+    Pars:
+      CN2: 76.75432570369887
+      IS: 0.1663192151164915
+      Res: 0.038234592563740295
+      Sep: 0.385761839241364
+      Alpha: 0.07631212732005797
+      Beta: 0.14368832044932
+      Ur: 12.247057059713296
+      Kc: 0.6046197784803287
+      Df: 0.7036965881191597
+  FEW-DS-02:
+    Inputs:
+      Area: 4473.4825692079885
+      Latitude: 41.06766554641435
+      S0: 2.0
+      U0: 10.0
+      SnowS: 5.0
+    Pars:
+      CN2: 69.04121496336093
+      IS: 0.1663192151164915
+      Res: 0.038234592563740295
+      Sep: 0.385761839241364
+      Alpha: 0.07631212732005797
+      Beta: 0.14368832044932
+      Ur: 13.843124559938195
+      Kc: 0.6046197784803287
+      Df: 0.7036965881191597
+  FEW-DS-03:
+    Inputs:
+      Area: 3171.4089340245805
+      Latitude: 41.01041346787401
+      S0: 2.0
+      U0: 10.0
+      SnowS: 5.0
+    Pars:
+      CN2: 72.13156653139268
+      IS: 0.1663192151164915
+      Res: 0.038234592563740295
+      Sep: 0.385761839241364
+      Alpha: 0.07631212732005797
+      Beta: 0.14368832044932
+      Ur: 11.825462493687409
+      Kc: 0.6046197784803287
+      Df: 0.7036965881191597
+  FEW-DS-04:
+    Inputs:
+      Area: 2603.8102182277426
+      Latitude: 41.034024071309496
+      S0: 2.0
+      U0: 10.0
+      SnowS: 5.0
+    Pars:
+      CN2: 71.11463695640673
+      IS: 0.1663192151164915
+      Res: 0.038234592563740295
+      Sep: 0.385761839241364
+      Alpha: 0.07631212732005797
+      Beta: 0.14368832044932
+      Ur: 13.073675912861686
+      Kc: 0.6046197784803287
+      Df: 0.7036965881191597
+  FEW-DS-05:
+    Inputs:
+      Area: 9946.414161872404
+      Latitude: 41.01165472313793
+      S0: 2.0
+      U0: 10.0
+      SnowS: 5.0
+    Pars:
+      CN2: 65.1824610508402
+      IS: 0.1663192151164915
+      Res: 0.038234592563740295
+      Sep: 0.385761839241364
+      Alpha: 0.07631212732005797
+      Beta: 0.14368832044932
+      Ur: 13.669237647718688
+      Kc: 0.6046197784803287
+      Df: 0.7036965881191597
+  FEW-DS-06:
+    Inputs:
+      Area: 8207.46937444317
+      Latitude: 40.94846150966026
+      S0: 2.0
+      U0: 10.0
+      SnowS: 5.0
+    Pars:
+      CN2: 63.35905291862703
+      IS: 0.1663192151164915
+      Res: 0.038234592563740295
+      Sep: 0.385761839241364
+      Alpha: 0.07631212732005797
+      Beta: 0.14368832044932
+      Ur: 11.166277113866004
+      Kc: 0.6046197784803287
+      Df: 0.7036965881191597
+  FEW-DS-07:
+    Inputs:
+      Area: 7443.326741691643
+      Latitude: 40.911926144043214
+      S0: 2.0
+      U0: 10.0
+      SnowS: 5.0
+    Pars:
+      CN2: 54.53088821568955
+      IS: 0.1663192151164915
+      Res: 0.038234592563740295
+      Sep: 0.385761839241364
+      Alpha: 0.07631212732005797
+      Beta: 0.14368832044932
+      Ur: 12.964429804962196
+      Kc: 0.6046197784803287
+      Df: 0.7036965881191597
+  FEW-DS-08:
+    Inputs:
+      Area: 8792.455962001437
+      Latitude: 40.86403789346195
+      S0: 2.0
+      U0: 10.0
+      SnowS: 5.0
+    Pars:
+      CN2: 55.259310259781074
+      IS: 0.1663192151164915
+      Res: 0.038234592563740295
+      Sep: 0.385761839241364
+      Alpha: 0.07631212732005797
+      Beta: 0.14368832044932
+      Ur: 12.001277890189286
+      Kc: 0.6046197784803287
+      Df: 0.7036965881191597
+  FEW-DS-09:
+    Inputs:
+      Area: 30150.525017871678
+      Latitude: 40.972498722817726
+      S0: 2.0
+      U0: 10.0
+      SnowS: 5.0
+    Pars:
+      CN2: 62.2651398600983
+      IS: 0.1663192151164915
+      Res: 0.038234592563740295
+      Sep: 0.385761839241364
+      Alpha: 0.07631212732005797
+      Beta: 0.14368832044932
+      Ur: 12.323962707932283
+      Kc: 0.6046197784803287
+      Df: 0.7036965881191597
+  WHITE_HAVEN:
+    Inputs:
+      Area: 1.0
+      Latitude: 0.0
+      S0: 2.0
+      U0: 10.0
+      SnowS: 5.0
+    Pars:
+      CN2: 75.0
+      IS: 0.1
+      Res: 0.05
+      Sep: 0.01
+      Alpha: 0.3
+      Beta: 0.1
+      Ur: 10.0
+      Kc: 1.0
+      Df: 0.5
+  LEHIGHTON:
+    Inputs:
+      Area: 1.0
+      Latitude: 0.0
+      S0: 2.0
+      U0: 10.0
+      SnowS: 5.0
+    Pars:
+      CN2: 75.0
+      IS: 0.1
+      Res: 0.05
+      Sep: 0.01
+      Alpha: 0.3
+      Beta: 0.1
+      Ur: 10.0
+      Kc: 1.0
+      Df: 0.5
+  __PREPARATION_COLLECTOR__:
+    Inputs:
+      Area: 1.0
+      Latitude: 0.0
+      S0: 2.0
+      U0: 10.0
+      SnowS: 5.0
+    Pars:
+      CN2: 75.0
+      IS: 0.1
+      Res: 0.05
+      Sep: 0.01
+      Alpha: 0.3
+      Beta: 0.1
+      Ur: 10.0
+      Kc: 1.0
+      Df: 0.5
+Routing:
+  __AGGREGATION_OUTLET__:
+    FEW-D-01:
+      Inputs:
+        FlowLength: 19054.224726290926
+        InstreamControl: false
+      Pars:
+        Velo: 0.3800151306807624
+        Diff: 2996.7315895071656
+        GShape: 0.4680630977276321
+        GScale: 4.998998848063884
+    FEW-D-02:
+      Inputs:
+        FlowLength: 13199.224726290922
+        InstreamControl: false
+      Pars:
+        Velo: 0.3800151306807624
+        Diff: 2996.7315895071656
+        GShape: 0.4680630977276321
+        GScale: 4.998998848063884
+    FEW-R-01:
+      Inputs:
+        FlowLength: 1113.2674362909243
+        InstreamControl: false
+      Pars:
+        Velo: 0.3800151306807624
+        Diff: 2996.7315895071656
+        GShape: 0.4680630977276321
+        GScale: 4.998998848063884
+    FEW-R-02:
+      Inputs:
+        FlowLength: 0.0
+        InstreamControl: false
+      Pars:
+        Velo: 0.3800151306807624
+        Diff: 2996.7315895071656
+        GShape: 0.4680630977276321
+        GScale: 4.998998848063884
+    FEW-X-01:
+      Inputs:
+        FlowLength: 29655.224726290926
+        InstreamControl: false
+      Pars:
+        Velo: 0.3800151306807624
+        Diff: 2996.7315895071656
+        GShape: 0.4680630977276321
+        GScale: 4.998998848063884
+    FEW-X-02:
+      Inputs:
+        FlowLength: 19222.224726290926
+        InstreamControl: false
+      Pars:
+        Velo: 0.3800151306807624
+        Diff: 2996.7315895071656
+        GShape: 0.4680630977276321
+        GScale: 4.998998848063884
+    FEW-X-03:
+      Inputs:
+        FlowLength: 18081.22472629093
+        InstreamControl: false
+      Pars:
+        Velo: 0.3800151306807624
+        Diff: 2996.7315895071656
+        GShape: 0.4680630977276321
+        GScale: 4.998998848063884
+    __AGGREGATION_OUTLET__:
+      Inputs:
+        FlowLength: 0.0
+        InstreamControl: false
+      Pars:
+        GShape: 0.4680630977276321
+        GScale: 4.998998848063884
+        Velo: null
+        Diff: null
+  __LATERAL_OUTLET__:
+    FEW-L-01:
+      Inputs:
+        FlowLength: 0.0
+        InstreamControl: false
+      Pars:
+        Velo: 0.3800151306807624
+        Diff: 2996.7315895071656
+        GShape: 0.4680630977276321
+        GScale: 4.998998848063884
+    FEW-L-02:
+      Inputs:
+        FlowLength: 0.0
+        InstreamControl: false
+      Pars:
+        Velo: 0.3800151306807624
+        Diff: 2996.7315895071656
+        GShape: 0.4680630977276321
+        GScale: 4.998998848063884
+    __LATERAL_OUTLET__:
+      Inputs:
+        FlowLength: 0.0
+        InstreamControl: false
+      Pars:
+        GShape: 0.4680630977276321
+        GScale: 4.998998848063884
+        Velo: null
+        Diff: null
+  WHITE_HAVEN: {}
+  LEHIGHTON:
+    WHITE_HAVEN:
+      Inputs:
+        FlowLength: 55420.67052999999
+        InstreamControl: false
+      Pars:
+        GShape: 0.4680630977276321
+        GScale: 4.998998848063884
+        Velo: 6.212616811501364
+        Diff: 4162.076039000885
+    FEW-DS-01:
+      Inputs:
+        FlowLength: 45821.842959999994
+        InstreamControl: false
+      Pars:
+        GShape: 2.824812239877001
+        GScale: 16.13818400738843
+        Velo: 6.212616811501364
+        Diff: 4162.076039000885
+    FEW-DS-02:
+      Inputs:
+        FlowLength: 41426.39528
+        InstreamControl: false
+      Pars:
+        GShape: 2.824812239877001
+        GScale: 16.13818400738843
+        Velo: 6.212616811501364
+        Diff: 4162.076039000885
+    FEW-DS-03:
+      Inputs:
+        FlowLength: 39589.39528
+        InstreamControl: false
+      Pars:
+        GShape: 2.824812239877001
+        GScale: 16.13818400738843
+        Velo: 6.212616811501364
+        Diff: 4162.076039000885
+    FEW-DS-04:
+      Inputs:
+        FlowLength: 38666.39528
+        InstreamControl: false
+      Pars:
+        GShape: 2.824812239877001
+        GScale: 16.13818400738843
+        Velo: 6.212616811501364
+        Diff: 4162.076039000885
+    FEW-DS-05:
+      Inputs:
+        FlowLength: 36148.39528000001
+        InstreamControl: false
+      Pars:
+        GShape: 2.824812239877001
+        GScale: 16.13818400738843
+        Velo: 6.212616811501364
+        Diff: 4162.076039000885
+    FEW-DS-06:
+      Inputs:
+        FlowLength: 27352.395280000004
+        InstreamControl: false
+      Pars:
+        GShape: 2.824812239877001
+        GScale: 16.13818400738843
+        Velo: 6.212616811501364
+        Diff: 4162.076039000885
+    FEW-DS-07:
+      Inputs:
+        FlowLength: 20061.395280000008
+        InstreamControl: false
+      Pars:
+        GShape: 2.824812239877001
+        GScale: 16.13818400738843
+        Velo: 6.212616811501364
+        Diff: 4162.076039000885
+    FEW-DS-08:
+      Inputs:
+        FlowLength: 8675.877550000001
+        InstreamControl: false
+      Pars:
+        GShape: 2.824812239877001
+        GScale: 16.13818400738843
+        Velo: 6.212616811501364
+        Diff: 4162.076039000885
+    FEW-DS-09:
+      Inputs:
+        FlowLength: 1.0
+        InstreamControl: false
+      Pars:
+        GShape: 2.824812239877001
+        GScale: 16.13818400738843
+        Velo: 6.212616811501364
+        Diff: 4162.076039000885
+  __PREPARATION_COLLECTOR__:
+    __AGGREGATION_OUTLET__:
+      Inputs:
+        FlowLength: 0.0
+        InstreamControl: true
+      Pars:
+        GShape: 0.4680630977276321
+        GScale: 4.998998848063884
+        Velo: null
+        Diff: null
+    __LATERAL_OUTLET__:
+      Inputs:
+        FlowLength: 0.0
+        InstreamControl: true
+      Pars:
+        GShape: 0.4680630977276321
+        GScale: 4.998998848063884
+        Velo: null
+        Diff: null
+    LEHIGHTON:
+      Inputs:
+        FlowLength: 0.0
+        InstreamControl: true
+      Pars:
+        GShape: 0.4680630977276321
+        GScale: 4.998998848063884
+        Velo: null
+        Diff: null
+    __PREPARATION_COLLECTOR__:
+      Inputs:
+        FlowLength: 0.0
+        InstreamControl: true
+      Pars:
+        GShape: 0.4680630977276321
+        GScale: 4.998998848063884
+        Velo: null
+        Diff: null

@@ -1,0 +1,75 @@
+{
+  "network": {
+    "schema_version": "llm-reservoir-network.v1",
+    "data_kind": "simulated_local_inflow",
+    "start_date": "2021-01-01",
+    "reservoirs": {
+      "FEWalter": {
+        "inflow_node": "FEW_INFLOW",
+        "physical": {
+          "reservoir_id": "fe_walter",
+          "capacity_m3": 135532852.33895192,
+          "dead_storage_m3": 49.3392742128,
+          "initial_storage_m3": 4287715.370246947,
+          "minimum_release_cms": 1.41584235,
+          "maximum_release_cms": 283.16847,
+          "dt_seconds": 86400.0
+        }
+      }
+    },
+    "connections": [
+      {
+        "source": "FEWalter",
+        "target": "USGS01447800",
+        "unit_hydrograph": [
+          0.8500882043365533,
+          0.1416778716970155,
+          0.006724331365982942,
+          0.0011659017837799405,
+          0.00025677254339484,
+          6.349998879003367e-05,
+          1.683369711419418e-05,
+          4.675230200018779e-06,
+          1.3426085801323462e-06,
+          3.9540877119673675e-07,
+          1.1876839532151555e-07,
+          3.62435193306861e-08,
+          1.120483309759428e-08,
+          3.5018714884414733e-09,
+          1.1045872622376605e-09,
+          3.5118932399860527e-10,
+          1.1242735003845511e-10,
+          3.620957157303762e-11,
+          1.1724433018655043e-11,
+          3.814340148084056e-12,
+          1.2462567210105844e-12
+        ]
+      },
+      {
+        "source": "USGS01447800",
+        "target": "USGS01449000",
+        "unit_hydrograph": [
+          0.8954255104005965,
+          0.10457448959940353
+        ]
+      }
+    ],
+    "outlet": "USGS01449000",
+    "junctions": [
+      "USGS01447800"
+    ]
+  },
+  "data_kind": "simulated_local_inflow",
+  "live_readiness": {
+    "ready": false,
+    "notes": [
+      "Boundary-corrected configuration; transferred lateral forcing and channel parameters await independent validation."
+    ]
+  },
+  "schema_version": "llm-reservoir-network-case.v1",
+  "inflow_source": {
+    "path": "inflows.csv",
+    "sha256": "818b688230673992c5a00f868ccc34f054d400f4d83dc88ad7b62b3bcf4b4d50",
+    "format": "daily-node-local-cms.v1"
+  }
+}

@@ -21,7 +21,7 @@ TUTORIALS = ROOT / "tutorials"
 CURRENT = ROOT / "examples/fe_walter/coupled/outputs/current_tutorial"
 SEASONAL_CRITERIA = ROOT / "examples/fe_walter/seasonal_pool_criteria.json"
 OPERATING_KNOWLEDGE = ROOT / "examples/fe_walter/knowledge/operating_rules.md"
-NOTEBOOKS = ("main.ipynb", "advanced.ipynb")
+NOTEBOOKS = ("operation.ipynb", "main.ipynb", "advanced.ipynb")
 LABELS = {
     "rule": "Rule-based",
     "llm_available": "LLM without additional operating knowledge",
@@ -398,6 +398,13 @@ def main_cells() -> list[dict]:
     return _walkthrough_cells()
 
 
+def operation_cells() -> list[dict]:
+    """Load the focused five-year lesson only when that notebook is requested."""
+    from tutorials.operation import build_cells
+
+    return build_cells(md=md, code=code)
+
+
 def _walkthrough_cells() -> list[dict]:
     """Build the canonical FE Walter lesson from the actual configuration files.
 
@@ -424,13 +431,16 @@ coupled = ROOT / "examples/fe_walter/coupled"
 ''')
     setup["metadata"]["tags"] = ["hide-input"]
     return [
-        md('''# F.E. Walter: configure a reservoir simulation
+        md('''# F.E. Walter: historical 2016 configuration walkthrough
 
 ## Goal
 
 Start with `experiment.yaml`, follow its file references, and change the reservoir
 operator from **Rule-based** to either **LLM without additional operating knowledge**
 or **LLM with additional operating knowledge**. Then inspect the saved 2016 results.
+
+This lesson preserves the 2016 configuration and evidence route. For the current
+2021–2025 prepared operation, start with [operation.ipynb](operation.ipynb).
 
 Read the notebook in order:
 
@@ -927,6 +937,18 @@ def _rich_data(value) -> dict:
         rendered = value._repr_html_()
         if rendered is not None:
             return {"text/html": rendered, "text/plain": repr(value)}
+    if hasattr(value, "_repr_png_"):
+        rendered = value._repr_png_()
+        if rendered is not None:
+            if isinstance(rendered, tuple):
+                rendered = rendered[0]
+            if isinstance(rendered, bytes):
+                rendered = base64.b64encode(rendered).decode("ascii")
+            return {"image/png": rendered, "text/plain": repr(value)}
+    if hasattr(value, "_repr_svg_"):
+        rendered = value._repr_svg_()
+        if rendered is not None:
+            return {"image/svg+xml": rendered, "text/plain": repr(value)}
     if value.__class__.__module__.startswith("matplotlib") and value.__class__.__name__ == "Figure":
         image = io.BytesIO(); value.savefig(image, format="png", dpi=120, bbox_inches="tight")
         return {"image/png": base64.b64encode(image.getvalue()).decode("ascii"), "text/plain": repr(value)}
@@ -973,9 +995,14 @@ def build(*, execute: bool, notebook: str | None = None) -> list[dict]:
     elif notebook not in NOTEBOOKS:
         raise ValueError(f"Unknown notebook: {notebook}")
     receipts = []
-    for name, cells in {"main.ipynb": main_cells(), "advanced.ipynb": advanced_cells()}.items():
-        if notebook is not None and name != notebook:
-            continue
+    builders = {
+        "operation.ipynb": operation_cells,
+        "main.ipynb": main_cells,
+        "advanced.ipynb": advanced_cells,
+    }
+    selected = NOTEBOOKS if notebook is None else (notebook,)
+    for name in selected:
+        cells = builders[name]()
         path = TUTORIALS / name
         path.write_text(json.dumps(_notebook(cells, name, execute), indent=1, ensure_ascii=False) + "\n",
                         encoding="utf-8", newline="\n")
@@ -996,6 +1023,9 @@ def check() -> list[dict]:
         assert "text/html" in mime
         if name == "main.ipynb":
             assert "image/png" in mime
+        if name == "operation.ipynb":
+            assert "image/png" in mime
+            assert "check_preparation" in source
         reports.append({"path": str(path.relative_to(ROOT)), "cells": len(notebook["cells"]), "mime_types": sorted(mime), "sha256": _sha(path)})
     manifest = json.loads((CURRENT / "provenance.json").read_text(encoding="utf-8"))
     for source in manifest["sources"].values():

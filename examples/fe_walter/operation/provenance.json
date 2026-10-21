@@ -1,0 +1,108 @@
+{
+  "schema_version": "fe-walter-operation-inputs.v1",
+  "operation_period": [
+    "2021-01-01",
+    "2025-12-31"
+  ],
+  "days": 1826,
+  "hydrology": {
+    "period": [
+      "1989-01-01",
+      "2025-12-31"
+    ],
+    "days": 13514,
+    "model": "GWLF runoff and Lohmann routing; accepted semi-distributed setup",
+    "weather": "Saved Daymet precipitation and temperature; Hamon PET",
+    "boundary_preparation_sha256": "e7db1afa546ec783ee0c67ca459940f9ce4217de8c3f6c2fce5df074a85843ea",
+    "inflow_bindings": {
+      "FEW_INFLOW": "Reservoir upstream watershed",
+      "USGS01447800": "Incremental runoff below the reservoir to White Haven",
+      "USGS01449000": "Incremental runoff between White Haven and Lehighton"
+    }
+  },
+  "warmup": {
+    "hydrology_start": "1989-01-01",
+    "operation_start": "2021-01-01",
+    "routing_primary_excluded_days": 21,
+    "routing_state": "Common empty channel queues on January 1; first 21 days excluded from primary flow scores.",
+    "reservoir_state": "Shared observed local-midnight storage; no state nudging during evaluation."
+  },
+  "methods": {
+    "rule": "Saved complete 1826-day baseline, alpha=0.85",
+    "llm_available": "Prepared, not executed",
+    "llm_knowledge": "Prepared, not executed"
+  },
+  "readiness": {
+    "engineering": "Offline source, date, common network and model-setting checks passed",
+    "scientific_live_ready": false,
+    "reason": "Transferred lateral forcing and channel parameters await independent validation; keep case.live_readiness unchanged."
+  },
+  "originals": {
+    "case.json": {
+      "sha256": "749fb0c57573666808be3fc2b7878c4323e6049929b158f733f452ac1a53e114",
+      "bytes": 2130,
+      "source_run": "corrected/prepared/experiment/case.json"
+    },
+    "inflows.csv": {
+      "sha256": "818b688230673992c5a00f868ccc34f054d400f4d83dc88ad7b62b3bcf4b4d50",
+      "bytes": 237302,
+      "source_run": "corrected/prepared/experiment/inflows.csv"
+    },
+    "hydrology/model.yaml": {
+      "sha256": "4fda2623101f8745a49f8f05c475eeb77ddd35b601420ebbf82ebd84dadc3cd4",
+      "bytes": 15959,
+      "source_run": "corrected/corrected_inputs/model.yaml"
+    },
+    "hydrology/forcing.csv.gz": {
+      "sha256": "0fedb9df4526db9d9607a5365c8fd02dab4972073bc040c00e07edaa82b6864e",
+      "bytes": 9448138,
+      "source_run": "corrected/corrected_inputs/forcing.csv.gz"
+    },
+    "hydrology/hydrology.yaml": {
+      "sha256": "1e7778e8da161eab763c551f21c40a1e3a7c0280eb680cfdcc400b00e9d41b82",
+      "bytes": 325,
+      "source_run": "corrected/corrected_inputs/hydrology.yaml"
+    }
+  },
+  "new_simulation_runs": 0,
+  "new_model_requests": 0,
+  "artifacts": {
+    "agents.rule.yaml": "ec4455c620dc7aea1a4e612169d3b896600bcb43d64735540744576ac5609784",
+    "case.json": "749fb0c57573666808be3fc2b7878c4323e6049929b158f733f452ac1a53e114",
+    "experiment.yaml": "d2570b67c928e069ec62cc7e64f11631885fb22b262154668e55d3836adab2a6",
+    "hydrology/forcing.csv.gz": "0fedb9df4526db9d9607a5365c8fd02dab4972073bc040c00e07edaa82b6864e",
+    "hydrology/hydrology.yaml": "1e7778e8da161eab763c551f21c40a1e3a7c0280eb680cfdcc400b00e9d41b82",
+    "hydrology/model.yaml": "4fda2623101f8745a49f8f05c475eeb77ddd35b601420ebbf82ebd84dadc3cd4",
+    "inflows.csv": "818b688230673992c5a00f868ccc34f054d400f4d83dc88ad7b62b3bcf4b4d50",
+    "initialization.json": "5855011b94e37968c9ebb088745907cc5351b8de1924e4b7e41516a61ac4c34f",
+    "llm_available.yaml": "0caf2a22c20d02ae61912e7d4cceccb6e65a6222d734e294e64f7c3c55a60024",
+    "llm_knowledge.yaml": "6612b0c6c354a96d9c615593ae0eaeeedbd7a279f8ae1020f8d7ffe66b13c402",
+    "outputs/reservoir_daily.csv": "d9ffb3ce65da00e74b69ea9f5e0fd6abb1f4383f29b5b53f38be70553a3975f2",
+    "outputs/streamflow_daily.csv": "fe79958736c9f325ab327fc404ef11bd94c96df0a78b2f4d8ec5fc4f3bd44fdb",
+    "outputs/summary.json": "54910c200dfa260505e05058ac79c92ef01578e9d5be1db4601755f60c3e7ca7"
+  },
+  "shared_dependencies": {
+    "examples/fe_walter/coupled/auditors.yaml": "ed2afb7c2bee773510d2a934a1e96c2d607d2b8771ccc6ff165b5a1a39206a0f",
+    "data/benchmark/fe_walter_statistics.json": "44a5d67ef9d256b1710403b641ff0629deff21f196cd1d951823197f0ffcbdf7",
+    "data/accepted/fe_walter_inflow_reference_1996_2025.csv.gz": "91759fdfbaa3e85b0257a5708391f53d264eb0ef898f94c4e580a391e131b64f",
+    "examples/fe_walter/extensions/__init__.py": "dac0260d45542d3ee33d49f9f0db7cd9791f7ab31545cd71f9fee92e256360dd",
+    "examples/fe_walter/extensions/anik_v3_7.py": "b634a9dc666e529f4d467e1e4d1f8fdebd3318486928c98767feee5ebdce24a7",
+    "examples/fe_walter/extensions/daily_inputs.py": "b02a3d928d94fcb96e01dc4999271f97e99240afe53bc875cd9b03419e5e3203",
+    "examples/fe_walter/extensions/dkp_adapter.py": "2c00e207b574b1dba624db0a9ffa22dbcbe4f0005568b494050b69a67a96d85e",
+    "examples/fe_walter/extensions/dkp_audit.py": "0b7607a0d74631cffc2a9a8398b28c8337fff08235b8902616d41d79f6daec64",
+    "examples/fe_walter/extensions/native_case.py": "470883792b0ea5d98429f10131bf4e760c4df0cf6ad22a19d4b95158f536b0f6",
+    "examples/fe_walter/extensions/reference_backend.py": "4c198f704e2753f5c60627ac7a40fe4b9ba9b09db39317c9e575ea52c7f6319e",
+    "examples/fe_walter/extensions/reservoir_profile.py": "f30f547171b8930f1e1f03e4d9ed24b9452329b7dda7057310b1ada925236e71",
+    "examples/fe_walter/extensions/retrieval/__init__.py": "57efdf1d113946bc37b4281b7c02efa08afeb64ac1ff7b7d946e82b2782edb8d",
+    "examples/fe_walter/extensions/seasonal_prompt_context.py": "c7039b8896770311d449e73239124f3766853091a8aa31df3fcda1f84f5462f8",
+    "examples/fe_walter/coupled/models.yaml": "37134b94eb42fb53ec362f0a33dbb09bf5f697eaab2196a47589b7d00299e71e",
+    "examples/fe_walter/coupled/agents.llm_available.yaml": "27976fb493a48e644417238f2ea2b1af02d15a64bceead6922cdfffa3e787aff",
+    "examples/fe_walter/prompts/available_information.txt": "0c557d4e51e4bb938d36c65808eb91e9ba5bc29db8b37d958149fee38bae9f75",
+    "examples/fe_walter/seasonal_pool_criteria.json": "51ba8e957218ced8923c7c22caaa80aec1b1a75eb9a5d19e73a3f0c1f416d4a7",
+    "examples/fe_walter/profiles/reservoir.json": "6a6124d721120ac1e42d86e108fb0c59fd63fd96595b09bc7f222417758079e3",
+    "cases/fe_belt_prompton_offline/fe_walter_storage_elevation.csv": "baa89b33023c23002b94ac48e68c69278c384d15a64a72d2587a1e6ad458999d",
+    "examples/fe_walter/coupled/agents.llm_knowledge.yaml": "eeae76bcda7a90d2b486ef320e265eb5c94c808e7fd12f9f449d998516bfaf52",
+    "examples/fe_walter/prompts/retrieved_knowledge.txt": "ae5e19ee4a8f3749d80f06088c7ee7f4cb14997a72d40a9d39c1ab2e51a7bf48",
+    "examples/fe_walter/knowledge/operating_rules.md": "7fb3b9e75c1d6a52168049afa80c527a49e606f1c0889e5d14b31f874502b206"
+  }
+}

@@ -1,0 +1,14 @@
+# Prepared daily operation: read frozen inflows; no hydrology is recomputed.
+schema_version: llm-reservoir-experiment.v2  # Settings format, separate from package version.
+run_id: fe-walter-2021-2025-rule         # Unique label for this method.
+case: case.json                             # Shared reservoir and downstream network.
+output: ../../../runs/fe-walter-2021-2025-rule  # New directory when eventually run.
+start_date: '2021-01-01'                    # First daily decision (included).
+end_date: '2025-12-31'                      # Last daily decision (included); 1826 days.
+max_calls: 0  # 0 for rules; null leaves per-decision retry limits in force.
+agents:
+  file: agents.rule.yaml
+auditors:
+  file: ../coupled/auditors.yaml
+extensions:
+  seeded_hanasaki: __init__.py
