@@ -1,6 +1,6 @@
 {
   "schema": "hydroopslm.native_arcgis_map_source.v2",
-  "method": "Native ArcGIS study-area map extended to Lehighton, retaining the F. E. Walter upstream watershed and original Daymet methodology.",
+  "method": "User-approved native ArcGIS study-area v4: enlarged study watershed, numbered subbasins, orange-brown/purple-red watershed outlines, and bright-blue thematic rivers.",
   "original_project": {
     "bytes": 50893,
     "sha256": "3d7d96c2c0cddade63f9494f612c2bf147e5844785fdd2f88c0ad5fbb61a4329"
@@ -9,31 +9,30 @@
   "original_reference_png_sha256": "eac9fd260fd86ca4e11fa9d9566db6e86f412873f099a439df2871047996d67e",
   "package": {
     "file": "fe-walter-arcgis-source.zip",
-    "bytes": 1996125,
-    "sha256": "04d64f8d3e4f4be747e3b610a2b9381c1ef75d3a6c624b9634294dc909e611fa",
-    "aprx": "project/study-area.aprx",
-    "picture_source": "../commondata/pictures/layout_overlay.svg (relative to APRX)"
+    "bytes": 15290540,
+    "sha256": "bd9ff9df77a57940d4cd1ac08768204942a2dc87184550df7b0ebd77ac7bc4b1",
+    "aprx": "native/project/river-legend-study-area.aprx",
+    "picture_source": "../commondata/pictures/layout-numbered.svg (relative to APRX)",
+    "working_directory": "native/project"
   },
   "exports": {
     "fe-walter-catchment.png": {
-      "bytes": 2405716,
-      "sha256": "ab04fb7854c446413e591c72de573b97dae56d490c24cf08b5f6bc4f1e97c825"
+      "bytes": 4554839,
+      "sha256": "6a2805a07b537847ea06a422044b82b679ab2b3054d1464dfd90703c8d5da634"
     },
     "fe-walter-catchment.svg": {
-      "bytes": 19015302,
-      "sha256": "3428a34d0af8b71d847a67928ee4037e4eebaa7f640a99bb6b7b2a31afffd783"
-    },
-    "fe-walter-catchment.pdf": {
-      "bytes": 2899803,
-      "sha256": "2a1e6a95748c2f30c96f1bbc6a1c2d94ba4b1ffb58b5eca87ba9022de47c10ef"
+      "bytes": 17426647,
+      "sha256": "b52608290469c9e9612e6ab9b8d9aac8f00978adb3d3d8729f026dd2d6e4872d"
     }
   },
   "exporter": {
     "tool": "ArcGIS Pro",
     "version": "3.2",
-    "python": "3.9.18",
-    "editable_source": "Native APRX plus default-namespace SVG overlay",
-    "checks": "Relocation, native title/inset edit, SVG legend/connector edit, save/reopen and actual render; original preview unchanged"
+    "editable_source": "Native APRX plus numbered SVG annotation overlay",
+    "checks": "Handoff native project saved, reopened, exported and checked; original PNG/SVG copied byte-for-byte into manual.",
+    "handoff_build_report_sha256": "ac4bccbd8a9513fbc46e18a0caf2afbe98a95e4f72f821c417806a061d4bccf0",
+    "handoff_check_report_sha256": "5393c7aa6fdfb155c5350e99c88f75704d0f3eec9241372441fd4f3678212386",
+    "new_pdf": false
   },
   "map_content": {
     "layout_inches": [
@@ -73,14 +72,25 @@
       "upstream_area_km2": 746.47067469,
       "precision": "Preserved NLDI whole-catchment geometry; exact local dam/gauge divides are approximate.",
       "package_layers": [
-        "commondata/lehighton/gauge_basin.shp",
-        "commondata/lehighton/FEW_basin.shp"
-      ]
+        "native/commondata/lehighton/gauge_basin.shp",
+        "native/commondata/lehighton/FEW_basin.shp"
+      ],
+      "study_outline": "orange-brown",
+      "upstream_outline": "purple-red"
     },
     "subbasins": {
       "accepted_upper": 7,
       "prepared_lower": 9,
-      "status": "Lower units are spatial preparation; downstream calibration and coupled operation have not been performed."
+      "status": "Map labels preserve model IDs; see examples/fe_walter/downstream/validation.md and operation/provenance.json for current simulation status.",
+      "local_map_areas": 2,
+      "labels": {
+        "upstream": "U1-U7",
+        "downstream": "D1-D9",
+        "local_inset": "L1-L2"
+      },
+      "crosswalk_file": "subcatchment_labels.csv",
+      "crosswalk_sha256": "f5125387c7a8d16afce35ed55c1703e117011aa967ff95bd91380947d94b4cb8",
+      "local_area_definition": "L1 and L2 are cartographic intersections of local areas shown in the reservoir inset."
     },
     "precipitation": {
       "source": "Preserved Daymet V4 R1",
@@ -88,14 +98,14 @@
       "units": "mm/year",
       "display_min": 1300,
       "display_max": 1600,
-      "display_raster": "commondata/raster_data/Daymet_Lehighton_1996_2025.tif",
+      "display_raster": "native/commondata/raster_data/Daymet_Lehighton_1996_2025.tif",
       "display_raster_sha256": "d1d30b8f1293f3357ddf2dc9c33ee16094d3ed3448d8381807a8224a86e5b9bc",
       "grid": "Original 1-km source values; display clipped to study watershed",
       "colorbar_encoding": "256 vector swatches; original palette retained, dark-blue right endpoint"
     },
     "annotations": {
       "font_family": "Arial",
-      "legend_font_svg_px": 24,
+      "legend_font_svg_px": null,
       "colorbar_title_font_svg_px": 24,
       "colorbar_tick_font_svg_px": 23,
       "removed": [
@@ -105,22 +115,34 @@
       "major_watershed_legend": [
         "Study watershed",
         "F. E. Walter watershed"
-      ]
+      ],
+      "river_color": "#0096E0",
+      "river_legend": "Rivers",
+      "boundary_legend": [
+        "Study watershed",
+        "F. E. Walter watershed",
+        "Subbasin boundaries"
+      ],
+      "subbasin_style": "grey with white casing",
+      "numbered_labels": 18,
+      "font_note": "Arial; smaller station IDs retained. Exact typography is preserved in the packaged annotation SVG."
     }
   },
   "scale_and_extent_checks": {
     "status": "Native main map expanded to Lehighton; local reservoir inset added",
     "main_scale_bar_km": 20,
     "DRB_scale_bar_km": 100,
-    "source_layout": "project/study-area.aprx"
+    "source_layout": "native/project/river-legend-study-area.aprx"
   },
   "limitations": [
     "Terrain basemaps require network access in ArcGIS; all thematic layers are included locally.",
     "Future Esri service content can change a fresh export; published files have fixed hashes.",
     "NLDI whole-catchment boundaries approximate exact dam and gauge divides.",
-    "Nine lower subbasins are spatial preparation and have not been calibrated or simulated.",
-    "Existing saved downstream curves evaluate White Haven only; the two-gauge experiment remains in design.",
-    "Programmatic overlay edits must retain the default SVG namespace for ArcGIS Pro 3.2."
+    "Programmatic overlay edits must retain the default SVG namespace for ArcGIS Pro 3.2.",
+    "Published v4 provides PNG and SVG; the previous PDF is a historical export.",
+    "For ArcPy export, set the working directory to native/project so the annotation SVG resolves.",
+    "Source-manifest parent paths record the original handoff location; packaged assets use relative paths.",
+    "Precipitation shading covers 1996-2025; operation evaluation covers 2021-2025."
   ],
   "revisions": [
     {
@@ -809,6 +831,177 @@
       },
       "source_package_sha256": "04d64f8d3e4f4be747e3b610a2b9381c1ef75d3a6c624b9634294dc909e611fa",
       "scientific_note": "Cartography only; no change to accepted hydrology, saved reservoir decisions, or downstream simulation."
+    },
+    {
+      "date": "2026-10-21",
+      "request": "Synchronize user-approved river legend v4 from the paper handoff; preserve all model inputs, configurations, and simulation outputs.",
+      "parent_manual_snapshot": {
+        "package": {
+          "file": "fe-walter-arcgis-source.zip",
+          "bytes": 1996125,
+          "sha256": "04d64f8d3e4f4be747e3b610a2b9381c1ef75d3a6c624b9634294dc909e611fa",
+          "aprx": "project/study-area.aprx",
+          "picture_source": "../commondata/pictures/layout_overlay.svg (relative to APRX)"
+        },
+        "exports": {
+          "fe-walter-catchment.png": {
+            "bytes": 2405716,
+            "sha256": "ab04fb7854c446413e591c72de573b97dae56d490c24cf08b5f6bc4f1e97c825"
+          },
+          "fe-walter-catchment.svg": {
+            "bytes": 19015302,
+            "sha256": "3428a34d0af8b71d847a67928ee4037e4eebaa7f640a99bb6b7b2a31afffd783"
+          },
+          "fe-walter-catchment.pdf": {
+            "bytes": 2899803,
+            "sha256": "2a1e6a95748c2f30c96f1bbc6a1c2d94ba4b1ffb58b5eca87ba9022de47c10ef"
+          }
+        },
+        "exporter": {
+          "tool": "ArcGIS Pro",
+          "version": "3.2",
+          "python": "3.9.18",
+          "editable_source": "Native APRX plus default-namespace SVG overlay",
+          "checks": "Relocation, native title/inset edit, SVG legend/connector edit, save/reopen and actual render; original preview unchanged"
+        },
+        "map_content": {
+          "layout_inches": [
+            16,
+            8.35
+          ],
+          "panels": [
+            "CONUS locator",
+            "Delaware River Basin overview",
+            "Study watershed detail",
+            "F. E. Walter Reservoir inset"
+          ],
+          "stations": [
+            {
+              "id": "01447500",
+              "name": "Stoddartsville",
+              "position": "upstream of reservoir",
+              "symbol": "orange triangle"
+            },
+            {
+              "id": "01447800",
+              "name": "White Haven",
+              "position": "downstream of dam",
+              "symbol": "red circle"
+            },
+            {
+              "id": "01449000",
+              "name": "Lehighton",
+              "position": "study watershed outlet",
+              "symbol": "purple circle"
+            }
+          ],
+          "watershed_boundaries": {
+            "study_outlet": "Lehighton (USGS 01449000)",
+            "upstream_outlet": "F. E. Walter Dam",
+            "study_area_km2": 1525.215212315,
+            "upstream_area_km2": 746.47067469,
+            "precision": "Preserved NLDI whole-catchment geometry; exact local dam/gauge divides are approximate.",
+            "package_layers": [
+              "commondata/lehighton/gauge_basin.shp",
+              "commondata/lehighton/FEW_basin.shp"
+            ]
+          },
+          "subbasins": {
+            "accepted_upper": 7,
+            "prepared_lower": 9,
+            "status": "Lower units are spatial preparation; downstream calibration and coupled operation have not been performed."
+          },
+          "precipitation": {
+            "source": "Preserved Daymet V4 R1",
+            "period": "1996-2025",
+            "units": "mm/year",
+            "display_min": 1300,
+            "display_max": 1600,
+            "display_raster": "commondata/raster_data/Daymet_Lehighton_1996_2025.tif",
+            "display_raster_sha256": "d1d30b8f1293f3357ddf2dc9c33ee16094d3ed3448d8381807a8224a86e5b9bc",
+            "grid": "Original 1-km source values; display clipped to study watershed",
+            "colorbar_encoding": "256 vector swatches; original palette retained, dark-blue right endpoint"
+          },
+          "annotations": {
+            "font_family": "Arial",
+            "legend_font_svg_px": 24,
+            "colorbar_title_font_svg_px": 24,
+            "colorbar_tick_font_svg_px": 23,
+            "removed": [
+              "Area below FE Walter",
+              "Dam and White Haven"
+            ],
+            "major_watershed_legend": [
+              "Study watershed",
+              "F. E. Walter watershed"
+            ]
+          }
+        },
+        "scale_and_extent_checks": {
+          "status": "Native main map expanded to Lehighton; local reservoir inset added",
+          "main_scale_bar_km": 20,
+          "DRB_scale_bar_km": 100,
+          "source_layout": "project/study-area.aprx"
+        },
+        "limitations": [
+          "Terrain basemaps require network access in ArcGIS; all thematic layers are included locally.",
+          "Future Esri service content can change a fresh export; published files have fixed hashes.",
+          "NLDI whole-catchment boundaries approximate exact dam and gauge divides.",
+          "Nine lower subbasins are spatial preparation and have not been calibrated or simulated.",
+          "Existing saved downstream curves evaluate White Haven only; the two-gauge experiment remains in design.",
+          "Programmatic overlay edits must retain the default SVG namespace for ArcGIS Pro 3.2."
+        ]
+      },
+      "handoff_files": {
+        "study-area-v4.png": {
+          "file": "docs/figures/fe-walter-catchment.png",
+          "bytes": 4554839,
+          "sha256": "6a2805a07b537847ea06a422044b82b679ab2b3054d1464dfd90703c8d5da634"
+        },
+        "study-area-v4.svg": {
+          "file": "docs/figures/fe-walter-catchment.svg",
+          "bytes": 17426647,
+          "sha256": "b52608290469c9e9612e6ab9b8d9aac8f00978adb3d3d8729f026dd2d6e4872d"
+        },
+        "study-area-v4-editable-source.zip": {
+          "file": "data/figures/manual_map/fe-walter-arcgis-source.zip",
+          "bytes": 15290540,
+          "sha256": "bd9ff9df77a57940d4cd1ac08768204942a2dc87184550df7b0ebd77ac7bc4b1"
+        },
+        "SOURCE_MANIFEST.json": {
+          "file": "data/figures/manual_map/source_manifest.json",
+          "bytes": 29260,
+          "sha256": "a39df3ae6946b6eeefaa15c1ab7f8aa75169787936df267d549bc11f0dea3b2c"
+        },
+        "SUBCATCHMENT_LABEL_CROSSWALK.csv": {
+          "file": "data/figures/manual_map/subcatchment_labels.csv",
+          "bytes": 2177,
+          "sha256": "f5125387c7a8d16afce35ed55c1703e117011aa967ff95bd91380947d94b4cb8"
+        }
+      },
+      "source_manifest_all_156_files_verified": true,
+      "all_156_packaged_manifest_members_verified": true,
+      "simulation_runs": 0,
+      "llm_requests": 0,
+      "new_pdf": false
     }
-  ]
+  ],
+  "historical_exports": {
+    "fe-walter-catchment.pdf": {
+      "bytes": 2899803,
+      "sha256": "2a1e6a95748c2f30c96f1bbc6a1c2d94ba4b1ffb58b5eca87ba9022de47c10ef"
+    },
+    "status": "Previous manual map retained for historical links; the approved v4 handoff provides PNG and SVG only."
+  },
+  "source_record": {
+    "manifest": "source_manifest.json",
+    "manifest_sha256": "a39df3ae6946b6eeefaa15c1ab7f8aa75169787936df267d549bc11f0dea3b2c",
+    "sources": [
+      "USGS monitoring locations and preserved NLDI geometry",
+      "NHDPlus HR VPU0204 (March 2022)",
+      "Daymet V4 R1, doi:10.3334/ORNLDAAC/2129",
+      "Esri World Terrain Base, World Terrain Reference, World Hillshade"
+    ],
+    "geometry_and_hydrology": "Handoff v4 retains its parent geometry and hydrologic data hashes. This integration changes no simulation inputs or outputs."
+  }
 }

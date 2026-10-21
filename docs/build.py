@@ -26,8 +26,11 @@ FIGURE_DOWNLOADS.update({
 })
 MAP_DOWNLOADS = {
     **{f"docs/figures/fe-walter-catchment.{ext}": f"fe-walter-catchment.{ext}"
-       for ext in ("png", "svg", "pdf")},
+       for ext in ("png", "svg")},
     "data/figures/manual_map/fe-walter-arcgis-source.zip": "fe-walter-arcgis-source.zip",
+    "data/figures/manual_map/provenance.json": "map-provenance.json",
+    "data/figures/manual_map/subcatchment_labels.csv": "subcatchment-labels.csv",
+    "data/figures/manual_map/source_manifest.json": "map-source-manifest.json",
 }
 HYDROLOGY_DOWNLOADS = {
     **{f"examples/fe_walter/hydrology_data/{name}": name for name in (

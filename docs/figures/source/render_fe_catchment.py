@@ -54,14 +54,15 @@ def export_map(package: Path, output: Path, resolution: int) -> None:
         extracted = Path(temporary)
         with zipfile.ZipFile(package) as archive:
             archive.extractall(extracted)
-        projects = sorted((extracted / "p30").glob("*.aprx"))
+        projects = sorted(extracted.rglob("*.aprx"))
         if len(projects) != 1:
-            raise RuntimeError(f"expected one p30 APRX, found {len(projects)}")
+            raise RuntimeError(f"expected one packaged APRX, found {len(projects)}")
         subprocess.run(
             [sys.executable, str(Path(__file__).resolve()),
              "--project", str(projects[0]), "--output", str(output),
              "--resolution", str(resolution)],
             check=True,
+            cwd=projects[0].parent,
         )
 
 

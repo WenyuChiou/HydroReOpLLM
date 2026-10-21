@@ -1,0 +1,786 @@
+{
+  "parent_candidate": "C:\\Users\\wenyu\\Documents\\LLM Rervoir\\HydroOpsLLM-paper-handoff\\figures\\01-study-area\\2026-10-21-colorbar-boundaries-v3",
+  "parent_PNG_sha256": "b9c22ea32fcc5d15d32be7b95ef48488a6bffd4b33fe12e7ae2935e90fa7b5b1",
+  "files": [
+    {
+      "path": "native/commondata/arcgis-source-v4/fe_walter_dam.CPG",
+      "bytes": 5,
+      "sha256": "3ad3031f5503a4404af825262ee8232cc04d4ea6683d42c5dd0a2f2a27ac9824"
+    },
+    {
+      "path": "native/commondata/arcgis-source-v4/fe_walter_dam.dbf",
+      "bytes": 129,
+      "sha256": "8ed0d4cbeb3c890b7538814dc6db022c17cbbbaf85f663426147bb850f34d77b"
+    },
+    {
+      "path": "native/commondata/arcgis-source-v4/fe_walter_dam.prj",
+      "bytes": 459,
+      "sha256": "b38f60752e2672fe3d20e368065b9abb82aa164bdbee1dc52b32a8b85149028a"
+    },
+    {
+      "path": "native/commondata/arcgis-source-v4/fe_walter_dam.sbn",
+      "bytes": 148,
+      "sha256": "1ec333457ed2f5ffaeb8c285f9fc5ffc84301d04051421325c3708bef991e57d"
+    },
+    {
+      "path": "native/commondata/arcgis-source-v4/fe_walter_dam.sbx",
+      "bytes": 116,
+      "sha256": "c9333fe96694ca7d65cf01f09dd78ad0e8534f8b3ea71d119a967470af1a3d9d"
+    },
+    {
+      "path": "native/commondata/arcgis-source-v4/fe_walter_dam.shp",
+      "bytes": 128,
+      "sha256": "c8d54829b8b909330d9f247fec2f551cc7a897290f3c729666464870ef3b0364"
+    },
+    {
+      "path": "native/commondata/arcgis-source-v4/fe_walter_dam.shp.xml",
+      "bytes": 1558,
+      "sha256": "1b544098e4f01c1022921d7ef43c84dd8e6e06a1a5a0bc85222199b0a0640843"
+    },
+    {
+      "path": "native/commondata/arcgis-source-v4/fe_walter_dam.shx",
+      "bytes": 108,
+      "sha256": "d39a43e212875ddd821ca2be07b6e42bb765e7b6e8fe39c8b757d5e5b1ddb341"
+    },
+    {
+      "path": "native/commondata/arcgis-source-v4/fe_walter_zoom_extent.CPG",
+      "bytes": 5,
+      "sha256": "3ad3031f5503a4404af825262ee8232cc04d4ea6683d42c5dd0a2f2a27ac9824"
+    },
+    {
+      "path": "native/commondata/arcgis-source-v4/fe_walter_zoom_extent.dbf",
+      "bytes": 73,
+      "sha256": "d25f7e80f254a429040d94a449ccaf9cf2632e87177862653bf373f278f2efe8"
+    },
+    {
+      "path": "native/commondata/arcgis-source-v4/fe_walter_zoom_extent.prj",
+      "bytes": 459,
+      "sha256": "b38f60752e2672fe3d20e368065b9abb82aa164bdbee1dc52b32a8b85149028a"
+    },
+    {
+      "path": "native/commondata/arcgis-source-v4/fe_walter_zoom_extent.sbn",
+      "bytes": 132,
+      "sha256": "be917cc30fe50262940071817843adbabd26169ee753beb66c75ecc88d83b4b9"
+    },
+    {
+      "path": "native/commondata/arcgis-source-v4/fe_walter_zoom_extent.sbx",
+      "bytes": 116,
+      "sha256": "795725021e46cc40b41e0a83ea6bc986ce81fd6dc640f6217fc000ce977f3a45"
+    },
+    {
+      "path": "native/commondata/arcgis-source-v4/fe_walter_zoom_extent.shp",
+      "bytes": 236,
+      "sha256": "08b97e7735acff4c6e9173f7bfc824a5b0ea94df01bf311278481e21e4f7b1b7"
+    },
+    {
+      "path": "native/commondata/arcgis-source-v4/fe_walter_zoom_extent.shp.xml",
+      "bytes": 1202,
+      "sha256": "fa175dbcb664be7c670928bf451edb902cfad0c8b28de2ab9279c8ab83d47a41"
+    },
+    {
+      "path": "native/commondata/arcgis-source-v4/fe_walter_zoom_extent.shx",
+      "bytes": 108,
+      "sha256": "8c3834254d5cdfe3c3b6658abc9b2bf469cabb87d07c8154e65065132576fef5"
+    },
+    {
+      "path": "native/commondata/downstream/USGS01447800.cpg",
+      "bytes": 5,
+      "sha256": "3ad3031f5503a4404af825262ee8232cc04d4ea6683d42c5dd0a2f2a27ac9824"
+    },
+    {
+      "path": "native/commondata/downstream/USGS01447800.dbf",
+      "bytes": 73,
+      "sha256": "2f919ce515079abb5a1f3a1d5bf45503bfef1112ee3ecaa0c74dd620db0e37cd"
+    },
+    {
+      "path": "native/commondata/downstream/USGS01447800.prj",
+      "bytes": 459,
+      "sha256": "b38f60752e2672fe3d20e368065b9abb82aa164bdbee1dc52b32a8b85149028a"
+    },
+    {
+      "path": "native/commondata/downstream/USGS01447800.shp",
+      "bytes": 128,
+      "sha256": "3dd71d5198e3e4b3fed9a8c34d91c58362bc6b548f1d7181390d4b49fd520a14"
+    },
+    {
+      "path": "native/commondata/downstream/USGS01447800.shp.xml",
+      "bytes": 1199,
+      "sha256": "9c4d74b946b5b58f44687bc9a807e2fdf5f873db1d21e63487e3da2b8fd681e3"
+    },
+    {
+      "path": "native/commondata/downstream/USGS01447800.shx",
+      "bytes": 108,
+      "sha256": "c3d7dab5e04ece508e50d08d8ccc9990453c40faf06062244cbe829250c039ab"
+    },
+    {
+      "path": "native/commondata/lehighton/FEW_basin.cpg",
+      "bytes": 5,
+      "sha256": "3ad3031f5503a4404af825262ee8232cc04d4ea6683d42c5dd0a2f2a27ac9824"
+    },
+    {
+      "path": "native/commondata/lehighton/FEW_basin.dbf",
+      "bytes": 137,
+      "sha256": "9c9a36ce1e41dd369af48fe7b8f33eac6c75617cfa2eee468b19e307196f91d6"
+    },
+    {
+      "path": "native/commondata/lehighton/FEW_basin.prj",
+      "bytes": 459,
+      "sha256": "b38f60752e2672fe3d20e368065b9abb82aa164bdbee1dc52b32a8b85149028a"
+    },
+    {
+      "path": "native/commondata/lehighton/FEW_basin.shp",
+      "bytes": 17516,
+      "sha256": "e6fdbf64b2a9842f2d1dc3b2f2f16e580f9f6651cea75e9c51eff9b683c7beeb"
+    },
+    {
+      "path": "native/commondata/lehighton/FEW_basin.shp.xml",
+      "bytes": 1581,
+      "sha256": "45f2a1bd79e82191952efd9f5afb0038b7040f4a4e79ca50a7c243177bcc8886"
+    },
+    {
+      "path": "native/commondata/lehighton/FEW_basin.shx",
+      "bytes": 108,
+      "sha256": "939076e38b0ba77280b48834937492238c0ab70b165dfdaf23406a557e174555"
+    },
+    {
+      "path": "native/commondata/lehighton/gauge_basin.cpg",
+      "bytes": 5,
+      "sha256": "3ad3031f5503a4404af825262ee8232cc04d4ea6683d42c5dd0a2f2a27ac9824"
+    },
+    {
+      "path": "native/commondata/lehighton/gauge_basin.dbf",
+      "bytes": 137,
+      "sha256": "edf65e07b64fc1d858fe7154d361f9c5a02fe709dd4c09aefe4cda2a45600e52"
+    },
+    {
+      "path": "native/commondata/lehighton/gauge_basin.prj",
+      "bytes": 459,
+      "sha256": "b38f60752e2672fe3d20e368065b9abb82aa164bdbee1dc52b32a8b85149028a"
+    },
+    {
+      "path": "native/commondata/lehighton/gauge_basin.shp",
+      "bytes": 24476,
+      "sha256": "084d870ad09b3c3a0ce225b48a47a7ff3a0a7cb0b6d5a1d16b5d8035220448f9"
+    },
+    {
+      "path": "native/commondata/lehighton/gauge_basin.shp.xml",
+      "bytes": 1585,
+      "sha256": "cb540501326b26d336924ab2d819c3e9779742b958a6ea6cebc3b6bdccfb1565"
+    },
+    {
+      "path": "native/commondata/lehighton/gauge_basin.shx",
+      "bytes": 108,
+      "sha256": "5e3290788fd6de1f20348f0185ead454c57fc3f399bda2ee46895ec0730c3a0d"
+    },
+    {
+      "path": "native/commondata/lehighton/local_units.cpg",
+      "bytes": 5,
+      "sha256": "3ad3031f5503a4404af825262ee8232cc04d4ea6683d42c5dd0a2f2a27ac9824"
+    },
+    {
+      "path": "native/commondata/lehighton/local_units.dbf",
+      "bytes": 136,
+      "sha256": "6bdf22c7239d8a8a4670ffdc8c4c52d7150b3dc18b7983d2e0b263b1a6f0a3d8"
+    },
+    {
+      "path": "native/commondata/lehighton/local_units.prj",
+      "bytes": 459,
+      "sha256": "b38f60752e2672fe3d20e368065b9abb82aa164bdbee1dc52b32a8b85149028a"
+    },
+    {
+      "path": "native/commondata/lehighton/local_units.shp",
+      "bytes": 2816,
+      "sha256": "90058813545b0e60ce8b9b06b4d1c1d8663da92ac8a6cd32b379a3d5c12169ed"
+    },
+    {
+      "path": "native/commondata/lehighton/local_units.shp.xml",
+      "bytes": 1575,
+      "sha256": "f14db5acd349540b3ab57586c7be7e7a43088e124bf1753aa5314569cc68fe67"
+    },
+    {
+      "path": "native/commondata/lehighton/local_units.shx",
+      "bytes": 116,
+      "sha256": "9c040206b7057c88ca6cf4566f05d65baebe5453caf19001a3b8eedb4ebf6e95"
+    },
+    {
+      "path": "native/commondata/lehighton/lower_hr.cpg",
+      "bytes": 5,
+      "sha256": "3ad3031f5503a4404af825262ee8232cc04d4ea6683d42c5dd0a2f2a27ac9824"
+    },
+    {
+      "path": "native/commondata/lehighton/lower_hr.dbf",
+      "bytes": 449,
+      "sha256": "61bd57a7d0038f0700d920ac847926eeb334ab24b43a570dbf79e505b4c09f7b"
+    },
+    {
+      "path": "native/commondata/lehighton/lower_hr.prj",
+      "bytes": 459,
+      "sha256": "b38f60752e2672fe3d20e368065b9abb82aa164bdbee1dc52b32a8b85149028a"
+    },
+    {
+      "path": "native/commondata/lehighton/lower_hr.shp",
+      "bytes": 673024,
+      "sha256": "fb5cc1fc64381e9bae03c060bc00aa5cdccab3263cf3af9b3e094862ec110528"
+    },
+    {
+      "path": "native/commondata/lehighton/lower_hr.shp.xml",
+      "bytes": 1561,
+      "sha256": "60738e23abc907fb24a825a411288451ba96ed3bf505064eaab2b66184a28c18"
+    },
+    {
+      "path": "native/commondata/lehighton/lower_hr.shx",
+      "bytes": 172,
+      "sha256": "273eaccb36351922bbf63228d291e0aa5f1573a73d467600151e786c73f7864d"
+    },
+    {
+      "path": "native/commondata/lehighton/lower_hr_halo.cpg",
+      "bytes": 5,
+      "sha256": "3ad3031f5503a4404af825262ee8232cc04d4ea6683d42c5dd0a2f2a27ac9824"
+    },
+    {
+      "path": "native/commondata/lehighton/lower_hr_halo.dbf",
+      "bytes": 449,
+      "sha256": "61bd57a7d0038f0700d920ac847926eeb334ab24b43a570dbf79e505b4c09f7b"
+    },
+    {
+      "path": "native/commondata/lehighton/lower_hr_halo.prj",
+      "bytes": 459,
+      "sha256": "b38f60752e2672fe3d20e368065b9abb82aa164bdbee1dc52b32a8b85149028a"
+    },
+    {
+      "path": "native/commondata/lehighton/lower_hr_halo.shp",
+      "bytes": 673024,
+      "sha256": "fb5cc1fc64381e9bae03c060bc00aa5cdccab3263cf3af9b3e094862ec110528"
+    },
+    {
+      "path": "native/commondata/lehighton/lower_hr_halo.shp.xml",
+      "bytes": 1571,
+      "sha256": "59beaa3fea74383ae98d9e3f04acdf426b5497a4aebd5364bf58d4ca41213822"
+    },
+    {
+      "path": "native/commondata/lehighton/lower_hr_halo.shx",
+      "bytes": 172,
+      "sha256": "273eaccb36351922bbf63228d291e0aa5f1573a73d467600151e786c73f7864d"
+    },
+    {
+      "path": "native/commondata/lehighton/mainstem.cpg",
+      "bytes": 5,
+      "sha256": "3ad3031f5503a4404af825262ee8232cc04d4ea6683d42c5dd0a2f2a27ac9824"
+    },
+    {
+      "path": "native/commondata/lehighton/mainstem.dbf",
+      "bytes": 2009,
+      "sha256": "f15ab861bb96d8a8ec0770c6db5b746e9e1589ea2d6b07bf97b95963aac63b09"
+    },
+    {
+      "path": "native/commondata/lehighton/mainstem.prj",
+      "bytes": 459,
+      "sha256": "b38f60752e2672fe3d20e368065b9abb82aa164bdbee1dc52b32a8b85149028a"
+    },
+    {
+      "path": "native/commondata/lehighton/mainstem.shp",
+      "bytes": 9260,
+      "sha256": "d58005eac69978e073a5398249fc62e91ce092d2f01a3c2f630182b54ee70f9b"
+    },
+    {
+      "path": "native/commondata/lehighton/mainstem.shp.xml",
+      "bytes": 1580,
+      "sha256": "c9e459b7060dffa0dca7d98a3e39e411421f140d31025d27b07c490e72677bc2"
+    },
+    {
+      "path": "native/commondata/lehighton/mainstem.shx",
+      "bytes": 492,
+      "sha256": "34888f735ccdae69d9aa8bcf8cf086c87754d4a29a3cbaf6c5f4ee9d97cbce1f"
+    },
+    {
+      "path": "native/commondata/lehighton/main_halo.cpg",
+      "bytes": 5,
+      "sha256": "3ad3031f5503a4404af825262ee8232cc04d4ea6683d42c5dd0a2f2a27ac9824"
+    },
+    {
+      "path": "native/commondata/lehighton/main_halo.dbf",
+      "bytes": 2009,
+      "sha256": "f15ab861bb96d8a8ec0770c6db5b746e9e1589ea2d6b07bf97b95963aac63b09"
+    },
+    {
+      "path": "native/commondata/lehighton/main_halo.prj",
+      "bytes": 459,
+      "sha256": "b38f60752e2672fe3d20e368065b9abb82aa164bdbee1dc52b32a8b85149028a"
+    },
+    {
+      "path": "native/commondata/lehighton/main_halo.shp",
+      "bytes": 9260,
+      "sha256": "d58005eac69978e073a5398249fc62e91ce092d2f01a3c2f630182b54ee70f9b"
+    },
+    {
+      "path": "native/commondata/lehighton/main_halo.shp.xml",
+      "bytes": 1582,
+      "sha256": "e467e9c855b52fa694401a51590359ca154c165a553759091f2c8c4d364375cf"
+    },
+    {
+      "path": "native/commondata/lehighton/main_halo.shx",
+      "bytes": 492,
+      "sha256": "34888f735ccdae69d9aa8bcf8cf086c87754d4a29a3cbaf6c5f4ee9d97cbce1f"
+    },
+    {
+      "path": "native/commondata/lehighton/streams.cpg",
+      "bytes": 5,
+      "sha256": "3ad3031f5503a4404af825262ee8232cc04d4ea6683d42c5dd0a2f2a27ac9824"
+    },
+    {
+      "path": "native/commondata/lehighton/streams.dbf",
+      "bytes": 31688,
+      "sha256": "3892b613932bcc02e02c4fd986404034cb3e7c99588bf8e4a208316b7e00191b"
+    },
+    {
+      "path": "native/commondata/lehighton/streams.prj",
+      "bytes": 459,
+      "sha256": "b38f60752e2672fe3d20e368065b9abb82aa164bdbee1dc52b32a8b85149028a"
+    },
+    {
+      "path": "native/commondata/lehighton/streams.shp",
+      "bytes": 226916,
+      "sha256": "ba62ecd6f700902d88a9bf7faf5ce33bf45a307cd092af73e3a72819bec6d2ec"
+    },
+    {
+      "path": "native/commondata/lehighton/streams.shp.xml",
+      "bytes": 1578,
+      "sha256": "31843b54e016efa3c6abb29fdb756c35839fe268c6c6954a7e84ece77db76e0c"
+    },
+    {
+      "path": "native/commondata/lehighton/streams.shx",
+      "bytes": 6580,
+      "sha256": "5a4364f1f9856f2da9e319457bdeb1885408b9eb64eb36540d342b361d66ae9f"
+    },
+    {
+      "path": "native/commondata/lehighton/upper_halo.cpg",
+      "bytes": 5,
+      "sha256": "3ad3031f5503a4404af825262ee8232cc04d4ea6683d42c5dd0a2f2a27ac9824"
+    },
+    {
+      "path": "native/commondata/lehighton/upper_halo.dbf",
+      "bytes": 371,
+      "sha256": "fcdcd1fc274119a3449073aa72ac0c326cefa54e8068bbd1783e5ad49c2ef284"
+    },
+    {
+      "path": "native/commondata/lehighton/upper_halo.prj",
+      "bytes": 459,
+      "sha256": "b38f60752e2672fe3d20e368065b9abb82aa164bdbee1dc52b32a8b85149028a"
+    },
+    {
+      "path": "native/commondata/lehighton/upper_halo.shp",
+      "bytes": 435472,
+      "sha256": "be2e0afc03da6f1a7d82aa4a3856f8e35729ef276a8f2e59bb6040f0257ea9a1"
+    },
+    {
+      "path": "native/commondata/lehighton/upper_halo.shp.xml",
+      "bytes": 1583,
+      "sha256": "82080f87c378e3e308986a94f0f933a88b8fab3872c2b78d06d5be417c50eee2"
+    },
+    {
+      "path": "native/commondata/lehighton/upper_halo.shx",
+      "bytes": 156,
+      "sha256": "a392bd2bd764f46a47a5ed179e0e5d21b2c102bbb2e2250decb6c29fe35a00a6"
+    },
+    {
+      "path": "native/commondata/lehighton/upper_sub.cpg",
+      "bytes": 5,
+      "sha256": "3ad3031f5503a4404af825262ee8232cc04d4ea6683d42c5dd0a2f2a27ac9824"
+    },
+    {
+      "path": "native/commondata/lehighton/upper_sub.dbf",
+      "bytes": 371,
+      "sha256": "fcdcd1fc274119a3449073aa72ac0c326cefa54e8068bbd1783e5ad49c2ef284"
+    },
+    {
+      "path": "native/commondata/lehighton/upper_sub.prj",
+      "bytes": 459,
+      "sha256": "b38f60752e2672fe3d20e368065b9abb82aa164bdbee1dc52b32a8b85149028a"
+    },
+    {
+      "path": "native/commondata/lehighton/upper_sub.shp",
+      "bytes": 435472,
+      "sha256": "be2e0afc03da6f1a7d82aa4a3856f8e35729ef276a8f2e59bb6040f0257ea9a1"
+    },
+    {
+      "path": "native/commondata/lehighton/upper_sub.shp.xml",
+      "bytes": 1581,
+      "sha256": "9cb56e9ff17f2aff571b76eba7f56d3a40d75d2abfd64019a39f0ac55abc4632"
+    },
+    {
+      "path": "native/commondata/lehighton/upper_sub.shx",
+      "bytes": 156,
+      "sha256": "a392bd2bd764f46a47a5ed179e0e5d21b2c102bbb2e2250decb6c29fe35a00a6"
+    },
+    {
+      "path": "native/commondata/lehighton/USGS01449000.cpg",
+      "bytes": 5,
+      "sha256": "3ad3031f5503a4404af825262ee8232cc04d4ea6683d42c5dd0a2f2a27ac9824"
+    },
+    {
+      "path": "native/commondata/lehighton/USGS01449000.dbf",
+      "bytes": 137,
+      "sha256": "edf65e07b64fc1d858fe7154d361f9c5a02fe709dd4c09aefe4cda2a45600e52"
+    },
+    {
+      "path": "native/commondata/lehighton/USGS01449000.prj",
+      "bytes": 459,
+      "sha256": "b38f60752e2672fe3d20e368065b9abb82aa164bdbee1dc52b32a8b85149028a"
+    },
+    {
+      "path": "native/commondata/lehighton/USGS01449000.shp",
+      "bytes": 128,
+      "sha256": "8d6e216419dc54ad98d8f8b3551879fa5f9ddae4f7b1a29d67a0daed7b01154d"
+    },
+    {
+      "path": "native/commondata/lehighton/USGS01449000.shp.xml",
+      "bytes": 1585,
+      "sha256": "12ff21b79410008107ccd6054948584a9cde46255753be0ec0c621480865369b"
+    },
+    {
+      "path": "native/commondata/lehighton/USGS01449000.shx",
+      "bytes": 108,
+      "sha256": "e088dbae16a29870b4fd27ce1fa9e3328681ee1bbf44e24eadf4d747c8d67a9b"
+    },
+    {
+      "path": "native/commondata/map_project/01_CONUS_states.CPG",
+      "bytes": 5,
+      "sha256": "3ad3031f5503a4404af825262ee8232cc04d4ea6683d42c5dd0a2f2a27ac9824"
+    },
+    {
+      "path": "native/commondata/map_project/01_CONUS_states.dbf",
+      "bytes": 7966,
+      "sha256": "a9a5f20caf84b83b9edfcc78341a62475a0148aaa692bd6418dfd53f0af2137d"
+    },
+    {
+      "path": "native/commondata/map_project/01_CONUS_states.prj",
+      "bytes": 459,
+      "sha256": "b38f60752e2672fe3d20e368065b9abb82aa164bdbee1dc52b32a8b85149028a"
+    },
+    {
+      "path": "native/commondata/map_project/01_CONUS_states.sbn",
+      "bytes": 612,
+      "sha256": "11c70349d3ef6ddf80579a66e7649ff374472e5f843b984fefd21eb90dea6260"
+    },
+    {
+      "path": "native/commondata/map_project/01_CONUS_states.sbx",
+      "bytes": 164,
+      "sha256": "e85e6ad7638a66fefb004f7f919f6d3a98aacb743f14ea3c0eea0c412c7247e3"
+    },
+    {
+      "path": "native/commondata/map_project/01_CONUS_states.shp",
+      "bytes": 179768,
+      "sha256": "18f625811a4dce3b0d17a721b8edf3f175b5341cfddc8b1a84a7caf433dfd069"
+    },
+    {
+      "path": "native/commondata/map_project/01_CONUS_states.shp.xml",
+      "bytes": 1254,
+      "sha256": "6ba87cdbb04983aacaf6e7f824326f97758542647d8e41c7ac6597b85250d6ab"
+    },
+    {
+      "path": "native/commondata/map_project/01_CONUS_states.shx",
+      "bytes": 492,
+      "sha256": "c3687356a0c917b1f34dc3a61ea9f795e422231ab8cfb6ad2022ae14de827329"
+    },
+    {
+      "path": "native/commondata/map_project/02_Delaware_River_Basin.CPG",
+      "bytes": 5,
+      "sha256": "3ad3031f5503a4404af825262ee8232cc04d4ea6683d42c5dd0a2f2a27ac9824"
+    },
+    {
+      "path": "native/commondata/map_project/02_Delaware_River_Basin.dbf",
+      "bytes": 1268,
+      "sha256": "75670652258b6704efd3b228a4c040837de9cfcd1c036dd6892e35ba6322d942"
+    },
+    {
+      "path": "native/commondata/map_project/02_Delaware_River_Basin.prj",
+      "bytes": 459,
+      "sha256": "b38f60752e2672fe3d20e368065b9abb82aa164bdbee1dc52b32a8b85149028a"
+    },
+    {
+      "path": "native/commondata/map_project/02_Delaware_River_Basin.sbn",
+      "bytes": 132,
+      "sha256": "0787a72bb841f10893171bc18c298385b21109c47802e7fc4ae0fdbfde173696"
+    },
+    {
+      "path": "native/commondata/map_project/02_Delaware_River_Basin.sbx",
+      "bytes": 116,
+      "sha256": "45f561771b4df9c7bf99d64dd73f9468517f0552e18916f34e8de590ac6878b8"
+    },
+    {
+      "path": "native/commondata/map_project/02_Delaware_River_Basin.shp",
+      "bytes": 48012,
+      "sha256": "c63c52a75f399e998b1984a9b0f7c0c88fe4facc969a9e4c57e9e4c24a671928"
+    },
+    {
+      "path": "native/commondata/map_project/02_Delaware_River_Basin.shp.xml",
+      "bytes": 3090,
+      "sha256": "0e2d6c2eeaf89c9e90a4b8d961845720fa5e8e726e4f0e20a6921d3a1115feda"
+    },
+    {
+      "path": "native/commondata/map_project/02_Delaware_River_Basin.shx",
+      "bytes": 108,
+      "sha256": "36c81765fee2838632eb0f63c415a4896d393ff47a9488144e60c24f5854abe8"
+    },
+    {
+      "path": "native/commondata/map_project/03_upstream_basins.CPG",
+      "bytes": 5,
+      "sha256": "3ad3031f5503a4404af825262ee8232cc04d4ea6683d42c5dd0a2f2a27ac9824"
+    },
+    {
+      "path": "native/commondata/map_project/03_upstream_basins.dbf",
+      "bytes": 2242,
+      "sha256": "3b112eadb278ca2c4d03e5444e4def9dd8cf78db9833cf0335ecceeb4d2b14c0"
+    },
+    {
+      "path": "native/commondata/map_project/03_upstream_basins.prj",
+      "bytes": 459,
+      "sha256": "b38f60752e2672fe3d20e368065b9abb82aa164bdbee1dc52b32a8b85149028a"
+    },
+    {
+      "path": "native/commondata/map_project/03_upstream_basins.sbn",
+      "bytes": 220,
+      "sha256": "3961d798f0df7a19311d579157dd1d5eda94777a67a83ebc718395e4d94e4e59"
+    },
+    {
+      "path": "native/commondata/map_project/03_upstream_basins.sbx",
+      "bytes": 132,
+      "sha256": "85942704b59676858e0c8e393fe42cb3c5ac8cd897cba6bbf49d20206054cb09"
+    },
+    {
+      "path": "native/commondata/map_project/03_upstream_basins.shp",
+      "bytes": 62396,
+      "sha256": "212915f2c97beaaac125ee86aaaeb8a4766ab889f4ff229806b6f24043cd9795"
+    },
+    {
+      "path": "native/commondata/map_project/03_upstream_basins.shp.xml",
+      "bytes": 6743,
+      "sha256": "70a55035c8a0623cbfd7655192316c37b9eed0e995d103e36825586001112d48"
+    },
+    {
+      "path": "native/commondata/map_project/03_upstream_basins.shx",
+      "bytes": 164,
+      "sha256": "8130459649bf7adfaf343fea79f2d8bf5adeca3ca598c1e61efcd3e58e153f92"
+    },
+    {
+      "path": "native/commondata/map_project/07_Delaware_mainstem.CPG",
+      "bytes": 5,
+      "sha256": "3ad3031f5503a4404af825262ee8232cc04d4ea6683d42c5dd0a2f2a27ac9824"
+    },
+    {
+      "path": "native/commondata/map_project/07_Delaware_mainstem.dbf",
+      "bytes": 7706,
+      "sha256": "d813171bf29228a0451221a7e3aeb01d6eb3c50db03ba23b5c8e61f8e775a328"
+    },
+    {
+      "path": "native/commondata/map_project/07_Delaware_mainstem.prj",
+      "bytes": 459,
+      "sha256": "b38f60752e2672fe3d20e368065b9abb82aa164bdbee1dc52b32a8b85149028a"
+    },
+    {
+      "path": "native/commondata/map_project/07_Delaware_mainstem.sbn",
+      "bytes": 3876,
+      "sha256": "b17bcffad22450a951d5c1e3a3fc1f983a574ca616d349710f8aedb47b9553b6"
+    },
+    {
+      "path": "native/commondata/map_project/07_Delaware_mainstem.sbx",
+      "bytes": 356,
+      "sha256": "5264cbeaa45eec0025fce7b6c0ea13677980a1fe8762d365d96ca178f1d6f68e"
+    },
+    {
+      "path": "native/commondata/map_project/07_Delaware_mainstem.shp",
+      "bytes": 216788,
+      "sha256": "aa00ba24aab1f0797e26426999b67af097db9cf995afb0826eca33b370a87d88"
+    },
+    {
+      "path": "native/commondata/map_project/07_Delaware_mainstem.shp.xml",
+      "bytes": 2027,
+      "sha256": "61376965e87e83351fa073a8ac44d0710372493dd8e5553263b4a52160f6193c"
+    },
+    {
+      "path": "native/commondata/map_project/07_Delaware_mainstem.shx",
+      "bytes": 3156,
+      "sha256": "8433f226723c99f27a800fcfbc4ddf09a8eadd28450de6fc7932caa15d25acf4"
+    },
+    {
+      "path": "native/commondata/map_project/08_reservoirs.CPG",
+      "bytes": 5,
+      "sha256": "3ad3031f5503a4404af825262ee8232cc04d4ea6683d42c5dd0a2f2a27ac9824"
+    },
+    {
+      "path": "native/commondata/map_project/08_reservoirs.dbf",
+      "bytes": 1222,
+      "sha256": "24d7661c5482fd7409561e7dccc5b38d59030b64e9b7ea25fc5668df9ce3fe3a"
+    },
+    {
+      "path": "native/commondata/map_project/08_reservoirs.prj",
+      "bytes": 459,
+      "sha256": "b38f60752e2672fe3d20e368065b9abb82aa164bdbee1dc52b32a8b85149028a"
+    },
+    {
+      "path": "native/commondata/map_project/08_reservoirs.sbn",
+      "bytes": 188,
+      "sha256": "6b3a42bec0fa6e5f6f85f2bb622849046670e900bfc176b20c7b233eb36515e1"
+    },
+    {
+      "path": "native/commondata/map_project/08_reservoirs.sbx",
+      "bytes": 132,
+      "sha256": "133a55572d5fd9c6befee17792cfe2ec2c08c60f46569347419a531d8b0387de"
+    },
+    {
+      "path": "native/commondata/map_project/08_reservoirs.shp",
+      "bytes": 75804,
+      "sha256": "c822cf56e2975cf084fdc298749f1e3e81bb856fc5bdbf4404d29433475d3901"
+    },
+    {
+      "path": "native/commondata/map_project/08_reservoirs.shp.xml",
+      "bytes": 205,
+      "sha256": "56fb15b3f0bd86a062f955cc8ff7de83acc5fa2b47558aa898569779f6eaa9f3"
+    },
+    {
+      "path": "native/commondata/map_project/08_reservoirs.shx",
+      "bytes": 132,
+      "sha256": "1870a6cfcb643826b02a3fb90c9ac0d3c8ac117e1b836ea5942ab31d8a9f1bd1"
+    },
+    {
+      "path": "native/commondata/map_project/09_USGS_gauges.CPG",
+      "bytes": 5,
+      "sha256": "3ad3031f5503a4404af825262ee8232cc04d4ea6683d42c5dd0a2f2a27ac9824"
+    },
+    {
+      "path": "native/commondata/map_project/09_USGS_gauges.dbf",
+      "bytes": 1064,
+      "sha256": "d4dab69487b48c5a4f5ef5a0f308c499105a5746cf34ce4af9a7cf7aa22e5be9"
+    },
+    {
+      "path": "native/commondata/map_project/09_USGS_gauges.prj",
+      "bytes": 459,
+      "sha256": "b38f60752e2672fe3d20e368065b9abb82aa164bdbee1dc52b32a8b85149028a"
+    },
+    {
+      "path": "native/commondata/map_project/09_USGS_gauges.sbn",
+      "bytes": 196,
+      "sha256": "4daa4cc92f03c5283c142bc7bfd1af7b9857e6a99327324b7794c926449a77a5"
+    },
+    {
+      "path": "native/commondata/map_project/09_USGS_gauges.sbx",
+      "bytes": 124,
+      "sha256": "dce644500dfdf0da535402e2ea6f0facb6ba45a4acc7123fc6887e73dc52ee61"
+    },
+    {
+      "path": "native/commondata/map_project/09_USGS_gauges.shp",
+      "bytes": 268,
+      "sha256": "f7d0e1eaf3c03948a68822439612f267638516552028f3503b4f33f9e9d42877"
+    },
+    {
+      "path": "native/commondata/map_project/09_USGS_gauges.shp.xml",
+      "bytes": 205,
+      "sha256": "56fb15b3f0bd86a062f955cc8ff7de83acc5fa2b47558aa898569779f6eaa9f3"
+    },
+    {
+      "path": "native/commondata/map_project/09_USGS_gauges.shx",
+      "bytes": 148,
+      "sha256": "e0a0f904e018c171a93902f1a7100df3fc2d8774487475ded584dbd8a94ffd49"
+    },
+    {
+      "path": "native/commondata/map_project/12_DRB_tributary_routes.CPG",
+      "bytes": 5,
+      "sha256": "3ad3031f5503a4404af825262ee8232cc04d4ea6683d42c5dd0a2f2a27ac9824"
+    },
+    {
+      "path": "native/commondata/map_project/12_DRB_tributary_routes.dbf",
+      "bytes": 234916,
+      "sha256": "64800fb6c2f3a9366f76bfc0dad003c93adabe9876749cd6e7173ec6a3ac5c4b"
+    },
+    {
+      "path": "native/commondata/map_project/12_DRB_tributary_routes.prj",
+      "bytes": 459,
+      "sha256": "b38f60752e2672fe3d20e368065b9abb82aa164bdbee1dc52b32a8b85149028a"
+    },
+    {
+      "path": "native/commondata/map_project/12_DRB_tributary_routes.sbn",
+      "bytes": 8468,
+      "sha256": "b5ea13e18d24b278f7cf05c0d291ae75fa19acbb613fa29a0fa22ebf387322b8"
+    },
+    {
+      "path": "native/commondata/map_project/12_DRB_tributary_routes.sbx",
+      "bytes": 628,
+      "sha256": "f09259e74d85a02336efb8acd5b33750d69cbc878cd79ecadeff7db2c609736f"
+    },
+    {
+      "path": "native/commondata/map_project/12_DRB_tributary_routes.shp",
+      "bytes": 512732,
+      "sha256": "cbd346444bd6691fc863efef3089c8295533cee5358a1b77f3003371daf189c4"
+    },
+    {
+      "path": "native/commondata/map_project/12_DRB_tributary_routes.shp.xml",
+      "bytes": 2033,
+      "sha256": "3c0f2abb9bcc1fc8b98dfb4166a545a5e7ecb992addc935769c923bbde8c600e"
+    },
+    {
+      "path": "native/commondata/map_project/12_DRB_tributary_routes.shx",
+      "bytes": 6956,
+      "sha256": "daefc99628b589baee69e31cf21bec0e17b86253cc809f11c0949fe186a05e4e"
+    },
+    {
+      "path": "native/commondata/pictures/layout-numbered.svg",
+      "bytes": 35286,
+      "sha256": "51a44e8585729503163b9640750e181a88e587b67034e252b83d740b1143bc2c"
+    },
+    {
+      "path": "native/commondata/pictures/layout_overlay.svg",
+      "bytes": 26207,
+      "sha256": "28f1be5aa649b9d2a30d1b20023a59eafb26c38ee66cc728def3e3e7d690632d"
+    },
+    {
+      "path": "native/commondata/raster_data/Daymet_Lehighton_1996_2025.tif",
+      "bytes": 7716,
+      "sha256": "d1d30b8f1293f3357ddf2dc9c33ee16094d3ed3448d8381807a8224a86e5b9bc"
+    },
+    {
+      "path": "native/project/river-legend-study-area.aprx",
+      "bytes": 303312,
+      "sha256": "953dfa9d8ee27d12cdbd83badec076c1b529bc5be760bdaada7e70a8b436c516"
+    },
+    {
+      "path": "README.md",
+      "bytes": 2153,
+      "sha256": "34c915c0df23b03fddc847a48be640d7430682e020c3735807d5f58240ab2710"
+    },
+    {
+      "path": "BUILD_REPORT.json",
+      "bytes": 2408,
+      "sha256": "ac4bccbd8a9513fbc46e18a0caf2afbe98a95e4f72f821c417806a061d4bccf0"
+    },
+    {
+      "path": "CHECK_REPORT.json",
+      "bytes": 644,
+      "sha256": "5393c7aa6fdfb155c5350e99c88f75704d0f3eec9241372441fd4f3678212386"
+    },
+    {
+      "path": "SUBCATCHMENT_LABEL_CROSSWALK.csv",
+      "bytes": 2177,
+      "sha256": "f5125387c7a8d16afce35ed55c1703e117011aa967ff95bd91380947d94b4cb8"
+    },
+    {
+      "path": "revise_rivers.py",
+      "bytes": 4601,
+      "sha256": "340be55365b6abce8ff07fa1ffb2ecbd9dfc2a23af0ff11898a4dab5ac541c59"
+    },
+    {
+      "path": "check_and_package.py",
+      "bytes": 6207,
+      "sha256": "63683a38d645758da3431fb27a8a9f53c0204dbd0c25874427adbf050c71f298"
+    },
+    {
+      "path": "study-area-v4.png",
+      "bytes": 4554839,
+      "sha256": "6a2805a07b537847ea06a422044b82b679ab2b3054d1464dfd90703c8d5da634"
+    },
+    {
+      "path": "study-area-v4.svg",
+      "bytes": 17426647,
+      "sha256": "b52608290469c9e9612e6ab9b8d9aac8f00978adb3d3d8729f026dd2d6e4872d"
+    }
+  ]
+}
