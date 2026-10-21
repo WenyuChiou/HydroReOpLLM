@@ -13,6 +13,7 @@ import io
 import json
 import os
 import platform
+import runpy
 from pathlib import Path
 from unittest.mock import patch
 
@@ -400,9 +401,10 @@ def main_cells() -> list[dict]:
 
 def operation_cells() -> list[dict]:
     """Load the focused five-year lesson only when that notebook is requested."""
-    from tutorials.operation import build_cells
-
-    return build_cells(md=md, code=code)
+    # The direct CLI starts with tutorials/ on sys.path, rather than its parent.
+    # Load the sibling source explicitly so installed package paths are irrelevant.
+    lesson = runpy.run_path(str(TUTORIALS / "operation.py"))
+    return lesson["build_cells"](md=md, code=code)
 
 
 def _walkthrough_cells() -> list[dict]:

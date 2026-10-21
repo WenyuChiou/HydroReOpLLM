@@ -3,6 +3,9 @@ import hashlib
 import importlib.util
 import json
 import html
+import shutil
+import subprocess
+import sys
 from pathlib import Path
 from unittest.mock import patch
 
@@ -16,6 +19,27 @@ from llm_reservoir_agent.coupled import load_coupled_settings
 
 ROOT = Path(__file__).resolve().parents[1]
 COUPLED = ROOT / "examples/fe_walter/coupled"
+
+
+def test_operation_builder_needs_no_repository_import_path(tmp_path):
+    """Build from isolated sibling scripts, without rewriting accepted notebooks."""
+    folder = tmp_path / "tutorials"
+    folder.mkdir()
+    for name in ("build_notebooks.py", "operation.py"):
+        shutil.copyfile(ROOT / "tutorials" / name, folder / name)
+    result = subprocess.run(
+        [sys.executable, "-I", "-c",
+         "import runpy,sys; builder=runpy.run_path(sys.argv[1]); "
+         "builder['build'](execute=False, notebook='operation.ipynb')",
+         str(folder / "build_notebooks.py")],
+        cwd=tmp_path, capture_output=True, text=True,
+    )
+    assert result.returncode == 0, result.stderr
+    notebook = json.loads((folder / "operation.ipynb").read_text(encoding="utf-8"))
+    assert len(notebook["cells"]) == 22
+    assert "five-year operation comparison" in "".join(notebook["cells"][0]["source"])
+    assert all(cell["execution_count"] is None for cell in notebook["cells"]
+               if cell["cell_type"] == "code")
 
 
 @pytest.mark.parametrize("current,agent", [
