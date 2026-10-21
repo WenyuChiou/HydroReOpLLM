@@ -105,7 +105,8 @@
   "flow_score_masks": "Existing masks unchanged; first21days omitted;126 White Haven provisional records excluded from primary scores. All dates retained in daily output/plots.",
   "observation": "USACE end-of-local-day storage converted using the saved WCM curve (ft NGVD29); preliminary flags retained in original evidence.",
   "limitations": [
-    "Transferred lateral forcing and channel parameters await independent validation.",
+    "The short FEWalter-to-White Haven reach and FEW-L-01/02 local runoff retain transferred upper-watershed parameters.",
+    "Lehighton C&V validates combined local runoff and routing under an observed White Haven boundary; individual tributaries are not separately validated.",
     "Current inactive/dead storage and sedimentation are not independently confirmed.",
     "Reservoir evaporation and seepage are zero in this fixed comparison.",
     "Fixed 86400 s operation days and local-day observation boundaries differ on DST transitions."
@@ -115,6 +116,7 @@
     "comparison_sha256": "25ca61ba0ca8fba50899fd90d3b8179fe346bf0a63c9a370e28573609feabbee",
     "reservoir_source_sha256": "271cf8c2f1f097f4a0852b1eb85725b551e30ef1184ccb604c9222375e2af29e",
     "flow_source_sha256": "1012a9db87565127b1d15bd855840b52d13de661ffe48cf8bc78913341a08087",
-    "assessment_sha256": "2d9a9bdcab393780759b486b832eddc200f0186aac00142d85f0c3d34a2ce99d"
+    "assessment_sha256": "2d9a9bdcab393780759b486b832eddc200f0186aac00142d85f0c3d34a2ce99d",
+    "readiness_reconciliation": "Completed lower C&V lineage rechecked 2026-10-21; saved simulation and metric values unchanged."
   }
 }

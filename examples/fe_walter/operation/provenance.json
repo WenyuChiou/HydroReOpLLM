@@ -18,6 +18,37 @@
       "FEW_INFLOW": "Reservoir upstream watershed",
       "USGS01447800": "Incremental runoff below the reservoir to White Haven",
       "USGS01449000": "Incremental runoff between White Haven and Lehighton"
+    },
+    "lower_validation": {
+      "summary": "../downstream/outputs/hydrology_validation/summary.json",
+      "summary_sha256": "56abfd6b7d95cbe7934396bb73fe3874ff5923fa32675aebbd67b389633490f8",
+      "source_model_sha256": "7129cb86faf3c3b59d3ef0b26fafbce3da10fea38a4252768653ba6b5598bd6e",
+      "parameter_blocks": {
+        "RainfallRunoff": {
+          "FEW-DS-01": "79b66471f8be08ac1eb7a3936902921904982f25d94a1d5c299d580402442bcc",
+          "FEW-DS-02": "dbf2c35305092412736e32343f598ce28294b4ede1dd2323ed5836e2ed57b01a",
+          "FEW-DS-03": "4322dea445cb84bb690fbde73f9154e320ebdfb82c6ff0fff3ba9b584bbe213d",
+          "FEW-DS-04": "8454906472e26b22646ae2f41b0b0c8fd75d1dc00f9e161fc265321b9ee53bad",
+          "FEW-DS-05": "fe9e24c8187282580da337b6a1f81e980e13ac2fc3ea71690336ceb31eac06ee",
+          "FEW-DS-06": "ffa6efbca072ef6f6b6bf8552655e4609f0e950fc0b9b7733d9b27de3c563cde",
+          "FEW-DS-07": "5fbab31eed776be9ecdb4b65338cc39fbfd76c7fb04c6026641eb6e635f8851f",
+          "FEW-DS-08": "5a72e73f06ea9c7e461b4d9512de0855f2d5fc3ef7e4c823ab2a5472dd1948cb",
+          "FEW-DS-09": "bf80e31a513f3f3f15133049cb68c75f736f4b42ecbe8d4265f89685dda25d0d",
+          "WHITE_HAVEN": "7c35f7aedf6503eea47d9def465e16985ba10543764c3c767e085143a70d1a0f",
+          "LEHIGHTON": "7c35f7aedf6503eea47d9def465e16985ba10543764c3c767e085143a70d1a0f"
+        },
+        "Routing": {
+          "WHITE_HAVEN": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+          "LEHIGHTON": "27fa59f23e04abac4fa40a8326c7e8639561ef8e4a82535a233823829f646df1"
+        }
+      },
+      "operation_channel_sha256": "fdc8d79becbf4a9b62bf53328397b96327e89668dde8464bb72dfaa90325d501",
+      "scope": "1990\u20132010 calibration and 2011\u20132020 independent validation of the combined White Haven-to-Lehighton runoff and routing, using observed White Haven flow.",
+      "remaining_assumptions": [
+        "The short FEWalter-to-White Haven reach and FEW-L-01/02 local runoff retain transferred upper-watershed parameters.",
+        "Lehighton C&V validates combined local runoff and routing under an observed White Haven boundary; individual tributaries are not separately validated."
+      ],
+      "native_routing_final_weight_max_difference_cms": 0.00021329184328067186
     }
   },
   "warmup": {
@@ -33,15 +64,17 @@
     "llm_knowledge": "Prepared, not executed"
   },
   "readiness": {
-    "engineering": "Offline source, date, common network and model-setting checks passed",
-    "scientific_live_ready": false,
-    "reason": "Transferred lateral forcing and channel parameters await independent validation; keep case.live_readiness unchanged."
+    "engineering": "Offline source, dates, common network, model settings and frozen C&V lineage checked",
+    "scientific_live_ready": true,
+    "reason": "Selected lower runoff/routing model is unchanged from completed C&V; retain the explicitly scoped near-dam regionalization and individual-tributary limits. LLM execution was not requested."
   },
   "originals": {
     "case.json": {
       "sha256": "749fb0c57573666808be3fc2b7878c4323e6049929b158f733f452ac1a53e114",
       "bytes": 2130,
-      "source_run": "corrected/prepared/experiment/case.json"
+      "source_run": "corrected/prepared/experiment/case.json",
+      "teaching_sha256": "eb895ede8de657cc8c17e8c68562b32073ba15118b47e020152afb9322e61f55",
+      "metadata_update": "2026-10-21: reconcile obsolete live_readiness only; network, inflow reference and physical values unchanged. Original source SHA256 is retained above."
     },
     "inflows.csv": {
       "sha256": "818b688230673992c5a00f868ccc34f054d400f4d83dc88ad7b62b3bcf4b4d50",
@@ -68,7 +101,7 @@
   "new_model_requests": 0,
   "artifacts": {
     "agents.rule.yaml": "ec4455c620dc7aea1a4e612169d3b896600bcb43d64735540744576ac5609784",
-    "case.json": "749fb0c57573666808be3fc2b7878c4323e6049929b158f733f452ac1a53e114",
+    "case.json": "eb895ede8de657cc8c17e8c68562b32073ba15118b47e020152afb9322e61f55",
     "experiment.yaml": "d2570b67c928e069ec62cc7e64f11631885fb22b262154668e55d3836adab2a6",
     "hydrology/forcing.csv.gz": "0fedb9df4526db9d9607a5365c8fd02dab4972073bc040c00e07edaa82b6864e",
     "hydrology/hydrology.yaml": "1e7778e8da161eab763c551f21c40a1e3a7c0280eb680cfdcc400b00e9d41b82",
@@ -79,7 +112,7 @@
     "llm_knowledge.yaml": "6612b0c6c354a96d9c615593ae0eaeeedbd7a279f8ae1020f8d7ffe66b13c402",
     "outputs/reservoir_daily.csv": "d9ffb3ce65da00e74b69ea9f5e0fd6abb1f4383f29b5b53f38be70553a3975f2",
     "outputs/streamflow_daily.csv": "fe79958736c9f325ab327fc404ef11bd94c96df0a78b2f4d8ec5fc4f3bd44fdb",
-    "outputs/summary.json": "54910c200dfa260505e05058ac79c92ef01578e9d5be1db4601755f60c3e7ca7"
+    "outputs/summary.json": "32cec1c168df25f7ef69bda86eca6fa5ef64f68b2def642f82726a7fc7a7a983"
   },
   "shared_dependencies": {
     "examples/fe_walter/coupled/auditors.yaml": "ed2afb7c2bee773510d2a934a1e96c2d607d2b8771ccc6ff165b5a1a39206a0f",
@@ -103,6 +136,7 @@
     "cases/fe_belt_prompton_offline/fe_walter_storage_elevation.csv": "baa89b33023c23002b94ac48e68c69278c384d15a64a72d2587a1e6ad458999d",
     "examples/fe_walter/coupled/agents.llm_knowledge.yaml": "eeae76bcda7a90d2b486ef320e265eb5c94c808e7fd12f9f449d998516bfaf52",
     "examples/fe_walter/prompts/retrieved_knowledge.txt": "ae5e19ee4a8f3749d80f06088c7ee7f4cb14997a72d40a9d39c1ab2e51a7bf48",
-    "examples/fe_walter/knowledge/operating_rules.md": "7fb3b9e75c1d6a52168049afa80c527a49e606f1c0889e5d14b31f874502b206"
+    "examples/fe_walter/knowledge/operating_rules.md": "7fb3b9e75c1d6a52168049afa80c527a49e606f1c0889e5d14b31f874502b206",
+    "examples/fe_walter/downstream/outputs/hydrology_validation/summary.json": "56abfd6b7d95cbe7934396bb73fe3874ff5923fa32675aebbd67b389633490f8"
   }
 }

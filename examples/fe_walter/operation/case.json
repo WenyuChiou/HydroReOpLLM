@@ -61,10 +61,12 @@
   },
   "data_kind": "simulated_local_inflow",
   "live_readiness": {
-    "ready": false,
+    "ready": true,
     "notes": [
-      "Boundary-corrected configuration; transferred lateral forcing and channel parameters await independent validation."
-    ]
+      "The short FEWalter-to-White Haven reach and FEW-L-01/02 local runoff retain transferred upper-watershed parameters.",
+      "Lehighton C&V validates combined local runoff and routing under an observed White Haven boundary; individual tributaries are not separately validated."
+    ],
+    "validation_reference": "../downstream/outputs/hydrology_validation/summary.json"
   },
   "schema_version": "llm-reservoir-network-case.v1",
   "inflow_source": {

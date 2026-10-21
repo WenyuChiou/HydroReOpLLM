@@ -65,7 +65,13 @@ excludes 126 provisional observation records; the daily exports and plots retain
 all dates. The 135,532,852.34 m³ capacity is an approximate conversion of the
 1,450 ft flood-control pool. The 49.34 m³ inactive/dead storage floor is not
 independently confirmed, and reservoir evaporation and seepage are zero here.
-Transferred lateral forcing and channel parameters still need independent
-validation, so scientific live readiness remains false.
+The lower hydrology completed calibration (1990–2010) and independent validation
+(2011–2020). This case retains the selected `seed-314159` runoff and routing
+parameters; validation KGE is 0.869 and NSE is 0.875. The offline preflight checks
+their identity and reports the common five-year inputs ready for comparison.
+See the [C&V reference](../downstream/validation.md) for the observed White Haven
+boundary used in that test. The short dam-to-White Haven reach and its small local
+catchments retain transferred parameters; individual tributaries were not separately
+validated. The notebook reads saved evidence, and the two LLM methods remain unexecuted.
 
 The retained generic coefficient follows [Hanasaki et al. (2006), Eq. 3](https://doi.org/10.1016/j.jhydrol.2005.11.011).

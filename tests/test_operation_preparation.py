@@ -1,11 +1,15 @@
 """Exercise the committed preparation and figure values without model execution."""
 from unittest.mock import patch
+import copy
+import json
 
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import pytest
+import yaml
 
 from examples.fe_walter.operation import figures, preflight
 
@@ -15,11 +19,30 @@ def test_preparation_has_shared_inputs_and_no_execution():
          patch("llm_reservoir_agent.workflow.run_settings", side_effect=AssertionError("simulation forbidden")):
         report = preflight.check_preparation()
     assert report["engineering_ready"] is True
-    assert report["live_ready"] is False
+    assert report["live_ready"] is True
+    assert report["hydrology_validation"]["status"] == "complete"
+    assert report["hydrology_validation"]["selected_model"] == "seed-314159"
+    assert report["hydrology_validation"]["validation"]["paired_days"] == 3653
     assert report["days"] == 1826
     assert [row["planned_llm_calls"] for row in report["methods"]] == [0, 1826, 1826]
     assert report["saved_results"] == {
         "rule": "complete", "llm_available": "not executed", "llm_knowledge": "not executed"}
+
+
+@pytest.mark.parametrize("section,name", [
+    ("RainfallRunoff", "FEW-DS-01"), ("Routing", "LEHIGHTON"),
+])
+def test_calibration_lineage_rejects_changed_parameters(section, name):
+    provenance = json.loads((preflight.CASE_DIR / "provenance.json").read_text())
+    model = yaml.safe_load((preflight.CASE_DIR / "hydrology/model.yaml").read_text())
+    changed = copy.deepcopy(model)
+    if section == "RainfallRunoff":
+        changed[section][name]["Pars"]["CN2"] += 1
+    else:
+        changed[section][name]["WHITE_HAVEN"]["Pars"]["Velo"] *= 0.5
+    with patch.object(preflight.yaml, "safe_load", return_value=changed):
+        with pytest.raises(ValueError, match="Changed calibrated hydrology block"):
+            preflight.check_calibration_lineage(provenance)
 
 
 def test_figures_keep_every_saved_daily_value():

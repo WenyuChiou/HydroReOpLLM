@@ -7,6 +7,7 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
+import yaml
 
 from llm_reservoir_agent.workflow import load_settings
 
@@ -20,6 +21,35 @@ def _require(condition, message):
         raise ValueError(message)
 
 
+def _semantic_sha256(value):
+    raw = json.dumps(value, sort_keys=True, separators=(",", ":")).encode()
+    return hashlib.sha256(raw).hexdigest()
+
+
+def check_calibration_lineage(provenance):
+    """Match the prepared lower model to its frozen C&V parameter blocks."""
+    evidence = provenance["hydrology"]["lower_validation"]
+    summary_path = (CASE_DIR / evidence["summary"]).resolve()
+    _require(hashlib.sha256(summary_path.read_bytes()).hexdigest() == evidence["summary_sha256"],
+             "Changed downstream C&V summary")
+    summary = json.loads(summary_path.read_text(encoding="utf-8"))
+    _require(summary["selection"]["selected_model_sha256"] == evidence["source_model_sha256"],
+             "Prepared lower model differs from the selected C&V model")
+    model = yaml.safe_load((CASE_DIR / "hydrology/model.yaml").read_text(encoding="utf-8"))
+    for section in ("RainfallRunoff", "Routing"):
+        for name, expected in evidence["parameter_blocks"][section].items():
+            _require(_semantic_sha256(model[section][name]) == expected,
+                     "Changed calibrated hydrology block: " + section + "/" + name)
+    network = json.loads((CASE_DIR / "case.json").read_text())["network"]
+    route = next(row for row in network["connections"] if row["source"] == "USGS01447800")
+    _require(_semantic_sha256(route) == evidence["operation_channel_sha256"],
+             "Changed calibrated White Haven to Lehighton channel")
+    return {"status": "complete", "selected_model": summary["selection"]["label"],
+            "calibration": summary["metrics"]["selected"]["calibration"],
+            "validation": summary["metrics"]["selected"]["validation"],
+            "scope": evidence["scope"], "remaining_assumptions": evidence["remaining_assumptions"]}
+
+
 def check_preparation():
     """Return engineering checks and the separate scientific readiness status.
 
@@ -30,13 +60,15 @@ def check_preparation():
     dates = pd.date_range("2021-01-01", "2025-12-31").strftime("%Y-%m-%d").tolist()
     for name, source in provenance["originals"].items():
         digest = hashlib.sha256((CASE_DIR / name).read_bytes()).hexdigest()
-        _require(digest == source["sha256"], "Accepted input checksum mismatch: " + name)
+        _require(digest == source.get("teaching_sha256", source["sha256"]),
+                 "Accepted input checksum mismatch: " + name)
     for name, expected in provenance["artifacts"].items():
         _require(hashlib.sha256((CASE_DIR / name).read_bytes()).hexdigest() == expected,
                  "Teaching artifact checksum mismatch: " + name)
     for name, expected in provenance["shared_dependencies"].items():
         _require(hashlib.sha256((ROOT / name).read_bytes()).hexdigest() == expected,
                  "Shared source checksum mismatch: " + name)
+    validation = check_calibration_lineage(provenance)
     settings = [load_settings(CASE_DIR / name, runtime_root=ROOT) for name in METHOD_FILES]
     first = settings[0]
     expected_nodes = {"FEW_INFLOW", "USGS01447800", "USGS01449000"}
@@ -92,6 +124,7 @@ def check_preparation():
     return {
         "engineering_ready": True, "live_ready": first.report["live_ready"],
         "scientific_limitations": first.report["live_readiness"]["notes"],
+        "hydrology_validation": validation,
         "period": [dates[0], dates[-1]], "days": len(dates),
         "weather_units": weather.subbasin_id.nunique(), "weather_days_per_unit": len(weather_dates),
         "initial_storage_m3": physical["initial_storage_m3"],

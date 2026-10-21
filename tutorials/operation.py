@@ -183,9 +183,16 @@ readiness. It loads settings for inspection only.'''),
 readiness = check_preparation()
 display(ReadableText("Offline preparation report", json.dumps(readiness, indent=2)))
 display(pd.DataFrame(readiness["methods"]))'''),
-        md('''A passing report means the prepared files are internally ready for
-offline engineering use. `live_ready` remains false: transferred lateral forcing
-and channel parameters still require independent validation.'''),
+        md('''The lower hydrology has completed C&V: calibration uses 1990–2010,
+and independent validation uses 2011–2020. The five-year model retains the selected
+`seed-314159` runoff and routing parameters. Validation KGE is 0.869 and NSE is
+0.875 under an observed White Haven boundary. The preflight checks this lineage
+alongside the shared inputs and reports `live_ready: true`.
+
+The short dam-to-White Haven reach and its small local catchments retain transferred
+parameters. Lehighton C&V constrains combined runoff and routing; individual tributaries
+were not separately gauged. These scope limits remain in the report. Running this
+notebook reads saved evidence only; LLM execution requires a separate decision.'''),
         md('''## 6. Inspect saved baseline evidence
 
 Only the Rule-based comparator has a complete 1,826-day saved result. Controlled
@@ -221,8 +228,8 @@ candidate as sensitivity evidence.
 
 - Download the [saved baseline files and figures](../examples/fe_walter/operation/README.md).
 - Treat the Rule-based series as a generic comparator, not a calibrated optimum.
-- Complete independent validation of the transferred lateral and channel parameters
-  before using the case for scientific claims or a live five-year LLM comparison.
+- Read the [completed hydrology C&V](../examples/fe_walter/downstream/validation.md)
+  and retain its observed-boundary scope when interpreting operation differences.
 - When LLM runs are eventually authorized and completed, compare them against these
   same inputs and masks; do not substitute the historical 2016 curves.'''),
     ]
