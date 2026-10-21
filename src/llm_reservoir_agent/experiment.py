@@ -1,7 +1,7 @@
 """Serial, daily reservoir-network orchestration with durable causal traces.
 
 Python callers supply already constructed backends; the CLI only reads offline
-responses. No provider is constructed and no retries or resume are implicit.
+responses. No provider is constructed; decision retries and resume remain explicit.
 
 Role: Coordinate one daily network experiment and durable evidence.
 
@@ -19,6 +19,7 @@ import json
 import os
 from pathlib import Path
 import platform
+import time
 
 from .audit import json_snapshot
 from .contracts import parse_action
@@ -50,7 +51,16 @@ def write_json(path, value):
             raise OSError("incomplete metadata write")
         handle.flush()
         os.fsync(handle.fileno())
-    os.replace(temporary, path)
+    # A Windows reader can briefly hold progress.json without delete sharing.
+    # Retry the same flushed bytes only; decisions and physics are never repeated.
+    for attempt in range(4):
+        try:
+            os.replace(temporary, path)
+            break
+        except PermissionError as exc:
+            if getattr(exc, "winerror", None) not in (5, 32, 33) or attempt == 3:
+                raise
+            time.sleep(0.05 * (attempt + 1))
 
 
 class ProviderEvidenceError(RuntimeError):
@@ -160,12 +170,13 @@ class _ObservedBackend:
 
 
 def run_experiment(config, rows, backends, *, output, run_id, project_root=PROJECT_ROOT, provenance=None,
-                    information_runtime=None, outcome_checks=None, information_agents=None, recovery=None):
+                    information_runtime=None, outcome_checks=None, information_agents=None, recovery=None, progress=False):
     """Run connected reservoirs with one isolated decision backend per reservoir.
 
     Local inflows are incremental natural runoff in cms. Incoming upstream
     release/spill is added by routing, never included a second time in local Q.
     Original audit FAIL remains diagnostic FAIL; completion is execution status.
+    ``progress=True`` displays the native daily loop without changing decisions.
     """
     topology, local = validate_inflows(config, rows)
     backends = complete_backends(config, backends)
@@ -206,7 +217,7 @@ def run_experiment(config, rows, backends, *, output, run_id, project_root=PROJE
                                                   for i, a in (information_agents or {}).items()}
         write_json(journal.output / "experiment.json", run_metadata)
         records, engine = _run_network(config, rows, policies, project_root=root,
-                                       information_runtime=information_runtime)
+                                       information_runtime=information_runtime, progress=progress)
         if recovery is not None:
             recovery.finish()
         flows = engine.pop("routed_flows_cms")

@@ -233,7 +233,7 @@ def run_network(config, rows, policies, *, project_root=PROJECT_ROOT):
     return _run_network(config, rows, complete_backends(config, policies), project_root=project_root)
 
 
-def _run_network(config, rows, policies, *, project_root=PROJECT_ROOT, information_runtime=None):
+def _run_network(config, rows, policies, *, project_root=PROJECT_ROOT, information_runtime=None, progress=False):
     """Execute native Dam loops and independently verify every routed node."""
     topology, local = validate_inflows(config, rows)
     if not isinstance(policies, Mapping) or set(policies) != set(topology["reservoirs"]):
@@ -320,7 +320,7 @@ def _run_network(config, rows, policies, *, project_root=PROJECT_ROOT, informati
     for edge in native_edges:
         uhs[edge["source"], edge["target"]] = np.array(edge["unit_hydrograph"] + [0.]) * edge["fraction"]
     native_result = model.run(temp={}, prec={}, pet={}, assigned_Q=native_local,
-                       assigned_UH=uhs, disable=True)
+                       assigned_UH=uhs, disable=not progress)
     native = {inverse[node]: value for node, value in native_result.items() if node in inverse}
     records = {name: model.agents[aliases[name]].operations_log for name in topology["reservoirs"]}
     expected = {}

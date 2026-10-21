@@ -3,17 +3,18 @@
 [English](README.md) | [繁體中文](README.zh-TW.md)
 
 請先開啟 [F.E. Walter 五年操作教學](operation.ipynb)。教學依序連接
-2021–2025 已準備實驗：凍結水文輸入 → 共用物理案例 → 規則基準 →
-兩種已準備的 LLM 方法 → 離線預檢 → 保存的基準證據。
+2021–2025 實驗：讀取設定 → 由氣象計算入流 → 規則法操作水庫 →
+檢查水量平衡 → 繪製這次執行的結果。
 
 | Notebook | 用途 |
 |---|---|
-| [五年操作](operation.ipynb) | 檢查目前 2021–2025 準備內容與已完成的規則基準，不執行水文、水庫操作或 LLM。 |
+| [五年操作](operation.ipynb) | 實際執行水文與規則基準，查看逐日進度，再繪製水位與下游流量。 |
 | [歷史 2016 操作說明](main.ipynb) | 閱讀完整設定與已驗收的 2016 教學結果。這些 LLM 曲線早於每日季節情境，不能視為五年結果。 |
 | [下游驗證](downstream_validation.ipynb) | 準備 White Haven 至 Lehighton 的實測邊界檢驗，檢查輸入，再依序進行校準與獨立驗證。 |
 
-五年與歷史 notebook 都只讀取 repository 內保存的證據；預設流程不呼叫模型、
-不下載、不執行水文或水庫模擬。
+五年教學以空白輸出交付，讓使用者逐格執行本機 CPU 模擬。它沿用已接受的
+輸入與參數，直接用新結果呼叫繪圖函數，不呼叫 LLM 或下載資料。
+歷史 notebook 繼續讀取保存的證據。
 
 下游 notebook 預設只檢查輸入準備。下載、原生固定參數試算與校準都需明確開啟各自的開關；教學內沒有 LLM 執行。
 
@@ -37,8 +38,10 @@ python tutorials/build_notebooks.py --notebook operation.ipynb --execute
 python tutorials/build_notebooks.py --check
 ```
 
-此指令只以現有檔案執行五年操作 notebook，保留已驗收的 2016 CSV、圖表與
-其他筆記本。若要以保存資料更新所有筆記本與歷史教學圖表，可省略 `--notebook`。
+第一個指令會實際執行水文與規則法教學，將輸出寫入新的
+`runs/fe-walter-tutorial-*` 資料夾，保留既有研究結果。
+省略 `--notebook` 的完整建置會以保存資料執行歷史教學，並將五年操作教學
+保留為空白輸出，供使用者自行執行。
 
 [通用設定](../docs/INPUT_OUTPUT.md) · [HydroCNHS 設定](../docs/HYDROLOGY_SETUP.md) ·
 [F.E. Walter 範例](../examples/fe_walter/README.zh-TW.md)

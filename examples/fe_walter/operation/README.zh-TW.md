@@ -2,7 +2,7 @@
 
 [English](README.md) | [繁體中文](README.zh-TW.md)
 
-請開啟[五年教學](../../../tutorials/operation.ipynb)閱讀完整設定與唯讀操作說明。
+請開啟[五年教學](../../../tutorials/operation.ipynb)閱讀設定，並查看實際執行時的逐日進度。
 此資料夾包含一個共用案例、一份已完成的 1,826 日規則基準，以及兩種尚未執行的
 LLM 方法：**無額外操作知識的 LLM**與**含額外操作知識的 LLM**。
 
@@ -19,7 +19,7 @@ LLM 方法：**無額外操作知識的 LLM**與**含額外操作知識的 LLM**
 | [inflows.csv](inflows.csv) | 凍結的上游與區間每日入流 | `local_inflow_cms`，m³/s | 是 |
 | [agents.rule.yaml](agents.rule.yaml) | 通用 Hanasaki 比較基準 | `alpha: 0.85` | 基準需要 |
 | [initialization.json](initialization.json) | 前一操作年係數種子與共用物理初始狀態 | 蓄水量 m³ | 基準需要 |
-| [hydrology/model.yaml](hydrology/model.yaml)、[hydrology/hydrology.yaml](hydrology/hydrology.yaml)、[hydrology/forcing.csv.gz](hydrology/forcing.csv.gz) | 凍結水文來源與重現輸入 | 降水 mm、溫度 °C、PET cm | 來源證據；本教學不重跑 |
+| [hydrology/model.yaml](hydrology/model.yaml)、[hydrology/hydrology.yaml](hydrology/hydrology.yaml)、[hydrology/forcing.csv.gz](hydrology/forcing.csv.gz) | 實作教學使用的已接受水文輸入 | 降水 mm、溫度 °C、PET cm | 水文計算需要 |
 | [provenance.json](provenance.json) | 雜湊、期間、暖機與就緒邊界 | 主要評分排除前 21 日 | 是 |
 
 三種方法共用 2021-01-01 的物理蓄水量 4,287,715.370246947 m³。規則法係數以
@@ -61,7 +61,7 @@ LLM 方法：**無額外操作知識的 LLM**與**含額外操作知識的 LLM**
 `seed-314159` 逕流與路由參數；驗證 KGE 為 0.869、NSE 為 0.875。離線檢查會
 核對參數來源，並確認五年比較的共用輸入已備妥。[C&V 參考](../downstream/validation.zh-TW.md)
 說明當時使用 White Haven 觀測流量作為上游邊界。壩口至 White Haven 的短河段與
-小面積區間仍移用上游參數，各支流也沒有個別測站驗證。Notebook 僅讀取保存證據，
-兩個 LLM 方法仍尚未執行。
+小面積區間仍移用上游參數，各支流也沒有個別測站驗證。Notebook 會計算入流、
+在新資料夾執行規則法操作，再繪製該次結果；兩個 LLM 方法仍尚未執行。
 
 保留的通用係數依據 [Hanasaki et al. (2006), Eq. 3](https://doi.org/10.1016/j.jhydrol.2005.11.011)。

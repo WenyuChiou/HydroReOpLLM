@@ -36,7 +36,8 @@ def test_operation_builder_needs_no_repository_import_path(tmp_path):
     )
     assert result.returncode == 0, result.stderr
     notebook = json.loads((folder / "operation.ipynb").read_text(encoding="utf-8"))
-    assert len(notebook["cells"]) == 22
+    assert len(notebook["cells"]) == 19
+    assert notebook["metadata"]["tutorial_mode"] == "executable-rule-based"
     assert "five-year operation comparison" in "".join(notebook["cells"][0]["source"])
     assert all(cell["execution_count"] is None for cell in notebook["cells"]
                if cell["cell_type"] == "code")

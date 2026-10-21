@@ -3,7 +3,7 @@
 [English](README.md) | [繁體中文](README.zh-TW.md)
 
 Open the [five-year tutorial](../../../tutorials/operation.ipynb) for the complete
-settings and a read-only walkthrough. This folder contains a prepared common case,
+settings and an executable walkthrough with daily progress. This folder contains a prepared common case,
 one completed 1,826-day Rule-based baseline, and two LLM methods that have not been
 executed: **LLM without additional operating knowledge** and **LLM with additional
 operating knowledge**.
@@ -22,7 +22,7 @@ simulated 1989–2025 upstream and local runoff and routing.
 | [inflows.csv](inflows.csv) | Frozen upstream and local daily inflows | `local_inflow_cms`, m³/s | Yes |
 | [agents.rule.yaml](agents.rule.yaml) | Generic Hanasaki comparator | `alpha: 0.85` | Yes for the baseline |
 | [initialization.json](initialization.json) | Prior-year coefficient seed and common physical start | Storage m³ | Yes for the baseline |
-| [hydrology/model.yaml](hydrology/model.yaml), [hydrology/hydrology.yaml](hydrology/hydrology.yaml), [hydrology/forcing.csv.gz](hydrology/forcing.csv.gz) | Frozen hydrology provenance and reproducibility inputs | Precipitation mm, temperature °C, PET cm | Provenance; not rerun by this lesson |
+| [hydrology/model.yaml](hydrology/model.yaml), [hydrology/hydrology.yaml](hydrology/hydrology.yaml), [hydrology/forcing.csv.gz](hydrology/forcing.csv.gz) | Accepted hydrology inputs used by the executable lesson | Precipitation mm, temperature °C, PET cm | Required for hydrology |
 | [provenance.json](provenance.json) | Hashes, periods, warmup, and readiness boundary | 21 primary-score warmup days | Yes |
 
 All methods share the 2021-01-01 physical storage of 4,287,715.370246947 m³.
@@ -72,6 +72,7 @@ their identity and reports the common five-year inputs ready for comparison.
 See the [C&V reference](../downstream/validation.md) for the observed White Haven
 boundary used in that test. The short dam-to-White Haven reach and its small local
 catchments retain transferred parameters; individual tributaries were not separately
-validated. The notebook reads saved evidence, and the two LLM methods remain unexecuted.
+validated. The notebook calculates inflows and runs Rule-based operation in a new
+output folder, then draws its own figures. The two LLM methods remain unexecuted.
 
 The retained generic coefficient follows [Hanasaki et al. (2006), Eq. 3](https://doi.org/10.1016/j.jhydrol.2005.11.011).

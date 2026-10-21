@@ -1,7 +1,7 @@
-"""Build the saved-evidence tutorials and current teaching figures.
+"""Build executable lessons and historical teaching figures.
 
-Cells read repository files only. Execution blocks socket and urllib access,
-never calls a provider, and never runs hydrology or reservoir simulation.
+Execution blocks socket and urllib access. The selected operation lesson runs
+local hydrology and Rule-based operation; historical lessons read saved results.
 """
 from __future__ import annotations
 
@@ -969,7 +969,18 @@ def _execute(cells: list[dict], notebook_name: str) -> None:
               patch("socket.socket.connect", side_effect=AssertionError("tutorial network forbidden")),
               patch("urllib.request.build_opener", side_effect=AssertionError("tutorial HTTP forbidden")),
               patch("urllib.request.urlopen", side_effect=AssertionError("tutorial HTTP forbidden"))):
-            exec(compile(source, notebook_name, "exec"), namespace)
+            if notebook_name == "operation.ipynb":
+                # Match Jupyter's final-expression display for the executable lesson.
+                import ast
+                tree = ast.parse(source)
+                last = tree.body.pop() if tree.body and isinstance(tree.body[-1], ast.Expr) else None
+                exec(compile(tree, notebook_name, "exec"), namespace)
+                if last is not None:
+                    value = eval(compile(ast.Expression(last.value), notebook_name, "eval"), namespace)
+                    if value is not None:
+                        displays.append(value)
+            else:
+                exec(compile(source, notebook_name, "exec"), namespace)
         cell["execution_count"] = count
         cell["outputs"] = ([{"output_type": "stream", "name": "stdout", "text": stream.getvalue().splitlines(True)}]
                            if stream.getvalue() else [])
@@ -984,13 +995,17 @@ def _notebook(cells: list[dict], name: str, execute: bool) -> dict:
     return {"nbformat": 4, "nbformat_minor": 5,
             "metadata": {"kernelspec": {"name": "python3", "language": "python", "display_name": "Python 3"},
                          "language_info": {"name": "python", "version": platform.python_version()},
-                         "tutorial_mode": "saved-evidence-only",
+                         "tutorial_mode": "executable-rule-based" if name == "operation.ipynb" else "saved-evidence-only",
                          "execution_method": "ordered pure-Python cells with socket/urllib blocked"},
             "cells": cells}
 
 
 def build(*, execute: bool, notebook: str | None = None) -> list[dict]:
-    """Build one lesson from saved files, or refresh all teaching exports."""
+    """Build lessons; the operation lesson executes only when explicitly selected.
+
+    A complete build keeps that lesson's outputs empty for the reader's own run.
+    Select operation.ipynb with execute=True to verify its real CPU simulation.
+    """
     os.chdir(ROOT)
     if notebook is None:
         _prepare_current_outputs()
@@ -1006,9 +1021,10 @@ def build(*, execute: bool, notebook: str | None = None) -> list[dict]:
     for name in selected:
         cells = builders[name]()
         path = TUTORIALS / name
-        path.write_text(json.dumps(_notebook(cells, name, execute), indent=1, ensure_ascii=False) + "\n",
+        run_cells = execute and (name != "operation.ipynb" or notebook == name)
+        path.write_text(json.dumps(_notebook(cells, name, run_cells), indent=1, ensure_ascii=False) + "\n",
                         encoding="utf-8", newline="\n")
-        receipts.append({"path": str(path.relative_to(ROOT)), "executed": execute, "sha256": _sha(path)})
+        receipts.append({"path": str(path.relative_to(ROOT)), "executed": run_cells, "sha256": _sha(path)})
     return receipts
 
 
@@ -1016,18 +1032,31 @@ def check() -> list[dict]:
     reports = []
     for name in NOTEBOOKS:
         path = TUTORIALS / name; notebook = json.loads(path.read_text(encoding="utf-8"))
-        assert notebook["metadata"]["tutorial_mode"] == "saved-evidence-only"
+        expected_mode = "executable-rule-based" if name == "operation.ipynb" else "saved-evidence-only"
+        assert notebook["metadata"]["tutorial_mode"] == expected_mode
         cells = [c for c in notebook["cells"] if c["cell_type"] == "code"]
         source = "\n".join("".join(c["source"]) for c in cells)
-        assert not any(token in source for token in ("run_settings(", "subprocess.", "urlopen(", "requests.", "ollama.chat"))
-        assert all(c.get("execution_count") is not None for c in cells)
+        forbidden = ("subprocess.", "urlopen(", "requests.", "ollama.chat", "allow_network=True")
+        assert not any(token in source for token in forbidden)
+        if name != "operation.ipynb":
+            assert "run_settings(" not in source
+            assert all(c.get("execution_count") is not None for c in cells)
         mime = {m for c in cells for o in c.get("outputs", []) for m in o.get("data", {})}
-        assert "text/html" in mime
+        if name != "operation.ipynb":
+            assert "text/html" in mime
         if name == "main.ipynb":
             assert "image/png" in mime
         if name == "operation.ipynb":
-            assert "image/png" in mime
             assert "check_preparation" in source
+            assert "prepare_coupled(simulation, progress=True)" in source
+            assert "run_settings(operation_settings, progress=True" in source
+            assert "plot_run(run_output" in source
+            counts = [c.get("execution_count") for c in cells]
+            assert all(c is None for c in counts) or all(c is not None for c in counts)
+            if all(c is None for c in counts):
+                assert all(c.get("outputs") == [] for c in cells)
+            else:
+                assert "image/png" in mime
         reports.append({"path": str(path.relative_to(ROOT)), "cells": len(notebook["cells"]), "mime_types": sorted(mime), "sha256": _sha(path)})
     manifest = json.loads((CURRENT / "provenance.json").read_text(encoding="utf-8"))
     for source in manifest["sources"].values():
