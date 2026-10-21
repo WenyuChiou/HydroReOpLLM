@@ -229,7 +229,7 @@ class InformationIntegrationTests(unittest.TestCase):
 
 
     @staticmethod
-    def fixed_one_day(config, rows, policies, *, project_root, information_runtime):
+    def fixed_one_day(config, rows, policies, *, project_root, information_runtime, progress=False):
         """Keep this corruption fixture independent of native simulation/model calls."""
         from llm_reservoir_agent.physics import PhysicalConfig, apply_transition
         from llm_reservoir_agent.network import validate_inflows

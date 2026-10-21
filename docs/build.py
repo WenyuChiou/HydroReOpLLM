@@ -26,8 +26,11 @@ FIGURE_DOWNLOADS.update({
 })
 MAP_DOWNLOADS = {
     **{f"docs/figures/fe-walter-catchment.{ext}": f"fe-walter-catchment.{ext}"
-       for ext in ("png", "svg", "pdf")},
+       for ext in ("png", "svg")},
     "data/figures/manual_map/fe-walter-arcgis-source.zip": "fe-walter-arcgis-source.zip",
+    "data/figures/manual_map/provenance.json": "map-provenance.json",
+    "data/figures/manual_map/subcatchment_labels.csv": "subcatchment-labels.csv",
+    "data/figures/manual_map/source_manifest.json": "map-source-manifest.json",
 }
 HYDROLOGY_DOWNLOADS = {
     **{f"examples/fe_walter/hydrology_data/{name}": name for name in (
@@ -92,6 +95,18 @@ TUTORIAL_DOWNLOADS = {
         "reservoir_operations.png", "reservoir_operations.svg", "reservoir_operations.pdf",
     )
 }
+# Curated five-year case: portable inputs and saved baseline, without raw journals.
+TUTORIAL_DOWNLOADS.update({
+    "examples/fe_walter/operation/" + name: "operation/" + name
+    for name in (
+        "experiment.yaml", "llm_available.yaml", "llm_knowledge.yaml", "agents.rule.yaml",
+        "case.json", "inflows.csv", "initialization.json", "provenance.json",
+        "hydrology/model.yaml", "hydrology/forcing.csv.gz", "hydrology/hydrology.yaml",
+        "outputs/reservoir_daily.csv", "outputs/streamflow_daily.csv", "outputs/summary.json",
+        "outputs/reservoir_operations.png", "outputs/reservoir_operations.svg", "outputs/reservoir_operations.pdf",
+        "outputs/downstream_streamflow.png", "outputs/downstream_streamflow.svg", "outputs/downstream_streamflow.pdf",
+    )
+})
 # Generic templates are maintained once and included verbatim in the chapters.
 DOWNSTREAM_DOWNLOADS = {
     "examples/fe_walter/downstream/" + name: name
@@ -149,6 +164,8 @@ PAGES = {
     "README.zh-TW.md": "repository.zh-TW.md",
     "examples/fe_walter/README.md": "examples/fe_walter/README.md",
     "examples/fe_walter/README.zh-TW.md": "examples/fe_walter/README.zh-TW.md",
+    "examples/fe_walter/operation/README.md": "examples/fe_walter/operation/README.md",
+    "examples/fe_walter/operation/README.zh-TW.md": "examples/fe_walter/operation/README.zh-TW.md",
     "examples/fe_walter/hydrology.md": "examples/fe_walter/hydrology.md",
     "examples/fe_walter/configuration.md": "examples/fe_walter/configuration.md",
     "examples/fe_walter/annual/README.md": "examples/fe_walter/annual/README.md",
@@ -298,7 +315,7 @@ def prepare(source: Path, *, source_ref: str = "main") -> None:
     # Keep a readable manual hierarchy; notebooks are also downloadable as original bytes.
     downloads = source / "_notebook_downloads"
     downloads.mkdir()
-    for name in ("main", "advanced"):
+    for name in ("main", "advanced", "operation"):
         shutil.copyfile(ROOT / f"tutorials/{name}.ipynb", downloads / f"{name}.ipynb")
     figure_downloads = source / "_figure_downloads"
     figure_downloads.mkdir()
@@ -358,7 +375,9 @@ def prepare(source: Path, *, source_ref: str = "main") -> None:
     tutorial_downloads = source / "_tutorial_downloads"
     tutorial_downloads.mkdir()
     for relative, name in TUTORIAL_DOWNLOADS.items():
-        shutil.copyfile(ROOT / relative, tutorial_downloads / name)
+        target = tutorial_downloads / name
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(ROOT / relative, target)
         canonical = source / relative
         canonical.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(ROOT / relative, canonical)
@@ -414,7 +433,8 @@ def prepare(source: Path, *, source_ref: str = "main") -> None:
         "Overview and installation": ["docs/README", "docs/GETTING_STARTED"],
         "Configuration": ["docs/INPUT_OUTPUT", "docs/GLOBAL_SETTINGS", "docs/HYDROLOGY_SETUP",
                           "docs/BUILD_SIMULATION", "docs/CONFIGURATION", "docs/RUNNING"],
-        "Case studies": ["docs/CASE_STUDIES", "examples/fe_walter/README", "tutorials/main"],
+        "Case studies": ["docs/CASE_STUDIES", "examples/fe_walter/README", "tutorials/main",
+                         "examples/fe_walter/operation/README"],
         "Results": ["docs/RESULTS_GUIDE", "examples/fe_walter/results"],
         "Troubleshooting": ["docs/TROUBLESHOOTING"],
         "API and reference": ["docs/API_REFERENCE", "docs/PARAMETER_REFERENCE", "docs/REFERENCE", "docs/USER_GUIDE",

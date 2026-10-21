@@ -12,19 +12,24 @@ F.E. Walter Dam 位於 Pennsylvania 州 White Haven 附近、Lehigh River 與
 Bear Creek 匯流處。U.S. Army Corps of Engineers 以洪水風險管理與遊憩為
 主要任務；季節性放流也可支援下游泛舟與釣魚 [[1]](#fe-walter-ref-1-zh)。
 
-研究區域涵蓋下游的 White Haven 與 Lehighton 兩個測站。[下游水文流程](downstream/validation.zh-TW.md)提供兩站間的實測邊界檢驗，仍需補齊下游模型與逐日輸入。[保存的下游比較](downstream/README.zh-TW.md)則使用歷史 2016 年決策評估 White Haven。
+研究區域涵蓋下游的 White Haven 與 Lehighton 兩個測站。[2021–2025 操作案例](operation/README.zh-TW.md)
+提供共用的上游與區間入流、已保存的 Rule-based 基準，以及兩組已準備的 LLM 設定。
+[下游水文流程](downstream/validation.zh-TW.md)記錄獨立的校正與驗證步驟；轉移的區間
+氣象與河道參數仍保留其驗證限制。[2016 年比較](downstream/README.zh-TW.md)則作為歷史證據。
 
-地圖下載：[PDF](../../docs/figures/fe-walter-catchment.pdf)、[SVG](../../docs/figures/fe-walter-catchment.svg)、[可編輯 ArcGIS 圖源](../../data/figures/manual_map/fe-walter-arcgis-source.zip)。
+地圖下載：[PNG](../../docs/figures/fe-walter-catchment.png)、[SVG](../../docs/figures/fe-walter-catchment.svg)、[可編輯 ArcGIS 圖源](../../data/figures/manual_map/fe-walter-arcgis-source.zip)。
+來源下載包括[檔案雜湊](../../data/figures/manual_map/provenance.json)、[完整來源清單](../../data/figures/manual_map/source_manifest.json)與[地圖編號對照表](../../data/figures/manual_map/subcatchment_labels.csv)。
 
 ```{figure-md} fe-walter-study-area-zh-tw
 :class: study-area-figure
 
 ![以 Lehighton 為出口的研究集水區、F. E. Walter 上游集水區與 USGS 流量測站](../../docs/figures/fe-walter-catchment.png)
 
-**圖 1。美國賓夕法尼亞州 Lehigh River 流域的研究區域。** 黑色邊界圈出流向 Lehighton 測站（01449000）的完整集水區；其中的青綠色邊界圈出流向 F. E. Walter 壩的上游集水區。兩個邊界之間的區域，經由 Lehigh River 及其支流匯入壩下游至 Lehighton 之間的河段。Stoddartsville 測站（01447500）位於水庫上游，White Haven 測站（01447800）位於壩下游。局部放大圖顯示水庫、壩與 White Haven 測站；內部分界為子集水區。底色表示 Daymet [[2]](#fe-walter-ref-2-zh) 1996–2025 年平均年降雨量（mm/year）。[^map-sources]
+**圖 1。美國賓夕法尼亞州 Lehigh River 流域的研究區域。** 橘褐色邊界圈出流向 Lehighton 測站（01449000）的完整集水區；其中的紫紅色邊界圈出流向 F. E. Walter 壩的上游集水區。兩個邊界之間的區域，經由 Lehigh River 及其支流匯入壩下游至 Lehighton 之間的河段。Stoddartsville 測站（01447500）位於水庫上游，White Haven 測站（01447800）位於壩下游。局部放大圖顯示水庫、壩與 White Haven 測站；灰色內部分界為子集水區，藍線為河流。U1–U7 標示上游單元，D1–D9 標示下游單元，L1–L2 標示壩至 White Haven 間的局部區域。底色表示 Daymet [[2]](#fe-walter-ref-2-zh) 1996–2025 年平均年降雨量（mm/year），與 2021–2025 操作比較期分開。[^map-sources]
 ```
 
-[^map-sources]: Esri、CGIAR、USGS、data.pa.gov、TomTom、Garmin、SafeGraph、
+[^map-sources]: USGS 測站位置與 NLDI 幾何；NHDPlus HR VPU0204（2022 年 3 月）；
+    Esri、CGIAR、data.pa.gov、TomTom、Garmin、SafeGraph、
     METI/NASA、EPA、NPS、USDA、USFWS、New Jersey Office of GIS、FAO、NOAA。
 
 ## 氣候與水文

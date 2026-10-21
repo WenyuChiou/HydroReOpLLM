@@ -96,9 +96,9 @@ Positive volume bias indicates simulated flow exceeds observed flow. These are w
 
 Download the {download}`daily flow data <outputs/hydrology_validation/daily.csv>`, {download}`nine-unit parameter table <outputs/hydrology_validation/regionalization.csv>`, {download}`model-selection table <outputs/hydrology_validation/model_selection.csv>`, and {download}`source and metric summary <outputs/hydrology_validation/summary.json>`. The figure is available as {download}`PDF <outputs/hydrology_validation/hydrology_validation.pdf>`, {download}`editable SVG <outputs/hydrology_validation/hydrology_validation.svg>`, and {download}`600 dpi PNG <outputs/hydrology_validation/hydrology_validation.png>`. Full inputs, candidate records, native model files and failure evidence remain in the external research archive.
 
-![Observed and simulated daily discharge at Lehighton during calibration and independent validation.](outputs/hydrology_validation/hydrology_validation.png)
+![Observed and simulated daily discharge at Lehigh River at Lehighton, PA (USGS 01449000), with calibration above validation.](outputs/hydrology_validation/hydrology_validation.png)
 
-*Figure 2. Daily discharge at Lehighton (USGS 01449000): (a) calibration, 1990–2010; (b) independent validation, 2011–2020. White Haven (USGS 01447800) supplies the observed upstream boundary in both periods. Discharge is in cfs; the 1989 warm-up is omitted.*
+*Figure 2. Daily discharge at Lehigh River at Lehighton, PA (USGS 01449000): (a, top) calibration, 1990–2010; (b, bottom) independent validation, 2011–2020. Lehigh River at White Haven, PA (USGS 01447800) supplies the observed upstream boundary in both periods. Both panels use the same discharge scale in cfs; the 1989 warm-up is omitted.*
 
 This observation-boundary test evaluates the combined intervening runoff and routing. Its results help interpret the later Hanasaki/LLM comparison. Separate tributary observations would provide additional constraints on individual subcatchments.
 

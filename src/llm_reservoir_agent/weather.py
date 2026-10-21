@@ -103,8 +103,8 @@ def validate_bindings(weather, routing_nodes):
     return sorted(units-used)
 
 
-def simulate_weather(weather, runtime_root):
-    """Run the accepted native engine over its full initialization interval."""
+def simulate_weather(weather, runtime_root, *, progress=False):
+    """Run native hydrology; optionally show its actual daily routing progress."""
     from copy import deepcopy
     import hydrocnhs
     import numpy as np
@@ -125,7 +125,7 @@ def simulate_weather(weather, runtime_root):
     routed = model.run(temp={u: x[:, 1] for u, x in series.items()},
                        prec={u: x[:, 0]/10 for u, x in series.items()},
                        pet={u: x[:, 2] for u, x in series.items()},
-                       assigned_Q={u: np.zeros(len(weather["dates"])) for u in weather["zero"]}, disable=True)
+                       assigned_Q={u: np.zeros(len(weather["dates"])) for u in weather["zero"]}, disable=not progress)
     runoff = {u: model.dc.Q_runoff[u] for u in weather["units"]}
     for values in [*routed.values(), *runoff.values()]:
         values = np.asarray(values)

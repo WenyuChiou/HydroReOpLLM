@@ -14,7 +14,14 @@ def test_manual_current_downloads_have_an_isolated_namespace(tmp_path):
     spec.loader.exec_module(builder)
     with patch('socket.socket.connect', side_effect=AssertionError('network forbidden')):
         builder.prepare(tmp_path, source_ref='codex/manual-research-guide')
-    assert len(builder.TUTORIAL_DOWNLOADS) == 11
+    historical = {source: name for source, name in builder.TUTORIAL_DOWNLOADS.items()
+                  if '/operation/' not in source}
+    operation = {source: name for source, name in builder.TUTORIAL_DOWNLOADS.items()
+                 if '/operation/' in source}
+    assert len(historical) == 11
+    assert len(operation) == 20
+    assert all(name.startswith('operation/') for name in operation.values())
+    assert set(historical.values()).isdisjoint(operation.values())
     assert {'reservoir_operations.png', 'reservoir_operations.svg',
             'reservoir_operations.pdf'} <= set(builder.TUTORIAL_DOWNLOADS.values())
     for source, name in builder.TUTORIAL_DOWNLOADS.items():

@@ -202,8 +202,8 @@ def _reused_rows(settings):
     return list(daily.items()), {str(p): _sha(p) for p in (folder/"preparation.json", folder/"inflows.csv")}
 
 
-def prepare_coupled(settings, *, runtime_root=PROJECT_ROOT):
-    """Prepare the inlet once; preserve native warm-up and make no model requests."""
+def prepare_coupled(settings, *, runtime_root=PROJECT_ROOT, progress=False):
+    """Prepare inflows with native warm-up; progress optionally shows daily routing."""
     current = _current(settings, runtime_root)
     folder = Path(current.report["output"])
     if folder.exists():
@@ -213,7 +213,7 @@ def prepare_coupled(settings, *, runtime_root=PROJECT_ROOT):
         rows, cache_pins = _reused_rows(current)
         current.files.update(cache_pins)
     else:
-        result = simulate_weather(current.weather, runtime_root)
+        result = simulate_weather(current.weather, runtime_root, progress=progress)
         rows = []
         for t, day in enumerate(current.weather["dates"]):
             if current.data["start_date"] <= day <= current.data["end_date"]:
@@ -265,14 +265,14 @@ def prepared_experiment(settings):
     return folder/"experiment.yaml"
 
 
-def run_coupled(settings, *, allow_network=False, runtime_root=PROJECT_ROOT, transport=None):
+def run_coupled(settings, *, allow_network=False, runtime_root=PROJECT_ROOT, transport=None, progress=False):
     """Prepare if needed, then delegate to the existing daily experiment runner."""
     from .workflow import load_settings, run_settings
     current = _current(settings, runtime_root)
     if current.report["planned_llm_calls"] and (not allow_network or not current.report["live_ready"]):
         raise ValueError("LLM execution requires --allow-network and a live-ready physical case")
     if not Path(current.report["output"]).exists():
-        prepare_coupled(current, runtime_root=runtime_root)
+        prepare_coupled(current, runtime_root=runtime_root, progress=progress)
     experiment = prepared_experiment(current)
     return run_settings(load_settings(experiment, runtime_root=runtime_root),
-                        allow_network=allow_network, runtime_root=runtime_root, transport=transport)
+                        allow_network=allow_network, runtime_root=runtime_root, transport=transport, progress=progress)

@@ -2,17 +2,20 @@
 
 [English](README.md) | [繁體中文](README.zh-TW.md)
 
-Open the [F.E. Walter notebook tutorial](main.ipynb). Follow one route: experiment entry → accepted
-hydrology → reservoir/network → agent method → prompt or retrieved knowledge →
-saved 2016 results.
+Start with the [five-year F.E. Walter operation tutorial](operation.ipynb). It follows
+the 2021–2025 experiment through settings, weather-driven inflows, Rule-based
+reservoir operation, water-balance checks, and figures drawn from your own run.
 
 | Notebook | Purpose |
 |---|---|
-| [Main](main.ipynb) | Read each complete configuration, check the three decision methods, then inspect saved annual results. |
+| [Five-year operation](operation.ipynb) | Run hydrology and the Rule-based baseline with daily progress, then plot water elevation and downstream flow. |
+| [Historical 2016 walkthrough](main.ipynb) | Read each complete configuration and inspect the accepted 2016 teaching results. These LLM curves predate daily seasonal context and are not five-year results. |
 | [Downstream validation](downstream_validation.ipynb) | Prepare the White Haven–Lehighton observation-boundary test, check inputs, and follow the separate calibration and validation stages. |
 
-The main notebook reads committed evidence only. Its default path makes no model
-request, download, hydrology run, or reservoir simulation.
+The five-year lesson includes the completed run's tables and figures. Its cells run local CPU
+simulations using the accepted inputs and parameters, then call the plotting
+function on the new results. It makes no LLM request or download. The historical
+notebook continues to read saved evidence.
 
 The downstream notebook checks input readiness by default. Downloads, native fixed parameter runs and calibration each require an explicit switch; the notebook contains no LLM execution.
 
@@ -23,7 +26,7 @@ repository root, use that Python environment to open the lesson:
 
 ```powershell
 python -m pip install jupyterlab
-jupyter lab tutorials/main.ipynb
+jupyter lab tutorials/operation.ipynb
 ```
 
 Select the installed environment as the notebook kernel and run cells in order.
@@ -32,14 +35,14 @@ The full configuration explanations and executable cells are maintained in the n
 ## Build and check
 
 ```powershell
-python tutorials/build_notebooks.py --notebook main.ipynb --execute
+python tutorials/build_notebooks.py --notebook operation.ipynb --execute
 python tutorials/build_notebooks.py --check
 ```
 
-This command executes only the main notebook from existing files. It preserves
-the accepted CSV, figure exports and advanced notebook. To refresh all notebooks
-and figure exports from saved data, omit `--notebook`. The saved trajectories retain
-the prompts recorded by their source runs, before daily seasonal context was added.
+The first command executes the real hydrology and Rule-based lesson and saves its
+outputs in a fresh `runs/fe-walter-tutorial-*` directory. Existing research results
+remain unchanged. A complete build without `--notebook` executes historical lessons
+from saved data and retains the operation lesson's matching execution outputs.
 
 [Generic configuration](../docs/INPUT_OUTPUT.md) ·
 [HydroCNHS setup](../docs/HYDROLOGY_SETUP.md) ·

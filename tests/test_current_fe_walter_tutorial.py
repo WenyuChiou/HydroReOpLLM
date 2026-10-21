@@ -3,6 +3,9 @@ import hashlib
 import importlib.util
 import json
 import html
+import shutil
+import subprocess
+import sys
 from pathlib import Path
 from unittest.mock import patch
 
@@ -16,6 +19,125 @@ from llm_reservoir_agent.coupled import load_coupled_settings
 
 ROOT = Path(__file__).resolve().parents[1]
 COUPLED = ROOT / "examples/fe_walter/coupled"
+
+
+def test_operation_builder_needs_no_repository_import_path(tmp_path):
+    """Build from isolated sibling scripts, without rewriting accepted notebooks."""
+    folder = tmp_path / "tutorials"
+    folder.mkdir()
+    for name in ("build_notebooks.py", "operation.py"):
+        shutil.copyfile(ROOT / "tutorials" / name, folder / name)
+    result = subprocess.run(
+        [sys.executable, "-I", "-c",
+         "import runpy,sys; builder=runpy.run_path(sys.argv[1]); "
+         "builder['build'](execute=False, notebook='operation.ipynb')",
+         str(folder / "build_notebooks.py")],
+        cwd=tmp_path, capture_output=True, text=True,
+    )
+    assert result.returncode == 0, result.stderr
+    notebook = json.loads((folder / "operation.ipynb").read_text(encoding="utf-8"))
+    assert len(notebook["cells"]) == 19
+    assert notebook["metadata"]["tutorial_mode"] == "executable-rule-based"
+    assert "five-year operation comparison" in "".join(notebook["cells"][0]["source"])
+    assert all(cell["execution_count"] is None for cell in notebook["cells"]
+               if cell["cell_type"] == "code")
+
+
+def test_complete_build_preserves_verified_operation_outputs(tmp_path, monkeypatch):
+    """A routine documentation rebuild keeps results without another simulation."""
+    from tutorials import build_notebooks as builder
+
+    source = ROOT / "tutorials/operation.ipynb"
+    previous = json.loads(source.read_text(encoding="utf-8"))
+    dependencies = builder._operation_dependencies()
+    shutil.copyfile(source, tmp_path / source.name)
+    shutil.copyfile(ROOT / "tutorials/operation.py", tmp_path / "operation.py")
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setattr(builder, "ROOT", tmp_path)
+    monkeypatch.setattr(builder, "TUTORIALS", tmp_path)
+    monkeypatch.setattr(builder, "NOTEBOOKS", ("operation.ipynb",))
+    monkeypatch.setattr(builder, "_operation_dependencies", lambda: dependencies)
+    monkeypatch.setattr(builder, "_prepare_current_outputs", lambda: None)
+    monkeypatch.setattr(builder, "_execute", lambda *args: pytest.fail("simulation forbidden"))
+
+    reports = builder.build(execute=True)
+
+    result = json.loads((tmp_path / source.name).read_text(encoding="utf-8"))
+    old_code = [cell for cell in previous["cells"] if cell["cell_type"] == "code"]
+    new_code = [cell for cell in result["cells"] if cell["cell_type"] == "code"]
+    assert new_code == old_code
+    assert [cell["execution_count"] for cell in new_code] == list(range(1, 11))
+    assert sum("image/png" in output.get("data", {})
+               for cell in new_code for output in cell["outputs"]) == 2
+    assert reports[0]["executed"] is False
+
+
+@pytest.mark.parametrize("change", ["code", "dependency", "error", "missing_figure"])
+def test_operation_rejects_outputs_from_changed_computation(tmp_path, monkeypatch, change):
+    """An output-preserving build must reject stale code or scientific inputs."""
+    from tutorials import build_notebooks as builder
+
+    source = ROOT / "tutorials/operation.ipynb"
+    previous = json.loads(source.read_text(encoding="utf-8"))
+    dependencies = builder._operation_dependencies()
+    if change == "code":
+        cell = next(cell for cell in previous["cells"] if cell["cell_type"] == "code")
+        cell["source"].append("\nraise RuntimeError('changed computation')\n")
+    elif change == "dependency":
+        key = next(iter(previous["metadata"]["execution_dependencies"]))
+        previous["metadata"]["execution_dependencies"][key] = "0" * 64
+    elif change == "error":
+        cell = next(cell for cell in previous["cells"] if cell["cell_type"] == "code")
+        cell["outputs"].append({"output_type": "error", "ename": "RuntimeError",
+                                "evalue": "failed calculation", "traceback": []})
+    else:
+        cell = next(cell for cell in reversed(previous["cells"])
+                    if any("image/png" in output.get("data", {}) for output in cell.get("outputs", [])))
+        cell["outputs"] = []
+    path = tmp_path / source.name
+    path.write_text(json.dumps(previous), encoding="utf-8")
+    before = path.read_bytes()
+    monkeypatch.setattr(builder, "_operation_dependencies", lambda: dependencies)
+
+    with pytest.raises(ValueError, match="completed execution matching"):
+        builder._retain_execution(builder.operation_cells(), "operation.ipynb", path)
+
+    shutil.copyfile(ROOT / "tutorials/operation.py", tmp_path / "operation.py")
+    monkeypatch.setattr(builder, "TUTORIALS", tmp_path)
+    monkeypatch.setattr(builder, "NOTEBOOKS", ("operation.ipynb",))
+    with pytest.raises(ValueError, match="completed execution matching"):
+        builder.check()
+
+    assert path.read_bytes() == before
+
+
+@pytest.mark.parametrize("name", ["agents.rule.yaml", "initialization.json"])
+def test_operation_detects_scientific_input_changes_without_manifest_update(tmp_path, monkeypatch, name):
+    """Changed Hanasaki inputs invalidate the outputs even with an unchanged manifest."""
+    from tutorials import build_notebooks as builder
+
+    previous = json.loads((ROOT / "tutorials/operation.ipynb").read_text(encoding="utf-8"))
+    cells = builder.operation_cells()
+    case = tmp_path / "examples/fe_walter/operation"
+    case.mkdir(parents=True)
+    inputs = {"agents.rule.yaml": "alpha: 0.85\n", "initialization.json": '{"coefficient": 0.19}\n'}
+    for filename, content in inputs.items():
+        (case / filename).write_text(content, encoding="utf-8")
+    manifest = {"originals": {}, "shared_dependencies": {}, "artifacts": {
+        filename: hashlib.sha256((case / filename).read_bytes()).hexdigest() for filename in inputs}}
+    manifest_path = case / "provenance.json"
+    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+    monkeypatch.setattr(builder, "ROOT", tmp_path)
+    previous["metadata"]["execution_dependencies"] = builder._operation_dependencies()
+    path = tmp_path / "operation.ipynb"
+    path.write_text(json.dumps(previous), encoding="utf-8")
+    before_manifest = manifest_path.read_bytes()
+    (case / name).write_text(inputs[name].replace("0.85", "0.5").replace("0.19", "0.3"), encoding="utf-8")
+
+    with pytest.raises(ValueError, match="completed execution matching"):
+        builder._retain_execution(cells, "operation.ipynb", path)
+
+    assert manifest_path.read_bytes() == before_manifest
 
 
 @pytest.mark.parametrize("current,agent", [

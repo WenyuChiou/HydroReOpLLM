@@ -29,7 +29,7 @@ jobs:
           path: |
             build/e2e
             build/e2e-junit.xml
-      - name: Execute saved-evidence tutorials without network
+      - name: Check executable lesson and execute historical tutorials without network
         run: python tutorials/build_notebooks.py --execute --check
       - name: Build HTML from saved outputs
         run: python docs/build.py

@@ -52,7 +52,7 @@ def validate(site: Path) -> dict[str, int]:
                 raise ValueError(f"Missing HTML anchor in {file}: {href}")
             count += 1
     downloads = list((site / "_downloads").rglob("*.ipynb"))
-    notebook_names = ("main.ipynb", "advanced.ipynb", "downstream_validation.ipynb")
+    notebook_names = ("operation.ipynb", "main.ipynb", "advanced.ipynb", "downstream_validation.ipynb")
     if len(downloads) != len(notebook_names):
         raise ValueError(f"Expected {len(notebook_names)} original notebook downloads, found {len(downloads)}")
     root = Path(__file__).resolve().parents[1]

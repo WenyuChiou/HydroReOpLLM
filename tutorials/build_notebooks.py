@@ -1,7 +1,7 @@
-"""Build the saved-evidence tutorials and current teaching figures.
+"""Build executable lessons and historical teaching figures.
 
-Cells read repository files only. Execution blocks socket and urllib access,
-never calls a provider, and never runs hydrology or reservoir simulation.
+Execution blocks socket and urllib access. The selected operation lesson runs
+local hydrology and Rule-based operation; historical lessons read saved results.
 """
 from __future__ import annotations
 
@@ -13,6 +13,7 @@ import io
 import json
 import os
 import platform
+import runpy
 from pathlib import Path
 from unittest.mock import patch
 
@@ -21,7 +22,7 @@ TUTORIALS = ROOT / "tutorials"
 CURRENT = ROOT / "examples/fe_walter/coupled/outputs/current_tutorial"
 SEASONAL_CRITERIA = ROOT / "examples/fe_walter/seasonal_pool_criteria.json"
 OPERATING_KNOWLEDGE = ROOT / "examples/fe_walter/knowledge/operating_rules.md"
-NOTEBOOKS = ("main.ipynb", "advanced.ipynb")
+NOTEBOOKS = ("operation.ipynb", "main.ipynb", "advanced.ipynb")
 LABELS = {
     "rule": "Rule-based",
     "llm_available": "LLM without additional operating knowledge",
@@ -398,6 +399,14 @@ def main_cells() -> list[dict]:
     return _walkthrough_cells()
 
 
+def operation_cells() -> list[dict]:
+    """Load the focused five-year lesson only when that notebook is requested."""
+    # The direct CLI starts with tutorials/ on sys.path, rather than its parent.
+    # Load the sibling source explicitly so installed package paths are irrelevant.
+    lesson = runpy.run_path(str(TUTORIALS / "operation.py"))
+    return lesson["build_cells"](md=md, code=code)
+
+
 def _walkthrough_cells() -> list[dict]:
     """Build the canonical FE Walter lesson from the actual configuration files.
 
@@ -424,13 +433,16 @@ coupled = ROOT / "examples/fe_walter/coupled"
 ''')
     setup["metadata"]["tags"] = ["hide-input"]
     return [
-        md('''# F.E. Walter: configure a reservoir simulation
+        md('''# F.E. Walter: historical 2016 configuration walkthrough
 
 ## Goal
 
 Start with `experiment.yaml`, follow its file references, and change the reservoir
 operator from **Rule-based** to either **LLM without additional operating knowledge**
 or **LLM with additional operating knowledge**. Then inspect the saved 2016 results.
+
+This lesson preserves the 2016 configuration and evidence route. For the current
+2021–2025 prepared operation, start with [operation.ipynb](operation.ipynb).
 
 Read the notebook in order:
 
@@ -927,6 +939,18 @@ def _rich_data(value) -> dict:
         rendered = value._repr_html_()
         if rendered is not None:
             return {"text/html": rendered, "text/plain": repr(value)}
+    if hasattr(value, "_repr_png_"):
+        rendered = value._repr_png_()
+        if rendered is not None:
+            if isinstance(rendered, tuple):
+                rendered = rendered[0]
+            if isinstance(rendered, bytes):
+                rendered = base64.b64encode(rendered).decode("ascii")
+            return {"image/png": rendered, "text/plain": repr(value)}
+    if hasattr(value, "_repr_svg_"):
+        rendered = value._repr_svg_()
+        if rendered is not None:
+            return {"image/svg+xml": rendered, "text/plain": repr(value)}
     if value.__class__.__module__.startswith("matplotlib") and value.__class__.__name__ == "Figure":
         image = io.BytesIO(); value.savefig(image, format="png", dpi=120, bbox_inches="tight")
         return {"image/png": base64.b64encode(image.getvalue()).decode("ascii"), "text/plain": repr(value)}
@@ -945,7 +969,18 @@ def _execute(cells: list[dict], notebook_name: str) -> None:
               patch("socket.socket.connect", side_effect=AssertionError("tutorial network forbidden")),
               patch("urllib.request.build_opener", side_effect=AssertionError("tutorial HTTP forbidden")),
               patch("urllib.request.urlopen", side_effect=AssertionError("tutorial HTTP forbidden"))):
-            exec(compile(source, notebook_name, "exec"), namespace)
+            if notebook_name == "operation.ipynb":
+                # Match Jupyter's final-expression display for the executable lesson.
+                import ast
+                tree = ast.parse(source)
+                last = tree.body.pop() if tree.body and isinstance(tree.body[-1], ast.Expr) else None
+                exec(compile(tree, notebook_name, "exec"), namespace)
+                if last is not None:
+                    value = eval(compile(ast.Expression(last.value), notebook_name, "eval"), namespace)
+                    if value is not None:
+                        displays.append(value)
+            else:
+                exec(compile(source, notebook_name, "exec"), namespace)
         cell["execution_count"] = count
         cell["outputs"] = ([{"output_type": "stream", "name": "stdout", "text": stream.getvalue().splitlines(True)}]
                            if stream.getvalue() else [])
@@ -960,26 +995,81 @@ def _notebook(cells: list[dict], name: str, execute: bool) -> dict:
     return {"nbformat": 4, "nbformat_minor": 5,
             "metadata": {"kernelspec": {"name": "python3", "language": "python", "display_name": "Python 3"},
                          "language_info": {"name": "python", "version": platform.python_version()},
-                         "tutorial_mode": "saved-evidence-only",
+                         "tutorial_mode": "executable-rule-based" if name == "operation.ipynb" else "saved-evidence-only",
                          "execution_method": "ordered pure-Python cells with socket/urllib blocked"},
             "cells": cells}
 
 
+def _retain_execution(cells: list[dict], name: str, path: Path) -> dict:
+    """Keep verified outputs only when every executable cell is unchanged.
+
+    Documentation builds must not erase the completed lesson or silently attach
+    old outputs to changed computation. Explicit execution refreshes the record.
+    """
+    current = _notebook(cells, name, execute=False)
+    previous = json.loads(path.read_text(encoding="utf-8"))
+    old = [cell for cell in previous["cells"] if cell["cell_type"] == "code"]
+    new = [cell for cell in current["cells"] if cell["cell_type"] == "code"]
+    if ([cell["source"] for cell in new] != [cell["source"] for cell in old]
+            or previous["metadata"].get("execution_dependencies") != _operation_dependencies()
+            or not old
+            or [cell.get("execution_count") for cell in old] != list(range(1, len(old) + 1))
+            or any(output["output_type"] == "error" for cell in old for output in cell.get("outputs", []))
+            or sum("image/png" in output.get("data", {}) for cell in old for output in cell.get("outputs", [])) != 2
+            or not any("text/html" in output.get("data", {}) for cell in old for output in cell.get("outputs", []))):
+        raise ValueError("Operation lesson needs a completed execution matching its code cells")
+    for target, source in zip(new, old, strict=True):
+        target["execution_count"] = source["execution_count"]
+        target["outputs"] = source["outputs"]
+    current["metadata"] = previous["metadata"]
+    return current
+
+
+def _operation_dependencies() -> dict[str, str]:
+    """Bind retained results to their current case inputs and implementation."""
+    case = ROOT / "examples/fe_walter/operation"
+    provenance = json.loads((case / "provenance.json").read_text(encoding="utf-8"))
+    paths = {case / name for name in provenance["originals"]}
+    paths.update(case / name for name in provenance["artifacts"])
+    paths.update(ROOT / name for name in provenance["shared_dependencies"])
+    paths.update((ROOT / "src/llm_reservoir_agent").rglob("*.py"))
+    paths.update(case.rglob("*.py"))
+    paths.add(case / "provenance.json")
+    return {path.relative_to(ROOT).as_posix(): hashlib.sha256(
+        path.read_bytes().replace(b"\r\n", b"\n") if path.suffix == ".py" else path.read_bytes()).hexdigest()
+        for path in sorted(paths)}
+
+
 def build(*, execute: bool, notebook: str | None = None) -> list[dict]:
-    """Build one lesson from saved files, or refresh all teaching exports."""
+    """Build lessons; the operation lesson executes only when explicitly selected.
+
+    A complete build retains that lesson's matching execution outputs.
+    Select operation.ipynb with execute=True to verify its real CPU simulation.
+    """
     os.chdir(ROOT)
     if notebook is None:
         _prepare_current_outputs()
     elif notebook not in NOTEBOOKS:
         raise ValueError(f"Unknown notebook: {notebook}")
     receipts = []
-    for name, cells in {"main.ipynb": main_cells(), "advanced.ipynb": advanced_cells()}.items():
-        if notebook is not None and name != notebook:
-            continue
+    builders = {
+        "operation.ipynb": operation_cells,
+        "main.ipynb": main_cells,
+        "advanced.ipynb": advanced_cells,
+    }
+    selected = NOTEBOOKS if notebook is None else (notebook,)
+    for name in selected:
+        cells = builders[name]()
         path = TUTORIALS / name
-        path.write_text(json.dumps(_notebook(cells, name, execute), indent=1, ensure_ascii=False) + "\n",
+        run_cells = execute and (name != "operation.ipynb" or notebook == name)
+        document = (_retain_execution(cells, name, path)
+                    if name == "operation.ipynb" and notebook is None
+                    else _notebook(cells, name, run_cells))
+        if name == "operation.ipynb" and run_cells:
+            document["metadata"]["execution_dependencies"] = _operation_dependencies()
+        path.write_text(json.dumps(document, indent=1, ensure_ascii=False) + "\n",
                         encoding="utf-8", newline="\n")
-        receipts.append({"path": str(path.relative_to(ROOT)), "executed": execute, "sha256": _sha(path)})
+        receipts.append({"path": str(path.relative_to(ROOT)), "executed": run_cells, "sha256": _sha(path)})
     return receipts
 
 
@@ -987,15 +1077,29 @@ def check() -> list[dict]:
     reports = []
     for name in NOTEBOOKS:
         path = TUTORIALS / name; notebook = json.loads(path.read_text(encoding="utf-8"))
-        assert notebook["metadata"]["tutorial_mode"] == "saved-evidence-only"
+        expected_mode = "executable-rule-based" if name == "operation.ipynb" else "saved-evidence-only"
+        assert notebook["metadata"]["tutorial_mode"] == expected_mode
         cells = [c for c in notebook["cells"] if c["cell_type"] == "code"]
         source = "\n".join("".join(c["source"]) for c in cells)
-        assert not any(token in source for token in ("run_settings(", "subprocess.", "urlopen(", "requests.", "ollama.chat"))
-        assert all(c.get("execution_count") is not None for c in cells)
+        forbidden = ("subprocess.", "urlopen(", "requests.", "ollama.chat", "allow_network=True")
+        assert not any(token in source for token in forbidden)
+        if name != "operation.ipynb":
+            assert "run_settings(" not in source
+            assert all(c.get("execution_count") is not None for c in cells)
         mime = {m for c in cells for o in c.get("outputs", []) for m in o.get("data", {})}
-        assert "text/html" in mime
+        if name != "operation.ipynb":
+            assert "text/html" in mime
         if name == "main.ipynb":
             assert "image/png" in mime
+        if name == "operation.ipynb":
+            _retain_execution(operation_cells(), name, path)
+            assert "check_preparation" in source
+            assert "prepare_coupled(simulation, progress=True)" in source
+            assert "run_settings(operation_settings, progress=True" in source
+            assert "plot_run(run_output" in source
+            counts = [c.get("execution_count") for c in cells]
+            assert counts == list(range(1, len(cells) + 1))
+            assert "image/png" in mime and "text/html" in mime
         reports.append({"path": str(path.relative_to(ROOT)), "cells": len(notebook["cells"]), "mime_types": sorted(mime), "sha256": _sha(path)})
     manifest = json.loads((CURRENT / "provenance.json").read_text(encoding="utf-8"))
     for source in manifest["sources"].values():

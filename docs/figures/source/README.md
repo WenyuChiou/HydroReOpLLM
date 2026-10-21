@@ -1,5 +1,9 @@
 # Editable figure sources
 
+The current F. E. Walter study-area map uses the
+[portable ArcGIS source](../../../data/figures/manual_map/README.md).
+That record provides its label crosswalk, current exports and SHA256 hashes.
+
 The main README uses the HydroReOpLLM [cover](../hydroopslm-cover.svg) and generic [coupling framework](../hydrocnhs-coupling-framework-en.drawio).
 [Branding editing instructions](../assets/branding/EDITING.md) describe the cover's native SVG groups and reusable components.
 Edit the coupling framework's native draw.io cards, icons and attached connectors independently;

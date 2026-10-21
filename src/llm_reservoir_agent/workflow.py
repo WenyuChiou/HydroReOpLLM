@@ -423,7 +423,8 @@ def load_settings(path, *, runtime_root=PROJECT_ROOT, information_providers=None
 
 
 def run_settings(settings, *, allow_network=False, runtime_root=PROJECT_ROOT, transport=None, information_providers=None,
-                 recovery=None, output=None, run_id=None):
+                 recovery=None, output=None, run_id=None, progress=False):
+    """Execute checked settings; optionally display actual native daily progress."""
     from .configured_backend import ConfiguredBackend, http_json_transport
     from .experiment import run_experiment
     from .experiment import record_provider_attempt
@@ -530,7 +531,7 @@ def run_settings(settings, *, allow_network=False, runtime_root=PROJECT_ROOT, tr
     return run_experiment(current.network, current.rows, backends, output=plan["output"],
                           run_id=plan["run_id"], project_root=runtime_root, provenance=provenance,
                           information_runtime=information_runtime, outcome_checks=current.outcome_checks,
-                          information_agents=current.agents, recovery=recovery)
+                          information_agents=current.agents, recovery=recovery, progress=progress)
 
 
 def verify_settings_output(settings, *, runtime_root=PROJECT_ROOT, information_providers=None):

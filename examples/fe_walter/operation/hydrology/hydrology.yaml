@@ -1,0 +1,15 @@
+model: model.yaml
+forcing: forcing.csv.gz
+zero_flow_nodes:
+- __AGGREGATION_OUTLET__
+- __LATERAL_OUTLET__
+- WHITE_HAVEN
+- LEHIGHTON
+- __PREPARATION_COLLECTOR__
+inflow_bindings:
+  FEW_INFLOW:
+    routed: __AGGREGATION_OUTLET__
+  USGS01447800:
+    routed: __LATERAL_OUTLET__
+  USGS01449000:
+    routed: LEHIGHTON
