@@ -121,6 +121,8 @@ def load_coupled_settings(path, *, runtime_root=PROJECT_ROOT):
     if case.get("data_kind") not in ("synthetic_fixture", "simulated_local_inflow"):
         raise ValueError("weather physical case must declare simulated_local_inflow or synthetic_fixture")
     topology = validate_network(case["network"])
+    if not topology["clock"].legacy_daily:
+        raise ValueError("the weather/GWLF preparation path supports legacy daily networks only; provide verified interval inflows directly")
     weather = load_weather(data.get("hydrology"), path.parent)
     unused = validate_bindings(weather, topology["routing_nodes"])
     # Both dates are operation days; hydrology may begin earlier for model warm-up.

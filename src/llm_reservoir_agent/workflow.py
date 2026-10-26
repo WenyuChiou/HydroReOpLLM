@@ -116,7 +116,7 @@ def load_settings(path, *, runtime_root=PROJECT_ROOT, information_providers=None
     raw = path.read_bytes()
     from .configuration import read_configuration
     data, section_pins = read_configuration(path)
-    _mapping(data, {"schema_version", "case", "case_root", "run_id", "output", "start_date", "end_date",
+    _mapping(data, {"schema_version", "case", "case_root", "run_id", "output", "start_date", "end_date", "start_time", "end_time",
                     "models", "agents", "auditors", "max_calls", "information_sources",
                     "information_profiles", "outcome_checks", "source_dependencies", "extensions"}, "experiment")
     if data.get("schema_version") != "llm-reservoir-experiment.v1":
@@ -129,15 +129,37 @@ def load_settings(path, *, runtime_root=PROJECT_ROOT, information_providers=None
                  runtime_root if case.is_relative_to(runtime_root) else case.parent)
     network, rows = load_case(case, project_root=case_root)
     original_case = json.loads(case.read_bytes())
-    start = data.get("start_date", rows[0]["date"])
-    end = data.get("end_date", rows[-1]["date"])
-    for value in (start, end):
-        if not isinstance(value, str) or date.fromisoformat(value).isoformat() != value:
-            raise ValueError("dates must be quoted canonical YYYY-MM-DD strings")
-    if start > end or start < rows[0]["date"] or end > rows[-1]["date"]:
-        raise ValueError("run dates must be inside the case's consecutive inflow interval")
-    rows = [r for r in rows if start <= r["date"] <= end]
-    network["start_date"] = start
+    from .time_axis import TimeAxis
+    axis = TimeAxis.from_network(network)
+    if axis.legacy_daily:
+        if "start_time" in data or "end_time" in data:
+            raise ValueError("legacy daily experiments use start_date/end_date")
+        start = data.get("start_date", rows[0]["date"])
+        end = data.get("end_date", rows[-1]["date"])
+        for value in (start, end):
+            if not isinstance(value, str) or date.fromisoformat(value).isoformat() != value:
+                raise ValueError("dates must be quoted canonical YYYY-MM-DD strings")
+        if start > end or start < rows[0]["date"] or end > rows[-1]["date"]:
+            raise ValueError("run dates must be inside the case's consecutive inflow interval")
+        rows = [r for r in rows if start <= r["date"] <= end]
+        network["start_date"] = start
+    else:
+        if "start_date" in data or "end_date" in data:
+            raise ValueError("interval experiments use start_time/end_time, with exclusive end_time")
+        bounds = []
+        for field, default in (("start_time", axis.timestamp(0)), ("end_time", axis.timestamp(len(rows)))):
+            selected_axis = TimeAxis.from_network(dict(network, start_time=data.get(field, default)))
+            instant = selected_axis.instant(0)
+            if (instant - axis.instant(0)) % axis.delta:
+                raise ValueError("experiment time bounds must align with the case time grid")
+            bounds.append((instant, selected_axis.timestamp(0)))
+        (first, start), (stop, end) = bounds
+        if not axis.instant(0) <= first < stop <= axis.instant(len(rows)):
+            raise ValueError("run times must be inside the case's complete interval")
+        left = (first - axis.instant(0)) // axis.delta
+        right = (stop - axis.instant(0)) // axis.delta
+        rows = rows[left:right]
+        network["start_time"] = start
     topology, _ = validate_inflows(network, rows)
     catalog = None
     sources, profiles = data.get("information_sources", {}), data.get("information_profiles", {})
@@ -203,7 +225,7 @@ def load_settings(path, *, runtime_root=PROJECT_ROOT, information_providers=None
         if strategy not in extensions:
             _mapping(spec, {"reservoir", "mode", "model", "prompt", "prompt_version", "knowledge", "context",
                             "context_file", "release_cms", "auditors", "response_schema", "strategy", "benchmark",
-                            "information", "prompt_variables", "context_providers", "fallback_models"}, "agent " + identifier)
+                            "information", "prompt_variables", "context_providers", "fallback_models", "history_steps"}, "agent " + identifier)
         name = spec.get("reservoir")
         if name not in controlled or name in assigned:
             raise ValueError("each controlled reservoir needs exactly one unique agent; passive nodes cannot have agents")
@@ -215,6 +237,8 @@ def load_settings(path, *, runtime_root=PROJECT_ROOT, information_providers=None
         if strategy not in ("configured", "benchmark") and strategy not in extensions:
             raise ValueError("unknown agent strategy")
         if strategy == "benchmark":
+            if not axis.legacy_daily:
+                raise ValueError("the Hanasaki benchmark supports legacy daily networks only; supply a cadence-aware rule extension")
             from .benchmark_config import load_benchmark
             if mode != "offline" or set(spec)-{"reservoir","mode","strategy","benchmark","auditors"}:
                 raise ValueError("benchmark is deterministic/offline and accepts no model or prompt")
@@ -233,6 +257,12 @@ def load_settings(path, *, runtime_root=PROJECT_ROOT, information_providers=None
             raise ValueError("benchmark settings require benchmark strategy")
         if strategy in extensions:
             extension = extensions[strategy]
+            if not axis.legacy_daily:
+                supported = getattr(extension, "supported_dt_seconds", ())
+                if (not isinstance(supported, (list, tuple))
+                        or any(type(value) is not int or value <= 0 for value in supported)
+                        or axis.dt_seconds not in supported):
+                    raise ValueError("interval backend extensions must explicitly declare supported_dt_seconds")
             model_id = spec.get("model")
             if mode == "llm" and model_id not in models:
                 raise ValueError("LLM extension requires a known model profile")
@@ -252,9 +282,11 @@ def load_settings(path, *, runtime_root=PROJECT_ROOT, information_providers=None
             plugin_spec = ({k: v for k, v in spec.items() if k != 'information'}
                            if agent_type == 'rule_based' or supports_context else spec)
             bindings = _prompt_bindings(spec, extensions, path.parent, files) if supports_context else None
+            duration = ({"days": len(rows)} if axis.legacy_daily else
+                        {"steps": len(rows), "dt_seconds": axis.dt_seconds})
             normalized, pins = extension.validate_backend(
                 plugin_spec, base_path=path.parent, runtime_root=runtime_root,
-                physical=physical, mode=mode, days=len(rows), model=models.get(model_id),
+                physical=physical, mode=mode, model=models.get(model_id), **duration,
                 auditor_settings=auditors, **clock)
             files.update(pins)
             checks = spec.get("auditors", [])
@@ -298,7 +330,7 @@ def load_settings(path, *, runtime_root=PROJECT_ROOT, information_providers=None
             identifiers = Template(template).get_identifiers()
             placeholders.update(identifiers)
             Template(template).substitute(**{key: "{}" for key in
-                ["observation", "knowledge", "agent_id", "previous_transition", "information",
+                ["observation", "knowledge", "agent_id", "previous_transition", "information", "completed_history",
                  *variables, *preview_context]})
         selected = spec.get("information")
         if selected is not None and (not isinstance(selected, str) or selected not in profiles):
@@ -348,6 +380,9 @@ def load_settings(path, *, runtime_root=PROJECT_ROOT, information_providers=None
                 plugin = ConfiguredAudit(audit_id, rule)
             plugins.append(plugin)
         response_schema = spec.get("response_schema", "reservoir-action.v1")
+        history_steps = spec.get("history_steps", 0)
+        if isinstance(history_steps, bool) or not isinstance(history_steps, int) or history_steps < 0:
+            raise ValueError("history_steps must be a nonnegative integer")
         response_extension = None
         if response_schema != "reservoir-action.v1":
             response_extension = extensions.get(response_schema)
@@ -355,7 +390,7 @@ def load_settings(path, *, runtime_root=PROJECT_ROOT, information_providers=None
                 raise ValueError("unsupported response_schema; register a response extension")
             response_extension.validate_response_configuration(spec, plugins, template=template)
         agents[identifier] = dict(reservoir=name, mode=mode, prompt=prompt, knowledge=texts, context=context,
-                                 model=models.get(model_id), release_cms=release,
+                                  model=models.get(model_id), release_cms=release, history_steps=history_steps,
                                  prompt_variables=variables, context_factories=context_factories,
                                  preview_context=preview_context, fallback_models=[models[key] for key in fallback_ids],
                                   auditors={a: auditors[a] for a in checks}, audit_plugins=plugins,
@@ -382,6 +417,10 @@ def load_settings(path, *, runtime_root=PROJECT_ROOT, information_providers=None
                   live_ready=network["data_kind"] == "synthetic_fixture" or readiness.get("ready") is True,
                   live_readiness=readiness, data_kind=network["data_kind"],
                   source_files=files, settings_sha256=hashlib.sha256(raw).hexdigest())
+    if not axis.legacy_daily:
+        report["steps"] = report.pop("days")
+        report["start_time"], report["end_time"] = report.pop("start_date"), report.pop("end_date")
+        report["dt_seconds"] = axis.dt_seconds
     # Method and execution are separate: replayed LLM decisions remain LLM
     # examples, while deterministic rules never require a provider.
     report['agent_types'] = {i: (a.get('agent_type') or ('rule_based' if a.get('strategy') == 'benchmark'
@@ -409,14 +448,15 @@ def load_settings(path, *, runtime_root=PROJECT_ROOT, information_providers=None
                                                       runtime_root=runtime_root)
             continue
         physical = network["reservoirs"][agent["reservoir"]]["physical"]
-        observation = ReservoirObservation(0, start + "T00:00:00", 0.0,
+        observation = ReservoirObservation(0, start + "T00:00:00" if axis.legacy_daily else start, 0.0,
             physical["maximum_release_cms"], state={"storage_m3": physical["initial_storage_m3"]},
             context={"decision_information": {"preview": True}} if "information" in agent else {})
         backend = ConfiguredBackend(agent_id=identifier, mode=agent["mode"], prompt_spec=agent["prompt"],
             knowledge_texts=agent["knowledge"], model=agent["model"], release_cms=0,
             context=agent["context"], prompt_variables=agent["prompt_variables"],
             context_providers=agent["preview_context"], response_schema=agent["response_schema"],
-            response_extension=agent.get("response_extension"), fallback_models=agent["fallback_models"])
+            response_extension=agent.get("response_extension"), fallback_models=agent["fallback_models"],
+            history_steps=agent.get("history_steps", 0))
         previews[identifier] = dict(kind="configuration_preview_not_simulated", **backend.preview(observation))
     report["prompt_previews"] = previews
     return ExperimentSettings(path, json_snapshot(data), network, rows, agents, files, report, catalog, outcome_checks)
@@ -512,6 +552,7 @@ def run_settings(settings, *, allow_network=False, runtime_root=PROJECT_ROOT, tr
             prompt_variables=agent["prompt_variables"], fallback_models=agent["fallback_models"],
             context_providers=contexts_for(agent, current.network["reservoirs"][agent["reservoir"]]["physical"]["reservoir_id"]),
             response_schema=agent["response_schema"], response_extension=agent.get("response_extension"),
+            history_steps=agent.get("history_steps", 0),
             audit_context_builders={p.identifier: p.prepare_context for p in agent["audit_plugins"]
                                     if callable(getattr(p, "prepare_context", None))})
         backends[agent["reservoir"]] = AuditedBackend(backend, agent["audit_plugins"])
@@ -581,7 +622,7 @@ def verify_settings_output(settings, *, runtime_root=PROJECT_ROOT, information_p
 
 
 def main(argv=None):
-    parser = argparse.ArgumentParser(description="Configure and run daily HydroCNHS reservoir agents")
+    parser = argparse.ArgumentParser(description="Configure daily HydroCNHS or explicit fixed-interval reservoir operations")
     sub = parser.add_subparsers(dest="command", required=True)
     for name in ("check", "prepare", "run"):
         command = sub.add_parser(name)

@@ -1,0 +1,3 @@
+Synthetic offline fixture. Rates are in m3/s and volumes in m3.
+Current interval observation: $observation
+Previous completed operation records: $completed_history

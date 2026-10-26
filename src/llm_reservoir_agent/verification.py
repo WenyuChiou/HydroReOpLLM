@@ -21,6 +21,7 @@ from .contracts import ReservoirObservation, finite_nonnegative, parse_action
 from .network import validate_inflows
 from .passive import PassiveOutlet
 from .physics import PhysicalConfig, apply_transition
+from .time_axis import TimeAxis
 
 
 _STREAMS = ("decisions", "physics", "audit", "backend_events")
@@ -64,15 +65,15 @@ def _csv(path):
         return reader.fieldnames, rows
 
 
-def _event_key(event, *, result, ids, days, expected_type=None):
+def _event_key(event, *, result, ids, timestamps, expected_type=None):
     _check(event.get("schema_version") == result["schema_version"], "trace schema mismatch")
     _check(event.get("run_id") == result["run_id"], "trace run mismatch")
     reservoir_id, timestep = event.get("reservoir_id"), event.get("timestep")
     _check(reservoir_id in ids, "unexpected trace reservoir identity")
-    _check(isinstance(timestep, int) and not isinstance(timestep, bool) and 0 <= timestep < len(days),
+    _check(isinstance(timestep, int) and not isinstance(timestep, bool) and 0 <= timestep < len(timestamps),
            "unexpected trace timestep")
-    _check(event.get("timestamp") == days[timestep], "trace date mismatch")
-    expected_id = _decision_id(result["run_id"], reservoir_id, timestep, days[timestep])
+    _check(event.get("timestamp") == timestamps[timestep], "trace timestamp mismatch")
+    expected_id = _decision_id(result["run_id"], reservoir_id, timestep, timestamps[timestep])
     _check(event.get("decision_id") == expected_id, "decision ID does not match trace scope")
     if expected_type is not None:
         _check(event.get("event_type") == expected_type, "unexpected trace event type")
@@ -93,9 +94,12 @@ def verify_run(output, *, require_offline=False, expected_audit_suites=None):
     experiment = read_json(output / "experiment.json")
     _check(experiment.get("run_id") == result["run_id"], "experiment run mismatch")
     config, rows = experiment["network"], experiment["inflow_records"]
+    clock = TimeAxis.from_network(config)
     topology, local = validate_inflows(config, rows)
-    days = [row["date"] for row in rows]
-    n, nr = len(days), len(config["reservoirs"])
+    timestamps = [row[clock.key] for row in rows]
+    _check(timestamps == [clock.timestamp(index) for index in range(len(rows))],
+           "inflow timestamps do not match the configured time axis")
+    n, nr = len(timestamps), len(config["reservoirs"])
     summary = result["summary"]
 
     _check(set(summary.get("output_files", {})) == _OUTPUTS, "output file coverage mismatch")
@@ -134,7 +138,7 @@ def verify_run(output, *, require_offline=False, expected_audit_suites=None):
         by_key = {}
         order = []
         for event in streams[stream]:
-            key = _event_key(event, result=result, ids=ids, days=days, expected_type=event_type)
+            key = _event_key(event, result=result, ids=ids, timestamps=timestamps, expected_type=event_type)
             _check(key not in by_key, "duplicate trace key: " + stream)
             by_key[key] = event
             order.append(key)
@@ -158,7 +162,7 @@ def verify_run(output, *, require_offline=False, expected_audit_suites=None):
     expected_backend = []
     backend_by_key = {key: [] for key in decision_order}
     for event in backend:
-        key = _event_key(event, result=result, ids=ids, days=days)
+        key = _event_key(event, result=result, ids=ids, timestamps=timestamps)
         _check(key in backend_by_key, "backend event has no decision")
         backend_by_key[key].append(event)
     for key in decision_order:
@@ -244,7 +248,8 @@ def verify_run(output, *, require_offline=False, expected_audit_suites=None):
             _check(observation.get("context", {}).get("reservoir_id") == reservoir_id and
                    observation.get("timestep") == timestep and
                    isinstance(observation.get("timestamp"), str) and
-                   observation["timestamp"][:10] == days[timestep], "observation scope mismatch")
+                    ((observation["timestamp"][:10] == timestamps[timestep]) if clock.legacy_daily else
+                     (observation["timestamp"] == timestamps[timestep])), "observation scope mismatch")
             _close(observation["state"]["storage_m3"], previous, "observation storage mismatch")
             state_fields = ("capacity_m3", "dead_storage_m3", "minimum_release_cms", "maximum_release_cms", "dt_seconds")
             _check(set(observation["state"]) == {"storage_m3", *state_fields}, "observation state field coverage mismatch")
@@ -275,10 +280,12 @@ def verify_run(output, *, require_offline=False, expected_audit_suites=None):
                    "storage outside bounds")
             _close(transition["total_outflow_cms"], transition["controlled_release_cms"] + transition["spill_cms"],
                    "spill counted incorrectly", tolerance=1e-10)
-            residual = math.fsum([previous, transition["inflow_cms"] * 86400,
-                                  -transition["total_outflow_cms"] * 86400, -transition["storage_end_m3"]])
-            reservoir_scale = (previous, transition["storage_end_m3"], transition["inflow_cms"] * 86400,
-                               transition["total_outflow_cms"] * 86400)
+            residual = math.fsum([previous, transition["inflow_cms"] * clock.dt_seconds,
+                                  -transition["total_outflow_cms"] * clock.dt_seconds,
+                                  -transition["storage_end_m3"]])
+            reservoir_scale = (previous, transition["storage_end_m3"],
+                               transition["inflow_cms"] * clock.dt_seconds,
+                               transition["total_outflow_cms"] * clock.dt_seconds)
             _close(residual, 0.0, "reservoir balance failed", tolerance=_volume_tolerance(*reservoir_scale))
             _close(transition["mass_balance_residual_m3"], residual, "reported reservoir balance mismatch")
             max_balance = max(max_balance, abs(residual))
@@ -291,12 +298,12 @@ def verify_run(output, *, require_offline=False, expected_audit_suites=None):
 
     trajectory_fields, trajectory = _csv(output / "reservoir_trajectory.csv")
     transition_fields = list(records[next(iter(records))][0]["transition"])
-    _check(trajectory_fields[:2] == ["date", "reservoir_id"] and
+    _check(trajectory_fields[:2] == [clock.key, "reservoir_id"] and
            set(trajectory_fields[2:]) == set(transition_fields) and
            len(trajectory_fields[2:]) == len(transition_fields), "trajectory columns mismatch")
     trajectory_map = {}
     for row in trajectory:
-        key = row["reservoir_id"], row["date"]
+        key = row["reservoir_id"], row[clock.key]
         _check(key not in trajectory_map, "duplicate trajectory identity")
         trajectory_map[key] = row
     expected_trajectory = [(records[name][t]["observation"]["timestamp"],
@@ -314,14 +321,14 @@ def verify_run(output, *, require_offline=False, expected_audit_suites=None):
                 _close(row[field], expected, "trajectory/physics mismatch: " + field, tolerance=1e-10)
 
     flow_fields, saved_flows = _csv(output / "network_flows.csv")
-    _check(flow_fields == ["date", "node", "local_inflow_cms", "routed_flow_cms"], "flow columns mismatch")
+    _check(flow_fields == [clock.key, "node", "local_inflow_cms", "routed_flow_cms"], "flow columns mismatch")
     _check(len(saved_flows) == len(topology["nodes"]) * n, "flow row count mismatch")
     flow_map = {}
     for row in saved_flows:
-        key = row["node"], row["date"]
+        key = row["node"], row[clock.key]
         _check(key not in flow_map, "duplicate flow row")
-        _check(row["node"] in topology["nodes"] and row["date"] in days, "unexpected flow identity")
-        expected_local = local[row["node"]][days.index(row["date"])] if row["node"] in local else None
+        _check(row["node"] in topology["nodes"] and row[clock.key] in timestamps, "unexpected flow identity")
+        expected_local = local[row["node"]][timestamps.index(row[clock.key])] if row["node"] in local else None
         _check((row["local_inflow_cms"] == "") if expected_local is None else True, "reservoir flow has local inflow")
         if expected_local is not None:
             _close(row["local_inflow_cms"], expected_local, "local inflow export mismatch", tolerance=1e-10)
@@ -344,8 +351,8 @@ def verify_run(output, *, require_offline=False, expected_audit_suites=None):
                             if departure + lag < n:
                                 expected[departure + lag] += discharge * edge["fraction"] * weight
         flows[node] = expected
-        for timestep, day in enumerate(days):
-            observed = flow_map[node, day]
+        for timestep, timestamp in enumerate(timestamps):
+            observed = flow_map[node, timestamp]
             max_routing = max(max_routing, abs(observed - expected[timestep]))
             _close(observed, expected[timestep], "routed output mismatch", tolerance=1e-10)
 
@@ -360,19 +367,19 @@ def verify_run(output, *, require_offline=False, expected_audit_suites=None):
         for field in ("source", "target", "fraction", "unit_hydrograph"):
             _check(saved.get(field) == edge[field], "reach trace edge mismatch")
         _close(saved.get("initial_in_transit_m3"), 0.0, "reach initial stock mismatch")
-        daily = saved.get("daily")
-        _check(isinstance(daily, list) and len(daily) == n, "reach trace timestep coverage mismatch")
+        intervals = saved.get("daily" if clock.legacy_daily else "intervals")
+        _check(isinstance(intervals, list) and len(intervals) == n, "reach trace timestep coverage mismatch")
         entered_total = arrived_total = 0.0
-        for timestep, row in enumerate(daily):
-            entered = flows[edge["source"]][timestep] * edge["fraction"] * 86400
+        for timestep, row in enumerate(intervals):
+            entered = flows[edge["source"]][timestep] * edge["fraction"] * clock.dt_seconds
             arrived = math.fsum(flows[edge["source"]][timestep-lag] * weight
                                 for lag, weight in enumerate(edge["unit_hydrograph"]) if lag <= timestep)
-            arrived *= edge["fraction"] * 86400
+            arrived *= edge["fraction"] * clock.dt_seconds
             entered_total += entered
             arrived_total += arrived
             stock = entered_total - arrived_total
             volume_tolerance = _volume_tolerance(entered_total, arrived_total, stock)
-            _check(row.get("date") == days[timestep], "reach trace date mismatch")
+            _check(row.get(clock.key) == timestamps[timestep], "reach trace timestamp mismatch")
             _close(row.get("entered_m3"), entered, "reach entered volume mismatch",
                    tolerance=_volume_tolerance(entered))
             _close(row.get("arrived_m3"), arrived, "reach arrived volume mismatch",
@@ -381,24 +388,24 @@ def verify_run(output, *, require_offline=False, expected_audit_suites=None):
                    tolerance=volume_tolerance)
             stocks[timestep] += stock
             component_stocks[node_components[edge["source"]]][timestep] += stock
-        _close(saved.get("final_in_transit_m3"), daily[-1]["in_transit_end_m3"], "reach final stock mismatch",
-               tolerance=_volume_tolerance(entered_total, arrived_total, daily[-1]["in_transit_end_m3"]))
+        _close(saved.get("final_in_transit_m3"), intervals[-1]["in_transit_end_m3"], "reach final stock mismatch",
+               tolerance=_volume_tolerance(entered_total, arrived_total, intervals[-1]["in_transit_end_m3"]))
 
     ledger_fields, ledger = _csv(output / "network_balance.csv")
-    expected_ledger_fields = ["date", "local_input_m3", "outlet_outflow_m3", "reservoir_storage_change_m3",
+    expected_ledger_fields = [clock.key, "local_input_m3", "outlet_outflow_m3", "reservoir_storage_change_m3",
                               "channel_storage_change_m3", "channel_storage_end_m3", "system_residual_m3"]
     _check(ledger_fields == expected_ledger_fields and len(ledger) == n, "network ledger coverage mismatch")
     max_system, previous_stock = 0.0, 0.0
     for timestep, row in enumerate(ledger):
-        local_input = math.fsum(local[node][timestep] for node in local) * 86400
-        outlet = math.fsum(flows[node][timestep] for node in topology["outlets"]) * 86400
+        local_input = math.fsum(local[node][timestep] for node in local) * clock.dt_seconds
+        outlet = math.fsum(flows[node][timestep] for node in topology["outlets"]) * clock.dt_seconds
         storage_change = math.fsum(series[timestep]["transition"]["storage_end_m3"] -
                                    series[timestep]["transition"]["storage_start_m3"] for series in records.values())
         channel_change = stocks[timestep] - previous_stock
         residual = math.fsum([local_input, -outlet, -storage_change, -channel_change])
         system_tolerance = _volume_tolerance(local_input, outlet, storage_change, channel_change,
                                              stocks[timestep], previous_stock)
-        _check(row["date"] == days[timestep], "network ledger dates mismatch")
+        _check(row[clock.key] == timestamps[timestep], "network ledger timestamps mismatch")
         for field, expected in (("local_input_m3", local_input), ("outlet_outflow_m3", outlet),
                                 ("reservoir_storage_change_m3", storage_change),
                                 ("channel_storage_change_m3", channel_change),
@@ -412,7 +419,7 @@ def verify_run(output, *, require_offline=False, expected_audit_suites=None):
 
     # v2 component ledgers are checked from independently reconstructed flows,
     # physics and reach stocks, rather than accepted on their combined residual.
-    if config["schema_version"] == "llm-reservoir-network.v2":
+    if config["schema_version"] in {"llm-reservoir-network.v2", "llm-reservoir-network.v3"}:
         saved_components = summary.get("component_balances")
         _check(summary.get("outlets") == topology["outlets"], "summary outlets mismatch")
         _check(summary.get("component_count") == len(topology["components"]), "component count mismatch")
@@ -425,15 +432,15 @@ def verify_run(output, *, require_offline=False, expected_audit_suites=None):
             _check(isinstance(daily, list) and len(daily) == n, "component timestep coverage mismatch")
             stock_series = component_stocks[component["component_id"]]
             prior = 0.0
-            for t, day in enumerate(days):
-                inputs = math.fsum(local[node][t] for node in component["routing_nodes"]) * 86400
-                outputs = math.fsum(flows[node][t] for node in component["outlets"]) * 86400
+            for t, timestamp in enumerate(timestamps):
+                inputs = math.fsum(local[node][t] for node in component["routing_nodes"]) * clock.dt_seconds
+                outputs = math.fsum(flows[node][t] for node in component["outlets"]) * clock.dt_seconds
                 change = math.fsum(records[node][t]["transition"]["storage_end_m3"] -
                                   records[node][t]["transition"]["storage_start_m3"]
                                   for node in component["reservoirs"])
                 channel_change = stock_series[t] - prior
                 residual = math.fsum([inputs, -outputs, -change, -channel_change])
-                _check(daily[t].get("date") == day, "component ledger dates mismatch")
+                _check(daily[t].get(clock.key) == timestamp, "component ledger timestamps mismatch")
                 expected = dict(local_input_m3=inputs, outlet_outflow_m3=outputs,
                     reservoir_storage_change_m3=change, channel_storage_change_m3=channel_change,
                     channel_storage_end_m3=stock_series[t], system_residual_m3=residual)
@@ -445,8 +452,31 @@ def verify_run(output, *, require_offline=False, expected_audit_suites=None):
 
     counts = Counter(event["status"] for event in streams["audit"])
     _check(dict(counts) == summary.get("audit_counts"), "audit counts mismatch")
-    _check(summary.get("days") == n and summary.get("reservoir_count") == nr, "summary dimensions mismatch")
-    _check(summary.get("completed_reservoir_days") == dict.fromkeys(ids, n), "summary completion mismatch")
+    if clock.legacy_daily:
+        _check(summary.get("days") == n and summary.get("reservoir_count") == nr,
+               "summary dimensions mismatch")
+        _check(summary.get("completed_reservoir_days") == dict.fromkeys(ids, n),
+               "summary completion mismatch")
+    else:
+        expected_axis = {"start_time": clock.timestamp(0), "dt_seconds": clock.dt_seconds,
+                         "interval": "[start,end)", "timezone": "UTC"}
+        _check(summary.get("engine") == "fixed_step_reservoir_network", "summary engine mismatch")
+        _check(summary.get("steps") == n and summary.get("reservoir_count") == nr,
+               "summary dimensions mismatch")
+        _check(summary.get("completed_reservoir_steps") == dict.fromkeys(ids, n),
+               "summary reservoir completion mismatch")
+        _check(summary.get("completed_network_steps") == n, "summary network completion mismatch")
+        _check(summary.get("dt_seconds") == clock.dt_seconds, "summary timestep mismatch")
+        _check(summary.get("time_axis") == expected_axis, "summary time-axis metadata mismatch")
+        _check(summary.get("simulation_sequence") == topology["sequence"],
+               "summary simulation sequence mismatch")
+        _check(summary.get("reservoirs") == list(config["reservoirs"]),
+               "summary reservoir identities mismatch")
+        _check(summary.get("hydrology_recomputed") is False and
+               summary.get("local_inflows_unchanged") is True,
+               "summary interval-host semantics mismatch")
+        _close(summary.get("initial_channel_storage_m3"), 0.0,
+               "summary initial channel stock mismatch")
     _check(summary.get("final_storage_m3") == {name: series[-1]["transition"]["storage_end_m3"] for name, series in records.items()},
            "summary final storage mismatch")
     information = experiment.get("information_config")
@@ -463,7 +493,7 @@ def verify_run(output, *, require_offline=False, expected_audit_suites=None):
                 local_current = location == name and quantity in ("inflow", "storage")
                 values = []
                 for earlier in range(step):
-                    stamp = clock - timedelta(days=step-earlier)
+                    stamp = clock - timedelta(seconds=observation["state"]["dt_seconds"] * (step-earlier))
                     if quantity == "flow":
                         value = flows[location][earlier]
                     else:
@@ -474,8 +504,9 @@ def verify_run(output, *, require_offline=False, expected_audit_suites=None):
                             field = {"storage": "storage_end_m3", "release": "controlled_release_cms", "inflow": "inflow_cms"}[quantity]
                             value = prior["transition"][field]
                         if quantity == "storage" and not local_current:
-                            stamp += timedelta(days=1)
-                    available = stamp if quantity == "storage" else stamp+timedelta(days=1)
+                            stamp += timedelta(seconds=observation["state"]["dt_seconds"])
+                    available = (stamp if quantity == "storage" else
+                                 stamp + timedelta(seconds=observation["state"]["dt_seconds"]))
                     values.append({"value": value, "valid_time": _iso(stamp), "available_at": _iso(available)})
                 if local_current:
                     value = observation["inflow_cms"] if quantity == "inflow" else observation["state"]["storage_m3"]
@@ -527,8 +558,13 @@ def verify_run(output, *, require_offline=False, expected_audit_suites=None):
                    "unverified offline backend")
 
     return {
-        "status": "PASS", "days": n, "reservoir_count": nr, "reservoir_days": n * nr,
-        "date_start": days[0], "date_end": days[-1], "audit_counts": dict(counts),
+        "status": "PASS", ("days" if clock.legacy_daily else "steps"): n,
+        "reservoir_count": nr,
+        ("reservoir_days" if clock.legacy_daily else "reservoir_steps"): n * nr,
+        ("date_start" if clock.legacy_daily else "timestamp_start"): timestamps[0],
+        ("date_end" if clock.legacy_daily else "timestamp_end"): timestamps[-1],
+        **({} if clock.legacy_daily else {"dt_seconds": clock.dt_seconds}),
+        "audit_counts": dict(counts),
         "max_reservoir_balance_residual_m3": max_balance,
         "max_system_balance_residual_m3": max_system,
         "max_routing_difference_cms": max_routing,

@@ -20,6 +20,7 @@ from pathlib import Path
 from typing import Any
 
 from .audit import audit_binding, json_snapshot, normalize_audit, validate_audit_provenance
+from .time_axis import TimeAxis
 
 
 TRACE_SCHEMA_VERSION = "reservoir-trace.v1"
@@ -91,9 +92,15 @@ class TraceJournal:
     ``fail`` may still write a terminal summary if the filesystem permits it.
     """
 
-    def __init__(self, output: Path | str, *, run_id: str, provenance: Mapping[str, Any] | None = None) -> None:
+    def __init__(
+        self, output: Path | str, *, run_id: str,
+        provenance: Mapping[str, Any] | None = None, time_axis: TimeAxis | None = None,
+    ) -> None:
         self.run_id = _text(run_id, "run_id")
         self._provenance = _provenance(provenance)
+        if time_axis is not None and not isinstance(time_axis, TimeAxis):
+            raise TypeError("time_axis must be a TimeAxis or None")
+        self._time_axis = time_axis
         self.output = Path(output)
         self._counts = dict.fromkeys(_STREAMS, 0)
         self._decisions: dict[tuple[str, int], dict[str, Any]] = {}
@@ -151,7 +158,12 @@ class TraceJournal:
     def _scope(self, reservoir_id: str, timestep: int, timestamp: str, request_id: str | None = None) -> dict[str, Any]:
         _text(reservoir_id, "reservoir_id")
         timestep = _step(timestep)
-        timestamp = _day(timestamp)
+        if self._time_axis is None:
+            timestamp = _day(timestamp)
+        else:
+            expected_timestamp = self._time_axis.timestamp(timestep)
+            if timestamp != expected_timestamp:
+                raise ValueError("event timestamp does not match the configured time axis")
         if request_id is not None:
             _text(request_id, "request_id")
         key = (reservoir_id, timestep)
@@ -179,7 +191,8 @@ class TraceJournal:
         if previous is not None:
             if (reservoir_id, previous[0]) not in self._physics:
                 raise RuntimeError("previous decision requires a physical record")
-            if date.fromisoformat(timestamp) != date.fromisoformat(previous[1]) + timedelta(days=1):
+            if (self._time_axis is None and
+                    date.fromisoformat(timestamp) != date.fromisoformat(previous[1]) + timedelta(days=1)):
                 raise ValueError("reservoir decision dates must be consecutive")
 
     def record_decision(

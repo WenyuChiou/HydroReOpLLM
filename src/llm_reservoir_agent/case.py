@@ -44,6 +44,8 @@ def load_case(path, *, project_root=PROJECT_ROOT):
     case = read_json(path)
     if case.get("schema_version") == "llm-reservoir-network-case.v1":
         config = case["network"]
+        from .time_axis import TimeAxis
+        clock = TimeAxis.from_network(config)
         if "inflow_records" in case:
             if case.get("data_kind") != "synthetic_fixture" or "inflow_source" in case:
                 raise ValueError("inline network case requires synthetic_fixture and exactly one inflow source")
@@ -52,7 +54,8 @@ def load_case(path, *, project_root=PROJECT_ROOT):
             if case.get("data_kind") not in ("simulated_local_inflow", "observed_local_inflow", "synthetic_fixture"):
                 raise ValueError("network case must declare its inflow data_kind")
             source_spec = case["inflow_source"]
-            if set(source_spec) != {"path", "sha256", "format"} or source_spec["format"] != "daily-node-local-cms.v1":
+            source_format = "daily-node-local-cms.v1" if clock.legacy_daily else "interval-node-local-cms.v1"
+            if set(source_spec) != {"path", "sha256", "format"} or source_spec["format"] != source_format:
                 raise ValueError("unsupported network inflow source")
             source = inside(project_root, path.parent / source_spec["path"])
             if hashlib.sha256(source.read_bytes()).hexdigest() != source_spec["sha256"]:
@@ -60,14 +63,14 @@ def load_case(path, *, project_root=PROJECT_ROOT):
             daily = {}
             with source.open(encoding="utf-8-sig", newline="") as handle:
                 reader = csv.DictReader(handle)
-                if reader.fieldnames != ["date", "node", "local_inflow_cms"]:
-                    raise ValueError("network inflow CSV requires date,node,local_inflow_cms columns")
+                if reader.fieldnames != [clock.key, "node", "local_inflow_cms"]:
+                    raise ValueError(f"network inflow CSV requires {clock.key},node,local_inflow_cms columns")
                 for row in reader:
-                    flows = daily.setdefault(row["date"], {})
+                    flows = daily.setdefault(row[clock.key], {})
                     if row["node"] in flows:
                         raise ValueError("duplicate daily node inflow")
                     flows[row["node"]] = finite_nonnegative(float(row["local_inflow_cms"]), "local inflow")
-            rows = [dict(date=day, local_inflow_cms=flows) for day, flows in daily.items()]
+            rows = [dict({clock.key: day}, local_inflow_cms=flows) for day, flows in daily.items()]
             config["source_files"] = {str(source): source_spec["sha256"]}
         knowledge = {}
         for identifier, spec in case.get("knowledge_packages", {}).items():

@@ -17,6 +17,7 @@ from typing import Any, Mapping
 from .contracts import ReservoirObservation, parse_action, _json_mapping_copy
 from .physics import PhysicalConfig, apply_transition
 from .policies import ConstantPolicy, PassThroughPolicy
+from .time_axis import TimeAxis
 
 
 class LLMReservoirAgent:
@@ -59,8 +60,20 @@ class LLMReservoirAgent:
         if not isinstance(physical, Mapping):
             raise ValueError("LLMReservoirAgent requires Attributes.Physical")
         self.physical = PhysicalConfig(**dict(physical))
-        if self.physical.dt_seconds != 86400.0:
-            raise ValueError("the HydroCNHS Dam interface requires a daily timestep")
+        explicit_axis = kwargs.get("time_axis")
+        if explicit_axis is not None and not isinstance(explicit_axis, TimeAxis):
+            raise TypeError("time_axis must be a TimeAxis")
+        self.time_axis = explicit_axis
+        if self.time_axis is None:
+            if self.physical.dt_seconds != 86400.0:
+                raise ValueError("the HydroCNHS Dam interface requires a daily timestep")
+        elif self.physical.dt_seconds != self.time_axis.dt_seconds:
+            raise ValueError("physical dt_seconds must match time_axis.dt_seconds")
+        elif self.start_date != self.time_axis.instant(0):
+            raise ValueError(
+                f"start_date {self.start_date!r} does not match time_axis start "
+                f"{self.time_axis.instant(0).isoformat()}"
+            )
         self.storage_m3 = self.physical.initial_storage_m3
         self.inflow_outlet, self.output_outlet = self._validate_links()
         injected_policy = kwargs.get("policy")
@@ -159,7 +172,10 @@ class LLMReservoirAgent:
             raise TypeError("t must be an integer")
         if not 0 <= self.t < self.data_length:
             raise IndexError("timestep is outside data_length")
-        expected = self.start_date + timedelta(days=self.t)
+        if self.time_axis is None:
+            expected = self.start_date + timedelta(days=self.t)
+        else:
+            expected = self.time_axis.instant(self.t)
         expected_text = expected.isoformat() if hasattr(expected, "isoformat") else str(expected)
         current_text = (
             self.current_date.isoformat()
@@ -197,18 +213,27 @@ class LLMReservoirAgent:
             )
 
         timestamp = (
-            self.current_date.isoformat()
-            if hasattr(self.current_date, "isoformat")
-            else str(self.current_date)
+            self.time_axis.timestamp(timestep)
+            if self.time_axis is not None
+            else (
+                self.current_date.isoformat()
+                if hasattr(self.current_date, "isoformat")
+                else str(self.current_date)
+            )
         )
-        # This observation uses beginning storage, before today's release/spill.
+        # This observation uses beginning storage, before this interval's release/spill.
         observation = ReservoirObservation(
             timestep=timestep,
             timestamp=timestamp,
             inflow_cms=inflow,
             release_upper_bound_cms=min(
                 self.physical.maximum_release_cms,
-                max(0.0, inflow + (self.storage_m3 - self.physical.dead_storage_m3) / 86400.0),
+                max(
+                    0.0,
+                    inflow
+                    + (self.storage_m3 - self.physical.dead_storage_m3)
+                    / self.physical.dt_seconds,
+                ),
             ),
             state={
                 "storage_m3": self.storage_m3,
