@@ -41,6 +41,7 @@ class InformationRuntime:
                 location, quantity = spec["location"], spec["quantity"]
                 from .information import _parse_timestamp
                 clock = _parse_timestamp(observed["timestamp"], "decision clock", allow_legacy=True)
+                step_delta = timedelta(seconds=float(observed["state"]["dt_seconds"]))
                 local_current = location == reservoir and quantity in ("inflow", "storage")
                 result = []
                 # Only the acting reservoir's current boundary and beginning
@@ -51,7 +52,7 @@ class InformationRuntime:
                 slots = self.history.get(source_id, 1) - int(local_current)
                 first = max(0, timestep - slots)
                 for step in range(first, timestep):
-                    stamp = clock - timedelta(days=timestep-step)
+                    stamp = clock - step_delta * (timestep-step)
                     if quantity == "flow":
                         value = float(model.dc.Q_routed[aliases[location]][step])
                     else:
@@ -68,8 +69,8 @@ class InformationRuntime:
                         # Another reservoir's ending storage is a point value at
                         # the completed period boundary, available the next day.
                         if quantity == "storage" and not local_current:
-                            stamp += timedelta(days=1)
-                    available = stamp if quantity == "storage" else stamp + timedelta(days=1)
+                            stamp += step_delta
+                    available = stamp if quantity == "storage" else stamp + step_delta
                     result.append({"value": value, "valid_time": stamp.isoformat(),
                                    "available_at": available.isoformat()})
                 return result

@@ -26,6 +26,7 @@ from .network import PROJECT_ROOT, _run_network, validate_inflows
 from .passive import complete_backends
 from .policy_adapter import LLMPolicyAdapter, validate_isolated_backends
 from .trace import TraceJournal
+from .time_axis import TimeAxis
 
 
 def _adapter_implementation_files():
@@ -88,13 +89,14 @@ def _note(original, logging_error):
 
 
 class _ObservedBackend:
-    def __init__(self, backend, reservoir_id, journal, provenance, committed, recovery=None):
+    def __init__(self, backend, reservoir_id, journal, provenance, committed, recovery=None, time_axis=None):
         self.backend = backend
         self.reservoir_id = reservoir_id
         self.journal = journal
         self.provenance = provenance
         self.policy_id = getattr(backend, "policy_id", type(backend).__name__)
         self.committed = committed
+        self.time_axis = time_axis
         self.recovery = recovery
         self.audit_counts = Counter()
 
@@ -138,11 +140,12 @@ class _ObservedBackend:
             self.recovery.check_physics(self.reservoir_id, record)
         self.journal.record_physics(self.reservoir_id, record)
         self.committed[self.reservoir_id] += 1
+        interval = self.time_axis is not None and not self.time_axis.legacy_daily
         write_json(self.journal.output / "progress.json", {
-            "completed_reservoir_days": dict(self.committed),
-            "completed_network_days": min(self.committed.values()),
+            ("completed_reservoir_steps" if interval else "completed_reservoir_days"): dict(self.committed),
+            ("completed_network_steps" if interval else "completed_network_days"): min(self.committed.values()),
             "last_committed_reservoir": self.reservoir_id,
-            "last_committed_date": record["observation"]["timestamp"],
+            ("last_committed_timestamp" if interval else "last_committed_date"): record["observation"]["timestamp"],
         })
 
     def record_transition(self, record):
@@ -168,6 +171,7 @@ def run_experiment(config, rows, backends, *, output, run_id, project_root=PROJE
     Original audit FAIL remains diagnostic FAIL; completion is execution status.
     """
     topology, local = validate_inflows(config, rows)
+    clock = topology["clock"]
     backends = complete_backends(config, backends)
     if not all(callable(getattr(backend, "decide", None)) for backend in backends.values()):
         raise TypeError("each backend must provide decide(observation)")
@@ -176,10 +180,11 @@ def run_experiment(config, rows, backends, *, output, run_id, project_root=PROJE
     config = json_snapshot(config, label="configuration")
     rows = json_snapshot(rows, label="inflows")
     metadata = {name: LLMPolicyAdapter(backend).describe() for name, backend in backends.items()}
-    journal = TraceJournal(output, run_id=run_id, provenance=provenance)
+    journal_options = {} if clock.legacy_daily else {"time_axis": clock}
+    journal = TraceJournal(output, run_id=run_id, provenance=provenance, **journal_options)
     committed = {s["physical"]["reservoir_id"]: 0 for s in config["reservoirs"].values()}
     observed = {name: _ObservedBackend(backend, config["reservoirs"][name]["physical"]["reservoir_id"],
-                                      journal, metadata[name], committed, recovery)
+                                      journal, metadata[name], committed, recovery, clock)
                 for name, backend in backends.items()}
     policies = {name: LLMPolicyAdapter(backend, on_commit=backend.save_physics)
                 for name, backend in observed.items()}
@@ -214,12 +219,12 @@ def run_experiment(config, rows, backends, *, output, run_id, project_root=PROJE
         reaches = engine.pop("reach_volume_trace")
         _csv(journal.output / "network_balance.csv", list(ledger[0]), ledger)
         write_json(journal.output / "reach_volume_trace.json", {"schema_version": "reach-volume-trace.v1", "reaches": reaches})
-        flattened = [dict(date=r["observation"]["timestamp"],
+        flattened = [dict({clock.key: r["observation"]["timestamp"]},
                           reservoir_id=config["reservoirs"][name]["physical"]["reservoir_id"],
                           **r["transition"]) for name, series in records.items() for r in series]
         _csv(journal.output / "reservoir_trajectory.csv", list(flattened[0]), flattened)
-        _csv(journal.output / "network_flows.csv", ["date", "node", "local_inflow_cms", "routed_flow_cms"],
-             (dict(date=row["date"], node=node,
+        _csv(journal.output / "network_flows.csv", [clock.key, "node", "local_inflow_cms", "routed_flow_cms"],
+             (dict({clock.key: row[clock.key]}, node=node,
                    local_inflow_cms=local[node][t] if node in local else None, routed_flow_cms=q[t])
               for node, q in flows.items() for t, row in enumerate(rows)))
         audits = Counter()
@@ -235,6 +240,9 @@ def run_experiment(config, rows, backends, *, output, run_id, project_root=PROJE
             output_files={name: hashlib.sha256((journal.output / name).read_bytes()).hexdigest()
                           for name in ("experiment.json", "reservoir_trajectory.csv", "network_flows.csv",
                                        "network_balance.csv", "reach_volume_trace.json")})
+        if not clock.legacy_daily:
+            summary["completed_reservoir_steps"] = summary.pop("completed_reservoir_days")
+            summary["completed_network_steps"] = min(committed.values())
         if recovery is not None:
             summary["recovery"] = recovery.describe()
             summary["request_attempts_including_source"] = recovery.prior_network_calls + (summary["observed_network_calls"] or 0)
@@ -261,6 +269,8 @@ def run_experiment(config, rows, backends, *, output, run_id, project_root=PROJE
     except Exception as exc:
         failure = {"completed_reservoir_days": committed,
                    "automatic_retry": bool((provenance or {}).get("automatic_retry", False))}
+        if not clock.legacy_daily:
+            failure["completed_reservoir_steps"] = failure.pop("completed_reservoir_days")
         if recovery is not None:
             failure["recovery"] = recovery.describe()
         attempt_file = journal.output / "provider_attempts.jsonl"

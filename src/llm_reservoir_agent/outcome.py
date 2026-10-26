@@ -84,7 +84,7 @@ def evaluate_outcomes(checks, records, flows, rows, agents, run_id):
                 status = "FAIL" if ((limits["minimum"] is not None and flow < limits["minimum"]-tolerance) or
                                     (limits["maximum"] is not None and flow > limits["maximum"]+tolerance)) else "PASS"
             result.append(dict(schema_version="control-point-audit.v1", check_id=identifier,
-                               timestep=timestep, timestamp=row["date"], node=spec["node"],
+                               timestep=timestep, timestamp=row["timestamp"] if "timestamp" in row else row["date"], node=spec["node"],
                                routed_flow_cms=flow, minimum_cms=limits["minimum"], maximum_cms=limits["maximum"],
                                status=status, limit_sources=sources, decision_refs=refs))
     return result

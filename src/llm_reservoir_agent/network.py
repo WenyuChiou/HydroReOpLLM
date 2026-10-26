@@ -15,6 +15,7 @@ from collections import deque
 from collections.abc import Mapping, Sequence
 from copy import deepcopy
 from datetime import date, timedelta
+from .time_axis import TimeAxis
 import hashlib
 import json
 from pathlib import Path
@@ -31,7 +32,7 @@ PROJECT_ROOT = default_runtime_root()
 
 def validate_network(config):
     if not isinstance(config, Mapping) or config.get("schema_version") not in (
-            "llm-reservoir-network.v1", "llm-reservoir-network.v2"):
+            "llm-reservoir-network.v1", "llm-reservoir-network.v2", "llm-reservoir-network.v3"):
         raise ValueError("unsupported reservoir network configuration")
     if config["schema_version"] == "llm-reservoir-network.v1":
         if "outlets" in config:
@@ -43,9 +44,8 @@ def validate_network(config):
         outlets = config.get("outlets")
         if not isinstance(outlets, list) or not outlets:
             raise ValueError("v2 reservoir networks require a non-empty outlets list")
-    start = date.fromisoformat(config["start_date"])
-    if start.isoformat() != config["start_date"]:
-        raise ValueError("start_date must be canonical YYYY-MM-DD")
+    clock = TimeAxis.from_network(config)
+    start = clock.instant(0).date() if clock.legacy_daily else clock.instant(0)
     if "case_id" in config and (not isinstance(config["case_id"], str) or not config["case_id"].strip()):
         raise ValueError("case_id must be a non-empty string")
     reservoirs = config.get("reservoirs")
@@ -59,8 +59,8 @@ def validate_network(config):
             raise ValueError("reservoir settings must be mappings")
         inlets.append(settings.get("inflow_node"))
         physical = PhysicalConfig(**dict(settings["physical"]))
-        if physical.dt_seconds != 86400:
-            raise ValueError("only daily timesteps are supported")
+        if physical.dt_seconds != clock.dt_seconds:
+            raise ValueError("all physical timesteps must match the network clock")
         physical_ids.append(physical.reservoir_id)
         mode = settings.get("operation_mode", "controlled")
         if mode not in ("controlled", "passive_outlet"):
@@ -170,19 +170,20 @@ def validate_network(config):
                            "reservoirs": component_reservoirs, "outlets": component_outlets})
     return {"reservoirs": reservoirs, "routing_nodes": routing_nodes, "nodes": nodes,
             "edges": edges, "adjacency": adjacency, "sequence": sequence, "start": start,
-            "outlets": outlets, "components": components}
+            "outlets": outlets, "components": components, "clock": clock}
 
 
 def validate_inflows(config, rows):
     topology = validate_network(config)
+    clock = topology["clock"]
     if isinstance(rows, (str, bytes)) or not isinstance(rows, Sequence) or not rows:
         raise ValueError("inflow records must be a non-empty daily sequence")
     local = {node: [] for node in topology["routing_nodes"]}
     for index, row in enumerate(rows):
-        if not isinstance(row, Mapping) or set(row) != {"date", "local_inflow_cms"}:
-            raise ValueError("daily inflow records require date and local_inflow_cms")
-        if row["date"] != (topology["start"] + timedelta(days=index)).isoformat():
-            raise ValueError("daily inflow dates must be consecutive")
+        if not isinstance(row, Mapping) or set(row) != {clock.key, "local_inflow_cms"}:
+            raise ValueError(f"inflow records require {clock.key} and local_inflow_cms")
+        if row[clock.key] != clock.timestamp(index):
+            raise ValueError("inflow timestamps must be canonical and consecutive on the configured clock")
         flows = row["local_inflow_cms"]
         if not isinstance(flows, Mapping) or set(flows) != set(local):
             raise ValueError("each daily record must explicitly supply every routing node's local incremental inflow")
@@ -193,6 +194,8 @@ def validate_inflows(config, rows):
 
 def build_network_model(config, days, *, project_root=PROJECT_ROOT):
     topology = validate_network(config)
+    if not topology["clock"].legacy_daily:
+        raise ValueError("the native HydroCNHS model builder supports legacy daily networks only")
     if isinstance(days, bool) or not isinstance(days, int) or days <= 0:
         raise ValueError("days must be a positive integer")
     root = Path(project_root)
@@ -241,6 +244,9 @@ def _run_network(config, rows, policies, *, project_root=PROJECT_ROOT, informati
     if not all(callable(getattr(policy, "decide", None)) for policy in policies.values()):
         raise TypeError("each policy must provide decide(observation)")
     validate_isolated_backends(policies)
+    if not topology["clock"].legacy_daily:
+        from .interval_network import run_interval_network
+        return run_interval_network(config, rows, policies, information_runtime=information_runtime)
     import hydrocnhs
     import numpy as np
     root = Path(project_root)

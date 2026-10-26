@@ -16,7 +16,7 @@ _PUBLIC = {'reservoir_id', 'type', 'rule', 'rule_parameters', 'model_profile',
            'prompt_file', 'auditors', 'customization'}
 # Advanced fields remain available inside ``customization`` for explicit use.
 _ADVANCED = {'prompt_version', 'prompt_variables', 'context_providers', 'knowledge',
-             'context', 'context_file', 'information', 'response_schema', 'fallback_models'}
+             'context', 'context_file', 'information', 'response_schema', 'fallback_models', 'history_steps'}
 # Legacy names are accepted on their own, but never mixed with the public vocabulary.
 _LEGACY = {'reservoir', 'mode', 'strategy', 'model', 'prompt', 'benchmark',
            'release_cms', 'agent_type', *_ADVANCED}

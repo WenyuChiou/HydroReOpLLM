@@ -402,7 +402,7 @@ def _provider_usage(raw: Mapping[str, Any], provider: str) -> Any:
 class ConfiguredBackend:
     """Neutral backend with explicit prompts, context, retries, and fallback."""
 
-    _BUILTINS = {"observation", "knowledge", "agent_id", "previous_transition", "information"}
+    _BUILTINS = {"observation", "knowledge", "agent_id", "previous_transition", "information", "completed_history"}
 
     def __init__(self, *, agent_id: str, mode: Literal["offline", "llm"],
                  prompt_spec: PromptSpec, knowledge_texts: Mapping[str, str],
@@ -416,8 +416,13 @@ class ConfiguredBackend:
                  fallback_models: list[Mapping[str, Any]] | tuple[Mapping[str, Any], ...] | None = None,
                  message_builder: Callable[[RenderedPromptContext], Any] | None = None,
                  response_parser: Callable[[Any], Any] | None = None,
-                 response_json_schema: Mapping[str, Any] | None = None) -> None:
+                 response_json_schema: Mapping[str, Any] | None = None,
+                 history_steps: int = 0) -> None:
         self.agent_id = _nonempty_text(agent_id, "agent_id")
+        if isinstance(history_steps, bool) or not isinstance(history_steps, int) or history_steps < 0:
+            raise ValueError("history_steps must be a nonnegative integer")
+        self.history_steps = history_steps
+        self._completed_history: list[dict[str, Any]] = []
         if mode not in {"offline", "llm"}:
             raise ValueError("mode must be 'offline' or 'llm'")
         self.mode = mode
@@ -543,6 +548,7 @@ class ConfiguredBackend:
             "observation": _canonical_json(namespace), "knowledge": _canonical_json(self._knowledge),
             "agent_id": _canonical_json(self.agent_id),
             "previous_transition": _canonical_json(previous), "information": _canonical_json(selected),
+            "completed_history": _canonical_json(self._completed_history),
         }
         variables: dict[str, Any] = {}
         provenance: dict[str, Any] = {}
@@ -709,6 +715,16 @@ class ConfiguredBackend:
         copied = json_snapshot(record, label="transition record")
         if not isinstance(copied, dict):
             raise TypeError("transition record must be a mapping")
+        if self.history_steps:
+            observation = copied.get("observation")
+            if not isinstance(observation, dict) or not isinstance(copied.get("transition"), dict) or not isinstance(copied.get("action"), dict):
+                raise ValueError("completed history requires observation, action and transition")
+            step = observation.get("timestep")
+            previous = self._completed_history[-1]["observation"]["timestep"] if self._completed_history else -1
+            if isinstance(step, bool) or not isinstance(step, int) or step != previous + 1:
+                raise ValueError("completed history must contain consecutive committed steps")
+            self._completed_history.append(copied)
+            self._completed_history[:] = self._completed_history[-self.history_steps:]
         self._previous_transition = copied
 
     def describe(self) -> dict[str, Any]:
@@ -726,6 +742,8 @@ class ConfiguredBackend:
         if self.mode == "offline":
             result.update(data_kind="synthetic_fixture", fixture_id="constant-release:" + self.agent_id,
                           release_cms=self._offline_action.release_cms)
+        if self.history_steps:
+            result["history_steps"] = self.history_steps
         parser_id = ("strict-reservoir-action-json.v1" if self._response_parser is None and
                      self.response_schema == ACTION_SCHEMA_VERSION else
                      getattr(self._response_parser or self._response_extension, "parser_id", "custom"))

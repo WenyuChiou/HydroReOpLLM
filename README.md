@@ -14,6 +14,10 @@ updated state informs the next decision.
 
 ## What it provides
 
+For operations on supplied hourly or subhourly mean inflows, see
+[fixed-interval operation](docs/TIME_SCALES.md). This path shares reservoir
+physics and decision interfaces; it does not run hourly rainfall-runoff models.
+
 - Coupled daily hydrology, reservoir decisions, mass balance, spill, and routed
   downstream flow.
 - Rule-based operators and LLM operators that can be changed through experiment
