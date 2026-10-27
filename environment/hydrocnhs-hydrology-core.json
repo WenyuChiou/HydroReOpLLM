@@ -4,7 +4,7 @@
   "files": [
     {
       "path": "hydrocnhs.py",
-      "normalized_sha256": "cad2ff1c33424716b1a72d315b38d12946a8c494e68b18f2f41838cb9814e2d7"
+      "normalized_sha256": "30818c8c6a29a54d05c13f4f1c1aca029a041bf26cf3fd7bc0614bc3ea53c44f"
     },
     {
       "path": "routing.py",
@@ -24,12 +24,15 @@
     },
     {
       "path": "rainfall_runoff_model/gwlf.py",
-      "normalized_sha256": "dda966f80df3b7ac9c0f5be84c313907f1e54c13e09dbc54d606b28728530a30"
+      "normalized_sha256": "87d4a0af1ec828a5fbfca12f17b1e99012723649d66ceb8da59020a317306551"
     },
     {
       "path": "rainfall_runoff_model/pet_hamon.py",
       "normalized_sha256": "1e48fc9434ae7fb296eb998cb97e38f27ecab217341cee262349eaeb7ab6f9bb"
     }
   ],
-  "purpose": "Accepted core plus real GWLF and PET modules for short hydrology test"
+  "purpose": "Accepted core plus real GWLF and PET modules for short hydrology test",
+  "local_extensions": [
+    "gwlf-groundwater-diagnostics.v1"
+  ]
 }

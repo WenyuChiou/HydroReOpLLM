@@ -17,7 +17,10 @@ def load_weather(spec, base):
     """Validate every day/unit without running HydroCNHS or constructing an LLM."""
     from .workflow import UniqueLoader, _mapping
     import yaml
-    _mapping(spec, {"model", "forcing", "zero_flow_nodes", "inflow_bindings", "prepared_from"}, "hydrology")
+    _mapping(spec, {"model", "forcing", "zero_flow_nodes", "inflow_bindings", "prepared_from", "diagnostics"}, "hydrology")
+    diagnostics = spec.get("diagnostics", False)
+    if type(diagnostics) is not bool:
+        raise ValueError("hydrology.diagnostics must be a boolean")
     paths = {}
     for key in ("model", "forcing"):
         if not isinstance(spec.get(key), str) or not spec[key].strip():
@@ -45,6 +48,13 @@ def load_weather(spec, base):
     units = [u for u in outlets if u not in zero]
     if not units or set(model["RainfallRunoff"]) != set(outlets):
         raise ValueError("native model must declare its weather-driven units")
+    initialization = {}
+    if diagnostics or any({"B0", "BF0"} & set(model["RainfallRunoff"][u]["Inputs"]) for u in units):
+        if system["RainfallRunoff"] != "GWLF":
+            raise ValueError("groundwater initialization/diagnostics require GWLF")
+        from hydrocnhs.rainfall_runoff_model.groundwater import initialize_groundwater
+        initialization = {u: initialize_groundwater(model["RainfallRunoff"][u]["Pars"],
+                          model["RainfallRunoff"][u]["Inputs"], scale="daily") for u in units}
     samples = {u: {} for u in units}
     opener = gzip.open if paths["forcing"].suffix == ".gz" else open
     columns = {"date", "subbasin_id", "precipitation_mm", "temperature_c", "pet_cm"}
@@ -63,7 +73,8 @@ def load_weather(spec, base):
     if any(set(samples[u]) != set(dates) for u in units):
         raise ValueError("weather must cover every native-model day for every subbasin")
     return dict(model=model, dates=dates, units=units, zero=zero, samples=samples,
-                paths=paths, bindings=spec.get("inflow_bindings"))
+                paths=paths, bindings=spec.get("inflow_bindings"), diagnostics=diagnostics,
+                groundwater_initialization=initialization)
 
 
 def validate_bindings(weather, routing_nodes):
@@ -122,13 +133,19 @@ def simulate_weather(weather, runtime_root):
               for u in weather["units"]}
     model = hydrocnhs.Model(model_config, name="HydroOpsWeather", rn_gen=hydrocnhs.create_rn_gen(7),
                            paral_setting={"verbose": 0, "cores_pet": 1, "cores_formUH": 1, "cores_runoff": 1})
+    collected = {} if weather.get("diagnostics") else None
     routed = model.run(temp={u: x[:, 1] for u, x in series.items()},
                        prec={u: x[:, 0]/10 for u, x in series.items()},
                        pet={u: x[:, 2] for u, x in series.items()},
-                       assigned_Q={u: np.zeros(len(weather["dates"])) for u in weather["zero"]}, disable=True)
+                       assigned_Q={u: np.zeros(len(weather["dates"])) for u in weather["zero"]}, disable=True,
+                       runoff_diagnostics=collected)
     runoff = {u: model.dc.Q_runoff[u] for u in weather["units"]}
     for values in [*routed.values(), *runoff.values()]:
         values = np.asarray(values)
         if values.shape != (len(weather["dates"]),) or not np.isfinite(values).all() or (values < 0).any():
             raise ArithmeticError("native hydrology produced invalid daily flow")
-    return {"routed": routed, "runoff": runoff}
+    result = {"routed": routed, "runoff": runoff}
+    if collected is not None:
+        result["diagnostics"] = {u: collected[u]["records"] for u in weather["units"]}
+        result["states"] = {u: collected[u]["final_state"] for u in weather["units"]}
+    return result

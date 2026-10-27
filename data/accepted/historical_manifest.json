@@ -42,11 +42,11 @@
     },
     {
       "path": "environment/hydrocnhs-hydrology-core.json",
-      "sha256": "78885cbef9d3ae5d811c3f7b8174f1f34dbb885e6caa6266e41ff8c2190c9686"
+      "sha256": "8586a9e8ee05648bf148f937776e6e8d1976bebe868c0cdba6eaa810b664b789"
     },
     {
       "path": "environment/hydrocnhs-core.json",
-      "sha256": "859076b340741ff2d599767597c439a15b7a1b23f6c6ef8648964522b21650a4"
+      "sha256": "857ef69cae8d2bf31efebbcf7c0b14d395ce5302031a1af966b06e68fe59544f"
     }
   ],
   "sources": [

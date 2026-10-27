@@ -45,8 +45,15 @@
     },
     "src/hydrocnhs/hydrocnhs.py": {
       "upstream_path": "src/hydrocnhs/hydrocnhs.py",
-      "sha256": "cad2ff1c33424716b1a72d315b38d12946a8c494e68b18f2f41838cb9814e2d7",
-      "bytes": 38626
+      "sha256": "30818c8c6a29a54d05c13f4f1c1aca029a041bf26cf3fd7bc0614bc3ea53c44f",
+      "bytes": 39808,
+      "upstream_sha256": "cad2ff1c33424716b1a72d315b38d12946a8c494e68b18f2f41838cb9814e2d7",
+      "patch": {
+        "id": "gwlf-groundwater-diagnostics",
+        "version": 1,
+        "path": "third_party/hydrocnhs/patches/gwlf-groundwater-diagnostics.patch",
+        "sha256": "21a64efb4dc28c0166f85eb053a67ec92b4dd7ed2c12a98b3e7b75738dd3d7c8"
+      }
     },
     "src/hydrocnhs/indicators.py": {
       "upstream_path": "src/hydrocnhs/indicators.py",
@@ -70,8 +77,15 @@
     },
     "src/hydrocnhs/rainfall_runoff_model/gwlf.py": {
       "upstream_path": "src/hydrocnhs/rainfall_runoff_model/gwlf.py",
-      "sha256": "dda966f80df3b7ac9c0f5be84c313907f1e54c13e09dbc54d606b28728530a30",
-      "bytes": 17933
+      "sha256": "87d4a0af1ec828a5fbfca12f17b1e99012723649d66ceb8da59020a317306551",
+      "bytes": 20606,
+      "upstream_sha256": "dda966f80df3b7ac9c0f5be84c313907f1e54c13e09dbc54d606b28728530a30",
+      "patch": {
+        "id": "gwlf-groundwater-diagnostics",
+        "version": 1,
+        "path": "third_party/hydrocnhs/patches/gwlf-groundwater-diagnostics.patch",
+        "sha256": "21a64efb4dc28c0166f85eb053a67ec92b4dd7ed2c12a98b3e7b75738dd3d7c8"
+      }
     },
     "src/hydrocnhs/rainfall_runoff_model/pet_hamon.py": {
       "upstream_path": "src/hydrocnhs/rainfall_runoff_model/pet_hamon.py",

@@ -8,11 +8,18 @@ HydroCNHS is by Chung-Yi Lin; its BSD 3-Clause notice is preserved in
 
 The bundled HydroCNHS source retains its upstream commit in
 [`third_party/hydrocnhs/SOURCE.json`](third_party/hydrocnhs/SOURCE.json).
-One local patch updates five metric calls in `Visual.plot_reg` to the existing
+A local patch updates five metric calls in `Visual.plot_reg` to the existing
 `Indicator.get_*` methods. The manifest records both the original and installed
 file hashes and the versioned
 [`visual-indicator-api.patch`](third_party/hydrocnhs/patches/visual-indicator-api.patch).
 This plotting correction leaves hydrological calculations unchanged.
+
+The versioned `gwlf-groundwater-diagnostics.patch` adds explicit BF0/B0 cold-start
+options and optional daily GWLF diagnostics, with worker-result collection in
+`Model.run`. Original daily defaults, arithmetic and restart fields are preserved
+and checked against a pre-extension numerical oracle. The source manifest retains
+both upstream and installed hashes. The new `groundwater.py` and experimental
+hourly kernel are local extensions, not unmodified upstream GWLF.
 
 The physical separation and source data follow the accepted
 HydroCNHS-Delaware-Demo commit `8d59dcac2f9d06fe16030f68826b425d492c9529`.

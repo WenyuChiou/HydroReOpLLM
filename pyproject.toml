@@ -37,7 +37,7 @@ hydrocnhs = ["Config_logging.yaml"]
 
 [tool.setuptools.data-files]
 "share/llm-reservoir-agent/hydrocnhs" = ["third_party/hydrocnhs/LICENSE", "third_party/hydrocnhs/SOURCE.json", "third_party/hydrocnhs/upstream-pyproject.toml"]
-"share/llm-reservoir-agent/hydrocnhs/patches" = ["third_party/hydrocnhs/patches/visual-indicator-api.patch"]
+"share/llm-reservoir-agent/hydrocnhs/patches" = ["third_party/hydrocnhs/patches/visual-indicator-api.patch", "third_party/hydrocnhs/patches/gwlf-groundwater-diagnostics.patch"]
 "share/llm-reservoir-agent/environment" = ["environment/hydrocnhs-core.json"]
 "share/llm-reservoir-agent/examples" = ["examples/llm_reservoir_abm.py"]
 # The original-program oracle is external and opt-in; case extensions live in examples.
