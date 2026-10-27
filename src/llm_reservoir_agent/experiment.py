@@ -163,7 +163,8 @@ class _ObservedBackend:
 
 
 def run_experiment(config, rows, backends, *, output, run_id, project_root=PROJECT_ROOT, provenance=None,
-                    information_runtime=None, outcome_checks=None, information_agents=None, recovery=None):
+                    information_runtime=None, outcome_checks=None, information_agents=None, recovery=None,
+                    time_settings=None):
     """Run connected reservoirs with one isolated decision backend per reservoir.
 
     Local inflows are incremental natural runoff in cms. Incoming upstream
@@ -172,6 +173,8 @@ def run_experiment(config, rows, backends, *, output, run_id, project_root=PROJE
     """
     topology, local = validate_inflows(config, rows)
     clock = topology["clock"]
+    from .time_config import validate_time_settings, temporal_tables
+    time_settings = validate_time_settings(time_settings, config)
     backends = complete_backends(config, backends)
     if not all(callable(getattr(backend, "decide", None)) for backend in backends.values()):
         raise TypeError("each backend must provide decide(observation)")
@@ -201,6 +204,8 @@ def run_experiment(config, rows, backends, *, output, run_id, project_root=PROJE
             "automatic_retry": bool((provenance or {}).get("automatic_retry", False)),
             "provenance": json_snapshot(provenance),
         }
+        if time_settings is not None:
+            run_metadata["time"] = time_settings
         if information_runtime is not None:
             run_metadata["information_config"] = information_runtime.configuration
         if recovery is not None:
@@ -265,6 +270,12 @@ def run_experiment(config, rows, backends, *, output, run_id, project_root=PROJE
             summary["information_agents"] = {i: {"reservoir": a["reservoir"], "information": a.get("information")}
                                               for i, a in (information_agents or {}).items()}
             summary["additional_output_files"] = {"outcome_audit.jsonl": hashlib.sha256(target.read_bytes()).hexdigest()}
+        if time_settings is not None:
+            summary["time"] = time_settings
+            for name, table in temporal_tables(journal.output, clock, time_settings).items():
+                _csv(journal.output / name, list(table[0]), table)
+                summary.setdefault("additional_output_files", {})[name] = hashlib.sha256(
+                    (journal.output / name).read_bytes()).hexdigest()
         return records, journal.finalize(summary)
     except Exception as exc:
         failure = {"completed_reservoir_days": committed,

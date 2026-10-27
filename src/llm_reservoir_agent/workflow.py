@@ -118,7 +118,7 @@ def load_settings(path, *, runtime_root=PROJECT_ROOT, information_providers=None
     data, section_pins = read_configuration(path)
     _mapping(data, {"schema_version", "case", "case_root", "run_id", "output", "start_date", "end_date", "start_time", "end_time",
                     "models", "agents", "auditors", "max_calls", "information_sources",
-                    "information_profiles", "outcome_checks", "source_dependencies", "extensions"}, "experiment")
+                    "information_profiles", "outcome_checks", "source_dependencies", "extensions", "time"}, "experiment")
     if data.get("schema_version") != "llm-reservoir-experiment.v1":
         raise ValueError("unsupported YAML experiment version")
     _text(data.get("run_id"), "run_id")
@@ -131,6 +131,8 @@ def load_settings(path, *, runtime_root=PROJECT_ROOT, information_providers=None
     original_case = json.loads(case.read_bytes())
     from .time_axis import TimeAxis
     axis = TimeAxis.from_network(network)
+    from .time_config import validate_time_settings
+    time_settings = validate_time_settings(data.get("time"), network, allow_absent="time" not in data)
     if axis.legacy_daily:
         if "start_time" in data or "end_time" in data:
             raise ValueError("legacy daily experiments use start_date/end_date")
@@ -421,6 +423,8 @@ def load_settings(path, *, runtime_root=PROJECT_ROOT, information_providers=None
         report["steps"] = report.pop("days")
         report["start_time"], report["end_time"] = report.pop("start_date"), report.pop("end_date")
         report["dt_seconds"] = axis.dt_seconds
+    if time_settings is not None:
+        report["time"] = time_settings
     # Method and execution are separate: replayed LLM decisions remain LLM
     # examples, while deterministic rules never require a provider.
     report['agent_types'] = {i: (a.get('agent_type') or ('rule_based' if a.get('strategy') == 'benchmark'
@@ -571,7 +575,8 @@ def run_settings(settings, *, allow_network=False, runtime_root=PROJECT_ROOT, tr
     return run_experiment(current.network, current.rows, backends, output=plan["output"],
                           run_id=plan["run_id"], project_root=runtime_root, provenance=provenance,
                           information_runtime=information_runtime, outcome_checks=current.outcome_checks,
-                          information_agents=current.agents, recovery=recovery)
+                          information_agents=current.agents, recovery=recovery,
+                          time_settings=current.data.get("time"))
 
 
 def verify_settings_output(settings, *, runtime_root=PROJECT_ROOT, information_providers=None):

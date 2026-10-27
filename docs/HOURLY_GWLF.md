@@ -107,8 +107,10 @@ point caps are exposed as `runoff_roundoff_adjustment_cm` in diagnostics.
 
 ## What is ready and what remains
 
-The standalone kernel can provide hourly runoff for an explicit interval
-hydrology/routing adapter. **The bundled legacy `hydrocnhs.Model.run` weather
+The coupled YAML entry now connects the hourly kernel to explicit hourly
+catchment UHs and the interval reservoir/network host. See
+[Daily and hourly simulation from YAML](YAML_TIME_SCALES.md) for settings, required
+forcing and offline examples. **The bundled legacy `hydrocnhs.Model.run` weather
 loader, Hamon PET and unit-hydrograph path remain daily.** Do not call that path
 with hourly rows and label the result hourly. Hourly catchment and river routing
 must use correctly integrated interval kernels; relabeling daily UH bins is not

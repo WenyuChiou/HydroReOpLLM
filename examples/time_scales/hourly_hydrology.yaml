@@ -1,0 +1,29 @@
+schema_version: hourly-gwlf-model.v1
+start_time: '2020-02-27T00:00:00Z'
+dt_seconds: 3600
+steps: 120
+catchments:
+  basin:
+    parameters:
+      CN2: 70
+      IS: 0.2
+      Res: 0.02
+      Sep: 0.01
+      Alpha: 0.12
+      Beta: 0.2
+      Ur: 8
+      Kc: 0.8
+      Df: 0.12
+    initial:
+      Area: 1000
+      S0: 10
+      U0: 4
+      SnowS: 0.2
+      B0: 1
+    dry_gap_hours: 24
+    routing:
+      dt_seconds: 3600
+      unit_hydrograph:
+      - 0
+      - 0.5
+      - 0.5
