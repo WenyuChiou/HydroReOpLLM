@@ -1,0 +1,23 @@
+schema_version: hydroops-coupled-simulation.v2
+run_id: time-scale-daily
+output: ../../runs/time-scale-daily
+case: ../multiple_reservoirs/reservoirs.yaml
+start_date: '2020-02-28'
+end_date: '2020-03-02'
+max_calls: 0
+hydrology:
+  file: ../multiple_reservoirs/hydrology.yaml
+agents:
+  file: ../multiple_reservoirs/agents.rule.yaml
+models:
+  file: ../multiple_reservoirs/models.yaml
+information:
+  file: ../multiple_reservoirs/information.yaml
+auditors:
+  file: ../multiple_reservoirs/auditors.yaml
+extensions:
+  local_retrieval: ../multiple_reservoirs/extensions/__init__.py
+  hanasaki: ../multiple_reservoirs/../rules/hanasaki/__init__.py
+time:
+  simulation_step: daily
+  output_step: monthly

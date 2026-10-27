@@ -1,4 +1,4 @@
-"""Connect configured hydrology to daily reservoir operation.
+"""Connect configured daily/hourly hydrology to reservoir operation.
 
 A coupled simulation document supplies the global run identity and inclusive
 date interval, a physical-network case, hydrology inputs, reservoir agents,
@@ -79,18 +79,21 @@ def _operation_document(settings, folder):
 
 
 def _physical_case(settings, inflow_hash):
-    """Bind daily local inflow (m3/s) to the user's physical network."""
+    """Bind local inflow (m3/s) without reinterpreting its physical timestep."""
     case = deepcopy(settings.case)
     case["schema_version"] = "llm-reservoir-network-case.v1"
-    case["network"]["start_date"] = settings.data["start_date"]
+    hourly = settings.weather.get("engine") == "gwlf_hourly"
+    key = "start_time" if hourly else "start_date"
+    case["network"][key] = settings.data[key]
     case["inflow_source"] = dict(path="inflows.csv", sha256=inflow_hash,
-                                format="daily-node-local-cms.v1")
+        format="interval-node-local-cms.v1" if hourly else "daily-node-local-cms.v1")
     return case
 
 
 def _compile(settings, folder, rows):
     with (folder/"inflows.csv").open("x", encoding="utf-8", newline="") as handle:
-        writer = csv.writer(handle); writer.writerow(["date", "node", "local_inflow_cms"])
+        key = "timestamp" if settings.weather.get("engine") == "gwlf_hourly" else "date"
+        writer = csv.writer(handle); writer.writerow([key, "node", "local_inflow_cms"])
         for day, flows in rows:
             for node, value in flows.items():
                 writer.writerow([day, node, value])
@@ -107,7 +110,7 @@ def load_coupled_settings(path, *, runtime_root=PROJECT_ROOT):
     data, section_pins = read_configuration(path)
     _mapping(data, {"schema_version", "hydrology", "case", "run_id", "output", "start_date", "end_date",
                     "models", "agents", "auditors", "max_calls", "information_sources", "information_profiles",
-                    "outcome_checks", "extensions", "source_dependencies"}, "coupled simulation")
+                    "outcome_checks", "extensions", "source_dependencies", "time", "start_time", "end_time"}, "coupled simulation")
     if data.get("schema_version") != SCHEMA:
         raise ValueError("unsupported coupled simulation schema")
     _text(data.get("run_id"), "run_id")
@@ -121,23 +124,68 @@ def load_coupled_settings(path, *, runtime_root=PROJECT_ROOT):
     if case.get("data_kind") not in ("synthetic_fixture", "simulated_local_inflow"):
         raise ValueError("weather physical case must declare simulated_local_inflow or synthetic_fixture")
     topology = validate_network(case["network"])
-    if not topology["clock"].legacy_daily:
+    from .time_config import validate_time_settings
+    time_settings = validate_time_settings(data.get("time"), case["network"], allow_absent="time" not in data)
+    hourly = time_settings is not None and time_settings["simulation_step"] == "hourly"
+    if not topology["clock"].legacy_daily and not hourly:
         raise ValueError("the weather/GWLF preparation path supports legacy daily networks only; provide verified interval inflows directly")
-    weather = load_weather(data.get("hydrology"), path.parent)
-    unused = validate_bindings(weather, topology["routing_nodes"])
+    if hourly:
+        from .interval_weather import load_interval_weather, validate_interval_bindings
+        weather = load_interval_weather(data.get("hydrology"), path.parent)
+        unused = validate_interval_bindings(weather, topology["routing_nodes"])
+        if weather["dt_seconds"] != topology["clock"].dt_seconds:
+            raise ValueError("forcing, GWLF and routing timesteps differ")
+    else:
+        spec = data.get("hydrology")
+        if not isinstance(spec, dict):
+            raise ValueError("hydrology must be a mapping")
+        if spec.get("engine", "gwlf_daily") != "gwlf_daily" or spec.get("forcing_step", "daily") != "daily":
+            raise ValueError("daily simulation requires daily forcing and a daily hydrology engine")
+        weather = load_weather({k: v for k, v in spec.items() if k not in ("engine", "forcing_step")}, path.parent)
+        if "engine" in spec and weather["model"]["WaterSystem"]["RainfallRunoff"] != "GWLF":
+            raise ValueError("gwlf_daily engine requires a GWLF native model")
+        unused = validate_bindings(weather, topology["routing_nodes"])
     # Both dates are operation days; hydrology may begin earlier for model warm-up.
-    first, last = data.get("start_date"), data.get("end_date")
-    for day in (first, last):
-        if not isinstance(day, str) or date.fromisoformat(day).isoformat() != day:
-            raise ValueError("operation dates must be quoted YYYY-MM-DD strings")
-    if not weather["dates"][0] <= first <= last <= weather["dates"][-1]:
-        raise ValueError("operation dates must lie inside the full native hydrology period")
-    # Both comparisons are inclusive, so the configured end date remains an operation day.
-    days = [d for d in weather["dates"] if first <= d <= last]
+    if hourly:
+        if "start_date" in data or "end_date" in data:
+            raise ValueError("hourly coupled simulations use start_time/end_time, end exclusive")
+        from .time_axis import TimeAxis
+        model_axis = TimeAxis.from_network(dict(schema_version="llm-reservoir-network.v3",
+            start_time=weather["dates"][0], dt_seconds=weather["dt_seconds"]))
+        bounds = []
+        for field in ("start_time", "end_time"):
+            if field not in data:
+                raise ValueError("hourly coupled simulation requires " + field)
+            selected = TimeAxis.from_network(dict(schema_version="llm-reservoir-network.v3",
+                start_time=data[field], dt_seconds=weather["dt_seconds"]))
+            if (selected.instant(0) - model_axis.instant(0)) % model_axis.delta:
+                raise ValueError("operation times must align with hourly forcing")
+            bounds.append(selected.instant(0))
+        left, right = bounds
+        if not model_axis.instant(0) <= left < right <= model_axis.instant(len(weather["dates"])):
+            raise ValueError("operation times must lie inside the complete hourly hydrology period")
+        first = model_axis.timestamp((left - model_axis.instant(0)) // model_axis.delta)
+        last = model_axis.timestamp((right - model_axis.instant(0)) // model_axis.delta)
+        if data["start_time"] != first or data["end_time"] != last:
+            raise ValueError("operation times must use canonical UTC timestamps")
+        days = [d for d in weather["dates"] if first <= d < last]
+    else:
+        if "start_time" in data or "end_time" in data:
+            raise ValueError("daily coupled simulations use start_date/end_date")
+        first, last = data.get("start_date"), data.get("end_date")
+        for day in (first, last):
+            if not isinstance(day, str) or date.fromisoformat(day).isoformat() != day:
+                raise ValueError("operation dates must be quoted YYYY-MM-DD strings")
+        if not weather["dates"][0] <= first <= last <= weather["dates"][-1]:
+            raise ValueError("operation dates must lie inside the full native hydrology period")
+        days = [d for d in weather["dates"] if first <= d <= last]
     files = {str(p): _sha(p) for p in (path, case_path, *weather["paths"].values())}
     files.update(section_pins)
     files.update({str(p): _sha(p) for p in (Path(__file__).resolve(),
-                                           Path(__file__).resolve().with_name("weather.py"))})
+                                           Path(__file__).resolve().with_name("weather.py"),
+                                           Path(__file__).resolve().with_name("time_config.py"))})
+    if hourly:
+        files[str(Path(__file__).resolve().with_name("interval_weather.py"))] = _sha(Path(__file__).with_name("interval_weather.py"))
     # Model-only code dependencies are pinned as well as the configuration/data.
     import hydrocnhs
     native_package = Path(hydrocnhs.__file__).resolve().parent
@@ -159,6 +207,13 @@ def load_coupled_settings(path, *, runtime_root=PROJECT_ROOT):
                            hydrology_end=weather["dates"][-1], unused_weather_units=unused,
                            source_files=dict(files), network_calls=0,
                            execution="prepare weather-derived boundaries; then daily native reservoir and downstream routing")
+    if time_settings is not None:
+        settings.report["time"] = time_settings
+    if hourly:
+        settings.report.update(start_time=first, end_time=last, dt_seconds=3600,
+            steps=settings.report.pop("days"), hydrology_steps=settings.report.pop("hydrology_days"),
+            execution="hourly GWLF-derived runoff and hourly catchment UHs; then fixed-step reservoir/network routing")
+        settings.report.pop("start_date"); settings.report.pop("end_date")
     return settings
 
 
@@ -176,9 +231,14 @@ def _hydrology_signature(settings):
     import importlib.metadata
     native = Path(hydrocnhs.__file__).resolve().parent
     paths = [*settings.weather["paths"].values(), Path(__file__), Path(__file__).with_name("weather.py"),
+              Path(__file__).with_name("time_config.py"),
              *native.rglob("*.py")]
+    if settings.weather.get("engine") == "gwlf_hourly":
+        paths.append(Path(__file__).with_name("interval_weather.py"))
     return canonical_sha256(dict(files={str(p.resolve()): _sha(p) for p in paths},
-                                 start=settings.data["start_date"], end=settings.data["end_date"],
+                                 start=settings.data.get("start_time", settings.data.get("start_date")),
+                                 end=settings.data.get("end_time", settings.data.get("end_date")),
+                                 simulation_step=settings.data.get("time", {}).get("simulation_step", "daily"),
                                  bindings=settings.weather["bindings"], zero=settings.weather["zero"],
                                  libraries={n: importlib.metadata.version(n) for n in ("numpy", "scipy")}))
 
@@ -194,10 +254,19 @@ def _reused_rows(settings):
     if (manifest.get("hydrology_signature") != _hydrology_signature(settings)
             or manifest.get("generated_files", {}).get("inflows.csv") != _sha(folder/"inflows.csv")):
         raise ValueError("reusable hydrology differs from current inputs, interval, bindings or runtime")
+    if settings.weather.get("engine") == "gwlf_hourly":
+        expected = {"inflows.csv", "case.json", "experiment.yaml", "hydrology.json",
+                    "hydrology_diagnostics.json", "hydrology_state.json", "hydrology_routing.json"}
+        if set(manifest.get("generated_files", {})) != expected:
+            raise ValueError("hourly reusable hydrology file index is incomplete")
+        for name, digest in manifest["generated_files"].items():
+            if _sha(folder/name) != digest:
+                raise ValueError("hourly reusable hydrology output checksum mismatch")
     daily = {}
     with (folder/"inflows.csv").open(encoding="utf-8", newline="") as handle:
         for row in csv.DictReader(handle):
-            flows = daily.setdefault(row["date"], {})
+            key = "timestamp" if settings.weather.get("engine") == "gwlf_hourly" else "date"
+            flows = daily.setdefault(row[key], {})
             if row["node"] in flows:
                 raise ValueError("duplicate reusable hydrology boundary")
             flows[row["node"]] = float(row["local_inflow_cms"])
@@ -211,14 +280,22 @@ def prepare_coupled(settings, *, runtime_root=PROJECT_ROOT):
     if folder.exists():
         raise FileExistsError("preparation output exists; reuse it with run or choose a new output")
     reused = "prepared_from" in current.data["hydrology"]
+    hourly = current.weather.get("engine") == "gwlf_hourly"
+    result = None
     if reused:
         rows, cache_pins = _reused_rows(current)
         current.files.update(cache_pins)
     else:
-        result = simulate_weather(current.weather, runtime_root)
+        if hourly:
+            from .interval_weather import simulate_interval_weather
+            result = simulate_interval_weather(current.weather, runtime_root)
+        else:
+            result = simulate_weather(current.weather, runtime_root)
         rows = []
         for t, day in enumerate(current.weather["dates"]):
-            if current.data["start_date"] <= day <= current.data["end_date"]:
+            selected = (current.data["start_time"] <= day < current.data["end_time"] if hourly else
+                        current.data["start_date"] <= day <= current.data["end_date"])
+            if selected:
                 flows = {}
                 for node, binding in current.weather["bindings"].items():
                     kind, source = next(iter(binding.items()))
@@ -226,17 +303,35 @@ def prepare_coupled(settings, *, runtime_root=PROJECT_ROOT):
                 rows.append((day, flows))
     folder.mkdir(parents=True, exist_ok=False)
     _compile(current, folder, rows)
-    hydrology = dict(start=current.weather["dates"][0], end=current.weather["dates"][-1],
+    if hourly:
+        hydrology = dict(start=current.weather["dates"][0], last_interval_start=current.weather["dates"][-1],
+            hydrology_steps=len(current.weather["dates"]), operation_steps=len(rows), dt_seconds=3600,
+            rainfall_runoff="GWLF-derived hourly prototype", routing="Explicit per-hour catchment UHs",
+            bindings=current.weather["bindings"], model_requests=0, daily_disaggregation=False,
+            calibration_performed=False, observational_validation=False, reused_preparation=reused,
+            initial_reservoir_storage="Explicit case value, separate from hydrological warm-up")
+    else:
+        hydrology = dict(start=current.weather["dates"][0], end=current.weather["dates"][-1],
                      hydrology_days=len(current.weather["dates"]), operation_days=len(rows),
                      rainfall_runoff=current.weather["model"]["WaterSystem"]["RainfallRunoff"],
                      routing="Lohmann", bindings=current.weather["bindings"], model_requests=0,
                      reused_preparation=reused,
                      initial_reservoir_storage="Explicit case value, separate from hydrological warm-up")
     _write(folder/"hydrology.json", hydrology)
+    generated = ["inflows.csv", "case.json", "experiment.yaml", "hydrology.json"]
+    if hourly:
+        for name, key in (("hydrology_diagnostics.json", "diagnostics"), ("hydrology_state.json", "states"),
+                          ("hydrology_routing.json", "routing_balance")):
+            if reused:
+                source = (current.path.parent / current.data["hydrology"]["prepared_from"]).resolve() / name
+                saved = read_json(source)
+            else:
+                saved = result[key]
+            _write(folder/name, saved)
+            generated.append(name)
     manifest = dict(schema_version="hydroops-weather-preparation.v1", source_files=current.files,
                     hydrology_signature=_hydrology_signature(current),
-                    plan=current.report, generated_files={n: _sha(folder/n) for n in
-                    ("inflows.csv", "case.json", "experiment.yaml", "hydrology.json")})
+                    plan=current.report, generated_files={n: _sha(folder/n) for n in generated})
     _write(folder/"preparation.json", manifest)
     return manifest
 
@@ -255,6 +350,8 @@ def prepared_experiment(settings):
     if manifest.get("source_files") != settings.files or manifest.get("plan") != settings.report:
         raise ValueError("prepared hydrology differs from current inputs; choose a new output")
     required = {"inflows.csv", "case.json", "experiment.yaml", "hydrology.json"}
+    if settings.weather.get("engine") == "gwlf_hourly":
+        required.update({"hydrology_diagnostics.json", "hydrology_state.json", "hydrology_routing.json"})
     if set(manifest.get("generated_files", {})) != required:
         raise ValueError("prepared hydrology file index is incomplete")
     for name, digest in manifest["generated_files"].items():

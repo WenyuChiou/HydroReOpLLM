@@ -1,0 +1,28 @@
+schema_version: hydroops-coupled-simulation.v2
+run_id: time-scale-hourly
+output: ../../runs/time-scale-hourly
+case: hourly_reservoir.yaml
+start_time: '2020-02-28T00:00:00Z'
+end_time: '2020-03-03T00:00:00Z'
+max_calls: 0
+time:
+  simulation_step: hourly
+  output_step: monthly
+hydrology:
+  engine: gwlf_hourly
+  forcing_step: hourly
+  model: hourly_hydrology.yaml
+  forcing: hourly_forcing.csv
+  inflow_bindings:
+    I:
+      routed: basin
+    Outlet:
+      constant: 0
+agents:
+  fixture:
+    reservoir: R
+    mode: offline
+    release_cms: 2.0
+    prompt:
+      user: ../fixed_interval/prompt.txt
+    history_steps: 7

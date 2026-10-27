@@ -523,7 +523,16 @@ def verify_run(output, *, require_offline=False, expected_audit_suites=None):
                     _check(snapshot is None, "information leaked to an unbound reservoir")
     extra = summary.get("additional_output_files", {})
     checks = experiment.get("outcome_checks", {})
-    _check(set(extra) == ({"outcome_audit.jsonl"} if checks else set()), "additional output coverage mismatch")
+    from .time_config import validate_time_settings, temporal_tables, temporal_csv_bytes
+    time_settings = validate_time_settings(experiment.get("time"), config, allow_absent="time" not in experiment)
+    _check(summary.get("time") == time_settings, "summary time configuration mismatch")
+    tables = temporal_tables(output, clock, time_settings)
+    _check(set(extra) == ({"outcome_audit.jsonl"} if checks else set()) | set(tables),
+           "additional output coverage mismatch")
+    for name, table in tables.items():
+        raw = inside(output, name).read_bytes()
+        _check(hashlib.sha256(raw).hexdigest() == extra[name], "temporal output hash mismatch")
+        _check(raw == temporal_csv_bytes(table), "temporal output differs from native interval data")
     if checks:
         from .outcome import evaluate_outcomes
         raw = inside(output, "outcome_audit.jsonl").read_bytes()

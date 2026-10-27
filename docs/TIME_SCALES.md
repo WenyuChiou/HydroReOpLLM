@@ -11,7 +11,8 @@ operation host with the same reservoir agent and physical kernel.
 |---|---|---|
 | `llm-reservoir-network.v1` / `.v2` | Consecutive `YYYY-MM-DD`, 86400 seconds | Existing native daily HydroCNHS operation and routing |
 | `llm-reservoir-network.v3` | Timezone-aware start, fixed positive whole seconds | Supplied interval mean local inflows and routing weights resolved at that step |
-| Weather/GWLF preparation | Daily | Existing daily meteorology and hydrological parameter semantics |
+| Native weather/GWLF preparation | Daily | Existing daily meteorology and hydrological parameter semantics |
+| [Hourly GWLF-derived preparation](YAML_TIME_SCALES.md) | Hourly | Explicit hourly forcing, initial stores and catchment routing; empirical validation remains required |
 
 The v3 host does **not** turn a daily GWLF model, calibrated daily parameters or
 daily unit hydrographs into an hourly hydrological model. Obtain and verify
@@ -147,3 +148,9 @@ clock from the saved source configuration and checks timestamps, volumes and
 routing rather than trusting the reported duration. A verification PASS is an
 engineering result; it is not proof of operating-rule compliance or improved
 streamflow skill.
+
+## Coupled YAML hydrology and output resolution
+
+The YAML entry now selects daily/hourly hydrology and optional daily/monthly
+output aggregation. See [YAML time-scale settings](YAML_TIME_SCALES.md) for the
+validated input contracts, examples and retained native output evidence.
