@@ -1,8 +1,9 @@
 # Hourly GWLF-derived runoff
 
 The experimental `run_GWLF_hourly` API computes runoff from interval climate
-forcing. It does **not** redistribute a saved daily flow curve. The original
-`run_GWLF` daily function and all pinned HydroCNHS source files are unchanged.
+forcing. It does **not** redistribute a saved daily flow curve. The daily
+`run_GWLF` retains its original default arithmetic and restart fields; explicit
+groundwater initialization and optional diagnostics are documented local extensions.
 
 ```python
 from hydrocnhs.rainfall_runoff_model.gwlf_hourly import run_GWLF_hourly
@@ -36,7 +37,7 @@ temperature source and be aligned to the forcing intervals.
 |---|---|
 | Area | Catchment area, ha; outflow is converted to interval-mean m³/s |
 | S0, U0, SnowS | Initial shallow groundwater, unsaturated and snow storage, cm |
-| B0 | Explicit initial deep groundwater storage, cm; required for a cold start |
+| B0 / BF0 | Exactly one: explicit deep storage in cm, or legacy reference-day baseflow in cm/day |
 | Res, Sep | Competing daily shallow-storage loss fractions; nonnegative sum below 1 |
 | Alpha | Daily-reference deep-reservoir decay exponent |
 | Beta | Dimensionless fraction of seepage lost below the modeled system |
@@ -51,10 +52,11 @@ streamflow and seepage in the original Res:Sep ratio. This preserves dry-day
 survival and partition under changes of step length. Recharge enters an explicit
 deep reservoir, whose step outflow fraction is `1-exp(-Alpha*h)`.
 
-The original daily baseflow recurrence does not expose deep storage. An original
-daily `BFt` value is a discharge depth and cannot be inserted as `B0` or passed
-as the new restart state. The user must supply B0 or establish it through an
-adequate, separately documented spinup. A missing antecedent history is recorded
+The original daily baseflow recurrence does not expose deep storage. A daily
+`BFt` value is a discharge depth and cannot be inserted directly as `B0` or used
+as an hourly restart dictionary. The explicit boundary-state conversion and its
+limits are described in [GWLF groundwater initialization](GWLF_GROUNDWATER.md).
+A missing antecedent history is recorded
 as a zero-filled cold start; this is not evidence of dry conditions in the field.
 The 72-hour operations warmup used by an event experiment does not establish
 equilibration of soil or groundwater stores.

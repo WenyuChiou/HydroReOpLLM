@@ -442,6 +442,9 @@ def test_zero_sep_produces_exactly_zero_deep_flux_and_storage(dt):
     assert_mass_closure(cms, state, rows, inputs, dt)
 
 
-def test_daily_gwlf_source_bytes_are_unchanged():
+def test_daily_gwlf_local_extension_preserves_upstream_provenance():
     source = ROOT / "src/hydrocnhs/rainfall_runoff_model/gwlf.py"
-    assert hashlib.sha256(source.read_bytes()).hexdigest() == LEGACY_GWLF_SHA256
+    entry = json.loads((ROOT / "third_party/hydrocnhs/SOURCE.json").read_text())["files"][
+        "src/hydrocnhs/rainfall_runoff_model/gwlf.py"]
+    assert entry["upstream_sha256"] == LEGACY_GWLF_SHA256
+    assert hashlib.sha256(source.read_bytes()).hexdigest() == entry["sha256"]

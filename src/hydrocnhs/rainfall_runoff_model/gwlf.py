@@ -52,6 +52,10 @@ def run_GWLF(pars, inputs, temp, prec, pet, monthly_Tavg, vars=None, **kwargs):
         [cms] Discharge
     """
     # ----- Setup  -------------------------------------------------------------
+    diagnostics = kwargs.get("diagnostics")
+    if diagnostics is not None and not isinstance(diagnostics, list):
+        raise ValueError("diagnostics must be a list or None")
+    records = []
     sim_length = len(prec)
     # Pars
     CN2 = pars["CN2"]  # Curve number
@@ -84,11 +88,26 @@ def run_GWLF(pars, inputs, temp, prec, pet, monthly_Tavg, vars=None, **kwargs):
         Ut = vars["Ut"]
         SnowSt = vars["SnowSt"]
         AnteMois = vars["AnteMois"]
+    if vars is None and ("B0" in inputs or "BF0" in inputs):
+        from .groundwater import initialize_groundwater
+        BFt = initialize_groundwater(pars, inputs, scale="daily")["daily_baseflow_cm_per_day"]
+    if diagnostics is not None:
+        from .groundwater import daily_baseflow_to_storage, initialize_groundwater, validate_daily_diagnostics
+        validate_daily_diagnostics(pars, inputs,
+            dict(temp=temp, prec=prec, pet=pet, monthly_Tavg=monthly_Tavg),
+            dict(BFt=BFt, St=St, Ut=Ut, SnowSt=SnowSt))
+        if vars is None:
+            initialize_groundwater(pars, inputs, scale="daily")
+        elif not np.isfinite(Alpha) or Alpha < 0:
+            raise ValueError("diagnostic Alpha must be finite and nonnegative")
     # --------------------------------------------------------------------------
 
     # ----- Loop through all days (Python for loop ending needs +1) ------------
     CMS = np.empty(sim_length)  # Create a 1D array to store results
     for i in range(sim_length):
+        if diagnostics is not None:
+            start_u, start_s, start_snow = Ut, St, SnowSt
+            start_b = daily_baseflow_to_storage(BFt, Alpha) if Alpha > 0 else None
         # Determine the am1 and am2 values based on growing season for CN
         # calculation. Growing season (mean monthly temperature > 10 deg C).
         if monthly_Tavg[i] > 10:  # monthly_Tavg in a daily format
@@ -178,9 +197,31 @@ def run_GWLF(pars, inputs, temp, prec, pet, monthly_Tavg, vars=None, **kwargs):
         # Change unit to cms (m^3/sec)-----------------------------------------
         # Area [ha]
         CMS[i] = (SF * 0.01 * inputs["Area"] * 10000) / 86400
+        if diagnostics is not None:
+            end_b = daily_baseflow_to_storage(BFt, Alpha) if Alpha > 0 else None
+            status = "COMPUTABLE" if start_b is not None else "UNAVAILABLE_ZERO_ALPHA"
+            total_start = float(start_u + start_s + start_b + start_snow) if start_b is not None else None
+            total_end = float(Ut + St + end_b + SnowSt) if end_b is not None else None
+            residual = (total_start + prec[i] - total_end - SF - Et - Dset) * inputs["Area"] * 100 if total_start is not None else None
+            records.append(dict(
+                step=i, dt_seconds=86400, precipitation_cm=float(prec[i]),
+                rain_cm=float(Rt), melt_cm=float(Mt), quickflow_cm=float(Qt),
+                shallow_flow_cm=float(Gt), seepage_cm=float(Dt),
+                baseflow_cm=float(BFt), deep_recharge_cm=float(Ret),
+                actual_et_cm=float(Et), deep_loss_cm=float(Dset), percolation_cm=float(PCt),
+                U_start_cm=float(start_u), U_end_cm=float(Ut),
+                S_start_cm=float(start_s), S_end_cm=float(St),
+                B_start_cm=start_b, B_end_cm=end_b,
+                snow_start_cm=float(start_snow), snow_end_cm=float(SnowSt),
+                storage_start_cm=total_start, storage_end_cm=total_end,
+                mass_balance_residual_m3=float(residual) if residual is not None else None,
+                mass_balance_status=status, cn=float(CN), initial_abstraction_cm=float(IS * DSkt),
+            ))
         # ----------------------------------------------------------------------
     # return the result array
     vars = {"BFt": BFt, "St": St, "Ut": Ut, "SnowSt": SnowSt, "AnteMois": AnteMois}
+    if diagnostics is not None:
+        diagnostics.extend(records)
     return CMS, vars
 
 

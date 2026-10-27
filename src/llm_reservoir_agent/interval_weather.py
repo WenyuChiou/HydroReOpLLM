@@ -23,7 +23,7 @@ from hydrocnhs.rainfall_runoff_model.gwlf_hourly import (
 
 _DT = 3600
 _PARAMETERS = {"CN2", "IS", "Res", "Sep", "Alpha", "Beta", "Ur", "Kc", "Df"}
-_INITIAL = {"Area", "S0", "U0", "SnowS", "B0", "AnteMoisHourly"}
+_INITIAL = {"Area", "S0", "U0", "SnowS", "B0", "BF0", "AnteMoisHourly"}
 _COLUMNS = ("timestamp", "subbasin_id", "precipitation_mm", "temperature_c",
             "pet_cm", "seasonal_temperature_c")
 
@@ -78,7 +78,7 @@ def _validate_model(model):
                  f"catchment {unit}", required={"parameters", "initial", "routing"})
         _mapping(config["parameters"], _PARAMETERS, f"{unit}.parameters", required=_PARAMETERS)
         _mapping(config["initial"], _INITIAL, f"{unit}.initial",
-                 required=_INITIAL - {"AnteMoisHourly"})
+                 required=_INITIAL - {"AnteMoisHourly", "B0", "BF0"})
         # Use the same validation as the kernel without advancing any water state.
         p, _, gap, fingerprint = _configuration(
             config["parameters"], config["initial"], _DT, config.get("dry_gap_hours", 24))
@@ -151,10 +151,14 @@ def load_interval_weather(spec, base):
         raise ValueError("hourly forcing must cover every model timestamp for every catchment")
     gaps = {u: float(model["catchments"][u].get("dry_gap_hours", 24)) for u in units}
     encoded_gaps = json.dumps(gaps, sort_keys=True, allow_nan=False, separators=(",", ":"))
+    from hydrocnhs.rainfall_runoff_model.groundwater import initialize_groundwater
+    initialization = {u: initialize_groundwater(model["catchments"][u]["parameters"],
+                      model["catchments"][u]["initial"], scale="hourly") for u in units}
     return dict(model=model, dates=dates, units=units, zero=[], samples=samples,
                 paths=paths, bindings=spec["inflow_bindings"], dt_seconds=_DT,
                 model_dt_seconds=model["dt_seconds"], engine="gwlf_hourly",
-                dry_gap_sha256=hashlib.sha256(encoded_gaps.encode()).hexdigest())
+                dry_gap_sha256=hashlib.sha256(encoded_gaps.encode()).hexdigest(),
+                groundwater_initialization=initialization)
 
 
 def validate_interval_bindings(weather, routing_nodes):

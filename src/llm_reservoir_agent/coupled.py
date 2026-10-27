@@ -240,7 +240,17 @@ def _hydrology_signature(settings):
                                  end=settings.data.get("end_time", settings.data.get("end_date")),
                                  simulation_step=settings.data.get("time", {}).get("simulation_step", "daily"),
                                  bindings=settings.weather["bindings"], zero=settings.weather["zero"],
+                                  diagnostics=settings.weather.get("diagnostics", False),
                                  libraries={n: importlib.metadata.version(n) for n in ("numpy", "scipy")}))
+
+
+def _hydrology_sidecars(settings):
+    if settings.weather.get("engine") == "gwlf_hourly":
+        return {"hydrology_diagnostics.json": "diagnostics", "hydrology_state.json": "states",
+                "hydrology_routing.json": "routing_balance"}
+    if settings.weather.get("diagnostics"):
+        return {"hydrology_diagnostics.json": "diagnostics", "hydrology_state.json": "states"}
+    return {}
 
 
 def _reused_rows(settings):
@@ -254,14 +264,12 @@ def _reused_rows(settings):
     if (manifest.get("hydrology_signature") != _hydrology_signature(settings)
             or manifest.get("generated_files", {}).get("inflows.csv") != _sha(folder/"inflows.csv")):
         raise ValueError("reusable hydrology differs from current inputs, interval, bindings or runtime")
-    if settings.weather.get("engine") == "gwlf_hourly":
-        expected = {"inflows.csv", "case.json", "experiment.yaml", "hydrology.json",
-                    "hydrology_diagnostics.json", "hydrology_state.json", "hydrology_routing.json"}
-        if set(manifest.get("generated_files", {})) != expected:
-            raise ValueError("hourly reusable hydrology file index is incomplete")
-        for name, digest in manifest["generated_files"].items():
-            if _sha(folder/name) != digest:
-                raise ValueError("hourly reusable hydrology output checksum mismatch")
+    expected = {"inflows.csv", "case.json", "experiment.yaml", "hydrology.json", *_hydrology_sidecars(settings)}
+    if set(manifest.get("generated_files", {})) != expected:
+        raise ValueError("reusable hydrology file index is incomplete")
+    for name, digest in manifest["generated_files"].items():
+        if _sha(folder/name) != digest:
+            raise ValueError("reusable hydrology output checksum mismatch")
     daily = {}
     with (folder/"inflows.csv").open(encoding="utf-8", newline="") as handle:
         for row in csv.DictReader(handle):
@@ -317,18 +325,18 @@ def prepare_coupled(settings, *, runtime_root=PROJECT_ROOT):
                      routing="Lohmann", bindings=current.weather["bindings"], model_requests=0,
                      reused_preparation=reused,
                      initial_reservoir_storage="Explicit case value, separate from hydrological warm-up")
+    if current.weather.get("groundwater_initialization"):
+        hydrology["groundwater_initialization"] = current.weather["groundwater_initialization"]
     _write(folder/"hydrology.json", hydrology)
     generated = ["inflows.csv", "case.json", "experiment.yaml", "hydrology.json"]
-    if hourly:
-        for name, key in (("hydrology_diagnostics.json", "diagnostics"), ("hydrology_state.json", "states"),
-                          ("hydrology_routing.json", "routing_balance")):
-            if reused:
-                source = (current.path.parent / current.data["hydrology"]["prepared_from"]).resolve() / name
-                saved = read_json(source)
-            else:
-                saved = result[key]
-            _write(folder/name, saved)
-            generated.append(name)
+    for name, key in _hydrology_sidecars(current).items():
+        if reused:
+            source = (current.path.parent / current.data["hydrology"]["prepared_from"]).resolve() / name
+            saved = read_json(source)
+        else:
+            saved = result[key]
+        _write(folder/name, saved)
+        generated.append(name)
     manifest = dict(schema_version="hydroops-weather-preparation.v1", source_files=current.files,
                     hydrology_signature=_hydrology_signature(current),
                     plan=current.report, generated_files={n: _sha(folder/n) for n in generated})
@@ -350,8 +358,7 @@ def prepared_experiment(settings):
     if manifest.get("source_files") != settings.files or manifest.get("plan") != settings.report:
         raise ValueError("prepared hydrology differs from current inputs; choose a new output")
     required = {"inflows.csv", "case.json", "experiment.yaml", "hydrology.json"}
-    if settings.weather.get("engine") == "gwlf_hourly":
-        required.update({"hydrology_diagnostics.json", "hydrology_state.json", "hydrology_routing.json"})
+    required.update(_hydrology_sidecars(settings))
     if set(manifest.get("generated_files", {})) != required:
         raise ValueError("prepared hydrology file index is incomplete")
     for name, digest in manifest["generated_files"].items():

@@ -4,7 +4,7 @@
   "files": [
     {
       "path": "hydrocnhs.py",
-      "normalized_sha256": "cad2ff1c33424716b1a72d315b38d12946a8c494e68b18f2f41838cb9814e2d7"
+      "normalized_sha256": "30818c8c6a29a54d05c13f4f1c1aca029a041bf26cf3fd7bc0614bc3ea53c44f"
     },
     {
       "path": "routing.py",
@@ -22,5 +22,8 @@
       "path": "data_collector.py",
       "normalized_sha256": "cccd72962d75a60880125e380623e6094a14abd2f696c35b5ef280c416569f9f"
     }
+  ],
+  "local_extensions": [
+    "gwlf-groundwater-diagnostics.v1"
   ]
 }

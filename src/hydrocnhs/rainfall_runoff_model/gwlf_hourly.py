@@ -1,6 +1,6 @@
 """Experimental GWLF-derived hourly runoff with explicit water storage.
 
-The pinned daily :mod:`gwlf` and daily HydroCNHS ``Model.run`` are unchanged.
+The daily :mod:`gwlf` default numerical behavior is preserved.
 This separate kernel uses event-cumulative SCS-CN excess, a physical five-day
 antecedent window and daily-reference rate parameters. It is not an empirically
 validated hourly GWLF model. See ``docs/HOURLY_GWLF.md`` before scientific use.
@@ -15,6 +15,8 @@ import math
 from collections.abc import Mapping
 
 import numpy as np
+
+from .groundwater import initialize_groundwater
 
 
 MODEL_VERSION = "gwlf-hourly-event-cn.v1"
@@ -112,7 +114,7 @@ def _excess(depth, cn, abstraction_fraction):
 def _state(inputs, previous, dt, gap, fingerprint, p):
     count = _WINDOW // dt
     if previous is None:
-        for key in ("S0", "U0", "SnowS", "B0"):
+        for key in ("S0", "U0", "SnowS"):
             if key not in inputs:
                 raise ValueError(f"initial hourly inputs require explicit {key}")
         history = inputs.get("AnteMoisHourly")
@@ -125,7 +127,7 @@ def _state(inputs, previous, dt, gap, fingerprint, p):
             dt_seconds=dt, configuration_sha256=fingerprint, steps_completed=0,
             U=_number(inputs["U0"], "U0", minimum=0),
             S=_number(inputs["S0"], "S0", minimum=0),
-            B=_number(inputs["B0"], "B0", minimum=0),
+            B=initialize_groundwater(p, inputs, scale="hourly")["deep_storage_cm"],
             snow=_number(inputs["SnowS"], "SnowS", minimum=0),
             liquid_history_cm=history,
             history_initialization="provided" if supplied else "zero-filled",
@@ -181,8 +183,9 @@ def run_GWLF_hourly(pars, inputs, temp, prec, pet, monthly_Tavg, vars=None, *,
     """Run experimental hourly GWLF, returning interval mean cms and restart state.
 
     ``prec``/``pet`` are cm per interval, not daily totals or rates. Parameters
-    retain daily reference units. ``inputs['B0']`` explicitly supplies deep
-    storage in cm. Optional diagnostics receive one water-balance record per
+    retain daily reference units. ``inputs['B0']`` supplies deep storage in cm;
+    alternatively BF0 supplies legacy reference-day baseflow. Diagnostics
+    receive one water-balance record per
     interval only after complete input validation. The caller owns the clock
     and must supply aligned, continuous forcing and seasonal temperatures.
     """
@@ -270,6 +273,13 @@ def run_GWLF_hourly(pars, inputs, temp, prec, pet, monthly_Tavg, vars=None, *,
             baseflow_cm=baseflow, actual_et_cm=actual_et, deep_loss_cm=deep_loss,
             percolation_cm=percolation, storage_start_cm=initial_storage,
             storage_end_cm=final_storage, mass_balance_residual_m3=residual,
+            U_start_cm=state["U"], U_end_cm=u,
+            S_start_cm=state["S"], S_end_cm=shallow,
+            B_start_cm=state["B"], B_end_cm=deep,
+            snow_start_cm=state["snow"], snow_end_cm=snow,
+            deep_recharge_cm=seepage-deep_loss, mass_balance_status="COMPUTABLE",
+            initial_abstraction_cm=(p["IS"] * max(0.0, 2540 / event["cn"] - 25.4)
+                                    if event["cn"] is not None else None),
             cn=event["cn"], event_input_cm=event["input_cm"],
             event_runoff_cm=event["runoff_cm"], runoff_roundoff_adjustment_cm=adjustment,
         ))

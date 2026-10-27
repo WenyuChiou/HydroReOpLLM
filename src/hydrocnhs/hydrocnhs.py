@@ -433,7 +433,8 @@ class Model(object):
             "Loaded weather data with total length {}.".format(self.data_length)
         )
 
-    def run(self, temp, prec, pet=None, assigned_Q={}, assigned_UH={}, disable=False):
+    def run(self, temp, prec, pet=None, assigned_Q={}, assigned_UH={}, disable=False,
+            *, runoff_diagnostics=None):
         """Run HydroCNHS simulation.
 
         Parameters
@@ -453,6 +454,9 @@ class Model(object):
             {"outlet": array}, by default {}.
         disable : bool, optional
             Disable display progress bar, by default False.
+        runoff_diagnostics : dict, optional
+            Empty output dictionary for GWLF per-unit records and final legacy
+            restart state. Collected through worker results, including joblib.
 
         Returns
         -------
@@ -467,6 +471,11 @@ class Model(object):
         paral_setting = self.paral_setting
         sim_sediment = self.sim_sediment
         ws = self.ws
+        if runoff_diagnostics is not None:
+            if not isinstance(runoff_diagnostics, dict) or runoff_diagnostics:
+                raise ValueError("runoff_diagnostics must be an empty dictionary or None")
+            if ws["RainfallRunoff"] != "GWLF":
+                raise ValueError("runoff_diagnostics currently supports GWLF only")
         # Setting
         runoff = self.runoff
         routing = self.routing
@@ -517,6 +526,9 @@ class Model(object):
         }  # Record vars for continuous run of rr.
         if ws["RainfallRunoff"] == "GWLF":
             runoff_func = run_GWLF
+            if runoff_diagnostics is not None:
+                from .rainfall_runoff_model.groundwater import daily_with_diagnostics
+                runoff_func = daily_with_diagnostics
             logger.info("Set rainfall-runoff to GWLF.")
             # Pre-calculate MonthlyTavg.
             MonthlyTavg = DataFrame(temp, index=pd_date_index)
@@ -585,6 +597,13 @@ class Model(object):
                 Q_runoff[sb][s:l] = QParel[i][0]
                 Q_routed[sb][s:l] = QParel[i][0]
                 runoff_vars[sb] = QParel[i][1]
+                if runoff_diagnostics is not None:
+                    records = deepcopy(QParel[i][2])
+                    for record in records:
+                        record["step"] += s
+                    entry = runoff_diagnostics.setdefault(sb, {"records": [], "final_state": None})
+                    entry["records"].extend(records)
+                    entry["final_state"] = deepcopy(QParel[i][1])
             logger.info("\nComputed rainfall-runoffs for {} time steps.".format(l))
             return None
 

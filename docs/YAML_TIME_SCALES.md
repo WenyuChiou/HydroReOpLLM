@@ -46,7 +46,7 @@ hydrology:
 The hourly model uses `schema_version: hourly-gwlf-model.v1`, an explicit UTC
 `start_time`, `dt_seconds: 3600`, a positive `steps` count and a `catchments`
 mapping. Each catchment declares its nine GWLF parameters, initial stores
-(including deep groundwater `B0`), and `routing` with `dt_seconds: 3600` and
+(including either deep groundwater `B0` or legacy daily baseflow `BF0`), and `routing` with `dt_seconds: 3600` and
 normalized `unit_hydrograph` weights. These weights represent hourly intervals;
 the driver never renames daily UH bins or normalizes an invalid UH silently.
 The default 24-hour event dry gap is an experimental assumption, not a
@@ -70,6 +70,9 @@ For daily runs, optional `engine: gwlf_daily` and `forcing_step: daily` make the
 intended driver explicit. `gwlf_daily` requires a GWLF native model. Without an
 explicit engine, the existing daily GWLF/ABCD configuration remains supported.
 Daily forcing continues to use `date,subbasin_id,precipitation_mm,temperature_c,pet_cm`.
+Daily GWLF can opt into `hydrology.diagnostics: true`; see
+[groundwater initialization and diagnostics](GWLF_GROUNDWATER.md) for BF0/B0
+units, the conversion boundary, legacy defaults and saved diagnostic fields.
 
 ## Derived outputs and verification
 
