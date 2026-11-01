@@ -131,14 +131,18 @@ def load_settings(path, *, runtime_root=PROJECT_ROOT, information_providers=None
     original_case = json.loads(case.read_bytes())
     start = data.get("start_date", rows[0]["date"])
     end = data.get("end_date", rows[-1]["date"])
-    for value in (start, end):
-        if not isinstance(value, str) or date.fromisoformat(value).isoformat() != value:
-            raise ValueError("dates must be quoted canonical YYYY-MM-DD strings")
-    if start > end or start < rows[0]["date"] or end > rows[-1]["date"]:
+    topology, _ = validate_inflows(network, rows)
+    operation_clock = topology["clock"]
+    labels = [operation_clock.label(t) for t in range(len(rows))]
+    start, end = operation_clock.normalize(start), operation_clock.normalize(end)
+    if start not in labels or end not in labels or labels.index(start) > labels.index(end):
         raise ValueError("run dates must be inside the case's consecutive inflow interval")
-    rows = [r for r in rows if start <= r["date"] <= end]
+    # Inclusive interval starts, selected by fixed-step index, never text/offset order.
+    rows = rows[labels.index(start):labels.index(end)+1]
+    rows = [dict(r, date=operation_clock.normalize(r["date"])) for r in rows]
     network["start_date"] = start
     topology, _ = validate_inflows(network, rows)
+    operation_clock = topology["clock"]
     catalog = None
     sources, profiles = data.get("information_sources", {}), data.get("information_profiles", {})
     if "information_sources" in data or "information_profiles" in data:
@@ -373,7 +377,8 @@ def load_settings(path, *, runtime_root=PROJECT_ROOT, information_providers=None
         raise ValueError("max_calls must be an integer covering planned requests, or explicit null for no total cap")
     readiness = original_case.get("live_readiness", {})
     report = dict(schema_version="llm-reservoir-plan.v1", run_id=data["run_id"], case=str(case),
-                  case_root=str(case_root), output=str(output), days=len(rows), start_date=start, end_date=end,
+                  case_root=str(case_root), output=str(output), days=len(rows)*operation_clock.dt_seconds/86400,
+                  **operation_clock.metadata(len(rows)), start_date=start, end_date=end,
                   agent_count=len(agents), llm_agent_count=llm_count, model_profile_count=len(models),
                   passive_reservoir_count=len(network["reservoirs"]) - len(controlled),
                   agent_reservoirs={i:a["reservoir"] for i,a in agents.items()},
@@ -409,7 +414,7 @@ def load_settings(path, *, runtime_root=PROJECT_ROOT, information_providers=None
                                                       runtime_root=runtime_root)
             continue
         physical = network["reservoirs"][agent["reservoir"]]["physical"]
-        observation = ReservoirObservation(0, start + "T00:00:00", 0.0,
+        observation = ReservoirObservation(0, topology["clock"].at(0).isoformat(), 0.0,
             physical["maximum_release_cms"], state={"storage_m3": physical["initial_storage_m3"]},
             context={"decision_information": {"preview": True}} if "information" in agent else {})
         backend = ConfiguredBackend(agent_id=identifier, mode=agent["mode"], prompt_spec=agent["prompt"],

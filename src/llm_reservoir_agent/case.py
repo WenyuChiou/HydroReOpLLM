@@ -14,6 +14,7 @@ from pathlib import Path
 
 from .contracts import finite_nonnegative, parse_action
 from .network import PROJECT_ROOT, validate_inflows
+from .timebase import StepClock
 
 CFS_TO_CMS = 0.028316846592
 HYDROCNHS_COMMIT = "fdd5097a3fcabb312c6c3739efc71da2d67c47da"
@@ -52,7 +53,8 @@ def load_case(path, *, project_root=PROJECT_ROOT):
             if case.get("data_kind") not in ("simulated_local_inflow", "observed_local_inflow", "synthetic_fixture"):
                 raise ValueError("network case must declare its inflow data_kind")
             source_spec = case["inflow_source"]
-            if set(source_spec) != {"path", "sha256", "format"} or source_spec["format"] != "daily-node-local-cms.v1":
+            if (set(source_spec) != {"path", "sha256", "format"} or source_spec["format"] not in
+                    ("daily-node-local-cms.v1", "step-node-local-cms.v1")):
                 raise ValueError("unsupported network inflow source")
             source = inside(project_root, path.parent / source_spec["path"])
             if hashlib.sha256(source.read_bytes()).hexdigest() != source_spec["sha256"]:
@@ -122,7 +124,10 @@ def load_case(path, *, project_root=PROJECT_ROOT):
                                   case["inflow_csv"]: case["inflow_sha256"]}
     else:
         raise ValueError("unsupported reservoir case schema")
-    validate_inflows(config, rows)
+    topology, _ = validate_inflows(config, rows)
+    if (case.get("inflow_source", {}).get("format") == "daily-node-local-cms.v1"
+            and topology["dt_seconds"] != 86400):
+        raise ValueError("daily inflow format requires a daily timestep; use step-node-local-cms.v1")
     return config, rows
 
 
@@ -159,7 +164,8 @@ class RecordedResponseBackend:
 
     def decide(self, observation):
         record = self.records[observation["timestep"]]
-        if record["date"] != observation["timestamp"][:10]:
+        clock = StepClock(record["date"], observation["state"]["dt_seconds"])
+        if clock.normalize(record["date"]) != clock.normalize(observation["timestamp"]):
             raise ValueError("response date differs from the observation")
         self.latest_audit = record["audit"]
         self.latest_trace = record["raw"]

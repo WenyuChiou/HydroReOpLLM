@@ -1,10 +1,10 @@
-"""Daily native HydroCNHS routing for a configured reservoir DAG.
+"""Fixed-step native HydroCNHS assigned-inflow routing for a reservoir DAG.
 
 Natural local inflows are assigned unchanged. Reservoir decisions change routed
 downstream inflows. Supplied unit hydrographs are explicit fixtures unless the
 caller provides separately verified routing parameters and provenance.
 
-Role: Connect reservoir operations through native daily river routing.
+Role: Connect configured reservoir operations through step-indexed river routing.
 
 Connections and data: experiment supplies incremental local inflow in m3/s and one
 backend per controlled reservoir. Builds native Dam links, runs the host and checks
@@ -21,6 +21,7 @@ from pathlib import Path
 
 from .contracts import finite_nonnegative, _json_mapping_copy
 from .physics import PhysicalConfig
+from .timebase import StepClock
 from .policy_adapter import validate_isolated_backends
 from .passive import PassiveOutlet, complete_backends
 from .balance import network_balance
@@ -43,9 +44,6 @@ def validate_network(config):
         outlets = config.get("outlets")
         if not isinstance(outlets, list) or not outlets:
             raise ValueError("v2 reservoir networks require a non-empty outlets list")
-    start = date.fromisoformat(config["start_date"])
-    if start.isoformat() != config["start_date"]:
-        raise ValueError("start_date must be canonical YYYY-MM-DD")
     if "case_id" in config and (not isinstance(config["case_id"], str) or not config["case_id"].strip()):
         raise ValueError("case_id must be a non-empty string")
     reservoirs = config.get("reservoirs")
@@ -54,13 +52,13 @@ def validate_network(config):
     names = list(reservoirs)
     inlets = []
     physical_ids = []
+    intervals = []
     for name, settings in reservoirs.items():
         if not isinstance(settings, Mapping):
             raise ValueError("reservoir settings must be mappings")
         inlets.append(settings.get("inflow_node"))
         physical = PhysicalConfig(**dict(settings["physical"]))
-        if physical.dt_seconds != 86400:
-            raise ValueError("only daily timesteps are supported")
+        intervals.append(physical.dt_seconds)
         physical_ids.append(physical.reservoir_id)
         mode = settings.get("operation_mode", "controlled")
         if mode not in ("controlled", "passive_outlet"):
@@ -76,6 +74,10 @@ def validate_network(config):
                 _json_mapping_copy(settings[field], field)
         if set(settings.get("context", {})) & {"reservoir_id", "evaporation_m3", "seepage_m3", "case_id", "location"}:
             raise ValueError("reservoir context cannot override host identity or physical assumptions")
+    if len(set(intervals)) != 1:
+        raise ValueError("all reservoirs must use the same timestep")
+    clock = StepClock(config["start_date"], intervals[0])
+    start = clock.start
     junctions = config.get("junctions", [])
     if not isinstance(junctions, list):
         raise ValueError("junctions must be a list")
@@ -99,8 +101,12 @@ def validate_network(config):
     fractions = {}
     pairs = set()
     for edge in connections:
-        if not isinstance(edge, Mapping) or set(edge).difference({"source", "target", "fraction", "unit_hydrograph"}):
+        if not isinstance(edge, Mapping) or set(edge).difference({"source", "target", "fraction", "unit_hydrograph", "unit_hydrograph_dt_seconds"}):
             raise ValueError("unsupported routing connection fields")
+        if "unit_hydrograph_dt_seconds" in edge:
+            declared = finite_nonnegative(edge["unit_hydrograph_dt_seconds"], "unit hydrograph timestep")
+            if declared != clock.dt_seconds:
+                raise ValueError("unit hydrograph timestep must match the network timestep; resample externally")
         source, target = edge.get("source"), edge.get("target")
         if source not in names + junctions or target not in routing_nodes or source == target or source in outlets:
             raise ValueError("connections route reservoir/junction outputs into an inlet, junction or outlet")
@@ -170,28 +176,34 @@ def validate_network(config):
                            "reservoirs": component_reservoirs, "outlets": component_outlets})
     return {"reservoirs": reservoirs, "routing_nodes": routing_nodes, "nodes": nodes,
             "edges": edges, "adjacency": adjacency, "sequence": sequence, "start": start,
-            "outlets": outlets, "components": components}
+            "outlets": outlets, "components": components, "clock": clock, "dt_seconds": clock.dt_seconds}
 
 
 def validate_inflows(config, rows):
     topology = validate_network(config)
     if isinstance(rows, (str, bytes)) or not isinstance(rows, Sequence) or not rows:
-        raise ValueError("inflow records must be a non-empty daily sequence")
+        raise ValueError("inflow records must be a non-empty timestep sequence")
     local = {node: [] for node in topology["routing_nodes"]}
     for index, row in enumerate(rows):
         if not isinstance(row, Mapping) or set(row) != {"date", "local_inflow_cms"}:
-            raise ValueError("daily inflow records require date and local_inflow_cms")
-        if row["date"] != (topology["start"] + timedelta(days=index)).isoformat():
-            raise ValueError("daily inflow dates must be consecutive")
+            raise ValueError("inflow records require date and local_inflow_cms")
+        if topology["clock"].normalize(row["date"]) != topology["clock"].label(index):
+            raise ValueError("inflow timestamps must be consecutive at the configured timestep")
         flows = row["local_inflow_cms"]
         if not isinstance(flows, Mapping) or set(flows) != set(local):
-            raise ValueError("each daily record must explicitly supply every routing node's local incremental inflow")
+            raise ValueError("each timestep record must explicitly supply every routing node's local incremental inflow")
         for node in local:
             local[node].append(finite_nonnegative(flows[node], "local inflow " + node))
     return topology, local
 
 
 def build_network_model(config, days, *, project_root=PROJECT_ROOT):
+    """Build the pinned host's allocation envelope (legacy ``days`` = step count).
+
+    The host requires daily-looking StartDate/EndDate fields for allocation. The
+    assigned-Q runner binds the real operation calendar before the native loop;
+    no native rainfall/runoff is computed through this entry point.
+    """
     topology = validate_network(config)
     if isinstance(days, bool) or not isinstance(days, int) or days <= 0:
         raise ValueError("days must be a positive integer")
@@ -307,8 +319,15 @@ def _run_network(config, rows, policies, *, project_root=PROJECT_ROOT, informati
     for source, targets in topology["adjacency"].items():
         if any(sequence.index(source) >= sequence.index(target) for target in targets):
             raise RuntimeError("native simulation sequence violates routing causality")
+    # The native assigned-Q/UH loop is step-indexed; do not execute daily runoff.
+    # Bind its calendar before the loop, without modifying the pinned host core.
+    import pandas as pd
+    model.pd_date_index = pd.DatetimeIndex([topology["clock"].at(t) for t in range(len(rows))])
+    model.start_date = model.pd_date_index[0]
     for name, policy in policies.items():
         agent = model.agents[aliases[name]]
+        agent.start_date = model.start_date
+        agent.current_date = model.start_date
         agent.verify_simulation_sequence(native_sequence)
         agent.policy = policy
         agent.policy_id = getattr(policy, "policy_id", type(policy).__name__)
@@ -341,8 +360,9 @@ def _run_network(config, rows, policies, *, project_root=PROJECT_ROOT, informati
         if not np.allclose(native[node], expected[node], rtol=0, atol=1e-10):
             raise RuntimeError("native outflow was lost or duplicated at " + node)
     ledger, reaches, component_balances = network_balance(
-        topology, local, expected, records, [r["date"] for r in rows], return_components=True)
-    return records, {"engine": "hydrocnhs_reservoir_network", "days": len(rows),
+        topology, local, expected, records, [topology["clock"].label(t) for t in range(len(rows))], dt_seconds=topology["dt_seconds"], return_components=True)
+    return records, {"engine": "hydrocnhs_reservoir_network", "days": len(rows) * topology["dt_seconds"] / 86400,
+        **topology["clock"].metadata(len(rows)),
         "reservoir_count": len(records), "reservoirs": list(records), "outlets": list(topology["outlets"]),
         "component_count": len(topology["components"]), "simulation_sequence": sequence,
         "verified_hydrocnhs_commit": core["hydrocnhs_commit"], "hydrology_recomputed": False,

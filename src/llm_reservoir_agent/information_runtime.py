@@ -1,4 +1,4 @@
-"""Read-only decision information from the native daily simulation clock.
+"""Read-only decision information from the configured simulation clock.
 
 Information changes the decision inputs, never the water ledger. Downstream
 flows are read only from completed steps; the current routed inlet remains the
@@ -40,6 +40,7 @@ class InformationRuntime:
             def read(source_id, spec, decision_time, timestep, observed):
                 location, quantity = spec["location"], spec["quantity"]
                 from .information import _parse_timestamp
+                dt = observed["state"]["dt_seconds"]
                 clock = _parse_timestamp(observed["timestamp"], "decision clock", allow_legacy=True)
                 local_current = location == reservoir and quantity in ("inflow", "storage")
                 result = []
@@ -51,7 +52,7 @@ class InformationRuntime:
                 slots = self.history.get(source_id, 1) - int(local_current)
                 first = max(0, timestep - slots)
                 for step in range(first, timestep):
-                    stamp = clock - timedelta(days=timestep-step)
+                    stamp = clock - timedelta(seconds=(timestep-step)*dt)
                     if quantity == "flow":
                         value = float(model.dc.Q_routed[aliases[location]][step])
                     else:
@@ -66,10 +67,10 @@ class InformationRuntime:
                             field = {"storage": "storage_end_m3", "release": "controlled_release_cms", "inflow": "inflow_cms"}[quantity]
                             value = record["transition"][field]
                         # Another reservoir's ending storage is a point value at
-                        # the completed period boundary, available the next day.
+                        # the completed period boundary, available at the next step.
                         if quantity == "storage" and not local_current:
-                            stamp += timedelta(days=1)
-                    available = stamp if quantity == "storage" else stamp + timedelta(days=1)
+                            stamp += timedelta(seconds=dt)
+                    available = stamp if quantity == "storage" else stamp + timedelta(seconds=dt)
                     result.append({"value": value, "valid_time": stamp.isoformat(),
                                    "available_at": available.isoformat()})
                 return result

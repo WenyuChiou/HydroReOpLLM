@@ -59,8 +59,6 @@ class LLMReservoirAgent:
         if not isinstance(physical, Mapping):
             raise ValueError("LLMReservoirAgent requires Attributes.Physical")
         self.physical = PhysicalConfig(**dict(physical))
-        if self.physical.dt_seconds != 86400.0:
-            raise ValueError("the HydroCNHS Dam interface requires a daily timestep")
         self.storage_m3 = self.physical.initial_storage_m3
         self.inflow_outlet, self.output_outlet = self._validate_links()
         injected_policy = kwargs.get("policy")
@@ -159,14 +157,15 @@ class LLMReservoirAgent:
             raise TypeError("t must be an integer")
         if not 0 <= self.t < self.data_length:
             raise IndexError("timestep is outside data_length")
-        expected = self.start_date + timedelta(days=self.t)
-        expected_text = expected.isoformat() if hasattr(expected, "isoformat") else str(expected)
+        from .timebase import StepClock
+        clock = StepClock(self.start_date.isoformat(), self.physical.dt_seconds)
+        expected_text = clock.label(self.t)
         current_text = (
             self.current_date.isoformat()
             if hasattr(self.current_date, "isoformat")
             else str(self.current_date)
         )
-        if current_text != expected_text:
+        if clock.normalize(current_text) != expected_text:
             raise ValueError(f"current_date {current_text} does not match timestep {self.t} ({expected_text})")
         if self._last_committed_t is None and self.t != 0:
             raise ValueError("reservoir operation must begin at timestep 0")
@@ -208,7 +207,7 @@ class LLMReservoirAgent:
             inflow_cms=inflow,
             release_upper_bound_cms=min(
                 self.physical.maximum_release_cms,
-                max(0.0, inflow + (self.storage_m3 - self.physical.dead_storage_m3) / 86400.0),
+                max(0.0, inflow + (self.storage_m3 - self.physical.dead_storage_m3) / self.physical.dt_seconds),
             ),
             state={
                 "storage_m3": self.storage_m3,

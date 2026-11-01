@@ -19,6 +19,7 @@ from datetime import date, timedelta
 from pathlib import Path
 from typing import Any
 
+from .timebase import StepClock, trace_timestamp
 from .audit import audit_binding, json_snapshot, normalize_audit, validate_audit_provenance
 
 
@@ -91,7 +92,8 @@ class TraceJournal:
     ``fail`` may still write a terminal summary if the filesystem permits it.
     """
 
-    def __init__(self, output: Path | str, *, run_id: str, provenance: Mapping[str, Any] | None = None) -> None:
+    def __init__(self, output: Path | str, *, run_id: str, provenance: Mapping[str, Any] | None = None, dt_seconds: float = 86400.0) -> None:
+        self.dt_seconds = dt_seconds
         self.run_id = _text(run_id, "run_id")
         self._provenance = _provenance(provenance)
         self.output = Path(output)
@@ -151,7 +153,7 @@ class TraceJournal:
     def _scope(self, reservoir_id: str, timestep: int, timestamp: str, request_id: str | None = None) -> dict[str, Any]:
         _text(reservoir_id, "reservoir_id")
         timestep = _step(timestep)
-        timestamp = _day(timestamp)
+        timestamp = trace_timestamp(timestamp, self.dt_seconds)
         if request_id is not None:
             _text(request_id, "request_id")
         key = (reservoir_id, timestep)
@@ -179,8 +181,8 @@ class TraceJournal:
         if previous is not None:
             if (reservoir_id, previous[0]) not in self._physics:
                 raise RuntimeError("previous decision requires a physical record")
-            if date.fromisoformat(timestamp) != date.fromisoformat(previous[1]) + timedelta(days=1):
-                raise ValueError("reservoir decision dates must be consecutive")
+            if timestamp != StepClock(previous[1], self.dt_seconds).label(1):
+                raise ValueError("reservoir decision times must be consecutive")
 
     def record_decision(
         self, reservoir_id: str, observation: Mapping[str, Any], action: Mapping[str, Any],

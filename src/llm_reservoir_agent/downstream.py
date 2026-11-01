@@ -13,6 +13,8 @@ from datetime import date, timedelta
 import math
 from typing import Sequence
 
+from .timebase import StepClock
+
 
 _DAILY_SECONDS = 86_400.0
 
@@ -78,15 +80,13 @@ def route_saved_outflows(
     ``len(unit_hydrograph) - 1`` rows affected by the explicit zero initial
     channel state.  The volume ledger includes reservoir and lateral inputs.
     """
-    parsed_dates = _daily_dates(dates)
-    try:
-        step_seconds = float(dt_seconds)
-    except (TypeError, ValueError, OverflowError) as exc:
-        raise TypeError("dt_seconds must be numeric") from exc
-    if not math.isfinite(step_seconds) or step_seconds != _DAILY_SECONDS:
-        raise ValueError("dt_seconds must be exactly 86400.0 for daily routing")
-
-    count = len(parsed_dates)
+    if not dates:
+        raise ValueError("dates must not be empty")
+    clock = StepClock(dates[0], dt_seconds)
+    step_seconds = clock.dt_seconds
+    if any(clock.normalize(value) != clock.label(i) for i, value in enumerate(dates)):
+        raise ValueError("dates must be consecutive at the configured timestep")
+    count = len(dates)
     controlled = _finite_series(
         "controlled_release_cms", controlled_release_cms, count, nonnegative=True
     )
@@ -131,7 +131,7 @@ def route_saved_outflows(
         residual = cumulative_input - cumulative_output - storage
         max_balance_residual = max(max_balance_residual, abs(residual))
         rows.append({
-            "date": (parsed_dates[0] + timedelta(days=index)).isoformat(),
+            "date": clock.label(index),
             "boundary_outflow_cms": boundary_flow,
             "routed_reservoir_cms": routed_flow,
             "lateral_inflow_cms": lateral_flow,
@@ -154,7 +154,9 @@ def route_saved_outflows(
         "comparison_output_m3": comparison_output,
         "tail_volume_m3": output_volume - comparison_output,
         "max_balance_residual_m3": max_balance_residual,
-        "initialization_days": initialization_days,
+        "initialization_steps": initialization_days,
+        "initialization_days": initialization_days * step_seconds / _DAILY_SECONDS,
+        "dt_seconds": step_seconds,
     }
 
 

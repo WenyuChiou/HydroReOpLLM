@@ -1,9 +1,9 @@
-"""Serial, daily reservoir-network orchestration with durable causal traces.
+"""Serial, fixed-step reservoir-network orchestration with durable causal traces.
 
 Python callers supply already constructed backends; the CLI only reads offline
 responses. No provider is constructed; decision retries and resume remain explicit.
 
-Role: Coordinate one daily network experiment and durable evidence.
+Role: Coordinate one configured network experiment and durable evidence.
 
 Connections and data: workflow supplies validated configuration, local inflow rows and
 reservoir-local backends. The orchestrator connects policy_adapter, network and
@@ -149,8 +149,11 @@ class _ObservedBackend:
         self.journal.record_physics(self.reservoir_id, record)
         self.committed[self.reservoir_id] += 1
         write_json(self.journal.output / "progress.json", {
-            "completed_reservoir_days": dict(self.committed),
-            "completed_network_days": min(self.committed.values()),
+            "completed_reservoir_steps": dict(self.committed),
+            "dt_seconds": self.journal.dt_seconds,
+            "completed_reservoir_days": {k:v*self.journal.dt_seconds/86400 for k,v in self.committed.items()},
+            "completed_network_steps": min(self.committed.values()),
+            "completed_network_days": min(self.committed.values())*self.journal.dt_seconds/86400,
             "last_committed_reservoir": self.reservoir_id,
             "last_committed_date": record["observation"]["timestamp"],
         })
@@ -176,7 +179,7 @@ def run_experiment(config, rows, backends, *, output, run_id, project_root=PROJE
     Local inflows are incremental natural runoff in cms. Incoming upstream
     release/spill is added by routing, never included a second time in local Q.
     Original audit FAIL remains diagnostic FAIL; completion is execution status.
-    ``progress=True`` displays the native daily loop without changing decisions.
+    ``progress=True`` displays the native step loop without changing decisions.
     """
     topology, local = validate_inflows(config, rows)
     backends = complete_backends(config, backends)
@@ -186,8 +189,11 @@ def run_experiment(config, rows, backends, *, output, run_id, project_root=PROJE
     # Snapshot validated bytes before invoking descriptions or any decision.
     config = json_snapshot(config, label="configuration")
     rows = json_snapshot(rows, label="inflows")
+    config["start_date"] = topology["clock"].label(0)
+    for t, row in enumerate(rows):
+        row["date"] = topology["clock"].label(t)
     metadata = {name: LLMPolicyAdapter(backend).describe() for name, backend in backends.items()}
-    journal = TraceJournal(output, run_id=run_id, provenance=provenance)
+    journal = TraceJournal(output, run_id=run_id, provenance=provenance, dt_seconds=topology["dt_seconds"])
     committed = {s["physical"]["reservoir_id"]: 0 for s in config["reservoirs"].values()}
     observed = {name: _ObservedBackend(backend, config["reservoirs"][name]["physical"]["reservoir_id"],
                                       journal, metadata[name], committed, recovery)
@@ -237,7 +243,8 @@ def run_experiment(config, rows, backends, *, output, run_id, project_root=PROJE
         for backend in observed.values():
             audits.update(backend.audit_counts)
         calls = {name: backend.network_calls for name, backend in observed.items()}
-        summary = dict(engine, completed_reservoir_days=committed, audit_counts=dict(audits),
+        summary = dict(engine, completed_reservoir_steps=committed,
+            completed_reservoir_days={k:v*topology["dt_seconds"]/86400 for k,v in committed.items()}, audit_counts=dict(audits),
             max_mass_balance_residual_m3=max(abs(row["mass_balance_residual_m3"]) for row in flattened),
             final_storage_m3={name: series[-1]["transition"]["storage_end_m3"] for name, series in records.items()},
             network_calls_by_reservoir=calls,
@@ -270,7 +277,8 @@ def run_experiment(config, rows, backends, *, output, run_id, project_root=PROJE
             summary["additional_output_files"] = {"outcome_audit.jsonl": hashlib.sha256(target.read_bytes()).hexdigest()}
         return records, journal.finalize(summary)
     except Exception as exc:
-        failure = {"completed_reservoir_days": committed,
+        failure = {"completed_reservoir_steps": committed,
+                   "completed_reservoir_days": {k:v*topology["dt_seconds"]/86400 for k,v in committed.items()},
                    "automatic_retry": bool((provenance or {}).get("automatic_retry", False))}
         if recovery is not None:
             failure["recovery"] = recovery.describe()

@@ -63,7 +63,7 @@ def test_two_day_impulse_keeps_tail_and_zero_initial_state_visible():
         ({"lateral": [0.0, -1.0]}, "nonnegative"),
         ({"kernel": [0.4, 0.4]}, "sum to 1"),
         ({"kernel": [0.5, math.nan]}, "finite"),
-        ({"dt_seconds": 3_600.0}, "86400"),
+        ({"dt_seconds": 3_600.0}, "timezone-aware"),
     ],
 )
 def test_routing_rejects_bad_daily_inputs(changes, message):
