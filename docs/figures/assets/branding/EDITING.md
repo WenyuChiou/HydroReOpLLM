@@ -64,7 +64,6 @@ SVG text remains editable. The renderer used Noto Serif/OpenAI Sans fallbacks
 because Georgia/Segoe UI were unavailable; original font-family declarations
 remain in the SVG. Rendering can vary on machines with different fonts.
 
-The older `hydroopslm-cover.drawio` is historical: it contains an embedded PNG
-and two editable labels, and does not regenerate the current illustration.
-Use the cover SVG as the editable master. Existing asset paths are retained
-for link compatibility; repository, package and API names are unchanged.
+Use the cover SVG as the editable master. The superseded bitmap-based draw.io
+cover is available in Git history at `f6eff89`; it is not a current source.
+Repository, package and API names are unchanged.

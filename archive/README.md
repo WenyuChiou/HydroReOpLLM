@@ -3,8 +3,10 @@
 The [F.E. Walter reference input index](fe_walter/README.md) records the later
 separation of current prompts, historical inputs and the external original program.
 
-[File inventory](inventory.csv) records all **1,026** pre-cleanup tracked paths,
-their dependencies, original bytes/SHA256 and disposition.
+The earlier inventory of **1,026** pre-cleanup paths is historical evidence.
+Retrieve its exact CSV from Git revision `f6eff89:archive/inventory.csv`, or the
+maintainer's preserved recovery package. It is not the current file index;
+see [current project structure](../docs/CODE_STRUCTURE.md).
 
 The seven historical root launchers and retired guides/notebooks are in the
 external **HydroOpsLM-pre-cleanup-20261012-fbd9a993** recovery package.
@@ -28,7 +30,7 @@ python -m zipfile -e tracked-working-tree.zip restored-repo
 ```
 
 Git supplies history; ZIP restores exact working-tree bytes, including original
-line endings. Compare each file with `inventory.csv`. Do not overwrite an active
+line endings. Compare each file with the recovered historical CSV. Do not overwrite an active
 checkout or rerun an experiment to inspect it. Ignored runs, environments and
 credentials are excluded; existing local evidence remains in its original place.
 

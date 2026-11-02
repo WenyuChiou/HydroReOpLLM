@@ -494,6 +494,9 @@ def prepare(source: Path, *, source_ref: str = "main") -> None:
         for caption, entries in groups.items():
             handle.write(f"\n\n```{{toctree}}\n:hidden:\n:maxdepth: 1\n:caption: {caption}\n\n"
                          + "\n".join(entries) + "\n```\n")
+    # The architecture page offers the exact maintained source index as a local
+    # download; Sphinx must receive the file alongside the copied Markdown page.
+    shutil.copyfile(ROOT / "docs/FILE_INDEX.txt", source / "docs/FILE_INDEX.txt")
     shutil.copyfile(ROOT / "docs/conf.py", source / "conf.py")
     shutil.copytree(ROOT / "docs/_static", source / "_static")
     # Reuse accepted identity assets without regenerating or changing their bytes.

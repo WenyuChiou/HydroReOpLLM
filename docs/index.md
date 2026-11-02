@@ -38,6 +38,7 @@ physics applies the limits and spill, then routes the water downstream.
 - [Configuration field reference](PARAMETER_REFERENCE.md)
 - [Variables and units](VARIABLES_AND_UNITS.md)
 - [43-module inventory](MODULE_INVENTORY.md)
+- [Project structure and complete file index](CODE_STRUCTURE.md)
 - [Time scales](TIME_SCALES.md) and [YAML time settings](YAML_TIME_SCALES.md)
 - [Hourly GWLF](HOURLY_GWLF.md) and [groundwater initialization](GWLF_GROUNDWATER.md)
 - [Developer QA matrix](DAILY_QA.md)

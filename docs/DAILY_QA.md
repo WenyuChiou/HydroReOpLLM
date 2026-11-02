@@ -9,6 +9,9 @@ download Python packages before the offline tests begin.
 
 | Contract | Evidence definitions |
 |---|---|
+| Bounded-memory log finalization, partial tails and unreadable evidence | `tests/test_trace_streaming.py` |
+| Metadata-only Windows rename retries, permanent failure and failed-ledger evidence | `tests/test_metadata_io.py`, `tests/test_recovery.py` |
+| Clean tracked-source boundary and complete file index | `tests/test_repository_scope.py` |
 | Published single-reservoir and three-reservoir Daily workflow, Leap Day, analytic storage/channel stocks, output preservation | `tests/test_daily_readiness.py` |
 | Single/three/larger networks, independent reservoir states, upstream flow and local-flow ownership | `tests/test_llm_network.py`, `tests/test_passive_and_balance.py`, `tests/test_network_outlets.py` |
 | Zero inflow, drought, capacity spill, release bounds, reservoir/network conservation | `tests/test_operations.py`, `tests/test_passive_and_balance.py`, `tests/test_reservoir_coupling.py` |

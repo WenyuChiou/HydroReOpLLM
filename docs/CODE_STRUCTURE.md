@@ -1,35 +1,113 @@
 # Code structure and execution flow
 
-Users normally enter through `reservoir-experiment`. The modules below explain
-which code reads each input and how one completed day becomes the next decision.
+Start with the [user guide](USER_GUIDE.md) to configure a study. This page shows
+where the implementation and its supporting files live. You do not need to edit
+the core Python modules to change a reservoir, network, model or prompt.
 
-## Reusable installed modules
+## Repository map
 
 ```text
-src/
-  hydrocnhs/                         GWLF/ABCD, Lohmann routing and Dam API
-  llm_reservoir_agent/
-    configuration.py                v1/v2 sections, declaring-file paths and pins
-    agent_configuration.py          public agent keys normalized into the existing engine
-    rule_based.py                   source-pinned rule wrapper and generic rule provenance
-    weather.py                      full-period forcing validation and simulation
-    coupled.py                      check and compile the two-stage simulation
-    workflow.py                     check / prepare / run / verify / resume CLI
-    network.py                      daily reservoir and downstream routing host
-    physics.py                      release bounds, storage balance and spill
-    prompt.py                       explicit PromptSpec system/user artifacts
-    context.py                      immutable DecisionContext and ContextValue
-    information.py                  causal information sources and profiles
-    providers.py                    five native request/response adapters
-    configured_backend.py           prompt rendering, attempts and fallback profiles
-    extensions.py                   explicit source-pinned extension registry
-    audit.py / auditor.py           normalized diagnostic checks
-    experiment.py                   durable decision and provider evidence
-    recovery.py                     verified interrupted-prefix reconstruction
+HydroReOpLLM/
+├── src/
+│   ├── llm_reservoir_agent/     Reusable operations framework
+│   └── hydrocnhs/               Bundled, attributed hydrology and routing engine
+├── templates/                  Commented configuration starting points
+├── examples/
+│   ├── daily_offline/          Four-day single-reservoir and cascade examples
+│   ├── multiple_reservoirs/    Network, local prompts and information examples
+│   ├── fe_walter/              Worked study, extensions, inputs and saved examples
+│   ├── fixed_interval/         Supplied fixed-interval inflow example
+│   ├── time_scales/            Time-axis configuration examples
+│   └── hydrology/, rules/, synthetic/
+├── tutorials/                  Saved notebooks and their local configurations
+├── cases/                      Case/response inputs used by example configurations
+├── experiments/                Existing YAML entries for those example cases
+├── data/                       Shared, pinned example inputs and geographic sources
+├── docs/                       User manual, API reference and current figure sources
+├── tests/                      Regression, failure, provider and physical checks
+├── scripts/                    Build, installation and verification helpers
+├── environment/                Constraints and bundled-engine source/runtime pins
+├── third_party/, licenses/     Upstream attribution, source pins and patch records
+├── archive/                    Small historical-source and recovery index
+├── .github/workflows/          Automated tests and manual build
+├── pyproject.toml              Dependencies, package data and CLI entrypoints
+├── MANIFEST.in                 Source-distribution build-helper inclusion
+└── run_experiment.py           Existing convenience launcher
 ```
 
-Regional calibration evidence, prompts, statistics and extension code live under
-`examples/` and `data/`. They are study inputs, not defaults for another basin.
+{download}`Download the complete maintained file index <FILE_INDEX.txt>`.
+The index lists repository files, not local environments, generated runs or Git
+internals. Historical study outputs are retained only where the maintained
+examples, notebooks, provenance or regression checks still consume them.
+
+## From a configuration to a result
+
+1. `workflow.py` reads YAML and selects the configured execution path.
+2. `coupled.py` and `weather.py` prepare Daily HydroCNHS inflows when hydrology is
+   configured. `network.py` validates the reservoir graph and routes releases.
+3. `agent_configuration.py` creates independent operators for each reservoir.
+   `configured_backend.py` assembles configured messages and invokes the selected
+   adapter in `providers.py`; offline operators require no service.
+4. `contracts.py` validates the proposed action. `physics.py` applies storage,
+   release and spill constraints; the implemented outcome enters routing and
+   the next completed-history observation.
+5. `trace.py` writes decision, physical, audit and backend records.
+   `verification.py` independently checks the saved run. `recovery.py` verifies
+   and replays an interrupted prefix before any explicitly allowed continuation.
+
+Operational reasoning and audit verdicts are separate from physical validity.
+A completed simulation does not establish that a policy improved operation.
+
+## Framework files by responsibility
+
+| Responsibility | Files in `src/llm_reservoir_agent/` |
+| --- | --- |
+| Public interface and contracts | `__init__.py`, `plugins/__init__.py`, `contracts.py`, `runtime.py` |
+| Configuration and execution | `configuration.py`, `workflow.py`, `experiment.py`, `case.py`, `agent_configuration.py`, `extensions.py` |
+| Hydrology and reservoir network | `coupled.py`, `weather.py`, `network.py`, `agent.py`, `physics.py`, `balance.py`, `passive.py` |
+| Prompts, providers and decision adapters | `prompt.py`, `context.py`, `configured_backend.py`, `providers.py`, `policy_adapter.py`, `policies.py` |
+| Available information | `information.py`, `information_runtime.py`, `information_verification.py` |
+| Audit and result checking | `audit.py`, `auditor.py`, `configured_audit.py`, `outcome.py`, `verification.py` |
+| Rule benchmark and downstream evaluation | `rule_based.py`, `benchmark.py`, `benchmark_config.py`, `downstream.py`, `reach_validation.py` |
+| Time axes and experimental interval paths | `time_axis.py`, `time_config.py`, `interval_network.py`, `interval_weather.py`, `temporal_output.py` |
+| Durable records and recovery | `trace.py`, `recovery.py` |
+
+The [module inventory](MODULE_INVENTORY.md) gives each module's purpose,
+inputs/outputs, units, dependencies and test references. The [API reference](API_REFERENCE.md)
+explains the public interfaces. The bundled `src/hydrocnhs/` tree retains its
+separate upstream attribution and documented local patches.
+
+## What a study author changes
+
+| Goal | Files to configure | Guide |
+| --- | --- | --- |
+| Dates, warm-up, time step and output location | Experiment YAML | [Simulation settings](GLOBAL_SETTINGS.md) |
+| Catchments, weather and routing parameters | Hydrology YAML and weather input files | [Hydrology](HYDROLOGY_SETUP.md) |
+| Reservoir curves, storage, limits and graph | Reservoir/case YAML or JSON and local tables | [Reservoirs and networks](BUILD_SIMULATION.md) |
+| Provider, model and explicit retry/fallback | Model settings referenced by the experiment | [LLM settings](MODEL_PROVIDERS.md) |
+| System/user messages and extra information | Local prompt text, information settings and knowledge files | [Prompt and information](INFORMATION.md) |
+| Custom response fields or policy checks | Explicit parser/auditor extension and its settings | [LLM interfaces](LLM_MODULES.md) |
+| Inspect release, spill, storage and reasoning | New output directory created by the configured CLI | [Inputs and outputs](INPUT_OUTPUT.md) |
+
+Start from `examples/daily_offline/`, then use `templates/coupled/` or the worked
+`examples/fe_walter/coupled/` settings. Case-specific measurements, station IDs,
+operating rules and prompts belong with the study, not in shared framework code.
+
+## Source checkout versus installed package
+
+The wheel installs the reusable `llm_reservoir_agent` and `hydrocnhs` packages,
+plus explicitly declared notices/runtime pins and small offline examples.
+Full teaching datasets, notebooks and editable figure sources stay in the
+repository or research candidate bundle. They are not imported into the core
+package. `scripts/package_build.py` builds through temporary staging so old
+`build/lib` files cannot accidentally enter a wheel.
+
+Temporary runs, QA command logs, developer caches, model weights and credentials
+do not belong in tracked source. Keep them in separate working/output locations.
+The small `archive/` index is retained for third-party source identity and optional
+historical comparisons, not as another normal launch path. Superseded files remain
+recoverable through Git history; cleaning this tree does not rewrite that history.
+
 
 ## Stage 1: calculate and save daily inflow
 
@@ -98,6 +176,17 @@ Provider attempts do not advance physics until a checked action exists. Each
 attempt records the actual provider, model, request, response and failure class.
 Authentication and configuration errors are terminal. Audit FAIL and physical
 failure do not rerun the model. Evidence-write failure stops execution.
+
+On Windows, only the atomic replacement of already-fsynced metadata receives a
+short, bounded retry for sharing/permission errors. No model request, decision
+or physical transition is repeated. A secondary ledger-read failure is retained
+without replacing the original exception or preventing the failure summary.
+
+Configured prompt history retains only the selected completed-step window.
+Hydrology arrays, output records and journal bookkeeping still grow with the
+simulation length; the whole simulator is not a constant-memory stream. Journal
+finalization scans log bytes in fixed chunks instead of loading each full log
+into memory.
 
 `recovery.py` verifies the durable prefix, reconstructs committed state and writes
 continuation to a new directory. It skips committed decisions and can reuse
