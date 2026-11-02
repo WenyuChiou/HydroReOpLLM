@@ -12,18 +12,18 @@ from unittest.mock import patch
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from examples.fe_walter.legacy.case import load_case
-from examples.fe_walter.legacy.replay import run_replay
+from tests.fixtures.fe_walter_legacy.case import load_case
+from tests.fixtures.fe_walter_legacy.replay import run_replay
 
 # Exercise the preserved fe-walter-demo callable after the root launcher archive.
 LEGACY_CLI = [sys.executable, "-c",
               f"import sys; sys.path[:0] = [{str(ROOT / 'src')!r}, {str(ROOT)!r}]; "
-              "from examples.fe_walter.legacy.cli import main; raise SystemExit(main())"]
+              "from tests.fixtures.fe_walter_legacy.cli import main; raise SystemExit(main())"]
 
 
 class CaseTests(unittest.TestCase):
     def test_frozen_case_and_no_network_replay(self):
-        config, rows = load_case(ROOT / "cases/fe_walter.json")
+        config, rows = load_case(ROOT / "tests/fixtures/cases/fe_walter.json")
         self.assertEqual(len(rows), 7)
         with patch.object(socket, "create_connection", side_effect=AssertionError("network forbidden")):
             first, summary = run_replay(config, rows)
@@ -36,12 +36,12 @@ class CaseTests(unittest.TestCase):
         import shutil
         with tempfile.TemporaryDirectory() as folder:
             root = Path(folder)
-            shutil.copytree(ROOT / "cases", root / "cases")
+            shutil.copytree(ROOT / "tests/fixtures/cases", root / "tests/fixtures/cases")
             shutil.copytree(ROOT / "data", root / "data")
             with (root / "data/accepted/fe_walter_inflow_sample.csv").open("a") as stream:
                 stream.write("tampered\n")
             with self.assertRaisesRegex(ValueError, "checksum"):
-                load_case(root / "cases/fe_walter.json", project_root=root)
+                load_case(root / "tests/fixtures/cases/fe_walter.json", project_root=root)
 
     def test_output_cannot_overwrite_existing_directory(self):
         with tempfile.TemporaryDirectory() as folder:
@@ -63,15 +63,15 @@ class CaseTests(unittest.TestCase):
             self.assertEqual(result.returncode, 0, result.stderr)
             summary = json.loads((output / "summary.json").read_text())
             self.assertEqual(len(summary["implementation_sha256"]), 64)
-            self.assertIn("examples/fe_walter/legacy/dam_agent.py", summary["implementation_files"])
+            self.assertIn("tests/fixtures/fe_walter_legacy/dam_agent.py", summary["implementation_files"])
             self.assertIn("python", summary["runtime"])
 
 
 @unittest.skipUnless(importlib.util.find_spec("hydrocnhs"), "optional HydroCNHS runtime is not installed")
 class NativeDamTests(unittest.TestCase):
     def test_real_hydrocnhs_dam_loop_matches_replay(self):
-        from examples.fe_walter.legacy.hydrocnhs_bridge import run_hydrocnhs
-        config, rows = load_case(ROOT / "cases/fe_walter.json")
+        from tests.fixtures.fe_walter_legacy.hydrocnhs_bridge import run_hydrocnhs
+        config, rows = load_case(ROOT / "tests/fixtures/cases/fe_walter.json")
         expected, _ = run_replay(config, rows)
         with patch.object(socket, "create_connection", side_effect=AssertionError("network forbidden")):
             actual, summary = run_hydrocnhs(config, rows)
@@ -79,8 +79,8 @@ class NativeDamTests(unittest.TestCase):
         self.assertLess(summary["simulation_sequence"].index("FEW_INFLOW"), summary["simulation_sequence"].index("FEWalter"))
 
     def test_real_dam_zero_and_spill_reach_downstream(self):
-        from examples.fe_walter.legacy.hydrocnhs_bridge import run_hydrocnhs
-        config, rows = load_case(ROOT / "cases/fe_walter.json")
+        from tests.fixtures.fe_walter_legacy.hydrocnhs_bridge import run_hydrocnhs
+        config, rows = load_case(ROOT / "tests/fixtures/cases/fe_walter.json")
         config = copy.deepcopy(config)
         physical = config["agent_config"]["Attributes"]["Physical"]
         physical.update(capacity_m3=1000000, initial_storage_m3=1000000, minimum_release_cms=0)

@@ -1,0 +1,44 @@
+# LLM configuration example. check is read-only; run --allow-network makes real requests.
+# Four synthetic days x three LLM agents = twelve planned requests. No automatic retry.
+# Paths are relative to this YAML; provide an already available model/service.
+schema_version: llm-reservoir-experiment.v1  # Required configuration format.
+case: ../cases/reservoir_network_fixture.json # Network, physics and daily input CSV/hash.
+run_id: synthetic-llm-diagnostic            # Experiment ID; change for a new run.
+output: ../../../runs/synthetic-llm-diagnostic    # New output folder; cannot overwrite.
+max_calls: 12                             # Shared request limit across all agents/days.
+models:                                  # Profiles may be reused; agents still have separate state.
+  local:                                 # Profile ID referenced by agent.model below.
+    provider: ollama                      # ollama or openai_compatible.
+    base_url: http://localhost:11434       # Chat service address, without credentials.
+    model: gemma4:12b                     # Provider model ID; runner does not pull/download it.
+    temperature: 0.7                     # Generation setting; depends on provider support.
+    max_tokens: 512                      # Output token limit; Ollama uses num_predict.
+    timeout_seconds: 60                  # HTTP request timeout, in seconds.
+    # Optional seed: <integer>; identical settings do not guarantee identical output.
+    # Optional api_key_env: <ENV_NAME>; put the key in the environment, never in YAML.
+auditors:                                # Available decision checks, separate from physics.
+  release_limits:                        # Checker ID selected by agents below.
+    type: release_bounds                 # Requested release vs feasible physical bound.
+    version: "1"                         # Version of this checker configuration.
+agents:                                  # Number of entries = number of LLM agents here.
+  upstream_operator:                     # Independent agent controlling R1.
+    reservoir: R1                        # Exact controlled reservoir ID in the case.
+    mode: llm                            # One fresh model request per day; no fixed release_cms.
+    model: local                         # Select the model profile above.
+    prompt: ../../../templates/legacy/prompts/operator.txt  # User instructions; backend system JSON rules are fixed.
+    knowledge:                           # DKP/knowledge package ID -> UTF-8 file path.
+      example_rules: ../synthetic/knowledge/operating_rules.md # Example only; use your own reservoir rules.
+    # Optional context: {purpose: ...}, or context_file: path/to/static_input.json.
+    auditors: [release_limits]            # Checks for this agent; empty list gives UNKNOWN.
+  middle_operator:                       # Independent R2 agent with its own daily state/feedback.
+    reservoir: R2                        # Gets upstream routed outflow plus local inflow.
+    mode: llm                            # Calls the selected model once per day.
+    model: local                         # Reuse settings, not another agent's history.
+    prompt: ../../../templates/legacy/prompts/operator.txt  # Can choose a different prompt for this reservoir.
+    auditors: [release_limits]            # Can choose different auditor IDs for this reservoir.
+  downstream_operator:                   # Independent R3 agent.
+    reservoir: R3                        # Downstream reservoir ID from the case.
+    mode: llm                            # Calls the selected model once per day.
+    model: local                         # Reuse this profile; another profile can be defined.
+    prompt: ../../../templates/legacy/prompts/operator.txt  # Can choose a different prompt/DKP for this reservoir.
+    auditors: [release_limits]            # Decision checks; final physics/balance is verified separately.

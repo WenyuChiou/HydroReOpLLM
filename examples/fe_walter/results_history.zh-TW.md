@@ -12,7 +12,7 @@
 這是下方已保存檢索知識實驗的節錄，使用 `gemma4:12b`、temperature **0.7**。
 一月蓄水與放流歷史承接 2019 年十二月，並非重新設定初始狀態的 2020 年新實驗。
 
-![FE Walter：2020 全年每日操作](../../examples/fe_walter/reference_outputs/long_term_dkp/figures/fe_walter_2020_detail.png)
+![FE Walter：2020 全年每日操作](../../tests/fixtures/fe_walter_history/reference_outputs/long_term_dkp/figures/fe_walter_2020_detail.png)
 
 | 保存的檢查 | 2020 結果 |
 |---|---:|
@@ -25,7 +25,7 @@
 
 ## 完整每日軌跡
 
-![FE Walter：全部 1,827 日紀錄](../../examples/fe_walter/reference_outputs/long_term_dkp/figures/fe_walter_2016_2020_daily.png)
+![FE Walter：全部 1,827 日紀錄](../../tests/fixtures/fe_walter_history/reference_outputs/long_term_dkp/figures/fe_walter_2016_2020_daily.png)
 
 依序閱讀**入流與實際出流 → 水位與目標 → 期末蓄水 → 操作 audit**。
 水位是模擬**日初**值，蓄水是**日末**值。季節目標來自保存的操作指引，不是獨立驗證的年度管理計畫。
@@ -44,8 +44,8 @@
 
 {download}`完整精度每日表 <../../_case_downloads/dkp_2016_2020/plotted_daily.csv>` ·
 {download}`原始物理帳本 <../../_case_downloads/dkp_2016_2020/trajectory.csv>` ·
-{download}`圖表 PDF <../../_case_downloads/dkp_2016_2020/fe_walter_2016_2020_daily.pdf>` ·
-{download}`可編輯 SVG <../../_case_downloads/dkp_2016_2020/fe_walter_2016_2020_daily.svg>`
+圖表 PDF ·
+可編輯 SVG
 
 ## 連結決策與物理效果
 
@@ -215,7 +215,7 @@ Apply these DKP rules to decide the mean release for this interval (cfs).
 
 ## 全期間 audit
 
-![每年保存的操作 audit](../../examples/fe_walter/reference_outputs/long_term_dkp/figures/fe_walter_audit_by_year.png)
+![每年保存的操作 audit](../../tests/fixtures/fe_walter_history/reference_outputs/long_term_dkp/figures/fe_walter_audit_by_year.png)
 
 FAIL 表示設定的操作準則未通過，不是水量平衡計算中止。
 Audit 訊息與 rationale 都是證據，包括互相矛盾的分類或不完整的操作指引。

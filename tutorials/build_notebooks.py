@@ -19,7 +19,7 @@ from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 TUTORIALS = ROOT / "tutorials"
-CURRENT = ROOT / "examples/fe_walter/coupled/outputs/current_tutorial"
+CURRENT = ROOT / "tests/fixtures/fe_walter_history/coupled_outputs/current_tutorial"
 SEASONAL_CRITERIA = ROOT / "examples/fe_walter/seasonal_pool_criteria.json"
 OPERATING_KNOWLEDGE = ROOT / "examples/fe_walter/knowledge/operating_rules.md"
 NOTEBOOKS = ("operation.ipynb", "main.ipynb", "advanced.ipynb")
@@ -197,6 +197,15 @@ def _sha(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def _tutorial_source(path: str) -> Path:
+    """Resolve the two original source aliases without rewriting old receipts."""
+    original_sources = {
+        "../../../seasonal_pool_criteria.json": SEASONAL_CRITERIA,
+        "../../../knowledge/operating_rules.md": OPERATING_KNOWLEDGE,
+    }
+    return original_sources.get(path, CURRENT / path)
+
+
 def _save_figure_formats(fig, stem: str, figures: list[Path], raster_dpi: int) -> None:
     """Regenerate every format so provenance cannot describe stale figures."""
     for ext in ("png", "svg", "pdf"):
@@ -225,7 +234,7 @@ def _prepare_current_outputs() -> dict:
                          "legend.fontsize": 9, "pdf.fonttype": 42,
                          "svg.fonttype": "none"})
 
-    root = ROOT / "examples/fe_walter/coupled/outputs"
+    root = ROOT / "tests/fixtures/fe_walter_history/coupled_outputs"
     rule_path = root / "2016/daily.csv"
     llm_path = root / "gemma4_2016_comparison/daily.csv"
     summary_path = root / "2016/summary.json"
@@ -378,9 +387,9 @@ def _prepare_current_outputs() -> dict:
             "rule_rows": {"path": "../2016/daily.csv", "sha256": _sha(rule_path)},
             "llm_framework_rows": {"path": "../gemma4_2016_comparison/daily.csv", "sha256": _sha(llm_path)},
             "initial_state": {"path": "../2016/summary.json", "sha256": _sha(summary_path)},
-            "seasonal_criteria": {"path": "../../../seasonal_pool_criteria.json",
+            "seasonal_criteria": {"path": Path(os.path.relpath(SEASONAL_CRITERIA, CURRENT)).as_posix(),
                                   "sha256": _sha(SEASONAL_CRITERIA)},
-            "reference_timing": {"path": "../../../knowledge/operating_rules.md",
+            "reference_timing": {"path": Path(os.path.relpath(OPERATING_KNOWLEDGE, CURRENT)).as_posix(),
                                  "sha256": _sha(OPERATING_KNOWLEDGE)},
         },
         "artifacts": {},
@@ -804,13 +813,13 @@ Use [running instructions](../docs/RUNNING.md) to inspect generated files or res
 an interrupted run. Continue below to read results that are already available.'''),
         md('''## 10. Read the saved 2016 results
 
-The [saved daily CSV](../examples/fe_walter/coupled/outputs/current_tutorial/daily.csv)
-contains 366 dates per method. Its [provenance](../examples/fe_walter/coupled/outputs/current_tutorial/provenance.json)
+The [saved daily CSV](../tests/fixtures/fe_walter_history/coupled_outputs/current_tutorial/daily.csv)
+contains 366 dates per method. Its [provenance](../tests/fixtures/fe_walter_history/coupled_outputs/current_tutorial/provenance.json)
 identifies the source runs and validation. The teaching table combines Rule-based
 rows from `outputs/2016/daily.csv` with framework LLM rows from
 `outputs/gemma4_2016_comparison/daily.csv`. All methods share inflow and initial
 storage. The following cells read saved values and draw them without interpolation.'''),
-        code('''current = coupled / "outputs/current_tutorial"
+        code('''current = ROOT / "tests/fixtures/fe_walter_history/coupled_outputs/current_tutorial"
 daily = pd.read_csv(current / "daily.csv")
 seasonal_criteria = json.loads((ROOT / "examples/fe_walter/seasonal_pool_criteria.json").read_text(encoding="utf-8"))
 provenance = json.loads((current / "provenance.json").read_text(encoding="utf-8"))
@@ -839,17 +848,17 @@ Elevation is in feet NGVD 29; release and upstream simulated inflow are in cfs.
 The source CSV retains flows in m³/s. LLM trajectories retain the prompts used by
 their source runs, before daily seasonal context was added.*
 
-Download the accepted [PDF](../examples/fe_walter/coupled/outputs/current_tutorial/reservoir_operations.pdf),
-[SVG](../examples/fe_walter/coupled/outputs/current_tutorial/reservoir_operations.svg)
-or [600 dpi PNG](../examples/fe_walter/coupled/outputs/current_tutorial/reservoir_operations.png).
+Download the accepted [PDF](../tests/fixtures/fe_walter_history/coupled_outputs/current_tutorial/reservoir_operations.pdf),
+[SVG](../tests/fixtures/fe_walter_history/coupled_outputs/current_tutorial/reservoir_operations.svg)
+or [600 dpi PNG](../tests/fixtures/fe_walter_history/coupled_outputs/current_tutorial/reservoir_operations.png).
 See [output files](../examples/fe_walter/notebook.md) for the saved-data inventory
 and [results](../examples/fe_walter/results.md) for interpretation. Detailed engine
 comparisons and historical audits remain in the [technical reference](../examples/fe_walter/engine_comparison.md).'''),
         md('''## 11. Compare flow at the downstream station
 
-The [watershed map](../examples/fe_walter/downstream/outputs/watershed.png) separates
+The [watershed map](../tests/fixtures/fe_walter_history/downstream_outputs/watershed.png) separates
 water entering FE Walter from runoff joining the river below the dam. The
-[downstream daily CSV](../examples/fe_walter/downstream/outputs/daily.csv) contains
+[downstream daily CSV](../tests/fixtures/fe_walter_history/downstream_outputs/daily.csv) contains
 saved release plus spill routed to USGS 01447800, lateral runoff and observations.
 This cell reads the saved comparison; it makes no model request or hydrology run.
 
@@ -859,7 +868,7 @@ explains the corrected configuration, transferred parameters and boundary precis
 USGS observations are used only for evaluation.'''),
         code('''from examples.fe_walter.downstream.plot import plot_streamflow
 
-downstream = ROOT / "examples/fe_walter/downstream/outputs"
+downstream = ROOT / "tests/fixtures/fe_walter_history/downstream_outputs"
 gauge_daily = pd.read_csv(downstream / "daily.csv")
 assert gauge_daily.groupby("method")["date"].nunique().eq(366).all()
 fig = plot_streamflow(gauge_daily)
@@ -1037,11 +1046,13 @@ def _operation_dependencies() -> dict[str, str]:
     provenance = json.loads((case / "provenance.json").read_text(encoding="utf-8"))
     paths = {case / name for name in provenance["originals"]}
     paths.update(case / name for name in provenance["artifacts"])
-    paths.update(ROOT / name for name in provenance["shared_dependencies"])
+    engineering = json.loads((case / "engineering-sources-v4.json").read_text(encoding="utf-8"))
+    paths.update(ROOT / engineering["dependencies"][name]["current_path"]
+                 for name in provenance["shared_dependencies"])
     paths.update((ROOT / "src/llm_reservoir_agent").rglob("*.py"))
     paths.update(case.rglob("*.py"))
     paths.add(case / "provenance.json")
-    paths.add(case / "engineering-sources-v3.json")
+    paths.add(case / "engineering-sources-v4.json")
     retained = case / "hydrology/calibration-lineage-summary.json"
     if retained.is_file():
         paths.add(retained)
@@ -1113,7 +1124,7 @@ def check() -> list[dict]:
         reports.append({"path": str(path.relative_to(ROOT)), "cells": len(notebook["cells"]), "mime_types": sorted(mime), "sha256": _sha(path)})
     manifest = json.loads((CURRENT / "provenance.json").read_text(encoding="utf-8"))
     for source in manifest["sources"].values():
-        assert _sha(CURRENT / source["path"]) == source["sha256"]
+        assert _sha(_tutorial_source(source["path"])) == source["sha256"]
     for name, digest in manifest["artifacts"].items():
         assert _sha(CURRENT / name) == digest
     return reports

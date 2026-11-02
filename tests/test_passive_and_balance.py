@@ -14,7 +14,7 @@ from llm_reservoir_agent.network import run_network, validate_network
 from llm_reservoir_agent.passive import PassiveOutlet, complete_backends
 from llm_reservoir_agent.physics import apply_transition
 from llm_reservoir_agent.verification import verify_run
-from test_llm_network import Backend, network
+from tests.test_llm_network import Backend, network
 
 
 def passive(config, name="R1"):

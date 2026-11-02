@@ -1,0 +1,23 @@
+# Single-reservoir offline example. No model requests.
+# All paths below are relative to this YAML file.
+# This short fixture is separate from the accepted five-year experiment.
+schema_version: llm-reservoir-experiment.v1  # Required configuration format.
+case: ../cases/fe_walter_llm_fixture.json    # Network/physics + input CSV path/hash.
+run_id: fe-walter-configured-offline        # Experiment ID; change for a new run.
+output: ../../../runs/fe-walter-configured-offline # New output folder; cannot overwrite.
+# Dates default to the full case range. Optional start_date/end_date: "YYYY-MM-DD".
+auditors:                                 # Available decision checks.
+  release_limits:                         # Checker ID used by each agent below.
+    type: release_bounds                  # Check requested release against feasible bounds.
+    version: "1"                          # Version of this checker configuration.
+agents:                                   # Number of entries = number of agents.
+  fe_operator:                            # Agent ID; keeps its own state/trace.
+    reservoir: FEWalter                   # Exact controlled reservoir ID in the case.
+    mode: offline                         # Fixed test decision; llm uses a model instead.
+    release_cms: 5                        # Offline requested release, in m³/s; not fallback.
+    prompt: ../../../templates/legacy/prompts/operator.txt   # User-instruction template; system JSON rules are fixed.
+    prompt_version: "1"                   # Update when revising the prompt; text is also hashed.
+    # DKP: add knowledge: {operating_rules: path/to/your_rules.md} for this reservoir.
+    # Static input: optional context: {purpose: ...}, or context_file: path/to/input.json.
+    # LLM options: define models at top level, then model: <profile ID>; see synthetic_llm.yaml.
+    auditors: [release_limits]             # Enabled checker IDs; no checkers means UNKNOWN.

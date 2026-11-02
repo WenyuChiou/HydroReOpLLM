@@ -51,7 +51,12 @@ def checked_inputs(folder):
         if sha(folder / name) != record["sha256"]:
             raise ValueError("source bytes changed: " + name)
     for name, expected in manifest["accepted_files"].items():
-        if sha(ROOT / name) != expected:
+        # The historical manifest retains its original logical source name.
+        # This exact input now lives with the runnable downstream example.
+        source = (folder / "reservoir_daily.csv" if name ==
+                  "examples/fe_walter/coupled/outputs/current_tutorial/daily.csv"
+                  else ROOT / name)
+        if sha(source) != expected:
             raise ValueError("accepted input bytes changed: " + name)
     return manifest
 
@@ -285,7 +290,7 @@ def prepare(output, inputs=INPUTS):
     lateral, transfers, model = lateral_runoff(partition)
     pars = model["Routing"]["__AGGREGATION_OUTLET__"]["FEW-R-02"]["Pars"]
     kernel, numerical = channel_kernel(partition["reach_length_m"], pars)
-    source = pd.read_csv(CASE / "coupled/outputs/current_tutorial/daily.csv")
+    source = pd.read_csv(ROOT / 'tests/fixtures/fe_walter_history/coupled_outputs/current_tutorial/daily.csv')
     observations = pd.read_csv(inputs / "observations.csv", keep_default_na=False)
     observed = {row.date: (float(row.discharge_cms) if row.discharge_cms else None)
                 for row in observations.itertuples()}

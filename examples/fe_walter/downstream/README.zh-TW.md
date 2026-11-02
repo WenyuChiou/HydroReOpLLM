@@ -22,11 +22,11 @@
 目前邊界使用完整 NHDPlusV2 集水單元，尚未依壩口與測站的精確位置切開所在單元。
 因此地圖呈現有來源紀錄的河網近似範圍；精確壩口邊界仍需更細的地形劃分。
 
-![測站完整集水區及壩下區域](outputs/watershed.png)
+![測站完整集水區及壩下區域](../../../tests/fixtures/fe_walter_history/downstream_outputs/watershed.png)
 
 **圖 1。** 完整測站集水區（750.811 km²）包含上游集水區與橘色的下游貢獻區域
 （約 4.341 km²）；(b) 放大壩口及 USGS 測站。邊界來自 NLDI，河流與水庫背景
-沿用專案 GIS。[SVG](outputs/watershed.svg) 與 [PDF](outputs/watershed.pdf) 保留可編輯文字。
+沿用專案 GIS。[SVG](../../../tests/fixtures/fe_walter_history/downstream_outputs/watershed.svg) 與 [PDF](../../../tests/fixtures/fe_walter_history/downstream_outputs/watershed.pdf) 保留可編輯文字。
 
 ## 從保存放流計算測站流量
 
@@ -44,12 +44,12 @@ $Q_{\mathrm{lateral},g}$ 是已完成自身集水區 routing、到達測站的�
 逕流與 routing 使用 HydroCNHS 原生 GWLF、Lohmann 函數。新增部分沿用母單元
 保存的氣象與參數，只將面積改為幾何交集值，並從 1989 年初始化土壤與積雪。
 河道流速及擴散參數由上游移用，尚未重新對 USGS 校準。
-[routing.json](outputs/routing.json) 保存原始 kernel 與有界限的浮點尾差處理。
+[routing.json](../../../tests/fixtures/fe_walter_history/downstream_outputs/routing.json) 保存原始 kernel 與有界限的浮點尾差處理。
 
 ![上游集水區、水庫、側向逕流與測站比較](../../../docs/figures/downstream-workflow.svg)
 
 **圖 2。** 邊界分開後的水流連接。藍色實線傳遞水量；虛線表示與獨立觀測比較。
-本次水庫端使用保存的放流。[可編輯 draw.io 原檔](../../../docs/figures/downstream-workflow.drawio)。
+本次水庫端使用保存的放流。
 
 ## 如何解讀結果
 
@@ -75,10 +75,10 @@ USGS 資料包含 2016 年 366 筆已核准的日平均流量，沒有缺值。�
 |---|---|
 | [observations.csv](inputs/observations.csv) | USGS 日期、cfs／m³/s 流量、核准狀態及品質旗標。 |
 | [source_manifest.json](inputs/source_manifest.json) | 官方網址、原始回應雜湊、既有輸入雜湊。 |
-| [partition.json](outputs/partition.json) | 每個舊單元分配至上游與壩下的面積。 |
-| [daily.csv](outputs/daily.csv) | 各方法壩口、routing 後水庫、側向及測站總流量，另含觀測與評估資格。 |
-| [routing_tail.csv](outputs/routing_tail.csv) | 比較期間結束後才到達的水量。 |
-| [report.json](outputs/report.json) | 完整指標、水量帳、方法狀態與假設。 |
+| [partition.json](../../../tests/fixtures/fe_walter_history/downstream_outputs/partition.json) | 每個舊單元分配至上游與壩下的面積。 |
+| [daily.csv](../../../tests/fixtures/fe_walter_history/downstream_outputs/daily.csv) | 各方法壩口、routing 後水庫、側向及測站總流量，另含觀測與評估資格。 |
+| [routing_tail.csv](../../../tests/fixtures/fe_walter_history/downstream_outputs/routing_tail.csv) | 比較期間結束後才到達的水量。 |
+| [report.json](../../../tests/fixtures/fe_walter_history/downstream_outputs/report.json) | 完整指標、水量帳、方法狀態與假設。 |
 | [prepare.py](prepare.py) / [plot.py](plot.py) | 離線準備與共用繪圖函數。 |
 
 在原始碼 checkout 中安裝選用 GIS 相依套件：

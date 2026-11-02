@@ -27,7 +27,7 @@ FIGURE_DOWNLOADS.update({
 # Publish only accepted comparison plots and their numeric display exports.
 # Raw model records and unrelated experiment folders remain outside the manual.
 FIGURE_DOWNLOADS.update({
-    "examples/fe_walter/completed_results/" + name: "completed_results/" + name
+    "docs/results/fe_walter/completed/" + name: "completed_results/" + name
     for name in (
         "daily_2021_2025.png", "daily_2021_2025.pdf", "daily_2021_2025.svg",
         "daily_2021_2025_range.png", "daily_2021_2025_range.pdf", "daily_2021_2025_range.svg",
@@ -44,7 +44,7 @@ MAP_DOWNLOADS = {
     "data/figures/manual_map/fe-walter-arcgis-source.zip": "fe-walter-arcgis-source.zip",
 }
 HYDROLOGY_DOWNLOADS = {
-    **{f"examples/fe_walter/hydrology_data/{name}": name for name in (
+    **{f"docs/results/fe_walter/hydrology/{name}": name for name in (
         "calibration_validation_metrics.csv", "subcatchments.csv", "provenance.json",
         "reproduced_cv_metrics_20261016.csv", "reproduction_20261016.json",
     )},
@@ -52,15 +52,15 @@ HYDROLOGY_DOWNLOADS = {
     "data/accepted/historical_manifest.json": "historical_manifest.json",
 }
 HYDROLOGY_DOWNLOADS.update({
-    f"examples/fe_walter/hydrology_data/climate/{name}": name
+    f"docs/results/fe_walter/hydrology/climate/{name}": name
     for name in ("fe_walter_climate_monthly_1989_2025.csv",
                  "fe_walter_climate_1989_2025.png", "fe_walter_climate_1989_2025.svg",
                  "fe_walter_climate_1989_2025.pdf")
 })
-HYDROLOGY_DOWNLOADS["examples/fe_walter/hydrology_data/climate/provenance.json"] = "climate-provenance.json"
+HYDROLOGY_DOWNLOADS["docs/results/fe_walter/hydrology/climate/provenance.json"] = "climate-provenance.json"
 ANNUAL_DOWNLOADS = {
     **{
-    f"examples/fe_walter/annual/outputs/{name}": name for name in (
+    f"tests/fixtures/fe_walter_history/annual/outputs/{name}": name for name in (
         "daily.csv", "attempt_summary.json", "failed_reply_2016_06_18.txt",
         "annual_attempt.pdf", "annual_attempt.svg",
     )
@@ -83,22 +83,22 @@ CONFIG_DOWNLOADS.update({
     "examples/fe_walter/knowledge/operating_rules.md": "operating-knowledge.txt",
 })
 COMPLETED_DOWNLOADS = {
-    f"examples/fe_walter/coupled/outputs/{name}": name
+    f"tests/fixtures/fe_walter_history/coupled_outputs/{name}": name
     for name in ("daily.csv", "summary.json", "pool_release.svg", "pool_release.pdf",
                  "llm_available_decision.json", "llm_knowledge_decision.json")
 }
 YEAR_DOWNLOADS = {
-    f"examples/fe_walter/coupled/outputs/2016/{name}": f"2016-{name}"
+    f"tests/fixtures/fe_walter_history/coupled_outputs/2016/{name}": f"2016-{name}"
     for name in ("daily.csv", "summary.json", "pins.json", "pool_release.png", "pool_release.svg",
                  "pool_release.pdf", "llm_available_decision.json", "llm_knowledge_decision.json")
 }
 COMPARISON_DOWNLOADS = {
-    f"examples/fe_walter/coupled/outputs/gemma4_2016_comparison/{name}": f"gemma4-2016-{name}"
+    f"tests/fixtures/fe_walter_history/coupled_outputs/gemma4_2016_comparison/{name}": f"gemma4-2016-{name}"
     for name in ("daily.csv", "summary.json", "pool_release.png", "pool_release.svg",
                  "pool_release.pdf", "llm_available_pair.json", "llm_knowledge_pair.json")
 }
 TUTORIAL_DOWNLOADS = {
-    f"examples/fe_walter/coupled/outputs/current_tutorial/{name}": name
+    f"tests/fixtures/fe_walter_history/coupled_outputs/current_tutorial/{name}": name
     for name in (
         "daily.csv", "provenance.json",
         "daily_water_elevation.png", "daily_water_elevation.svg", "daily_water_elevation.pdf",
@@ -112,6 +112,7 @@ TUTORIAL_DOWNLOADS.update({
     for name in (
         "experiment.yaml", "llm_available.yaml", "llm_knowledge.yaml", "agents.rule.yaml",
         "case.json", "inflows.csv", "initialization.json", "provenance.json",
+        "engineering-sources-v4.json",
         "hydrology/model.yaml", "hydrology/forcing.csv.gz", "hydrology/hydrology.yaml",
         "outputs/reservoir_daily.csv", "outputs/streamflow_daily.csv", "outputs/summary.json",
         "outputs/reservoir_operations.png", "outputs/reservoir_operations.svg", "outputs/reservoir_operations.pdf",
@@ -126,10 +127,12 @@ DAILY_DOWNLOADS.update({
     "docs/qa/module-inventory.json": "qa/module-inventory.json",
     "examples/fe_walter/operation/engineering-sources-v2.json": "operation/engineering-sources-v2.json",
     "examples/fe_walter/operation/engineering-sources-v3.json": "operation/engineering-sources-v3.json",
+    "examples/fe_walter/operation/engineering-sources-v4.json": "operation/engineering-sources-v4.json",
 })
 # Generic templates are maintained once and included verbatim in the chapters.
 DOWNSTREAM_DOWNLOADS = {
-    "examples/fe_walter/downstream/" + name: name
+    ("tests/fixtures/fe_walter_history/downstream_outputs/" + name[8:]
+     if name.startswith("outputs/") else "examples/fe_walter/downstream/" + name): name
     for name in (
         "prepare.py", "plot.py", "prepare_observations.py", "validate.py", "validation.yaml", "calibration.yaml",
         "inputs/observations.csv", "inputs/source_manifest.json",
@@ -145,7 +148,7 @@ DOWNSTREAM_DOWNLOADS = {
 DOWNSTREAM_DOWNLOADS["tutorials/downstream_validation.ipynb"] = "downstream_validation.ipynb"
 # Publish the curated C&V files; full research inputs and search records stay external.
 DOWNSTREAM_DOWNLOADS.update({
-    "examples/fe_walter/downstream/outputs/hydrology_validation/" + name:
+    "tests/fixtures/fe_walter_history/downstream_outputs/hydrology_validation/" + name:
     "outputs/hydrology_validation/" + name
     for name in (
         "calibration_progress.pdf", "calibration_progress.svg", "daily.csv",
@@ -185,14 +188,14 @@ PAGES = {
     "examples/fe_walter/README.md": "examples/fe_walter/README.md",
     "examples/fe_walter/README.zh-TW.md": "examples/fe_walter/README.zh-TW.md",
     "examples/fe_walter/operation/README.md": "examples/fe_walter/operation/README.md",
-    "examples/fe_walter/completed_results/README.md": "examples/fe_walter/completed_results/README.md",
+    "docs/results/fe_walter/completed/README.md": "docs/results/fe_walter/completed/README.md",
     "examples/fe_walter/operation/README.zh-TW.md": "examples/fe_walter/operation/README.zh-TW.md",
     "examples/fe_walter/hydrology.md": "examples/fe_walter/hydrology.md",
     "examples/fe_walter/configuration.md": "examples/fe_walter/configuration.md",
-    "examples/fe_walter/annual/README.md": "examples/fe_walter/annual/README.md",
+    "tests/fixtures/fe_walter_history/annual/README.md": "tests/fixtures/fe_walter_history/annual/README.md",
     "examples/fe_walter/coupled/README.md": "examples/fe_walter/coupled/README.md",
-    "examples/fe_walter/annual/results.md": "examples/fe_walter/annual/results.md",
-    "examples/fe_walter/annual/decision_2016_01_01.md": "examples/fe_walter/annual/decision_2016_01_01.md",
+    "tests/fixtures/fe_walter_history/annual/results.md": "tests/fixtures/fe_walter_history/annual/results.md",
+    "tests/fixtures/fe_walter_history/annual/decision_2016_01_01.md": "tests/fixtures/fe_walter_history/annual/decision_2016_01_01.md",
     "examples/fe_walter/hydrology.zh-TW.md": "examples/fe_walter/hydrology.zh-TW.md",
     "examples/fe_walter/coupling.md": "examples/fe_walter/coupling.md",
     "examples/fe_walter/coupling.zh-TW.md": "examples/fe_walter/coupling.zh-TW.md",
@@ -206,9 +209,6 @@ PAGES = {
     "examples/fe_walter/results_history.zh-TW.md": "examples/fe_walter/results_history.zh-TW.md",
     "examples/fe_walter/engine_comparison.md": "examples/fe_walter/engine_comparison.md",
     "examples/fe_walter/prompt_review.md": "examples/fe_walter/prompt_review.md",
-    **{f"examples/fe_walter/{method}/{name}": f"examples/fe_walter/{method}/{name}"
-       for method in ("benchmark", "zero_shot", "dkp")
-       for name in ("README.md", "README.zh-TW.md")},
     "examples/fe_walter/notebook.md": "tutorials/main.md",
     "tutorials/advanced.ipynb": "tutorials/advanced.ipynb",
     "archive/README.md": "archive/README.md",
@@ -424,7 +424,7 @@ def prepare(source: Path, *, source_ref: str = "main") -> None:
         canonical.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(ROOT / relative, canonical)
     for name in ("llm_available_reply.txt", "llm_knowledge_reply.txt"):
-        relative = "examples/fe_walter/coupled/outputs/2016/" + name
+        relative = "tests/fixtures/fe_walter_history/coupled_outputs/2016/" + name
         shutil.copyfile(ROOT / relative, source / relative)
     # Publish one complete, explicit teaching bundle. Keep paths inside the bundle
     # so split YAML, prompts, provenance inputs and extension code remain runnable.
@@ -450,7 +450,7 @@ def prepare(source: Path, *, source_ref: str = "main") -> None:
             canonical.parent.mkdir(parents=True, exist_ok=True)
             shutil.copyfile(item, canonical)
     for name in ("llm_available_reply.txt", "llm_knowledge_reply.txt"):
-        relative = "examples/fe_walter/coupled/outputs/" + name
+        relative = "tests/fixtures/fe_walter_history/coupled_outputs/" + name
         target = source / relative
         target.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(ROOT / relative, target)
@@ -462,34 +462,12 @@ def prepare(source: Path, *, source_ref: str = "main") -> None:
                 *[f"{kind}_{day}.json" for kind in ("trace", "operation") for day in ("2020-05-02", "2020-06-15")]]
     selected += [f"figures/fe_walter_{figure}.{ext}" for figure in ("2016_2020_daily", "2020_detail", "audit_by_year") for ext in ("pdf", "svg")]
     for relative in selected:
-        item = ROOT / "examples/fe_walter/reference_outputs/long_term_dkp" / relative
+        item = ROOT / "tests/fixtures/fe_walter_history/reference_outputs/long_term_dkp" / relative
         shutil.copyfile(item, case_downloads / item.name)
-    groups = {
-        "Overview and installation": ["docs/README", "docs/GETTING_STARTED", "docs/DAILY_WORKFLOW"],
-        "Configuration": ["docs/INPUT_OUTPUT", "docs/GLOBAL_SETTINGS", "docs/HYDROLOGY_SETUP",
-                          "docs/BUILD_SIMULATION", "docs/CONFIGURATION", "docs/INFORMATION", "docs/RUNNING"],
-        "Case studies": ["docs/CASE_STUDIES", "examples/fe_walter/README", "tutorials/main",
-                         "examples/fe_walter/operation/README"],
-        "Results": ["docs/RESULTS_GUIDE", "examples/fe_walter/completed_results/README", "examples/fe_walter/results"],
-        "Troubleshooting": ["docs/TROUBLESHOOTING"],
-        "API and reference": ["docs/API_REFERENCE", "docs/PARAMETER_REFERENCE", "docs/REFERENCE", "docs/USER_GUIDE",
-                               "docs/DAILY_EXAMPLES", "docs/MODULE_INVENTORY", "docs/VARIABLES_AND_UNITS", "docs/DAILY_QA",
-                               "docs/TIME_SCALES", "docs/YAML_TIME_SCALES", "docs/HOURLY_GWLF", "docs/GWLF_GROUNDWATER",
-                              "docs/CODE_STRUCTURE", "docs/PROJECT_INVENTORY", "archive/README", "repository",
-                              "docs/BUILDING", "docs/auditor_plugins", "docs/LIVE_READINESS", "docs/RECORDS",
-                               "docs/TEMPLATES", "docs/WEATHER_INPUTS", "docs/MODEL_PROVIDERS", "docs/LLM_MODULES",
-                              "examples/fe_walter/prompt_review",
-                              "examples/fe_walter/engine_comparison", "examples/fe_walter/configuration", "examples/fe_walter/hydrology",
-                              "examples/fe_walter/downstream/README",
-                              "examples/fe_walter/downstream/validation",
-                              "examples/fe_walter/coupled/README", "examples/fe_walter/coupling", "examples/fe_walter/annual/README",
-                              *[f"examples/fe_walter/{method}/README" for method in ("benchmark", "zero_shot", "dkp")],
-                              "examples/fe_walter/annual/decision_2016_01_01", "examples/fe_walter/annual/results",
-                              "docs/MULTI_RESERVOIR", "tutorials/advanced"],
-        "Historical research": ["examples/fe_walter/results_history"],
-        "繁體中文": [path.rsplit(".", 1)[0] for path in PAGES.values()
-                   if "zh-TW" in path],
-    }
+    # One chapter sequence drives the sidebar and Sphinx previous/next links.
+    sections = json.loads((ROOT / "docs/navigation.json").read_text(encoding="utf-8"))
+    groups = {section["title"]: [page["path"] for page in section["pages"]]
+              for section in sections}
     with (source / "index.md").open("a", encoding="utf-8") as handle:
         for caption, entries in groups.items():
             handle.write(f"\n\n```{{toctree}}\n:hidden:\n:maxdepth: 1\n:caption: {caption}\n\n"
@@ -498,6 +476,7 @@ def prepare(source: Path, *, source_ref: str = "main") -> None:
     # download; Sphinx must receive the file alongside the copied Markdown page.
     shutil.copyfile(ROOT / "docs/FILE_INDEX.txt", source / "docs/FILE_INDEX.txt")
     shutil.copyfile(ROOT / "docs/conf.py", source / "conf.py")
+    shutil.copyfile(ROOT / "docs/navigation.json", source / "navigation.json")
     shutil.copytree(ROOT / "docs/_static", source / "_static")
     # Reuse accepted identity assets without regenerating or changing their bytes.
     for size in (32, 64):

@@ -13,9 +13,9 @@ from unittest.mock import patch
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from examples.fe_walter.legacy.case import CFS_TO_CMS, sha256
-from examples.fe_walter.legacy.operations import MANIFEST, REFERENCE, load_frozen_window, load_recorded_policy, main
-from examples.fe_walter.legacy.replay import run_replay
+from tests.fixtures.fe_walter_legacy.case import CFS_TO_CMS, sha256
+from tests.fixtures.fe_walter_legacy.operations import MANIFEST, REFERENCE, load_frozen_window, load_recorded_policy, main
+from tests.fixtures.fe_walter_legacy.replay import run_replay
 
 FIXTURE = ROOT / "data/fixtures/fe_walter_synthetic_responses.json"
 
@@ -23,7 +23,7 @@ FIXTURE = ROOT / "data/fixtures/fe_walter_synthetic_responses.json"
 class OperationsTests(unittest.TestCase):
     def test_frozen_window_preserves_parameters_and_input(self):
         config, rows, provenance = load_frozen_window(ROOT, "2015-10-01", 7)
-        original = json.loads((ROOT / "cases/fe_walter.json").read_text())
+        original = json.loads((ROOT / "tests/fixtures/cases/fe_walter.json").read_text())
         self.assertEqual(config["agent_config"], original["agent_config"])
         self.assertEqual(provenance["frozen_reference_days_verified"], 10958)
         self.assertEqual(rows[0]["simulated_inflow_cfs"], "116.28049497790234")
@@ -40,7 +40,7 @@ class OperationsTests(unittest.TestCase):
     def test_manifest_and_tampered_reference_fail_before_policy(self):
         with tempfile.TemporaryDirectory() as folder:
             root = Path(folder)
-            for name in ("cases", "data", "environment"):
+            for name in ("tests/fixtures/cases", "data", "environment"):
                 shutil.copytree(ROOT / name, root / name)
             manifest_path = root / MANIFEST
             manifest = json.loads(manifest_path.read_text())
@@ -92,8 +92,8 @@ class OperationsTests(unittest.TestCase):
             self.assertFalse(summary["catchment_feedback"])
             self.assertFalse(summary["recorded_actions_respond_to_current_state"])
             self.assertEqual(summary["response_data_kind"], "synthetic_fixture")
-            self.assertEqual(summary["implementation_files"]["examples/fe_walter/legacy/operations.py"],
-                             sha256(ROOT / "examples/fe_walter/legacy/operations.py"))
+            self.assertEqual(summary["implementation_files"]["tests/fixtures/fe_walter_legacy/operations.py"],
+                             sha256(ROOT / "tests/fixtures/fe_walter_legacy/operations.py"))
             for name, digest in summary["output_sha256"].items():
                 self.assertEqual(digest, sha256(output / name))
             audits = [json.loads(line) for line in (output / "response_audit.jsonl").read_text().splitlines()]
@@ -123,7 +123,7 @@ class OperationsTests(unittest.TestCase):
 @unittest.skipUnless(importlib.util.find_spec("hydrocnhs"), "optional HydroCNHS runtime is not installed")
 class NativeOperationsTests(unittest.TestCase):
     def test_recorded_legacy_actions_match_replay_and_reach_downstream(self):
-        from examples.fe_walter.legacy.hydrocnhs_bridge import run_hydrocnhs
+        from tests.fixtures.fe_walter_legacy.hydrocnhs_bridge import run_hydrocnhs
         config, rows, _ = load_frozen_window(ROOT, "2015-10-01", 7)
         replay_policy, _ = load_recorded_policy(FIXTURE, rows)
         native_policy, _ = load_recorded_policy(FIXTURE, rows)

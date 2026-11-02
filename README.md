@@ -1,131 +1,45 @@
 # HydroReOpLLM
 
-[![User manual](docs/_static/docs-badge-en.svg)](https://wenyuchiou.github.io/HydroReOpLLM/)
+[English](README.md) | [繁體中文](README.zh-TW.md)
 
-**English** | [繁體中文](README.zh-TW.md)
+HydroReOpLLM connects **LLM reservoir operators** to
+[HydroCNHS](https://github.com/cylin928/HydroCNHS) hydrological simulations.
+Configure a single reservoir or a connected network using YAML files.
 
-HydroReOpLLM is a Python framework for studying reservoir operations with large
-language models (LLMs). It connects configurable reservoir operators to HydroCNHS.
-HydroCNHS computes catchment inflow and routing; each operator proposes a daily
-release; the reservoir model applies physical limits and updates storage. The
-updated state informs the next decision.
+- Choose Rule-based or LLM decisions independently for each reservoir.
+- Use Ollama, OpenAI-compatible services, OpenAI, Anthropic or Gemini.
+- Customize prompts, operational knowledge and time-available information.
+- Save requests, replies, reasons, reservoir states, routed flows and validation logs.
 
-![HydroReOpLLM cover](docs/figures/hydroopslm-cover.png)
+## Install
 
-## What it provides
-
-For operations on supplied hourly or subhourly mean inflows, see
-[fixed-interval operation](docs/TIME_SCALES.md). This path shares reservoir
-physics and decision interfaces; it does not run hourly rainfall-runoff models.
-
-- Coupled daily hydrology, reservoir decisions, mass balance, spill, and routed
-  downstream flow.
-- Rule-based operators and LLM operators that can be changed through experiment
-  configuration while retaining the same physical reservoir model.
-- Explicit local files for prompts, available information, retrieved knowledge,
-  model settings, and case profiles.
-- Run metadata, daily decision records, configurable audits, input file hashes, and
-  verification commands for reproducible experiments.
-- Complete configuration templates, a worked F.E. Walter example, saved results,
-  and notebooks for inspecting those results without making LLM requests.
-
-The package supplies reusable simulation modules and configuration templates.
-Each study owns its operating rules, prompts, knowledge, input data, and case
-settings. The F.E. Walter files document one study; other reservoirs supply
-their own case files.
-
-## Install from source
-
-HydroReOpLLM currently has no public package release. Use Python 3.12 and the
-pinned bundled constraints from this repository.
+Use Python 3.12. From the repository root, in an activated virtual environment:
 
 ```bash
-git clone https://github.com/WenyuChiou/HydroReOpLLM.git
-cd HydroReOpLLM
-python3.12 -m venv .venv
-source .venv/bin/activate
-python -m pip install -e . -c environment/requirements-bundled.txt
+python -m pip install -e .
+reservoir-experiment --help
 ```
 
-After cloning the repository and opening its folder, Windows PowerShell users can
-create and activate the environment with:
+See [installation](https://wenyuchiou.github.io/HydroReOpLLM/docs/GETTING_STARTED.html)
+for environment setup and optional dependencies. This is a research candidate;
+installation from PyPI is not available.
 
-```powershell
-py -3.12 -m venv .venv
-.venv\Scripts\Activate.ps1
-python -m pip install -e . -c environment/requirements-bundled.txt
-```
+## Manual and examples
 
-The distribution name is `hydroreopllm`; its Python packages retain the
-`llm_reservoir_agent` and `hydrocnhs` import names.
+The [user manual](https://wenyuchiou.github.io/HydroReOpLLM/) walks through
+simulation settings, hydrology, reservoirs, LLM configuration and results.
 
-## F.E. Walter example
+Start with [one reservoir](examples/daily_offline/README.md), then
+[multiple reservoirs](examples/multiple_reservoirs/README.md).
+The [FE Walter example](examples/fe_walter/README.md) provides a real study setup.
+See [all examples](examples/README.md) or follow the [notebooks](tutorials/README.md).
 
-The maintained example offers three experiment entries:
+`examples/` contains runnable studies; `templates/` contains blank starting files.
+Regression inputs and historical records belong to `tests/fixtures/`.
 
-| Method | Configuration | Decision input |
-|---|---|---|
-| Rule-based | [`experiment.yaml`](examples/fe_walter/coupled/experiment.yaml) | Registered Hanasaki case rule |
-| LLM without additional operating knowledge | [`llm_available.yaml`](examples/fe_walter/coupled/llm_available.yaml) | Current operating information and configured prompt |
-| LLM with additional operating knowledge | [`llm_knowledge.yaml`](examples/fe_walter/coupled/llm_knowledge.yaml) | Current operating information, prompt, and local knowledge document |
+## Citation and license
 
-Check the Rule-based configuration offline from the repository root:
-
-```bash
-reservoir-experiment check examples/fe_walter/coupled/experiment.yaml
-```
-
-The Rule-based entry uses Hanasaki's operating rule; seasonal pool guidance is
-supplied to the LLM entries. The [saved-results guide](examples/fe_walter/results.md)
-explains these different operating objectives.
-
-Follow the [F.E. Walter notebook tutorial](tutorials/README.md) from `experiment.yaml`
-to the saved annual results, or read the [results guide](examples/fe_walter/results.md).
-The committed [daily comparison](examples/fe_walter/coupled/outputs/current_tutorial/daily.csv)
-and [provenance record](examples/fe_walter/coupled/outputs/current_tutorial/provenance.json)
-can be inspected directly, with no simulation or LLM request.
-
-For a new study, begin with the [coupled configuration templates](templates/coupled/README.md)
-and the [input and output reference](docs/INPUT_OUTPUT.md).
-
-## Project layout
-
-```text
-src/          Reusable operations framework and bundled HydroCNHS
-templates/    Configuration starting points
-examples/     Single-reservoir, network and worked-study examples
-tutorials/    Saved walkthrough notebooks
-docs/         User manual, API reference and current editable figures
-tests/        Offline regression, failure and interface checks
-```
-
-The [complete project structure](docs/CODE_STRUCTURE.md) explains the remaining
-support directories, all framework modules and which files to change for a new study.
-
-## Documentation
-
-- [User guide](docs/USER_GUIDE.md)
-- [Running experiments](docs/RUNNING.md)
-- [Parameter reference](docs/PARAMETER_REFERENCE.md)
-- [API reference](docs/API_REFERENCE.md)
-- [Reference and citation guide](docs/REFERENCE.md)
-
-## Citation
-
-When reporting a HydroReOpLLM experiment, record the project Git revision with
-the configuration and input-data versions. See the [reference and citation guide](docs/REFERENCE.md)
-for the method-specific references and provenance checklist.
-
-HydroReOpLLM uses HydroCNHS for hydrological modeling and routing. Cite the
-original framework:
-
-> Lin, C.-Y., Yang, Y.-C. E., and Wi, S. (2022). “HydroCNHS: A Python Package of
-> Hydrological Model for Coupled Natural Human Systems.” *Journal of Water
-> Resources Planning and Management*, 148(12), 06022005.
-> [https://doi.org/10.1061/(ASCE)WR.1943-5452.0001630](https://doi.org/10.1061/(ASCE)WR.1943-5452.0001630)
-
-## License
-
-The main project license is pending. Bundled HydroCNHS files retain their BSD
-3-Clause license and attribution; see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)
-and the [bundled license text](licenses/HydroCNHS-BSD-3-Clause.txt).
+Record the project revision when reporting an experiment. Follow the
+[citation guide](docs/REFERENCE.md), including the original HydroCNHS reference.
+The main project license is pending; bundled dependencies retain their
+[licenses and attribution](THIRD_PARTY_NOTICES.md).

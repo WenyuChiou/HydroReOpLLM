@@ -42,5 +42,4 @@
 ![水文、水庫與 agent ID 對應](figures/reservoir-agent-mapping.svg)
 
 *圖 1。HydroCNHS 將逕流遞送到出口，再以 binding 接到操作入流節點。藍色箭頭
-表示水流，橘色箭頭表示水庫狀態與 agent 的放流建議。
-[可編輯 draw.io 原檔](figures/reservoir-agent-mapping.drawio)。*
+表示水流，橘色箭頭表示水庫狀態與 agent 的放流建議。*

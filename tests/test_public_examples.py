@@ -152,7 +152,7 @@ def test_public_and_legacy_reference_match_actual_decisions_at_boundaries(tmp_pa
 
 
 def test_hanasaki_public_extension_matches_legacy_benchmark(tmp_path):
-    source = ROOT / "examples/fe_walter/benchmark/experiment.yaml"
+    source = ROOT / "tests/fixtures/fe_walter_current/benchmark.yaml"
     document = yaml.safe_load(source.read_text(encoding="utf-8"))
     document["case"] = str((source.parent / document["case"]).resolve())
     document["extensions"] = {key: str((source.parent / value).resolve())
@@ -201,7 +201,7 @@ class ScheduledRule:
 def build_backend(settings, **kwargs):
     return ScheduledRule(settings["schedule"])
 ''', encoding="utf-8")
-    source = ROOT / "examples/fe_walter/benchmark/experiment.yaml"
+    source = ROOT / "tests/fixtures/fe_walter_current/benchmark.yaml"
     document = yaml.safe_load(source.read_text(encoding="utf-8"))
     document.update(case=str((source.parent / document["case"]).resolve()), run_id="custom-rule",
                     output=str(tmp_path / "output"), extensions={"my_schedule": str(extension / "__init__.py")})

@@ -35,7 +35,7 @@
     "approved annual recreation plan",
     "ice, gate-outage, and emergency status"
   ],
-  "elevation_storage_csv": "../../../cases/fe_belt_prompton_offline/fe_walter_storage_elevation.csv",
+  "elevation_storage_csv": "fe_walter_storage_elevation.csv",
   "elevation_storage_sha256": "baa89b33023c23002b94ac48e68c69278c384d15a64a72d2587a1e6ad458999d",
   "default_system_prompts": {
     "zeroshot": {"path": "../../../archive/fe_walter/prompts/available_original.txt", "sha256": "f0999945b989cf1a97e8e7239d78c774baf9c7e82c342ae27551baf56ca45133"},

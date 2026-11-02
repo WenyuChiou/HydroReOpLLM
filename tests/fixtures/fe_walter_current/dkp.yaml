@@ -1,5 +1,5 @@
 schema_version: llm-reservoir-experiment.v1
-case: ../../../cases/fe_walter_reference/case.json
+case: ../cases/fe_walter_reference/case.json
 run_id: fe-walter-test-current-dkp
 output: ../../../runs/fe-walter-test-current-dkp
 max_calls: 0

@@ -11,8 +11,8 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 from examples.fe_walter.extensions.anik_v3_7 import AnikPolicyAdapter
-from reference_oracle import load_anik, require_reference_dir
-from examples.fe_walter.legacy.physics import PhysicalConfig, apply_transition
+from tests.reference_oracle import load_anik, require_reference_dir
+from tests.fixtures.fe_walter_legacy.physics import PhysicalConfig, apply_transition
 
 
 ANIK = load_anik(ROOT)

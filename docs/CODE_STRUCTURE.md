@@ -16,15 +16,13 @@ HydroReOpLLM/
 │   ├── daily_offline/          Four-day single-reservoir and cascade examples
 │   ├── multiple_reservoirs/    Network, local prompts and information examples
 │   ├── fe_walter/              Worked study, extensions, inputs and saved examples
-│   ├── fixed_interval/         Supplied fixed-interval inflow example
-│   ├── time_scales/            Time-axis configuration examples
-│   └── hydrology/, rules/, synthetic/
+│   ├── time_scales/            Daily, Hourly and fixed-interval examples
+│   └── rules/                  Shared Hanasaki extension
 ├── tutorials/                  Saved notebooks and their local configurations
-├── cases/                      Case/response inputs used by example configurations
-├── experiments/                Existing YAML entries for those example cases
 ├── data/                       Shared, pinned example inputs and geographic sources
 ├── docs/                       User manual, API reference and current figure sources
 ├── tests/                      Regression, failure, provider and physical checks
+│   └── fixtures/               Earlier cases, configurations, adapters and output evidence
 ├── scripts/                    Build, installation and verification helpers
 ├── environment/                Constraints and bundled-engine source/runtime pins
 ├── third_party/, licenses/     Upstream attribution, source pins and patch records

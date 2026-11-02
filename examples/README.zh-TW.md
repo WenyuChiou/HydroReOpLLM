@@ -1,11 +1,16 @@
-# HydroReOpLLM 使用範例
+# HydroReOpLLM 範例
 
 [English](README.md) | [繁體中文](README.zh-TW.md)
 
-請從 [FE Walter 完整示範](fe_walter/README.zh-TW.md)開始。三種決策方法共用原生
-HydroCNHS Dam 耦合與 routing，並使用 HydroReOpLLM 新增的共同水庫物理計算與 audit／trace。
+選擇最符合需求的起點：
 
-套用到新流域時，請將本 repo 的[水文設定](../docs/HYDROLOGY_SETUP.md)與
-[HydroCNHS 官方文件](https://cylin928.github.io/HydroCNHS/)搭配使用，設定產流、
-參數、routing、校正與驗證。合成離線設定與既有教學 notebooks 仍保留供開發驗證；
-主要教學讀取已儲存的 FE Walter 結果；模型執行另由使用者明確啟用。
+| 資料夾 | 用途 |
+|---|---|
+| [daily_offline](daily_offline/README.md) | 不需模型服務的第一個單水庫模擬。 |
+| [multiple_reservoirs](multiple_reservoirs/README.md) | 水庫網路中各自獨立的操作員。 |
+| [time_scales](time_scales/README.md) | Daily、Hourly 與指定時間間隔的設定。 |
+| [fe_walter](fe_walter/README.md) | 使用準備好的入流或氣象驅動水文的真實水庫案例。 |
+
+`rules/` 提供共用的 Hanasaki extension；`llm_reservoir_abm.py` 是範例所需的 HydroCNHS 接口。
+設定方式請見[手冊](../docs/index.zh-TW.md)。`templates/` 放空白起始設定；
+`tests/fixtures/` 放回歸測試輸入與歷史研究紀錄，不是新研究的範例入口。

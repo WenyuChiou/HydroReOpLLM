@@ -11,7 +11,7 @@ import yaml
 
 from llm_reservoir_agent.workflow import load_settings, run_settings
 from llm_reservoir_agent.verification import verify_run
-from test_llm_network import network
+from tests.test_llm_network import network
 
 
 def reply(release=5):
@@ -210,7 +210,7 @@ class RecoveryTests(unittest.TestCase):
 
     def test_both_reference_scenarios_restore_native_history_and_routing(self):
         from llm_reservoir_agent.recovery import resume_settings
-        from test_reference_live import ReferenceLiveTests
+        from tests.test_reference_live import ReferenceLiveTests
         for method in ("zeroshot", "dkp"):
             with self.subTest(method=method):
                 helper = ReferenceLiveTests()

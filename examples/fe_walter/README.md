@@ -3,7 +3,7 @@
 [English](README.md) | [繁體中文](README.zh-TW.md)
 
 This case connects accepted HydroCNHS hydrology to one controlled reservoir and
-compares **Rule-based**, **LLM without additional operating knowledge**, and **LLM with additional operating knowledge** decisions. Start with the [maintained tutorial](../../tutorials/README.md).
+compares **Rule-based**, **LLM without operational knowledge**, and **LLM with operational knowledge** decisions. Start with the [maintained tutorial](../../tutorials/README.md).
 
 ## Site and study scope
 
@@ -14,7 +14,6 @@ support downstream boating and fishing [[1]](#fe-walter-ref-1).
 
 The study area includes both downstream gauges, White Haven and Lehighton. The [downstream hydrology workflow](downstream/validation.md) prepares an observed-boundary test between them; its lower model and daily inputs remain to be supplied. The [saved downstream comparison](downstream/README.md) evaluates White Haven using the historical 2016 decisions.
 
-Map downloads: [PDF](../../docs/figures/fe-walter-catchment.pdf), [SVG](../../docs/figures/fe-walter-catchment.svg), and [editable ArcGIS project](../../data/figures/manual_map/fe-walter-arcgis-source.zip).
 
 ```{figure-md} fe-walter-study-area
 :class: study-area-figure
@@ -68,15 +67,13 @@ covers two units; the other five are not independently gauge-validated. See
 [hydrology, parameters, and calibration/validation](hydrology.md) for periods,
 metrics, parameters, and the 2021–2025 simulation using those same parameters.
 
-Downloads: [monthly CSV](hydrology_data/climate/fe_walter_climate_monthly_1989_2025.csv),
-[source and aggregation record](hydrology_data/climate/provenance.json),
-[SVG](hydrology_data/climate/fe_walter_climate_1989_2025.svg) and
-[PDF](hydrology_data/climate/fe_walter_climate_1989_2025.pdf).
+Downloads: [monthly CSV](../../docs/results/fe_walter/hydrology/climate/fe_walter_climate_monthly_1989_2025.csv),
+[source and aggregation record](../../docs/results/fe_walter/hydrology/climate/provenance.json),
 
 ```{figure-md} fe-walter-climate-forcing
 :class: climate-figure
 
-![Monthly precipitation, PET, and temperature for the modeled F.E. Walter catchment](hydrology_data/climate/fe_walter_climate_1989_2025.png)
+![Monthly precipitation, PET, and temperature for the modeled F.E. Walter catchment](../../docs/results/fe_walter/hydrology/climate/fe_walter_climate_1989_2025.png)
 
 **Figure 2.** Area-weighted monthly climate inputs, 1989–2025. Precipitation and
 PET are monthly totals (mm/month); temperature is the monthly mean (°C).

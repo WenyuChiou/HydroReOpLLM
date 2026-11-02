@@ -31,7 +31,7 @@ def configuration(folder, method, *, additional=True):
     source = ROOT / f"tests/fixtures/fe_walter_current/{method}.live.yaml"
     data = yaml.safe_load(source.read_text(encoding="utf-8"))
     case = json.loads((source.parent / data["case"]).resolve().read_text(encoding="utf-8"))
-    (folder / "inflows.csv").write_bytes((ROOT / "cases/fe_walter_reference/inflows.csv").read_bytes())
+    (folder / "inflows.csv").write_bytes((ROOT / "tests/fixtures/cases/fe_walter_reference/inflows.csv").read_bytes())
     case["inflow_source"]["path"] = "inflows.csv"
     case["live_readiness"]["ready"] = True  # Synthetic fixture, with injected replies only.
     (folder / "case.json").write_text(json.dumps(case), encoding="utf-8")
@@ -71,7 +71,7 @@ def save(folder, data):
 
 
 def transport_for(method, payloads, *, retry=False):
-    replies = json.loads((ROOT / f"cases/fe_walter_reference/{method}_responses.json").read_text())["responses"]
+    replies = json.loads((ROOT / f"tests/fixtures/cases/fe_walter_reference/{method}_responses.json").read_text())["responses"]
     count = 0
     def transport(url, payload, headers, timeout):
         nonlocal count
@@ -228,7 +228,7 @@ def test_resume_reuses_saved_context_without_retrieving_committed_prefix(tmp_pat
             return retrieve(context)
         return tracked
     monkeypatch.setattr(module, "build_context", build)
-    replies = json.loads((ROOT / "cases/fe_walter_reference/zeroshot_responses.json").read_text())["responses"]
+    replies = json.loads((ROOT / "tests/fixtures/cases/fe_walter_reference/zeroshot_responses.json").read_text())["responses"]
     resumed = []
     def transport(url, payload, headers, timeout):
         reply = replies[len(resumed) + 1]

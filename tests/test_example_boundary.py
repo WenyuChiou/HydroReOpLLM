@@ -62,7 +62,7 @@ assert not any(name == "examples" or name.startswith("examples.") for name in sy
         self.assertTrue(all("anik" not in path for path in implementation))
 
     def test_optional_historical_helper_imports(self):
-        from examples.fe_walter.legacy.historical import run_historical
+        from tests.fixtures.fe_walter_legacy.historical import run_historical
 
         self.assertTrue(callable(run_historical))
 

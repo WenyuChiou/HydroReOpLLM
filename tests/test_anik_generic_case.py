@@ -75,15 +75,15 @@ class AnikGenericCaseTests(unittest.TestCase):
             scratch = Path(directory)
             extension_dir = scratch / "examples/fe_walter/extensions"
             profile_dir = scratch / "examples/fe_walter/profiles"
-            curve_dir = scratch / "cases/fe_belt_prompton_offline"
+            curve_dir = profile_dir
             shutil.copytree(PROJECT_ROOT / "examples/fe_walter/extensions", extension_dir,
                             ignore=shutil.ignore_patterns("__pycache__"))
             shutil.copytree(PROJECT_ROOT / "examples/fe_walter/profiles", profile_dir)
-            curve_dir.mkdir(parents=True)
+            curve_dir.mkdir(parents=True, exist_ok=True)
             curve = curve_dir / "fe_walter_storage_elevation.csv"
-            shutil.copy2(PROJECT_ROOT / "cases/fe_belt_prompton_offline/fe_walter_storage_elevation.csv", curve)
+            shutil.copy2(PROJECT_ROOT / "tests/fixtures/cases/fe_belt_prompton_offline/fe_walter_storage_elevation.csv", curve)
 
-            source = PROJECT_ROOT / "experiments/fe_walter_reference_zeroshot.yaml"
+            source = PROJECT_ROOT / "tests/fixtures/experiments/fe_walter_reference_zeroshot.yaml"
             data = yaml.safe_load(source.read_text(encoding="utf-8"))
             data["extensions"] = {key: str(extension_dir / "__init__.py")
                                   for key in data["extensions"]}

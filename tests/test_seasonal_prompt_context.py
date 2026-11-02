@@ -16,7 +16,7 @@ import yaml
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from reference_oracle import load_anik, require_reference_dir
+from tests.reference_oracle import load_anik, require_reference_dir
 from examples.fe_walter.extensions.reference_backend import ReferenceBackend, validate_reference
 from examples.fe_walter.extensions.seasonal_prompt_context import (
     SeasonalContextBackend,

@@ -9,7 +9,7 @@ from urllib.error import HTTPError, URLError
 import pytest
 
 from llm_reservoir_agent.configured_backend import http_json_transport
-from test_daily_provider_matrix import _backend, _observation, _reply
+from tests.test_daily_provider_matrix import _backend, _observation, _reply
 
 
 @contextmanager

@@ -17,7 +17,7 @@ from examples.fe_walter.extensions.native_case import (
 from llm_reservoir_agent.network import PROJECT_ROOT
 
 
-from reference_oracle import require_reference_dir
+from tests.reference_oracle import require_reference_dir
 VENDOR = require_reference_dir()
 if str(VENDOR) not in sys.path:
     sys.path.insert(0, str(VENDOR))

@@ -49,7 +49,7 @@ Operation experiments read the frozen daily inflow. The LLM proposes release; co
    is a forward simulation, not additional gauge validation in this C&V record.
 5. **Hand over inlet flow.** Keep the continuous hydrological state and routing
    history, select the operation year, and initialize reservoir storage separately.
-   Follow the [annual walkthrough](annual/README.md) to prepare inputs and use the
+   Follow the [annual walkthrough](../../tests/fixtures/fe_walter_history/annual/README.md) to prepare inputs and use the
    formal experiment CLI. Operation methods share the inlet and physical settings.
 
 The retained preparation sources are `src/forcing_grid.py` (weather weights and
@@ -155,8 +155,8 @@ values within an absolute tolerance of 1e-9 and a relative tolerance of 1e-10.
 | Reservoir inflow, 1996–2025, versus preserved reference | 10,958 days; maximum difference 1.09 × 10⁻¹¹ cfs |
 | Independent reservoir-inflow routing convolution | Maximum difference 1.14 × 10⁻¹³ m³/s |
 
-[Reproduced metrics](hydrology_data/reproduced_cv_metrics_20261016.csv) and the
-[reproduction record](hydrology_data/reproduction_20261016.json) retain values,
+[Reproduced metrics](../../docs/results/fe_walter/hydrology/reproduced_cv_metrics_20261016.csv) and the
+[reproduction record](../../docs/results/fe_walter/hydrology/reproduction_20261016.json) retain values,
 runtime, source hashes and tolerances. Raw daily outputs and recovered research
 sources remain in the separate local evidence package. Geometry delineation and
 raw land/soil intersections were not rerun; the replay begins with the retained
@@ -166,7 +166,7 @@ calibration or acceptance of a weather-driven LLM experiment.
 
 ## 6. Files and sources
 
-[Native model YAML](../../data/accepted/fe_walter_hydrology.yaml) · [Seven-subcatchment table](hydrology_data/subcatchments.csv) · [C&V CSV](hydrology_data/calibration_validation_metrics.csv) · [Source hashes](hydrology_data/provenance.json) · [Forcing/inflow manifest](../../data/accepted/historical_manifest.json)
+[Native model YAML](../../data/accepted/fe_walter_hydrology.yaml) · [Seven-subcatchment table](../../docs/results/fe_walter/hydrology/subcatchments.csv) · [C&V CSV](../../docs/results/fe_walter/hydrology/calibration_validation_metrics.csv) · [Source hashes](../../docs/results/fe_walter/hydrology/provenance.json) · [Forcing/inflow manifest](../../data/accepted/historical_manifest.json)
 
 The recovered preparation sources are `scripts/prepare_semidistributed_geometry.py`,
 `scripts/prepare_subbasin_physical_attributes.py` and

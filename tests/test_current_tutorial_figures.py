@@ -9,7 +9,7 @@ import pandas as pd
 import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
-OUTPUTS = ROOT / 'examples/fe_walter/coupled/outputs'
+OUTPUTS = ROOT / 'tests/fixtures/fe_walter_history/coupled_outputs'
 CRITERIA = ROOT / 'examples/fe_walter/seasonal_pool_criteria.json'
 
 
@@ -22,7 +22,7 @@ def _temporary_builder(tmp_path):
     builder.CURRENT = tmp_path / 'new-teaching-output'
     builder.SEASONAL_CRITERIA = tmp_path / 'examples/fe_walter/seasonal_pool_criteria.json'
     builder.OPERATING_KNOWLEDGE = tmp_path / 'examples/fe_walter/knowledge/operating_rules.md'
-    relative = Path('examples/fe_walter/coupled/outputs')
+    relative = Path('tests/fixtures/fe_walter_history/coupled_outputs')
     for name in ('2016/daily.csv', '2016/summary.json', 'gemma4_2016_comparison/daily.csv'):
         destination = tmp_path / relative / name
         destination.parent.mkdir(parents=True, exist_ok=True)
@@ -60,7 +60,7 @@ def test_current_tutorial_rows_are_exact_saved_framework_and_rule_rows():
 ])
 def test_current_tutorial_rejects_unmatched_saved_inputs(tmp_path, corruption):
     builder = _temporary_builder(tmp_path)
-    relative = Path('examples/fe_walter/coupled/outputs')
+    relative = Path('tests/fixtures/fe_walter_history/coupled_outputs')
     path = tmp_path / relative / 'gemma4_2016_comparison/daily.csv'
     daily = pd.read_csv(path)
     index = daily.index[(daily['engine'] == 'framework') & (daily['method'] == 'llm_knowledge')][0]
@@ -105,7 +105,7 @@ def test_secondary_formats_never_reuse_stale_source_or_renderer_outputs(tmp_path
     assert all((builder.CURRENT / name).read_text().startswith('renderer-v1:') for name in secondary)
 
     # A valid source change must not leave any of the six prior files in place.
-    source = tmp_path / 'examples/fe_walter/coupled/outputs/gemma4_2016_comparison/daily.csv'
+    source = tmp_path / 'tests/fixtures/fe_walter_history/coupled_outputs/gemma4_2016_comparison/daily.csv'
     frame = pd.read_csv(source)
     row = frame.index[(frame['engine'] == 'framework') & (frame['method'] == 'llm_knowledge')][0]
     frame.loc[row, 'pool_elevation_end_ft'] += 0.01
@@ -374,7 +374,7 @@ def test_saved_annual_levels_match_the_tabulated_storage_curve(method):
 
     daily = pd.read_csv(OUTPUTS / 'current_tutorial/daily.csv')
     rows = daily.loc[daily['method'].eq(method)]
-    curve = pd.read_csv(ROOT / 'cases/fe_belt_prompton_offline/fe_walter_storage_elevation.csv')
+    curve = pd.read_csv(ROOT / 'tests/fixtures/cases/fe_belt_prompton_offline/fe_walter_storage_elevation.csv')
     expected = np.interp(rows['storage_end_m3'] / 1233.4818,
                          curve['storage_acft'], curve['elevation_ft_ngvd29'])
     # The saved engines serialize the acre-foot conversion at different precision.

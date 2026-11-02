@@ -17,7 +17,7 @@ auditors:
   file: ../multiple_reservoirs/auditors.yaml
 extensions:
   local_retrieval: ../multiple_reservoirs/extensions/__init__.py
-  hanasaki: ../multiple_reservoirs/../rules/hanasaki/__init__.py
+  hanasaki: ../rules/hanasaki/__init__.py
 time:
   simulation_step: daily
   output_step: monthly

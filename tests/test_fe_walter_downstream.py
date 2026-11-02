@@ -18,7 +18,7 @@ from examples.fe_walter.downstream.prepare import (
 from llm_reservoir_agent.coupled import load_coupled_settings
 from llm_reservoir_agent.downstream import evaluate_daily_flows
 
-OUTPUT = CASE / "downstream/outputs"
+OUTPUT = ROOT / "tests/fixtures/fe_walter_history/downstream_outputs"
 
 
 def test_official_source_dates_quality_units_and_pins():
@@ -82,7 +82,7 @@ def test_native_kernel_roundoff_is_explicit_and_bounded():
 
 
 def test_saved_boundaries_components_metrics_and_tail_are_reproducible():
-    source = pd.read_csv(CASE / "coupled/outputs/current_tutorial/daily.csv")
+    source = pd.read_csv(INPUTS / "reservoir_daily.csv")
     data = pd.read_csv(OUTPUT / "daily.csv")
     tail = pd.read_csv(OUTPUT / "routing_tail.csv")
     report = json.loads((OUTPUT / "report.json").read_text())

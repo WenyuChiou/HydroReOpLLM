@@ -1,3 +1,7 @@
+"""Render the user manual without executing notebooks or providers."""
+import json
+from pathlib import Path
+
 project = "HydroReOpLLM"
 author = "HydroReOpLLM contributors"
 extensions = ["myst_nb"]
@@ -31,3 +35,6 @@ exclude_patterns = ["_static/**", "_templates/**", "_notebook_downloads/**", "_c
 exclude_patterns.append("_downstream_downloads/**")
 exclude_patterns.append("_daily_downloads/**")
 exclude_patterns.append("tutorials/downstream_validation.ipynb")  # Download the walkthrough; keep manual pages concise.
+
+# Shared with build.py so the sidebar and page-to-page order agree.
+html_context["manual_sections"] = json.loads(Path(__file__).with_name("navigation.json").read_text(encoding="utf-8"))

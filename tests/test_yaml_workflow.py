@@ -15,7 +15,7 @@ from llm_reservoir_agent.configured_audit import ConfiguredAudit
 from llm_reservoir_agent.network import PROJECT_ROOT
 from llm_reservoir_agent.verification import verify_run
 from llm_reservoir_agent.workflow import load_settings, run_settings
-from test_llm_network import network
+from tests.test_llm_network import network
 
 
 class WorkflowTests(unittest.TestCase):
@@ -60,7 +60,7 @@ class WorkflowTests(unittest.TestCase):
 
     def test_shipped_profiles_check_without_network_or_output_creation(self):
         with patch('urllib.request.urlopen', side_effect=AssertionError('network forbidden')):
-            for path in (PROJECT_ROOT/'experiments').glob('*.yaml'):
+            for path in (PROJECT_ROOT/'tests/fixtures/experiments').glob('*.yaml'):
                 with self.subTest(profile=path.name):
                     data = yaml.safe_load(path.read_text(encoding='utf-8'))
                     original_audit = any(
@@ -85,7 +85,7 @@ class WorkflowTests(unittest.TestCase):
                 with self.subTest(current_method=method):
                     settings = load_settings(path)
                     self.assertEqual(settings.report['network_calls'], 0)
-        actual = load_settings(PROJECT_ROOT/'experiments/fe_belt_prompton.yaml')
+        actual = load_settings(PROJECT_ROOT/'tests/fixtures/experiments/fe_belt_prompton.yaml')
         self.assertEqual(actual.report['agent_count'],2)
         self.assertEqual(actual.report['passive_reservoir_count'],1)
         self.assertFalse(actual.report['live_ready'])
@@ -131,9 +131,9 @@ class WorkflowTests(unittest.TestCase):
         with self.assertRaises(FileExistsError):run_settings(settings)
 
     def test_real_case_not_live_ready_cannot_run_llm(self):
-        original=PROJECT_ROOT/'experiments/fe_belt_prompton.yaml'
+        original=PROJECT_ROOT/'tests/fixtures/experiments/fe_belt_prompton.yaml'
         data=yaml.safe_load(original.read_text())
-        data['case']=str(PROJECT_ROOT/'cases/fe_belt_prompton_offline/case.json')
+        data['case']=str(PROJECT_ROOT/'tests/fixtures/cases/fe_belt_prompton_offline/case.json')
         data['models']={'local':dict(provider='ollama',model='test',base_url='http://localhost:11434')}
         data['max_calls']=14
         for a in data['agents'].values():
@@ -181,8 +181,8 @@ class WorkflowTests(unittest.TestCase):
         with self.assertRaises(ValueError):load_settings(self.save(live))
 
     def test_passive_assignment_unknown_placeholder_and_unsafe_yaml_rejected(self):
-        data=yaml.safe_load((PROJECT_ROOT/'experiments/fe_belt_prompton.yaml').read_text())
-        data['case']=str(PROJECT_ROOT/'cases/fe_belt_prompton_offline/case.json')
+        data=yaml.safe_load((PROJECT_ROOT/'tests/fixtures/experiments/fe_belt_prompton.yaml').read_text())
+        data['case']=str(PROJECT_ROOT/'tests/fixtures/cases/fe_belt_prompton_offline/case.json')
         for a in data['agents'].values():a['prompt']=str(self.prompt)
         data['agents']['passive']=dict(reservoir='Prompton',mode='offline',release_cms=1,prompt=str(self.prompt))
         with self.assertRaises(ValueError):load_settings(self.save(data))

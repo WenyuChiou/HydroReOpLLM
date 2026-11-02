@@ -72,9 +72,32 @@
 
 PBIAS 正值代表高估。PFE 的 CSV 原值為 fraction，這裡乘 100 顯示百分比。洪峰指標是事件平均，保留未配對事件的既定 penalty；每期選取 15 個觀測事件，間隔至少七日，在 ±7 日內一對一配對。門檻只取自校正觀測。這是測站尺度水文評估，不代表五個未設站區各自通過驗證，也不代表 LLM 策略已通過。
 
+### 固定參數重現
+
+2026 年 10 月 16 日的重現沿用 commit `8d59dcac2f9d06fe16030f68826b425d492c9529`
+的準備與評估程式，以及保存的最佳參數。從保留的物理屬性表重建七區的 CN2、Ur
+與共用參數後，每個值都與已接受的原生 YAML 一致。
+
+測站 01447500 只使用 FEW-D-01/02 及其測站 routing 河長 5,856 m、1 m，
+沒有改用通往水庫的較長河道。校正觀測的 Q95 為 15.630899318784 m³/s，
+驗證期沿用同一門檻。28 項純量指標均在絕對誤差 1e-9、相對誤差 1e-10 內重現。
+
+| 核對項目 | 重現結果 |
+|---|---|
+| 公開 HydroCNHS Model 與原生 kernel 的測站計算 | 最大差異 3.02 × 10⁻¹⁴ m³/s |
+| 七區 1989–2025 連續水文 | 13,514 個模擬日 |
+| 1996–2025 水庫入流與保留參考序列 | 10,958 日；最大差異 1.09 × 10⁻¹¹ cfs |
+| 獨立水庫入流 routing 卷積 | 最大差異 1.14 × 10⁻¹³ m³/s |
+
+[重現指標](../../docs/results/fe_walter/hydrology/reproduced_cv_metrics_20261016.csv)與
+[重現紀錄](../../docs/results/fe_walter/hydrology/reproduction_20261016.json)保存數值、runtime、
+來源雜湊及容許誤差；原始逐日輸出與恢復的研究程式保留在外部證據包。
+這次歷史重現從保留的邊界屬性表與 forcing 開始，未重做幾何劃分或土地／土壤疊合，
+也未執行 optimizer、模型請求或模擬網路存取。它驗證可重現性，並非新校正或 LLM 策略驗收。
+
 ## 6. 檔案與來源
 
-[Native model YAML](../../data/accepted/fe_walter_hydrology.yaml) · [Seven-subcatchment table](hydrology_data/subcatchments.csv) · [C&V CSV](hydrology_data/calibration_validation_metrics.csv) · [Source hashes](hydrology_data/provenance.json) · [Forcing/inflow manifest](../../data/accepted/historical_manifest.json)
+[Native model YAML](../../data/accepted/fe_walter_hydrology.yaml) · [Seven-subcatchment table](../../docs/results/fe_walter/hydrology/subcatchments.csv) · [C&V CSV](../../docs/results/fe_walter/hydrology/calibration_validation_metrics.csv) · [Source hashes](../../docs/results/fe_walter/hydrology/provenance.json) · [Forcing/inflow manifest](../../data/accepted/historical_manifest.json)
 
 其他集水區的建模與校正方法見[原生 HydroCNHS 設定](../../docs/HYDROLOGY_SETUP.md)及 [HydroCNHS 文件](https://cylin928.github.io/HydroCNHS/)。
 

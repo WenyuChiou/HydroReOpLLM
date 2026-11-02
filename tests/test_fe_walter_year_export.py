@@ -126,7 +126,7 @@ def test_plot_failure_leaves_no_partial_publication(exporter, runs, tmp_path, mo
 
 
 def test_real_saved_incomplete_trace_is_rejected(exporter, tmp_path):
-    saved = exporter.ROOT / "examples/fe_walter/reference_outputs/rule_three_day"
+    saved = exporter.ROOT / "tests/fixtures/fe_walter_history/reference_outputs/rule_three_day"
     output = tmp_path / "published"
     with pytest.raises((ValueError, AssertionError)):
         publish(exporter, dict.fromkeys(exporter.METHODS, saved), output)

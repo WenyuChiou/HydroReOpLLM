@@ -31,7 +31,7 @@ def host_api():
     """Single relocation seam for the case extension and generic physics."""
     try:
         from examples.fe_walter.extensions.reference_backend import ReferenceBackend
-        from reference_oracle import load_anik, require_reference_dir
+        from tests.reference_oracle import load_anik, require_reference_dir
     except ImportError:  # Temporary compatibility until the extension move lands.
         from llm_reservoir_agent.reference_backend import ReferenceBackend
         from llm_reservoir_agent.plugins.anik_v3_7 import load_anik

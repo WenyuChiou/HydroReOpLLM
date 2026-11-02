@@ -21,6 +21,31 @@ ROOT = Path(__file__).resolve().parents[1]
 COUPLED = ROOT / "examples/fe_walter/coupled"
 
 
+def test_saved_tutorial_lineage_survives_source_relocation():
+    """Original receipts keep strict hashes while newly written paths resolve."""
+    from tutorials import build_notebooks as builder
+    import os
+
+    manifest_path = builder.CURRENT / "provenance.json"
+    before = manifest_path.read_bytes()
+    manifest = json.loads(before)
+    for source in manifest["sources"].values():
+        assert builder._sha(builder._tutorial_source(source["path"])) == source["sha256"]
+    for target in (builder.SEASONAL_CRITERIA, builder.OPERATING_KNOWLEDGE):
+        current_path = Path(os.path.relpath(target, builder.CURRENT)).as_posix()
+        assert builder._tutorial_source(current_path).resolve() == target.resolve()
+    with pytest.raises(FileNotFoundError):
+        builder._sha(builder._tutorial_source("../../../missing_criteria.json"))
+    assert manifest_path.read_bytes() == before
+
+
+def test_saved_notebook_and_artifact_integrity_check():
+    """Exercise the same final checker as CI without rebuilding saved artifacts."""
+    from tutorials import build_notebooks as builder
+
+    assert len(builder.check()) == 3
+
+
 def test_operation_builder_needs_no_repository_import_path(tmp_path):
     """Build from isolated sibling scripts, without rewriting accepted notebooks."""
     folder = tmp_path / "tutorials"
@@ -128,7 +153,7 @@ def test_operation_detects_scientific_input_changes_without_manifest_update(tmp_
     manifest_path = case / "provenance.json"
     manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
     # Current lessons also pin the maintained engineering-source lineage.
-    (case / "engineering-sources-v3.json").write_text("{}\n", encoding="utf-8")
+    (case / "engineering-sources-v4.json").write_text("{}\n", encoding="utf-8")
     monkeypatch.setattr(builder, "ROOT", tmp_path)
     previous["metadata"]["execution_dependencies"] = builder._operation_dependencies()
     path = tmp_path / "operation.ipynb"
@@ -169,9 +194,9 @@ def test_current_entry_resolves_to_approved_resources(current, agent):
 
 
 def test_current_notebook_sources_match_saved_annual_inflow_and_model():
-    annual = COUPLED / "outputs/gemma4_2016_comparison"
+    annual = ROOT / "tests/fixtures/fe_walter_history/coupled_outputs/gemma4_2016_comparison"
     daily = pd.read_csv(annual / "daily.csv")
-    rule = pd.read_csv(COUPLED / "outputs/2016/daily.csv")
+    rule = pd.read_csv(ROOT / 'tests/fixtures/fe_walter_history/coupled_outputs/2016/daily.csv')
     rule = rule.loc[rule["method"] == "rule"]
     for (_, _), group in daily.groupby(["engine", "method"]):
         assert len(group) == len(rule) == 366

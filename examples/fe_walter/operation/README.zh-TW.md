@@ -4,7 +4,7 @@
 
 請開啟[五年教學](../../../tutorials/operation.ipynb)閱讀設定，並查看實際執行時的逐日進度。
 最新已完成的三個 seed Daily／Hourly 比較、圖表與 Table 3，請見
-[完成結果頁](../completed_results/README.md)。該實驗保留自己的設定與初始狀態。
+[完成結果頁](../../../docs/results/fe_walter/completed/README.md)。該實驗保留自己的設定與初始狀態。
 此資料夾另包含一個教學共用案例、一份已完成的 1,826 日規則基準，以及兩種可選的
 LLM 方法：**無額外操作知識的 LLM**與**含額外操作知識的 LLM**。
 

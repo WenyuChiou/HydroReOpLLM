@@ -27,8 +27,8 @@ import matplotlib.pyplot as plt
 
 ROOT = Path(__file__).resolve().parents[1]
 FORCING = ROOT / "data/accepted/fe_walter_forcing_1989_2025.csv.gz"
-AREAS = ROOT / "examples/fe_walter/hydrology_data/subcatchments.csv"
-OUTPUT = ROOT / "examples/fe_walter/hydrology_data/climate"
+AREAS = ROOT / "docs/results/fe_walter/hydrology/subcatchments.csv"
+OUTPUT = ROOT / "docs/results/fe_walter/hydrology/climate"
 MONTHLY = OUTPUT / "fe_walter_climate_monthly_1989_2025.csv"
 FIGURE_STEM = OUTPUT / "fe_walter_climate_1989_2025"
 PROVENANCE = OUTPUT / "provenance.json"

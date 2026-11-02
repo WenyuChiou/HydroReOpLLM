@@ -310,7 +310,7 @@ class DKPCompositionTests(unittest.TestCase):
         self.assertEqual(adapter.network_calls, 0)
 
     def test_actual_dkp_layer_keeps_bounded_decision_and_spill_feedback(self):
-        from reference_oracle import load_anik, require_reference_dir
+        from tests.reference_oracle import load_anik, require_reference_dir
 
         vendor = load_anik(ROOT)
         cfg = next(value for value in vendor.RESERVOIRS if value.name == "F.E. Walter Dam")
@@ -393,8 +393,8 @@ assert core.ConstantPolicy(1).decide({}).release_cms == 1
 
     def test_all_transition_fields_match_frozen_kernel_at_adversarial_bounds(self):
         from dataclasses import asdict
-        from examples.fe_walter.legacy.physics import PhysicalConfig as LegacyConfig
-        from examples.fe_walter.legacy.physics import apply_transition as legacy_apply
+        from tests.fixtures.fe_walter_legacy.physics import PhysicalConfig as LegacyConfig
+        from tests.fixtures.fe_walter_legacy.physics import apply_transition as legacy_apply
 
         configs = [PhysicalConfig("boundaries", 100.0, 10.0, 80.0, 1.0, 10.0, 10.0),
                    PhysicalConfig("daily", 1e8, 1e7, 8e7, 0.1, 1000.0),
@@ -411,8 +411,8 @@ assert core.ConstantPolicy(1).decide({}).release_cms == 1
 
     def test_invalid_inputs_raise_same_error_as_frozen_kernel(self):
         from dataclasses import asdict
-        from examples.fe_walter.legacy.physics import PhysicalConfig as LegacyConfig
-        from examples.fe_walter.legacy.physics import apply_transition as legacy_apply
+        from tests.fixtures.fe_walter_legacy.physics import PhysicalConfig as LegacyConfig
+        from tests.fixtures.fe_walter_legacy.physics import apply_transition as legacy_apply
 
         config = PhysicalConfig("boundary", 100.0, 10.0, 80.0, 1.0, 10.0, 10.0)
         legacy = LegacyConfig(**asdict(config))
@@ -431,7 +431,7 @@ assert core.ConstantPolicy(1).decide({}).release_cms == 1
 
     def test_agent_committed_states_and_cached_calls_match_frozen_agent(self):
         from datetime import date, timedelta
-        from examples.fe_walter.legacy.dam_agent import FEWalterDamAgent
+        from tests.fixtures.fe_walter_legacy.dam_agent import FEWalterDamAgent
         from llm_reservoir_agent import LLMReservoirAgent, ReservoirDamAgent
 
         class Collector:

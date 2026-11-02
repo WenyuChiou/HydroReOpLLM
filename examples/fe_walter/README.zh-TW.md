@@ -51,15 +51,13 @@ $$
 驗證。該測站涵蓋七個單元中的兩個；其餘五個單元沒有獨立測站驗證。期間、指標、
 參數與 2021–2025 年固定參數前推模擬詳見[水文、參數與校準／驗證](hydrology.zh-TW.md)。
 
-下載：[月資料 CSV](hydrology_data/climate/fe_walter_climate_monthly_1989_2025.csv)、
-[來源與彙整紀錄](hydrology_data/climate/provenance.json)、
-[SVG](hydrology_data/climate/fe_walter_climate_1989_2025.svg)、
-[PDF](hydrology_data/climate/fe_walter_climate_1989_2025.pdf)。
+下載：[月資料 CSV](../../docs/results/fe_walter/hydrology/climate/fe_walter_climate_monthly_1989_2025.csv)、
+[來源與彙整紀錄](../../docs/results/fe_walter/hydrology/climate/provenance.json)、
 
 ```{figure-md} fe-walter-climate-forcing-zh-tw
 :class: climate-figure
 
-![F.E. Walter 模式集水區逐月降水、PET 與溫度](hydrology_data/climate/fe_walter_climate_1989_2025.png)
+![F.E. Walter 模式集水區逐月降水、PET 與溫度](../../docs/results/fe_walter/hydrology/climate/fe_walter_climate_1989_2025.png)
 
 **圖 2。** 1989–2025 年面積加權月氣象輸入。降水與 PET 為月總量（mm/month），
 溫度為月平均（°C）。

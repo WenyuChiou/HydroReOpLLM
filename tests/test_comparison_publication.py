@@ -16,7 +16,7 @@ from examples.fe_walter.coupled.export_comparison import (
 
 
 ROOT = Path(__file__).resolve().parents[1]
-OUTPUT = ROOT / "examples/fe_walter/coupled/outputs/gemma4_2016_comparison"
+OUTPUT = ROOT / "tests/fixtures/fe_walter_history/coupled_outputs/gemma4_2016_comparison"
 
 
 def test_exporter_uses_only_current_canonical_prompt_bytes():

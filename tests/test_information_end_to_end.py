@@ -21,8 +21,8 @@ import yaml
 from llm_reservoir_agent.network import PROJECT_ROOT
 from llm_reservoir_agent.verification import verify_run
 from llm_reservoir_agent.workflow import load_settings, run_settings
-from test_llm_network import network
-from test_passive_and_balance import passive
+from tests.test_llm_network import network
+from tests.test_passive_and_balance import passive
 
 
 class FixtureServer:

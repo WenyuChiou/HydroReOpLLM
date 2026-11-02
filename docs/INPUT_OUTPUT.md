@@ -1,113 +1,50 @@
-# Configuration overview
+# Configuration files
 
-HydroReOpLLM keeps an accepted HydroCNHS model as the hydrology source and adds
-explicit files for reservoir physics, operation agents, model providers, and
-decision evidence. A new study follows this route:
+One experiment file connects the settings for your study. Start with
+[the configuration template](../templates/coupled/experiment.yaml), then follow
+the chapters from global settings to individual reservoir operators.
 
-1. Set shared dates, output, and file references in [Global settings](GLOBAL_SETTINGS.md).
-2. Connect the accepted model and forcing in [Hydrology setup](HYDROLOGY_SETUP.md).
-3. Define reservoir physics and the water network in [Build a simulation](BUILD_SIMULATION.md).
-4. Choose Rule-based or LLM operators in [Configure agents](CONFIGURATION.md).
-5. Add optional data through [Available information](INFORMATION.md).
-6. Run the checks and commands in [Run and resume](RUNNING.md).
+## Input layers
 
-Check the configuration files, prepare and save upstream inflow, then run daily
-reservoir operations. Verify the saved records before interpreting the results.
-Reservoir decisions use the saved inflow; they do not repeat or alter the
-upstream hydrology calculation.
+| Configure in this order | File | What you set |
+|---|---|---|
+| [Global settings](GLOBAL_SETTINGS.md) | `experiment.yaml` | Dates, run name, output and references to the other files. |
+| [Hydrology](HYDROLOGY_SETUP.md) | `hydrology.yaml` | The hydrological model, weather and inflow connections. |
+| [Reservoirs and network](BUILD_SIMULATION.md) | `reservoirs.yaml` | Storage, release limits and water connections. |
+| [Operators and prompts](CONFIGURATION.md) | `agents.rule.yaml` or `agents.llm.yaml` | The operator for each reservoir and its prompt. |
+| [Models](MODEL_PROVIDERS.md) | `models.yaml` | Provider, model and request options for LLM operators. |
+| [Available information](INFORMATION.md) | `information.yaml` and local knowledge files | Observations, forecasts or operational knowledge available to each operator. |
 
-![Simulation workflow](figures/simulation-stages.svg)
+`auditors.yaml` selects operation checks. `extensions/` holds optional custom
+rules, response parsers or information sources. Keep study-specific code there
+rather than editing the core package.
 
-*Figure 1. Configuration, saved inflow and results connect the calculation
-steps. [Editable draw.io source](figures/simulation-stages.drawio).*
+## The experiment file
 
-## Begin with the experiment file
-
-The [template file list](TEMPLATES.md) keeps the settings together. Start with
-[experiment.yaml](../templates/coupled/experiment.yaml), shown in full below.
-It points to the other files; the following chapters explain each one.
+The example below points to separate files. A **key**, such as `run_id`, is a
+setting within the file; a **path**, such as `hydrology.yaml`, locates another file.
 
 ```{literalinclude} ../templates/coupled/experiment.yaml
 :language: yaml
 ```
 
-## Files, configuration keys, and functions
+Paths are relative to the file that declares them. For example,
+`agents: {file: agents.rule.yaml}` loads that complete section from
+`agents.rule.yaml`; it does not combine it with another inline agents section.
 
-These three names describe different things:
+The [template file list](TEMPLATES.md) provides all starting files together.
 
-| Term | Example | Meaning |
-|---|---|---|
-| File | `hydrology.yaml` | A document on disk. A path points to it. |
-| Configuration key | `run_id` | A field in the displayed YAML; its value names this run. |
-| Function | `load_coupled_settings()` | Python code that reads and validates configuration. |
+## From settings to results
 
-The `hydrology.file` entry points to a separate file, rather than calling Python
-code. [Hydrology](HYDROLOGY_SETUP.md) shows that file before explaining its keys.
+![Check configuration, prepare inflow, run reservoir operations and verify records](figures/simulation-stages.svg)
 
-## Input layers
+*Configuration files connect the hydrology preparation, reservoir operation and saved results.*
 
-| Layer | Purpose | Main files |
-|---|---|---|
-| Global | Run identity, operation dates, output, and section references | `experiment.yaml` |
-| Hydrology | Accepted native model, complete forcing, and local flow bindings | `hydrology.yaml` plus user files |
-| Reservoir network | Storage and release limits, inlets, routing, and outlets | `reservoirs.yaml` |
-| Operators | One Rule-based or LLM agent per controlled reservoir | `agents.rule.yaml` or `agents.llm.yaml` |
-| Shared catalogs | Model profiles, auditors, and optional information | `models.yaml`, `auditors.yaml`, `information.yaml` |
-| Prompts and extensions | User messages and registered user code | `prompts/`, `extensions/` |
+The hydrology stage calculates and saves inflow. Reservoir operation then uses
+that inflow to update storage, release and downstream flow. Changing an operator
+does not rerun upstream hydrology.
 
-Every relative path starts from the file that declares it. A section reference
-such as `agents: {file: agents.rule.yaml}` replaces that whole section; the
-loader does not merge the external file with inline values.
-
-## Hydrology inputs
-
-The supported entry accepts an agent-free native GWLF or ABCD model with
-Lohmann routing. The forcing table contains one row for every native model day
-and weather driven unit, with these columns:
-
-| Column | Unit | Requirement |
-|---|---|---|
-| `date` | `YYYY-MM-DD` | Every continuous native model day |
-| `subbasin_id` | native model ID | Must match a weather driven unit |
-| `precipitation_mm` | mm/day | Finite and nonnegative |
-| `temperature_c` | °C | Finite |
-| `pet_cm` | cm/day | Finite and nonnegative |
-
-The adapter divides precipitation by ten before calling native HydroCNHS,
-which expects precipitation in cm/day. It does not download, calibrate, or
-invent hydrology. Reservoir initial storage remains an independent physical
-input.
-
-## Agent input and action
-
-Both operation methods receive a detached `ReservoirObservation` containing
-the decision time, current inflow, feasible release ceiling, reservoir state,
-and explicitly selected information. An LLM returns the generic action:
-
-```json
-{"schema_version": "reservoir-action.v1", "release_cms": 5.0}
-```
-
-The number is only a format example. It is a requested mean controlled release
-in m³/s. Common physics applies available water, release limits, and spill, so
-requested release, implemented controlled release, and routed total outflow are
-separate recorded values.
-
-## Outputs
-
-`prepare` writes hydrology provenance and local inflows. `run` writes the daily
-operation records under `operation/`.
-
-| Output | Contents |
-|---|---|
-| `inflows.csv` | Prepared incremental local flow by date and network node |
-| `preparation.json`, `hydrology.json` | Hydrology interval, bindings, and source hashes |
-| `operation/decisions.jsonl` | Observations, requested actions, and provenance links |
-| `operation/provider_attempts.jsonl`, `operation/raw/` | LLM request and reply evidence when used |
-| `operation/audit.jsonl` | Diagnostic PASS, WARN, FAIL, or UNKNOWN results |
-| `operation/physics.jsonl`, `operation/reservoir_trajectory.csv` | Storage, controlled release, spill, and balance |
-| `operation/network_flows.csv`, `operation/network_balance.csv` | Local and routed flows plus system accounting |
-| `operation/summary.json`, `operation/experiment.json` | Completion and resolved input provenance |
-
-`verify` checks record integrity, causal links, and water accounting. It does
-not certify hydrological calibration or operation quality.
+Continue to [global settings](GLOBAL_SETTINGS.md). After configuring each layer,
+follow [Run the simulation](RUNNING.md) and [Read the results](RESULTS_GUIDE.md).
+Python functions and full field details are in the [API](API_REFERENCE.md) and
+[configuration reference](PARAMETER_REFERENCE.md).

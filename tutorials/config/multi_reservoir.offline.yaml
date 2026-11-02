@@ -3,7 +3,7 @@
 # FE Walter/Beltzville meet on Lehigh branches; Prompton is on a separate branch.
 # Paths are relative to this YAML. Fixed releases test the interface, not a strategy.
 schema_version: llm-reservoir-experiment.v1      # Required configuration format.
-case: ../../cases/fe_belt_prompton_offline/case_2016_01.json # Reservoirs, routing, physics and input CSV/hash.
+case: ../../tests/fixtures/cases/fe_belt_prompton_offline/case_2016_01.json # Reservoirs, routing, physics and input CSV/hash.
 run_id: three-reservoir-tutorial-31d      # Experiment ID; change for a new run.
 output: ../../runs/three-reservoir-tutorial-31d # New output folder; cannot overwrite.
 auditors:                                     # Available versioned decision checks.

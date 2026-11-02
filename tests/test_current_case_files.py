@@ -30,7 +30,7 @@ def test_current_method_entries_select_their_own_agent_configuration():
 
 def test_retained_offline_entries_have_no_model_requests():
     for relative in (
-        "examples/fe_walter/benchmark/experiment.yaml",
+        "tests/fixtures/fe_walter_current/benchmark.yaml",
         "tutorials/config/multi_reservoir.offline.yaml",
     ):
         path = ROOT / relative

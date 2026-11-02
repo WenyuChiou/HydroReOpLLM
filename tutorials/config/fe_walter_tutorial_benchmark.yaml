@@ -3,7 +3,7 @@
 # network request is configured.
 schema_version: llm-reservoir-experiment.v1
 run_id: fe-walter-tutorial-benchmark-2016-01
-case: ../../cases/fe_walter_ollama_demo/case.json
+case: ../../tests/fixtures/cases/fe_walter_ollama_demo/case.json
 output: ../../runs/fe-walter-tutorial-benchmark
 start_date: '2016-01-01'
 end_date: '2016-01-03'
