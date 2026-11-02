@@ -7,20 +7,20 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-from examples.fe_walter.legacy.anik_experiment import RunJournal, JournalBackend, append_json, digest
-from examples.fe_walter.legacy.anik_recovery import OffsetPolicy, validate_prefix, acquire_lock, run_recovery
-from reference_oracle import load_anik, require_reference_dir
-from examples.fe_walter.legacy.anik_experiment import native_config, prepare_case
-from examples.fe_walter.legacy.case import PROJECT_ROOT
-from examples.fe_walter.legacy.hydrocnhs_bridge import run_hydrocnhs
-from test_anik_experiment import FakeBackend
+from tests.fixtures.fe_walter_legacy.anik_experiment import RunJournal, JournalBackend, append_json, digest
+from tests.fixtures.fe_walter_legacy.anik_recovery import OffsetPolicy, validate_prefix, acquire_lock, run_recovery
+from tests.reference_oracle import load_anik, require_reference_dir
+from tests.fixtures.fe_walter_legacy.anik_experiment import native_config, prepare_case
+from tests.fixtures.fe_walter_legacy.case import PROJECT_ROOT
+from tests.fixtures.fe_walter_legacy.hydrocnhs_bridge import run_hydrocnhs
+from tests.test_anik_experiment import FakeBackend
 
 
 class RecoveryTests(unittest.TestCase):
     def test_failed_worker_receipt_is_terminal_and_releases_lock(self):
         with tempfile.TemporaryDirectory() as tmp:
             output = Path(tmp)
-            with patch('examples.fe_walter.legacy.anik_recovery.prepare_recovery', side_effect=ValueError('drift')):
+            with patch('tests.fixtures.fe_walter_legacy.anik_recovery.prepare_recovery', side_effect=ValueError('drift')):
                 with self.assertRaisesRegex(ValueError, 'drift'):
                     run_recovery(Path('unused'), output, {})
             receipt = json.loads((output / 'recovery_process.json').read_text())
@@ -30,7 +30,7 @@ class RecoveryTests(unittest.TestCase):
             acquire_lock(output).close()
 
     def test_native_host_runs_only_two_suffix_dates_from_saved_storage(self):
-        case, rows = prepare_case(PROJECT_ROOT / 'cases/fe_walter_anik_daily_2016_2020.json')
+        case, rows = prepare_case(PROJECT_ROOT / 'tests/fixtures/cases/fe_walter_anik_daily_2016_2020.json')
         _, config = native_config(case, load_anik(PROJECT_ROOT))
         config['start_date'] = '2019-06-30'
         config['agent_config']['Attributes']['Physical']['initial_storage_m3'] = 25453146.95119963
@@ -56,7 +56,7 @@ class RecoveryTests(unittest.TestCase):
             output = Path(tmp)
             command = [sys.executable, '-c',
                        ('import sys; from pathlib import Path; '
-                        'from examples.fe_walter.legacy.anik_recovery import acquire_lock; '
+                        'from tests.fixtures.fe_walter_legacy.anik_recovery import acquire_lock; '
                         'acquire_lock(Path(sys.argv[1])).close()'), str(output)]
             # Source-checkout test bootstraps live in sys.path, not necessarily
             # PYTHONPATH. Give the second interpreter the same import roots.

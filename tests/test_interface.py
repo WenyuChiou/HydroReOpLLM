@@ -9,9 +9,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from examples.fe_walter.legacy import FEWalterDamAgent, PhysicalConfig, apply_transition
-from examples.fe_walter.legacy.contracts import ReservoirObservation, parse_action
-from examples.fe_walter.legacy.replay import ReplayDataCollector
+from tests.fixtures.fe_walter_legacy import FEWalterDamAgent, PhysicalConfig, apply_transition
+from tests.fixtures.fe_walter_legacy.contracts import ReservoirObservation, parse_action
+from tests.fixtures.fe_walter_legacy.replay import ReplayDataCollector
 
 
 def make_agent(policy=None, *, inflow=(1.0, 1.0), initial=100000.0):
@@ -151,7 +151,7 @@ class PhysicsTests(unittest.TestCase):
         self.assertEqual(row.minimum_release_shortfall_cms, 1)
 
     def test_fe_walter_two_dry_days_keep_dead_storage_in_domain(self):
-        case = json.loads((ROOT / "cases/fe_walter.json").read_text(encoding="utf-8"))
+        case = json.loads((ROOT / "tests/fixtures/cases/fe_walter.json").read_text(encoding="utf-8"))
         config = PhysicalConfig(**case["agent_config"]["Attributes"]["Physical"])
         first = apply_transition(config, config.initial_storage_m3, 0, config.maximum_release_cms)
         self.assertEqual(first.storage_end_m3, config.dead_storage_m3)

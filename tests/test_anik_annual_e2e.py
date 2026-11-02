@@ -18,7 +18,7 @@ import pandas as pd
 import pytest
 import yaml
 
-from reference_oracle import load_anik, require_reference_dir
+from tests.reference_oracle import load_anik, require_reference_dir
 from examples.fe_walter.extensions.seasonal_prompt_context import (
     SeasonalContextBackend, load_seasonal_prompt_context,
 )
@@ -32,7 +32,7 @@ COUPLED = ROOT / "examples/fe_walter/coupled"
 
 def annual_inflow():
     """Use only the shared inlet column, never saved operating decisions."""
-    data = pd.read_csv(COUPLED / "outputs/2016/daily.csv")
+    data = pd.read_csv(ROOT / 'tests/fixtures/fe_walter_history/coupled_outputs/2016/daily.csv')
     data = data[data["method"] == "llm_available"]
     assert len(data) == data["date"].nunique() == 366
     return pd.Series(data["inflow_cms"].to_numpy(), index=pd.to_datetime(data["date"]))

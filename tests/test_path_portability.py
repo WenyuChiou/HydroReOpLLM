@@ -6,7 +6,7 @@ from unittest.mock import patch
 import pytest
 
 from llm_reservoir_agent import coupled
-from test_weather_entry import make_bundle
+from tests.test_weather_entry import make_bundle
 
 
 def aliased_temporary_directory(monkeypatch):

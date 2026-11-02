@@ -31,7 +31,7 @@ def check_calibration_lineage(provenance):
     evidence = provenance["hydrology"]["lower_validation"]
     # Keep this lesson's frozen calibration evidence local; main's newer case
     # reports may evolve independently and must not be overwritten by a tutorial.
-    engineering = json.loads((CASE_DIR / "engineering-sources-v3.json").read_text(encoding="utf-8"))
+    engineering = json.loads((CASE_DIR / "engineering-sources-v4.json").read_text(encoding="utf-8"))
     retained = engineering["historical_validation_summary"]
     summary_path = (CASE_DIR / retained["path"]).resolve()
     _require(summary_path.is_relative_to(CASE_DIR.resolve()), "Calibration evidence escapes lesson folder")
@@ -73,7 +73,7 @@ def check_preparation():
                  "Teaching artifact checksum mismatch: " + name)
     # The scientific receipt is immutable. A separate versioned record identifies
     # maintained teaching sources; it never claims they produced the old outputs.
-    engineering = json.loads((CASE_DIR / "engineering-sources-v3.json").read_text(encoding="utf-8"))
+    engineering = json.loads((CASE_DIR / "engineering-sources-v4.json").read_text(encoding="utf-8"))
     _require(engineering["historical_provenance_sha256"] == hashlib.sha256(
         (CASE_DIR / "provenance.json").read_bytes()).hexdigest(), "Changed historical preparation record")
     _require(set(engineering["dependencies"]) == set(provenance["shared_dependencies"]),
@@ -82,7 +82,7 @@ def check_preparation():
         source = engineering["dependencies"][name]
         _require(source["historical_sha256"] == previous, "Changed source lineage: " + name)
         expected = source["current_sha256"]
-        _require(hashlib.sha256((ROOT / name).read_bytes()).hexdigest() == expected,
+        _require(hashlib.sha256((ROOT / source.get("current_path", name)).read_bytes()).hexdigest() == expected,
                  "Shared source checksum mismatch: " + name)
     validation = check_calibration_lineage(provenance)
     settings = [load_settings(CASE_DIR / name, runtime_root=ROOT) for name in METHOD_FILES]

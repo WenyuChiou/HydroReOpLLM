@@ -4,11 +4,11 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-from examples.fe_walter.legacy.anik_adapter import AnikPolicyAdapter
-from reference_oracle import load_anik, require_reference_dir
-from examples.fe_walter.legacy.anik_experiment import JournalBackend, JournalPersistenceError, RunJournal, append_json, native_config, prepare_case
-from examples.fe_walter.legacy.case import PROJECT_ROOT, CFS_TO_CMS
-from examples.fe_walter.legacy.hydrocnhs_bridge import run_hydrocnhs
+from tests.fixtures.fe_walter_legacy.anik_adapter import AnikPolicyAdapter
+from tests.reference_oracle import load_anik, require_reference_dir
+from tests.fixtures.fe_walter_legacy.anik_experiment import JournalBackend, JournalPersistenceError, RunJournal, append_json, native_config, prepare_case
+from tests.fixtures.fe_walter_legacy.case import PROJECT_ROOT, CFS_TO_CMS
+from tests.fixtures.fe_walter_legacy.hydrocnhs_bridge import run_hydrocnhs
 
 
 class FakeBackend:
@@ -27,7 +27,7 @@ class FakeBackend:
 class TestAnikExperiment(unittest.TestCase):
     def test_full_period_and_native_physics_match_original(self):
         import pandas as pd
-        case, all_rows = prepare_case(PROJECT_ROOT / "cases/fe_walter_anik_daily_2016_2020.json")
+        case, all_rows = prepare_case(PROJECT_ROOT / "tests/fixtures/cases/fe_walter_anik_daily_2016_2020.json")
         self.assertEqual(len(all_rows), 1827)
         model = load_anik(PROJECT_ROOT)
         cfg, config = native_config(case, model)
@@ -109,7 +109,7 @@ class TestAnikExperiment(unittest.TestCase):
                     if value["event"] == fail_event:
                         raise OSError("simulated persistence failure")
                     append_json(path, value)
-                with patch("examples.fe_walter.legacy.anik_experiment.append_json", side_effect=fail_write):
+                with patch("tests.fixtures.fe_walter_legacy.anik_experiment.append_json", side_effect=fail_write):
                     with self.assertRaises(JournalPersistenceError):
                         backend.decide("system", "prompt")
                 self.assertEqual(inner.calls, expected_calls)

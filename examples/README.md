@@ -2,12 +2,18 @@
 
 [English](README.md) | [繁體中文](README.zh-TW.md)
 
-Start with the [FE Walter walkthrough](fe_walter/README.md). It compares three
-decision methods through native HydroCNHS Dam coupling and routing, with
-HydroReOpLLM's added shared reservoir physics and audit/trace.
+Choose the smallest example that fits your study:
 
-For a new catchment, use the local [hydrology setup](../docs/HYDROLOGY_SETUP.md)
-with the [official HydroCNHS documentation](https://cylin928.github.io/HydroCNHS/)
-for runoff, parameters, routing, calibration and validation. The synthetic
-offline configurations and tutorial notebooks remain available for developer
-validation; the main tutorial reads saved FE Walter results. Model execution requires an explicit user action.
+| Folder | Use it for |
+|---|---|
+| [daily_offline](daily_offline/README.md) | A first single-reservoir run with no model service. |
+| [multiple_reservoirs](multiple_reservoirs/README.md) | Independent operators in a connected network. |
+| [time_scales](time_scales/README.md) | Daily, Hourly and explicit interval configurations. |
+| [fe_walter](fe_walter/README.md) | A real-reservoir study with prepared inflows or weather-driven hydrology. |
+
+`rules/` supplies the shared Hanasaki extension. `llm_reservoir_abm.py` is the
+native HydroCNHS adapter required by these examples.
+
+Start with the [manual](../docs/index.md) for configuration instructions.
+`templates/` contains blank starting files; `tests/fixtures/` contains regression
+inputs and preserved research records rather than user examples.

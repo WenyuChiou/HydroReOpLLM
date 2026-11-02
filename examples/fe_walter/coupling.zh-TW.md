@@ -98,8 +98,8 @@ LLM 改變蓄水與下游流量，不修改 GWLF 參數或上游氣象。
 氣象到操作的執行證據，請見英文[2016 年耦合結果](results.md)。
 保存檔驗證不代表操作策略已通過驗收。
 
-接著閱讀[規則式操作](benchmark/README.zh-TW.md)、
-[未提供額外操作知識的 LLM](zero_shot/README.zh-TW.md)，或[提供額外操作知識的 LLM](dkp/README.zh-TW.md)。
+接著閱讀[規則式操作](../../docs/CASE_STUDIES.md)、
+[未提供額外操作知識的 LLM](../../docs/CASE_STUDIES.md)，或[提供額外操作知識的 LLM](../../docs/CASE_STUDIES.md)。
 
 來源細節：[原生 HydroCNHS 設定](../../docs/HYDROLOGY_SETUP.md) ·
 [原生模擬](../../src/hydrocnhs/hydrocnhs.py) ·

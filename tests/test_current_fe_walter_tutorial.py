@@ -128,7 +128,7 @@ def test_operation_detects_scientific_input_changes_without_manifest_update(tmp_
     manifest_path = case / "provenance.json"
     manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
     # Current lessons also pin the maintained engineering-source lineage.
-    (case / "engineering-sources-v3.json").write_text("{}\n", encoding="utf-8")
+    (case / "engineering-sources-v4.json").write_text("{}\n", encoding="utf-8")
     monkeypatch.setattr(builder, "ROOT", tmp_path)
     previous["metadata"]["execution_dependencies"] = builder._operation_dependencies()
     path = tmp_path / "operation.ipynb"
@@ -169,9 +169,9 @@ def test_current_entry_resolves_to_approved_resources(current, agent):
 
 
 def test_current_notebook_sources_match_saved_annual_inflow_and_model():
-    annual = COUPLED / "outputs/gemma4_2016_comparison"
+    annual = ROOT / "tests/fixtures/fe_walter_history/coupled_outputs/gemma4_2016_comparison"
     daily = pd.read_csv(annual / "daily.csv")
-    rule = pd.read_csv(COUPLED / "outputs/2016/daily.csv")
+    rule = pd.read_csv(ROOT / 'tests/fixtures/fe_walter_history/coupled_outputs/2016/daily.csv')
     rule = rule.loc[rule["method"] == "rule"]
     for (_, _), group in daily.groupby(["engine", "method"]):
         assert len(group) == len(rule) == 366

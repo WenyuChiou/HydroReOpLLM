@@ -152,4 +152,4 @@ cannot promise exactly-once delivery to an external provider.
 | Authentication error | Correct the named environment variable or endpoint; do not add an implicit fallback. |
 | Valid JSON but poor operation | Inspect reason, available information, requested/actual flow and policy audits separately. |
 
-[39-module inventory](MODULE_INVENTORY.md) · [Current case results](../examples/fe_walter/completed_results/README.md)
+[39-module inventory](MODULE_INVENTORY.md) · [Current case results](results/fe_walter/completed/README.md)

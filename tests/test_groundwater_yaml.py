@@ -7,7 +7,7 @@ import numpy as np
 import pytest
 import yaml
 
-from test_time_scale_yaml import _daily_bundle, _hourly_bundle, _yaml
+from tests.test_time_scale_yaml import _daily_bundle, _hourly_bundle, _yaml
 from llm_reservoir_agent.coupled import load_coupled_settings, prepare_coupled, prepared_experiment
 
 
@@ -74,7 +74,7 @@ def test_daily_diagnostics_setting_binds_reuse_and_validates_type(tmp_path):
 
 
 def test_native_diagnostics_survive_process_workers(tmp_path):
-    from test_time_scale_yaml import ROOT
+    from tests.test_time_scale_yaml import ROOT
     from hydrocnhs import Model
     source = yaml.safe_load((ROOT/'data/accepted/fe_walter_hydrology.yaml').read_text())
     source['WaterSystem'].update(StartDate='2020/01/01', EndDate='2020/02/29', DataLength=60)

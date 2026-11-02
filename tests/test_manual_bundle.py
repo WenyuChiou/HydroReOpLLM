@@ -57,7 +57,8 @@ def test_fe_walter_guide_links_the_notebook_and_preserves_configuration(prepared
     assert (output / page).is_file()
     assert 'tutorials/main' in (output / 'index.md').read_text(encoding='utf-8')
     navigation = (output / '_templates/navigation.html').read_text(encoding='utf-8')
-    assert "chapter('tutorials/main'" in navigation
+    sections = json.loads((ROOT / 'docs/navigation.json').read_text(encoding='utf-8'))
+    assert 'tutorials/main' in [page['path'] for section in sections for page in section['pages']]
     text = (output / page).read_text(encoding='utf-8')
     assets = (
         'coupled/experiment.yaml', 'coupled/llm_available.yaml',
@@ -105,15 +106,15 @@ def test_current_2016_exports_are_local_exact_and_do_not_replace_history(prepare
         | {'gemma4-2016-' + name for name in comparison}
     )
     for name in current:
-        relative = 'examples/fe_walter/coupled/outputs/2016/' + name
+        relative = 'tests/fixtures/fe_walter_history/coupled_outputs/2016/' + name
         expected = (ROOT / relative).read_bytes()
         assert (output / relative).read_bytes() == expected, relative
         assert (downloads / ('2016-' + name)).read_bytes() == expected, relative
     for name in historical:
-        relative = 'examples/fe_walter/coupled/outputs/' + name
+        relative = 'tests/fixtures/fe_walter_history/coupled_outputs/' + name
         assert (downloads / name).read_bytes() == (ROOT / relative).read_bytes(), relative
     for name in ('llm_available_reply.txt', 'llm_knowledge_reply.txt'):
-        relative = 'examples/fe_walter/coupled/outputs/2016/' + name
+        relative = 'tests/fixtures/fe_walter_history/coupled_outputs/2016/' + name
         assert (output / relative).read_bytes() == (ROOT / relative).read_bytes()
     tutorial_downloads = output / '_tutorial_downloads'
     flat = {name for name in builder.TUTORIAL_DOWNLOADS.values() if '/' not in name}
@@ -132,6 +133,9 @@ def test_current_2016_exports_are_local_exact_and_do_not_replace_history(prepare
         published_page = output / page
         text = published_page.read_text(encoding='utf-8')
         for name in names:
+            if Path(name).suffix in ('.svg', '.pdf', '.png'):
+                # Export bytes remain published, but format links no longer clutter prose.
+                continue
             target = downloads / ('2016-' + name)
             href = Path(os.path.relpath(target, published_page.parent)).as_posix()
             assert '](' + href + ')' in text, (page, name)

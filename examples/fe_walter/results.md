@@ -4,7 +4,7 @@ The saved LLM trajectories use the **previous prompts**, without the new daily
 seasonal context. [Review the actual October requests and proposed addition](prompt_review.md). No new model result is shown.
 
 The maintained comparison uses three saved 2016 trajectories: **Rule-based**,
-**LLM without additional operating knowledge**, and **LLM with additional operating knowledge**. All
+**LLM without operational knowledge**, and **LLM with operational knowledge**. All
 three use the same accepted daily inflow and initial physical state.
 
 ## Reservoir operations
@@ -38,21 +38,21 @@ mid-month markers summarize seasonal targets; they do not describe physical
 water-level jumps. Saved operation and audit settings remain unchanged.
 Flow is shown in cfs; the source CSV retains m³/s.
 
-Downloads: [combined CSV](coupled/outputs/current_tutorial/daily.csv),
-[provenance](coupled/outputs/current_tutorial/provenance.json),
-[combined SVG](coupled/outputs/current_tutorial/reservoir_operations.svg), and
-[combined PDF](coupled/outputs/current_tutorial/reservoir_operations.pdf).
-Secondary standalone exports: [elevation SVG](coupled/outputs/current_tutorial/daily_water_elevation.svg),
-[elevation PDF](coupled/outputs/current_tutorial/daily_water_elevation.pdf),
-[release SVG](coupled/outputs/current_tutorial/controlled_release_daily.svg), and
-[release PDF](coupled/outputs/current_tutorial/controlled_release_daily.pdf).
+Downloads: [combined CSV](../../tests/fixtures/fe_walter_history/coupled_outputs/current_tutorial/daily.csv),
+[provenance](../../tests/fixtures/fe_walter_history/coupled_outputs/current_tutorial/provenance.json),
+[combined SVG](../../tests/fixtures/fe_walter_history/coupled_outputs/current_tutorial/reservoir_operations.svg), and
+[combined PDF](../../tests/fixtures/fe_walter_history/coupled_outputs/current_tutorial/reservoir_operations.pdf).
+Secondary standalone exports: [elevation SVG](../../tests/fixtures/fe_walter_history/coupled_outputs/current_tutorial/daily_water_elevation.svg),
+[elevation PDF](../../tests/fixtures/fe_walter_history/coupled_outputs/current_tutorial/daily_water_elevation.pdf),
+[release SVG](../../tests/fixtures/fe_walter_history/coupled_outputs/current_tutorial/controlled_release_daily.svg), and
+[release PDF](../../tests/fixtures/fe_walter_history/coupled_outputs/current_tutorial/controlled_release_daily.pdf).
 
 These trajectories support a saved-method comparison, not a general method
 ranking. Completion and mass balance do not establish acceptable operation.
 Read the [engine comparison](engine_comparison.md) for implementation evidence
 and [`results_history.md`](results_history.md) for older experiments.
 
-![2016 water elevation and controlled release](coupled/outputs/current_tutorial/reservoir_operations.png)
+![2016 water elevation and controlled release](../../tests/fixtures/fe_walter_history/coupled_outputs/current_tutorial/reservoir_operations.png)
 
 **Figure 1.** Saved 2016 operations. (a) Daily end levels (ft NGVD29) and seasonal
 target pool elevation reference: 1300 ft winter target and 1370 ft summer ceiling, switching vertically
@@ -71,12 +71,11 @@ gauge watershed. Corrected coupled operation remains a separate experiment.
 The [study area map](README.md#site-and-study-scope) locates White Haven and
 Lehighton. This saved comparison covers White Haven.
 
-Downloads: [daily components and observations](downstream/outputs/daily.csv),
-[full evaluation report](downstream/outputs/report.json),
-[SVG](downstream/outputs/streamflow.svg), [PDF](downstream/outputs/streamflow.pdf).
+Downloads: [daily components and observations](../../tests/fixtures/fe_walter_history/downstream_outputs/daily.csv),
+[full evaluation report](../../tests/fixtures/fe_walter_history/downstream_outputs/report.json),
 Detailed metrics and boundary assumptions remain in the downstream reference.
 
-![Three saved methods compared with USGS 01447800](downstream/outputs/streamflow.png)
+![Three saved methods compared with USGS 01447800](../../tests/fixtures/fe_walter_history/downstream_outputs/streamflow.png)
 
 **Figure 2.** Conditional 2016 downstream discharge (cfs), shown separately for
 each saved method against the same USGS reference. Curves retain daily means.

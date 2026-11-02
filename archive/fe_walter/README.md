@@ -1,6 +1,6 @@
 # F.E. Walter historical inputs
 
-The maintained case uses two current [system prompts](../../examples/fe_walter/prompts/)
+The maintained case uses two current [system prompts](../../examples/fe_walter/prompts)
 and one [operating reference](../../examples/fe_walter/knowledge/operating_rules.md).
 This index records recovery sources for earlier configurations and prompt hashes.
 

@@ -16,12 +16,12 @@ from llm_reservoir_agent.network import PROJECT_ROOT
 from llm_reservoir_agent.prompt import PromptSpec
 from llm_reservoir_agent.verification import verify_run
 from llm_reservoir_agent.workflow import load_settings, run_settings
-from reference_oracle import require_reference_dir
+from tests.reference_oracle import require_reference_dir
 
 
 DKP = PROJECT_ROOT / 'examples/fe_walter/knowledge/operating_rules.md'
-CURVE = PROJECT_ROOT / 'cases/fe_belt_prompton_offline/fe_walter_storage_elevation.csv'
-CONFIG = PROJECT_ROOT / 'experiments/fe_walter_dkp_offline.yaml'
+CURVE = PROJECT_ROOT / 'tests/fixtures/cases/fe_belt_prompton_offline/fe_walter_storage_elevation.csv'
+CONFIG = PROJECT_ROOT / 'tests/fixtures/experiments/fe_walter_dkp_offline.yaml'
 
 
 
@@ -42,7 +42,7 @@ def observation():
 
 def plugin(tmp_path, *, target=True, required=None):
     require_reference_dir()
-    profile = json.loads((PROJECT_ROOT / 'cases/fe_walter_dkp_offline/audit_profile.json').read_bytes())
+    profile = json.loads((PROJECT_ROOT / 'tests/fixtures/cases/fe_walter_dkp_offline/audit_profile.json').read_bytes())
     profile['curve_source']['path'] = str(CURVE)
     profile['required_inputs'] = [] if required is None else required
     if target:
@@ -291,7 +291,7 @@ def test_real_case_live_blocked_and_dkp_schema_requires_context_and_knowledge(tm
 
 @pytest.mark.parametrize('count',[1,3,10])
 def test_dkp_assignment_works_with_arbitrary_reservoir_counts_and_names(tmp_path,count):
-    from test_llm_network import network
+    from tests.test_llm_network import network
     config,rows=network(count=count,days=2)
     case=tmp_path/'case.json'
     case.write_text(json.dumps(dict(schema_version='llm-reservoir-network-case.v1',

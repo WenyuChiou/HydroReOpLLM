@@ -39,7 +39,7 @@ class ReferenceLiveTests(unittest.TestCase):
         p = PROJECT_ROOT / f'tests/fixtures/fe_walter_current/{method}.live.yaml'
         data = yaml.safe_load(p.read_text(encoding='utf-8'))
         case = json.loads((p.parent / data['case']).resolve().read_text())
-        (self.root / 'inflows.csv').write_bytes((PROJECT_ROOT / 'cases/fe_walter_reference/inflows.csv').read_bytes())
+        (self.root / 'inflows.csv').write_bytes((PROJECT_ROOT / 'tests/fixtures/cases/fe_walter_reference/inflows.csv').read_bytes())
         case['inflow_source']['path'] = 'inflows.csv'
         case['live_readiness']['ready'] = ready # Temporary diagnostic case only.
         cp = self.root / 'case.json'
@@ -57,7 +57,7 @@ class ReferenceLiveTests(unittest.TestCase):
         return load_settings(dest)
 
     def replies(self, method):
-        return json.loads((PROJECT_ROOT/f'cases/fe_walter_reference/{method}_responses.json').read_text())['responses']
+        return json.loads((PROJECT_ROOT/f'tests/fixtures/cases/fe_walter_reference/{method}_responses.json').read_text())['responses']
 
     def test_shipped_live_plans_are_network_free_and_blocked(self):
         for method in ('zeroshot', 'dkp'):

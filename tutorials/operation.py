@@ -156,7 +156,7 @@ reservoir-experiment check examples/fe_walter/operation/llm_available.yaml
 reservoir-experiment run examples/fe_walter/operation/llm_available.yaml --allow-network
 ```
 
-The [completed Daily and Hourly comparisons](../examples/fe_walter/completed_results/README.md)
+The [completed Daily and Hourly comparisons](../docs/results/fe_walter/completed/README.md)
 provide the latest accepted figures and Table 3 from a separately pinned campaign.
 This notebook does not generate or overwrite those LLM results. The
 [saved three-method illustration](../examples/fe_walter/results.md) covers **2016**

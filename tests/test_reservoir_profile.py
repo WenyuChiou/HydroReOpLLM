@@ -9,7 +9,7 @@ from types import SimpleNamespace
 import pytest
 
 from examples.fe_walter.extensions import reservoir_profile
-from reference_oracle import load_anik, require_reference_dir
+from tests.reference_oracle import load_anik, require_reference_dir
 
 
 ROOT = Path(__file__).resolve().parents[1]

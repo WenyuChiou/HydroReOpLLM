@@ -60,12 +60,12 @@ def test_current_prompt_pins_do_not_relabel_historical_payloads():
 def test_maintained_source_record_preserves_scientific_receipt():
     case = ROOT / 'examples/fe_walter/operation'
     provenance = json.loads((case / 'provenance.json').read_text())
-    engineering = json.loads((case / 'engineering-sources-v3.json').read_text())
+    engineering = json.loads((case / 'engineering-sources-v4.json').read_text())
     assert engineering['historical_provenance_sha256'] == hashlib.sha256((case / 'provenance.json').read_bytes()).hexdigest()
     assert set(engineering['dependencies']) == set(provenance['shared_dependencies'])
     for name, record in engineering['dependencies'].items():
         assert record['historical_sha256'] == provenance['shared_dependencies'][name]
-        assert record['current_sha256'] == hashlib.sha256((ROOT / name).read_bytes()).hexdigest()
+        assert record['current_sha256'] == hashlib.sha256((ROOT / record['current_path']).read_bytes()).hexdigest()
     for name, digest in provenance['artifacts'].items():
         assert hashlib.sha256((case / name).read_bytes()).hexdigest() == digest
 
@@ -76,7 +76,10 @@ def test_daily_download_namespace_preserves_historical_teaching(tmp_path):
     spec.loader.exec_module(builder)
     with patch('socket.socket.connect', side_effect=AssertionError('network forbidden')):
         builder.prepare(tmp_path)
-    assert len(builder.TUTORIAL_DOWNLOADS) == 31
+    assert len(builder.TUTORIAL_DOWNLOADS) == 32
+    current = 'examples/fe_walter/operation/engineering-sources-v4.json'
+    assert builder.TUTORIAL_DOWNLOADS[current] == 'operation/engineering-sources-v4.json'
+    assert (tmp_path / '_tutorial_downloads/operation/engineering-sources-v4.json').read_bytes() == (ROOT / current).read_bytes()
     for source, name in builder.DAILY_DOWNLOADS.items():
         assert (tmp_path / '_daily_downloads' / name).read_bytes() == (ROOT / source).read_bytes()
         assert (tmp_path / source).read_bytes() == (ROOT / source).read_bytes()
@@ -84,7 +87,7 @@ def test_daily_download_namespace_preserves_historical_teaching(tmp_path):
 
 def test_published_results_preserve_accepted_binary_bytes():
     """Text-converted patches must never replace a published PDF with plain text."""
-    folder = ROOT / 'examples/fe_walter/completed_results'
+    folder = ROOT / 'docs/results/fe_walter/completed'
     provenance = json.loads((folder / 'provenance.json').read_text(encoding='utf-8'))
     mismatches = []
     for row in provenance['files']:

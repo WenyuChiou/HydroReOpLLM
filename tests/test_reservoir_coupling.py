@@ -11,11 +11,11 @@ from unittest.mock import patch
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from examples.fe_walter.legacy.case import CFS_TO_CMS, load_case
-from examples.fe_walter.legacy.llm_experiment import load_llm_case, main, run_daily_experiment
-from examples.fe_walter.legacy.llm_policy_adapter import LLMPolicyAdapter
-from examples.fe_walter.legacy.policies import ConstantPolicy
-from examples.fe_walter.legacy.reservoir_coupling import build_reservoir_model, run_coupled_reservoir
+from tests.fixtures.fe_walter_legacy.case import CFS_TO_CMS, load_case
+from tests.fixtures.fe_walter_legacy.llm_experiment import load_llm_case, main, run_daily_experiment
+from tests.fixtures.fe_walter_legacy.llm_policy_adapter import LLMPolicyAdapter
+from tests.fixtures.fe_walter_legacy.policies import ConstantPolicy
+from tests.fixtures.fe_walter_legacy.reservoir_coupling import build_reservoir_model, run_coupled_reservoir
 
 
 class FakeBackend:
@@ -86,13 +86,13 @@ class ConfigurationTests(unittest.TestCase):
 
     def test_fixture_units_match_existing_case(self):
         config, normalized = load_llm_case(ROOT / "tests/fixtures/cases/fe_walter_llm_fixture.json")
-        old, original = load_case(ROOT / "cases/fe_walter.json")
+        old, original = load_case(ROOT / "tests/fixtures/cases/fe_walter.json")
         self.assertEqual(config["agent_config"], old["agent_config"])
         self.assertEqual([r["inflow_cms"] for r in normalized],
                          [float(r["simulated_inflow_cfs"]) * CFS_TO_CMS for r in original])
 
     def test_duplicate_json_rejected(self):
-        from examples.fe_walter.legacy.llm_experiment import _read_json
+        from tests.fixtures.fe_walter_legacy.llm_experiment import _read_json
         with tempfile.TemporaryDirectory() as folder:
             path = Path(folder) / "duplicate.json"
             path.write_text('{"release_cms": 1, "release_cms": 2}')
@@ -125,8 +125,8 @@ class NativeCouplingTests(unittest.TestCase):
                              backend.feedback[index-1]["transition"]["storage_end_m3"])
 
     def test_neutral_host_matches_accepted_legacy_seven_days(self):
-        from examples.fe_walter.legacy.hydrocnhs_bridge import run_hydrocnhs
-        old, original = load_case(ROOT / "cases/fe_walter.json")
+        from tests.fixtures.fe_walter_legacy.hydrocnhs_bridge import run_hydrocnhs
+        old, original = load_case(ROOT / "tests/fixtures/cases/fe_walter.json")
         config, normalized = load_llm_case(ROOT / "tests/fixtures/cases/fe_walter_llm_fixture.json")
         expected, _ = run_hydrocnhs(old, original, policy=ConstantPolicy(2))
         actual, summary = run_coupled_reservoir(config, normalized, policy=LLMPolicyAdapter(ConstantPolicy(2)))

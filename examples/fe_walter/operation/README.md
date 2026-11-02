@@ -7,7 +7,7 @@ settings and an executable walkthrough with daily progress. This folder contains
 one completed 1,826-day Rule-based teaching baseline and two optional LLM entry
 files. The separately completed **LLM w/o additional knowledge** and **LLM w/
 additional knowledge** campaign, updated figures and Table 3 are on the
-[completed comparisons page](../completed_results/README.md). That campaign
+[completed comparisons page](../../../docs/results/fe_walter/completed/README.md). That campaign
 retains its own pinned inputs and initialization.
 
 The prepared-operation schema is `llm-reservoir-experiment.v2`. It reads the frozen

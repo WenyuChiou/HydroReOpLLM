@@ -12,8 +12,8 @@ from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
-from examples.fe_walter.legacy.case import sha256
-from examples.fe_walter.legacy.hydrology import AGGREGATE, CORE, MANIFEST, MODEL, UNITS, WEATHER, load_smoke_inputs, main, run_smoke
+from tests.fixtures.fe_walter_legacy.case import sha256
+from tests.fixtures.fe_walter_legacy.hydrology import AGGREGATE, CORE, MANIFEST, MODEL, UNITS, WEATHER, load_smoke_inputs, main, run_smoke
 
 
 class HydrologyInputTests(unittest.TestCase):
@@ -46,7 +46,7 @@ class HydrologyInputTests(unittest.TestCase):
 
     def test_existing_output_rejected_before_hydrology_runs(self):
         with tempfile.TemporaryDirectory() as folder:
-            with patch("examples.fe_walter.legacy.hydrology.run_smoke") as execute:
+            with patch("tests.fixtures.fe_walter_legacy.hydrology.run_smoke") as execute:
                 with self.assertRaises(FileExistsError): main(["--output", folder])
                 execute.assert_not_called()
             self.assertEqual(list(Path(folder).iterdir()), [])
@@ -56,7 +56,7 @@ class HydrologyProvenanceTests(unittest.TestCase):
     def test_bundled_hydrocnhs_without_separate_distribution_has_source_pin(self):
         from importlib.metadata import PackageNotFoundError
         import hydrocnhs
-        from examples.fe_walter.legacy.cli import implementation_provenance
+        from tests.fixtures.fe_walter_legacy.cli import implementation_provenance
 
         def version(name):
             if name == "hydrocnhs":
@@ -72,7 +72,7 @@ class HydrologyProvenanceTests(unittest.TestCase):
 
     def test_missing_required_dependency_metadata_is_not_suppressed(self):
         from importlib.metadata import PackageNotFoundError
-        from examples.fe_walter.legacy.cli import implementation_provenance
+        from tests.fixtures.fe_walter_legacy.cli import implementation_provenance
 
         def version(name):
             if name == "numpy":

@@ -11,13 +11,13 @@ from llm_reservoir_agent.workflow import load_settings,run_settings
 from llm_reservoir_agent.verification import verify_run
 
 ROOT=Path(__file__).resolve().parents[1]
-EXAMPLE=ROOT/'examples/fe_walter/benchmark/experiment.yaml'
+EXAMPLE=ROOT/'tests/fixtures/fe_walter_current/benchmark.yaml'
 STATS=ROOT/'data/benchmark/fe_walter_statistics.json'
 
 
 def temporary_yaml(folder, mutation=None, statistics=None):
     data=yaml.safe_load(EXAMPLE.read_text())
-    data['case']=str(ROOT/'cases/fe_walter_reference/case.json')
+    data['case']=str(ROOT/'tests/fixtures/cases/fe_walter_reference/case.json')
     data['output']=str(folder/'output')
     # Preserve this suite's explicit legacy-engine compatibility regression.
     # Public rule registration and parity are covered in test_public_examples.

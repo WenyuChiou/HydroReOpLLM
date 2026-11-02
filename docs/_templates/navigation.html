@@ -1,72 +1,15 @@
 <nav aria-label="HydroReOpLLM user manual">
-  <div class="manual-nav-heading"><a href="{{ pathto('index') }}">Documentation</a><button class="contents-toggle" type="button" aria-expanded="false" aria-controls="manual-chapters" hidden>Contents <span aria-hidden="true">☰</span></button></div>
+  <div class="manual-nav-heading"><a href="{{ pathto('index') }}"{% if pagename == 'index' %} aria-current="page"{% endif %}>Overview</a><button class="contents-toggle" type="button" aria-expanded="false" aria-controls="manual-chapters" hidden>Contents <span aria-hidden="true">☰</span></button></div>
   {% include "searchbox.html" %}
-  {% set chapters %}
-  {% macro chapter(page, label, method=false) -%}
-    <li{% if method %} class="method"{% endif %}><a href="{{ pathto(page) }}"{% if pagename == page %} aria-current="page"{% endif %}>{{ label }}</a></li>
-  {%- endmacro %}
-  <h3>01 · Overview and installation</h3>
-  <ul class="manual-navigation">
-    {{ chapter('docs/README', 'Overview') }}
-    {{ chapter('docs/GETTING_STARTED', 'Installation') }}
-    {{ chapter('docs/DAILY_WORKFLOW', 'Daily workflow') }}
-  </ul>
-  <h3>02 · Configuration</h3>
-  <ul class="manual-navigation">
-    {{ chapter('docs/INPUT_OUTPUT', 'Configuration overview') }}
-    {{ chapter('docs/GLOBAL_SETTINGS', 'Global settings') }}
-    {{ chapter('docs/HYDROLOGY_SETUP', 'Hydrology') }}
-    {{ chapter('docs/BUILD_SIMULATION', 'Reservoirs and network') }}
-    {{ chapter('docs/CONFIGURATION', 'Agents and LLM') }}
-    {{ chapter('docs/INFORMATION', 'Available information') }}
-    {{ chapter('docs/RUNNING', 'Check and run') }}
-  </ul>
-  <h3>03 · Case studies</h3>
-  <ul class="manual-navigation">
-    {{ chapter('docs/CASE_STUDIES', 'FE Walter study guide') }}
-    {{ chapter('examples/fe_walter/README', 'FE Walter: site and data') }}
-    {{ chapter('tutorials/main', 'FE Walter: outputs and notebook') }}
-  </ul>
-  <h3>04 · Results</h3>
-  <ul class="manual-navigation">
-    {{ chapter('docs/RESULTS_GUIDE', 'Read your results') }}
-    {{ chapter('examples/fe_walter/completed_results/README', 'Saved Daily / Hourly example') }}
-    {{ chapter('examples/fe_walter/results', 'FE Walter: water level and release') }}
-  </ul>
-  <h3>05 · Troubleshooting</h3>
-  <ul class="manual-navigation">
-    {{ chapter('docs/TROUBLESHOOTING', 'Find and resolve a problem') }}
-  </ul>
-  <details class="manual-reference">
-  <summary>API and technical reference</summary>
-  <ul class="manual-navigation">
-    {{ chapter('docs/API_REFERENCE', 'Python API documentation') }}
-    {{ chapter('docs/PARAMETER_REFERENCE', 'Configuration reference') }}
-    {{ chapter('docs/CODE_STRUCTURE', 'Code structure and daily loop') }}
-    {{ chapter('docs/MODULE_INVENTORY', '43-module inventory') }}
-    {{ chapter('docs/TIME_SCALES', 'Time scales') }}
-    {{ chapter('docs/YAML_TIME_SCALES', 'YAML time settings') }}
-    {{ chapter('docs/HOURLY_GWLF', 'Hourly GWLF') }}
-    {{ chapter('docs/GWLF_GROUNDWATER', 'Groundwater initialization') }}
-    {{ chapter('docs/VARIABLES_AND_UNITS', 'Variables and units') }}
-    {{ chapter('docs/DAILY_QA', 'Developer QA reference') }}
-  </ul>
+  <div id="manual-chapters">
+  {% for section in manual_sections %}
+    {% if section.reference %}<details class="manual-reference"><summary>{{ section.title }}</summary>{% else %}<h3>{{ section.title }}</h3>{% endif %}
     <ul class="manual-navigation">
-      {{ chapter('examples/fe_walter/hydrology', 'Hydrology and C&V evidence') }}
-      {{ chapter('docs/TEMPLATES', 'Configuration file list') }}
-      {{ chapter('docs/WEATHER_INPUTS', 'Weather formats and preparation') }}
-      {{ chapter('docs/MODEL_PROVIDERS', 'Model providers') }}
-       {{ chapter('docs/DAILY_EXAMPLES', 'Prepared-inflow learning examples') }}
-      {{ chapter('docs/RECORDS', 'Decision records and audits') }}
-      {{ chapter('examples/fe_walter/prompt_review', 'October prompts and replies') }}
-      {{ chapter('examples/fe_walter/engine_comparison', 'Original/framework comparison') }}
-      {{ chapter('examples/fe_walter/results_history', 'Historical research evidence') }}
-      {{ chapter('examples/fe_walter/coupled/README', 'Run commands and engine comparison') }}
-      {{ chapter('docs/LLM_MODULES', 'Prompts and modules') }}
-      {{ chapter('docs/REFERENCE', 'Sources and citation') }}
-      {{ chapter('docs/BUILDING', 'Build the manual') }}
+    {% for page in section.pages %}
+      <li><a href="{{ pathto(page.path) }}"{% if pagename == page.path %} aria-current="page"{% endif %}>{{ page.label }}</a></li>
+    {% endfor %}
     </ul>
-  </details>
-  {% endset %}
-  <div id="manual-chapters">{{ chapters }}</div>
+    {% if section.reference %}</details>{% endif %}
+  {% endfor %}
+  </div>
 </nav>

@@ -25,7 +25,6 @@ The calibration search stops at the end of 2010. Validation observations do not 
 
 ![Observed upstream flow and local runoff are routed to the downstream comparison.](../../../docs/figures/downstream-validation.svg)
 
-*Figure 1. White Haven observations supply the upstream boundary. HydroCNHS adds intervening runoff and routes the combined flow to Lehighton. The comparison uses separate calibration and validation years. [Editable draw.io source](../../../docs/figures/downstream-validation.drawio).*
 
 ## Files to prepare
 
@@ -92,11 +91,11 @@ The completed native search recorded **3,630 parameter evaluations** across thre
 | Selected lower calibration | Calibration | 7,670 | 0.935 | 0.877 | +1.87% |
 | Selected lower calibration | Validation | 3,653 | 0.869 | 0.875 | +2.99% |
 
-Positive volume bias indicates simulated flow exceeds observed flow. These are watershed/routing scores under an observed White Haven boundary. Completion of the configured search documents the evaluated budget; the saved {download}`search progress (SVG) <outputs/hydrology_validation/calibration_progress.svg>` and {download}`PDF <outputs/hydrology_validation/calibration_progress.pdf>` allow its progress to be inspected.
+Positive volume bias indicates simulated flow exceeds observed flow. These are watershed/routing scores under an observed White Haven boundary. Completion of the configured search documents the evaluated budget; the saved search progress (SVG) and PDF allow its progress to be inspected.
 
-Download the {download}`daily flow data <outputs/hydrology_validation/daily.csv>`, {download}`nine-unit parameter table <outputs/hydrology_validation/regionalization.csv>`, {download}`model-selection table <outputs/hydrology_validation/model_selection.csv>`, and {download}`source and metric summary <outputs/hydrology_validation/summary.json>`. The figure is available as {download}`PDF <outputs/hydrology_validation/hydrology_validation.pdf>`, {download}`editable SVG <outputs/hydrology_validation/hydrology_validation.svg>`, and {download}`600 dpi PNG <outputs/hydrology_validation/hydrology_validation.png>`. Full inputs, candidate records, native model files and failure evidence remain in the external research archive.
+Download the {download}`daily flow data <../../../tests/fixtures/fe_walter_history/downstream_outputs/hydrology_validation/daily.csv>`, {download}`nine-unit parameter table <../../../tests/fixtures/fe_walter_history/downstream_outputs/hydrology_validation/regionalization.csv>`, {download}`model-selection table <../../../tests/fixtures/fe_walter_history/downstream_outputs/hydrology_validation/model_selection.csv>`, and {download}`source and metric summary <../../../tests/fixtures/fe_walter_history/downstream_outputs/hydrology_validation/summary.json>`. The figure is available as PDF, editable SVG, and 600 dpi PNG. Full inputs, candidate records, native model files and failure evidence remain in the external research archive.
 
-![Observed and simulated daily discharge at Lehighton during calibration and independent validation.](outputs/hydrology_validation/hydrology_validation.png)
+![Observed and simulated daily discharge at Lehighton during calibration and independent validation.](../../../tests/fixtures/fe_walter_history/downstream_outputs/hydrology_validation/hydrology_validation.png)
 
 *Figure 2. Daily discharge at Lehighton (USGS 01449000): (a) calibration, 1990–2010; (b) independent validation, 2011–2020. White Haven (USGS 01447800) supplies the observed upstream boundary in both periods. Discharge is in cfs; the 1989 warm-up is omitted.*
 

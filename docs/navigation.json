@@ -1,0 +1,334 @@
+[
+  {
+    "title": "01 · Start",
+    "pages": [
+      {
+        "path": "docs/GETTING_STARTED",
+        "label": "Installation"
+      }
+    ],
+    "reference": false
+  },
+  {
+    "title": "02 · Configure",
+    "pages": [
+      {
+        "path": "docs/INPUT_OUTPUT",
+        "label": "Configuration files"
+      },
+      {
+        "path": "docs/GLOBAL_SETTINGS",
+        "label": "Global settings"
+      },
+      {
+        "path": "docs/HYDROLOGY_SETUP",
+        "label": "Hydrology"
+      },
+      {
+        "path": "docs/BUILD_SIMULATION",
+        "label": "Reservoirs and network"
+      },
+      {
+        "path": "docs/CONFIGURATION",
+        "label": "Operators and prompts"
+      },
+      {
+        "path": "docs/INFORMATION",
+        "label": "Available information"
+      }
+    ],
+    "reference": false
+  },
+  {
+    "title": "03 · Run and inspect",
+    "pages": [
+      {
+        "path": "docs/RUNNING",
+        "label": "Run the simulation"
+      },
+      {
+        "path": "docs/RESULTS_GUIDE",
+        "label": "Read the results"
+      }
+    ],
+    "reference": false
+  },
+  {
+    "title": "04 · Complete examples",
+    "pages": [
+      {
+        "path": "docs/DAILY_EXAMPLES",
+        "label": "One reservoir"
+      },
+      {
+        "path": "docs/MULTI_RESERVOIR",
+        "label": "Multiple reservoirs"
+      },
+      {
+        "path": "docs/CASE_STUDIES",
+        "label": "FE Walter study"
+      }
+    ],
+    "reference": false
+  },
+  {
+    "title": "05 · Help",
+    "pages": [
+      {
+        "path": "docs/TROUBLESHOOTING",
+        "label": "Troubleshooting"
+      }
+    ],
+    "reference": false
+  },
+  {
+    "title": "Reference",
+    "reference": true,
+    "pages": [
+      {
+        "path": "examples/fe_walter/README",
+        "label": "F.E. Walter Reservoir research example"
+      },
+      {
+        "path": "examples/fe_walter/operation/README",
+        "label": "F.E. Walter prepared operation, 2021–2025"
+      },
+      {
+        "path": "docs/results/fe_walter/completed/README",
+        "label": "Completed F.E. Walter comparisons"
+      },
+      {
+        "path": "examples/fe_walter/hydrology",
+        "label": "FE Walter: hydrology, parameters and calibration / validation"
+      },
+      {
+        "path": "examples/fe_walter/configuration",
+        "label": "F.E. Walter configuration tutorial"
+      },
+      {
+        "path": "examples/fe_walter/coupled/README",
+        "label": "Coupled F.E. Walter experiment"
+      },
+      {
+        "path": "examples/fe_walter/coupling",
+        "label": "FE Walter: coupled daily workflow"
+      },
+      {
+        "path": "examples/fe_walter/results",
+        "label": "F.E. Walter results"
+      },
+      {
+        "path": "examples/fe_walter/downstream/README",
+        "label": "Saved 2016 flow at White Haven"
+      },
+      {
+        "path": "examples/fe_walter/downstream/validation",
+        "label": "Check the downstream hydrology"
+      },
+      {
+        "path": "examples/fe_walter/engine_comparison",
+        "label": "F.E. Walter engine comparison evidence"
+      },
+      {
+        "path": "examples/fe_walter/prompt_review",
+        "label": "October prompt and reply comparison"
+      },
+      {
+        "path": "tutorials/main",
+        "label": "F.E. Walter outputs and notebook"
+      },
+      {
+        "path": "tutorials/advanced",
+        "label": "tutorials/advanced"
+      },
+      {
+        "path": "docs/README",
+        "label": "How the Daily simulation works"
+      },
+      {
+        "path": "docs/LLM_MODULES",
+        "label": "LLM decision modules"
+      },
+      {
+        "path": "docs/USER_GUIDE",
+        "label": "User guide"
+      },
+      {
+        "path": "docs/LIVE_READINESS",
+        "label": "Before a new LLM experiment"
+      },
+      {
+        "path": "docs/auditor_plugins",
+        "label": "Replaceable reservoir auditors"
+      },
+      {
+        "path": "docs/PROJECT_INVENTORY",
+        "label": "HydroReOpLLM project inventory"
+      },
+      {
+        "path": "docs/BUILDING",
+        "label": "Publish or build the HTML manual"
+      },
+      {
+        "path": "docs/DAILY_WORKFLOW",
+        "label": "Daily simulation workflow"
+      },
+      {
+        "path": "docs/MODULE_INVENTORY",
+        "label": "Owned Python module inventory"
+      },
+      {
+        "path": "docs/VARIABLES_AND_UNITS",
+        "label": "Variables, phases and units"
+      },
+      {
+        "path": "docs/DAILY_QA",
+        "label": "Daily offline verification"
+      },
+      {
+        "path": "docs/TIME_SCALES",
+        "label": "Time scales and fixed-interval operation"
+      },
+      {
+        "path": "docs/YAML_TIME_SCALES",
+        "label": "Daily and hourly simulation from YAML"
+      },
+      {
+        "path": "docs/HOURLY_GWLF",
+        "label": "Hourly GWLF-derived runoff"
+      },
+      {
+        "path": "docs/GWLF_GROUNDWATER",
+        "label": "GWLF groundwater initialization and diagnostics"
+      },
+      {
+        "path": "docs/MODEL_PROVIDERS",
+        "label": "Model providers"
+      },
+      {
+        "path": "docs/API_REFERENCE",
+        "label": "Python API documentation"
+      },
+      {
+        "path": "docs/TEMPLATES",
+        "label": "Template index"
+      },
+      {
+        "path": "docs/PARAMETER_REFERENCE",
+        "label": "Parameter reference"
+      },
+      {
+        "path": "docs/REFERENCE",
+        "label": "Reference and citation"
+      },
+      {
+        "path": "docs/CODE_STRUCTURE",
+        "label": "Code structure and execution flow"
+      },
+      {
+        "path": "docs/WEATHER_INPUTS",
+        "label": "Weather and inflow inputs"
+      },
+      {
+        "path": "docs/RECORDS",
+        "label": "Decision records and audits"
+      },
+      {
+        "path": "repository",
+        "label": "Repository README"
+      }
+    ]
+  },
+  {
+    "title": "Historical records",
+    "reference": true,
+    "pages": [
+      {
+        "path": "tests/fixtures/fe_walter_history/annual/README",
+        "label": "Earlier annual attempt"
+      },
+      {
+        "path": "tests/fixtures/fe_walter_history/annual/results",
+        "label": "Annual attempt: results and stopping point"
+      },
+      {
+        "path": "tests/fixtures/fe_walter_history/annual/decision_2016_01_01",
+        "label": "Follow a real decision: 1 January 2016"
+      },
+      {
+        "path": "examples/fe_walter/results_history",
+        "label": "Historical FE Walter evidence"
+      },
+      {
+        "path": "archive/README",
+        "label": "Historical recovery index"
+      }
+    ]
+  },
+  {
+    "title": "繁體中文",
+    "reference": true,
+    "pages": [
+      {
+        "path": "examples/fe_walter/README.zh-TW",
+        "label": "F.E. Walter 水庫研究案例"
+      },
+      {
+        "path": "examples/fe_walter/operation/README.zh-TW",
+        "label": "F.E. Walter 已準備操作案例，2021–2025"
+      },
+      {
+        "path": "examples/fe_walter/hydrology.zh-TW",
+        "label": "FE Walter：水文、參數與校正／驗證"
+      },
+      {
+        "path": "examples/fe_walter/coupling.zh-TW",
+        "label": "FE Walter：每日耦合流程"
+      },
+      {
+        "path": "examples/fe_walter/results.zh-TW",
+        "label": "FE Walter：水位與控制放流"
+      },
+      {
+        "path": "examples/fe_walter/downstream/README.zh-TW",
+        "label": "保存的 2016 年 White Haven 流量"
+      },
+      {
+        "path": "examples/fe_walter/downstream/validation.zh-TW",
+        "label": "檢查下游水文"
+      },
+      {
+        "path": "examples/fe_walter/results_history.zh-TW",
+        "label": "FE Walter 歷史證據"
+      },
+      {
+        "path": "docs/README.zh-TW",
+        "label": "Daily 模擬如何運作"
+      },
+      {
+        "path": "docs/LLM_MODULES.zh-TW",
+        "label": "LLM 決策模組"
+      },
+      {
+        "path": "docs/USER_GUIDE.zh-TW",
+        "label": "使用指南"
+      },
+      {
+        "path": "docs/BUILD_SIMULATION.zh-TW",
+        "label": "水庫與水流網路"
+      },
+      {
+        "path": "docs/INFORMATION.zh-TW",
+        "label": "決策資訊"
+      },
+      {
+        "path": "index.zh-TW",
+        "label": "手冊首頁"
+      },
+      {
+        "path": "repository.zh-TW",
+        "label": "Repository README"
+      }
+    ]
+  }
+]

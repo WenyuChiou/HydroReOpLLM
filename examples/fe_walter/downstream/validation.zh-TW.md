@@ -92,11 +92,11 @@ Notebook 提供三種明確動作的完整命令：
 | 選定下游校準 | 校準 | 7,670 | 0.935 | 0.877 | +1.87% |
 | 選定下游校準 | 驗證 | 3,653 | 0.869 | 0.875 | +2.99% |
 
-正的水量偏差表示模擬流量超過實測流量。這些分數反映使用 White Haven 實測上游邊界時的產流與 routing 表現。完成指定搜尋代表已執行該評估範圍，可另下載{download}`搜尋進度 SVG <outputs/hydrology_validation/calibration_progress.svg>` 與 {download}`PDF <outputs/hydrology_validation/calibration_progress.pdf>` 檢視進展。
+正的水量偏差表示模擬流量超過實測流量。這些分數反映使用 White Haven 實測上游邊界時的產流與 routing 表現。完成指定搜尋代表已執行該評估範圍，可另下載搜尋進度 SVG 與 PDF 檢視進展。
 
-可下載{download}`逐日流量 <outputs/hydrology_validation/daily.csv>`、{download}`九區參數表 <outputs/hydrology_validation/regionalization.csv>`、{download}`模型選擇表 <outputs/hydrology_validation/model_selection.csv>`及{download}`來源與指標摘要 <outputs/hydrology_validation/summary.json>`。圖檔提供 {download}`PDF <outputs/hydrology_validation/hydrology_validation.pdf>`、{download}`可編輯 SVG <outputs/hydrology_validation/hydrology_validation.svg>` 與 {download}`600 dpi PNG <outputs/hydrology_validation/hydrology_validation.png>`。完整輸入、候選參數、原生模型及失敗證據保留於 repository 外的研究紀錄。
+可下載{download}`逐日流量 <../../../tests/fixtures/fe_walter_history/downstream_outputs/hydrology_validation/daily.csv>`、{download}`九區參數表 <../../../tests/fixtures/fe_walter_history/downstream_outputs/hydrology_validation/regionalization.csv>`、{download}`模型選擇表 <../../../tests/fixtures/fe_walter_history/downstream_outputs/hydrology_validation/model_selection.csv>`及{download}`來源與指標摘要 <../../../tests/fixtures/fe_walter_history/downstream_outputs/hydrology_validation/summary.json>`。圖檔提供 PDF、可編輯 SVG 與 600 dpi PNG。完整輸入、候選參數、原生模型及失敗證據保留於 repository 外的研究紀錄。
 
-![Lehighton 校準及獨立驗證期間的實測與模擬逐日流量。](outputs/hydrology_validation/hydrology_validation.png)
+![Lehighton 校準及獨立驗證期間的實測與模擬逐日流量。](../../../tests/fixtures/fe_walter_history/downstream_outputs/hydrology_validation/hydrology_validation.png)
 
 *圖 2．Lehighton（USGS 01449000）逐日流量：(a) 1990–2010 年校準；(b) 2011–2020 年獨立驗證。兩段期間皆以 White Haven（USGS 01447800）實測流量作為上游邊界。流量單位為 cfs，1989 年暖機期間不列入圖中。*
 

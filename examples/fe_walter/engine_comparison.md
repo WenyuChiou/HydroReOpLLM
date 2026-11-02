@@ -10,11 +10,11 @@ runs for both LLM methods, plus same-reply replay checks. Independent stochastic
 trajectories are not an equivalence test or performance ranking. Same-reply
 replay compares engineering behavior under identical saved responses.
 
-- [Engine comparison summary](coupled/outputs/gemma4_2016_comparison/summary.json)
-- [Available-information saved pair](coupled/outputs/gemma4_2016_comparison/llm_available_pair.json)
-- [Retrieved-knowledge saved pair](coupled/outputs/gemma4_2016_comparison/llm_knowledge_pair.json)
-- [Complete engine daily table](coupled/outputs/gemma4_2016_comparison/daily.csv)
-- [Original-program/framework comparison figure (PDF)](coupled/outputs/gemma4_2016_comparison/pool_release.pdf)
+- [Engine comparison summary](../../tests/fixtures/fe_walter_history/coupled_outputs/gemma4_2016_comparison/summary.json)
+- [Available-information saved pair](../../tests/fixtures/fe_walter_history/coupled_outputs/gemma4_2016_comparison/llm_available_pair.json)
+- [Retrieved-knowledge saved pair](../../tests/fixtures/fe_walter_history/coupled_outputs/gemma4_2016_comparison/llm_knowledge_pair.json)
+- [Complete engine daily table](../../tests/fixtures/fe_walter_history/coupled_outputs/gemma4_2016_comparison/daily.csv)
+- [Original-program/framework comparison figure (PDF)](../../tests/fixtures/fe_walter_history/coupled_outputs/gemma4_2016_comparison/pool_release.pdf)
 
 The main notebook omits engine-parity tables and the raw daily audit gallery.
 Those materials answer implementation and diagnostic questions, not the
@@ -24,14 +24,14 @@ tutorial's three-method research comparison.
 
 All three saved methods start with 2.457848 million m³ and receive the same
 380.330106 million m³ of inflow in 2016. Daily release columns can look similar
-while accumulating different annual volumes. The [daily CSV](coupled/outputs/current_tutorial/daily.csv)
+while accumulating different annual volumes. The [daily CSV](../../tests/fixtures/fe_walter_history/coupled_outputs/current_tutorial/daily.csv)
 gives the following balance; release and spill volumes are the daily rates multiplied by 86,400 seconds.
 
 | Method | Controlled release (million m³) | Spill (million m³) | Storage change (million m³) | Mean release (m³/s) |
 |---|---:|---:|---:|---:|
 | Rule-based | 328.717395 | 0 | +51.612711 | 10.395081 |
-| LLM without additional operating knowledge | 380.616699 | 0 | −0.286593 | 12.036300 |
-| LLM with additional operating knowledge | 380.684224 | 0 | −0.354118 | 12.038436 |
+| LLM without operational knowledge | 380.616699 | 0 | −0.286593 | 12.036300 |
+| LLM with operational knowledge | 380.684224 | 0 | −0.354118 | 12.038436 |
 
 The Rule-based run releases 51.899304 million m³ less than the available-information
 run and 51.966829 million m³ less than the retrieved-knowledge run. Those differences

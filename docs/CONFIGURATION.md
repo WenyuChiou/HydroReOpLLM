@@ -152,4 +152,4 @@ network permission. Rule-based agents and `check` do not call a model provider.
 
 *Figure 2. State, completed history and the template form the messages; the
 dashed arrow adds optional context. The LLM also receives a response schema.
-Validation produces the release proposal. [Editable draw.io source](figures/prompt-context-workflow.drawio).*
+Validation produces the release proposal.*

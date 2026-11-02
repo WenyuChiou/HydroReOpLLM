@@ -13,14 +13,20 @@ from pathlib import Path
 
 def verify(root: Path) -> dict:
     root = root.resolve()
-    manifest = json.loads((root / "examples/fe_walter/reference_outputs/manifest.json").read_text(encoding="utf-8"))
+    manifest = json.loads((root / "tests/fixtures/fe_walter_history/reference_outputs/manifest.json").read_text(encoding="utf-8"))
     if manifest.get("schema_version") != "curated-example-outputs.v1":
         raise ValueError("unsupported results manifest")
     seen = set()
     for entry in manifest["files"]:
         relative = Path(entry["path"])
+        # The manifest is historical evidence, with its original logical paths.
+        old_prefix = "examples/fe_walter/reference_outputs/"
+        logical = relative.as_posix()
+        if not logical.startswith(old_prefix):
+            raise ValueError("unexpected historical artifact namespace")
+        relative = Path("tests/fixtures/fe_walter_history/reference_outputs") / logical[len(old_prefix):]
         path = (root / relative).resolve()
-        if relative.is_absolute() or not path.is_relative_to(root / "examples/fe_walter/reference_outputs"):
+        if relative.is_absolute() or not path.is_relative_to(root / "tests/fixtures/fe_walter_history/reference_outputs"):
             raise ValueError("artifact path must stay within reference_outputs")
         if entry["path"] in seen:
             raise ValueError("duplicate artifact path")
@@ -32,7 +38,7 @@ def verify(root: Path) -> dict:
                 ("trajectory.csv", "source_manifest.json", "plotted_daily.csv")}
     if not required.issubset(seen):
         raise ValueError("manifest omits required FE Walter artifacts")
-    base = root / "examples/fe_walter/reference_outputs/long_term_dkp"
+    base = root / "tests/fixtures/fe_walter_history/reference_outputs/long_term_dkp"
     with (base / "trajectory.csv").open(encoding="utf-8", newline="") as stream:
         rows = list(csv.DictReader(stream))
     expected = [(dt.date(2016, 1, 1) + dt.timedelta(days=i)).isoformat() for i in range(1827)]

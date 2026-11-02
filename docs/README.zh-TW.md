@@ -1,44 +1,20 @@
-# 概覽
+# Daily 模擬如何運作
 
 [English](README.md) | [繁體中文](README.zh-TW.md)
 
-HydroReOpLLM 在 HydroCNHS 上加入 LLM 水庫操作功能。使用者保留原有水文模型，
-再為每座水庫選擇 **Rule-based** 或 **LLM** 操作。
+HydroReOpLLM 為 HydroCNHS 加入水庫操作員。操作員可依規則或詢問 LLM 要求放水；
+水文模型與水庫物理計算獨立於這項選擇。
 
-![HydroReOpLLM：建立在 HydroCNHS 上的水庫操作](figures/hydroopslm-cover.png)
+![HydroReOpLLM 模擬與水庫決策流程](figures/hydrocnhs-coupling-framework-en.png)
 
-HydroCNHS 先利用降雨、溫度與潛在蒸發散（PET）計算每日水庫入流。
-HydroReOpLLM 保存操作期間的入流；每天由 agent 根據入流及當前水庫狀態提出放流。
-水庫計算決定實際放流、溢流及剩餘蓄水，再將出流送往下游 routing。
-下一日從更新後的狀態繼續。
+1. HydroCNHS 計算操作期間的逕流與上游 routing 入流。
+2. 每天，各水庫操作員讀取自己的狀態、入流與所選資訊。
+3. 操作員要求放水；水庫物理計算套用可用水量與出口限制，計算溢流並更新庫容。
+4. controlled release 加上 spill 後 routing 到下游；串聯水庫接收 routing 後的水量與設定的地方來水。
+5. 下次決策使用更新後的狀態與已完成歷史。
 
-目前入口分兩階段：先計算上游入流，再逐日模擬水庫操作及下游 routing。
-水庫決策不會改變上游降雨逕流計算。
+更換操作員不會重算上游降雨逕流。回覆驗證確認決策可讀且可使用；
+操作稽核檢查所選規則，不會自動更改放水。
 
-## 手冊閱讀順序
-
-| 章節 | 要學會的事 |
-|---|---|
-| [概覽](README.zh-TW.md) | 了解入流、決策、水庫物理與河道遞送。 |
-| [安裝](GETTING_STARTED.md) | 安裝套件並檢查指令。 |
-| [設定總覽](INPUT_OUTPUT.md) | 了解各檔案與填寫順序。 |
-| [全域設定](GLOBAL_SETTINGS.md) | 設定日期、執行名稱與輸出路徑。 |
-| [水文](HYDROLOGY_SETUP.md) | 提供已接受的原生模型與氣象資料。 |
-| [水庫與河網](BUILD_SIMULATION.zh-TW.md) | 連接入流、蓄水與下游。 |
-| [Agents 與 LLM](CONFIGURATION.md) | 選擇規則或模型、prompt 與選用資訊。 |
-| [檢查與執行](RUNNING.md) | 檢查檔案、準備入流、執行操作與查核紀錄。 |
-| [案例](CASE_STUDIES.md) | 完成通用設定教學後，閱讀完整範例。 |
-| [結果](RESULTS_GUIDE.md) | 查看水位與控制放流。 |
-| [問題排查](TROUBLESHOOTING.md) | 診斷輸入、回覆與中斷問題。 |
-| [API 文件](API_REFERENCE.md) | 查詢函數與擴充介面。 |
-
-詳細章節以英文維護。集水區建置、參數估計與校正請依
-[HydroCNHS 官方教學](https://github.com/cylin928/HydroCNHS/tree/main/tutorials)。
-
-## 核心流程
-
-下圖區分上游水文計算與每日水庫決策。依箭頭從氣象、入流，讀到放流、蓄水與下游流量。
-
-![HydroReOpLLM 核心流程](figures/hydrocnhs-coupling-framework-en.png)
-
-*圖 1。HydroCNHS 提供上游水文與 routing。選定的 agent 請求放流，水庫計算依物理限制實作放流並更新蓄水。Valid reply? 解析並檢查 LLM 回覆；無效回覆依設定重試或停止。圖示案例要求執行 Operating-rule check，記錄診斷而不自動改寫或否決放流。Trace records 保存 LLM 輸入、回覆、放流請求與檢查結果。詳見[圖說與流程界線](figures/FIGURE1.md)。*
+先[安裝套件](GETTING_STARTED.md)，再依序填寫[設定檔](INPUT_OUTPUT.md)。
+[手冊首頁](index.zh-TW.md)列出完整閱讀順序。

@@ -1,7 +1,7 @@
 # October prompt and reply comparison
 
 This page shows the **actual saved requests** for October 12–14, 2016, in
-**LLM with additional operating knowledge**. Select a date, then expand a section to read,
+**LLM with operational knowledge**. Select a date, then expand a section to read,
 copy or download its complete text. No model was rerun for this review.
 
 The system prompt, retrieved text, reply schema and provider parameters match

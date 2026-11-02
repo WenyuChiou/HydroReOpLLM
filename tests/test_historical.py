@@ -13,8 +13,8 @@ from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
-from examples.fe_walter.legacy.case import CFS_TO_CMS, load_case
-from examples.fe_walter.legacy.historical import (
+from tests.fixtures.fe_walter_legacy.case import CFS_TO_CMS, load_case
+from tests.fixtures.fe_walter_legacy.historical import (
     DAYS, OFFSET, REPORT_DAYS, UNITS, load_inputs, main, read_reference, read_weather,
 )
 
@@ -66,7 +66,7 @@ class HistoricalInputTests(unittest.TestCase):
 
     def test_existing_output_rejected_before_full_execution(self):
         with tempfile.TemporaryDirectory() as folder:
-            with patch("examples.fe_walter.legacy.historical.run_historical") as run:
+            with patch("tests.fixtures.fe_walter_legacy.historical.run_historical") as run:
                 with self.assertRaises(FileExistsError): main(["--output", folder, "--couple"])
                 run.assert_not_called()
 
@@ -83,16 +83,16 @@ class HistoricalInputTests(unittest.TestCase):
 @unittest.skipUnless(importlib.util.find_spec("hydrocnhs"), "optional HydroCNHS runtime is not installed")
 class JSONDamCouplingTests(unittest.TestCase):
     def test_injected_provider_accounting_unknown_without_a_counter(self):
-        from examples.fe_walter.legacy.hydrocnhs_bridge import run_hydrocnhs
-        config, rows = load_case(ROOT / "cases/fe_walter.json")
+        from tests.fixtures.fe_walter_legacy.hydrocnhs_bridge import run_hydrocnhs
+        config, rows = load_case(ROOT / "tests/fixtures/cases/fe_walter.json")
         class UncountedJSONFixture:
             def decide(self, observation): return {"release_cms": observation["inflow_cms"]}
         _, summary = run_hydrocnhs(config, rows[:1], project_root=ROOT, policy=UncountedJSONFixture())
         self.assertIsNone(summary["provider_network_calls"])
 
     def test_json_controlled_release_enforced_and_spill_injected_once(self):
-        from examples.fe_walter.legacy.hydrocnhs_bridge import run_hydrocnhs
-        config, original = load_case(ROOT / "cases/fe_walter.json")
+        from tests.fixtures.fe_walter_legacy.hydrocnhs_bridge import run_hydrocnhs
+        config, original = load_case(ROOT / "tests/fixtures/cases/fe_walter.json")
         config = copy.deepcopy(config)
         physical = config["agent_config"]["Attributes"]["Physical"]
         physical.update(capacity_m3=1000000, initial_storage_m3=1000000,
@@ -123,10 +123,10 @@ class JSONDamCouplingTests(unittest.TestCase):
         self.assertTrue(all(r["transition"]["mass_balance_residual_m3"] == 0 for r in records))
 
     def test_raw_cfs_reasoning_response_rejected_without_storage_change(self):
-        from examples.fe_walter.legacy.dam_agent import FEWalterDamAgent
-        from examples.fe_walter.legacy.replay import ReplayDataCollector
+        from tests.fixtures.fe_walter_legacy.dam_agent import FEWalterDamAgent
+        from tests.fixtures.fe_walter_legacy.replay import ReplayDataCollector
         from datetime import datetime
-        config, _ = load_case(ROOT / "cases/fe_walter.json")
+        config, _ = load_case(ROOT / "tests/fixtures/cases/fe_walter.json")
         class RawLLMFixture:
             def decide(self, observation): return {"release_cfs": 100, "reasoning": "fixture"}
         dc = ReplayDataCollector([3.0])

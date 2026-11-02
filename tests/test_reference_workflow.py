@@ -13,7 +13,7 @@ from unittest.mock import patch
 import pandas as pd
 import yaml
 
-from reference_oracle import load_anik, require_reference_dir
+from tests.reference_oracle import load_anik, require_reference_dir
 from llm_reservoir_agent.network import PROJECT_ROOT
 from examples.fe_walter.extensions.reference_backend import ReferenceBackend, _FixtureTransport
 from llm_reservoir_agent.context import DecisionContext
@@ -40,7 +40,7 @@ class ReferenceTests(unittest.TestCase):
         self.temp.cleanup()
 
     def fixture(self, method):
-        path = PROJECT_ROOT / f'experiments/fe_walter_reference_{method}.yaml'
+        path = PROJECT_ROOT / f'tests/fixtures/experiments/fe_walter_reference_{method}.yaml'
         data = yaml.safe_load(path.read_text(encoding='utf-8'))
         data['case'] = str((path.parent / data['case']).resolve())
         data['output'] = str(self.root / f'run-{method}')

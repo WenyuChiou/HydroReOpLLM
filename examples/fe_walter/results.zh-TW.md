@@ -27,13 +27,13 @@ Rule-based 使用 Hanasaki 規則，決策公式沒有讀取冬夏目標水位�
 不代表實際水位瞬間跳升或下降。保存的操作設定與 audit 窗口保持原樣。
 圖中流量採 cfs，來源 CSV 保留原始 m³/s。
 
-[完整精度每日資料](coupled/outputs/current_tutorial/daily.csv) ·
-[來源紀錄](coupled/outputs/current_tutorial/provenance.json) ·
-[合併圖 SVG](coupled/outputs/current_tutorial/reservoir_operations.svg) ·
-[合併圖 PDF](coupled/outputs/current_tutorial/reservoir_operations.pdf)
+[完整精度每日資料](../../tests/fixtures/fe_walter_history/coupled_outputs/current_tutorial/daily.csv) ·
+[來源紀錄](../../tests/fixtures/fe_walter_history/coupled_outputs/current_tutorial/provenance.json) ·
+[合併圖 SVG](../../tests/fixtures/fe_walter_history/coupled_outputs/current_tutorial/reservoir_operations.svg) ·
+[合併圖 PDF](../../tests/fixtures/fe_walter_history/coupled_outputs/current_tutorial/reservoir_operations.pdf)
 
-次要的單圖下載：[水位 PDF](coupled/outputs/current_tutorial/daily_water_elevation.pdf) ·
-[放流 PDF](coupled/outputs/current_tutorial/controlled_release_daily.pdf)
+次要的單圖下載：[水位 PDF](../../tests/fixtures/fe_walter_history/coupled_outputs/current_tutorial/daily_water_elevation.pdf) ·
+[放流 PDF](../../tests/fixtures/fe_walter_history/coupled_outputs/current_tutorial/controlled_release_daily.pdf)
 
 資料由已保存的 Rule-based 年度結果及兩個最新框架 LLM 結果整理而成。
 每種方法都有 366 個依序排列且不重複的日期；整理前已核對共同入流
@@ -44,7 +44,7 @@ Rule-based 使用 Hanasaki 規則，決策公式沒有讀取冬夏目標水位�
 
 較早五年研究與原始紀錄保存在[歷史參考](results_history.zh-TW.md)。
 
-![2016 年水位與控制放流](coupled/outputs/current_tutorial/reservoir_operations.png)
+![2016 年水位與控制放流](../../tests/fixtures/fe_walter_history/coupled_outputs/current_tutorial/reservoir_operations.png)
 
 *圖 1。2016 年保存的操作結果。(a) 日末水位（ft NGVD29）與目標水位參考線（Target pool elevation）：
 冬季目標 1300 ft、夏季上限 1370 ft，於 5 月 15 日與 10 月 15 日垂直切換。
@@ -61,12 +61,11 @@ USGS 日平均觀測。這是固定保存放流後的條件式比較：原始水
 集水區，修正邊界後的完整耦合操作仍是另一個實驗。
 [研究區域圖](README.zh-TW.md#地點與研究範圍)標示 White Haven 與 Lehighton；此處保存的比較涵蓋 White Haven。
 
-下載：[逐日分量與觀測](downstream/outputs/daily.csv)、
-[完整評估紀錄](downstream/outputs/report.json)、
-[SVG](downstream/outputs/streamflow.svg)、[PDF](downstream/outputs/streamflow.pdf)。
+下載：[逐日分量與觀測](../../tests/fixtures/fe_walter_history/downstream_outputs/daily.csv)、
+[完整評估紀錄](../../tests/fixtures/fe_walter_history/downstream_outputs/report.json)、
 詳細指標與邊界假設保留於下游參考。
 
-![三種保存方法與 USGS 01447800 的比較](downstream/outputs/streamflow.png)
+![三種保存方法與 USGS 01447800 的比較](../../tests/fixtures/fe_walter_history/downstream_outputs/streamflow.png)
 
 **圖 2。** 2016 年條件式下游流量（cfs）。各方法分開與相同 USGS 觀測比較，
 曲線保留日平均值。灰色標示前 20 天使用假定河道初始狀態的期間；其餘 346 天

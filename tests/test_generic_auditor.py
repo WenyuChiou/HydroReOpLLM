@@ -13,7 +13,7 @@ from llm_reservoir_agent.experiment import run_experiment
 from llm_reservoir_agent.policy_adapter import validate_isolated_backends
 from llm_reservoir_agent.physics import PhysicalConfig, apply_transition
 from llm_reservoir_agent.verification import verify_run
-from test_llm_network import Backend as RawBackend, network
+from tests.test_llm_network import Backend as RawBackend, network
 
 
 class Backend(RawBackend):

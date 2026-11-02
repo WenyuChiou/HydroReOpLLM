@@ -22,9 +22,9 @@ def _pin_example_extension(data):
     return data
 
 def benchmark_settings(tmp_path):
-    source = PROJECT_ROOT / 'examples/fe_walter/benchmark/experiment.yaml'
+    source = PROJECT_ROOT / 'tests/fixtures/fe_walter_current/benchmark.yaml'
     data = yaml.safe_load(source.read_text())
-    data['case'] = str(PROJECT_ROOT / 'cases/fe_walter_reference/case.json')
+    data['case'] = str(PROJECT_ROOT / 'tests/fixtures/cases/fe_walter_reference/case.json')
     data['output'] = str(tmp_path / 'output')
     data['agents']['fe_operator']['rule_parameters']['inflow_statistics_file'] = str(
         PROJECT_ROOT / 'data/benchmark/fe_walter_statistics.json')
@@ -41,10 +41,10 @@ def test_wrong_profile_identity_stops_check_and_constructor(tmp_path):
     physical['reservoir_id'] = 'another_reservoir'
     with pytest.raises(ValueError, match='profile must match physical reservoir_id'):
         ReferenceBackend(spec, physical, runtime_root=PROJECT_ROOT)
-    case = json.loads((PROJECT_ROOT / 'cases/fe_walter_reference/case.json').read_bytes())
+    case = json.loads((PROJECT_ROOT / 'tests/fixtures/cases/fe_walter_reference/case.json').read_bytes())
     case['network']['reservoirs']['FEWalter']['physical'] = physical
     case['inflow_source']['path'] = 'inflows.csv'
-    (tmp_path / 'inflows.csv').write_bytes((PROJECT_ROOT / 'cases/fe_walter_reference/inflows.csv').read_bytes())
+    (tmp_path / 'inflows.csv').write_bytes((PROJECT_ROOT / 'tests/fixtures/cases/fe_walter_reference/inflows.csv').read_bytes())
     case_path = tmp_path / 'case.json'
     case_path.write_text(json.dumps(case))
     data = yaml.safe_load(source.read_text())

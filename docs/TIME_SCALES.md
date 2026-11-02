@@ -34,7 +34,7 @@ An interval network uses `outlets`, `start_time` and `dt_seconds`:
 ```
 
 This fragment supplements the usual reservoir and connection settings; see the
-complete [offline fixture](../examples/fixed_interval/case.json).
+complete [offline fixture](../examples/time_scales/fixed_interval.case.json).
 Every reservoir's physical `dt_seconds` must equal the network duration. UTC is
 used internally, so the first input timestamp above is `2021-08-30T04:00:00Z`.
 Naive interval timestamps, mixed durations, gaps and duplicate records are

@@ -28,13 +28,13 @@ These polygons use complete NHDPlusV2 catchments. The local catchments remain
 unsplit at the exact dam and gauge coordinates. The map is a documented network
 approximation; a finer delineation is needed before claiming an exact dam boundary.
 
-![Full gauge watershed and the area below the dam](outputs/watershed.png)
+![Full gauge watershed and the area below the dam](../../../tests/fixtures/fe_walter_history/downstream_outputs/watershed.png)
 
 **Figure 1.** The complete gauge watershed (750.811 km²) contains the upstream
 watershed and the orange downstream contributing area (approximately 4.341 km²).
 Panel (b) enlarges the dam and USGS station. Boundaries come from NLDI; river and
-reservoir context comes from the retained project GIS. [SVG](outputs/watershed.svg)
-and [PDF](outputs/watershed.pdf) retain editable text.
+reservoir context comes from the retained project GIS. [SVG](../../../tests/fixtures/fe_walter_history/downstream_outputs/watershed.svg)
+and [PDF](../../../tests/fixtures/fe_walter_history/downstream_outputs/watershed.pdf) retain editable text.
 
 ## From saved release to gauge flow
 
@@ -57,13 +57,13 @@ area changed to the measured polygon intersection. Soil and snow initialization
 begins in 1989. The channel inherits the upstream velocity and diffusion parameters;
 its application here remains a transfer assumption, without a new fit to USGS.
 The raw native kernel and the bounded removal of floating-point noise are saved
-in [routing.json](outputs/routing.json).
+in [routing.json](../../../tests/fixtures/fe_walter_history/downstream_outputs/routing.json).
 
 ![Upstream watershed, reservoir, lateral runoff and gauge comparison](../../../docs/figures/downstream-workflow.svg)
 
 **Figure 2.** Water connections for the separated boundaries. Solid blue arrows
 carry water; the dashed comparison uses independent observations. In the present
-comparison, the reservoir supplies saved releases. [Editable draw.io source](../../../docs/figures/downstream-workflow.drawio).
+comparison, the reservoir supplies saved releases.
 
 ## Read the comparison
 
@@ -75,8 +75,8 @@ The full convolution tail after December 31 is retained in a separate CSV.
 | Method | Paired days | NSE | KGE (2009) | Relative volume bias |
 |---|---:|---:|---:|---:|
 | Rule-based | 346 | −0.006 | 0.547 | −2.73% |
-| LLM without additional operating knowledge | 346 | −0.812 | 0.233 | +13.06% |
-| LLM with additional operating knowledge | 346 | −0.792 | 0.250 | +11.45% |
+| LLM without operational knowledge | 346 | −0.812 | 0.233 | +13.06% |
+| LLM with operational knowledge | 346 | −0.792 | 0.250 | +11.45% |
 
 These scores describe agreement with the historically operated river. They combine
 hydrology, transferred routing and differences in reservoir decisions; they cannot
@@ -93,10 +93,10 @@ The old results and physical inputs retain their original bytes.
 |---|---|
 | [observations.csv](inputs/observations.csv) | USGS dates, discharge in cfs and m³/s, approval and qualifier fields. |
 | [source_manifest.json](inputs/source_manifest.json) | Official URLs, raw-response hashes and accepted input hashes. |
-| [partition.json](outputs/partition.json) | Area allocated upstream and downstream for each original unit. |
-| [daily.csv](outputs/daily.csv) | Each method's boundary, routed reservoir, lateral and total gauge flows; observations and eligibility. |
-| [routing_tail.csv](outputs/routing_tail.csv) | Water arriving after the comparison period. |
-| [report.json](outputs/report.json) | Full metrics, volume ledgers, method status and assumptions. |
+| [partition.json](../../../tests/fixtures/fe_walter_history/downstream_outputs/partition.json) | Area allocated upstream and downstream for each original unit. |
+| [daily.csv](../../../tests/fixtures/fe_walter_history/downstream_outputs/daily.csv) | Each method's boundary, routed reservoir, lateral and total gauge flows; observations and eligibility. |
+| [routing_tail.csv](../../../tests/fixtures/fe_walter_history/downstream_outputs/routing_tail.csv) | Water arriving after the comparison period. |
+| [report.json](../../../tests/fixtures/fe_walter_history/downstream_outputs/report.json) | Full metrics, volume ledgers, method status and assumptions. |
 | [prepare.py](prepare.py) / [plot.py](plot.py) | Offline preparation and the shared plotting functions. |
 
 From a source checkout, install the optional GIS dependencies once:

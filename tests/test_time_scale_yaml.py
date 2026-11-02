@@ -41,7 +41,7 @@ def _csv(path, rows):
 
 
 def _hourly_bundle(root):
-    source = json.loads((ROOT / "examples/fixed_interval/case.json").read_bytes())
+    source = json.loads((ROOT / "examples/time_scales/fixed_interval.case.json").read_bytes())
     network = source["network"]
     network["start_time"] = "2020-02-28T00:00:00Z"
     _json(root / "physical.json", dict(schema_version="reservoir-physical-case.v1",
@@ -108,9 +108,9 @@ def _daily_bundle(root, *, explicit=True):
 @pytest.mark.parametrize("entry", ["daily", "hourly", "inflows"])
 def test_present_null_time_rejected_during_check(tmp_path, entry):
     if entry == "inflows":
-        data = yaml.safe_load((ROOT / "examples/fixed_interval/experiment.yaml").read_text(encoding="utf-8"))
-        data["case"] = str(ROOT / "examples/fixed_interval/case.json")
-        data["agents"]["fixture"]["prompt"]["user"] = str(ROOT / "examples/fixed_interval/prompt.txt")
+        data = yaml.safe_load((ROOT / "examples/time_scales/fixed_interval.yaml").read_text(encoding="utf-8"))
+        data["case"] = str(ROOT / "examples/time_scales/fixed_interval.case.json")
+        data["agents"]["fixture"]["prompt"]["user"] = str(ROOT / "examples/time_scales/prompt.txt")
         data["output"] = str(tmp_path / "output")
         loader = load_settings
     else:

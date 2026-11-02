@@ -11,7 +11,7 @@ import tempfile
 from unittest import mock
 
 ROOT = Path(__file__).resolve().parents[1]
-DATA = ROOT / "examples/fe_walter/reference_outputs/long_term_dkp"
+DATA = ROOT / "tests/fixtures/fe_walter_history/reference_outputs/long_term_dkp"
 
 
 def test_full_period_evidence_pins():
@@ -64,9 +64,9 @@ def test_manual_prepare_copies_original_downloads_without_network():
         assert (output / "examples/fe_walter/results.md").exists()
         assert not (output / "paper").exists(), "Research drafts must not be published"
         assert not (output / "results").exists(), "Manual assets must come from curated examples"
-        method = (output / "examples/fe_walter/zero_shot/README.md").read_text(encoding="utf-8")
+        method = (output / "examples/fe_walter/coupled/README.md").read_text(encoding="utf-8")
         assert "llm_available.yaml" in method
-        assert "available_information.txt" in method
+        assert "llm_knowledge.yaml" in method
         prompt_downloads = sorted(
             name for name in module.CONFIG_DOWNLOADS.values()
             if name.endswith(".txt") and name != "operating-knowledge.txt"

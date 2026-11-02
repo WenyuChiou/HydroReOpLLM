@@ -47,4 +47,4 @@ seepage.
 
 *Figure 1. HydroCNHS routes runoff to an outlet; a binding connects it to the
 operation inlet. Blue arrows carry water. Orange arrows carry reservoir state
-and the agent's release proposal. [Editable draw.io source](figures/reservoir-agent-mapping.drawio).*
+and the agent's release proposal.*

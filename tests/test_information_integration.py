@@ -15,7 +15,7 @@ from llm_reservoir_agent.contracts import ReservoirObservation
 from llm_reservoir_agent.prompt import PromptSpec
 from llm_reservoir_agent.verification import verify_run
 from llm_reservoir_agent.workflow import load_settings, run_settings, verify_settings_output
-from test_llm_network import network
+from tests.test_llm_network import network
 
 
 class InformationIntegrationTests(unittest.TestCase):

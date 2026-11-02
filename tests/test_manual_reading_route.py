@@ -4,6 +4,7 @@ from pathlib import Path
 from unittest.mock import patch
 import xml.etree.ElementTree as ET
 import zipfile
+import json
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -19,14 +20,14 @@ def test_manual_current_downloads_have_an_isolated_namespace(tmp_path):
     operation = {source: name for source, name in builder.TUTORIAL_DOWNLOADS.items()
                  if name.startswith('operation/')}
     assert len(legacy) == 11
-    assert len(operation) == 20
-    assert len(builder.TUTORIAL_DOWNLOADS) == 31
+    assert len(operation) == 21
+    assert len(builder.TUTORIAL_DOWNLOADS) == 32
     assert {'reservoir_operations.png', 'reservoir_operations.svg',
             'reservoir_operations.pdf'} <= set(builder.TUTORIAL_DOWNLOADS.values())
     for source, name in builder.TUTORIAL_DOWNLOADS.items():
         assert (tmp_path / '_tutorial_downloads' / name).read_bytes() == (ROOT / source).read_bytes()
         assert (tmp_path / source).read_bytes() == (ROOT / source).read_bytes()
-    historical = ROOT / 'examples/fe_walter/coupled/outputs/daily.csv'
+    historical = ROOT / 'tests/fixtures/fe_walter_history/coupled_outputs/daily.csv'
     assert (tmp_path / '_completed_downloads/daily.csv').read_bytes() == historical.read_bytes()
     assert (tmp_path / '_tutorial_downloads/daily.csv').read_bytes() != historical.read_bytes()
     for name in ('docs/TROUBLESHOOTING.md', 'docs/RECORDS.md', 'examples/fe_walter/results_history.md'):
@@ -47,10 +48,14 @@ def test_manual_navigation_keeps_one_reader_route_without_right_toc():
     for old in ('Weather-to-operation commands', 'Saved three-method comparison',
                 'FE Walter saved decisions', 'Case evidence and reference'):
         assert old not in navigation
-    assert "chapter('docs/TROUBLESHOOTING'" in navigation
-    assert "chapter('docs/RECORDS'" in navigation
-    assert 'figures/hydroopslm-cover.png' in (ROOT / 'docs/README.md').read_text(encoding='utf-8')
-    assert 'figures/hydroopslm-cover.png' in (ROOT / 'docs/README.zh-TW.md').read_text(encoding='utf-8')
+    sections = json.loads((ROOT / 'docs/navigation.json').read_text(encoding='utf-8'))
+    paths = [page['path'] for section in sections for page in section['pages']]
+    assert 'docs/TROUBLESHOOTING' in paths and 'docs/RECORDS' in paths
+    assert 'manual_sections' in navigation
+    for name in ('README.md', 'README.zh-TW.md', 'index.md', 'index.zh-TW.md'):
+        page = (ROOT / 'docs' / name).read_text(encoding='utf-8')
+        assert 'figures/hydrocnhs-coupling-framework-en.png' in page
+        assert 'figures/hydroopslm-cover.png' not in page
 
 
 def test_generic_files_download_locally_and_main_route_reaches_cases_after_settings(tmp_path):
@@ -62,9 +67,10 @@ def test_generic_files_download_locally_and_main_route_reaches_cases_after_setti
     index = (tmp_path / 'index.md').read_text(encoding='utf-8')
     # Check actual generated toctree entries, not a sidebar label alone.
     positions = [index.index('\n' + name + '\n') for name in (
-        'docs/README', 'docs/GETTING_STARTED', 'docs/INPUT_OUTPUT', 'docs/GLOBAL_SETTINGS',
+        'docs/GETTING_STARTED', 'docs/INPUT_OUTPUT', 'docs/GLOBAL_SETTINGS',
         'docs/HYDROLOGY_SETUP', 'docs/BUILD_SIMULATION', 'docs/CONFIGURATION',
-        'docs/INFORMATION', 'docs/RUNNING', 'docs/CASE_STUDIES', 'examples/fe_walter/README',
+        'docs/INFORMATION', 'docs/RUNNING', 'docs/RESULTS_GUIDE', 'docs/DAILY_EXAMPLES',
+        'docs/MULTI_RESERVOIR', 'docs/CASE_STUDIES',
     )]
     assert positions == sorted(positions)
     for source, name in builder.TEMPLATE_DOWNLOADS.items():
