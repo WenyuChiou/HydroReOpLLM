@@ -197,6 +197,15 @@ def _sha(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def _tutorial_source(path: str) -> Path:
+    """Resolve the two original source aliases without rewriting old receipts."""
+    original_sources = {
+        "../../../seasonal_pool_criteria.json": SEASONAL_CRITERIA,
+        "../../../knowledge/operating_rules.md": OPERATING_KNOWLEDGE,
+    }
+    return original_sources.get(path, CURRENT / path)
+
+
 def _save_figure_formats(fig, stem: str, figures: list[Path], raster_dpi: int) -> None:
     """Regenerate every format so provenance cannot describe stale figures."""
     for ext in ("png", "svg", "pdf"):
@@ -378,9 +387,9 @@ def _prepare_current_outputs() -> dict:
             "rule_rows": {"path": "../2016/daily.csv", "sha256": _sha(rule_path)},
             "llm_framework_rows": {"path": "../gemma4_2016_comparison/daily.csv", "sha256": _sha(llm_path)},
             "initial_state": {"path": "../2016/summary.json", "sha256": _sha(summary_path)},
-            "seasonal_criteria": {"path": "../../../seasonal_pool_criteria.json",
+            "seasonal_criteria": {"path": Path(os.path.relpath(SEASONAL_CRITERIA, CURRENT)).as_posix(),
                                   "sha256": _sha(SEASONAL_CRITERIA)},
-            "reference_timing": {"path": "../../../knowledge/operating_rules.md",
+            "reference_timing": {"path": Path(os.path.relpath(OPERATING_KNOWLEDGE, CURRENT)).as_posix(),
                                  "sha256": _sha(OPERATING_KNOWLEDGE)},
         },
         "artifacts": {},
@@ -1115,7 +1124,7 @@ def check() -> list[dict]:
         reports.append({"path": str(path.relative_to(ROOT)), "cells": len(notebook["cells"]), "mime_types": sorted(mime), "sha256": _sha(path)})
     manifest = json.loads((CURRENT / "provenance.json").read_text(encoding="utf-8"))
     for source in manifest["sources"].values():
-        assert _sha(CURRENT / source["path"]) == source["sha256"]
+        assert _sha(_tutorial_source(source["path"])) == source["sha256"]
     for name, digest in manifest["artifacts"].items():
         assert _sha(CURRENT / name) == digest
     return reports
