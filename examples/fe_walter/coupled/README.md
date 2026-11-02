@@ -1,5 +1,10 @@
 # Coupled F.E. Walter experiment
 
+Use this weather-driven example for **1 January–31 December 2016**. It follows
+the manual's split-file configuration and `check → prepare → run → verify`
+workflow. For the **2021–2025 prepared-inflow lesson**, return to
+[Choose where to start](../../../docs/CASE_STUDIES.md#choose-where-to-start).
+
 The saved LLM trajectories use the **previous prompts**, without the new daily
 seasonal context. [Review the actual October requests and proposed addition](../prompt_review.md). No new model result is shown.
 

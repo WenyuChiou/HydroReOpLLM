@@ -63,7 +63,8 @@ and accepted parameters in the native file. The current entry accepts GWLF or
 ABCD rainfall-runoff with Lohmann routing and rejects native ABM agents so
 reservoir control is not applied twice.
 
-The forcing columns and units are listed in [Configuration overview](INPUT_OUTPUT.md).
+See the [weather table reference](WEATHER_INPUTS.md#weather-table) for the complete
+forcing columns and units; the filled CSV example above shows the same format.
 Each weather driven `(subbasin_id, date)` pair must appear exactly once. Bind
 each catchment contribution once: a downstream node receives upstream reservoir
 outflow through `network.connections`, so its local binding contains only
