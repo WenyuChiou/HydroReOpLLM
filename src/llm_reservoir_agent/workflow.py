@@ -1,11 +1,17 @@
-"""Validated YAML experiment setup, with explicit and bounded network opt-in.
+"""Validate experiment YAML and execute explicitly bounded reservoir workflows.
 
-Role: Translate experiment YAML into validated execution components.
-
-Connections and data: run_experiment.py and the installed CLI call main. load_settings
-resolves files, pins inputs and checks agents/models/prompts/auditors without network
-calls; run_settings constructs backends and invokes experiment. The check, run and
-verify commands have distinct effects; live transport requires explicit opt-in.
+The CLI and ``run_experiment.py`` call ``main``. ``load_settings`` resolves the
+case/date interval, validates agent/model/prompt/auditor/information declarations,
+pins exact input bytes and builds offline previews without model inference.
+``run_settings`` rereads that plan, constructs isolated backends and delegates
+native execution/evidence to ``experiment``. ``verify_settings_output`` also
+binds saved evidence to current inputs, Python and implementation bytes.
+Physical flow uses m3/s, storage m3 and dt_seconds fixes the operation interval;
+start/end dates select inclusive step starts, with Daily as the primary use.
+Check/load reads files and imports trusted extensions, whose validation hooks
+execute user code. Run writes a new directory; live requests require explicit
+opt-in, readiness and shared attempt accounting. Recovery preserves prior
+attempt reservations. No user request cap or scientific acceptance is inferred.
 """
 import argparse
 from dataclasses import dataclass
@@ -28,10 +34,27 @@ from .prompt import PromptSpec
 
 
 class UniqueLoader(yaml.SafeLoader):
-    """Reject duplicate YAML keys rather than silently replacing a setting."""
+    """Load safe YAML while rejecting duplicate or nonstring mapping keys.
+
+    Duplicate-key validation is installed by this module at import. Safe loading does not authorize arbitrary YAML object construction.
+
+    Parameters
+    ----------
+    stream : str, bytes or file-like
+        YAML input accepted by yaml.SafeLoader; use through yaml.load(..., Loader=UniqueLoader).
+
+    Raises
+    ------
+    ValueError
+        A mapping key is repeated or is not a string.
+    yaml.YAMLError
+        The YAML document cannot be parsed safely.
+    """
 
 
 def _unique_mapping(loader, node, deep=False):
+    """Construct every YAML mapping with unique string keys; reject duplicates instead of silently overriding the earlier scientific setting."""
+
     result = {}
     for key_node, value_node in node.value:
         key = loader.construct_object(key_node, deep=deep)
@@ -45,23 +68,32 @@ UniqueLoader.add_constructor(yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG, _un
 
 
 def _mapping(value, allowed, label):
+    """Require a dictionary containing only explicitly supported keys so misspelled configuration cannot be silently ignored."""
+
     if not isinstance(value, dict) or set(value) - set(allowed):
         raise ValueError(label + " must be a mapping with known keys")
     return value
 
 
 def _text(value, label):
+    """Require an explicit nonempty configuration identity/path string without coercing missing values."""
+
     if not isinstance(value, str) or not value.strip():
         raise ValueError(label + " must be a nonempty string")
     return value
 
 
 def _path(base, value, label):
+    """Resolve only a declared text resource path against its declaring directory; existence/readability are checked by its consuming loader."""
+
     return (base / _text(value, label)).resolve()
 
 
 def _prompt_bindings(spec, extensions, base_path, files):
-    """Validate fixed values and lazy retrieval factories without running them."""
+    """Validate explicit fixed bindings and lazy context factories without retrieving decision context.
+
+    Reserved/overlapping names are rejected, every callback has an explicit offline preview, and optional extension validation pins its resource bytes.
+    """
     from .configured_backend import ConfiguredBackend
     import re
 
@@ -98,6 +130,32 @@ def _prompt_bindings(spec, extensions, base_path, files):
 
 @dataclass
 class ExperimentSettings:
+    """Carry one validated experiment and its exact-input evidence.
+
+    This mutable carrier does not make an earlier check trustworthy forever. run_settings and verify_settings_output reload files and compare the plan before using it.
+
+    Parameters
+    ----------
+    path : pathlib.Path
+        Absolute top-level configuration path, reread before execution.
+    data : dict
+        Detached canonical settings used for provenance.
+    network : dict
+        Validated physical/routing configuration with selected start clock.
+    rows : list[dict]
+        Inclusive selected inflow rows in step order; local flow m3/s.
+    agents : dict
+        Validated construction inputs, prompt/audit objects and declared extension factories per agent.
+    files : dict[str, str]
+        Exact input/extension source paths mapped to SHA256 hashes.
+    report : dict
+        Plan, clock, request limit, source pins and offline preview evidence; not a simulated result.
+    information_catalog : InformationCatalog or None, optional
+        Validated source/profile catalog when information is configured.
+    outcome_checks : dict or None, optional
+        Validated diagnostic control-point checks.
+    """
+
     path: Path
     data: dict
     network: dict
@@ -110,7 +168,33 @@ class ExperimentSettings:
 
 
 def load_settings(path, *, runtime_root=PROJECT_ROOT, information_providers=None):
-    """Read, pin and validate everything without constructing a provider."""
+    """Read, pin and validate an experiment and build offline configuration previews.
+
+    start_date/end_date select inclusive operation starts. Native source units are m3/s or m3, while profile conversions remain explicit. CSV/resource reads and trusted extension imports/validation occur; preview backends/auditors may be constructed, but model transport and decision-time retrieval are not invoked by the built-in preview path.
+
+    Parameters
+    ----------
+    path : str or pathlib.Path
+        YAML experiment file; section references are assembled by configuration.read_configuration.
+    runtime_root : str or pathlib.Path, optional
+        Runtime checkout containing the native host integration.
+    information_providers : Mapping[str, callable] or None, optional
+        Explicit versioned numeric information readers registered with InformationCatalog; not LLM transport.
+
+    Returns
+    -------
+    ExperimentSettings
+        Validated network/inflows/agent inputs, exact source pins, request plan, optional catalog/checks and offline prompt previews.
+
+    Raises
+    ------
+    ValueError
+        Configuration fields, inclusive dates, agent coverage, units, model/prompt/auditor references or request cap are invalid.
+    TypeError
+        A declared contract, numeric field or callback has the wrong type.
+    OSError
+        A required file cannot be read, created, flushed or replaced.
+    """
     from .configured_backend import validate_model_settings
     path = Path(path).resolve()
     raw = path.read_bytes()
@@ -129,6 +213,7 @@ def load_settings(path, *, runtime_root=PROJECT_ROOT, information_providers=None
                  runtime_root if case.is_relative_to(runtime_root) else case.parent)
     network, rows = load_case(case, project_root=case_root)
     original_case = json.loads(case.read_bytes())
+    # Inclusive start/end labels denote operation starts, not completed-period endpoints.
     start = data.get("start_date", rows[0]["date"])
     end = data.get("end_date", rows[-1]["date"])
     topology, _ = validate_inflows(network, rows)
@@ -172,6 +257,7 @@ def load_settings(path, *, runtime_root=PROJECT_ROOT, information_providers=None
             extensions[settings["type"]].validate_auditor(settings)
         else:
             ConfiguredAudit(identifier, settings)
+    # Exact-byte source pins bind a checked plan; user-visible version labels alone do not.
     files = {str(path): hashlib.sha256(raw).hexdigest(), **extension_pins, **section_pins}
     dependencies = data.get("source_dependencies", {})
     if not isinstance(dependencies, dict):
@@ -371,6 +457,7 @@ def load_settings(path, *, runtime_root=PROJECT_ROOT, information_providers=None
     from .outcome import validate_outcome_checks
     outcome_checks = validate_outcome_checks(data.get("outcome_checks", {}), topology["nodes"], agents, profiles, sources)
     llm_count = sum(a["mode"] == "llm" for a in agents.values())
+    # Planned decisions exclude additional retry attempts; max_calls governs actual reservations.
     planned = llm_count * len(rows)
     maximum = data.get("max_calls", 0)
     if maximum is not None and (isinstance(maximum, bool) or not isinstance(maximum, int) or maximum < planned):
@@ -429,7 +516,47 @@ def load_settings(path, *, runtime_root=PROJECT_ROOT, information_providers=None
 
 def run_settings(settings, *, allow_network=False, runtime_root=PROJECT_ROOT, transport=None, information_providers=None,
                  recovery=None, output=None, run_id=None, progress=False):
-    """Execute checked settings; optionally display actual native daily progress."""
+    """Reload a checked plan, construct isolated backends and run native physics.
+
+    Every new transport attempt reserves the cumulative count and durably appends STARTED before sending. Saved replies/context replay first. Unknown native limits are not replaced with invented caps; explicit max_calls=None preserves no total cap. Callback/provider exceptions propagate with experiment failure evidence.
+
+    Parameters
+    ----------
+    settings : ExperimentSettings
+        Earlier checked settings whose report must still match a fresh load.
+    allow_network : bool, optional
+        Explicit permission for live model requests; readiness and shared max_calls still apply.
+    runtime_root : str or pathlib.Path, optional
+        Native runtime checkout used during revalidation and execution.
+    transport : callable or None, optional
+        Injected transport(url, payload, headers, timeout); default is the configured HTTP JSON transport.
+    information_providers : Mapping[str, callable] or None, optional
+        Versioned numeric readers used while rebuilding the catalog.
+    recovery : RecoveryTape or None, optional
+        Validated source prefix reused before any new provider request.
+    output : str or pathlib.Path or None, optional
+        New destination override used only when recovery is supplied.
+    run_id : str or None, optional
+        Distinct run identity override used only for recovery.
+    progress : bool, optional
+        Display native progress without changing decisions.
+
+    Returns
+    -------
+    tuple[dict, dict]
+        Completed reservoir records and terminal journal summary, including exact provenance and request-attempt evidence.
+
+    Raises
+    ------
+    ValueError
+        Inputs changed or live requests lack permission/readiness.
+    FileExistsError
+        The chosen output already exists.
+    RuntimeError
+        The shared request permission/cap is exhausted or a backend sequence fails.
+    OSError
+        A required file cannot be read, created, flushed or replaced.
+    """
     from .configured_backend import ConfiguredBackend, http_json_transport
     from .experiment import run_experiment
     from .experiment import record_provider_attempt
@@ -444,9 +571,17 @@ def run_settings(settings, *, allow_network=False, runtime_root=PROJECT_ROOT, tr
         raise FileExistsError("output already exists; choose a new run_id/output, never overwrite or implicitly resume")
     if plan["planned_llm_calls"] and (not allow_network or not plan["live_ready"]):
         raise ValueError("LLM run requires --allow-network, max_calls, and a live-ready case (synthetic cases are diagnostic only)")
+    # Shared cumulative provider attempts include inherited crash-time STARTED reservations.
     attempts = recovery.prior_network_calls if recovery is not None else 0
     def transport_for(reservoir_id, agent_id):
+        """Create a reservoir/agent-scoped transport sharing the run-wide attempt budget and durable provider ledger."""
+
         def bounded_transport(url, payload, headers, timeout):
+            """Replay matching saved replies first; otherwise reserve cumulative budget and fsync STARTED before sending once.
+
+            Terminal response/error evidence is appended without retrying transport. Header secrets are redacted from retained replies, and failed evidence persistence stops execution.
+            """
+
             nonlocal attempts
             if recovery is not None:
                 replayed, saved = recovery.next_reply(reservoir_id, url, payload)
@@ -474,12 +609,16 @@ def run_settings(settings, *, allow_network=False, runtime_root=PROJECT_ROOT, tr
         bounded_transport.network_calls = 0
         return bounded_transport
     def contexts_for(agent, reservoir_id):
+        """Build reservoir-local lazy callback wrappers with independent per-alias state so retrievers are neither shared across agents nor initialized during replay."""
+
         result = {}
         for alias, (plugin, config) in agent["context_factories"].items():
             # Each agent/alias owns its lazily constructed callback. Committed
             # context is replayed before a retriever is instantiated.
             state = {}
             def context_value(context, *, name=alias, module=plugin, options=config, state=state):
+                """Reuse saved context before lazy provider construction; invoke at most the selected alias's own callback for a new decision."""
+
                 if recovery is not None:
                     found, saved = recovery.context_value(reservoir_id, context.observation["timestep"], name)
                     if found:
@@ -540,10 +679,30 @@ def run_settings(settings, *, allow_network=False, runtime_root=PROJECT_ROOT, tr
 
 
 def verify_settings_output(settings, *, runtime_root=PROJECT_ROOT, information_providers=None):
-    """Verify a cached run and require its current inputs and runtime to match.
+    """Verify a cached offline result against both current inputs and saved consistency.
 
-    Historical runs remain inspectable with verify_run. Reusing them as the
-    current experiment requires unchanged settings, data and implementation.
+    This path requires offline evidence. Historical runs remain inspectable through verify_run without claiming compatibility with changed current inputs. No backend decision or hydrologic run is repeated.
+
+    Parameters
+    ----------
+    settings : ExperimentSettings
+        Current checked plan identifying the existing output directory.
+    runtime_root : str or pathlib.Path, optional
+        Runtime whose Python/core/ABM/package identity must equal the saved run.
+    information_providers : Mapping[str, callable] or None, optional
+        Numeric-reader registrations used to rebuild the same information declaration.
+
+    Returns
+    -------
+    dict[str, Any]
+        verify_run acceptance evidence after current settings, source bytes, runtime, information and outcome declarations match.
+
+    Raises
+    ------
+    ValueError
+        The cached run differs from current inputs/runtime or fails saved-file/offline verification.
+    OSError
+        A required file cannot be read, created, flushed or replaced.
     """
     import platform
     from .verification import verify_run
@@ -587,6 +746,30 @@ def verify_settings_output(settings, *, runtime_root=PROJECT_ROOT, information_p
 
 
 def main(argv=None):
+    """Dispatch check, prepare, run, verify or resume from the command line.
+
+    check reads/pins/previews; prepare writes prepared coupled hydrology; run writes native results; verify reads completed evidence; resume preserves the source and creates a distinct output. Live transport remains an explicit --allow-network choice.
+
+    Parameters
+    ----------
+    argv : Sequence[str] or None, optional
+        Arguments selecting a command and configuration/output paths; None reads process arguments.
+
+    Returns
+    -------
+    int
+        Zero after successful command completion and a printed JSON report.
+
+    Raises
+    ------
+    SystemExit
+        Argument parsing rejects input or displays help.
+    ValueError
+        A command/configuration or explicit live-request condition is invalid.
+    OSError
+        A required file cannot be read, created, flushed or replaced.
+    """
+
     parser = argparse.ArgumentParser(description="Configure and run daily HydroCNHS reservoir agents")
     sub = parser.add_subparsers(dest="command", required=True)
     for name in ("check", "prepare", "run"):

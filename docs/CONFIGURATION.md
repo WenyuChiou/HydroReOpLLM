@@ -29,9 +29,14 @@ Download [agents.rule.yaml](../templates/coupled/agents.rule.yaml), browse the
 | `rule_parameters` | Opaque settings interpreted by that rule | Required by selected rule | User values and rule-owned units |
 | `auditors` | Diagnostic checks applied to decisions | Optional | Unique IDs from `auditors.yaml` |
 
+<details>
+<summary>Writing a custom rule in Python</summary>
+
 Rule modules implement `validate_backend()` and `build_backend()`. Their backend
 provides `decide(observation)`, `policy_id`, and `network_calls = 0`. The common
 engine remains responsible for storage, spill, routing, auditing, and records.
+
+</details>
 
 ## Switch to an LLM operator
 
@@ -81,12 +86,13 @@ Download [models.yaml](../templates/coupled/models.yaml) or read the
 | `model` | Provider model ID | Required |
 | `base_url` | Final HTTP(S) API base URL | Required |
 | `api_key_env` | Environment variable containing a key | Optional; needed by authenticated services |
-| `temperature`, `max_tokens` | Generation controls | Optional |
+| `temperature`, `max_tokens` | Generation controls | Temperature optional; `max_tokens` required for Anthropic, optional otherwise |
 | `timeout_seconds` | Per-attempt timeout | Optional; default 60 |
 | `max_attempts` | Bounded attempts for this profile | Optional; default 1 |
 | `retry_delay_seconds` | Delay between retryable attempts | Optional; default 2 |
 
-## Select diagnostic auditors
+<details>
+<summary>Optional diagnostic settings</summary>
 
 Auditors inspect a proposed action and its context. They write findings but do
 not change release, storage, or routing. Agents select auditor IDs from this
@@ -104,6 +110,8 @@ Download [auditors.yaml](../templates/coupled/auditors.yaml).
 | `type` | Configured check | Required; `release_bounds` or `field_range` |
 | `version` | User provenance label | Optional; default `1` |
 | `tolerance_cms` | Allowed release-bound tolerance, m³/s | Optional; default `0` |
+
+</details>
 
 ## Build the prompt
 

@@ -1,0 +1,29 @@
+# Complete synthetic Daily example; no API key, Ollama or model request.
+schema_version: llm-reservoir-experiment.v1
+case: cascade.json                    # Prepared local inflows and physical network.
+run_id: daily-cascade                 # Trace identity, not a reservoir name.
+output: ../../runs/daily-cascade      # Must not exist; choose a fresh path for another run.
+max_calls: 0                         # This offline fixture makes zero model requests.
+auditors:
+  feasible_release:
+    type: release_bounds
+    version: "1"
+agents:
+  operator_1:
+    reservoir: Lake_1                # Exact physical network key.
+    mode: offline                   # A deterministic action fixture, not an LLM.
+    release_cms: 1.0                 # Requested controlled flow in m3/s.
+    prompt: operator.txt             # Same contract used when changing to an LLM profile.
+    auditors: [feasible_release]
+  operator_2:
+    reservoir: Lake_2                # Exact physical network key.
+    mode: offline                   # A deterministic action fixture, not an LLM.
+    release_cms: 1.0                 # Requested controlled flow in m3/s.
+    prompt: operator.txt             # Same contract used when changing to an LLM profile.
+    auditors: [feasible_release]
+  operator_3:
+    reservoir: Lake_3                # Exact physical network key.
+    mode: offline                   # A deterministic action fixture, not an LLM.
+    release_cms: 1.0                 # Requested controlled flow in m3/s.
+    prompt: operator.txt             # Same contract used when changing to an LLM profile.
+    auditors: [feasible_release]

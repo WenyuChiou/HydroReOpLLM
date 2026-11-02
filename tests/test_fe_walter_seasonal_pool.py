@@ -1,5 +1,6 @@
 """Case-level pool checks; no policy, provider or simulation is executed."""
 import importlib.util
+import json
 from datetime import date, timedelta
 from pathlib import Path
 import tempfile
@@ -83,14 +84,15 @@ class SeasonalPoolTests(unittest.TestCase):
             with self.assertRaises(FileExistsError):
                 pool.check_file(source, output)
 
-    def test_prompt_variants_share_the_versioned_target(self):
-        target = pool.load_criteria()["operation_target"]
+    def test_prompt_variants_share_prof_yang_target(self):
+        target = json.loads((ROOT / "examples/fe_walter/profiles/reservoir.json").read_text(encoding="utf-8"))["operation_target_description"]
+        self.assertEqual(target, 'Your goal is to keep the water level within the designated seasonal pool levels. From mid-October until late spring, keep the pool near the conservation pool at 1300.0 ft N.G.V.D. On or before 1 April, when hydrologic conditions allow, raise the pool toward 1370.0 ft N.G.V.D., the top of the temporary recreation pool, to reach it by early May. From May through mid-October, keep the pool at or below 1370.0 ft N.G.V.D. By mid-October, release any remaining stored water to return the pool to 1300.0 ft.')
         for method in ["zeroshot", "dkp"]:
             text = (ROOT / ("examples/fe_walter/prompts/" + {"zeroshot": "available_information.txt", "dkp": "retrieved_knowledge.txt"}[method])).read_text(encoding="utf-8")
             self.assertIn("- Operation target: " + target, text)
 
     def test_active_entries_use_the_canonical_current_prompts(self):
-        target = pool.load_criteria()["operation_target"]
+        target = json.loads((ROOT / "examples/fe_walter/profiles/reservoir.json").read_text(encoding="utf-8"))["operation_target_description"]
         entries = (
             ("coupled/agents.llm_available.yaml", "zeroshot"),
             ("coupled/agents.llm_knowledge.yaml", "dkp"),
@@ -101,6 +103,7 @@ class SeasonalPoolTests(unittest.TestCase):
                 data = yaml.safe_load(path.read_text(encoding="utf-8"))
                 agent = data["fe_operator"]
                 reference = agent["customization"]["parameters"]["reference"]
+                self.assertNotIn("seasonal_criteria_file", reference)
                 self.assertIs(reference["prompt_storage"], False)
                 self.assertIs(reference["hide_availability_line"], True)
                 self.assertIs(reference["dkp_no_missing_inputs"], True)

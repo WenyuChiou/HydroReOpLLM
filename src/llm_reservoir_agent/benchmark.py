@@ -1,15 +1,20 @@
-"""Daily Hanasaki flood-control/other requested releases, without host physics.
+"""Daily Hanasaki flood-control/other release requests without host physics.
 
-The equations and operating-year convention follow ``benchmark_release.py``
-at Anik commit 6c3dc532d712af55db1f4a1d8e018c86249ce7a8 (Abeshu et al., 2023,
-Sect. 2.3.3). Invalid numeric inputs fail instead of becoming environmental flow.
+Purpose and data flow
+---------------------
+Pinned inflow statistics (m3/s) and daily beginning-state observations
+produce deterministic requested release in m3/s. gamma is capacity divided by
+mean annual inlet volume; k_rls is operating-year beginning storage divided by
+alpha*capacity. A 10% mean-inflow floor precedes the common physical limits
+and spill calculation. Chronology and coefficient state are held per reservoir.
 
-Role: Generate deterministic rule-based release requests for comparison.
-
-Connections and data: workflow supplies pre-experiment inflow statistics and each
-current reservoir observation. BenchmarkBackend returns a requested release to the same
-policy/physics path used by LLM methods. The coefficient uses operating-year beginning
-storage; physical clipping and spill belong to physics.
+Dependencies and side effects
+-----------------------------
+Uses contracts for observations, actions and JSON copies. Equations and
+operating-year convention follow benchmark_release.py at Anik commit
+6c3dc532d712af55db1f4a1d8e018c86249ce7a8 (Abeshu et al., 2023, Sect. 2.3.3).
+No network or file I/O occurs; successful decisions update coefficient/trace
+state. Feedback is retained separately from host-observed reservoir storage.
 """
 
 from __future__ import annotations
@@ -53,11 +58,31 @@ def _raw_release(mean_inflow_cms: float, current_inflow_cms: float,
 
 def hanasaki_release(mean_inflow_cms: float, current_inflow_cms: float,
                      gamma: float, k_rls: float) -> float:
-    """Return Eq. 4 in cms, including the 10% mean-inflow floor.
+    """Calculate the requested daily release with a 10% mean-inflow floor.
 
-    ``gamma`` is capacity divided by mean annual inflow volume; ``k_rls`` is
-    operating-year start storage divided by ``alpha * capacity``. The host
-    applies physical release limits and spill after this requested release.
+    Parameters
+    ----------
+    mean_inflow_cms : float
+        Positive long-term mean inflow in m3/s.
+    current_inflow_cms : float
+        Nonnegative current daily mean inlet flow in m3/s.
+    gamma : float
+        Nonnegative capacity / mean annual inlet volume, dimensionless. At
+        gamma >= 0.5 the release depends only on coefficient times mean inflow.
+    k_rls : float
+        Nonnegative operating-year start storage / (alpha*capacity), dimensionless.
+
+    Returns
+    -------
+    float
+        Requested controlled release in m3/s before host clipping and spill.
+
+    Raises
+    ------
+    TypeError
+        An argument is not an accepted number.
+    ValueError
+        Numeric values are invalid or computed release is non-finite.
     """
     raw = _raw_release(mean_inflow_cms, current_inflow_cms, gamma, k_rls)
     return max(raw, 0.1 * mean_inflow_cms)
@@ -82,12 +107,39 @@ def _monthly_climatology(value: Mapping[int | str, Any]) -> dict[int, float]:
 
 
 class BenchmarkBackend:
-    """Stateful daily flood-control/other benchmark for one reservoir.
+    """Maintain one reservoir's deterministic daily benchmark state.
 
-    Decisions begin at timestep zero and advance by one day. Storage comes
-    from each actual host observation; only the first call and the operating
-    year's first day refresh the release coefficient. Feedback is retained
-    for the common backend interface and never substitutes for observed storage.
+    Parameters
+    ----------
+    reservoir_id : str
+        Nonempty physical reservoir identity checked against observation context.
+    capacity_m3 : float
+        Positive reservoir capacity in m3.
+    mean_inflow_cms : float
+        Positive long-term daily mean inflow in m3/s.
+    monthly_mean_inflow_cms : mapping of int or str to float
+        All twelve calendar months with nonnegative means in m3/s. The first
+        above/below-annual-mean crossing selects the operating-year start month;
+        October is the fallback when no crossing exists.
+    alpha : float, optional
+        Positive usable-capacity fraction in (0, 1], default 0.85.
+    source : mapping, optional
+        JSON-compatible provenance for the supplied statistics.
+    purpose : {'flood_control', 'other'}, optional
+        Declared supported purpose; both follow the implemented benchmark rule.
+
+    Raises
+    ------
+    TypeError
+        Inputs have incompatible numeric/mapping types.
+    ValueError
+        Identity, purpose, positive limits, monthly coverage or provenance is invalid.
+
+    Notes
+    -----
+    A year has 365.25 days for gamma only; each decision interval is exactly
+    86400 seconds. Observations begin at step zero and advance one day. The first
+    call and operating-year first day refresh k_rls using actual beginning storage.
     """
 
     def __init__(self, reservoir_id: str, capacity_m3: float, *,
@@ -106,6 +158,7 @@ class BenchmarkBackend:
         if self._alpha > 1.0:
             raise ValueError("alpha must not exceed 1")
         self._usable_capacity = _positive(self._alpha * self._capacity, "alpha * capacity_m3")
+        # Convert the climatological mean rate to annual inlet volume (m3).
         self._annual_volume = _positive(self._mean * SECONDS_PER_DAY * DAYS_PER_YEAR,
                                         "mean annual inflow volume")
         self._gamma = _positive(self._capacity / self._annual_volume, "gamma")
@@ -140,28 +193,99 @@ class BenchmarkBackend:
 
     @property
     def network_calls(self) -> int:
+        """Report the deterministic backend's provider-call count.
+
+        Returns
+        -------
+        int
+            Always zero.
+        """
         return 0
 
     @property
     def gamma(self) -> float:
+        """Expose the dimensionless capacity-to-annual-inflow ratio.
+
+        Returns
+        -------
+        float
+            capacity_m3 / (mean_inflow_cms * 86400 * 365.25).
+        """
         return self._gamma
 
     @property
     def k_rls(self) -> float | None:
+        """Expose the current operating-year release coefficient.
+
+        Returns
+        -------
+        float or None
+            Beginning storage / usable capacity, or None before the first decision.
+        """
         return self._k_rls
 
     @property
     def latest_trace(self) -> dict[str, Any] | None:
+        """Copy the latest successful benchmark decision trace.
+
+        Returns
+        -------
+        dict or None
+            Isolated JSON trace with rates in m3/s, storage in m3, dimensionless
+            coefficients and coefficient-refresh date; None before a decision.
+        """
         return None if self._latest_trace is None else _json_mapping_copy(self._latest_trace, "benchmark trace")
 
     @property
     def last_trace(self) -> dict[str, Any] | None:
+        """Return the compatibility alias for the latest decision trace.
+
+        Returns
+        -------
+        dict or None
+            The same isolated trace semantics as latest_trace.
+        """
         return self.latest_trace
 
     def describe(self) -> dict[str, Any]:
+        """Copy static benchmark equations, settings and source provenance.
+
+        Returns
+        -------
+        dict
+            Isolated JSON description including capacity (m3), inflow (m3/s), alpha,
+            gamma and environmental requested-release floor (m3/s).
+        """
         return _json_mapping_copy(self._description, "benchmark description")
 
     def decide(self, observation: Mapping[str, Any] | ReservoirObservation) -> ReservoirAction:
+        """Request one daily release and advance coefficient/chronology state.
+
+        Parameters
+        ----------
+        observation : mapping or ReservoirObservation
+            Current daily inlet flow (m3/s), beginning state.storage_m3 (m3),
+            consecutive zero-based timestep and ISO timestamp. Optional identity,
+            capacity and dt fields must match this reservoir and 86400 seconds.
+
+        Returns
+        -------
+        ReservoirAction
+            Requested controlled release with environmental floor, in m3/s.
+
+        Raises
+        ------
+        TypeError
+            Observation type or numeric fields are invalid.
+        ValueError
+            Observation identity, capacity, daily clock, chronology or values differ
+            from the configured benchmark contract.
+
+        Notes
+        -----
+        Validation and arithmetic finish before state is advanced. Host physics
+        implements clipping/spill separately; feedback never replaces observed storage.
+        """
         if isinstance(observation, ReservoirObservation):
             checked = ReservoirObservation(**observation.to_dict())
         elif isinstance(observation, Mapping):
@@ -197,6 +321,7 @@ class BenchmarkBackend:
         if "dt_seconds" in checked.state and _positive(checked.state["dt_seconds"], "state.dt_seconds") != SECONDS_PER_DAY:
             raise ValueError("benchmark requires a daily dt_seconds of 86400")
         refresh = self._k_rls is None or (timestamp.month == self.op_year_start_month and timestamp.day == 1)
+        # Refresh from beginning storage only; the ratio is dimensionless.
         coefficient = finite_nonnegative(storage / self._usable_capacity, "k_rls") if refresh else self._k_rls
         assert coefficient is not None
         raw = _raw_release(self._mean, checked.inflow_cms, self._gamma, coefficient)
@@ -221,4 +346,24 @@ class BenchmarkBackend:
         return action
 
     def record_transition(self, record: Mapping[str, Any]) -> None:
+        """Retain an isolated copy of the completed host transition.
+
+        Parameters
+        ----------
+        record : mapping
+            Common committed observation/action/transition record with m3 storage
+            and m3/s rates.
+
+        Returns
+        -------
+        None
+            Replaces retained feedback without changing the release coefficient.
+
+        Raises
+        ------
+        TypeError
+            record is not a JSON-compatible mapping.
+        ValueError
+            record contains non-finite or unsupported JSON values.
+        """
         self._previous_transition = _json_mapping_copy(record, "transition record")

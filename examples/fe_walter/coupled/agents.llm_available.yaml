@@ -15,8 +15,6 @@ fe_operator:                          # Decision-unit ID used in plans and trace
         # Relative to this file.
         system_prompt: ../prompts/available_information.txt
         system_prompt_mode: custom    # Use the declared system-prompt file.
-        # Daily study-defined pool window context.
-        seasonal_criteria_file: ../seasonal_pool_criteria.json
         prompt_storage: false         # Do not include storage in the prompt representation.
         hide_availability_line: true  # Preserve the approved prompt variant.
         dkp_no_missing_inputs: true   # Omit missing-input text from retrieved guidance.

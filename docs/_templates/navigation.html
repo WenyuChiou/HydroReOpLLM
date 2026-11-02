@@ -13,6 +13,7 @@
   <ul class="manual-navigation">
     {{ chapter('docs/README', 'Overview') }}
     {{ chapter('docs/GETTING_STARTED', 'Installation') }}
+    {{ chapter('docs/DAILY_WORKFLOW', 'Daily workflow') }}
   </ul>
   <h3>02 · Configuration</h3>
   <ul class="manual-navigation">
@@ -21,6 +22,7 @@
     {{ chapter('docs/HYDROLOGY_SETUP', 'Hydrology') }}
     {{ chapter('docs/BUILD_SIMULATION', 'Reservoirs and network') }}
     {{ chapter('docs/CONFIGURATION', 'Agents and LLM') }}
+    {{ chapter('docs/INFORMATION', 'Available information') }}
     {{ chapter('docs/RUNNING', 'Check and run') }}
   </ul>
   <h3>03 · Case studies</h3>
@@ -32,26 +34,29 @@
   <h3>04 · Results</h3>
   <ul class="manual-navigation">
     {{ chapter('docs/RESULTS_GUIDE', 'Read your results') }}
+    {{ chapter('examples/fe_walter/completed_results/README', 'Latest Daily / Hourly results') }}
     {{ chapter('examples/fe_walter/results', 'FE Walter: water level and release') }}
   </ul>
   <h3>05 · Troubleshooting</h3>
   <ul class="manual-navigation">
     {{ chapter('docs/TROUBLESHOOTING', 'Find and resolve a problem') }}
   </ul>
-  <h3>06 · API reference</h3>
+  <details class="manual-reference">
+  <summary>API and technical reference</summary>
   <ul class="manual-navigation">
     {{ chapter('docs/API_REFERENCE', 'Python API documentation') }}
     {{ chapter('docs/PARAMETER_REFERENCE', 'Configuration reference') }}
     {{ chapter('docs/CODE_STRUCTURE', 'Code structure and daily loop') }}
+    {{ chapter('docs/MODULE_INVENTORY', '39-module inventory') }}
+    {{ chapter('docs/VARIABLES_AND_UNITS', 'Variables and units') }}
+    {{ chapter('docs/DAILY_QA', 'Developer QA reference') }}
   </ul>
-  <details class="manual-reference">
-    <summary>Technical reference</summary>
     <ul class="manual-navigation">
       {{ chapter('examples/fe_walter/hydrology', 'Hydrology and C&V evidence') }}
       {{ chapter('docs/TEMPLATES', 'Configuration file list') }}
       {{ chapter('docs/WEATHER_INPUTS', 'Weather formats and preparation') }}
       {{ chapter('docs/MODEL_PROVIDERS', 'Model providers') }}
-      {{ chapter('docs/INFORMATION', 'Optional information') }}
+       {{ chapter('docs/DAILY_EXAMPLES', 'Prepared-inflow learning examples') }}
       {{ chapter('docs/RECORDS', 'Decision records and audits') }}
       {{ chapter('examples/fe_walter/prompt_review', 'October prompts and replies') }}
       {{ chapter('examples/fe_walter/engine_comparison', 'Original/framework comparison') }}

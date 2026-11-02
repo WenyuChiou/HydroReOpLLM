@@ -1,15 +1,21 @@
-"""Fixed-step native HydroCNHS assigned-inflow routing for a reservoir DAG.
+"""Native fixed-step assigned-inflow routing for a reservoir directed acyclic graph.
 
-Natural local inflows are assigned unchanged. Reservoir decisions change routed
-downstream inflows. Supplied unit hydrographs are explicit fixtures unless the
-caller provides separately verified routing parameters and provenance.
+Purpose and data flow
+---------------------
+Validated reservoir/junction/outlet topology, incremental local inputs
+(m3/s) and controlled backends drive the pinned HydroCNHS Dam loop. Reservoir
+total outflow enters downstream travel-time convolution once; local inflow
+excludes upstream contributions. Independent convolution and reservoir/channel
+volume ledgers (m3) verify every node and connected water system.
 
-Role: Connect configured reservoir operations through step-indexed river routing.
-
-Connections and data: experiment supplies incremental local inflow in m3/s and one
-backend per controlled reservoir. Builds native Dam links, runs the host and checks
-routed flows and network_balance ledgers. Upstream total outflow enters downstream
-routing once; local inflow must not already include it.
+Dependencies and side effects
+-----------------------------
+Uses contracts, physics, timebase, passive backends, policy-isolation
+checks, balance and runtime assets. Execution lazily loads HydroCNHS, NumPy
+and pandas and verifies accepted core hashes. It mutates new host agents and
+caller backends through decisions/feedback; supplied config/rows are copied or
+read. Host/provider callbacks may perform their own I/O. No rainfall-runoff
+is computed here; routing starts with zero channel storage.
 """
 from collections import deque
 from collections.abc import Mapping, Sequence
@@ -31,6 +37,36 @@ PROJECT_ROOT = default_runtime_root()
 
 
 def validate_network(config):
+    """Validate physical identities, clock, routing fractions and acyclic topology.
+
+    Parameters
+    ----------
+    config : mapping
+        llm-reservoir-network.v1 (one outlet) or v2 (outlets list), with reservoir
+        PhysicalConfig settings, inlet nodes, optional junctions, connections and
+        start_date. Edge hydrographs are dimensionless step-lag weights; declared
+        kernel duration must match the common reservoir dt_seconds.
+
+    Returns
+    -------
+    dict
+        Reservoir specifications, routing/all nodes, normalized edges, adjacency,
+        topological sequence, fixed StepClock, outlets and connected components.
+        Reservoir specifications retain their original input mapping references.
+
+    Raises
+    ------
+    ValueError
+        Schema, identities, bounds, passive mode, shared clock, routing weights,
+        output fractions, terminal outlets, components or graph causality is invalid.
+    TypeError
+        Physical numeric/configuration fields have incompatible types.
+
+    Notes
+    -----
+    All output fractions at each reservoir/junction sum to one; each unit
+    hydrograph also sums to one within 1e-12. No routing or policy decisions occur.
+    """
     if not isinstance(config, Mapping) or config.get("schema_version") not in (
             "llm-reservoir-network.v1", "llm-reservoir-network.v2"):
         raise ValueError("unsupported reservoir network configuration")
@@ -86,6 +122,7 @@ def validate_network(config):
         raise ValueError("all reservoir, inlet, junction and outlet IDs must be distinct non-empty strings")
     if len(set(physical_ids)) != len(physical_ids):
         raise ValueError("physical reservoir_id values must be distinct")
+    # Only these nodes own external incremental local inflow; dams own storage.
     routing_nodes = inlets + junctions + outlets
     for node, location in _json_mapping_copy(config.get("node_locations", {}), "node_locations").items():
         if node not in nodes:
@@ -113,6 +150,7 @@ def validate_network(config):
         if (source, target) in pairs:
             raise ValueError("duplicate routing connection")
         pairs.add((source, target))
+        # A dimensionless split partitions source outflow before travel-time routing.
         fraction = finite_nonnegative(edge.get("fraction", 1.0), "routing fraction")
         if not 0 < fraction <= 1:
             raise ValueError("routing fraction must be in (0, 1]")
@@ -180,6 +218,35 @@ def validate_network(config):
 
 
 def validate_inflows(config, rows):
+    """Validate consecutive local-flow rows and organize them by routing node.
+
+    Parameters
+    ----------
+    config : mapping
+        Reservoir-network configuration accepted by validate_network.
+    rows : sequence of mapping
+        Nonempty date/local_inflow_cms records. Every interval explicitly supplies
+        every inlet, junction and outlet local contribution in m3/s, including zero.
+
+    Returns
+    -------
+    topology : dict
+        Validated network and fixed operation clock.
+    local : dict of str to list of float
+        Per-node incremental input rates in m3/s, ordered by operation step.
+
+    Raises
+    ------
+    ValueError
+        Network, row shape, timestamps, node coverage or flow values are invalid.
+    TypeError
+        A local flow is not an accepted number.
+
+    Notes
+    -----
+    Local means exclude all upstream routed water; inserting already combined
+    upstream flow here would double count its volume.
+    """
     topology = validate_network(config)
     if isinstance(rows, (str, bytes)) or not isinstance(rows, Sequence) or not rows:
         raise ValueError("inflow records must be a non-empty timestep sequence")
@@ -198,11 +265,33 @@ def validate_inflows(config, rows):
 
 
 def build_network_model(config, days, *, project_root=PROJECT_ROOT):
-    """Build the pinned host's allocation envelope (legacy ``days`` = step count).
+    """Build the pinned native host's allocation and Dam-link configuration.
 
-    The host requires daily-looking StartDate/EndDate fields for allocation. The
-    assigned-Q runner binds the real operation calendar before the native loop;
-    no native rainfall/runoff is computed through this entry point.
+    Parameters
+    ----------
+    config : mapping
+        Validated reservoir network with physical settings in m3 and m3/s.
+    days : int
+        Positive number of operation steps (legacy argument name).
+    project_root : str or pathlib.Path, optional
+        Runtime asset root containing the native Dam adapter under examples.
+
+    Returns
+    -------
+    dict
+        Native HydroCNHS model configuration with assigned-flow routing,
+        pass-through placeholder policies and one -1 inlet/+1 Dam output per agent.
+
+    Raises
+    ------
+    ValueError
+        Network is invalid or days is not a positive integer.
+
+    Notes
+    -----
+    Native StartDate/EndDate fields provide daily-looking allocation metadata.
+    The execution layer binds the real fixed-step clock before the host loop;
+    this builder performs no rainfall-runoff simulation or policy decision.
     """
     topology = validate_network(config)
     if isinstance(days, bool) or not isinstance(days, int) or days <= 0:
@@ -240,7 +329,48 @@ def build_network_model(config, days, *, project_root=PROJECT_ROOT):
 
 
 def run_network(config, rows, policies, *, project_root=PROJECT_ROOT):
-    """Supply policies for controlled nodes only; passive outlets are physics."""
+    """Execute controlled policies plus passive outlet physics on the native host.
+
+    Parameters
+    ----------
+    config : mapping
+        Validated reservoir network with explicit unit hydrographs.
+    rows : sequence of mapping
+        Consecutive interval-start local input records in m3/s.
+    policies : mapping
+        One independent decide(observation) backend for each controlled reservoir.
+        Passive reservoir backends are created internally from their ratings.
+    project_root : str or pathlib.Path, optional
+        Runtime asset root containing accepted native-core pins and adapter.
+
+    Returns
+    -------
+    records : dict of str to list of dict
+        Per-reservoir committed observations, requested actions and physical
+        transitions; storage/volume in m3 and rates in m3/s.
+    metadata : dict
+        Verified routed flows, interval clock, topology/provenance, component and
+        reach ledgers, and final in-transit water volume.
+
+    Raises
+    ------
+    ValueError
+        Inputs, policy coverage/isolation or installed native-core hashes are invalid.
+    TypeError
+        A backend lacks decide or supplied inputs have incompatible types.
+    RuntimeError
+        Native ordering, completed steps or independent routed-flow checks fail.
+    ArithmeticError
+        A reservoir, reach or connected-system water balance fails.
+    OSError
+        Required runtime assets cannot be read.
+
+    Notes
+    -----
+    Backends are stateful caller objects and receive decisions/feedback. The
+    run begins with zero channel storage; remaining travel-time tail stays in the
+    reported final channel stock rather than being silently discarded.
+    """
     validate_inflows(config, rows)
     return _run_network(config, rows, complete_backends(config, policies), project_root=project_root)
 
@@ -335,6 +465,8 @@ def _run_network(config, rows, policies, *, project_root=PROJECT_ROOT, informati
             agent.information_builder = information_runtime.bind(name, model, aliases)
     native_local = {aliases[node]: np.array(q) for node, q in local.items()}
     native_local.update({relay: np.zeros(len(rows)) for relay in relays})
+    # A trailing zero compensates for the pinned native loop omitting its final bin.
+    # Physical weights remain in step-lag order; fractions partition m3/s, not dt.
     uhs = {(node, node): np.array([1., 0.]) for node in native_local}
     for edge in native_edges:
         uhs[edge["source"], edge["target"]] = np.array(edge["unit_hydrograph"] + [0.]) * edge["fraction"]
@@ -342,6 +474,7 @@ def _run_network(config, rows, policies, *, project_root=PROJECT_ROOT, informati
                        assigned_UH=uhs, disable=not progress)
     native = {inverse[node]: value for node, value in native_result.items() if node in inverse}
     records = {name: model.agents[aliases[name]].operations_log for name in topology["reservoirs"]}
+    # Independently reconstruct mean node rates (m3/s) from public graph ownership.
     expected = {}
     for node in topology["sequence"]:
         if node in records:

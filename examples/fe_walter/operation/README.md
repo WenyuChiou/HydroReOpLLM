@@ -4,9 +4,11 @@
 
 Open the [five-year tutorial](../../../tutorials/operation.ipynb) for the complete
 settings and an executable walkthrough with daily progress. This folder contains a prepared common case,
-one completed 1,826-day Rule-based baseline, and two LLM methods that have not been
-executed: **LLM without additional operating knowledge** and **LLM with additional
-operating knowledge**.
+one completed 1,826-day Rule-based teaching baseline and two optional LLM entry
+files. The separately completed **LLM w/o additional knowledge** and **LLM w/
+additional knowledge** campaign, updated figures and Table 3 are on the
+[completed comparisons page](../completed_results/README.md). That campaign
+retains its own pinned inputs and initialization.
 
 The prepared-operation schema is `llm-reservoir-experiment.v2`. It reads the frozen
 daily hydrology boundaries in `inflows.csv`; the accepted coupled stage already
@@ -73,6 +75,7 @@ See the [C&V reference](../downstream/validation.md) for the observed White Have
 boundary used in that test. The short dam-to-White Haven reach and its small local
 catchments retain transferred parameters; individual tributaries were not separately
 validated. The notebook calculates inflows and runs Rule-based operation in a new
-output folder, then draws its own figures. The two LLM methods remain unexecuted.
+output folder, then draws its own figures. This lesson does not generate the
+separately completed LLM comparison or overwrite its saved results.
 
 The retained generic coefficient follows [Hanasaki et al. (2006), Eq. 3](https://doi.org/10.1016/j.jhydrol.2005.11.011).

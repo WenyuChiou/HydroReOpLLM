@@ -1,11 +1,16 @@
-"""Durable, causally scoped JSONL traces for a single experiment orchestrator.
+"""Persist causally scoped decision, audit, physics and backend-event evidence.
 
-Role: Persist decision, audit, physical and backend-event evidence.
-
-Connections and data: experiment owns one TraceJournal. Each record is scoped by run,
-reservoir, timestep and timestamp; raw payload files are linked by hash. Writes are
-flushed and fsynced, and errors propagate. Trace records report what occurred; they do
-not select releases or repair failed runs.
+``experiment`` owns one ``TraceJournal`` per new output directory and writes in
+serial order. Every event is scoped by run ID, physical reservoir ID, zero-based
+timestep and clock label. Decision IDs hash that scope; optional provider request
+IDs remain distinct. Raw payload references pin exact bytes by SHA256.
+Decision/action content is retained before matching completed physics; feedback
+failure may be recorded only after physics is durable. Native flows use m3/s,
+storage uses m3 and dt_seconds defines consecutive step boundaries (86400 for
+daily operation). Audits remain reported diagnostic findings, not execution status.
+Writes are exclusive/append-only, flushed and fsynced. I/O or feedback failure
+stops new events; final summaries expose partial counts/tails when readable.
+No decision, physical calculation or failed I/O operation is retried here.
 """
 
 from __future__ import annotations
@@ -23,6 +28,7 @@ from .timebase import StepClock, trace_timestamp
 from .audit import audit_binding, json_snapshot, normalize_audit, validate_audit_provenance
 
 
+# Trace-format identity; checker/prompt versions are carried separately in provenance.
 TRACE_SCHEMA_VERSION = "reservoir-trace.v1"
 _STREAMS = ("decisions", "physics", "audit", "backend_events")
 _PROVENANCE_FIELDS = (
@@ -33,12 +39,16 @@ _HASH = re.compile(r"[0-9a-fA-F]{64}\Z")
 
 
 def _text(value: Any, label: str) -> str:
+    """Require an explicit nonempty identity/status string; no unknown identifier is inferred."""
+
     if not isinstance(value, str) or not value.strip():
         raise ValueError(f"{label} must be a nonempty string")
     return value
 
 
 def _day(value: Any) -> str:
+    """Validate the legacy daily date/midnight spelling exactly; general fixed-step journal timestamps use timebase.trace_timestamp."""
+
     _text(value, "timestamp")
     day_text = value[:-9] if value.endswith("T00:00:00") else value
     try:
@@ -51,12 +61,16 @@ def _day(value: Any) -> str:
 
 
 def _step(value: Any) -> int:
+    """Require a nonnegative integer host index and reject booleans, which Python otherwise treats as integers."""
+
     if isinstance(value, bool) or not isinstance(value, int) or value < 0:
         raise ValueError("timestep must be a nonnegative integer")
     return value
 
 
 def _provenance(value: Mapping[str, Any] | None) -> dict[str, Any]:
+    """Detach declared metadata, preserve omitted standard identities as None and validate supplied prompt/knowledge/audit hashes without inventing provenance."""
+
     if value is not None and not isinstance(value, Mapping):
         raise TypeError("provenance must be a mapping or None")
     result = dict.fromkeys(_PROVENANCE_FIELDS)
@@ -81,15 +95,35 @@ def _provenance(value: Mapping[str, Any] | None) -> dict[str, Any]:
 
 
 def _bytes(value: Any) -> bytes:
+    """Encode finite, sorted, compact JSON as UTF-8 with one LF; these exact bytes define raw-file and decision-scope hashes."""
+
     return (json.dumps(value, ensure_ascii=False, allow_nan=False, sort_keys=True, separators=(",", ":")) + "\n").encode("utf-8")
 
 
 class TraceJournal:
-    """One writer, exclusive output directory, and no automatic I/O retries.
+    """Create a single-writer journal in a new, exclusive output directory.
 
-    Every successful append is flushed and fsynced. Validation occurs before
-    writing decision events. An I/O failure stops future events and propagates;
-    ``fail`` may still write a terminal summary if the filesystem permits it.
+    Construction creates four empty streams and fsyncs them. Successful appends are counted only after flush/fsync. A failed append may leave partial bytes, so later events stop and no automatic retry is attempted.
+
+    Parameters
+    ----------
+    output : str or pathlib.Path
+        New output directory; parent directories may be created, but the output itself must not exist.
+    run_id : str
+        Nonempty identity bound into every causal event and decision hash.
+    provenance : Mapping[str, Any] or None, optional
+        Declared prompt/parser/auditor/source metadata; missing identities remain None.
+    dt_seconds : float, optional
+        Fixed operation duration in seconds; 86400.0 denotes daily operation and is used for clock validation.
+
+    Raises
+    ------
+    TypeError
+        A value has the wrong type or is not finite JSON.
+    ValueError
+        A required field, version, numeric bound or digest is invalid.
+    OSError
+        A required file cannot be read, created, flushed or replaced.
     """
 
     def __init__(self, output: Path | str, *, run_id: str, provenance: Mapping[str, Any] | None = None, dt_seconds: float = 86400.0) -> None:
@@ -98,6 +132,7 @@ class TraceJournal:
         self._provenance = _provenance(provenance)
         self.output = Path(output)
         self._counts = dict.fromkeys(_STREAMS, 0)
+        # A (physical reservoir ID, zero-based step) key separates requested and completed state.
         self._decisions: dict[tuple[str, int], dict[str, Any]] = {}
         self._physics: set[tuple[str, int]] = set()
         self._last: dict[str, tuple[int, str]] = {}
@@ -112,9 +147,26 @@ class TraceJournal:
 
     @property
     def provenance(self) -> dict[str, Any]:
+        """Copy the journal-wide declared source metadata.
+
+        Returns
+        -------
+        dict[str, Any]
+            Detached metadata with unknown standard identities retained as None.
+
+        Raises
+        ------
+        TypeError
+            A value has the wrong type or is not finite JSON.
+        ValueError
+            A required field, version, numeric bound or digest is invalid.
+        """
+
         return json_snapshot(self._provenance)
 
     def _open(self) -> None:
+        """Reject event writes after finalization, I/O failure or feedback failure; terminal summaries use the separate finish path."""
+
         if self._terminal:
             raise RuntimeError("trace journal is finalized")
         if self._io_error is not None:
@@ -123,6 +175,11 @@ class TraceJournal:
             raise RuntimeError("trace journal stopped after a feedback failure")
 
     def _write_file(self, path: Path, data: bytes, *, exclusive: bool = False, append: bool = False) -> None:
+        """Write all requested bytes, flush and fsync; incomplete writes or OS errors latch the journal I/O failure before propagating.
+
+        An append is never retried because its partial effect may already be durable.
+        """
+
         mode = "ab" if append else "xb" if exclusive else "wb"
         try:
             with path.open(mode) as handle:
@@ -136,10 +193,14 @@ class TraceJournal:
             raise
 
     def _append(self, stream: str, value: dict[str, Any]) -> None:
+        """Append one serialized stream event and increment its durable count only after the write/flush/fsync succeeds."""
+
         self._write_file(self.output / f"{stream}.jsonl", _bytes(value), append=True)
         self._counts[stream] += 1
 
     def _raw(self, kind: str, decision_id: str, payload: Any) -> dict[str, Any]:
+        """Exclusively persist a raw payload beneath raw/ and return the relative path plus SHA256 of its exact serialized bytes."""
+
         try:
             (self.output / "raw").mkdir(exist_ok=True)
         except OSError as exc:
@@ -151,6 +212,11 @@ class TraceJournal:
         return {"path": relative, "sha256": hashlib.sha256(data).hexdigest()}
 
     def _scope(self, reservoir_id: str, timestep: int, timestamp: str, request_id: str | None = None) -> dict[str, Any]:
+        """Validate run/reservoir/step/time scope and consistent request identity before hashing the decision key.
+
+        A missing provider request ID may inherit the saved scope ID; a supplied conflicting one is rejected.
+        """
+
         _text(reservoir_id, "reservoir_id")
         timestep = _step(timestep)
         timestamp = trace_timestamp(timestamp, self.dt_seconds)
@@ -166,6 +232,7 @@ class TraceJournal:
                 raise ValueError("event request_id does not match its decision")
             if request_id is None:
                 request_id = saved_request
+        # Stable causal identity is distinct from an optional provider request ID.
         decision_id = hashlib.sha256(_bytes([self.run_id, reservoir_id, timestep, timestamp])).hexdigest()
         return {
             "schema_version": TRACE_SCHEMA_VERSION, "run_id": self.run_id,
@@ -174,6 +241,8 @@ class TraceJournal:
         }
 
     def _next(self, reservoir_id: str, timestep: int, timestamp: str) -> None:
+        """Require per-reservoir consecutive indices/times and completed prior physics before a new decision or first backend event."""
+
         previous = self._last.get(reservoir_id)
         expected = 0 if previous is None else previous[0] + 1
         if timestep != expected:
@@ -189,6 +258,44 @@ class TraceJournal:
         audit: Mapping[str, Any] | None = None, *, provenance: Mapping[str, Any] | None = None,
         request_id: str | None = None, raw: Mapping[str, Any] | None = None,
     ) -> str:
+        """Persist one decision and its reported audit with matching causal scope.
+
+        Versioned suites are bound to exact observation/action/configuration content. Raw files and separate stream appends are not one atomic transaction; partial durable evidence remains available after a failure.
+
+        Parameters
+        ----------
+        reservoir_id : str
+            Physical reservoir identity for this event.
+        observation : Mapping[str, Any]
+            Current detached observation carrying timestep/timestamp and native physical units.
+        action : Mapping[str, Any]
+            Requested controlled release in m3/s, already validated by the caller.
+        audit : Mapping[str, Any] or None, optional
+            Reported diagnostic payload; absent evidence normalizes to UNKNOWN.
+        provenance : Mapping[str, Any] or None, optional
+            Decision-specific metadata merged with journal-wide provenance; supplied suite bindings must match.
+        request_id : str or None, optional
+            Provider request identity when known, distinct from the deterministic decision ID.
+        raw : Mapping[str, Any] or None, optional
+            Original policy trace to save separately with an exact-byte hash.
+
+        Returns
+        -------
+        str
+            SHA256 decision ID for run/reservoir/timestep/timestamp; decision and audit events use the same scope.
+
+        Raises
+        ------
+        TypeError
+            A value has the wrong type or is not finite JSON.
+        ValueError
+            A required field, version, numeric bound or digest is invalid.
+        RuntimeError
+            The journal stopped or the previous decision lacks physical feedback.
+        OSError
+            A required file cannot be read, created, flushed or replaced.
+        """
+
         self._open()
         if not isinstance(observation, Mapping) or not isinstance(action, Mapping):
             raise TypeError("observation and action must be mappings")
@@ -250,6 +357,34 @@ class TraceJournal:
         return scope["decision_id"]
 
     def record_physics(self, reservoir_id: str, record: Mapping[str, Any]) -> None:
+        """Append one completed host physical record for a retained decision.
+
+        Duplicate records and changed observation/action content are rejected. Full physical feasibility and mass balance are checked by the kernel and independent verification.
+
+        Parameters
+        ----------
+        reservoir_id : str
+            Physical reservoir identity matching the decision.
+        record : Mapping[str, Any]
+            Exact decision observation/action plus completed transition; storage m3 and flow m3/s.
+
+        Returns
+        -------
+        None
+            The record is durably appended and its reservoir/step is marked physically completed.
+
+        Raises
+        ------
+        TypeError
+            A value has the wrong type or is not finite JSON.
+        ValueError
+            A required field, version, numeric bound or digest is invalid.
+        RuntimeError
+            No matching decision exists or the journal is stopped.
+        OSError
+            A required file cannot be read, created, flushed or replaced.
+        """
+
         self._open()
         if not isinstance(record, Mapping):
             raise TypeError("physical record must be a mapping")
@@ -276,6 +411,44 @@ class TraceJournal:
         request_id: str | None = None, details: Mapping[str, Any] | None = None, status: str = "UNKNOWN",
         raw: Mapping[str, Any] | None = None,
     ) -> None:
+        """Append one causally scoped backend lifecycle event.
+
+        Parameters
+        ----------
+        reservoir_id : str
+            Acting physical reservoir identity.
+        event : str
+            Nonempty lifecycle name, unique for this reservoir/step.
+        timestep : int
+            Zero-based operation index.
+        timestamp : str
+            Clock label matching this decision and the fixed duration.
+        request_id : str or None, optional
+            Provider request identity when known; conflicts with retained scope are rejected.
+        details : Mapping[str, Any] or None, optional
+            Finite JSON diagnostic event details.
+        status : str, optional
+            Reported lifecycle status; default UNKNOWN conveys no success claim.
+        raw : Mapping[str, Any] or None, optional
+            Original backend payload to retain as a separate hashed raw file.
+
+        Returns
+        -------
+        None
+            One backend event and optional raw reference are durably retained.
+
+        Raises
+        ------
+        TypeError
+            A value has the wrong type or is not finite JSON.
+        ValueError
+            A required field, version, numeric bound or digest is invalid.
+        RuntimeError
+            The journal stopped or prior physics is missing.
+        OSError
+            A required file cannot be read, created, flushed or replaced.
+        """
+
         self._open()
         _text(event, "event")
         _text(status, "backend status")
@@ -300,6 +473,36 @@ class TraceJournal:
         self._backend_scopes[(reservoir_id, scope["timestep"])] = scope
 
     def record_feedback_failure(self, reservoir_id: str, *, timestep: int, timestamp: str, error: BaseException | str) -> None:
+        """Record a callback failure after preserving completed physics.
+
+        Parameters
+        ----------
+        reservoir_id : str
+            Physical reservoir identity.
+        timestep : int
+            Zero-based index of the already durable physical record.
+        timestamp : str
+            Matching physical decision clock label.
+        error : BaseException or str
+            Original feedback failure to retain as type/message metadata.
+
+        Returns
+        -------
+        None
+            feedback_failure is persisted and further event writes are stopped.
+
+        Raises
+        ------
+        RuntimeError
+            The matching physics is not durable or the journal is already stopped.
+        TypeError
+            A value has the wrong type or is not finite JSON.
+        ValueError
+            A required field, version, numeric bound or digest is invalid.
+        OSError
+            A required file cannot be read, created, flushed or replaced.
+        """
+
         self._open()
         scope = self._scope(reservoir_id, timestep, timestamp)
         if (reservoir_id, scope["timestep"]) not in self._physics:
@@ -310,11 +513,18 @@ class TraceJournal:
 
     @staticmethod
     def _error(error: BaseException | str) -> dict[str, str]:
+        """Retain exception class/message or an explicitly supplied error string without inventing a traceback or known error class."""
+
         if isinstance(error, BaseException):
             return {"error_type": type(error).__name__, "message": str(error)}
         return {"error_type": "unknown", "message": _text(error, "error")}
 
     def _finish(self, status: str, summary: Mapping[str, Any] | None, error: BaseException | str | None = None) -> dict[str, Any]:
+        """Read actual stream bytes/counts/tails, then atomically replace separate index and summary files with a terminal snapshot.
+
+        This path remains available after event-write failure, but any read/write/fsync failure still propagates; finalization is never reported before both metadata files are written.
+        """
+
         if self._terminal:
             raise RuntimeError("trace journal is finalized")
         if summary is not None and not isinstance(summary, Mapping):
@@ -354,10 +564,62 @@ class TraceJournal:
         return result
 
     def finalize(self, summary: Mapping[str, Any] | None = None) -> dict[str, Any]:
+        """Write a COMPLETED terminal summary only when every decision has physics.
+
+        Parameters
+        ----------
+        summary : Mapping[str, Any] or None, optional
+            Caller-supplied execution metrics and output-file hashes; diagnostic strategy acceptance remains separate.
+
+        Returns
+        -------
+        dict[str, Any]
+            Terminal index/summary content with actual and durable stream counts, exact hashes and supplied execution metrics.
+
+        Raises
+        ------
+        RuntimeError
+            A decision lacks physics, feedback/I/O stopped the journal, or it was already finalized.
+        TypeError
+            A value has the wrong type or is not finite JSON.
+        ValueError
+            A required field, version, numeric bound or digest is invalid.
+        OSError
+            A required file cannot be read, created, flushed or replaced.
+        """
+
         self._open()
         if set(self._decisions) != self._physics:
             raise RuntimeError("cannot finalize while a decision lacks a physical record")
         return self._finish("COMPLETED", summary)
 
     def fail(self, error: BaseException | str, summary: Mapping[str, Any] | None = None) -> dict[str, Any]:
+        """Write a FAILED terminal summary while preserving partial evidence.
+
+        Failure reporting can run after event writes stop, but unavailable filesystem evidence still raises rather than manufacturing a successful summary.
+
+        Parameters
+        ----------
+        error : BaseException or str
+            Execution failure represented by class/message.
+        summary : Mapping[str, Any] or None, optional
+            Known completed-step/accounting facts at failure time.
+
+        Returns
+        -------
+        dict[str, Any]
+            FAILED terminal snapshot with hashes/counts/tail indicators for readable streams and any latched logging error.
+
+        Raises
+        ------
+        RuntimeError
+            The journal was already finalized.
+        TypeError
+            A value has the wrong type or is not finite JSON.
+        ValueError
+            A required field, version, numeric bound or digest is invalid.
+        OSError
+            A required file cannot be read, created, flushed or replaced.
+        """
+
         return self._finish("FAILED", summary, error)

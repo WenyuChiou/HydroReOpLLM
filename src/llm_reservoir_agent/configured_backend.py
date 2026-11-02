@@ -1,15 +1,26 @@
-"""Configuration-driven offline or bounded-attempt chat backend.
+"""Render configured prompts, execute bounded requests, and validate actions.
 
-Provider configuration is validated without performing discovery or network I/O.
-Model replies must contain one strict JSON object in the selected response schema.
+``workflow`` supplies a ``PromptSpec``, knowledge texts, model profiles and an
+optional transport. Model settings are validated without discovery or network
+access. ``providers`` builds native requests and extracts one text result;
+strict JSON decoding and ``contracts.parse_action`` then validate the decision.
+The standard response is one object containing ``schema_version`` and a finite,
+non-negative ``release_cms`` in cubic metres per second (m3/s). Custom schemas
+require an explicit parser or response extension.
 
-Role: Build configurable prompts and parse one decision response.
+``decide`` renders current observations and committed prior feedback once per
+decision. Retries reuse that request; ordered fallback profiles use the same
+messages with their native adapter. ``record_transition`` stores only supplied
+committed feedback for later prompts. The reservoir agent, rather than this
+backend, implements releases and checks physical constraints. No future
+observations or predicted transitions are generated here.
 
-Connections and data: workflow supplies a PromptSpec, optional knowledge, a model
-configuration and an offline fixture or transport. decide renders current information
-and committed prior feedback, validates the response and returns a release request. The
-Dam agent performs physical implementation; record_transition supplies the next prompt
-history.
+Timeouts, retry delays and attempt elapsed times use seconds. Token budgets and
+usage remain in provider units, without cost conversion. Traces retain request
+hashes, native replies, usage and per-attempt outcomes after credential
+redaction. ``network_calls`` counts transport invocations unless the transport
+exposes an authoritative counter; an injected transport need not perform any
+network I/O. Offline mode returns its configured constant fixture directly.
 """
 
 from __future__ import annotations
@@ -33,6 +44,7 @@ from .prompt import PromptSpec, RenderedPromptContext
 from .providers import chat_headers, chat_reply, chat_request, provider_usage
 
 
+# Transport inputs are URL, JSON payload, sensitive headers, and timeout seconds.
 Transport = Callable[[str, Mapping[str, Any], Mapping[str, str], float], dict[str, Any]]
 _MODEL_KEYS = {
     "provider", "model", "base_url", "temperature", "max_tokens", "seed",
@@ -41,6 +53,7 @@ _MODEL_KEYS = {
 }
 _PROVIDERS = {"openai", "anthropic", "gemini", "ollama", "openai_compatible"}
 _ENV_NAME = re.compile(r"[A-Za-z_][A-Za-z0-9_]*\Z")
+# Bound the decoded HTTP envelope before action text is parsed (one MiB).
 _MAX_RESPONSE_BYTES = 1_048_576
 
 
@@ -110,12 +123,14 @@ def _redact_header_secrets(value: Any, headers: Mapping[str, str]) -> Any:
 def _redacted_provider_error(exc: Exception, headers: Mapping[str, str]) -> Exception:
     """Keep common error classes while removing credentials before journaling."""
     message = _redact_header_secrets(str(exc), headers)
-    if message == str(exc):
-        return exc
+    # JSONDecodeError keeps the complete response in .doc even when its printed
+    # message contains no secret. Sanitize that evidence before the fast path.
     if isinstance(exc, json.JSONDecodeError):
         return json.JSONDecodeError(
             _redact_header_secrets(exc.msg, headers),
             _redact_header_secrets(exc.doc, headers), 0)
+    if message == str(exc):
+        return exc
     if isinstance(exc, HTTPError):
         return HTTPError(_redact_header_secrets(exc.url, headers), exc.code,
                          _redact_header_secrets(exc.msg, headers), None, None)
@@ -131,7 +146,36 @@ def _redacted_provider_error(exc: Exception, headers: Mapping[str, str]) -> Exce
 
 
 def validate_model_settings(mapping: Mapping[str, Any]) -> dict[str, Any]:
-    """Return a detached, normalized model configuration without network I/O."""
+    """Validate and normalize one explicit provider configuration locally.
+
+    Parameters
+    ----------
+    mapping : Mapping[str, Any]
+        Required provider, model ID and HTTP(S) base URL, plus supported optional
+        controls. Timeout and retry delay use seconds; token limits are positive
+        integer counts. Credentials are environment-variable names only.
+
+    Returns
+    -------
+    dict[str, Any]
+        Detached normalized settings. Defaults are timeout_seconds=60,
+        max_attempts=1 and retry_delay_seconds=2. Optional generation controls
+        are absent unless supplied. Explicit retryable_http_statuses accepts
+        unique integers from 100 through 599 and defaults to no HTTP retries.
+
+    Raises
+    ------
+    TypeError
+        If field types are invalid, including booleans used as numeric values.
+    ValueError
+        If a field, provider-specific option, URL or numeric bound is invalid.
+
+    Notes
+    -----
+    No credential lookup, model discovery or capability test occurs. The shared
+    accepted range for a control does not establish support by a selected model.
+    Anthropic's required explicit max_tokens is checked when its request is built.
+    """
 
     if not isinstance(mapping, Mapping):
         raise TypeError("model settings must be a mapping")
@@ -370,7 +414,45 @@ def http_json_transport(
     headers: Mapping[str, str],
     timeout: float,
 ) -> dict[str, Any]:
-    """POST JSON once with urllib and return a bounded strict-JSON object."""
+    """POST one JSON request and decode a bounded, strict JSON response.
+
+    Parameters
+    ----------
+    url : str
+        Final endpoint URL selected by the provider adapter.
+    payload : Mapping[str, Any]
+        JSON request body. Object insertion order is retained on the wire.
+    headers : Mapping[str, str]
+        HTTP headers, which may contain credentials and must not be logged.
+    timeout : float
+        Positive timeout in seconds passed to urllib for this attempt.
+
+    Returns
+    -------
+    dict[str, Any]
+        UTF-8 JSON object decoded without duplicate fields or nonstandard NaN
+        and Infinity constants. The response envelope is limited to one MiB.
+
+    Raises
+    ------
+    urllib.error.HTTPError
+        If the service returns an HTTP error status.
+    urllib.error.URLError
+        If urllib cannot complete the request.
+    TimeoutError
+        If the underlying connection times out.
+    ValueError
+        If a redirect is attempted or response bytes violate encoding, JSON or
+        size constraints. JSONDecodeError is a ValueError subclass.
+    TypeError
+        If the response's top-level JSON value is not an object.
+
+    Notes
+    -----
+    This function has no retry or fallback loop. Redirects are disabled so that
+    credentials are not forwarded to a different endpoint. Provider reply and
+    action schemas are validated by the caller after this envelope is decoded.
+    """
 
     request = Request(
         url,
@@ -400,7 +482,60 @@ def _provider_usage(raw: Mapping[str, Any], provider: str) -> Any:
 
 
 class ConfiguredBackend:
-    """Neutral backend with explicit prompts, context, retries, and fallback."""
+    """Provide one configured offline fixture or validated model action.
+
+    Parameters
+    ----------
+    agent_id : str
+        Nonempty reservoir-agent identifier recorded in prompt provenance.
+    mode : {"offline", "llm"}
+        Return a constant fixture or execute explicit model profiles.
+    prompt_spec : PromptSpec
+        User/system templates and expected knowledge-package hashes.
+    knowledge_texts : Mapping[str, str]
+        Texts matching the prompt's package IDs and SHA256 values exactly.
+    model : Mapping[str, Any] or None, optional
+        Primary provider settings. Required in llm mode.
+    release_cms : float, optional
+        Constant offline fixture release rate in m3/s, finite and non-negative.
+    context : Mapping[str, Any] or None, optional
+        Static JSON context made available to the prompt.
+    transport : callable or None, optional
+        Callable accepting URL, JSON payload, headers and timeout seconds.
+        Defaults to http_json_transport; injected transports enable offline QA.
+    response_schema : str, optional
+        Response-schema identifier. The default is reservoir-action.v1.
+    audit_context_builders : Mapping[str, callable] or None, optional
+        Callbacks receiving the current observation for external audit context.
+    response_extension : object or None, optional
+        Extension exposing parse_response and optional parser_id metadata.
+    prompt_variables, context_providers : Mapping[str, Any] or None, optional
+        Declared static values or callbacks evaluated once per llm decision.
+        Availability metadata must not postdate the observation timestamp.
+    fallback_models : sequence of Mapping[str, Any] or None, optional
+        Explicit ordered provider profiles tried only after eligible failures.
+    message_builder : callable or None, optional
+        Builder from RenderedPromptContext to a nonempty text-message sequence.
+    response_parser : callable or None, optional
+        Explicit parser applied to decoded response JSON before action parsing.
+    response_json_schema : Mapping[str, Any] or None, optional
+        Native structured-output schema. The standard action schema is supplied
+        by default only for the standard response_schema identifier.
+
+    Attributes
+    ----------
+    latest_trace : dict[str, Any] or None
+        Last decision's request/attempt evidence, including failures. Offline
+        mode has a trace only when audit context is recorded.
+    last_request_id : Any
+        Native id from the latest attempted response, when present.
+
+    Notes
+    -----
+    Construction validates configuration without executing provider requests.
+    Actions are requested release rates; physical implementation and durable
+    evidence writing remain caller responsibilities.
+    """
 
     _BUILTINS = {"observation", "knowledge", "agent_id", "previous_transition", "information"}
 
@@ -488,6 +623,14 @@ class ConfiguredBackend:
 
     @property
     def network_calls(self) -> int:
+        """Return cumulative transport calls or the transport's own counter.
+
+        Returns
+        -------
+        int
+            Non-negative call count. With an injected transport this is not a
+            measurement of remote provider traffic or billed model requests.
+        """
         observed = _authoritative_network_calls(self._transport)
         return self._network_calls if observed is None else observed
 
@@ -521,7 +664,30 @@ class ConfiguredBackend:
         return DecisionContext(self.agent_id, observation.to_dict(), self._previous_transition)
 
     def prepare_context(self, observation: Mapping[str, Any] | ReservoirObservation) -> dict[str, ContextValue]:
-        """Materialize declared callbacks once from immutable decision inputs."""
+        """Materialize declared bindings from the current decision inputs.
+
+        Parameters
+        ----------
+        observation : Mapping[str, Any] or ReservoirObservation
+            Current timestamped observation, with flows in m3/s and storage in
+            m3 when present in the observation's state.
+
+        Returns
+        -------
+        dict[str, ContextValue]
+            One normalized value per declared binding, including availability
+            and provenance. Each callable is evaluated once per invocation.
+
+        Raises
+        ------
+        ValueError
+            If a returned value claims availability after the decision time.
+
+        Notes
+        -----
+        The decision context contains the current observation and only the
+        previously recorded transition. Callbacks may perform their own I/O.
+        """
         observed = self._observation(observation)
         decision_context = self._decision_context(observed)
         values: dict[str, ContextValue] = {}
@@ -573,7 +739,34 @@ class ConfiguredBackend:
 
     def preview(self, observation: Mapping[str, Any] | ReservoirObservation,
                 *, context_values: Mapping[str, ContextValue | Any] | None = None) -> dict[str, Any]:
-        """Render without network or callback I/O; dynamic bindings are unavailable by default."""
+        """Render messages and request profiles without resolving credentials.
+
+        Parameters
+        ----------
+        observation : Mapping[str, Any] or ReservoirObservation
+            Observation to render, with release and inflow rates in m3/s.
+        context_values : Mapping[str, ContextValue or Any] or None, optional
+            Explicit values for declared bindings. Unsupplied callable bindings
+            are marked unavailable rather than executed.
+
+        Returns
+        -------
+        dict[str, Any]
+            Detached messages, context provenance and native request profiles
+            with canonical SHA256 hashes for primary and fallback models.
+
+        Raises
+        ------
+        ValueError
+            If supplied bindings are undeclared or rendering/request validation
+            fails.
+
+        Notes
+        -----
+        No transport or context-provider callback is invoked. An explicitly
+        configured message_builder is invoked to render its messages and is
+        responsible for its own side effects.
+        """
         observed = self._observation(observation)
         supplied = dict(context_values or {})
         values: dict[str, ContextValue] = {}
@@ -624,6 +817,35 @@ class ConfiguredBackend:
         return parse_action(dict(candidate)), decision
 
     def decide(self, observation: Mapping[str, Any] | ReservoirObservation) -> ReservoirAction:
+        """Return one action from the offline fixture or configured providers.
+
+        Parameters
+        ----------
+        observation : Mapping[str, Any] or ReservoirObservation
+            Current decision-time observation. Previous feedback enters the
+            prompt only through record_transition.
+
+        Returns
+        -------
+        ReservoirAction
+            Validated requested release rate in m3/s. The reservoir agent must
+            still implement it under physical constraints.
+
+        Raises
+        ------
+        Exception
+            The terminal credential, transport, reply or action-validation
+            failure when no eligible configured profile succeeds. Failed
+            attempted responses remain in latest_trace with available usage.
+
+        Notes
+        -----
+        Context and messages are rendered once. Each profile permits at most
+        max_attempts calls; response parsing failures may retry, while HTTP
+        failures retry only for explicitly selected statuses. Timeouts and
+        connection failures may retry. Fallback is explicit and ordered; HTTP
+        401/403 do not trigger it. No transition feedback is committed here.
+        """
         self.latest_trace = None
         self.last_request_id = None
         observed = self._observation(observation)
@@ -632,6 +854,7 @@ class ConfiguredBackend:
             if audit_contexts:
                 self.latest_trace = {"audit_contexts": audit_contexts, "model_used": False}
             return self._offline_action
+        # Resolve decision-time inputs once so retries cannot see later data.
         prepared = self.prepare_context(observed)
         messages, context_provenance = self._render(observed, prepared)
         profiles = (self.model,) + self.fallback_models
@@ -661,7 +884,9 @@ class ConfiguredBackend:
             credential_headers.append(headers)
             start = len(trace["attempts"])
             def parse_provider_reply(raw, attempt, current=settings):
-                attempt["request_id"] = raw.get("id")
+                # Preserve the native response identity even if action parsing fails.
+                request_id = raw.get("responseId") if current["provider"] == "gemini" else raw.get("id")
+                attempt["request_id"] = request_id
                 attempt["usage"] = _provider_usage(raw, current["provider"])
                 content, usage, metadata = chat_reply(
                     raw, current["provider"],
@@ -670,7 +895,7 @@ class ConfiguredBackend:
                 )
                 candidate = _strict_json(content)
                 parsed, decision = self._parse_candidate(candidate)
-                return parsed, {"raw_reply": candidate, "usage": usage, "request_id": raw.get("id"),
+                return parsed, {"raw_reply": candidate, "usage": usage, "request_id": request_id,
                                 "decision_metadata": decision, **metadata}
             try:
                 action = _provider_attempts(settings=settings, transport=self._transport, url=url,
@@ -706,12 +931,50 @@ class ConfiguredBackend:
         return action
 
     def record_transition(self, record: Mapping[str, Any]) -> None:
+        """Store a detached committed transition for the next decision prompt.
+
+        Parameters
+        ----------
+        record : Mapping[str, Any]
+            JSON transition supplied after successful physical implementation
+            and any caller-required durable commit. Flow/storage units follow
+            the record's explicit fields, normally m3/s and m3.
+
+        Returns
+        -------
+        None
+
+        Raises
+        ------
+        TypeError
+            If record is not a JSON object.
+        ValueError
+            If record cannot be represented as finite JSON.
+
+        Notes
+        -----
+        This method does not infer, simulate or persist a transition itself.
+        """
         copied = json_snapshot(record, label="transition record")
         if not isinstance(copied, dict):
             raise TypeError("transition record must be a mapping")
         self._previous_transition = copied
 
     def describe(self) -> dict[str, Any]:
+        """Return detached configuration and prompt provenance without I/O.
+
+        Returns
+        -------
+        dict[str, Any]
+            Agent/mode, model profiles, prompt and knowledge hashes, parser ID
+            and binding IDs. Offline fixtures also report release_cms in m3/s.
+            Credentials are represented only by environment-variable names.
+
+        Notes
+        -----
+        The description is configuration evidence, not a connectivity test,
+        capability claim, runtime call counter or physical-audit verdict.
+        """
         result = {"backend": "configured", "agent_id": self.agent_id, "mode": self.mode,
             "static_context": json_snapshot(self._context), "model": json_snapshot(self.model, label="model"),
             "fallback_models": json_snapshot(list(self.fallback_models)),

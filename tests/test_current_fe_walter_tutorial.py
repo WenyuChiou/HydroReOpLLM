@@ -127,6 +127,8 @@ def test_operation_detects_scientific_input_changes_without_manifest_update(tmp_
         filename: hashlib.sha256((case / filename).read_bytes()).hexdigest() for filename in inputs}}
     manifest_path = case / "provenance.json"
     manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+    # Current lessons also pin the maintained engineering-source lineage.
+    (case / "engineering-sources-v2.json").write_text("{}\n", encoding="utf-8")
     monkeypatch.setattr(builder, "ROOT", tmp_path)
     previous["metadata"]["execution_dependencies"] = builder._operation_dependencies()
     path = tmp_path / "operation.ipynb"

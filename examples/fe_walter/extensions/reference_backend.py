@@ -50,7 +50,12 @@ def validate_reference(spec, base, runtime_root, *, mode="offline"):
     if result.get("method") not in ("zeroshot", "dkp") or result.get("profile") != "fe_walter":
         raise ValueError("reference is FE Walter-specific and requires zeroshot/dkp with the fe_walter case profile")
     if "profile_file" in result:
-        raise ValueError("active FE Walter reference uses its serialized case profile")
+        value = result["profile_file"]
+        if not isinstance(value, str) or not value.strip():
+            raise ValueError("profile_file must be a nonempty file path")
+        if result.get("system_prompt_mode") != "custom":
+            raise ValueError("an explicit profile_file requires custom system_prompt_mode")
+        result["profile_file"] = str((Path(base) / value).resolve())
     for key, default in (("prompt_storage", False), ("hide_availability_line", True),
                          ("dkp_no_missing_inputs", True)):
         result.setdefault(key, default)
@@ -88,7 +93,7 @@ def validate_reference(spec, base, runtime_root, *, mode="offline"):
         result["seasonal_criteria_sha256"] = context.sha256
         pins[str(path)] = context.sha256
 
-    profile = load_case_profile(runtime_root)
+    profile = load_case_profile(runtime_root, result.get("profile_file"))
     profile_path = profile.path
     profile_blob = profile_path.read_bytes()
     profile_data = read_json(profile_path)
@@ -259,7 +264,7 @@ def preview_backend(settings, physical, runtime_root):
     """Return config-time prompt/schema identity without retrieval or callbacks."""
     agent_settings = settings
     settings = settings["reference"]
-    profile = load_case_profile(runtime_root)
+    profile = load_case_profile(runtime_root, settings.get("profile_file"))
     system, _, _ = read_system_prompt(profile, settings["method"], settings)
     schema = ZERO_SCHEMA if settings["method"] == "zeroshot" else dkp_schema(not settings["dkp_no_missing_inputs"])
     result = {"kind": "config_preview", "messages": [{"role": "system", "content": system}],
@@ -281,10 +286,11 @@ class ReferenceBackend:
         if mode not in ("offline", "llm"): raise ValueError("reference mode must be offline or llm")
         self._settings, self._mode = dict(settings), mode
         if "profile_sha256" in settings:
-            actual = hashlib.sha256(case_profile_path().read_bytes()).hexdigest()
+            profile_path = Path(settings.get("profile_file", case_profile_path()))
+            actual = hashlib.sha256(profile_path.read_bytes()).hexdigest()
             if actual != settings["profile_sha256"]:
                 raise ValueError("serialized case profile changed after validation")
-        self._profile = load_case_profile(runtime_root)
+        self._profile = load_case_profile(runtime_root, settings.get("profile_file"))
         expected_resources = settings.get("profile_resources_sha256")
         if expected_resources is not None and dict(self._profile.source_hashes) != {
                 key: value for key, value in expected_resources.items()

@@ -1,12 +1,20 @@
-"""Connect configured hydrology to daily reservoir operation.
+"""Connect daily native hydrology preparation to reservoir operation workflows.
 
-A coupled simulation document supplies the global run identity and inclusive
-date interval, a physical-network case, hydrology inputs, reservoir agents,
-model profiles and audit profiles. ``load_coupled_settings`` checks and connects
-those layers; ``prepare_coupled`` produces daily local inflow in m3/s; and
-``run_coupled`` hands the prepared case to the existing operation workflow.
-Regional data preparation/calibration stays outside this module. Generated case
-files use the existing experiment, native Dam/routing and recovery contracts.
+Purpose and data flow
+---------------------
+A checked coupled document links a physical network, full native weather
+period, inclusive operation dates, agents and audit/model profiles. Hydrology
+runs through warm-up before operation local inflows (m3/s) are selected.
+Preparation writes a pinned case and operation experiment; execution delegates
+to the shared policy, physical-transition, routing and recovery workflow.
+
+Dependencies and side effects
+-----------------------------
+Uses configuration/workflow validation, network, weather, YAML/CSV/JSON
+and filesystem hashes. Checking reads and pins dependencies and creates a
+disposable validation directory. Preparation writes a new output directory;
+execution may call providers only through the explicit shared network gate.
+Regional data preparation and calibration remain outside this module.
 """
 from copy import deepcopy
 import csv
@@ -38,6 +46,28 @@ def _write(path, value):
 
 @dataclass
 class CoupledSettings:
+    """Hold a checked coupled plan and its direct reproducibility dependencies.
+
+    Parameters
+    ----------
+    path : pathlib.Path
+        Absolute source simulation configuration.
+    data : dict
+        Canonical expanded coupled document with inclusive operation dates.
+    case : dict
+        Physical-only reservoir case; storage in m3 and rates in m3/s.
+    weather : dict
+        Validated weather/model state including the complete initialization period.
+    files : dict of str to str
+        Absolute dependency paths mapped to exact-byte SHA256 values.
+    report : dict
+        Checked run identity, intervals, method plan, output and call readiness.
+
+    Notes
+    -----
+    This is a mutable data container. Validation belongs to load_coupled_settings;
+    execution rechecks source files before trusting the plan.
+    """
     path: Path
     data: dict
     case: dict
@@ -100,7 +130,35 @@ def _compile(settings, folder, rows):
 
 
 def load_coupled_settings(path, *, runtime_root=PROJECT_ROOT):
-    """Check all resources and method settings without running hydrology or an LLM."""
+    """Check and connect all resources without hydrology or provider execution.
+
+    Parameters
+    ----------
+    path : str or pathlib.Path
+        Coupled configuration, including public v2 sections expanded by the loader.
+    runtime_root : str or pathlib.Path, optional
+        Accepted runtime assets and native Dam adapter, default PROJECT_ROOT.
+
+    Returns
+    -------
+    CoupledSettings
+        Daily plan, validated physical/weather inputs, dependency hashes and
+        method/readiness report with inclusive operation-day bounds.
+
+    Raises
+    ------
+    ValueError
+        Coupled schema, daily timestep, case, weather bindings, operation dates
+        or shared experiment validation fails.
+    OSError
+        Source dependencies or temporary validation files cannot be read/written.
+
+    Notes
+    -----
+    The full weather period may start before operation for hydrological warm-up.
+    Reservoir initial storage is a separate explicit case value. Temporary zero
+    boundaries validate configuration only and are never hydrological results.
+    """
     from .workflow import UniqueLoader, _mapping, _text, load_settings
     path = Path(path).resolve()
     from .configuration import read_configuration
@@ -206,7 +264,41 @@ def _reused_rows(settings):
 
 
 def prepare_coupled(settings, *, runtime_root=PROJECT_ROOT, progress=False):
-    """Prepare inflows with native warm-up; progress optionally shows daily routing."""
+    """Prepare pinned daily local inflows after full native initialization.
+
+    Parameters
+    ----------
+    settings : CoupledSettings
+        Previously checked plan; source inputs are reloaded and compared.
+    runtime_root : str or pathlib.Path, optional
+        Accepted native runtime asset root.
+    progress : bool, optional
+        Show actual native progress for newly computed hydrology.
+
+    Returns
+    -------
+    dict
+        Preparation manifest with source pins, reusable hydrology signature,
+        checked plan and generated-file SHA256 values.
+
+    Raises
+    ------
+    FileExistsError
+        The target preparation directory already exists.
+    ValueError
+        Inputs changed or a declared reusable preparation differs.
+    ArithmeticError
+        Newly run native hydrology produces invalid flow.
+    OSError
+        Sources or generated files cannot be read/written.
+
+    Notes
+    -----
+    Writes inflows.csv, case.json, experiment.yaml, hydrology.json and
+    preparation.json into a new output directory. Reuse verifies exact signatures
+    and bytes. Hydrological warm-up is retained before operation rows are sliced;
+    no reservoir/provider decision is made during preparation.
+    """
     current = _current(settings, runtime_root)
     folder = Path(current.report["output"])
     if folder.exists():
@@ -224,6 +316,7 @@ def prepare_coupled(settings, *, runtime_root=PROJECT_ROOT, progress=False):
                 for node, binding in current.weather["bindings"].items():
                     kind, source = next(iter(binding.items()))
                     flows[node] = 0.0 if kind == "constant" else float(result[kind][source][t])
+                # Select operation means (m3/s) after the full native warm-up run.
                 rows.append((day, flows))
     folder.mkdir(parents=True, exist_ok=False)
     _compile(current, folder, rows)
@@ -243,7 +336,31 @@ def prepare_coupled(settings, *, runtime_root=PROJECT_ROOT, progress=False):
 
 
 def prepared_experiment(settings):
-    """Refuse partial/changed preparation instead of silently reusing stale inflow."""
+    """Verify completed preparation and return its generated operation document.
+
+    Parameters
+    ----------
+    settings : CoupledSettings
+        Current checked plan, source pins and expected output directory.
+
+    Returns
+    -------
+    pathlib.Path
+        Verified generated experiment.yaml to pass to the operation loader.
+
+    Raises
+    ------
+    ValueError
+        Preparation is partial/stale, generated hashes differ, or the compiled
+        operation/physical case differs from the current plan.
+    OSError
+        A preparation artifact cannot be read.
+
+    Notes
+    -----
+    For reused hydrology, the original preparation/inflow pins are added to
+    settings.files before comparison. Partial output is preserved on failure.
+    """
     folder = Path(settings.report["output"])
     if not (folder/"preparation.json").is_file():
         raise ValueError("preparation is incomplete; preserve this directory and choose a new output")
@@ -269,7 +386,44 @@ def prepared_experiment(settings):
 
 
 def run_coupled(settings, *, allow_network=False, runtime_root=PROJECT_ROOT, transport=None, progress=False):
-    """Prepare if needed, then delegate to the existing daily experiment runner."""
+    """Prepare if needed and execute the checked daily operation workflow.
+
+    Parameters
+    ----------
+    settings : CoupledSettings
+        Checked coupled simulation plan; revalidated immediately before use.
+    allow_network : bool, optional
+        Explicit permission for planned provider calls; default False. Such calls
+        also require a live-ready physical case.
+    runtime_root : str or pathlib.Path, optional
+        Accepted runtime asset root.
+    transport : callable, optional
+        Injected provider transport passed through to shared workflow execution.
+    progress : bool, optional
+        Enable native/workflow progress reporting.
+
+    Returns
+    -------
+    records : dict of str to list of dict
+        Committed per-reservoir observation, action and transition records;
+        storage/volume uses m3 and interval-mean rates use m3/s.
+    manifest : dict
+        Final shared-workflow execution status and summary, including output
+        hashes, ending storage, routing/balance checks and observed call counts.
+
+    Raises
+    ------
+    ValueError
+        Inputs/preparation changed or planned LLM calls lack network/readiness gates.
+    OSError
+        Preparation or operation artifacts cannot be read/written.
+
+    Notes
+    -----
+    Creates preparation only when its output does not exist, verifies all
+    prepared artifacts, then delegates operation and recovery semantics to workflow.
+    Downstream exceptions propagate; accepted historical source files are not edited.
+    """
     from .workflow import load_settings, run_settings
     current = _current(settings, runtime_root)
     if current.report["planned_llm_calls"] and (not allow_network or not current.report["live_ready"]):

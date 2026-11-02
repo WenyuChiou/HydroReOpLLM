@@ -1,8 +1,16 @@
-"""Resume by replaying pinned provider replies into a fresh native simulation.
+"""Resume a pinned interrupted run by replaying replies into fresh native physics.
 
-A new output directory preserves the interrupted run. Replaying the unchanged
-prefix reconstructs routing, reservoir storage and policy history without an LLM
-request; actual generation starts at the first missing decision.
+``workflow`` supplies current validated settings. ``RecoveryTape`` reads the
+source run, pins journal/raw bytes and requires identical settings, inputs,
+package/adapter bytes, Python version and host-core metadata. During execution,
+matching regenerated requests reuse saved responses and committed prompt values;
+native routing/storage/history are reconstructed and compared to saved physics.
+No source files are changed. A distinct run ID and new output directory preserve
+the interrupted evidence; any newly needed request remains subject to explicit
+network opt-in and the cumulative attempt budget. STARTED reservations count even
+when a terminal reply was not saved. Flow/storage retain native m3/s and m3.
+Dynamic numeric extension information is rejected without a durable replay
+contract. Incomplete final journal lines remain in the source and are reported.
 """
 import hashlib
 import json
@@ -13,10 +21,14 @@ from .audit import canonical_sha256, json_snapshot
 
 
 def _sha(path):
+    """Read and hash exact saved bytes; missing/unreadable source evidence must stop recovery."""
+
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
 def _object(path):
+    """Read a strict finite JSON object using the backend parser; reject nonobject evidence instead of accepting a partial contract."""
+
     from .configured_backend import _strict_json
     value = _strict_json(path.read_text(encoding="utf-8"))
     if not isinstance(value, dict):
@@ -25,10 +37,30 @@ def _object(path):
 
 
 class RecoveryTape:
-    """Validate source evidence before any replay or network request."""
+    """Validate interrupted-run evidence before any replay or new request.
+
+    Construction only reads source evidence. Replay advances an in-memory cursor and reconstructs host physics; it does not resume by mutating saved storage or overwrite the interrupted directory.
+
+    Parameters
+    ----------
+    source : str or pathlib.Path
+        Interrupted output directory; a completed run must be verified instead.
+    settings : ExperimentSettings
+        Current validated network, inflows, settings, file pins and request plan.
+    runtime_root : str or pathlib.Path
+        Runtime checkout containing core metadata and the ABM source used by the saved run.
+
+    Raises
+    ------
+    ValueError
+        Runtime/input hashes, journal scope, replay contracts or evidence integrity differ.
+    OSError
+        A required file cannot be read, created, flushed or replaced.
+    """
 
     def __init__(self, source, settings, runtime_root):
         self.source = Path(source).resolve()
+        # Number of saved request attempts consumed; independent of physical-step count.
         self._cursor = 0
         self._checked_physics = set()
         self._physics = {}
@@ -80,6 +112,7 @@ class RecoveryTape:
                         started.append(item["attempt"])
             if len(set(started)) != len(started):
                 raise ValueError("duplicate provider-attempt reservation")
+        # Cumulative reservations include requests that may have been in flight at a crash.
         self.prior_network_calls = prior + len(started)
         streams = {}
         for name in ("decisions", "physics", "audit", "backend_events"):
@@ -164,6 +197,8 @@ class RecoveryTape:
             self._physics[key] = record
 
     def _reference(self, ref):
+        """Resolve raw references inside the source directory and verify exact SHA256 before strict JSON reads; escaping paths or mismatched bytes fail."""
+
         path = (self.source / ref["path"]).resolve()
         if not path.is_relative_to(self.source) or _sha(path) != ref["sha256"]:
             raise ValueError("recovery raw checksum mismatch or escaping reference")
@@ -171,7 +206,31 @@ class RecoveryTape:
         return _object(path)
 
     def next_reply(self, reservoir_id, url, payload):
-        """Return a saved response only when the regenerated request is identical."""
+        """Reuse the next saved response only for an identical regenerated request.
+
+        Both documented legacy request-hash conventions are checked against actual content. Consuming a recorded failure advances the cursor; it does not issue a network request.
+
+        Parameters
+        ----------
+        reservoir_id : str
+            Acting physical reservoir identity; replay order must match source evidence.
+        url : str
+            Regenerated provider endpoint, included in the request-content hash.
+        payload : Mapping
+            Regenerated provider payload; exact canonical content must match saved evidence.
+
+        Returns
+        -------
+        tuple[bool, object]
+            True with a detached saved response, or False/None after the complete saved prefix has been reconstructed.
+
+        Raises
+        ------
+        ValueError
+            Request identity/content/order differs or saved-prefix physics is not fully reconstructed.
+        HTTPError, URLError, TimeoutError or ConnectionError
+            A retained provider failure is reproduced from its saved error class/status.
+        """
         if self._cursor == len(self._replies):
             if self._checked_physics != set(self._physics):
                 raise ValueError("recovery prefix physics has not been reconstructed")
@@ -201,7 +260,31 @@ class RecoveryTape:
         return True, json_snapshot(item["response"])
 
     def context_value(self, reservoir_id, timestep, alias):
-        """Reuse a committed prompt input without calling its retrieval provider."""
+        """Reuse a retained prompt binding before constructing its retriever.
+
+        Parameters
+        ----------
+        reservoir_id : str
+            Acting physical reservoir identity.
+        timestep : int
+            Zero-based decision step in the source run.
+        alias : str
+            Selected prompt-binding name.
+
+        Returns
+        -------
+        tuple[bool, ContextValue or None]
+            True with the validated saved binding, or False/None when that alias has no saved value.
+
+        Raises
+        ------
+        ValueError
+            Saved context fields do not match the supported replay contract.
+        TypeError
+            A value has the wrong type or is not finite JSON.
+        ValueError
+            A required field, version, numeric bound or digest is invalid.
+        """
         values = self._contexts.get((reservoir_id, timestep), {})
         if alias not in values:
             return False, None
@@ -212,6 +295,28 @@ class RecoveryTape:
         return True, ContextValue(**value)
 
     def check_physics(self, reservoir_id, record):
+        """Compare regenerated completed physics with the saved prefix.
+
+        Comparison is exact across the full record, so requested action, implemented release/spill, storage and causal inputs must all match.
+
+        Parameters
+        ----------
+        reservoir_id : str
+            Physical reservoir identity.
+        record : Mapping
+            Regenerated observation/action/transition; native storage m3 and flow m3/s.
+
+        Returns
+        -------
+        None
+            A matching saved record is marked reconstructed; steps absent from the saved prefix require no comparison.
+
+        Raises
+        ------
+        ValueError
+            Any regenerated record content differs from its saved counterpart.
+        """
+
         key = (reservoir_id, record["observation"]["timestep"])
         if key in self._physics:
             original = self._physics[key]
@@ -220,10 +325,33 @@ class RecoveryTape:
             self._checked_physics.add(key)
 
     def finish(self):
+        """Require complete saved-response consumption and prefix-physics reconstruction.
+
+        Returns
+        -------
+        None
+            All saved replies and physical records were consumed/checked.
+
+        Raises
+        ------
+        ValueError
+            The run ended before its entire saved prefix was reconstructed.
+        """
+
         if self._cursor != len(self._replies) or self._checked_physics != set(self._physics):
             raise ValueError("recovery did not consume and verify its saved prefix")
 
     def describe(self):
+        """Describe recovery provenance and cumulative replay accounting.
+
+        Prior network calls count inherited reservations plus source STARTED events, including potentially in-flight requests after a crash.
+
+        Returns
+        -------
+        dict
+            Source path/ID, exact-file hashes, consumed replies, prior attempt reservations, reconstructed record count and retained incomplete-tail byte counts.
+        """
+
         return {"source_run": str(self.source), "source_run_id": self.source_run_id,
                 "source_files": dict(self._hashes),
                 "replayed_provider_replies": self._cursor,
@@ -235,7 +363,41 @@ class RecoveryTape:
 
 def resume_settings(settings, source, *, output, run_id, allow_network=False,
                     runtime_root=None, transport=None):
-    """Continue unchanged inputs in a new run; never overwrite the interrupted run."""
+    """Reconstruct an unchanged interrupted prefix and continue in a new run.
+
+    Recovery checks implementation bytes and Python version as well as scientific inputs. Newly executed backend/callback failures propagate under normal workflow accounting.
+
+    Parameters
+    ----------
+    settings : ExperimentSettings
+        Current validated settings matching the source experiment.
+    source : str or pathlib.Path
+        Interrupted run directory retained unchanged.
+    output : str or pathlib.Path
+        Distinct new output directory; it must not exist.
+    run_id : str
+        Nonempty identity distinct from the source run ID.
+    allow_network : bool, optional
+        Explicit permission for missing decisions after replay; saved replies need no new request.
+    runtime_root : str or pathlib.Path or None, optional
+        Pinned runtime checkout, defaulting to network.PROJECT_ROOT.
+    transport : callable or None, optional
+        Injected transport used only for newly needed authorized requests.
+
+    Returns
+    -------
+    tuple[dict, dict]
+        Completed records and new trace summary returned by run_settings, with recovery provenance.
+
+    Raises
+    ------
+    FileExistsError
+        The output already exists or would overwrite the source.
+    ValueError
+        Run identity or saved/current evidence is incompatible.
+    OSError
+        A required file cannot be read, created, flushed or replaced.
+    """
     from .network import PROJECT_ROOT
     from .workflow import run_settings
     source, output = Path(source).resolve(), Path(output).resolve()

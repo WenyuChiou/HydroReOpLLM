@@ -24,6 +24,20 @@ FIGURE_DOWNLOADS.update({
                  "prompt-context-workflow", "fe-walter-weather-workflow")
     for ext in ("drawio", "svg")
 })
+# Publish only accepted comparison plots and their numeric display exports.
+# Raw model records and unrelated experiment folders remain outside the manual.
+FIGURE_DOWNLOADS.update({
+    "examples/fe_walter/completed_results/" + name: "completed_results/" + name
+    for name in (
+        "daily_2021_2025.png", "daily_2021_2025.pdf", "daily_2021_2025.svg",
+        "daily_2021_2025_range.png", "daily_2021_2025_range.pdf", "daily_2021_2025_range.svg",
+        "hourly_events_AB.png", "hourly_events_AB.pdf", "hourly_events_AB.svg",
+        "daily_chart_data.csv", "daily_run_range.csv", "daily_target_reference.csv",
+        "hourly_chart_data.csv", "table3_daily_simulation_performance.png",
+        "table3_daily_simulation_performance.pdf", "table3_summary.csv",
+        "table3_metrics_per_seed.csv", "provenance.json",
+    )
+})
 MAP_DOWNLOADS = {
     **{f"docs/figures/fe-walter-catchment.{ext}": f"fe-walter-catchment.{ext}"
        for ext in ("png", "svg")},
@@ -107,6 +121,14 @@ TUTORIAL_DOWNLOADS.update({
         "outputs/downstream_streamflow.png", "outputs/downstream_streamflow.svg", "outputs/downstream_streamflow.pdf",
     )
 })
+DAILY_DOWNLOADS = {
+    "examples/daily_offline/" + name: "daily-offline/" + name
+    for name in ("single.yaml", "single.json", "cascade.yaml", "cascade.json", "operator.txt")
+}
+DAILY_DOWNLOADS.update({
+    "docs/qa/module-inventory.json": "qa/module-inventory.json",
+    "examples/fe_walter/operation/engineering-sources-v2.json": "operation/engineering-sources-v2.json",
+})
 # Generic templates are maintained once and included verbatim in the chapters.
 DOWNSTREAM_DOWNLOADS = {
     "examples/fe_walter/downstream/" + name: name
@@ -165,6 +187,7 @@ PAGES = {
     "examples/fe_walter/README.md": "examples/fe_walter/README.md",
     "examples/fe_walter/README.zh-TW.md": "examples/fe_walter/README.zh-TW.md",
     "examples/fe_walter/operation/README.md": "examples/fe_walter/operation/README.md",
+    "examples/fe_walter/completed_results/README.md": "examples/fe_walter/completed_results/README.md",
     "examples/fe_walter/operation/README.zh-TW.md": "examples/fe_walter/operation/README.zh-TW.md",
     "examples/fe_walter/hydrology.md": "examples/fe_walter/hydrology.md",
     "examples/fe_walter/configuration.md": "examples/fe_walter/configuration.md",
@@ -196,6 +219,7 @@ PAGES = {
         "USER_GUIDE.md", "USER_GUIDE.zh-TW.md", "HYDROLOGY_SETUP.md",
         "LIVE_READINESS.md", "auditor_plugins.md", "PROJECT_INVENTORY.md", "BUILDING.md",
         "GETTING_STARTED.md", "BUILD_SIMULATION.md", "BUILD_SIMULATION.zh-TW.md", "INFORMATION.md", "INFORMATION.zh-TW.md",
+        "DAILY_WORKFLOW.md", "DAILY_EXAMPLES.md", "MODULE_INVENTORY.md", "VARIABLES_AND_UNITS.md", "DAILY_QA.md",
         "CONFIGURATION.md", "MODEL_PROVIDERS.md", "MULTI_RESERVOIR.md", "INPUT_OUTPUT.md", "API_REFERENCE.md",
         "GLOBAL_SETTINGS.md", "TEMPLATES.md", "CASE_STUDIES.md",
         "PARAMETER_REFERENCE.md", "RESULTS_GUIDE.md", "REFERENCE.md", "RUNNING.md", "CODE_STRUCTURE.md", "WEATHER_INPUTS.md",
@@ -256,6 +280,10 @@ def prepare(source: Path, *, source_ref: str = "main") -> None:
             elif not match[1].startswith("!") and relative in TUTORIAL_DOWNLOADS:
                 import os
                 output = source / "_tutorial_downloads" / TUTORIAL_DOWNLOADS[relative]
+                value = Path(os.path.relpath(output, (source / destination).parent)).as_posix()
+            elif not match[1].startswith("!") and relative in DAILY_DOWNLOADS:
+                import os
+                output = source / "_daily_downloads" / DAILY_DOWNLOADS[relative]
                 value = Path(os.path.relpath(output, (source / destination).parent)).as_posix()
             elif not match[1].startswith("!") and relative in DOWNSTREAM_DOWNLOADS:
                 import os
@@ -320,7 +348,9 @@ def prepare(source: Path, *, source_ref: str = "main") -> None:
     figure_downloads = source / "_figure_downloads"
     figure_downloads.mkdir()
     for relative, name in FIGURE_DOWNLOADS.items():
-        shutil.copyfile(ROOT / relative, figure_downloads / name)
+        destination = figure_downloads / name
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(ROOT / relative, destination)
     # Only the named map exports and editable project are downloadable; no service reads.
     map_downloads = source / "_map_downloads"
     map_downloads.mkdir()
@@ -365,6 +395,12 @@ def prepare(source: Path, *, source_ref: str = "main") -> None:
         canonical = source / relative
         canonical.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(ROOT / relative, canonical)
+    # Keep new Daily fixtures and engineering records separate from accepted
+    # historical teaching namespaces and preserve exact downloadable bytes.
+    for relative, name in DAILY_DOWNLOADS.items():
+        for target in (source / "_daily_downloads" / name, source / relative):
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(ROOT / relative, target)
     # Only these curated comparison assets are published; raw HTTP journals stay private.
     for relative, name in COMPARISON_DOWNLOADS.items():
         shutil.copyfile(ROOT / relative, completed_downloads / name)
@@ -430,17 +466,18 @@ def prepare(source: Path, *, source_ref: str = "main") -> None:
         item = ROOT / "examples/fe_walter/reference_outputs/long_term_dkp" / relative
         shutil.copyfile(item, case_downloads / item.name)
     groups = {
-        "Overview and installation": ["docs/README", "docs/GETTING_STARTED"],
+        "Overview and installation": ["docs/README", "docs/GETTING_STARTED", "docs/DAILY_WORKFLOW"],
         "Configuration": ["docs/INPUT_OUTPUT", "docs/GLOBAL_SETTINGS", "docs/HYDROLOGY_SETUP",
-                          "docs/BUILD_SIMULATION", "docs/CONFIGURATION", "docs/RUNNING"],
+                          "docs/BUILD_SIMULATION", "docs/CONFIGURATION", "docs/INFORMATION", "docs/RUNNING"],
         "Case studies": ["docs/CASE_STUDIES", "examples/fe_walter/README", "tutorials/main",
                          "examples/fe_walter/operation/README"],
-        "Results": ["docs/RESULTS_GUIDE", "examples/fe_walter/results"],
+        "Results": ["docs/RESULTS_GUIDE", "examples/fe_walter/completed_results/README", "examples/fe_walter/results"],
         "Troubleshooting": ["docs/TROUBLESHOOTING"],
         "API and reference": ["docs/API_REFERENCE", "docs/PARAMETER_REFERENCE", "docs/REFERENCE", "docs/USER_GUIDE",
+                               "docs/DAILY_EXAMPLES", "docs/MODULE_INVENTORY", "docs/VARIABLES_AND_UNITS", "docs/DAILY_QA",
                               "docs/CODE_STRUCTURE", "docs/PROJECT_INVENTORY", "archive/README", "repository",
                               "docs/BUILDING", "docs/auditor_plugins", "docs/LIVE_READINESS", "docs/RECORDS",
-                              "docs/TEMPLATES", "docs/WEATHER_INPUTS", "docs/MODEL_PROVIDERS", "docs/INFORMATION", "docs/LLM_MODULES",
+                               "docs/TEMPLATES", "docs/WEATHER_INPUTS", "docs/MODEL_PROVIDERS", "docs/LLM_MODULES",
                               "examples/fe_walter/prompt_review",
                               "examples/fe_walter/engine_comparison", "examples/fe_walter/configuration", "examples/fe_walter/hydrology",
                               "examples/fe_walter/downstream/README",

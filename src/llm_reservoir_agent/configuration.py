@@ -1,12 +1,14 @@
-"""Assemble one experiment from its global and section-specific YAML files.
+"""Assemble global and section-specific experiment YAML into canonical settings.
 
-The top-level document selects the physical case, run identity, interval and
-output. Its hydrology, agents, models and auditors may live in separate files so
-each concern can be reused independently. ``schema_version`` selects this
-loader's document format; it is not the installed package release. Every
-relative resource path is resolved from the file that declares that path, then
-the assembled data is passed to the existing validators. This module never runs
-hydrology, retrieval or a language model.
+The top-level document selects the case, run identity, interval and output.
+Referenced hydrology, agents, models, auditors, extensions and information
+sections replace a whole section without implicit merging. Relative resource
+paths use the directory of the file that declares them. ``workflow`` consumes
+the canonical mapping and source-file hashes returned by ``read_configuration``.
+``schema_version`` selects a document format, not a package release or unit
+system; declared physical units remain unchanged. Reads use the duplicate-key
+YAML loader. Loading trusted extensions executes their Python import/hooks;
+this loader itself does not start hydrology or send a model request.
 """
 from copy import deepcopy
 import hashlib
@@ -16,13 +18,18 @@ import yaml
 
 
 def _file(base, value, label):
+    """Resolve a declared nonempty resource path against its own declaring directory; do not interpret arbitrary JSON strings as paths."""
+
     if not isinstance(value, str) or not value.strip():
         raise ValueError(label + " must be a nonempty file path")
     return str((base / value).resolve())
 
 
 def _section(value, base, pins, stack=()):
-    """Follow only an explicit ``{file: ...}`` reference; never deep-merge."""
+    """Read only an explicit {file: ...} section, pin its exact bytes and follow references with cycle detection.
+
+    The returned base directory belongs to the final declaring file; mixed inline/reference fields and nonmapping YAML are rejected.
+    """
     if not isinstance(value, dict) or "file" not in value:
         return deepcopy(value), base
     if set(value) != {"file"}:
@@ -40,7 +47,29 @@ def _section(value, base, pins, stack=()):
 
 
 def rebase_agent(agent, base, extensions):
-    """Only declared resource fields are paths; supplemental JSON stays opaque."""
+    """Resolve only declared agent resource fields in place.
+
+    Extension hooks execute user-owned code and may propagate their own errors.
+
+    Parameters
+    ----------
+    agent : dict or object
+        Canonical agent mapping to mutate; nonmappings are ignored.
+    base : pathlib.Path
+        Directory containing the agent declaration.
+    extensions : Mapping[str, module]
+        Trusted extensions whose optional rebase hooks handle their own resource fields.
+
+    Returns
+    -------
+    None
+        The supplied mapping has absolute prompt/context/knowledge paths; supplemental JSON values retain their meaning.
+
+    Raises
+    ------
+    ValueError
+        A declared path is empty or not text.
+    """
     if not isinstance(agent, dict):
         return
     prompt = agent.get("prompt")
@@ -69,11 +98,26 @@ def rebase_agent(agent, base, extensions):
 
 
 def read_configuration(path):
-    """Return canonical settings and section hashes, preserving old v1 inputs.
+    """Read an experiment document, resolve sections and return source pins.
 
-    v2 accepts section references for hydrology, agents, models, auditors and
-    information. ``case`` may name a JSON or YAML physical case. Referenced
-    sections replace the whole section; there are no implicit overrides.
+    v2 is translated to the existing v1 execution vocabulary. Resource paths use each declaring file; no implicit overrides or physical-unit conversions are applied.
+
+    Parameters
+    ----------
+    path : str or pathlib.Path
+        Top-level YAML configuration, read as UTF-8 with optional BOM.
+
+    Returns
+    -------
+    tuple[dict, dict[str, str]]
+        Canonical settings and SHA256 pins for referenced sections/extension sources; legacy v1 inputs return an empty section-pin mapping.
+
+    Raises
+    ------
+    ValueError
+        YAML shape, references, schema-specific fields or dependency hashes conflict.
+    OSError
+        A required file cannot be read, created, flushed or replaced.
     """
     from .workflow import UniqueLoader
     path = Path(path).resolve()

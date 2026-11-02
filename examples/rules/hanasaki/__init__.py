@@ -17,9 +17,9 @@ def validate_backend(spec, *, base_path, runtime_root, physical, mode, days,
         raise ValueError("Hanasaki is an offline rule with rule_parameters")
     parameters = spec.get("rule_parameters")
     if (not isinstance(parameters, dict)
-            or set(parameters) - {"inflow_statistics_file", "alpha", "purpose"}
+            or set(parameters) - {"inflow_statistics_file", "alpha", "purpose", "reference_mode"}
             or "inflow_statistics_file" not in parameters):
-        raise ValueError("Hanasaki requires inflow_statistics_file, optional alpha and purpose")
+        raise ValueError("Hanasaki requires inflow_statistics_file, optional alpha, purpose and reference_mode")
     legacy = {key: value for key, value in parameters.items()
               if key != "inflow_statistics_file"}
     legacy["statistics"] = parameters["inflow_statistics_file"]

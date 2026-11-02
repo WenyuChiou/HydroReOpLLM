@@ -1,9 +1,10 @@
 # F.E. Walter outputs and notebooks
 
-Start with the current [2021–2025 operation tutorial](../../tutorials/operation.ipynb).
+Start with the [completed Daily and Hourly comparison figures and Table 3](completed_results/README.md).
+For a configurable executable lesson, open the [2021–2025 operation tutorial](../../tutorials/operation.ipynb).
 It reads the complete prepared settings, runs an offline preflight, and displays
-the completed Rule-based baseline. The two five-year LLM methods are prepared but
-have not been executed. Download the baseline inputs, daily files, figures, and
+the completed Rule-based teaching baseline. Its two LLM entry files are optional
+examples; the separately completed comparison is linked above. Download the baseline inputs, daily files, figures, and
 score summary from the [operation folder](operation/README.md).
 
 The [historical 2016 walkthrough](../../tutorials/main.ipynb) remains available for

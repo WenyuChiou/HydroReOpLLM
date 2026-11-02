@@ -46,10 +46,16 @@ def _add_elevation_legend(axis):
     # Matplotlib fills columns first: these entries form two matching rows.
     order = [LABELS["rule"], LABELS["llm_available"],
              "Target pool elevation", LABELS["llm_knowledge"]]
-    return axis.legend(
+    legend = axis.legend(
         [by_label[label] for label in order], [_legend_label(label) for label in order],
         loc="upper left", ncol=2, alignment="left", frameon=False, fontsize=9,
-        handlelength=2.4, handletextpad=0.65, columnspacing=1.8, labelspacing=0.65)
+        handlelength=2.4, handleheight=1.5, handletextpad=0.65,
+        columnspacing=1.8, labelspacing=0.65)
+    # Explicit bottom alignment avoids font-specific descender offsets between
+    # equal legend rows (Arial differs from DejaVu Sans on Matplotlib 3.11).
+    for text in legend.get_texts():
+        text.set_verticalalignment("bottom")
+    return legend
 
 
 def _seasonal_reference_points(criteria, year=2016):
@@ -1035,6 +1041,7 @@ def _operation_dependencies() -> dict[str, str]:
     paths.update((ROOT / "src/llm_reservoir_agent").rglob("*.py"))
     paths.update(case.rglob("*.py"))
     paths.add(case / "provenance.json")
+    paths.add(case / "engineering-sources-v2.json")
     return {path.relative_to(ROOT).as_posix(): hashlib.sha256(
         path.read_bytes().replace(b"\r\n", b"\n") if path.suffix == ".py" else path.read_bytes()).hexdigest()
         for path in sorted(paths)}
