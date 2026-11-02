@@ -20,8 +20,8 @@ html_context = {
     ),
 }
 html_static_path = ["_static"]
-html_css_files = ["manual.css"]
-html_js_files = ["manual.js", "prompt-review.js"]
+html_css_files = ["manual.css", "reading.css"]
+html_js_files = ["manual.js", "prompt-review.js", "navigation.js"]
 html_favicon = "_static/logo-32.png"
 html_theme_options = {"page_width": "1280px", "body_max_width": "960px",
                       "sidebar_width": "260px", "fixed_sidebar": True}
