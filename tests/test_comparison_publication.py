@@ -82,7 +82,7 @@ def test_comparison_seasons_use_later_boundary_and_fall_requires_drawdown():
 
 
 def test_saved_comparison_has_four_causal_years_and_bound_samples():
-    summary = json.loads((OUTPUT / "summary.json").read_text())
+    summary = json.loads((OUTPUT / "summary.json").read_text(encoding="utf-8"))
     assert len(summary["arms"]) == 4
     # This is the identity of the exporter that produced the accepted artifact.
     # The maintained exporter may change without rewriting historical results.
@@ -90,7 +90,7 @@ def test_saved_comparison_has_four_causal_years_and_bound_samples():
         "f698373b4bf515a5453edf3aa59472e6e7a03a399996e57df2d2b9767001d63d")
     for name, expected in summary["artifact_sha256"].items():
         assert hashlib.sha256((OUTPUT / name).read_bytes()).hexdigest() == expected
-    assert all(line == line.rstrip() for line in (OUTPUT / "pool_release.svg").read_text().splitlines())
+    assert all(line == line.rstrip() for line in (OUTPUT / "pool_release.svg").read_text(encoding="utf-8").splitlines())
     daily = pd.read_csv(OUTPUT / "daily.csv")
     assert len(daily) == 1464
     for (engine, method), frame in daily.groupby(["engine", "method"], sort=False):
@@ -101,7 +101,7 @@ def test_saved_comparison_has_four_causal_years_and_bound_samples():
         assert residual.abs().max() < 1e-6
         assert frame.storage_start_m3.iloc[1:].to_numpy() == pytest.approx(
             frame.storage_end_m3.iloc[:-1].to_numpy(), abs=1e-6)
-        sample = json.loads((OUTPUT / f"{method}_pair.json").read_text())
+        sample = json.loads((OUTPUT / f"{method}_pair.json").read_text(encoding="utf-8"))
         row = frame.loc[frame.date == sample["date"]].iloc[0]
         item = sample["engines"][engine]
         assert item["parsed_reply"]["release_cfs"] * 0.028316847 == pytest.approx(row.requested_release_cms)
@@ -132,10 +132,10 @@ def test_comparison_downloads_keep_source_bytes_and_need_no_network(tmp_path, mo
     for relative, name in builder.COMPARISON_DOWNLOADS.items():
         assert (tmp_path / "_completed_downloads" / name).read_bytes() == (ROOT / relative).read_bytes()
         assert (tmp_path / relative).read_bytes() == (ROOT / relative).read_bytes()
-    page = (tmp_path / "examples/fe_walter/coupled/README.md").read_text()
+    page = (tmp_path / "examples/fe_walter/coupled/README.md").read_text(encoding="utf-8")
     # Engine comparisons remain downloadable through the technical reference;
     # the main tutorial now presents the three framework methods instead.
     assert "../engine_comparison.md" in page
-    reference = (tmp_path / "examples/fe_walter/engine_comparison.md").read_text()
+    reference = (tmp_path / "examples/fe_walter/engine_comparison.md").read_text(encoding="utf-8")
     assert "gemma4-2016-pool_release.pdf" in reference
     assert "corrected-case LLM rerun pending" not in page

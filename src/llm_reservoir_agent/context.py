@@ -1,4 +1,15 @@
-"""Detached decision context and explicit prompt context values."""
+"""Detach callback inputs and represent prompt values with availability metadata.
+
+Configured/custom backends pass ``DecisionContext`` to retrieval callbacks and
+normalize results to ``ContextValue`` before rendering a prompt. Observations
+describe the current decision boundary; previous_transition contains only an
+already completed physical step. Finite JSON copies prevent mutable aliases;
+DecisionContext additionally freezes nested mappings/lists for callback reads.
+``validate_available_at`` compares declared issue/availability times to the
+decision clock and rejects future information. Values keep their declared
+units; this module neither retrieves information nor writes physical state.
+It uses only standard-library serialization, dataclasses and datetime handling.
+"""
 
 from __future__ import annotations
 
@@ -11,7 +22,7 @@ from typing import Any, Callable
 
 
 def _finite_json(value: Any, label: str = "context value") -> Any:
-    """Return a detached JSON value, rejecting non-finite and mutable aliases."""
+    """Round-trip finite JSON to detach callback values; serialization errors become a labeled ValueError."""
 
     try:
         encoded = json.dumps(value, allow_nan=False, ensure_ascii=False)
@@ -21,6 +32,8 @@ def _finite_json(value: Any, label: str = "context value") -> Any:
 
 
 def _freeze(value: Any) -> Any:
+    """Recursively expose detached dictionaries as mapping proxies and lists as tuples so callback inputs cannot mutate their snapshot."""
+
     if isinstance(value, dict):
         return MappingProxyType({key: _freeze(item) for key, item in value.items()})
     if isinstance(value, list):
@@ -30,13 +43,34 @@ def _freeze(value: Any) -> Any:
 
 @dataclass(frozen=True)
 class DecisionContext:
-    """Immutable callback input containing only already-observed decision state."""
+    """Provide a read-only snapshot to one prompt-context callback.
+
+    Mappings and lists are copied and recursively frozen. This snapshot conveys information, not authority to update the water ledger.
+
+    Parameters
+    ----------
+    agent_id : str
+        Nonempty identity of the acting agent.
+    observation : Mapping[str, Any]
+        Current decision observation; native flow is m3/s and beginning storage is m3.
+    previous_transition : Mapping[str, Any] or None
+        Most recent completed physical record, or None before the first step; never a current/future result.
+
+    Raises
+    ------
+    TypeError
+        A value has the wrong type or is not finite JSON.
+    ValueError
+        A required field, version, numeric bound or digest is invalid.
+    """
 
     agent_id: str
     observation: Mapping[str, Any]
     previous_transition: Mapping[str, Any] | None
 
     def __post_init__(self) -> None:
+        """Validate identity and mapping shapes, then detach and freeze observed/current and completed/previous inputs separately."""
+
         if not isinstance(self.agent_id, str) or not self.agent_id.strip():
             raise ValueError("agent_id must be a non-empty string")
         observed = _finite_json(self.observation, "observation")
@@ -51,13 +85,34 @@ class DecisionContext:
 
 @dataclass(frozen=True)
 class ContextValue:
-    """A declared prompt binding with provenance and availability."""
+    """Declare one prompt value together with its provenance and availability.
+
+    The provenance mapping is detached and protected at its top level; this class does not independently verify a declared source.
+
+    Parameters
+    ----------
+    value : JSON-compatible object, optional
+        Prompt input in caller-declared units; copied when available and replaced by None otherwise.
+    provenance : Mapping[str, Any], optional
+        Finite JSON source metadata; issued_at/available_at may later establish causal availability.
+    available : bool, optional
+        Whether usable content exists; an unavailable required binding must fail validation.
+
+    Raises
+    ------
+    TypeError
+        A value has the wrong type or is not finite JSON.
+    ValueError
+        A required field, version, numeric bound or digest is invalid.
+    """
 
     value: Any = None
     provenance: Mapping[str, Any] = field(default_factory=dict)
     available: bool = True
 
     def __post_init__(self) -> None:
+        """Require an explicit boolean availability flag and copy provenance even when the content is unavailable."""
+
         if not isinstance(self.available, bool):
             raise TypeError("available must be a boolean")
         value = _finite_json(self.value, "context value") if self.available else None
@@ -68,6 +123,21 @@ class ContextValue:
         object.__setattr__(self, "provenance", MappingProxyType(provenance))
 
     def to_dict(self) -> dict[str, Any]:
+        """Serialize a prompt binding without mutable aliases.
+
+        Returns
+        -------
+        dict[str, Any]
+            available, value and provenance fields; unavailable content is represented as None.
+
+        Raises
+        ------
+        TypeError
+            A value has the wrong type or is not finite JSON.
+        ValueError
+            A required field, version, numeric bound or digest is invalid.
+        """
+
         return {
             "available": self.available,
             "value": _finite_json(self.value) if self.available else None,
@@ -75,17 +145,62 @@ class ContextValue:
         }
 
 
+# Callbacks receive current observed inputs plus only a completed prior transition.
 ContextProvider = Callable[[DecisionContext], ContextValue | Any]
 
 
 def normalize_context_value(value: ContextValue | Any, *, source: str) -> ContextValue:
+    """Preserve explicit context metadata or wrap a plain available value.
+
+    Parameters
+    ----------
+    value : ContextValue or JSON-compatible object
+        An existing binding or raw callback result.
+    source : str
+        Source label attached only when wrapping a raw result.
+
+    Returns
+    -------
+    ContextValue
+        Original explicit binding or a detached available value labeled with the supplied source.
+
+    Raises
+    ------
+    TypeError
+        A value has the wrong type or is not finite JSON.
+    ValueError
+        A required field, version, numeric bound or digest is invalid.
+    """
+
     if isinstance(value, ContextValue):
         return value
     return ContextValue(value=value, provenance={"source": source}, available=True)
 
 
 def validate_available_at(value: ContextValue, decision_time: str) -> None:
-    """Reject information that was not available by the decision timestamp."""
+    """Require a usable binding whose declared timestamps do not exceed the decision time.
+
+    Present provenance timestamps must include a timezone. Omitted timestamps remain unknown; this function does not infer their availability.
+
+    Parameters
+    ----------
+    value : ContextValue
+        Binding with optional issued_at and available_at provenance timestamps.
+    decision_time : str
+        ISO date/datetime; a naive legacy decision clock is treated as UTC.
+
+    Returns
+    -------
+    None
+        Validation completes without changing the binding.
+
+    Raises
+    ------
+    TypeError
+        The decision/provenance timestamp is not text.
+    ValueError
+        The binding is unavailable, a timestamp is invalid/timezone-free, or issue/availability occurs after the decision.
+    """
 
     if not value.available:
         raise ValueError("required prompt context is unavailable")

@@ -40,5 +40,6 @@ hydrocnhs = ["Config_logging.yaml"]
 "share/llm-reservoir-agent/hydrocnhs/patches" = ["third_party/hydrocnhs/patches/visual-indicator-api.patch"]
 "share/llm-reservoir-agent/environment" = ["environment/hydrocnhs-core.json"]
 "share/llm-reservoir-agent/examples" = ["examples/llm_reservoir_abm.py"]
+"share/llm-reservoir-agent/examples/daily_offline" = ["examples/daily_offline/README.md", "examples/daily_offline/single.yaml", "examples/daily_offline/single.json", "examples/daily_offline/cascade.yaml", "examples/daily_offline/cascade.json", "examples/daily_offline/operator.txt"]
 # The original-program oracle is external and opt-in; case extensions live in examples.
 "share/llm-reservoir-agent" = ["THIRD_PARTY_NOTICES.md"]

@@ -156,7 +156,9 @@ reservoir-experiment check examples/fe_walter/operation/llm_available.yaml
 reservoir-experiment run examples/fe_walter/operation/llm_available.yaml --allow-network
 ```
 
-The 2021–2025 LLM results have not been generated. The
+The [completed Daily and Hourly comparisons](../examples/fe_walter/completed_results/README.md)
+provide the latest accepted figures and Table 3 from a separately pinned campaign.
+This notebook does not generate or overwrite those LLM results. The
 [saved three-method illustration](../examples/fe_walter/results.md) covers **2016**
 with the earlier prompt; its figures can be read directly without executing an LLM.
 

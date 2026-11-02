@@ -1,16 +1,29 @@
-"""Locate pinned runtime assets in a checkout or an installed distribution.
+"""Locate checkout or installed runtime assets without loading them.
 
-Role: Locate packaged runtime assets for checkout and installed use.
+Purpose and data flow
+---------------------
+The package location determines the filesystem root consumed by
+network and reservoir-profile loaders. A src checkout returns its project
+root; an installed package returns the distribution data share directory.
 
-Connections and data: network and reservoir_profile use default_runtime_root to resolve
-the distribution asset root. This helper returns a filesystem location; it does not load
-a model, download data or start a simulation.
+Dependencies and side effects
+-----------------------------
+Uses pathlib and sysconfig. Returns a Path without checking asset
+existence, reading files, downloading data or starting a simulation.
 """
 from pathlib import Path
 import sysconfig
 
 
 def default_runtime_root() -> Path:
+    """Resolve the default root for pinned models and bundled runtime assets.
+
+    Returns
+    -------
+    pathlib.Path
+        Checkout root when this package lives beneath src; otherwise
+        sysconfig data/share/llm-reservoir-agent. Existence is checked by consumers.
+    """
     package = Path(__file__).resolve().parent
     if package.parent.name == "src":
         # Preserve checkout provenance and fail normally if its assets are missing.

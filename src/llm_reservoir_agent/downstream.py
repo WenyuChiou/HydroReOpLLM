@@ -1,10 +1,18 @@
-"""Pure helpers for routing saved outflows and evaluating daily gauge flows.
+"""Route saved boundary outflows and evaluate aligned daily gauge flows.
 
-The routing helper starts with an empty channel and applies a caller-supplied
-discrete unit hydrograph to the saved reservoir boundary outflow.  It does not
-calculate releases, spills, or any other reservoir behavior.  All flow inputs
-and outputs are in cubic metres per second (m3/s); ledger volumes and channel
-storage are in cubic metres (m3).
+Purpose and data flow
+---------------------
+Saved controlled release plus spill (m3/s) is convolved with a supplied
+discrete unit hydrograph. Local lateral inflow is already routed to the gauge
+and is added once after boundary routing. Full-tail rows and volume ledgers
+(m3) retain zero-initial-channel assumptions. Daily evaluation pairs supplied
+simulated/observed rates and reports missing/excluded days and undefined metrics.
+
+Dependencies and side effects
+-----------------------------
+Uses math, datetime and StepClock. Helpers are pure: no release policy,
+reservoir update, native simulation, file read/write or provider call occurs.
+Routing accepts fixed-step clocks; evaluate_daily_flows requires calendar days.
 """
 
 from __future__ import annotations
@@ -12,6 +20,8 @@ from __future__ import annotations
 from datetime import date, timedelta
 import math
 from typing import Sequence
+
+from .timebase import StepClock
 
 
 _DAILY_SECONDS = 86_400.0
@@ -67,26 +77,52 @@ def route_saved_outflows(
     *,
     dt_seconds: float = _DAILY_SECONDS,
 ) -> dict[str, object]:
-    """Route saved reservoir outflow through a discrete unit hydrograph.
+    """Route boundary outflow with a conservative discrete travel-time kernel.
 
-    ``lateral_inflow_cms`` is local water already routed to the gauge by its own
-    catchment model.  It is therefore added at the gauge after routing only
-    ``controlled_release_cms + spill_cms`` through ``unit_hydrograph``.
+    Parameters
+    ----------
+    dates : sequence of str
+        Nonempty consecutive interval-start labels at dt_seconds spacing.
+    controlled_release_cms, spill_cms : sequence of float
+        Aligned nonnegative reservoir boundary flow components in m3/s.
+    lateral_inflow_cms : sequence of float
+        Aligned local water already routed to the gauge, in m3/s; excludes the
+        reservoir contribution and is not convolved again.
+    unit_hydrograph : sequence of float
+        Nonnegative dimensionless arrival fractions by step lag, summing to one
+        within absolute tolerance 1e-12. Index zero arrives in the current step.
+    dt_seconds : float, optional
+        Positive fixed interval duration in seconds; default 86400.
 
-    The full convolution tail is retained as dated rows, with zero lateral
-    inflow after the input period.  ``initial_state_assumption`` marks the first
-    ``len(unit_hydrograph) - 1`` rows affected by the explicit zero initial
-    channel state.  The volume ledger includes reservoir and lateral inputs.
+    Returns
+    -------
+    dict
+        Dated rows spanning the input plus full convolution tail, channel ending
+        storage in m3, input/output/tail volumes in m3, maximum balance residual,
+        initialization steps/days and configured duration. Post-input lateral
+        inflow is zero; initialization flags identify zero-history influence.
+
+    Raises
+    ------
+    TypeError
+        A flow/kernel value is nonnumeric, text or boolean.
+    ValueError
+        Dates, series lengths, values, kernel normalization or clock are invalid.
+    ArithmeticError
+        Channel storage becomes materially negative.
+
+    Notes
+    -----
+    Initial channel storage is zero. Only reservoir boundary water resides in
+    the modeled channel; lateral water enters and leaves at the gauge in one step.
     """
-    parsed_dates = _daily_dates(dates)
-    try:
-        step_seconds = float(dt_seconds)
-    except (TypeError, ValueError, OverflowError) as exc:
-        raise TypeError("dt_seconds must be numeric") from exc
-    if not math.isfinite(step_seconds) or step_seconds != _DAILY_SECONDS:
-        raise ValueError("dt_seconds must be exactly 86400.0 for daily routing")
-
-    count = len(parsed_dates)
+    if not dates:
+        raise ValueError("dates must not be empty")
+    clock = StepClock(dates[0], dt_seconds)
+    step_seconds = clock.dt_seconds
+    if any(clock.normalize(value) != clock.label(i) for i, value in enumerate(dates)):
+        raise ValueError("dates must be consecutive at the configured timestep")
+    count = len(dates)
     controlled = _finite_series(
         "controlled_release_cms", controlled_release_cms, count, nonnegative=True
     )
@@ -121,6 +157,7 @@ def route_saved_outflows(
         boundary_flow = boundary[index] if index < count else 0.0
         lateral_flow = lateral[index] if index < count else 0.0
         gauge_flow = routed_flow + lateral_flow
+        # Only delayed reservoir water is channel stock; gauge-local water bypasses it.
         storage += (boundary_flow - routed_flow) * step_seconds
         if storage < 0.0 and abs(storage) <= roundoff_tolerance:
             storage = 0.0
@@ -131,7 +168,7 @@ def route_saved_outflows(
         residual = cumulative_input - cumulative_output - storage
         max_balance_residual = max(max_balance_residual, abs(residual))
         rows.append({
-            "date": (parsed_dates[0] + timedelta(days=index)).isoformat(),
+            "date": clock.label(index),
             "boundary_outflow_cms": boundary_flow,
             "routed_reservoir_cms": routed_flow,
             "lateral_inflow_cms": lateral_flow,
@@ -154,7 +191,9 @@ def route_saved_outflows(
         "comparison_output_m3": comparison_output,
         "tail_volume_m3": output_volume - comparison_output,
         "max_balance_residual_m3": max_balance_residual,
-        "initialization_days": initialization_days,
+        "initialization_steps": initialization_days,
+        "initialization_days": initialization_days * step_seconds / _DAILY_SECONDS,
+        "dt_seconds": step_seconds,
     }
 
 
@@ -165,12 +204,38 @@ def evaluate_daily_flows(
     *,
     eligible: Sequence[bool] | None = None,
 ) -> dict[str, object]:
-    """Evaluate aligned daily flows with explicit missing and excluded days.
+    """Evaluate supplied daily flows with explicit missing/excluded-day counts.
 
-    Observations may be ``None`` to mark missing data.  All other values must be
-    finite numbers.  KGE follows Gupta et al. (2009), using correlation, the
-    simulated/observed standard-deviation ratio, and the mean ratio.  Undefined
-    metrics are returned as ``None`` with an entry in ``undefined_metrics``.
+    Parameters
+    ----------
+    dates : sequence of str
+        Nonempty, unique, ordered consecutive YYYY-MM-DD calendar dates.
+    simulated_cms : sequence of float
+        Finite daily simulated flow in m3/s, aligned with dates.
+    observed_cms : sequence of float or None
+        Finite daily observations in m3/s; None marks missing observations.
+    eligible : sequence of bool, optional
+        Explicit inclusion mask. False days count as excluded even if missing.
+
+    Returns
+    -------
+    dict
+        Paired/missing/excluded counts; MAE, RMSE and bias in m3/s; dimensionless
+        relative volume bias, NSE and KGE (2009), KGE components and reasons for
+        undefined metrics. Undefined numeric results are None.
+
+    Raises
+    ------
+    TypeError
+        Dates/numbers/mask entries have invalid types; booleans are not flows.
+    ValueError
+        Dates are noncanonical/nonconsecutive, lengths differ or values are
+        non-finite. Finite negative flows are permitted for evaluation.
+
+    Notes
+    -----
+    Equal daily duration cancels in relative volume bias. KGE uses correlation,
+    standard-deviation ratio and mean ratio; zero variance/mean is reported explicitly.
     """
     parsed_dates = _daily_dates(dates)
     count = len(parsed_dates)
@@ -254,6 +319,7 @@ def evaluate_daily_flows(
     simulated_mean = math.fsum(sim) / len(sim)
     observed_deviations = [value - observed_mean for value in obs]
     simulated_deviations = [value - simulated_mean for value in sim]
+    # Centered sums of squares; common sample/population divisors cancel in ratios.
     observed_ss = math.fsum(value * value for value in observed_deviations)
     simulated_ss = math.fsum(value * value for value in simulated_deviations)
 

@@ -3,7 +3,9 @@
 [English](README.md) | [繁體中文](README.zh-TW.md)
 
 請開啟[五年教學](../../../tutorials/operation.ipynb)閱讀設定，並查看實際執行時的逐日進度。
-此資料夾包含一個共用案例、一份已完成的 1,826 日規則基準，以及兩種尚未執行的
+最新已完成的三個 seed Daily／Hourly 比較、圖表與 Table 3，請見
+[完成結果頁](../completed_results/README.md)。該實驗保留自己的設定與初始狀態。
+此資料夾另包含一個教學共用案例、一份已完成的 1,826 日規則基準，以及兩種可選的
 LLM 方法：**無額外操作知識的 LLM**與**含額外操作知識的 LLM**。
 
 已準備操作使用 `llm-reservoir-experiment.v2`，直接讀取 `inflows.csv` 的凍結每日
@@ -62,6 +64,6 @@ LLM 方法：**無額外操作知識的 LLM**與**含額外操作知識的 LLM**
 核對參數來源，並確認五年比較的共用輸入已備妥。[C&V 參考](../downstream/validation.zh-TW.md)
 說明當時使用 White Haven 觀測流量作為上游邊界。壩口至 White Haven 的短河段與
 小面積區間仍移用上游參數，各支流也沒有個別測站驗證。Notebook 會計算入流、
-在新資料夾執行規則法操作，再繪製該次結果；兩個 LLM 方法仍尚未執行。
+在新資料夾執行規則法操作，再繪製該次結果；本教學不會重跑或覆寫另行完成的 LLM 結果。
 
 保留的通用係數依據 [Hanasaki et al. (2006), Eq. 3](https://doi.org/10.1016/j.jhydrol.2005.11.011)。

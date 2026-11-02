@@ -65,7 +65,17 @@ def check_preparation():
     for name, expected in provenance["artifacts"].items():
         _require(hashlib.sha256((CASE_DIR / name).read_bytes()).hexdigest() == expected,
                  "Teaching artifact checksum mismatch: " + name)
-    for name, expected in provenance["shared_dependencies"].items():
+    # The scientific receipt is immutable. A separate versioned record identifies
+    # maintained teaching sources; it never claims they produced the old outputs.
+    engineering = json.loads((CASE_DIR / "engineering-sources-v2.json").read_text(encoding="utf-8"))
+    _require(engineering["historical_provenance_sha256"] == hashlib.sha256(
+        (CASE_DIR / "provenance.json").read_bytes()).hexdigest(), "Changed historical preparation record")
+    _require(set(engineering["dependencies"]) == set(provenance["shared_dependencies"]),
+             "Engineering source coverage differs from historical preparation")
+    for name, previous in provenance["shared_dependencies"].items():
+        source = engineering["dependencies"][name]
+        _require(source["historical_sha256"] == previous, "Changed source lineage: " + name)
+        expected = source["current_sha256"]
         _require(hashlib.sha256((ROOT / name).read_bytes()).hexdigest() == expected,
                  "Shared source checksum mismatch: " + name)
     validation = check_calibration_lineage(provenance)

@@ -1,11 +1,18 @@
-"""Independent saved-file acceptance for a completed reservoir-network run.
+"""Verify completed network-run files without rerunning controllers or hydrology.
 
-Role: Verify a completed experiment from saved files.
-
-Connections and data: workflow.verify_settings_output checks current input/runtime
-compatibility before verify_run checks hashes, event ordering, physical records, routing
-and information. Returns acceptance evidence without rerunning the controller or
-simulation. A file-consistency pass does not override a strategy FAIL, WARN or UNKNOWN.
+``verify_run`` reads the saved experiment, index/summary, JSONL/raw evidence and
+CSV/reach outputs. It independently checks exact-byte hashes, complete durable
+causal sequences, observation/action contracts, configured reservoir transitions,
+storage continuity, routed upstream contributions, reach in-transit volumes and
+system/component water balances. Information and routed-outcome checks are
+reconstructed from frozen or completed records. Flow uses m3/s, volume/residuals
+use m3, and saved dt_seconds governs all integration and clock labels.
+``workflow.verify_settings_output`` adds current-input/runtime compatibility;
+this module can also inspect historical completed runs. It reads files and uses
+pure physical calculations, never calls providers or advances a simulation.
+A consistency PASS preserves every reported audit FAIL/WARN/UNKNOWN and leaves
+operating_strategy_accepted unknown. Optional offline checks require observed
+zero-call evidence and an accepted explicit offline backend declaration.
 """
 from collections import Counter
 from collections.abc import Mapping
@@ -32,11 +39,15 @@ _AUDIT_STATUSES = {"PASS", "WARN", "FAIL", "UNKNOWN"}
 
 
 def _check(condition, message):
+    """Raise ValueError for a failed saved-evidence invariant; a failed consistency check must not be converted into acceptance."""
+
     if not condition:
         raise ValueError(message)
 
 
 def _close(a, b, message, *, tolerance=1e-6):
+    """Require finite numeric values whose absolute difference is within the supplied tolerance in the compared field units."""
+
     try:
         a, b = float(a), float(b)
     except (TypeError, ValueError) as exc:
@@ -45,11 +56,13 @@ def _close(a, b, message, *, tolerance=1e-6):
 
 
 def _volume_tolerance(*values):
-    """Match the physical kernels' absolute-plus-scale volume tolerance."""
+    """Return 1e-6 + 1e-12 * max(1, absolute compared volumes), in m3, matching physical-kernel balance tolerances."""
     return 1e-6 + 1e-12 * max(1.0, *(abs(float(value)) for value in values))
 
 
 def _decision_id(run_id, reservoir_id, timestep, timestamp):
+    """Independently reconstruct the run/reservoir/zero-based-step/time hash using the journal's exact compact JSON plus LF convention."""
+
     data = json.dumps(
         [run_id, reservoir_id, timestep, timestamp], ensure_ascii=False,
         allow_nan=False, sort_keys=True, separators=(",", ":"),
@@ -58,6 +71,8 @@ def _decision_id(run_id, reservoir_id, timestep, timestamp):
 
 
 def _csv(path):
+    """Read UTF-8 CSV field names and all rows for independent coverage/value checks; I/O/parser failures propagate."""
+
     with path.open(encoding="utf-8", newline="") as handle:
         reader = csv.DictReader(handle)
         rows = list(reader)
@@ -65,6 +80,8 @@ def _csv(path):
 
 
 def _event_key(event, *, result, ids, days, expected_type=None):
+    """Require schema/run/reservoir/step/time and deterministic decision ID to agree with the saved clock before indexing an event."""
+
     _check(event.get("schema_version") == result["schema_version"], "trace schema mismatch")
     _check(event.get("run_id") == result["run_id"], "trace run mismatch")
     reservoir_id, timestep = event.get("reservoir_id"), event.get("timestep")
@@ -80,10 +97,34 @@ def _event_key(event, *, result, ids, days, expected_type=None):
 
 
 def verify_run(output, *, require_offline=False, expected_audit_suites=None):
-    """Verify hashes, durable causality, exported physics and routed volumes.
+    """Verify saved-run integrity, causal completeness and independently reconstructed physics.
 
-    Existing audit FAIL/WARN/UNKNOWN values remain unchanged. Passing these file
-    checks does not accept an operating strategy that was not separately audited.
+    Verification reads existing evidence and recalculates pure transitions/routed ledgers. It does not run a backend or accept the scientific operating strategy; operating_strategy_accepted remains None. Current-input/runtime compatibility belongs to verify_settings_output.
+
+    Parameters
+    ----------
+    output : str or pathlib.Path
+        Completed run directory containing experiment, trace, raw and exported-output files.
+    require_offline : bool, optional
+        Require explicit accepted offline backend provenance and zero observed requests for every reservoir.
+    expected_audit_suites : Mapping[str, str] or None, optional
+        Trusted external reservoir-ID to lowercase suite-hash pins; pinned decisions must retain a matching versioned suite.
+
+    Returns
+    -------
+    dict[str, Any]
+        PASS evidence with clock/dimension counts, retained audit statuses, reservoir/system residuals m3, routing difference m3/s and binding counts.
+
+    Raises
+    ------
+    ValueError
+        A file hash, schema, causal sequence, contract, physical/routing balance, information record, audit binding or offline declaration is inconsistent.
+    TypeError
+        A saved numeric/contract field has the wrong type.
+    KeyError
+        A required saved field is absent.
+    OSError
+        A required file cannot be read, created, flushed or replaced.
     """
     output = Path(output).resolve()
     result = read_json(output / "summary.json")
@@ -94,9 +135,19 @@ def verify_run(output, *, require_offline=False, expected_audit_suites=None):
     _check(experiment.get("run_id") == result["run_id"], "experiment run mismatch")
     config, rows = experiment["network"], experiment["inflow_records"]
     topology, local = validate_inflows(config, rows)
-    days = [row["date"] for row in rows]
+    # Integrate saved rates using the actual fixed duration (86400 s for Daily).
+    dt_seconds = topology["dt_seconds"]
+    days = [topology["clock"].label(t) for t in range(len(rows))]
     n, nr = len(days), len(config["reservoirs"])
     summary = result["summary"]
+    # Older daily traces predate explicit clock metadata. New traces must bind
+    # every clock field; subdaily traces can never fall back to the daily schema.
+    if "steps" in summary or dt_seconds != 86400:
+        for key, value in topology["clock"].metadata(n).items():
+            _check(summary.get(key) == value, "summary operation clock mismatch: " + key)
+        _check(summary.get("completed_reservoir_steps") ==
+               dict.fromkeys((s["physical"]["reservoir_id"] for s in config["reservoirs"].values()), n),
+               "summary step completion mismatch")
 
     _check(set(summary.get("output_files", {})) == _OUTPUTS, "output file coverage mismatch")
     for name, digest in summary["output_files"].items():
@@ -181,6 +232,7 @@ def verify_run(output, *, require_offline=False, expected_audit_suites=None):
         spec = config["reservoirs"][name]
         physical_config = spec["physical"]
         kernel_config = PhysicalConfig(**physical_config)
+        # Committed ending volume becomes the next beginning volume, both in m3.
         previous = physical_config["initial_storage_m3"]
         passive = PassiveOutlet(physical_config, spec["passive_outlet"]) if spec.get("operation_mode") == "passive_outlet" else None
         for timestep in range(n):
@@ -244,7 +296,7 @@ def verify_run(output, *, require_offline=False, expected_audit_suites=None):
             _check(observation.get("context", {}).get("reservoir_id") == reservoir_id and
                    observation.get("timestep") == timestep and
                    isinstance(observation.get("timestamp"), str) and
-                   observation["timestamp"][:10] == days[timestep], "observation scope mismatch")
+                   topology["clock"].normalize(observation["timestamp"]) == days[timestep], "observation scope mismatch")
             _close(observation["state"]["storage_m3"], previous, "observation storage mismatch")
             state_fields = ("capacity_m3", "dead_storage_m3", "minimum_release_cms", "maximum_release_cms", "dt_seconds")
             _check(set(observation["state"]) == {"storage_m3", *state_fields}, "observation state field coverage mismatch")
@@ -275,10 +327,11 @@ def verify_run(output, *, require_offline=False, expected_audit_suites=None):
                    "storage outside bounds")
             _close(transition["total_outflow_cms"], transition["controlled_release_cms"] + transition["spill_cms"],
                    "spill counted incorrectly", tolerance=1e-10)
-            residual = math.fsum([previous, transition["inflow_cms"] * 86400,
-                                  -transition["total_outflow_cms"] * 86400, -transition["storage_end_m3"]])
-            reservoir_scale = (previous, transition["storage_end_m3"], transition["inflow_cms"] * 86400,
-                               transition["total_outflow_cms"] * 86400)
+            # Reservoir balance: start + inflow volume - total-outflow volume - end, in m3.
+            residual = math.fsum([previous, transition["inflow_cms"] * dt_seconds,
+                                  -transition["total_outflow_cms"] * dt_seconds, -transition["storage_end_m3"]])
+            reservoir_scale = (previous, transition["storage_end_m3"], transition["inflow_cms"] * dt_seconds,
+                               transition["total_outflow_cms"] * dt_seconds)
             _close(residual, 0.0, "reservoir balance failed", tolerance=_volume_tolerance(*reservoir_scale))
             _close(transition["mass_balance_residual_m3"], residual, "reported reservoir balance mismatch")
             max_balance = max(max_balance, abs(residual))
@@ -353,6 +406,7 @@ def verify_run(output, *, require_offline=False, expected_audit_suites=None):
     _check(reach_document.get("schema_version") == "reach-volume-trace.v1", "reach trace schema mismatch")
     reaches = reach_document.get("reaches")
     _check(isinstance(reaches, list) and len(reaches) == len(topology["edges"]), "reach trace edge coverage mismatch")
+    # Reach water still in transit is system storage, not a disappearance of routed volume.
     stocks = [0.0] * n
     component_stocks = {c["component_id"]: [0.0] * n for c in topology["components"]}
     node_components = {node: c["component_id"] for c in topology["components"] for node in c["nodes"]}
@@ -364,10 +418,10 @@ def verify_run(output, *, require_offline=False, expected_audit_suites=None):
         _check(isinstance(daily, list) and len(daily) == n, "reach trace timestep coverage mismatch")
         entered_total = arrived_total = 0.0
         for timestep, row in enumerate(daily):
-            entered = flows[edge["source"]][timestep] * edge["fraction"] * 86400
+            entered = flows[edge["source"]][timestep] * edge["fraction"] * dt_seconds
             arrived = math.fsum(flows[edge["source"]][timestep-lag] * weight
                                 for lag, weight in enumerate(edge["unit_hydrograph"]) if lag <= timestep)
-            arrived *= edge["fraction"] * 86400
+            arrived *= edge["fraction"] * dt_seconds
             entered_total += entered
             arrived_total += arrived
             stock = entered_total - arrived_total
@@ -390,8 +444,8 @@ def verify_run(output, *, require_offline=False, expected_audit_suites=None):
     _check(ledger_fields == expected_ledger_fields and len(ledger) == n, "network ledger coverage mismatch")
     max_system, previous_stock = 0.0, 0.0
     for timestep, row in enumerate(ledger):
-        local_input = math.fsum(local[node][timestep] for node in local) * 86400
-        outlet = math.fsum(flows[node][timestep] for node in topology["outlets"]) * 86400
+        local_input = math.fsum(local[node][timestep] for node in local) * dt_seconds
+        outlet = math.fsum(flows[node][timestep] for node in topology["outlets"]) * dt_seconds
         storage_change = math.fsum(series[timestep]["transition"]["storage_end_m3"] -
                                    series[timestep]["transition"]["storage_start_m3"] for series in records.values())
         channel_change = stocks[timestep] - previous_stock
@@ -426,8 +480,8 @@ def verify_run(output, *, require_offline=False, expected_audit_suites=None):
             stock_series = component_stocks[component["component_id"]]
             prior = 0.0
             for t, day in enumerate(days):
-                inputs = math.fsum(local[node][t] for node in component["routing_nodes"]) * 86400
-                outputs = math.fsum(flows[node][t] for node in component["outlets"]) * 86400
+                inputs = math.fsum(local[node][t] for node in component["routing_nodes"]) * dt_seconds
+                outputs = math.fsum(flows[node][t] for node in component["outlets"]) * dt_seconds
                 change = math.fsum(records[node][t]["transition"]["storage_end_m3"] -
                                   records[node][t]["transition"]["storage_start_m3"]
                                   for node in component["reservoirs"])
@@ -445,8 +499,8 @@ def verify_run(output, *, require_offline=False, expected_audit_suites=None):
 
     counts = Counter(event["status"] for event in streams["audit"])
     _check(dict(counts) == summary.get("audit_counts"), "audit counts mismatch")
-    _check(summary.get("days") == n and summary.get("reservoir_count") == nr, "summary dimensions mismatch")
-    _check(summary.get("completed_reservoir_days") == dict.fromkeys(ids, n), "summary completion mismatch")
+    _check(summary.get("days") == n*dt_seconds/86400 and summary.get("reservoir_count") == nr, "summary dimensions mismatch")
+    _check(summary.get("completed_reservoir_days") == dict.fromkeys(ids, n*dt_seconds/86400), "summary completion mismatch")
     _check(summary.get("final_storage_m3") == {name: series[-1]["transition"]["storage_end_m3"] for name, series in records.items()},
            "summary final storage mismatch")
     information = experiment.get("information_config")
@@ -457,13 +511,18 @@ def verify_run(output, *, require_offline=False, expected_audit_suites=None):
         _check(set(information["bindings"]) <= set(records), "information bindings contain unknown reservoirs")
         for name, series in records.items():
             def read_completed(source, observation):
+                """Reconstruct native information from independently verified flows and earlier completed transitions.
+
+                Only the acting reservoir's current inlet/beginning storage is immediately visible; other flows/releases require period completion and other ending storage is dated at its completed boundary.
+                """
+
                 location, quantity = source["location"], source["quantity"]
                 step = observation["timestep"]
                 clock = _parse_timestamp(observation["timestamp"], "decision clock", allow_legacy=True)
                 local_current = location == name and quantity in ("inflow", "storage")
                 values = []
                 for earlier in range(step):
-                    stamp = clock - timedelta(days=step-earlier)
+                    stamp = clock - timedelta(seconds=(step-earlier)*dt_seconds)
                     if quantity == "flow":
                         value = flows[location][earlier]
                     else:
@@ -474,8 +533,8 @@ def verify_run(output, *, require_offline=False, expected_audit_suites=None):
                             field = {"storage": "storage_end_m3", "release": "controlled_release_cms", "inflow": "inflow_cms"}[quantity]
                             value = prior["transition"][field]
                         if quantity == "storage" and not local_current:
-                            stamp += timedelta(days=1)
-                    available = stamp if quantity == "storage" else stamp+timedelta(days=1)
+                            stamp += timedelta(seconds=dt_seconds)
+                    available = stamp if quantity == "storage" else stamp+timedelta(seconds=dt_seconds)
                     values.append({"value": value, "valid_time": _iso(stamp), "available_at": _iso(available)})
                 if local_current:
                     value = observation["inflow_cms"] if quantity == "inflow" else observation["state"]["storage_m3"]
@@ -527,7 +586,9 @@ def verify_run(output, *, require_offline=False, expected_audit_suites=None):
                    "unverified offline backend")
 
     return {
-        "status": "PASS", "days": n, "reservoir_count": nr, "reservoir_days": n * nr,
+        "status": "PASS", **topology["clock"].metadata(n),
+        "days": n*dt_seconds/86400, "reservoir_count": nr, "reservoir_days": n*nr*dt_seconds/86400,
+        "reservoir_steps": n*nr,
         "date_start": days[0], "date_end": days[-1], "audit_counts": dict(counts),
         "max_reservoir_balance_residual_m3": max_balance,
         "max_system_balance_residual_m3": max_system,

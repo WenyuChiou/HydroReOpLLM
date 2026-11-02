@@ -12,11 +12,14 @@ chapters below in order; each configuration chapter shows its complete file.
 4. [Hydrology](HYDROLOGY_SETUP.md): supply the native model and weather.
 5. [Reservoirs and network](BUILD_SIMULATION.md): connect inflow, storage and downstream paths.
 6. [Agents and LLM](CONFIGURATION.md): select a rule or an LLM, then its prompt and context.
-7. [Check and run](RUNNING.md): validate, prepare inflow, run and verify.
-8. [Case studies](CASE_STUDIES.md): follow a complete research example.
-9. [Results](RESULTS_GUIDE.md): distinguish requested release, actual release, spill and elevation.
-10. [Troubleshooting](TROUBLESHOOTING.md): diagnose incomplete or invalid results.
-11. [API reference](API_REFERENCE.md): find the functions behind the settings.
+7. [Available information](INFORMATION.md): select additional observations, forecasts or targets for the prompt.
+8. [Check and run](RUNNING.md): validate, prepare inflow, run and verify.
+9. [Case studies](CASE_STUDIES.md): follow a complete research example.
+10. [Results](RESULTS_GUIDE.md): distinguish requested release, actual release, spill and elevation.
+11. [Troubleshooting](TROUBLESHOOTING.md): diagnose incomplete or invalid results.
+
+The [API reference](API_REFERENCE.md) is available when writing custom extensions;
+you do not need it for the configuration-based workflow.
 
 The [template file list](TEMPLATES.md) keeps generic settings together.
 Relative paths start at the file that declares them. A **profile** is a named

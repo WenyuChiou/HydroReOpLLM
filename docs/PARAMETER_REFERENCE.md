@@ -175,7 +175,7 @@ nonnegative and sum to 1. Outgoing fractions from each internal node sum to 1.
 | `initial_storage_m3` | Between dead storage and capacity. |
 | `minimum_release_cms` | Nonnegative m³/s. |
 | `maximum_release_cms` | m³/s, at least the minimum. |
-| `dt_seconds` | Positive seconds; the current runner requires daily `86400`. |
+| `dt_seconds` | Positive fixed seconds, common to every reservoir; default `86400`. Subdaily operation requires timezone-aware ISO interval starts and matching prepared inflows/kernels. Native GWLF/ABCD weather and Hanasaki daily adapters remain daily. See [operation clock](generic-operation-clock.md). |
 
 An agent's `reservoir_id` selects the **graph key**; `physical.reservoir_id`
 identifies the physical reservoir in its records. For FE Walter these are

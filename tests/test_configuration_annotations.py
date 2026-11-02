@@ -15,8 +15,8 @@ CURRENT = COUPLED
 # may improve, but model numbers and other executable values may not. The
 # approved directory consolidation is normalized back to its original relative
 # paths before comparing these independent annotation-baseline hashes.
-# The separately approved daily-context reference is asserted and removed before
-# comparing against these preserved pre-context hashes.
+# Active examples use only the shared system target; the optional dated context
+# is disabled. Preserve the other annotation-baseline settings.
 SEMANTIC_SHA256 = {
     "experiment.yaml": "69bfdd176afb4a4e9e668dd64c874185c25e117926f790d47f797a42992e666b",
     "llm_available.yaml": "a03aaf9d2b7aad3cf6f490e04e874b62f66cfe8f5cea62bf6e7f4ad3b0ed7001",
@@ -49,7 +49,7 @@ def semantic_sha256(path):
         }
     if path.name in {"agents.llm_available.yaml", "agents.llm_knowledge.yaml"}:
         reference = document["fe_operator"]["customization"]["parameters"]["reference"]
-        assert reference.pop("seasonal_criteria_file") == "../seasonal_pool_criteria.json"
+        assert "seasonal_criteria_file" not in reference
         prompts = {"agents.llm_available.yaml": "../prompts/zeroshot_seasonal_v1_system.txt",
                    "agents.llm_knowledge.yaml": "../prompts/dkp_seasonal_v2_system.txt"}
         assert reference["system_prompt"] == (
