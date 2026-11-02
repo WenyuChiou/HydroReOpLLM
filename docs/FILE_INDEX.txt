@@ -120,8 +120,10 @@ docs/_static/icons/reservoir.png
 docs/_static/icons/rule.png
 docs/_static/manual.css
 docs/_static/manual.js
+docs/_static/navigation.js
 docs/_static/prompt-review-data.json
 docs/_static/prompt-review.js
+docs/_static/reading.css
 docs/_static/seasonal-context-preview.json
 docs/_templates/layout.html
 docs/_templates/navigation.html

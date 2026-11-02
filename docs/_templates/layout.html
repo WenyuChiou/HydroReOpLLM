@@ -19,6 +19,36 @@
   <meta name="twitter:image" content="{{ social_image|e }}">
 {% endblock %}
 
+{% block content %}
+  <a class="skip-link" href="#manual-content">Skip to content</a>
+  <header class="manual-masthead">
+    <a class="masthead-brand" href="{{ pathto('index') }}">
+      <img src="{{ pathto('_static/hydroopslm-logo.svg', 1) }}" alt="" width="32" height="32">
+      <span>HydroReOpLLM</span>
+    </a>
+    <span class="masthead-label">User manual <span class="manual-version">Daily-first guide</span></span>
+    <div class="masthead-links">
+      {% if pagename.endswith('zh-TW') %}
+      <a href="{{ pathto('index') }}" lang="en">English</a>
+      {% else %}
+      <a href="{{ pathto('index.zh-TW') }}" lang="zh-Hant">繁體中文</a>
+      {% endif %}
+      <a href="https://github.com/WenyuChiou/HydroReOpLLM">Repository ↗</a>
+    </div>
+  </header>
+  {{ super() }}
+{% endblock %}
+
+{% block relbar_top %}
+  <div id="manual-content" tabindex="-1"></div>
+  {% if pagename not in ('index', 'index.zh-TW', 'search') %}
+  <div class="chapter-context"><a href="{{ pathto('index') }}">User manual</a><span aria-hidden="true"> / </span><span>{{ title|striptags }}</span></div>
+  {% endif %}
+  {% if display_toc and pagename not in ('index', 'index.zh-TW', 'search') %}
+  <details class="page-outline"><summary>In this chapter</summary>{{ toc }}</details>
+  {% endif %}
+{% endblock %}
+
 {% block relbar_bottom %}
   {% if prev or next %}
   <nav class="chapter-pagination" aria-label="Previous and next chapter">

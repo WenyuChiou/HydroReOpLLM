@@ -1,18 +1,70 @@
 # HydroReOpLLM User Manual
 
-[English](index.md) | [繁體中文](index.zh-TW.md)
+:::::{container} manual-intro
 
-**Hydrological Simulation with Large Language Model Reservoir Operations**
+Hydrological simulation · Reservoir operations
 
-Add LLM reservoir operators to your HydroCNHS simulation. Learn the common
-settings first, then follow a complete case study and adapt it to your research.
+Configure a reservoir experiment, connect its hydrology, and choose how an LLM
+uses the information available to each operator.
+
+Built on HydroCNHS. Use the same workflow for a single reservoir or a connected
+network, with your own model provider, prompts and operational knowledge.
+
+:::{container} start-links
+
+[Install the package →](GETTING_STARTED.md)
+
+[See the Daily workflow](DAILY_WORKFLOW.md)
+
+:::
+
+:::::
+
+## Start with the whole system
 
 HydroCNHS turns weather into catchment inflow. Each reservoir operator uses
 that inflow, storage and your selected information to request release. Reservoir
 physics applies the limits and spill, then routes the water downstream.
 
+:::::{container} reading-route
 
-## Contents
+:::{container} route-step
+
+### 01 · Understand the flow
+
+See how hydrology, reservoir decisions and routing connect before editing files.
+
+[Read the overview →](README.md)
+
+:::
+
+:::{container} route-step
+
+### 02 · Configure your model
+
+Work from simulation dates to catchments, reservoirs, operators and information.
+
+[Open the configuration guide →](INPUT_OUTPUT.md)
+
+:::
+
+:::{container} route-step
+
+### 03 · Follow a complete case
+
+Use FE Walter to connect the settings to a real reservoir and inspect saved output.
+
+[Explore the case study →](CASE_STUDIES.md)
+
+:::
+
+:::::
+
+
+## Configure, run and inspect
+
+Follow the chapters in order for your first model. Use the left-hand navigation
+and search when returning to a particular setting.
 
 | Chapter | What you will learn |
 |---|---|
@@ -28,8 +80,21 @@ physics applies the limits and spill, then routes the water downstream.
 | [Check and run](RUNNING.md) | Check files, prepare inflow, run operations and verify records. |
 | [FE Walter case study](CASE_STUDIES.md) | Apply the settings to the reservoir, data and saved results. |
 | [Results](RESULTS_GUIDE.md) | Read water elevation and controlled release. |
-| [Completed Daily / Hourly comparison](../examples/fe_walter/completed_results/README.md) | Latest accepted figures, three-run ranges and updated KGE/NSE Table 3. |
+| [Saved Daily / Hourly comparison](../examples/fe_walter/completed_results/README.md) | A versioned three-run example with its original figures and metrics. |
 | [Troubleshooting](TROUBLESHOOTING.md) | Diagnose input, response and interruption problems. |
+
+:::{container} saved-example-note
+
+**About saved results.** The downloadable case is a fixed teaching snapshot,
+not a live view of ongoing research. Its dates, run count and original metric
+definitions belong to that snapshot; consult its source records when comparing
+it with a newer experiment.
+
+Current article labels are **LLM without operational knowledge** and
+**LLM with operational knowledge**. Historical files retain their original
+method labels and model replies.
+
+:::
 
 <details>
 <summary>API, configuration details and developer reference</summary>
