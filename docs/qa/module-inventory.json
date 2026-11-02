@@ -2330,7 +2330,7 @@
         {
           "path": "tests/test_weather_entry.py",
           "symbol": "WeatherEntryTests.test_check_reads_all_configuration_without_simulation_or_output",
-          "sha256": "29937fa503c5cc5299bb5e3e670b249ffb7c20d1c10174d615d847bc0223804c",
+          "sha256": "5dfa325c6213662a8550c2ff29c12d25e4b088419be744e80aee4067e1c6ec2d",
           "lines": [
             89,
             96
@@ -2340,16 +2340,21 @@
         {
           "path": "tests/test_weather_entry.py",
           "symbol": "WeatherEntryTests.test_real_weather_rule_and_delayed_downstream_close_water_balance",
-          "sha256": "29937fa503c5cc5299bb5e3e670b249ffb7c20d1c10174d615d847bc0223804c",
+          "sha256": "5dfa325c6213662a8550c2ff29c12d25e4b088419be744e80aee4067e1c6ec2d",
           "lines": [
             98,
             115
           ],
           "execution": "read only; not executed by this documentation lane"
+        },
+        {
+          "path": "tests/test_path_portability.py",
+          "symbol": "test_temporary_alias_does_not_enter_durable_source_pins",
+          "sha256": "a324a5f950ea73deaf646b683220386af135bf8d60993370fb5b63c0f6881dc8"
         }
       ],
       "path": "src/llm_reservoir_agent/coupled.py",
-      "sha256": "f5d39590f60d7a621c48a51ec5f8a8419eff96ad58e1876742a8c40ffe46cf3b",
+      "sha256": "32ffb2bd34aa39c31cb44671b24482baebcbc22dc84457a63cfa95f7b8cb6922",
       "baseline_sha256": "e278bd39bc0211564457a908d107e269951361f4dbabe9238ec3b56fdd923feb",
       "dependencies": [
         ".audit",
@@ -2379,16 +2384,20 @@
         "public_symbol_lines": {
           "CoupledSettings": 48,
           "load_coupled_settings": 132,
-          "prepare_coupled": 266,
-          "prepared_experiment": 338,
-          "run_coupled": 388
+          "prepare_coupled": 268,
+          "prepared_experiment": 340,
+          "run_coupled": 390
         },
         "constructors": "Arguments documented on public classes; private/dunder methods excluded.",
         "comment_count": 10
       },
       "issues_and_fixes": {
-        "behavior_changes": [],
-        "confirmed_new_bugs": [],
+        "behavior_changes": [
+          "Canonicalize the temporary validation root before source-pin exclusion; prevents Windows short-name/parent aliases from leaking temporary dependencies into the durable plan. Physics, input hashes and genuine change rejection remain unchanged."
+        ],
+        "confirmed_new_bugs": [
+          "FIXED: disposable zero-boundary validation dependencies leaked through an uncanonicalized temporary alias and caused false changed-input rejection. Regression: tests/test_path_portability.py."
+        ],
         "documentation_fixes": [
           "Added purpose/data-flow/dependency/side-effect module contract.",
           "Replaced missing/short public API prose with authored NumPy-style contracts.",
@@ -2396,6 +2405,14 @@
         ]
       },
       "verification": {
+        "exact_pinned_baseline": false,
+        "AST_without_docstrings_equal": false,
+        "compile": true,
+        "LF": true,
+        "test_execution": "Parent targeted hosted-path subset:51passed+35subtests; original lane record retained separately."
+      },
+      "parent_followup": "Canonicalize the temporary validation root before source-pin exclusion; prevents Windows short-name/parent aliases from leaking temporary dependencies into the durable plan. Physics, input hashes and genuine change rejection remain unchanged.",
+      "original_lane_verification": {
         "exact_pinned_baseline": true,
         "AST_without_docstrings_equal": true,
         "compile": true,
@@ -5089,7 +5106,7 @@
         {
           "path": "tests/test_weather_entry.py",
           "symbol": "WeatherEntryTests.test_check_reads_all_configuration_without_simulation_or_output",
-          "sha256": "29937fa503c5cc5299bb5e3e670b249ffb7c20d1c10174d615d847bc0223804c",
+          "sha256": "5dfa325c6213662a8550c2ff29c12d25e4b088419be744e80aee4067e1c6ec2d",
           "lines": [
             89,
             96
@@ -5685,7 +5702,7 @@
         {
           "path": "tests/test_weather_entry.py",
           "symbol": "WeatherEntryTests.test_missing_weather_day_is_rejected_before_simulation",
-          "sha256": "29937fa503c5cc5299bb5e3e670b249ffb7c20d1c10174d615d847bc0223804c",
+          "sha256": "5dfa325c6213662a8550c2ff29c12d25e4b088419be744e80aee4067e1c6ec2d",
           "lines": [
             132,
             137
@@ -5695,7 +5712,7 @@
         {
           "path": "tests/test_weather_entry.py",
           "symbol": "WeatherEntryTests.test_overlapping_routed_and_local_inflow_is_rejected",
-          "sha256": "29937fa503c5cc5299bb5e3e670b249ffb7c20d1c10174d615d847bc0223804c",
+          "sha256": "5dfa325c6213662a8550c2ff29c12d25e4b088419be744e80aee4067e1c6ec2d",
           "lines": [
             139,
             143
@@ -5705,7 +5722,7 @@
         {
           "path": "tests/test_weather_entry.py",
           "symbol": "WeatherEntryTests.test_real_weather_rule_and_delayed_downstream_close_water_balance",
-          "sha256": "29937fa503c5cc5299bb5e3e670b249ffb7c20d1c10174d615d847bc0223804c",
+          "sha256": "5dfa325c6213662a8550c2ff29c12d25e4b088419be744e80aee4067e1c6ec2d",
           "lines": [
             98,
             115

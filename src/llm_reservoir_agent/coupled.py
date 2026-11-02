@@ -207,7 +207,9 @@ def load_coupled_settings(path, *, runtime_root=PROJECT_ROOT):
     # These placeholders are never used by run(), written to the user's output,
     # or presented as hydrological results.
     with tempfile.TemporaryDirectory(prefix="hydroops-check-") as temporary:
-        folder = Path(temporary)
+        # Compare canonical paths on both sides: Windows short-name aliases
+        # must not make disposable validation files look like durable inputs.
+        folder = Path(temporary).resolve()
         _compile(settings, folder, [(d, {n: 0.0 for n in topology["routing_nodes"]}) for d in days])
         checked = load_settings(folder/"experiment.yaml", runtime_root=runtime_root)
         files.update({p: h for p, h in checked.files.items() if not Path(p).is_relative_to(folder)})

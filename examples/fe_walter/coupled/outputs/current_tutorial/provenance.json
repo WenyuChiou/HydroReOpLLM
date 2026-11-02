@@ -108,13 +108,13 @@
   "artifacts": {
     "daily.csv": "28330ea4c960a2373c60dd98d04cc6ff9c81667d7cfec494c9750d7357400f85",
     "daily_water_elevation.png": "d1e9c5980ccfa143afd08ee89989f11db76da6607f2c6ef469adf0e8c18956ea",
-    "daily_water_elevation.svg": "bf4ad7c1a3ed0d05b4a4ffd0c846023e786e127710c67f2c3b07ee707067bf21",
-    "daily_water_elevation.pdf": "47e915e2a0aa15b0dace9db1fe5261b0628918ca2bf446aeb1dca6e95f4fdbcc",
+    "daily_water_elevation.svg": "e71eb7506b00b4eea015d03ef0380bc87ae4b826726945a671b9494a59851d3f",
+    "daily_water_elevation.pdf": "e4f0a986c59f6656e5216302290f86fc83a4de6b1b061daf0f0ff3a7561d919a",
     "controlled_release_daily.png": "a823ea191bb82e13a8e642d3170376c90c98700721546f0fcfd4e672cb6f08b9",
-    "controlled_release_daily.svg": "2106dc8180559bef1b645bda730beaf2802969d04c0bca34b8d698eec86d51d2",
-    "controlled_release_daily.pdf": "9c651e1d2be4b4dfd3f680cdc1e941ffa8626a375806b4584b86d09468ce5543",
+    "controlled_release_daily.svg": "586750b8047fda5d163607776257851ba45b97335eb8d30fa16b4a5d0508cd86",
+    "controlled_release_daily.pdf": "e7529888a07f184c6e706898cfec540fc83d1b80c0b9840103cf93d0499d261e",
     "reservoir_operations.png": "f90edb16c75b5c79e0a308a707c3e1e312a0d3b0b52958b81a4658218bd66f20",
-    "reservoir_operations.svg": "1bbd4e69a94e767ad060c11be773adf7624fdfd966ed2e06e4b08399e8855e59",
-    "reservoir_operations.pdf": "36d4784d694531b17d20546dcf88b67bca100906e1b4f7f78266ede6f84951ce"
+    "reservoir_operations.svg": "84ff067efd487d5300aa1aeda4bf88797205b08d15d9bae9146a736f4d876217",
+    "reservoir_operations.pdf": "5e513c16adb97585195eae575e2a75db6c080777f5cdabdf3e6412596fcf1ad7"
   }
 }

@@ -11,6 +11,7 @@ HydroCNHS turns weather into catchment inflow. Each reservoir operator uses
 that inflow, storage and your selected information to request release. Reservoir
 physics applies the limits and spill, then routes the water downstream.
 
+
 ## Contents
 
 | Chapter | What you will learn |
@@ -53,3 +54,7 @@ Open the [FE Walter tutorials folder](../tutorials/), follow its README, or
 The notebook reads saved data. It makes no model request and does not rerun
 hydrology. [Sources and citation](REFERENCE.md) identifies the
 framework and case references.
+
+## Framework diagram
+
+![HydroReOpLLM overview](figures/hydroopslm-cover.png)

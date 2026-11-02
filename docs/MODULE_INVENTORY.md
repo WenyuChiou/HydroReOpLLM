@@ -383,7 +383,7 @@ All 39 owned modules are listed below. Inputs, outputs and units describe the pu
 
 ## `coupled.py`
 
-[Source](../src/llm_reservoir_agent/coupled.py) · SHA256 `f5d39590f60d7a621c48a51ec5f8a8419eff96ad58e1876742a8c40ffe46cf3b`
+[Source](../src/llm_reservoir_agent/coupled.py) · SHA256 `32ffb2bd34aa39c31cb44671b24482baebcbc22dc84457a63cfa95f7b8cb6922`
 
 - **Purpose:** Check daily weather-to-operation plans, prepare pinned inflows and run shared workflow.
 - **Inputs:** coupled configuration and physical network; daily native model/weather, inclusive operation interval and agent profiles
@@ -396,8 +396,9 @@ All 39 owned modules are listed below. Inputs, outputs and units describe the pu
 
 - [WeatherEntryTests.test_check_reads_all_configuration_without_simulation_or_output](../tests/test_weather_entry.py)
 - [WeatherEntryTests.test_real_weather_rule_and_delayed_downstream_close_water_balance](../tests/test_weather_entry.py)
+- [test_temporary_alias_does_not_enter_durable_source_pins](../tests/test_path_portability.py)
 
-**Issues / coverage limits:** behavior_changes: None; confirmed_new_bugs: None; documentation_fixes: Added purpose/data-flow/dependency/side-effect module contract.; Replaced missing/short public API prose with authored NumPy-style contracts.; Explained relevant units, ownership, conversions and state/clock assumptions.
+**Issues / coverage limits:** behavior_changes: Canonicalize the temporary validation root before source-pin exclusion; prevents Windows short-name/parent aliases from leaking temporary dependencies into the durable plan. Physics, input hashes and genuine change rejection remain unchanged.; confirmed_new_bugs: FIXED: disposable zero-boundary validation dependencies leaked through an uncanonicalized temporary alias and caused false changed-input rejection. Regression: tests/test_path_portability.py.; documentation_fixes: Added purpose/data-flow/dependency/side-effect module contract.; Replaced missing/short public API prose with authored NumPy-style contracts.; Explained relevant units, ownership, conversions and state/clock assumptions.
 
 ## `downstream.py`
 
