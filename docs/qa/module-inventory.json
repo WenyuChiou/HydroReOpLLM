@@ -2184,21 +2184,21 @@
           "path": "tests/test_prompt_review.py",
           "test": "test_alternate_criteria_preview_records_its_actual_source",
           "line": 28,
-          "sha256": "b5d0080dd64ea4ad5222d86151cd21cb4943ac7440a3a3aaa5bcd7244f3fff29",
+          "sha256": "41fb2b805ea2ee3179c5709c42de7a52d2454b812c695fca6698c59c3e949e00",
           "relation": "Existing test in associated contract/integration test file; static reference only, not executed by this lane"
         },
         {
           "path": "tests/test_prompt_review.py",
           "test": "test_published_requests_preserve_independently_recorded_hashes",
           "line": 53,
-          "sha256": "b5d0080dd64ea4ad5222d86151cd21cb4943ac7440a3a3aaa5bcd7244f3fff29",
+          "sha256": "41fb2b805ea2ee3179c5709c42de7a52d2454b812c695fca6698c59c3e949e00",
           "relation": "Existing test in associated contract/integration test file; static reference only, not executed by this lane"
         },
         {
           "path": "tests/test_prompt_review.py",
           "test": "test_proposed_context_is_separate_and_preserves_original_messages",
           "line": 77,
-          "sha256": "b5d0080dd64ea4ad5222d86151cd21cb4943ac7440a3a3aaa5bcd7244f3fff29",
+          "sha256": "41fb2b805ea2ee3179c5709c42de7a52d2454b812c695fca6698c59c3e949e00",
           "relation": "Existing test in associated contract/integration test file; static reference only, not executed by this lane"
         }
       ],
@@ -2284,21 +2284,21 @@
           "path": "tests/test_prompt_review.py",
           "test": "test_alternate_criteria_preview_records_its_actual_source",
           "line": 28,
-          "sha256": "b5d0080dd64ea4ad5222d86151cd21cb4943ac7440a3a3aaa5bcd7244f3fff29",
+          "sha256": "41fb2b805ea2ee3179c5709c42de7a52d2454b812c695fca6698c59c3e949e00",
           "relation": "Existing test in associated contract/integration test file; static reference only, not executed by this lane"
         },
         {
           "path": "tests/test_prompt_review.py",
           "test": "test_published_requests_preserve_independently_recorded_hashes",
           "line": 53,
-          "sha256": "b5d0080dd64ea4ad5222d86151cd21cb4943ac7440a3a3aaa5bcd7244f3fff29",
+          "sha256": "41fb2b805ea2ee3179c5709c42de7a52d2454b812c695fca6698c59c3e949e00",
           "relation": "Existing test in associated contract/integration test file; static reference only, not executed by this lane"
         },
         {
           "path": "tests/test_prompt_review.py",
           "test": "test_proposed_context_is_separate_and_preserves_original_messages",
           "line": 77,
-          "sha256": "b5d0080dd64ea4ad5222d86151cd21cb4943ac7440a3a3aaa5bcd7244f3fff29",
+          "sha256": "41fb2b805ea2ee3179c5709c42de7a52d2454b812c695fca6698c59c3e949e00",
           "relation": "Existing test in associated contract/integration test file; static reference only, not executed by this lane"
         }
       ],
@@ -4366,21 +4366,21 @@
           "path": "tests/test_prompt_review.py",
           "test": "test_alternate_criteria_preview_records_its_actual_source",
           "line": 28,
-          "sha256": "b5d0080dd64ea4ad5222d86151cd21cb4943ac7440a3a3aaa5bcd7244f3fff29",
+          "sha256": "41fb2b805ea2ee3179c5709c42de7a52d2454b812c695fca6698c59c3e949e00",
           "relation": "Existing test in associated contract/integration test file; static reference only, not executed by this lane"
         },
         {
           "path": "tests/test_prompt_review.py",
           "test": "test_published_requests_preserve_independently_recorded_hashes",
           "line": 53,
-          "sha256": "b5d0080dd64ea4ad5222d86151cd21cb4943ac7440a3a3aaa5bcd7244f3fff29",
+          "sha256": "41fb2b805ea2ee3179c5709c42de7a52d2454b812c695fca6698c59c3e949e00",
           "relation": "Existing test in associated contract/integration test file; static reference only, not executed by this lane"
         },
         {
           "path": "tests/test_prompt_review.py",
           "test": "test_proposed_context_is_separate_and_preserves_original_messages",
           "line": 77,
-          "sha256": "b5d0080dd64ea4ad5222d86151cd21cb4943ac7440a3a3aaa5bcd7244f3fff29",
+          "sha256": "41fb2b805ea2ee3179c5709c42de7a52d2454b812c695fca6698c59c3e949e00",
           "relation": "Existing test in associated contract/integration test file; static reference only, not executed by this lane"
         },
         {
@@ -4468,21 +4468,21 @@
           "path": "tests/test_prompt_review.py",
           "test": "test_alternate_criteria_preview_records_its_actual_source",
           "line": 28,
-          "sha256": "b5d0080dd64ea4ad5222d86151cd21cb4943ac7440a3a3aaa5bcd7244f3fff29",
+          "sha256": "41fb2b805ea2ee3179c5709c42de7a52d2454b812c695fca6698c59c3e949e00",
           "relation": "Existing test in associated contract/integration test file; static reference only, not executed by this lane"
         },
         {
           "path": "tests/test_prompt_review.py",
           "test": "test_published_requests_preserve_independently_recorded_hashes",
           "line": 53,
-          "sha256": "b5d0080dd64ea4ad5222d86151cd21cb4943ac7440a3a3aaa5bcd7244f3fff29",
+          "sha256": "41fb2b805ea2ee3179c5709c42de7a52d2454b812c695fca6698c59c3e949e00",
           "relation": "Existing test in associated contract/integration test file; static reference only, not executed by this lane"
         },
         {
           "path": "tests/test_prompt_review.py",
           "test": "test_proposed_context_is_separate_and_preserves_original_messages",
           "line": 77,
-          "sha256": "b5d0080dd64ea4ad5222d86151cd21cb4943ac7440a3a3aaa5bcd7244f3fff29",
+          "sha256": "41fb2b805ea2ee3179c5709c42de7a52d2454b812c695fca6698c59c3e949e00",
           "relation": "Existing test in associated contract/integration test file; static reference only, not executed by this lane"
         },
         {
