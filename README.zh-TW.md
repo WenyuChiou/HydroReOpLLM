@@ -75,6 +75,20 @@ reservoir-experiment check examples/fe_walter/coupled/experiment.yaml
 建立新研究時，先使用[耦合設定範本](templates/coupled/README.md)與
 [輸入輸出參考](docs/INPUT_OUTPUT.md)。
 
+## 專案架構
+
+```text
+src/          通用水庫操作框架與隨附 HydroCNHS
+templates/    設定範本
+examples/     單壩、河網與完整研究案例
+tutorials/    保存輸出的教學 Notebook
+docs/         使用手冊、API 文件與目前圖稿的可編輯來源
+tests/        離線回歸、失敗處理與接口檢查
+```
+
+[完整專案架構](docs/CODE_STRUCTURE.md)說明其餘必要目錄、所有框架模組，
+以及新增研究時應修改哪些檔案。
+
 ## 文件
 
 - [使用指南](docs/USER_GUIDE.zh-TW.md)

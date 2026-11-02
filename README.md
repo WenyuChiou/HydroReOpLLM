@@ -88,6 +88,20 @@ can be inspected directly, with no simulation or LLM request.
 For a new study, begin with the [coupled configuration templates](templates/coupled/README.md)
 and the [input and output reference](docs/INPUT_OUTPUT.md).
 
+## Project layout
+
+```text
+src/          Reusable operations framework and bundled HydroCNHS
+templates/    Configuration starting points
+examples/     Single-reservoir, network and worked-study examples
+tutorials/    Saved walkthrough notebooks
+docs/         User manual, API reference and current editable figures
+tests/        Offline regression, failure and interface checks
+```
+
+The [complete project structure](docs/CODE_STRUCTURE.md) explains the remaining
+support directories, all framework modules and which files to change for a new study.
+
 ## Documentation
 
 - [User guide](docs/USER_GUIDE.md)

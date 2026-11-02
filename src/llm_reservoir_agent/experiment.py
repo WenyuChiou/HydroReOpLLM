@@ -19,6 +19,7 @@ import json
 import os
 from pathlib import Path
 import platform
+import time
 
 from .audit import json_snapshot
 from .contracts import parse_action
@@ -46,7 +47,10 @@ def _implementation_files():
 def write_json(path, value):
     """Flush JSON bytes to a temporary file before replacing metadata.
 
-    Only Windows sharing/permission failures during replacement receive bounded retries of the same bytes; model decisions and physics are never rerun.
+    Only Windows sharing/permission failures during replacement receive bounded
+    retries of the same bytes; model decisions and physics are never rerun.
+    Replacement is attempted at most six times, with 0.05, 0.10, 0.15, 0.20 and
+    0.25 second waits. Write/fsync failures and other OS errors are terminal.
 
     Parameters
     ----------
@@ -77,7 +81,17 @@ def write_json(path, value):
             raise OSError("incomplete metadata write")
         handle.flush()
         os.fsync(handle.fileno())
-    os.replace(temporary, path)
+    for attempt in range(6):
+        try:
+            os.replace(temporary, path)
+            break
+        except OSError as exc:
+            # Windows readers or antivirus can briefly lock the destination.
+            # Retry only this atomic rename of already-fsynced bytes. Exhaustion
+            # leaves the old destination and new temporary evidence available.
+            if getattr(exc, "winerror", None) not in {5, 32, 33} or attempt == 5:
+                raise
+            time.sleep(0.05 * (attempt + 1))
 
 
 class ProviderEvidenceError(RuntimeError):
@@ -434,7 +448,8 @@ def run_experiment(config, rows, backends, *, output, run_id, project_root=PROJE
             summary["request_attempts_including_source"] = recovery.prior_network_calls + (summary["observed_network_calls"] or 0)
         attempt_file = journal.output / "provider_attempts.jsonl"
         if attempt_file.exists():
-            summary["provider_attempts_sha256"] = hashlib.sha256(attempt_file.read_bytes()).hexdigest()
+            with attempt_file.open("rb") as stream:
+                summary["provider_attempts_sha256"] = hashlib.file_digest(stream, "sha256").hexdigest()
         if outcome_checks:
             from .outcome import evaluate_outcomes
             outcomes = evaluate_outcomes(outcome_checks, records, flows, rows, information_agents or {}, run_id)
@@ -466,8 +481,16 @@ def run_experiment(config, rows, backends, *, output, run_id, project_root=PROJE
         if recovery is not None:
             failure["recovery"] = recovery.describe()
         attempt_file = journal.output / "provider_attempts.jsonl"
-        if attempt_file.exists():
-            failure["provider_attempts_sha256"] = hashlib.sha256(attempt_file.read_bytes()).hexdigest()
+        try:
+            if attempt_file.exists():
+                with attempt_file.open("rb") as stream:
+                    failure["provider_attempts_sha256"] = hashlib.file_digest(stream, "sha256").hexdigest()
+        except Exception as logging_error:
+            # A secondary evidence-read error must not hide the original cause
+            # or prevent the remaining journal from recording a FAILED result.
+            failure["provider_attempts_sha256"] = None
+            failure["provider_attempts_hash_error"] = type(logging_error).__name__
+            _note(exc, logging_error)
         try:
             journal.fail(exc, failure)
         except Exception as logging_error:

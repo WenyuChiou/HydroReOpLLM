@@ -24,6 +24,7 @@
 | [結果](RESULTS_GUIDE.md) | 查看水位與控制放流。 |
 | [問題排查](TROUBLESHOOTING.md) | 診斷輸入、回覆與中斷問題。 |
 | [API 文件](API_REFERENCE.md) | 查詢函數與擴充介面。 |
+| [專案架構與完整檔案索引](CODE_STRUCTURE.md) | 查看模組分工、目錄與新增研究的修改位置。 |
 
 詳細章節以英文維護。集水區建置、水文參數與校正方法請依
 [HydroCNHS 官方教學](https://github.com/cylin928/HydroCNHS/tree/main/tutorials)。

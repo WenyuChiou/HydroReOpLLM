@@ -17,3 +17,20 @@ runs/
 /research/
 /prompt_preview/
 .ipynb_checkpoints/
+
+# Local execution, tooling and temporary files are not reusable source.
+outputs/
+_qa/
+.ai/
+.coord/
+.codebase-memory/
+.ruff_cache/
+.mypy_cache/
+.coverage*
+htmlcov/
+*.log
+*.tmp
+*.bak
+*.bkp
+/*.zip
+/*.bundle

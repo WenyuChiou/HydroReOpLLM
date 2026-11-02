@@ -1,18 +1,12 @@
 * text=auto
 # New reproducibility artifacts and execution sources retain their recorded bytes.
 cases/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
-results/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
-prompts/fe_walter_reference/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
-prompt_preview/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 examples/fe_walter/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 # Generic teaching CSVs are pinned by their exact source bytes as well.
 examples/multiple_reservoirs/*.csv -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 examples/llm_reservoir_abm.py -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 data/benchmark/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 data/figures/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
-results/technical_note_offline/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
-docs/figures/fe-walter-study-map.* -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
-docs/figures/hydrocnhs-upgrade-* -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 # Preserve the byte hashes recorded by the editable generic figure's provenance.
 docs/figures/hydrocnhs-coupling-framework-en.* -text
 docs/figures/assets/coupling-framework/** -text
@@ -20,12 +14,9 @@ docs/figures/assets/coupling-framework/** -text
 docs/figures/hydroopslm-cover.* -text
 docs/figures/assets/hydroopslm-cover* -text
 docs/figures/source/build_coupling_drawio.py -text
-docs/README_FRAMEWORK_PROPOSAL.md -text
 tests/fixtures/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 tutorials/*.ipynb -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 tutorials/build_notebooks.py -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
-docs/figures/source/render_concept.py -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
-docs/figures/source/render_study_map.py -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 docs/figures/source/extract_fe_map.py -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 src/llm_reservoir_agent/benchmark.py -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 src/llm_reservoir_agent/benchmark_config.py -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
@@ -36,8 +27,6 @@ src/llm_reservoir_agent/workflow.py -text whitespace=blank-at-eol,blank-at-eof,s
 src/llm_reservoir_agent/verification.py -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 # Frozen evidence must retain its exact bytes on Windows and Unix checkouts.
 data/accepted/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
-third_party/anik_v3_7/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
-data/anik_v3_7/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 cases/*.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 environment/hydrocnhs-hydrology-core.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 environment/hydrocnhs-core.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
@@ -45,9 +34,6 @@ src/hydrocnhs/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-
 third_party/hydrocnhs/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 
 # Generated SVG path spacing and captured logs retain exact source bytes.
-docs/figures/fe-walter-study-map.svg -text whitespace=-blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol
-docs/figures/hydrocnhs-upgrade-*.svg -text whitespace=-blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol
-results/technical_note_offline/logs/** -text whitespace=-blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol
 
 # Preserve exported ArcGIS figure bytes and their recorded hashes.
 docs/figures/fe-walter-catchment.* -text
@@ -55,7 +41,6 @@ docs/figures/source/render_fe_catchment.py -text
 docs/figures/fe-walter-catchment.svg -text whitespace=-blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol
 
 # Original accepted plot exports retain their generated SVG whitespace.
-results/fe_walter_dkp_2016_2020/figures/*.svg -text whitespace=-blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol
 
 # Curated teaching snapshots retain original bytes after relocation.
 examples/fe_walter/reference_outputs/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol

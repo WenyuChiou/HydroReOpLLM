@@ -462,13 +462,13 @@ The machine-readable inventory refreshes source hashes, public AST locations and
 
 ## `experiment.py`
 
-[Source](../src/llm_reservoir_agent/experiment.py) · SHA256 `8020bfc3a8227a209d48afa20d97594228b457fa4123c973bf3700dbc906267e`
+[Source](../src/llm_reservoir_agent/experiment.py) · SHA256 `31bd806ab9bac5c7aee08faea228e2fc7f4b591b2cccf8ffc41772fb8ac83b0d`
 
 - **Purpose:** Orchestrate daily native or explicit interval network execution and durable run evidence.
 - **Inputs:** Network, local inflow rows, isolated decision backends
 - **Outputs:** Operation records, JSONL streams, CSV trajectories/flows/balances and run summary
 - **Units:** Flow m3/s; volume/storage m3; fixed TimeAxis duration s; legacy days or explicit interval steps
-- **Dependencies:** .audit; .case; .contracts; .network; .outcome; .passive; .policy_adapter; .time_axis; .time_config; .trace; argparse; collections; collections.abc; csv; hashlib; json; os; pathlib; platform
+- **Dependencies:** .audit; .case; .contracts; .network; .outcome; .passive; .policy_adapter; .time_axis; .time_config; .trace; argparse; collections; collections.abc; csv; hashlib; json; os; pathlib; platform; time
 - **Entrypoints:** run_experiment(...); llm-reservoir-daily
 
 **Current static documentation coverage:** 5/5 public AST definitions have docstrings. Current symbol lines are in the machine-readable inventory.
@@ -1089,7 +1089,7 @@ Existing main implementation inventoried statically; no new documentation review
 
 ## `trace.py`
 
-[Source](../src/llm_reservoir_agent/trace.py) · SHA256 `b8f2dbc2d2458b4cf463f7b043b4e2c7d5d103afca553dcbab7b20a3e5d6bcb3`
+[Source](../src/llm_reservoir_agent/trace.py) · SHA256 `37806a11e0ecb9de6fd05e13cd921ed39da681641c1df00769c15bea427d0897`
 
 - **Purpose:** Durable causal event journaling and terminal summaries
 - **Inputs:** Decision/audit/raw payloads, completed physics, backend lifecycle events

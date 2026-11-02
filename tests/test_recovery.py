@@ -59,6 +59,32 @@ class RecoveryTests(unittest.TestCase):
         self.save()
         self.assertIsNone(load_settings(self.path).report["max_calls"])
 
+    def test_unreadable_ledger_preserves_primary_error_and_failed_summary(self):
+        from unittest.mock import patch
+
+        real_open = Path.open
+        original = RuntimeError("primary provider interruption")
+
+        def unreadable(path, *args, **kwargs):
+            mode = args[0] if args else kwargs.get("mode")
+            if path.name == "provider_attempts.jsonl" and mode == "rb":
+                raise PermissionError("cannot read ledger")
+            return real_open(path, *args, **kwargs)
+
+        def transport(*args):
+            raise original
+
+        with patch.object(Path, "open", unreadable):
+            with self.assertRaises(RuntimeError) as caught:
+                run_settings(load_settings(self.path), allow_network=True, transport=transport)
+        self.assertIs(caught.exception, original)
+        saved = json.loads((self.root / "failed/summary.json").read_text())
+        self.assertEqual(saved["status"], "FAILED")
+        self.assertEqual(saved["error"]["error_type"], "RuntimeError")
+        self.assertIsNone(saved["summary"]["provider_attempts_sha256"])
+        self.assertEqual(saved["summary"]["provider_attempts_hash_error"], "PermissionError")
+        self.assertTrue(any("cannot read ledger" in note for note in original.__notes__))
+
     def test_budget_is_not_reset_by_resume(self):
         from llm_reservoir_agent.recovery import resume_settings
         self.data["max_calls"] = 3

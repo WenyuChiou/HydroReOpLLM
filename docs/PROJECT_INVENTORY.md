@@ -42,9 +42,10 @@ retain their original spelling.
 
 Cleanup baseline: **1,026 tracked files**, commit
 `fbd9a993731ce979835dcc46f7a9cbad6aa7387b`.
-The [complete inventory](../archive/inventory.csv) records classification,
-dependencies, original bytes/hash and destination. The
+The historical CSV is retained at Git revision `f6eff89:archive/inventory.csv`;
+it records that earlier tree, not the current package. The
 [recovery index](../archive/README.md) documents the verified external archive.
+For the current repository, use [project structure and file index](CODE_STRUCTURE.md).
 
 | Layer | Preserved capability | Responsibility |
 |---|---|---|

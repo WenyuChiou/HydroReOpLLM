@@ -544,12 +544,21 @@ class TraceJournal:
         try:
             streams = {}
             for name in _STREAMS:
-                data = (self.output / f"{name}.jsonl").read_bytes()
+                # Logs can exceed RAM in long studies. Preserve the exact byte
+                # digest, newline count and partial-tail evidence in fixed chunks.
+                digest = hashlib.sha256()
+                event_count = 0
+                incomplete_tail = False
+                with (self.output / f"{name}.jsonl").open("rb") as stream:
+                    while block := stream.read(1024 * 1024):
+                        digest.update(block)
+                        event_count += block.count(b"\n")
+                        incomplete_tail = not block.endswith(b"\n")
                 streams[name] = {
-                    "path": f"{name}.jsonl", "event_count": data.count(b"\n"),
+                    "path": f"{name}.jsonl", "event_count": event_count,
                     "durable_event_count": self._counts[name],
-                    "incomplete_tail": bool(data and not data.endswith(b"\n")),
-                    "sha256": hashlib.sha256(data).hexdigest(),
+                    "incomplete_tail": incomplete_tail,
+                    "sha256": digest.hexdigest(),
                 }
         except OSError as exc:
             self._io_error = exc

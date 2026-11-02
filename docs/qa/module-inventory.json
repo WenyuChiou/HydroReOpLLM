@@ -3406,7 +3406,7 @@
     },
     {
       "path": "src/llm_reservoir_agent/experiment.py",
-      "sha256": "8020bfc3a8227a209d48afa20d97594228b457fa4123c973bf3700dbc906267e",
+      "sha256": "31bd806ab9bac5c7aee08faea228e2fc7f4b591b2cccf8ffc41772fb8ac83b0d",
       "baseline_sha256": "35db7b23c41af7680b2f19afbae904113eef121c37d2171424bda9835d867c7c",
       "purpose": "Orchestrate daily native or explicit interval network execution and durable run evidence.",
       "inputs": "Network, local inflow rows, isolated decision backends",
@@ -3431,7 +3431,8 @@
         "json",
         "os",
         "pathlib",
-        "platform"
+        "platform",
+        "time"
       ],
       "user_entry": "run_experiment(...); llm-reservoir-daily",
       "issues": [],
@@ -3442,17 +3443,19 @@
         "documented_public_symbols": 5,
         "missing_public_symbols": [],
         "public_symbol_lines": {
-          "write_json": 46,
-          "ProviderEvidenceError": 83,
-          "record_provider_attempt": 90,
-          "run_experiment": 303,
-          "main": 478
+          "write_json": 47,
+          "ProviderEvidenceError": 97,
+          "record_provider_attempt": 104,
+          "run_experiment": 317,
+          "main": 501
         }
       },
       "entrypoints": [
         "run_experiment(...); llm-reservoir-daily"
       ],
-      "issues_and_fixes": [],
+      "issues_and_fixes": [
+        "Preserve primary failure when provider-ledger hashing fails; stream ledger digest; retry only already-fsynced Windows metadata replacement, at most six attempts."
+      ],
       "original_lane_verification": {
         "checks": {
           "ast_without_docstrings_equal_to_original": true,
@@ -3569,16 +3572,76 @@
           "sha256": "d3428088cf8cde7735c1a2dd05ba7e744832f8ff1d265096d40897b896fe7628",
           "relation": "Static reference to a current test definition; not executed by this inventory reconciliation",
           "execution": "Static read only; no test execution in this reconciliation"
+        },
+        {
+          "path": "tests/test_recovery.py",
+          "test": "RecoveryTests.test_unreadable_ledger_preserves_primary_error_and_failed_summary",
+          "line": 62,
+          "lines": [
+            62,
+            86
+          ],
+          "sha256": "99e0c1ac0396e27066b7d4eb3c07e59e2b0a7e500476657174b34ee0b4724318",
+          "relation": "Static definition reference; execution evidence is recorded separately",
+          "execution": "No execution by this inventory update"
+        },
+        {
+          "path": "tests/test_metadata_io.py",
+          "test": "test_temporary_windows_lock_retries_the_same_fsynced_file",
+          "line": 18,
+          "lines": [
+            18,
+            38
+          ],
+          "sha256": "581f60ab805d7b3d4173ec5bce09f692507eb5ea5d8d80303ce6e736f395a19a",
+          "relation": "Static definition reference; execution evidence recorded separately",
+          "execution": "No execution by this inventory update"
+        },
+        {
+          "path": "tests/test_metadata_io.py",
+          "test": "test_permanent_windows_lock_preserves_both_files_and_stops",
+          "line": 41,
+          "lines": [
+            41,
+            52
+          ],
+          "sha256": "581f60ab805d7b3d4173ec5bce09f692507eb5ea5d8d80303ce6e736f395a19a",
+          "relation": "Static definition reference; execution evidence recorded separately",
+          "execution": "No execution by this inventory update"
+        },
+        {
+          "path": "tests/test_metadata_io.py",
+          "test": "test_other_os_error_has_no_retry",
+          "line": 55,
+          "lines": [
+            55,
+            63
+          ],
+          "sha256": "581f60ab805d7b3d4173ec5bce09f692507eb5ea5d8d80303ce6e736f395a19a",
+          "relation": "Static definition reference; execution evidence recorded separately",
+          "execution": "No execution by this inventory update"
+        },
+        {
+          "path": "tests/test_metadata_io.py",
+          "test": "test_flush_failure_never_attempts_rename",
+          "line": 66,
+          "lines": [
+            66,
+            73
+          ],
+          "sha256": "581f60ab805d7b3d4173ec5bce09f692507eb5ea5d8d80303ce6e736f395a19a",
+          "relation": "Static definition reference; execution evidence recorded separately",
+          "execution": "No execution by this inventory update"
         }
       ],
-      "bytes": 24770,
-      "line_count": 521,
+      "bytes": 25935,
+      "line_count": 544,
       "line_endings": "LF",
       "public_documentation": [
         {
           "symbol": "write_json",
-          "first_line": 46,
-          "last_line": 80,
+          "first_line": 47,
+          "last_line": 94,
           "has_docstring": true,
           "numpy_sections": [
             "Parameters",
@@ -3588,15 +3651,15 @@
         },
         {
           "symbol": "ProviderEvidenceError",
-          "first_line": 83,
-          "last_line": 87,
+          "first_line": 97,
+          "last_line": 101,
           "has_docstring": true,
           "numpy_sections": []
         },
         {
           "symbol": "record_provider_attempt",
-          "first_line": 90,
-          "last_line": 122,
+          "first_line": 104,
+          "last_line": 136,
           "has_docstring": true,
           "numpy_sections": [
             "Parameters",
@@ -3606,8 +3669,8 @@
         },
         {
           "symbol": "run_experiment",
-          "first_line": 303,
-          "last_line": 475,
+          "first_line": 317,
+          "last_line": 498,
           "has_docstring": true,
           "numpy_sections": [
             "Parameters",
@@ -3617,8 +3680,8 @@
         },
         {
           "symbol": "main",
-          "first_line": 478,
-          "last_line": 521,
+          "first_line": 501,
+          "last_line": 544,
           "has_docstring": true,
           "numpy_sections": [
             "Parameters",
@@ -6948,7 +7011,7 @@
           "path": "tests/test_recovery.py",
           "test": "RecoveryTests.test_explicit_null_budget_accepts_unbounded_total",
           "line": 57,
-          "sha256": "0886accbc3e63aed670aa8e24179368bf4dfb3687f8b05bda107c6e27f09337c",
+          "sha256": "99e0c1ac0396e27066b7d4eb3c07e59e2b0a7e500476657174b34ee0b4724318",
           "relation": "Static reference to a current test definition; not executed by this inventory reconciliation",
           "lines": [
             57,
@@ -6959,84 +7022,84 @@
         {
           "path": "tests/test_recovery.py",
           "test": "RecoveryTests.test_budget_is_not_reset_by_resume",
-          "line": 62,
-          "sha256": "0886accbc3e63aed670aa8e24179368bf4dfb3687f8b05bda107c6e27f09337c",
+          "line": 88,
+          "sha256": "99e0c1ac0396e27066b7d4eb3c07e59e2b0a7e500476657174b34ee0b4724318",
           "relation": "Static reference to a current test definition; not executed by this inventory reconciliation",
           "lines": [
-            62,
-            74
+            88,
+            100
           ],
           "execution": "Static read only; no test execution in this reconciliation"
         },
         {
           "path": "tests/test_recovery.py",
           "test": "RecoveryTests.test_missing_attempt_ledger_cannot_reset_the_allowance",
-          "line": 76,
-          "sha256": "0886accbc3e63aed670aa8e24179368bf4dfb3687f8b05bda107c6e27f09337c",
+          "line": 102,
+          "sha256": "99e0c1ac0396e27066b7d4eb3c07e59e2b0a7e500476657174b34ee0b4724318",
           "relation": "Static reference to a current test definition; not executed by this inventory reconciliation",
           "lines": [
-            76,
-            88
+            102,
+            114
           ],
           "execution": "Static read only; no test execution in this reconciliation"
         },
         {
           "path": "tests/test_recovery.py",
           "test": "RecoveryTests.test_changed_adapter_implementation_refuses_before_network",
-          "line": 90,
-          "sha256": "0886accbc3e63aed670aa8e24179368bf4dfb3687f8b05bda107c6e27f09337c",
+          "line": 116,
+          "sha256": "99e0c1ac0396e27066b7d4eb3c07e59e2b0a7e500476657174b34ee0b4724318",
           "relation": "Static reference to a current test definition; not executed by this inventory reconciliation",
           "lines": [
-            90,
-            102
+            116,
+            128
           ],
           "execution": "Static read only; no test execution in this reconciliation"
         },
         {
           "path": "tests/test_recovery.py",
           "test": "RecoveryTests.test_resume_replays_prefix_without_model_and_matches_full_run",
-          "line": 104,
-          "sha256": "0886accbc3e63aed670aa8e24179368bf4dfb3687f8b05bda107c6e27f09337c",
+          "line": 130,
+          "sha256": "99e0c1ac0396e27066b7d4eb3c07e59e2b0a7e500476657174b34ee0b4724318",
           "relation": "Static reference to a current test definition; not executed by this inventory reconciliation",
           "lines": [
-            104,
-            129
+            130,
+            155
           ],
           "execution": "Static read only; no test execution in this reconciliation"
         },
         {
           "path": "tests/test_recovery.py",
           "test": "RecoveryTests.test_changed_input_refuses_resume_before_network",
-          "line": 131,
-          "sha256": "0886accbc3e63aed670aa8e24179368bf4dfb3687f8b05bda107c6e27f09337c",
+          "line": 157,
+          "sha256": "99e0c1ac0396e27066b7d4eb3c07e59e2b0a7e500476657174b34ee0b4724318",
           "relation": "Static reference to a current test definition; not executed by this inventory reconciliation",
           "lines": [
-            131,
-            141
+            157,
+            167
           ],
           "execution": "Static read only; no test execution in this reconciliation"
         },
         {
           "path": "tests/test_recovery.py",
           "test": "RecoveryTests.test_corrupt_saved_response_refuses_before_network",
-          "line": 143,
-          "sha256": "0886accbc3e63aed670aa8e24179368bf4dfb3687f8b05bda107c6e27f09337c",
+          "line": 169,
+          "sha256": "99e0c1ac0396e27066b7d4eb3c07e59e2b0a7e500476657174b34ee0b4724318",
           "relation": "Static reference to a current test definition; not executed by this inventory reconciliation",
           "lines": [
-            143,
-            154
+            169,
+            180
           ],
           "execution": "Static read only; no test execution in this reconciliation"
         },
         {
           "path": "tests/test_recovery.py",
           "test": "RecoveryTests.test_resume_requires_distinct_run_and_empty_new_output",
-          "line": 156,
-          "sha256": "0886accbc3e63aed670aa8e24179368bf4dfb3687f8b05bda107c6e27f09337c",
+          "line": 182,
+          "sha256": "99e0c1ac0396e27066b7d4eb3c07e59e2b0a7e500476657174b34ee0b4724318",
           "relation": "Static reference to a current test definition; not executed by this inventory reconciliation",
           "lines": [
-            156,
-            161
+            182,
+            187
           ],
           "execution": "Static read only; no test execution in this reconciliation"
         },
@@ -8218,7 +8281,7 @@
     },
     {
       "path": "src/llm_reservoir_agent/trace.py",
-      "sha256": "b8f2dbc2d2458b4cf463f7b043b4e2c7d5d103afca553dcbab7b20a3e5d6bcb3",
+      "sha256": "37806a11e0ecb9de6fd05e13cd921ed39da681641c1df00769c15bea427d0897",
       "baseline_sha256": "ca6a1cce6abec3b5f231f71069f89d9eb2ee79b7ea0266ccac25bfb8eeca8a2b",
       "purpose": "Durable causal event journaling and terminal summaries",
       "inputs": "Decision/audit/raw payloads, completed physics, backend lifecycle events",
@@ -8252,8 +8315,8 @@
           "TraceJournal.record_physics": 370,
           "TraceJournal.record_backend_event": 420,
           "TraceJournal.record_feedback_failure": 486,
-          "TraceJournal.finalize": 577,
-          "TraceJournal.fail": 607
+          "TraceJournal.finalize": 586,
+          "TraceJournal.fail": 616
         }
       },
       "entrypoints": [
@@ -8388,16 +8451,52 @@
           "sha256": "39ccd92e4b85a042c5031152ac50e273aea40e5c501f383865ee136964c244e5",
           "relation": "Static reference to a current test definition; not executed by this inventory reconciliation",
           "execution": "Static read only; no test execution in this reconciliation"
+        },
+        {
+          "path": "tests/test_trace_streaming.py",
+          "test": "test_large_journal_finalizes_without_a_whole_log_memory_copy",
+          "line": 14,
+          "lines": [
+            14,
+            42
+          ],
+          "sha256": "53a061f2894f55fadb7230652e3bf924a093b9e62ded2226a9b8c2da11be73f7",
+          "relation": "Static definition reference; execution evidence is recorded separately",
+          "execution": "No execution by this inventory update"
+        },
+        {
+          "path": "tests/test_trace_streaming.py",
+          "test": "test_failed_journal_preserves_partial_tail_and_exact_hash",
+          "line": 45,
+          "lines": [
+            45,
+            57
+          ],
+          "sha256": "53a061f2894f55fadb7230652e3bf924a093b9e62ded2226a9b8c2da11be73f7",
+          "relation": "Static definition reference; execution evidence is recorded separately",
+          "execution": "No execution by this inventory update"
+        },
+        {
+          "path": "tests/test_trace_streaming.py",
+          "test": "test_stream_read_failure_never_reports_a_completed_journal",
+          "line": 60,
+          "lines": [
+            60,
+            75
+          ],
+          "sha256": "53a061f2894f55fadb7230652e3bf924a093b9e62ded2226a9b8c2da11be73f7",
+          "relation": "Static definition reference; execution evidence is recorded separately",
+          "execution": "No execution by this inventory update"
         }
       ],
-      "bytes": 30364,
-      "line_count": 636,
+      "bytes": 30835,
+      "line_count": 645,
       "line_endings": "LF",
       "public_documentation": [
         {
           "symbol": "TraceJournal",
           "first_line": 103,
-          "last_line": 636,
+          "last_line": 645,
           "has_docstring": true,
           "numpy_sections": [
             "Parameters",
@@ -8460,8 +8559,8 @@
         },
         {
           "symbol": "TraceJournal.finalize",
-          "first_line": 577,
-          "last_line": 605,
+          "first_line": 586,
+          "last_line": 614,
           "has_docstring": true,
           "numpy_sections": [
             "Parameters",
@@ -8471,8 +8570,8 @@
         },
         {
           "symbol": "TraceJournal.fail",
-          "first_line": 607,
-          "last_line": 636,
+          "first_line": 616,
+          "last_line": 645,
           "has_docstring": true,
           "numpy_sections": [
             "Parameters",
@@ -9282,6 +9381,7 @@
     "test_reference_aliases": "Historical tests/existing_test_refs/test_references consolidated into the current tests list without duplicate path/definition pairs",
     "source_imports_or_runtime_execution": false,
     "test_or_reviewer_execution": false,
-    "baseline_sha256_semantics": "Historical source input to the original documentation lane; not the current main integration baseline"
+    "baseline_sha256_semantics": "Historical source input to the original documentation lane; not the current main integration baseline",
+    "repository_cleanup": "Current source hashes and public symbol locations refreshed for bounded-memory finalization and secondary-error preservation. Original lane receipts remain historical; execution evidence is separate."
   }
 }
