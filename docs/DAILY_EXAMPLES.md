@@ -7,6 +7,21 @@ developer test suite is not required to use the package. The small single-dam
 and cascade examples below use invented inputs so you can learn the workflow
 before substituting your basin data and model.
 
+## Choose the workflow
+
+The preceding configuration chapters use the weather-driven, split-file entry.
+This chapter starts with a smaller example whose inflows are already supplied:
+
+| Workflow | Inputs | Command sequence |
+|---|---|---|
+| Prepared inflow: this chapter | `single.yaml` and `single.json` | `check → run → verify` |
+| Weather-driven: [two-reservoir example](MULTI_RESERVOIR.md) | Hydrological model, weather and split configuration files | `check → prepare → run → verify` |
+
+`prepare` calculates inflow from weather, so the prepared-inflow example does
+not need it. Its `llm-reservoir-experiment.v1` file uses a different agent layout
+from `hydroops-coupled-simulation.v2`. Use each example's complete files rather
+than copying agent sections between these formats.
+
 ## 1. Install
 
 Use Python 3.12 and follow [Installation](GETTING_STARTED.md). From a source
