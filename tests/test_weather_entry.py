@@ -304,9 +304,9 @@ class WeatherEntryTests(unittest.TestCase):
         settings.data["agents"]["operator"] = {"strategy": "reference", "reference": {"profile": "custom-reservoir",
                                                 "profile_file": "native-profile.json"}}
         compiled = _operation_document(settings, self.root/"generated")
-        self.assertEqual(compiled["auditors"]["strategy"]["profile"], str(self.root/"profile.json"))
+        self.assertEqual(compiled["auditors"]["strategy"]["profile"], str((self.root/"profile.json").resolve()))
         self.assertEqual(compiled["agents"]["operator"]["reference"]["profile"], "custom-reservoir")
-        self.assertEqual(compiled["agents"]["operator"]["reference"]["profile_file"], str(self.root/"native-profile.json"))
+        self.assertEqual(compiled["agents"]["operator"]["reference"]["profile_file"], str((self.root/"native-profile.json").resolve()))
 
 
 if __name__ == "__main__":

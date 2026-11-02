@@ -1,4 +1,19 @@
-"""Pure request/response adapters for supported chat providers."""
+"""Translate configured chat requests and replies without performing I/O.
+
+``ConfiguredBackend`` supplies normalized model settings, rendered messages and
+an optional JSON schema. This module maps those inputs to one provider endpoint
+and native payload, resolves explicitly named credential environment variables,
+and extracts one text response with its reported usage. It does not discover
+models, infer capabilities, add prompt instructions, retry, or implement physical
+reservoir releases. ``configured_backend`` owns execution and strict action
+parsing; ``contracts`` defines release rates in cubic metres per second (m3/s).
+
+Generation limits and usage counts are provider-reported tokens, not elapsed
+time or monetary cost. Usage dictionaries retain native field names and values;
+no cross-provider token or price equivalence is assumed. Returned JSON values
+are detached from caller data. Authentication headers are the exception: their
+values are sensitive and belong only at the transport boundary.
+"""
 
 from __future__ import annotations
 
@@ -29,7 +44,39 @@ def _split_system(messages: Sequence[Mapping[str, Any]]) -> tuple[str | None, li
 
 
 def chat_request(settings, messages, *, schema=None):
-    """Build one native provider request without I/O or injected messages."""
+    """Build one native request from an explicit model profile and messages.
+
+    Parameters
+    ----------
+    settings : Mapping[str, Any]
+        Profile normalized by ``validate_model_settings``. ``provider``,
+        ``model`` and ``base_url`` select the adapter and endpoint. Optional
+        token limits and sampling controls are forwarded only when supplied.
+    messages : Sequence[Mapping[str, str]]
+        Ordered text messages. Anthropic and Gemini move system messages into
+        their native system field; Gemini maps assistant roles to ``model``.
+    schema : Mapping[str, Any] or None, optional
+        JSON schema to request through the provider's native structured-output
+        field. This is a request constraint, not proof of service support.
+
+    Returns
+    -------
+    url : str
+        Configured base URL plus the selected provider's endpoint suffix.
+    payload : dict[str, Any]
+        Detached JSON payload, without credentials or additional instructions.
+
+    Raises
+    ------
+    ValueError
+        If the provider is unsupported, JSON values are non-finite, native
+        system-message fields cannot be built, or Anthropic lacks max_tokens.
+
+    Notes
+    -----
+    No network access or credential lookup occurs. A schema and optional
+    parameters remain user configured; model compatibility is not inferred.
+    """
 
     provider = settings["provider"]
     messages = _copy(list(messages))
@@ -105,13 +152,39 @@ def chat_request(settings, messages, *, schema=None):
             generation.update(responseMimeType="application/json", responseJsonSchema=_copy(schema))
         if generation:
             payload["generationConfig"] = generation
+        # A model ID occupies one URL path segment; do not allow it to add paths.
         model = quote(settings["model"], safe="")
         return settings["base_url"] + f"/models/{model}:generateContent", payload
     raise ValueError(f"unsupported model provider: {provider}")
 
 
 def chat_headers(settings):
-    """Resolve credentials at execution; returned values must never be traced."""
+    """Resolve the configured credential and construct native HTTP headers.
+
+    Parameters
+    ----------
+    settings : Mapping[str, Any]
+        Normalized provider settings. ``api_key_env`` names an environment
+        variable; its contents are never stored in the model configuration.
+
+    Returns
+    -------
+    dict[str, str]
+        JSON content headers and, when configured, bearer authorization,
+        ``x-api-key`` for Anthropic, or ``x-goog-api-key`` for Gemini.
+        Anthropic also receives the configured API-version header.
+
+    Raises
+    ------
+    RuntimeError
+        If an explicitly named credential environment variable is empty or unset.
+
+    Notes
+    -----
+    Returned values contain secrets and must never be traced or persisted.
+    Omitting ``api_key_env`` leaves authentication to the configured service;
+    this function does not require or invent a provider-specific credential.
+    """
 
     headers = {"Content-Type": "application/json", "Accept": "application/json"}
     env_name = settings.get("api_key_env")
@@ -137,6 +210,8 @@ def _openai_response(raw: Mapping[str, Any], require_complete: bool) -> tuple[st
     status = raw.get("status")
     if status == "incomplete":
         raise ValueError("provider generation was truncated")
+    if "status" in raw and status != "completed":
+        raise ValueError("OpenAI response status must be completed")
     if require_complete and status != "completed":
         raise ValueError("provider completion status is missing")
     outputs = raw.get("output")
@@ -158,11 +233,47 @@ def _openai_response(raw: Mapping[str, Any], require_complete: bool) -> tuple[st
         raise ValueError("provider refused the request")
     if len(texts) != 1:
         raise ValueError("OpenAI Responses requires exactly one output_text")
-    return texts[0], raw.get("usage"), {"refusal": None, "truncated": False}
+    return texts[0], _copy(raw.get("usage")), {"refusal": None, "truncated": False}
 
 
 def chat_reply(raw, provider, *, require_complete=False, include_metadata=False):
-    """Return text, usage, and refusal/truncation metadata from a native reply."""
+    """Extract exactly one text result and native usage from a provider reply.
+
+    Parameters
+    ----------
+    raw : Mapping[str, Any]
+        Decoded native provider response. Text is not parsed as an action here.
+    provider : str
+        One of the five configured provider adapter identifiers.
+    require_complete : bool, optional
+        Require the provider's explicit normal completion marker. When false,
+        legacy replies may omit that marker, but explicit failure, unsupported
+        nonterminal, truncation and refusal markers still fail. Information-profile
+        prompts require it in ``ConfiguredBackend``. Legacy Anthropic
+        ``stop_sequence`` is accepted; strict profiles require ``end_turn``.
+    include_metadata : bool, optional
+        Include the normalized refusal/truncation metadata as a third result.
+
+    Returns
+    -------
+    tuple
+        ``(text, usage)`` or ``(text, usage, metadata)``. Usage is detached JSON
+        with native token-count fields and may be None when unreported. A
+        successful metadata result has refusal None and truncated False.
+
+    Raises
+    ------
+    ValueError
+        If the provider is unsupported, the reply is refused or truncated, the
+        required completion marker is absent, or there is not exactly one
+        supported text result. Tool-only replies cannot provide that result.
+
+    Notes
+    -----
+    This adapter checks reply structure and completion, not the response JSON
+    schema or physical feasibility. Failed replies raise; callers can recover
+    their usage independently with ``provider_usage`` before parsing.
+    """
 
     if provider == "openai":
         result = _openai_response(raw, require_complete)
@@ -196,6 +307,8 @@ def chat_reply(raw, provider, *, require_complete=False, include_metadata=False)
             raise ValueError("provider generation was truncated")
         if reason == "refusal":
             raise ValueError("provider refused the request")
+        if "stop_reason" in raw and reason not in ("end_turn", "stop_sequence"):
+            raise ValueError("Anthropic generation must end the turn or a configured stop sequence")
         if require_complete and reason != "end_turn":
             raise ValueError("provider completion status is missing")
         content = raw.get("content")
@@ -237,6 +350,27 @@ def chat_reply(raw, provider, *, require_complete=False, include_metadata=False)
 
 
 def provider_usage(raw: Mapping[str, Any], provider: str) -> Any:
+    """Copy native usage independently of response-content validity.
+
+    Parameters
+    ----------
+    raw : Mapping[str, Any]
+        Decoded provider response, including a failed or refused response.
+    provider : str
+        Adapter identifier selecting the native usage field.
+
+    Returns
+    -------
+    Any
+        Detached JSON usage. Ollama retains prompt_eval_count and eval_count;
+        Gemini retains usageMetadata; other adapters retain usage. Counts use
+        provider token definitions. Unreported usage is None, or {} for Ollama.
+
+    Raises
+    ------
+    ValueError
+        If reported usage contains non-finite JSON numbers.
+    """
     if provider == "ollama":
         value = {key: raw[key] for key in ("prompt_eval_count", "eval_count") if key in raw}
     elif provider == "gemini":

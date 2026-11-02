@@ -1,0 +1,23 @@
+{
+  "schema_version": "fe-walter-rule-initialization.v1",
+  "simulation_start": "2021-01-01",
+  "coefficient_date": "2020-05-01",
+  "coefficient_storage_m3": 21914228.648262143,
+  "coefficient": 0.19022285020658533,
+  "physical_initial_storage_m3": 4287715.370246947,
+  "alpha": 0.85,
+  "capacity_m3": 135532852.33895192,
+  "source": {
+    "agency": "USACE",
+    "series_id": "FEWalter.Stor.Inst.15Minutes.0.Rev-DCP",
+    "time_zone": "America/New_York",
+    "source_sha256": "d61df27da427623c101e061379c58710e522d246ffbadec4899cac5fa4144eb5",
+    "source_field": "start_local_midnight_storage_acft",
+    "storage_acft": 17766.154296875,
+    "acft_to_m3": 1233.48183754752,
+    "preliminary": true
+  },
+  "selection": "Prior operating-year start; no 2021-2025 observation used for the coefficient.",
+  "physical_initial_state": "2021-01-01 local midnight; common to all three methods.",
+  "later_refresh": "Each May 1 uses that method's simulated beginning-of-day storage."
+}

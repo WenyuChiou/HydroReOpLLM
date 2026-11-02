@@ -8,7 +8,8 @@ decision evidence. A new study follows this route:
 2. Connect the accepted model and forcing in [Hydrology setup](HYDROLOGY_SETUP.md).
 3. Define reservoir physics and the water network in [Build a simulation](BUILD_SIMULATION.md).
 4. Choose Rule-based or LLM operators in [Configure agents](CONFIGURATION.md).
-5. Run the checks and commands in [Run and resume](RUNNING.md).
+5. Add optional data through [Available information](INFORMATION.md).
+6. Run the checks and commands in [Run and resume](RUNNING.md).
 
 Check the configuration files, prepare and save upstream inflow, then run daily
 reservoir operations. Verify the saved records before interpreting the results.

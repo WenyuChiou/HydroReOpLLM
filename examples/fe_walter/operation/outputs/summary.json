@@ -1,0 +1,122 @@
+{
+  "schema_version": "fe-walter-baseline-summary.v1",
+  "period": [
+    "2021-01-01",
+    "2025-12-31"
+  ],
+  "days": 1826,
+  "adopted_alpha": 0.85,
+  "capacity_m3": 135532852.33895192,
+  "water_elevation": {
+    "n": 1826,
+    "MAE_ft": 88.61203618385694,
+    "RMSE_ft": 96.38578828812429,
+    "bias_ft": 88.59557916847541,
+    "min_ft": 1313.2262773708164,
+    "max_ft": 1450.0000008691325
+  },
+  "streamflow": {
+    "01447800": {
+      "n": 1679,
+      "KGE_2009": 0.637589603223305,
+      "NSE": 0.41389303315569215,
+      "MAE_cfs": 300.6536331811193,
+      "RMSE_cfs": 587.0710556166274,
+      "volume_bias_percent": -9.836146172581941
+    },
+    "01449000": {
+      "n": 1805,
+      "KGE_2009": 0.8042875626796481,
+      "NSE": 0.7246676598174968,
+      "MAE_cfs": 381.4052657378636,
+      "RMSE_cfs": 712.590921782277,
+      "volume_bias_percent": -6.303051731733973
+    }
+  },
+  "balance": {
+    "status": "PASS",
+    "unique_dates": 1826,
+    "max_reservoir_residual_m3": 2.885371941374615e-08,
+    "max_system_daily_residual_m3": 2.991873770952225e-08,
+    "system_period_residual_m3": -1.6391277313232422e-07,
+    "routing_max_difference_cms": {
+      "01447800": 0.0,
+      "01449000": 0.0
+    },
+    "reservoir_initial_storage_m3": 4287715.370246947,
+    "reservoir_final_storage_m3": 77856950.74263066,
+    "final_channel_storage_m3": 131661.04135205635,
+    "total_inflow_m3": 2880153212.003384,
+    "controlled_release_volume_m3": 2753158924.912093,
+    "spill_volume_m3": 53425051.71890742,
+    "spill_days": 94
+  },
+  "alpha_sensitivity": {
+    "calibration_period": [
+      2016,
+      2020
+    ],
+    "evaluation_period": [
+      2021,
+      2025
+    ],
+    "candidate_alpha": 0.3413084211077173,
+    "adopted": false,
+    "training": {
+      "baseline": {
+        "n": 1614,
+        "MAE_ft": 92.61816715576528,
+        "RMSE_ft": 96.68185501831401,
+        "bias_ft": 92.61816715576528,
+        "min_simulated_ft": 1405.0035612976185,
+        "max_simulated_ft": 1450.0000008691325
+      },
+      "calibrated": {
+        "n": 1614,
+        "MAE_ft": 53.472294576862836,
+        "RMSE_ft": 61.60002024942066,
+        "bias_ft": 40.35271673871103,
+        "min_simulated_ft": 1250.0000000096056,
+        "max_simulated_ft": 1437.4659515529918
+      }
+    },
+    "evaluation": {
+      "baseline": {
+        "n": 1826,
+        "MAE_ft": 88.61203618385694,
+        "RMSE_ft": 96.38578828812429,
+        "bias_ft": 88.59557916847541,
+        "min_simulated_ft": 1313.2262773708164,
+        "max_simulated_ft": 1450.0000008691325
+      },
+      "calibrated": {
+        "n": 1826,
+        "MAE_ft": 57.74599422808916,
+        "RMSE_ft": 70.38275380331643,
+        "bias_ft": 27.587212230021976,
+        "min_simulated_ft": 1250.0000000096056,
+        "max_simulated_ft": 1450.0000008691325
+      }
+    },
+    "candidate_days_at_lower_bound": 329,
+    "reason": "Lower water-level error, worse downstream scores and 329 unavailable-water requests; retained as sensitivity evidence."
+  },
+  "interpretation": "Generic Hanasaki comparator; mass balance passes, but water-level skill is poor. No five-year LLM result exists.",
+  "flow_score_masks": "Existing masks unchanged; first21days omitted;126 White Haven provisional records excluded from primary scores. All dates retained in daily output/plots.",
+  "observation": "USACE end-of-local-day storage converted using the saved WCM curve (ft NGVD29); preliminary flags retained in original evidence.",
+  "limitations": [
+    "The short FEWalter-to-White Haven reach and FEW-L-01/02 local runoff retain transferred upper-watershed parameters.",
+    "Lehighton C&V validates combined local runoff and routing under an observed White Haven boundary; individual tributaries are not separately validated.",
+    "Current inactive/dead storage and sedimentation are not independently confirmed.",
+    "Reservoir evaporation and seepage are zero in this fixed comparison.",
+    "Fixed 86400 s operation days and local-day observation boundaries differ on DST transitions."
+  ],
+  "sources": {
+    "accepted_run": "initial-coefficient-rerun-20261021T0245Z",
+    "comparison_sha256": "25ca61ba0ca8fba50899fd90d3b8179fe346bf0a63c9a370e28573609feabbee",
+    "reservoir_source_sha256": "271cf8c2f1f097f4a0852b1eb85725b551e30ef1184ccb604c9222375e2af29e",
+    "flow_source_sha256": "1012a9db87565127b1d15bd855840b52d13de661ffe48cf8bc78913341a08087",
+    "assessment_sha256": "2d9a9bdcab393780759b486b832eddc200f0186aac00142d85f0c3d34a2ce99d",
+    "readiness_reconciliation": "Completed lower C&V lineage rechecked 2026-10-21; saved simulation and metric values unchanged."
+  }
+}

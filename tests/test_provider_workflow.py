@@ -84,6 +84,15 @@ def test_native_provider_to_two_independent_rivers_is_offline(tmp_path, monkeypa
     decisions = "\n".join(p.read_text() for p in (tmp_path / "run/operation/raw").glob("policy_*.json"))
     assert "document_ids" in decisions and "source_sha256" in decisions
     assert "reported-model" in decisions
+    # Native request identities must survive the backend-to-durable-journal path.
+    policy_records = [json.loads(p.read_text()) for p in (tmp_path / "run/operation/raw").glob("policy_*.json")]
+    provider_traces = [record["backend_trace"] for record in policy_records
+                       if isinstance(record.get("backend_trace"), dict)
+                       and record["backend_trace"].get("provider") == provider]
+    assert len(provider_traces) == 4
+    expected_id = None if provider == "ollama" else "fixture-request"
+    assert all(trace["request_id"] == expected_id for trace in provider_traces)
+    assert all(trace["attempts"][0]["request_id"] == expected_id for trace in provider_traces)
 
 
 def test_transport_echoed_credentials_are_redacted_before_durable_write(tmp_path, monkeypatch):

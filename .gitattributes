@@ -66,3 +66,16 @@ examples/fe_walter/downstream/outputs/*.svg -text whitespace=-blank-at-eol,-blan
 # C&V vector exports retain Matplotlib's recorded path spacing.
 examples/fe_walter/downstream/outputs/hydrology_validation/*.svg -text whitespace=-blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol
 examples/fe_walter/downstream/inputs/station_metadata.txt -text whitespace=-blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+
+# Branding SVG bytes are pinned in accepted receipts; preserve LF on Windows.
+docs/_static/hydroopslm-social-preview.svg -text
+docs/figures/assets/branding/**/*.svg -text
+# Maintained module source pins use the same LF bytes on Windows and Linux.
+src/llm_reservoir_agent/**/*.py text eol=lf
+# Published test-definition pins use the indexed LF bytes on every platform.
+tests/*.py text eol=lf
+# The installed Daily examples and their evidence retain exact fixture bytes.
+examples/daily_offline/** -text
+docs/qa/*.json -text
+# Accepted comparison exports keep exact bytes, including native SVG path spacing.
+examples/fe_walter/completed_results/** -text whitespace=-blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol

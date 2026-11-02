@@ -1,11 +1,16 @@
-"""Causal, provider-independent decision information catalogs.
+"""Select causal, provider-independent decision information with explicit units.
 
-Role: Select available information at the decision time.
-
-Connections and data: workflow declares sources and named profiles; information_runtime
-supplies native simulation records. InformationCatalog builds detached fields with
-values, units, valid times, availability times and provenance. Supplemental information
-does not replace the physical inlet or storage ledger.
+``workflow`` declares static, CSV, native simulation or registered-extension
+sources and named profiles. ``InformationCatalog`` validates those declarations,
+pins CSV bytes and builds detached snapshots for observation.context. A snapshot
+retains value, quantity, location, unit/datum, valid time, availability time,
+issue time when applicable, selected history and source provenance.
+Observations require valid_time and available_at no later than the decision;
+forecasts require an issued/available cycle and a nonexpired horizon. History
+counts samples; max_age_seconds measures elapsed seconds. Explicit conversions
+support m3/s/cfs, m3/acre-ft and m/ft; no conversion changes the physical ledger.
+Construction reads CSV sources; build may invoke declared extension/native read
+callbacks once per source per decision. No model or hydrologic run is started.
 """
 
 from __future__ import annotations
@@ -24,6 +29,7 @@ from typing import Any, Callable, Iterable, Mapping
 SCHEMA_VERSION = "decision-information.v1"
 _SOURCE_TYPES = {"static", "csv", "simulation", "extension"}
 _SIMULATION_QUANTITIES = {"inflow", "storage", "release", "flow"}
+# Exact declared dimensional factors; no implicit relabeling of native model values.
 _CONVERSIONS = {
     ("m3/s", "cfs"): 35.31466672148859,
     ("cfs", "m3/s"): 1.0 / 35.31466672148859,
@@ -35,6 +41,8 @@ _CONVERSIONS = {
 
 
 def _text(value: Any, label: str) -> str:
+    """Require stripped nonempty source/profile identifiers so hidden whitespace cannot create distinct-looking aliases."""
+
     if not isinstance(value, str) or not value.strip():
         raise ValueError(f"{label} must be non-empty text")
     if value != value.strip():
@@ -43,6 +51,8 @@ def _text(value: Any, label: str) -> str:
 
 
 def _json_copy(value: Any, label: str) -> Any:
+    """Detach finite JSON source declarations/results, converting serialization errors to a labeled ValueError."""
+
     try:
         return json.loads(json.dumps(value, allow_nan=False, sort_keys=True))
     except (TypeError, ValueError) as exc:
@@ -50,6 +60,8 @@ def _json_copy(value: Any, label: str) -> Any:
 
 
 def _finite_number(value: Any, label: str) -> float:
+    """Accept signed finite numeric information values without coercing booleans or text; source units remain unchanged."""
+
     if isinstance(value, bool) or not isinstance(value, (int, float)):
         raise TypeError(f"{label} must be numeric")
     result = float(value)
@@ -59,6 +71,8 @@ def _finite_number(value: Any, label: str) -> float:
 
 
 def _csv_number(value: Any) -> float:
+    """Convert a CSV numeric cell to a finite float; reject invalid and nonfinite samples before catalog selection."""
+
     try:
         result = float(value)
     except (TypeError, ValueError) as exc:
@@ -69,6 +83,11 @@ def _csv_number(value: Any) -> float:
 
 
 def _parse_timestamp(value: Any, label: str, *, allow_legacy: bool = False) -> datetime:
+    """Parse a timestamp as UTC and require timezone metadata except for an explicitly allowed legacy decision clock.
+
+    Source valid/available/issued timestamps use strict mode; only legacy dates/naive decision times may assume UTC.
+    """
+
     if isinstance(value, datetime):
         parsed = value
     elif allow_legacy and isinstance(value, date):
@@ -93,16 +112,25 @@ def _parse_timestamp(value: Any, label: str, *, allow_legacy: bool = False) -> d
 
 
 def _iso(value: datetime) -> str:
+    """Render a UTC timestamp with a Z suffix so snapshots use one unambiguous time representation."""
+
     return value.astimezone(timezone.utc).isoformat().replace("+00:00", "Z")
 
 
 def _allowed(spec: Mapping[str, Any], allowed: set[str], label: str) -> None:
+    """Reject unknown declaration fields rather than ignoring misspelled controls or ambiguous metadata."""
+
     extras = set(spec).difference(allowed)
     if extras:
         raise ValueError(f"{label} has unsupported fields: {sorted(extras)}")
 
 
 def _convert(value: Any, source_unit: str, output_unit: str) -> Any:
+    """Copy identical-unit values or apply only a listed dimensional conversion to a finite scalar.
+
+    Factors convert flow (m3/s, cfs), volume (m3, acre-ft) or length (m, ft); unsupported conversions fail rather than relabel values.
+    """
+
     if source_unit == output_unit:
         return deepcopy(value)
     factor = _CONVERSIONS.get((source_unit, output_unit))
@@ -112,7 +140,32 @@ def _convert(value: Any, source_unit: str, output_unit: str) -> Any:
 
 
 class InformationCatalog:
-    """Validated information sources and named decision-time profiles."""
+    """Validate reusable information sources and named decision-time profiles.
+
+    Construction reads and hashes CSV bytes but does not invoke extension information readers. Native SI-unit requirements are additionally checked by workflow; arbitrary static information retains declared units.
+
+    Parameters
+    ----------
+    sources : Mapping[str, Any]
+        Source declarations with type, quantity, unit and location; CSV/extension sources declare observation or forecast kind.
+    profiles : Mapping[str, Any]
+        Named fields selecting source, optional output unit, required flag, positive sample history and optional max_age_seconds.
+    base_path : pathlib.Path
+        Declaring directory used to resolve CSV paths.
+    location_ids : Iterable[str]
+        Known simulation locations allowed in native source declarations.
+    providers : Mapping[str, callable] or None, optional
+        Explicit extension information readers with nonempty version attributes; not LLM providers.
+
+    Raises
+    ------
+    TypeError
+        A value has the wrong type or is not finite JSON.
+    ValueError
+        A required field, version, numeric bound or digest is invalid.
+    OSError
+        A required file cannot be read, created, flushed or replaced.
+    """
 
     def __init__(
         self,
@@ -131,6 +184,7 @@ class InformationCatalog:
         self._location_ids = {_text(item, "location_id") for item in location_ids}
         self._provider_versions: dict[str, str] = {}
         self._providers = self._validate_providers(providers or {})
+        # Exact CSV-byte provenance and normalized samples are frozen at construction.
         self._file_pins: dict[str, str] = {}
         self._records: dict[str, list[dict[str, Any]]] = {}
         self._sources = self._validate_sources(sources)
@@ -138,13 +192,32 @@ class InformationCatalog:
 
     @property
     def file_pins(self) -> Mapping[str, str]:
+        """Expose immutable copies of the CSV source-file hashes.
+
+        Returns
+        -------
+        Mapping[str, str]
+            Absolute CSV paths mapped to exact-byte SHA256 digests captured at construction.
+        """
+
         return MappingProxyType(dict(self._file_pins))
 
     def export_configuration(self) -> dict[str, Any]:
-        """Freeze source declarations and CSV samples for saved-file verification.
+        """Freeze source declarations and cached CSV samples for saved-file verification.
 
-        Registered providers are never called here. Their selected records are
-        captured at each decision; CSV bytes are pinned when the catalog loads.
+        This method does not invoke registered information readers. Their decision-specific selected records are retained in each built snapshot.
+
+        Returns
+        -------
+        dict[str, Any]
+            Detached sources, profiles and source_records with UTC timestamps plus CSV hashes/extension provider versions.
+
+        Raises
+        ------
+        TypeError
+            A value has the wrong type or is not finite JSON.
+        ValueError
+            A required field, version, numeric bound or digest is invalid.
         """
         sources = deepcopy(self._sources)
         for source in sources.values():
@@ -160,6 +233,8 @@ class InformationCatalog:
     def _validate_providers(
         self, providers: Mapping[str, Callable[..., Iterable[Mapping[str, Any]]]]
     ) -> dict[str, Callable[..., Iterable[Mapping[str, Any]]]]:
+        """Require explicit callable information readers with nonempty versions; pin declared versions without executing callbacks."""
+
         if not isinstance(providers, Mapping):
             raise TypeError("providers must be a mapping")
         validated: dict[str, Callable[..., Iterable[Mapping[str, Any]]]] = {}
@@ -177,6 +252,8 @@ class InformationCatalog:
         return validated
 
     def _validate_sources(self, sources: Mapping[str, Any]) -> dict[str, dict[str, Any]]:
+        """Validate source-specific keys, locations and units; read/hash CSV bytes once and reject any path whose bytes drift during construction."""
+
         validated: dict[str, dict[str, Any]] = {}
         for raw_id, raw_spec in sources.items():
             source_id = _text(raw_id, "source_id")
@@ -249,6 +326,11 @@ class InformationCatalog:
     def _read_csv(
         self, payload: bytes, spec: Mapping[str, Any], source_id: str
     ) -> list[dict[str, Any]]:
+        """Parse exact UTF-8 CSV columns into finite UTC records and reject ambiguous duplicate timestamp tuples.
+
+        Observation rows need valid_time/available_at/value; forecasts additionally need issued_at. No timezone or column is inferred.
+        """
+
         try:
             text = payload.decode("utf-8-sig")
         except UnicodeDecodeError as exc:
@@ -274,6 +356,8 @@ class InformationCatalog:
         return rows
 
     def _validate_profiles(self, profiles: Mapping[str, Any]) -> dict[str, dict[str, Any]]:
+        """Require known sources, boolean required flags, positive sample counts and nonnegative age limits in seconds; preserve explicit output-unit requests."""
+
         validated: dict[str, dict[str, Any]] = {}
         for raw_id, raw_profile in profiles.items():
             profile_id = _text(raw_id, "profile_id")
@@ -321,6 +405,8 @@ class InformationCatalog:
     def _normalise_record(
         self, raw_record: Mapping[str, Any], source_id: str, *, forecast: bool
     ) -> dict[str, Any]:
+        """Require exact finite-record fields and timezone-aware source timestamps; forecasts must be issued no later than availability."""
+
         if not isinstance(raw_record, Mapping):
             raise TypeError(f"source {source_id!r} records must be mappings")
         record = dict(raw_record)
@@ -332,6 +418,7 @@ class InformationCatalog:
         missing = required.difference(record)
         if missing:
             raise ValueError(f"source {source_id!r} record missing fields: {sorted(missing)}")
+        # valid_time describes the represented condition; available_at limits causal access.
         valid = _parse_timestamp(record["valid_time"], "valid_time")
         available = _parse_timestamp(record["available_at"], "available_at")
         result: dict[str, Any] = {
@@ -348,6 +435,8 @@ class InformationCatalog:
 
     @staticmethod
     def _reject_ambiguous(records: list[dict[str, Any]], source_id: str) -> None:
+        """Reject duplicate issue/valid/availability tuples so deterministic revision selection cannot depend on row order."""
+
         seen: set[tuple[datetime, ...]] = set()
         for record in records:
             key = tuple(record[name] for name in ("issued_at", "valid_time", "available_at") if name in record)
@@ -364,6 +453,36 @@ class InformationCatalog:
         observation: Mapping[str, Any],
         simulation_reader: Callable[..., Iterable[Mapping[str, Any]]] | None = None,
     ) -> dict[str, Any]:
+        """Build one profile snapshot using only causally available records.
+
+        Each source is sampled once per decision so aliases share the same data. Required unavailable/stale fields fail. Observation history ends at the latest eligible record; forecast history starts at the nearest valid time in the latest available issue cycle. Reader exceptions propagate.
+
+        Parameters
+        ----------
+        profile_id : str
+            Previously validated profile name selecting fields and their output units.
+        decision_time : str, date or datetime
+            Current decision clock; legacy naive clocks are interpreted as UTC.
+        timestep : int
+            Zero-based nonnegative host step index.
+        observation : Mapping[str, Any]
+            Current detached physical observation passed to runtime readers; the snapshot does not alter it.
+        simulation_reader : callable or None, optional
+            Read-only callback(source_id, source, decision_time, timestep, observation) yielding native records.
+
+        Returns
+        -------
+        dict[str, Any]
+            decision-information.v1 snapshot with UTC decision_time, selected fields, units, histories and provenance; optional unavailable fields are MISSING.
+
+        Raises
+        ------
+        TypeError
+            A value has the wrong type or is not finite JSON.
+        ValueError
+            A required field, version, numeric bound or digest is invalid.
+        """
+
         profile_name = _text(profile_id, "profile_id")
         if profile_name not in self._profiles:
             raise ValueError(f"unknown profile_id: {profile_name}")
@@ -376,6 +495,7 @@ class InformationCatalog:
             raise TypeError("observation must be a mapping")
         observation_copy = _json_copy(dict(observation), "observation")
         fields: dict[str, dict[str, Any]] = {}
+        # A source is sampled once per decision so multiple aliases cannot see different revisions.
         sampled_sources: dict[str, list[dict[str, Any]]] = {}
         for alias, field in self._profiles[profile_name]["fields"].items():
             source_id = field["source"]
@@ -391,6 +511,7 @@ class InformationCatalog:
             if selected is None:
                 reason = "no causally available record"
             elif "max_age_seconds" in field and source["type"] != "static":
+                # Forecast age measures time since issue; observation age since validity, in s.
                 age_from = selected.get("issued_at", selected["valid_time"])
                 if (decision - age_from).total_seconds() > field["max_age_seconds"]:
                     reason = "stale"
@@ -420,6 +541,11 @@ class InformationCatalog:
         observation: Mapping[str, Any],
         simulation_reader: Callable[..., Iterable[Mapping[str, Any]]] | None,
     ) -> list[dict[str, Any]]:
+        """Dispatch a detached source snapshot to cached static/CSV records, native simulation reader or registered versioned information callback.
+
+        Callbacks receive copies of source/observation; absent native readers yield no records, never invented physical observations.
+        """
+
         source_type = source["type"]
         if source_type == "static":
             return [{"value": deepcopy(source["value"]), "valid_time": None, "available_at": None}]
@@ -444,6 +570,8 @@ class InformationCatalog:
     def _runtime_records(
         self, raw_records: Iterable[Mapping[str, Any]], source_id: str
     ) -> list[dict[str, Any]]:
+        """Materialize callback records, require the declared forecast kind and normalize finite timestamps/values before rejecting ambiguous duplicates."""
+
         if isinstance(raw_records, (str, bytes, Mapping)):
             raise TypeError(f"source {source_id!r} provider must return an iterable of records")
         try:
@@ -467,6 +595,11 @@ class InformationCatalog:
         decision: datetime,
         history_count: int,
     ) -> tuple[dict[str, Any] | None, list[dict[str, Any]]]:
+        """Select by causal availability, then latest issue/revision, without looking into unpublished data.
+
+        Observations use valid_time <= decision and available_at <= decision, returning latest sample plus trailing history. Forecasts use issued_at <= available_at <= decision and valid_time >= decision, choosing the latest issue cycle and earliest remaining horizon; history_count counts samples.
+        """
+
         if source["type"] == "static":
             return (records[0], records[:1]) if records else (None, [])
         forecast = source.get("kind") == "forecast" or bool(records and "issued_at" in records[0])
@@ -504,6 +637,8 @@ class InformationCatalog:
         return chronology[-1], chronology[-history_count:]
 
     def _provenance(self, source: Mapping[str, Any]) -> dict[str, Any]:
+        """Attach the captured CSV byte hash or declared extension-reader version; static/native sources do not receive fabricated identities."""
+
         if source["type"] == "csv":
             return {"source_sha256": source["source_sha256"]}
         if source["type"] == "extension":
@@ -517,6 +652,8 @@ class InformationCatalog:
         source: Mapping[str, Any],
         output_unit: str,
     ) -> dict[str, Any]:
+        """Convert a selected value into the requested units while retaining location, quantity, UTC times, datum and source identity."""
+
         kind = source.get("kind", source["type"])
         sample: dict[str, Any] = {
             "value": _convert(record["value"], source["unit"], output_unit),
@@ -543,6 +680,8 @@ class InformationCatalog:
         source: Mapping[str, Any],
         output_unit: str,
     ) -> dict[str, Any]:
+        """Attach AVAILABLE status and converted, source-consistent sample history to the selected record."""
+
         result = self._sample_record(selected, source_id, source, output_unit)
         result["status"] = "AVAILABLE"
         result["history"] = [
@@ -553,6 +692,8 @@ class InformationCatalog:
     def _missing_record(
         self, source_id: str, source: Mapping[str, Any], output_unit: str, reason: str
     ) -> dict[str, Any]:
+        """Represent optional unavailable data explicitly with None values/times and empty history, retaining source metadata and the reason."""
+
         result: dict[str, Any] = {
             "status": "MISSING",
             "reason": reason,

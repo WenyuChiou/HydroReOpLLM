@@ -1,4 +1,4 @@
-# Decision information
+# Available information
 
 [English](INFORMATION.md) | [繁體中文](INFORMATION.zh-TW.md)
 
@@ -9,6 +9,80 @@ river network, inflow, storage, or release limits.
 
 Download [information.yaml](../templates/coupled/information.yaml) or browse the
 [complete template folder](TEMPLATES.md).
+
+## Add an observed station series
+
+For example, give `lake_a`'s operator a downstream flow observation. You need
+four connected settings: a source, a profile, the agent's selected profile and
+the prompt placeholder. The values and names below are a teaching example,
+not observations from the article.
+
+**1. Add the source and select its field in `information.yaml`:**
+
+```yaml
+sources:
+  downstream_gauge:
+    type: csv
+    kind: observation
+    quantity: flow
+    unit: m3/s
+    location: river_a
+    path: observations/gauge.csv
+profiles:
+  operator_view:
+    fields:
+      downstream_flow_cms:
+        source: downstream_gauge
+        required: true
+```
+
+**2. Supply `observations/gauge.csv`:**
+
+```text
+valid_time,available_at,value
+2020-02-27T00:00:00Z,2020-02-27T01:00:00Z,1.2
+```
+
+The observation describes `valid_time` and becomes usable at `available_at`.
+Both must be no later than the decision. Replace the example with actual dated
+observations; future or missing required data stops the request.
+
+**3. Reference the file in `experiment.yaml`, and select the profile in your LLM agent:**
+
+```yaml
+# experiment.yaml
+information:
+  file: information.yaml
+```
+
+```yaml
+# agents.llm.yaml (the other model and prompt settings are unchanged)
+operator_a:
+  reservoir_id: lake_a
+  type: llm
+  model_profile: primary
+  prompt_file: prompts/operator.txt
+  customization:
+    information: operator_view
+```
+
+**4. Include the selected data in `prompts/operator.txt`:**
+
+```text
+Current reservoir observation: $observation
+Additional information: $information
+Return the requested controlled release using the configured action schema.
+```
+
+Only the selected profile reaches this operator. To add another datum, add a
+source and a named field to that profile. For a forecast, use `kind: forecast`
+and CSV columns `issued_at,valid_time,available_at,value`: its issue and
+availability times must already be known when the decision is made.
+
+## Add a fixed operating target
+
+Use the static source below when a value does not change with time. The value
+is information for the operator, not a new physical release constraint.
 
 ```{literalinclude} ../templates/coupled/information.yaml
 :language: yaml

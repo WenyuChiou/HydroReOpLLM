@@ -177,6 +177,16 @@ def lateral_runoff(partition):
     return sum(series), assumptions, model
 
 
+def _resource_reference(resource, target):
+    """Keep relative references when possible; Windows volumes require absolute paths."""
+    try:
+        return os.path.relpath(resource, target).replace("\\", "/")
+    except ValueError:
+        # A temporary output and installed source can be on different volumes.
+        # The settings loader accepts absolute paths and still pins their bytes.
+        return Path(resource).resolve().as_posix()
+
+
 def corrected_settings(output, partition, kernel, native_model):
     """Generate separate future-run settings without overwriting old inputs."""
     target = output / "corrected_inputs"
@@ -230,9 +240,9 @@ def corrected_settings(output, partition, kernel, native_model):
         # Top-level split references retain their declaring-file semantics.
         for key in ("agents", "models", "auditors"):
             if key in entry and isinstance(entry[key], dict) and "file" in entry[key]:
-                entry[key]["file"] = os.path.relpath(CASE / "coupled" / entry[key]["file"], target).replace("\\", "/")
+                entry[key]["file"] = _resource_reference(CASE / "coupled" / entry[key]["file"], target)
         for key, value in entry.get("extensions", {}).items():
-            entry["extensions"][key] = os.path.relpath((CASE / "coupled" / value).resolve(), target).replace("\\", "/")
+            entry["extensions"][key] = _resource_reference((CASE / "coupled" / value).resolve(), target)
         entry.update(hydrology={"file": "hydrology.yaml"}, case="reservoirs.json",
                      output="runs/" + name, run_id="fe-walter-downstream-" + name)
         (target / (name + ".yaml")).write_text(yaml.safe_dump(entry, sort_keys=False), encoding="utf-8")

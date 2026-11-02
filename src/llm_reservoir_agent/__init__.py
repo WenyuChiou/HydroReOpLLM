@@ -1,10 +1,12 @@
-"""Provider-independent reservoir policies and HydroCNHS Dam integration.
+"""Provider-independent reservoir decisions and HydroCNHS Dam integration.
 
-Role: Public imports for the reservoir decision package.
-
-Connections and data: Exports the Dam agent, contracts, physical calculation and policy
-composition classes. Importing this namespace does not start a simulation or contact a
-model.
+This public namespace exports the Dam agent, observation/action contracts,
+physical transition kernel, policy adapter, prompt contracts and audit plugins.
+Import these classes to assemble a daily reservoir simulation in Python; use
+``workflow`` for YAML setup and ``experiment`` for persisted network runs.
+Flows use m3/s, volumes use m3 and kernel durations use seconds. Actions request
+controlled release; implemented release and spill belong to the physical result.
+Imports load package dependencies but do not start a simulation or model request.
 """
 
 from .agent import LLMReservoirAgent, ReservoirDamAgent

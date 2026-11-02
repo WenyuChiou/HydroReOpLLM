@@ -30,20 +30,46 @@ from .time_axis import TimeAxis
 
 
 def _adapter_implementation_files():
-    """Pin host adapters as well as the separately pinned upstream/vendor core."""
+    """Read and hash each installed adapter Python file so host bridges are pinned separately from the upstream vendor core."""
     folder = Path(__file__).resolve().parent / "plugins"
     return {p.name: hashlib.sha256(p.read_bytes()).hexdigest()
             for p in folder.glob("*.py")}
 
 
 def _implementation_files():
-    """Pin package Python sources, including optional installed plugins."""
+    """Read and hash all package Python source files, including installed plugins, for exact-runtime recovery/cache checks."""
     folder = Path(__file__).resolve().parent
     return {p.relative_to(folder).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest()
             for p in folder.rglob("*.py")}
 
 
 def write_json(path, value):
+    """Flush JSON bytes to a temporary file before replacing metadata.
+
+    Only Windows sharing/permission failures during replacement receive bounded retries of the same bytes; model decisions and physics are never rerun.
+
+    Parameters
+    ----------
+    path : pathlib.Path
+        Destination metadata/progress path; its parent must exist and the .tmp path must be unused.
+    value : JSON-compatible object
+        Finite JSON metadata to encode as indented UTF-8 with a final LF.
+
+    Returns
+    -------
+    None
+        Destination is replaced after the temporary bytes are completely written, flushed and fsynced.
+
+    Raises
+    ------
+    TypeError
+        The payload is not JSON serializable.
+    ValueError
+        The payload contains a nonfinite number.
+    OSError
+        A required file cannot be read, created, flushed or replaced.
+    """
+
     data = (json.dumps(value, ensure_ascii=False, allow_nan=False, indent=2) + "\n").encode("utf-8")
     temporary = path.with_suffix(path.suffix + ".tmp")
     with temporary.open("xb") as handle:
@@ -55,11 +81,36 @@ def write_json(path, value):
 
 
 class ProviderEvidenceError(RuntimeError):
-    """A provider attempt could not be recorded durably; do not retry the I/O."""
+    """A provider-attempt ledger write or fsync failed.
+
+    Callers must stop rather than retry a potentially partial evidence append or silently continue with an unrecorded request.
+    """
 
 
 def record_provider_attempt(path, value):
-    """Keep each authorized attempt and captured response across process crashes."""
+    """Append and fsync one provider-attempt event before returning.
+
+    Parameters
+    ----------
+    path : str or pathlib.Path
+        Append-only provider_attempts.jsonl path in the run directory.
+    value : JSON-compatible object
+        One STARTED/RETURNED/FAILED event with request identity and captured response/error evidence.
+
+    Returns
+    -------
+    None
+        One UTF-8 JSON line is flushed and fsynced; existing attempt evidence is retained.
+
+    Raises
+    ------
+    ProviderEvidenceError
+        The append is incomplete or an operating-system write/flush fails; no automatic append retry is safe.
+    TypeError
+        The event cannot be serialized.
+    ValueError
+        The event contains a nonfinite number.
+    """
     data = (json.dumps(value, ensure_ascii=False, allow_nan=False) + "\n").encode("utf-8")
     try:
         with Path(path).open("ab") as stream:
@@ -72,6 +123,8 @@ def record_provider_attempt(path, value):
 
 
 def _csv(path, fields, rows):
+    """Exclusively create a CSV, then flush and fsync the complete header/rows; an existing file or I/O failure propagates."""
+
     with path.open("x", encoding="utf-8", newline="") as handle:
         writer = csv.DictWriter(handle, fieldnames=fields)
         writer.writeheader()
@@ -81,6 +134,8 @@ def _csv(path, fields, rows):
 
 
 def _note(original, logging_error):
+    """Preserve the original execution exception while exposing an additional evidence-logging failure; never mask either failure as success."""
+
     message = "additional logging failure: " + repr(logging_error)
     if callable(getattr(original, "add_note", None)):
         original.add_note(message)
@@ -95,6 +150,7 @@ class _ObservedBackend:
         self.journal = journal
         self.provenance = provenance
         self.policy_id = getattr(backend, "policy_id", type(backend).__name__)
+        # Shared per-reservoir counters advance only after physics is durably recorded.
         self.committed = committed
         self.time_axis = time_axis
         self.recovery = recovery
@@ -102,14 +158,54 @@ class _ObservedBackend:
 
     @property
     def state_owner(self):
+        """Expose the wrapped mutable backend for isolation checks.
+
+        Returns
+        -------
+        object
+            The immediate reservoir-owned backend instance.
+        """
+
         return self.backend
 
     @property
     def network_calls(self):
+        """Read only a valid observed backend request count.
+
+        Returns
+        -------
+        int or None
+            Nonnegative count, or None for unknown/invalid accounting.
+        """
+
         value = getattr(self.backend, "network_calls", None)
         return value if isinstance(value, int) and not isinstance(value, bool) and value >= 0 else None
 
     def decide(self, observation):
+        """Journal the lifecycle of one backend decision without retrying it.
+
+        Backend exceptions propagate after a decision_failed event is attempted; prior-day payload freshness is not inferred.
+
+        Parameters
+        ----------
+        observation : Mapping[str, Any]
+            Current reservoir snapshot with zero-based timestep and host timestamp.
+
+        Returns
+        -------
+        dict
+            Canonical requested action in m3/s, paired with the retained reported audit and raw trace.
+
+        Raises
+        ------
+        TypeError
+            A value has the wrong type or is not finite JSON.
+        ValueError
+            A required field, version, numeric bound or digest is invalid.
+        OSError
+            A required file cannot be read, created, flushed or replaced.
+        """
+
         observation = json_snapshot(observation, label="observation")
         clock = dict(timestep=observation["timestep"], timestamp=observation["timestamp"])
         self.journal.record_backend_event(self.reservoir_id, "decision_started", **clock, status="STARTED")
@@ -136,6 +232,30 @@ class _ObservedBackend:
             raise
 
     def save_physics(self, record):
+        """Persist completed physics before invoking backend feedback.
+
+        Recovery compares reconstructed records before persistence. Progress counts committed reservoir steps, not successful feedback callbacks.
+
+        Parameters
+        ----------
+        record : Mapping[str, Any]
+            Matching completed physical transition; start/end storage m3, flows m3/s.
+
+        Returns
+        -------
+        None
+            Physics is journaled and committed-step/day progress is flushed.
+
+        Raises
+        ------
+        TypeError
+            A value has the wrong type or is not finite JSON.
+        ValueError
+            A required field, version, numeric bound or digest is invalid.
+        OSError
+            A required file cannot be read, created, flushed or replaced.
+        """
+
         if self.recovery is not None:
             self.recovery.check_physics(self.reservoir_id, record)
         self.journal.record_physics(self.reservoir_id, record)
@@ -149,6 +269,24 @@ class _ObservedBackend:
         })
 
     def record_transition(self, record):
+        """Forward completed feedback and retain any callback failure.
+
+        Parameters
+        ----------
+        record : Mapping[str, Any]
+            Already committed physical record corresponding to the preceding request.
+
+        Returns
+        -------
+        None
+            feedback_completed is recorded on success; feedback_failure is recorded before propagating a callback error.
+
+        Raises
+        ------
+        OSError
+            A required file cannot be read, created, flushed or replaced.
+        """
+
         observation = record["observation"]
         clock = dict(timestep=observation["timestep"], timestamp=observation["timestamp"])
         recorder = getattr(self.backend, "record_transition", None)
@@ -165,11 +303,53 @@ class _ObservedBackend:
 def run_experiment(config, rows, backends, *, output, run_id, project_root=PROJECT_ROOT, provenance=None,
                     information_runtime=None, outcome_checks=None, information_agents=None, recovery=None,
                     time_settings=None):
-    """Run connected reservoirs with one isolated decision backend per reservoir.
+    """Run a fixed-step connected reservoir network with durable causal traces.
 
-    Local inflows are incremental natural runoff in cms. Incoming upstream
-    release/spill is added by routing, never included a second time in local Q.
-    Original audit FAIL remains diagnostic FAIL; completion is execution status.
+    Backend/callback exceptions propagate with a failure summary when logging remains possible. Audit FAIL remains a diagnostic FAIL even when execution completes; operating_strategy_accepted remains unknown.
+
+    Parameters
+    ----------
+    config : dict
+        Validated network and physical settings; each controlled reservoir needs its own backend.
+    rows : list[dict]
+        Consecutive date- or timestamp-labeled incremental local inflows, m3/s; routed upstream releases must not be duplicated.
+    backends : Mapping[str, object]
+        Reservoir-name to isolated backend mapping; passive outlets are completed by the host.
+    output : str or pathlib.Path
+        New run directory created exclusively; existing output is rejected.
+    run_id : str
+        Nonempty run identity used with reservoir/step/time to scope trace IDs.
+    project_root : str or pathlib.Path, optional
+        Runtime checkout containing pinned core metadata and the ABM bridge.
+    provenance : Mapping or None, optional
+        Declared settings/source/network permission metadata, copied into run evidence.
+    information_runtime : InformationRuntime or None, optional
+        Causal read-only information bindings supplied to the network.
+    outcome_checks : Mapping or None, optional
+        Configured downstream checks evaluated only after completed routing.
+    information_agents : Mapping or None, optional
+        Agent/reservoir/profile references used to retain dynamic outcome limits.
+    recovery : RecoveryTape or None, optional
+        Validated unchanged-prefix evidence; regenerated physics must match it.
+
+    time_settings : mapping or None, optional
+        Main TimeAxis settings validated against the network; omitted for legacy Daily.
+
+    Returns
+    -------
+    tuple[dict, dict]
+        Per-reservoir completed operation records and finalized trace summary; flow m3/s, volume/residual m3, elapsed days derived from seconds.
+
+    Raises
+    ------
+    TypeError
+        A value has the wrong type or is not finite JSON.
+    ValueError
+        A required field, version, numeric bound or digest is invalid.
+    RuntimeError
+        A backend sequence, recovery check or terminal journal invariant fails.
+    OSError
+        A required file cannot be read, created, flushed or replaced.
     """
     topology, local = validate_inflows(config, rows)
     clock = topology["clock"]
@@ -219,6 +399,7 @@ def run_experiment(config, rows, backends, *, output, run_id, project_root=PROJE
                                        information_runtime=information_runtime)
         if recovery is not None:
             recovery.finish()
+        # Completed routed rates include controlled release plus spill; volumes integrate dt.
         flows = engine.pop("routed_flows_cms")
         ledger = engine.pop("network_balance")
         reaches = engine.pop("reach_volume_trace")
@@ -295,6 +476,32 @@ def run_experiment(config, rows, backends, *, output, run_id, project_root=PROJE
 
 
 def main(argv=None):
+    """Run the offline-response network command-line interface.
+
+    The CLI reads cases and saved responses and writes a new run; provider construction is reserved for the configured workflow.
+
+    Parameters
+    ----------
+    argv : Sequence[str] or None, optional
+        CLI arguments; None uses process arguments, including case/responses/output paths.
+
+    Returns
+    -------
+    int
+        Zero after a completed run and printed JSON summary.
+
+    Raises
+    ------
+    SystemExit
+        Argument parsing requests help or rejects missing/invalid CLI arguments.
+    TypeError
+        A value has the wrong type or is not finite JSON.
+    ValueError
+        A required field, version, numeric bound or digest is invalid.
+    OSError
+        A required file cannot be read, created, flushed or replaced.
+    """
+
     from .case import inside, load_case, load_responses
     parser = argparse.ArgumentParser(description="Daily HydroCNHS LLM reservoir networks; offline responses only")
     parser.add_argument("--project-root", type=Path, default=PROJECT_ROOT)

@@ -1,10 +1,14 @@
-"""Check information against frozen sources and completed simulation, without I/O.
+"""Independently verify saved information against frozen or completed sources.
 
-Role: Independently check a saved decision-information snapshot.
-
-Connections and data: verification supplies frozen source records, the saved observation
-and completed simulation reader. Returns consistency findings for timing, selection,
-values and provenance without calling a provider or modifying the saved snapshot.
+``verification`` supplies a saved snapshot, observation, profile, pinned source
+declarations/CSV records and an independent completed-simulation reader. This
+module reconstructs static/CSV/native selection and unit conversion, verifies
+UTC availability and issue/horizon rules, and checks retained values/history
+and provenance. Registered extension information is checked for internal timing
+and metadata consistency; its external values are not re-fetched or independently
+reconstructed. Successful validation returns None and inconsistencies raise.
+No files, providers or physical state are modified; a supplied simulation reader
+is expected to be read-only. Source and requested output units remain explicit.
 """
 from copy import deepcopy
 import math
@@ -13,7 +17,10 @@ from .information import _convert, _parse_timestamp
 
 
 def _select_reference(source, records, clock, count):
-    """Independent selection from saved inputs, not the runtime catalog cache."""
+    """Reconstruct causal selection independently from saved records, selecting latest available revisions and the latest eligible forecast cycle.
+
+    Observation history trails the decision; forecast history advances from the nearest nonexpired horizon. The runtime catalog cache is never consulted.
+    """
     if source["type"] == "static":
         return [{"value": source["value"], "valid_time": None, "available_at": None}]
     forecast = source.get("kind") == "forecast"
@@ -40,6 +47,38 @@ def _select_reference(source, records, clock, count):
 
 def verify_information(snapshot, observation, profile, sources, *, source_records=None,
                        simulation_reader=None):
+    """Validate one saved decision-information snapshot against independent evidence.
+
+    Static/CSV/native sources are reconstructed. Extension-reader samples are checked internally without calling the external reader; passing does not establish external source truth.
+
+    Parameters
+    ----------
+    snapshot : dict
+        Saved decision-information.v1 fields with selected value, history, unit and source metadata.
+    observation : Mapping
+        Corresponding current decision observation; timestamp establishes the causal cutoff.
+    profile : Mapping
+        Frozen selected-field declarations, including required/history/max_age_seconds controls.
+    sources : Mapping
+        Frozen source declarations with hashes or declared reader versions and original units.
+    source_records : Mapping or None, optional
+        Frozen normalized CSV samples keyed by source ID.
+    simulation_reader : callable or None, optional
+        Independent callback(source, observation) yielding only available native samples.
+
+    Returns
+    -------
+    None
+        All requested consistency checks pass; no audit status or physical state is changed.
+
+    Raises
+    ------
+    ValueError
+        Schema, coverage, units, metadata, timing, availability, history or reconstructed values disagree.
+    TypeError
+        A source timestamp or value has an invalid type.
+    """
+
     clock = _parse_timestamp(observation["timestamp"], "decision clock", allow_legacy=True)
     if snapshot.get("schema_version") != "decision-information.v1":
         raise ValueError("unsupported decision information schema")

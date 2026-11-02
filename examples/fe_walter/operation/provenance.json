@@ -1,0 +1,173 @@
+{
+  "schema_version": "fe-walter-operation-inputs.v1",
+  "operation_period": [
+    "2021-01-01",
+    "2025-12-31"
+  ],
+  "days": 1826,
+  "hydrology": {
+    "period": [
+      "1989-01-01",
+      "2025-12-31"
+    ],
+    "days": 13514,
+    "model": "GWLF runoff and Lohmann routing; accepted semi-distributed setup",
+    "weather": "Saved Daymet precipitation and temperature; Hamon PET",
+    "boundary_preparation_sha256": "e7db1afa546ec783ee0c67ca459940f9ce4217de8c3f6c2fce5df074a85843ea",
+    "inflow_bindings": {
+      "FEW_INFLOW": "Reservoir upstream watershed",
+      "USGS01447800": "Incremental runoff below the reservoir to White Haven",
+      "USGS01449000": "Incremental runoff between White Haven and Lehighton"
+    },
+    "lower_validation": {
+      "summary": "../downstream/outputs/hydrology_validation/summary.json",
+      "summary_sha256": "56abfd6b7d95cbe7934396bb73fe3874ff5923fa32675aebbd67b389633490f8",
+      "source_model_sha256": "7129cb86faf3c3b59d3ef0b26fafbce3da10fea38a4252768653ba6b5598bd6e",
+      "parameter_blocks": {
+        "RainfallRunoff": {
+          "FEW-DS-01": "79b66471f8be08ac1eb7a3936902921904982f25d94a1d5c299d580402442bcc",
+          "FEW-DS-02": "dbf2c35305092412736e32343f598ce28294b4ede1dd2323ed5836e2ed57b01a",
+          "FEW-DS-03": "4322dea445cb84bb690fbde73f9154e320ebdfb82c6ff0fff3ba9b584bbe213d",
+          "FEW-DS-04": "8454906472e26b22646ae2f41b0b0c8fd75d1dc00f9e161fc265321b9ee53bad",
+          "FEW-DS-05": "fe9e24c8187282580da337b6a1f81e980e13ac2fc3ea71690336ceb31eac06ee",
+          "FEW-DS-06": "ffa6efbca072ef6f6b6bf8552655e4609f0e950fc0b9b7733d9b27de3c563cde",
+          "FEW-DS-07": "5fbab31eed776be9ecdb4b65338cc39fbfd76c7fb04c6026641eb6e635f8851f",
+          "FEW-DS-08": "5a72e73f06ea9c7e461b4d9512de0855f2d5fc3ef7e4c823ab2a5472dd1948cb",
+          "FEW-DS-09": "bf80e31a513f3f3f15133049cb68c75f736f4b42ecbe8d4265f89685dda25d0d",
+          "WHITE_HAVEN": "7c35f7aedf6503eea47d9def465e16985ba10543764c3c767e085143a70d1a0f",
+          "LEHIGHTON": "7c35f7aedf6503eea47d9def465e16985ba10543764c3c767e085143a70d1a0f"
+        },
+        "Routing": {
+          "WHITE_HAVEN": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+          "LEHIGHTON": "27fa59f23e04abac4fa40a8326c7e8639561ef8e4a82535a233823829f646df1"
+        }
+      },
+      "operation_channel_sha256": "fdc8d79becbf4a9b62bf53328397b96327e89668dde8464bb72dfaa90325d501",
+      "scope": "1990\u20132010 calibration and 2011\u20132020 independent validation of the combined White Haven-to-Lehighton runoff and routing, using observed White Haven flow.",
+      "remaining_assumptions": [
+        "The short FEWalter-to-White Haven reach and FEW-L-01/02 local runoff retain transferred upper-watershed parameters.",
+        "Lehighton C&V validates combined local runoff and routing under an observed White Haven boundary; individual tributaries are not separately validated."
+      ],
+      "native_routing_final_weight_max_difference_cms": 0.00021329184328067186
+    }
+  },
+  "warmup": {
+    "hydrology_start": "1989-01-01",
+    "operation_start": "2021-01-01",
+    "routing_primary_excluded_days": 21,
+    "routing_state": "Common empty channel queues on January 1; first 21 days excluded from primary flow scores.",
+    "reservoir_state": "Shared observed local-midnight storage; no state nudging during evaluation."
+  },
+  "methods": {
+    "rule": "Saved complete 1826-day baseline, alpha=0.85",
+    "llm_available": "Prepared, not executed",
+    "llm_knowledge": "Prepared, not executed"
+  },
+  "readiness": {
+    "engineering": "Offline source, dates, common network, model settings and frozen C&V lineage checked",
+    "scientific_live_ready": true,
+    "reason": "Selected lower runoff/routing model is unchanged from completed C&V; retain the explicitly scoped near-dam regionalization and individual-tributary limits. LLM execution was not requested."
+  },
+  "originals": {
+    "case.json": {
+      "sha256": "749fb0c57573666808be3fc2b7878c4323e6049929b158f733f452ac1a53e114",
+      "bytes": 2130,
+      "source_run": "corrected/prepared/experiment/case.json",
+      "teaching_sha256": "eb895ede8de657cc8c17e8c68562b32073ba15118b47e020152afb9322e61f55",
+      "metadata_update": "2026-10-21: reconcile obsolete live_readiness only; network, inflow reference and physical values unchanged. Original source SHA256 is retained above."
+    },
+    "inflows.csv": {
+      "sha256": "818b688230673992c5a00f868ccc34f054d400f4d83dc88ad7b62b3bcf4b4d50",
+      "bytes": 237302,
+      "source_run": "corrected/prepared/experiment/inflows.csv"
+    },
+    "hydrology/model.yaml": {
+      "sha256": "4fda2623101f8745a49f8f05c475eeb77ddd35b601420ebbf82ebd84dadc3cd4",
+      "bytes": 15959,
+      "source_run": "corrected/corrected_inputs/model.yaml"
+    },
+    "hydrology/forcing.csv.gz": {
+      "sha256": "0fedb9df4526db9d9607a5365c8fd02dab4972073bc040c00e07edaa82b6864e",
+      "bytes": 9448138,
+      "source_run": "corrected/corrected_inputs/forcing.csv.gz"
+    },
+    "hydrology/hydrology.yaml": {
+      "sha256": "1e7778e8da161eab763c551f21c40a1e3a7c0280eb680cfdcc400b00e9d41b82",
+      "bytes": 325,
+      "source_run": "corrected/corrected_inputs/hydrology.yaml"
+    }
+  },
+  "new_simulation_runs": 0,
+  "new_model_requests": 0,
+  "artifacts": {
+    "agents.rule.yaml": "ec4455c620dc7aea1a4e612169d3b896600bcb43d64735540744576ac5609784",
+    "case.json": "eb895ede8de657cc8c17e8c68562b32073ba15118b47e020152afb9322e61f55",
+    "experiment.yaml": "05f3df7785ebba7c914e0ddc3c234084ae04aedaae39eac06aaa746262c163b8",
+    "hydrology/forcing.csv.gz": "0fedb9df4526db9d9607a5365c8fd02dab4972073bc040c00e07edaa82b6864e",
+    "hydrology/hydrology.yaml": "1e7778e8da161eab763c551f21c40a1e3a7c0280eb680cfdcc400b00e9d41b82",
+    "hydrology/model.yaml": "4fda2623101f8745a49f8f05c475eeb77ddd35b601420ebbf82ebd84dadc3cd4",
+    "inflows.csv": "818b688230673992c5a00f868ccc34f054d400f4d83dc88ad7b62b3bcf4b4d50",
+    "initialization.json": "5855011b94e37968c9ebb088745907cc5351b8de1924e4b7e41516a61ac4c34f",
+    "llm_available.yaml": "18408a8be18b213fcd447e441168e989fbc7d181f5a69357101add5e2f17f15a",
+    "llm_knowledge.yaml": "8d966e6c0ad4baf72753ec0130a5e14e6a0376959da16a2e518e0e5ddae7ce71",
+    "outputs/reservoir_daily.csv": "d9ffb3ce65da00e74b69ea9f5e0fd6abb1f4383f29b5b53f38be70553a3975f2",
+    "outputs/streamflow_daily.csv": "fe79958736c9f325ab327fc404ef11bd94c96df0a78b2f4d8ec5fc4f3bd44fdb",
+    "outputs/summary.json": "32cec1c168df25f7ef69bda86eca6fa5ef64f68b2def642f82726a7fc7a7a983"
+  },
+  "shared_dependencies": {
+    "examples/fe_walter/coupled/auditors.yaml": "ed2afb7c2bee773510d2a934a1e96c2d607d2b8771ccc6ff165b5a1a39206a0f",
+    "data/benchmark/fe_walter_statistics.json": "44a5d67ef9d256b1710403b641ff0629deff21f196cd1d951823197f0ffcbdf7",
+    "data/accepted/fe_walter_inflow_reference_1996_2025.csv.gz": "91759fdfbaa3e85b0257a5708391f53d264eb0ef898f94c4e580a391e131b64f",
+    "examples/fe_walter/extensions/__init__.py": "dac0260d45542d3ee33d49f9f0db7cd9791f7ab31545cd71f9fee92e256360dd",
+    "examples/fe_walter/extensions/anik_v3_7.py": "b634a9dc666e529f4d467e1e4d1f8fdebd3318486928c98767feee5ebdce24a7",
+    "examples/fe_walter/extensions/daily_inputs.py": "b02a3d928d94fcb96e01dc4999271f97e99240afe53bc875cd9b03419e5e3203",
+    "examples/fe_walter/extensions/dkp_adapter.py": "2c00e207b574b1dba624db0a9ffa22dbcbe4f0005568b494050b69a67a96d85e",
+    "examples/fe_walter/extensions/dkp_audit.py": "0b7607a0d74631cffc2a9a8398b28c8337fff08235b8902616d41d79f6daec64",
+    "examples/fe_walter/extensions/native_case.py": "470883792b0ea5d98429f10131bf4e760c4df0cf6ad22a19d4b95158f536b0f6",
+    "examples/fe_walter/extensions/reference_backend.py": "4c198f704e2753f5c60627ac7a40fe4b9ba9b09db39317c9e575ea52c7f6319e",
+    "examples/fe_walter/extensions/reservoir_profile.py": "f30f547171b8930f1e1f03e4d9ed24b9452329b7dda7057310b1ada925236e71",
+    "examples/fe_walter/extensions/retrieval/__init__.py": "57efdf1d113946bc37b4281b7c02efa08afeb64ac1ff7b7d946e82b2782edb8d",
+    "examples/fe_walter/extensions/seasonal_prompt_context.py": "c7039b8896770311d449e73239124f3766853091a8aa31df3fcda1f84f5462f8",
+    "examples/fe_walter/coupled/models.yaml": "37134b94eb42fb53ec362f0a33dbb09bf5f697eaab2196a47589b7d00299e71e",
+    "examples/fe_walter/coupled/agents.llm_available.yaml": "27976fb493a48e644417238f2ea2b1af02d15a64bceead6922cdfffa3e787aff",
+    "examples/fe_walter/prompts/available_information.txt": "0c557d4e51e4bb938d36c65808eb91e9ba5bc29db8b37d958149fee38bae9f75",
+    "examples/fe_walter/seasonal_pool_criteria.json": "51ba8e957218ced8923c7c22caaa80aec1b1a75eb9a5d19e73a3f0c1f416d4a7",
+    "examples/fe_walter/profiles/reservoir.json": "6a6124d721120ac1e42d86e108fb0c59fd63fd96595b09bc7f222417758079e3",
+    "cases/fe_belt_prompton_offline/fe_walter_storage_elevation.csv": "baa89b33023c23002b94ac48e68c69278c384d15a64a72d2587a1e6ad458999d",
+    "examples/fe_walter/coupled/agents.llm_knowledge.yaml": "eeae76bcda7a90d2b486ef320e265eb5c94c808e7fd12f9f449d998516bfaf52",
+    "examples/fe_walter/prompts/retrieved_knowledge.txt": "ae5e19ee4a8f3749d80f06088c7ee7f4cb14997a72d40a9d39c1ab2e51a7bf48",
+    "examples/fe_walter/knowledge/operating_rules.md": "7fb3b9e75c1d6a52168049afa80c527a49e606f1c0889e5d14b31f874502b206",
+    "examples/fe_walter/downstream/outputs/hydrology_validation/summary.json": "56abfd6b7d95cbe7934396bb73fe3874ff5923fa32675aebbd67b389633490f8"
+  },
+  "presentation_updates": [
+    {
+      "date": "2026-10-21",
+      "change": "Align inline YAML comments; parsed settings unchanged.",
+      "files": {
+        "experiment.yaml": {
+          "previous_sha256": "d2570b67c928e069ec62cc7e64f11631885fb22b262154668e55d3836adab2a6",
+          "current_sha256": "05f3df7785ebba7c914e0ddc3c234084ae04aedaae39eac06aaa746262c163b8",
+          "parsed_values_sha256": "be33f3e6ca512859c80e69acc879d1950bdeb344ea01108dbac288f95579fcb7",
+          "inline_comment_column": 49,
+          "parsed_values_unchanged": true
+        },
+        "llm_available.yaml": {
+          "previous_sha256": "0caf2a22c20d02ae61912e7d4cceccb6e65a6222d734e294e64f7c3c55a60024",
+          "current_sha256": "18408a8be18b213fcd447e441168e989fbc7d181f5a69357101add5e2f17f15a",
+          "parsed_values_sha256": "d05016cb94bb5b69c4bfffb229c1298a8bd0d8e5e7ff660ac78cc0840b0c89e6",
+          "inline_comment_column": 58,
+          "parsed_values_unchanged": true
+        },
+        "llm_knowledge.yaml": {
+          "previous_sha256": "6612b0c6c354a96d9c615593ae0eaeeedbd7a279f8ae1020f8d7ffe66b13c402",
+          "current_sha256": "8d966e6c0ad4baf72753ec0130a5e14e6a0376959da16a2e518e0e5ddae7ce71",
+          "parsed_values_sha256": "914b46cd7c0bdf082f232b79af43b886b06009a6f7736c8230175191d2d36ac0",
+          "inline_comment_column": 58,
+          "parsed_values_unchanged": true
+        }
+      },
+      "new_simulation_runs": 0,
+      "new_llm_requests": 0
+    }
+  ]
+}

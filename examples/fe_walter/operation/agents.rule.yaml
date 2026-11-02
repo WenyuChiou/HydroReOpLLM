@@ -1,0 +1,11 @@
+# Case adapter supplies the accepted prior operating-year coefficient.
+fe_operator:                                   # Independent decision history.
+  reservoir_id: FEWalter                       # Reservoir ID in case.json.
+  type: rule_based                             # Deterministic Hanasaki rule.
+  rule: seeded_hanasaki                        # Case adapter registered in experiment.yaml.
+  rule_parameters:
+    purpose: flood_control                     # Generic non-irrigation operating purpose.
+    alpha: 0.85                                # Published generic comparator; fixed before evaluation.
+    inflow_statistics_file: ../../../data/benchmark/fe_walter_statistics.json
+    initialization_file: initialization.json   # Prior coefficient plus common physical start (m3).
+  auditors: [release_limits]                   # Audit requested release; preserve failures.

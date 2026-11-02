@@ -14,7 +14,13 @@ def test_manual_current_downloads_have_an_isolated_namespace(tmp_path):
     spec.loader.exec_module(builder)
     with patch('socket.socket.connect', side_effect=AssertionError('network forbidden')):
         builder.prepare(tmp_path, source_ref='codex/manual-research-guide')
-    assert len(builder.TUTORIAL_DOWNLOADS) == 11
+    legacy = {source: name for source, name in builder.TUTORIAL_DOWNLOADS.items()
+              if not name.startswith('operation/')}
+    operation = {source: name for source, name in builder.TUTORIAL_DOWNLOADS.items()
+                 if name.startswith('operation/')}
+    assert len(legacy) == 11
+    assert len(operation) == 20
+    assert len(builder.TUTORIAL_DOWNLOADS) == 31
     assert {'reservoir_operations.png', 'reservoir_operations.svg',
             'reservoir_operations.pdf'} <= set(builder.TUTORIAL_DOWNLOADS.values())
     for source, name in builder.TUTORIAL_DOWNLOADS.items():
@@ -58,7 +64,7 @@ def test_generic_files_download_locally_and_main_route_reaches_cases_after_setti
     positions = [index.index('\n' + name + '\n') for name in (
         'docs/README', 'docs/GETTING_STARTED', 'docs/INPUT_OUTPUT', 'docs/GLOBAL_SETTINGS',
         'docs/HYDROLOGY_SETUP', 'docs/BUILD_SIMULATION', 'docs/CONFIGURATION',
-        'docs/RUNNING', 'docs/CASE_STUDIES', 'examples/fe_walter/README',
+        'docs/INFORMATION', 'docs/RUNNING', 'docs/CASE_STUDIES', 'examples/fe_walter/README',
     )]
     assert positions == sorted(positions)
     for source, name in builder.TEMPLATE_DOWNLOADS.items():

@@ -31,7 +31,7 @@ CRITERIA = ROOT / "examples/fe_walter/seasonal_pool_criteria.json"
 COUPLED = ROOT / "examples/fe_walter/coupled"
 PROFILE = load_case_profile(ROOT).data
 VOLUME_FACTOR = PHYSICAL_ACREFT_TO_M3
-OPERATION_TARGET = json.loads(CRITERIA.read_text(encoding="utf-8"))["operation_target"]
+OPERATION_TARGET = PROFILE["operation_target_description"]
 MODEL = {
     "provider": "ollama", "model": "fixture-model", "base_url": "http://offline.invalid",
     "temperature": 0.0, "max_tokens": 2048, "max_attempts": 1,
@@ -101,7 +101,10 @@ def raw_settings(method: str) -> dict[str, object]:
     path = COUPLED / ("agents.llm_available.yaml" if method == "zeroshot"
                       else "agents.llm_knowledge.yaml")
     data = yaml.safe_load(path.read_text(encoding="utf-8"))
-    return data["fe_operator"]["customization"]["parameters"]["reference"]
+    settings = data["fe_operator"]["customization"]["parameters"]["reference"]
+    # Exercise this optional feature explicitly; maintained examples omit it.
+    settings["seasonal_criteria_file"] = "../seasonal_pool_criteria.json"
+    return settings
 
 
 def native_policy(method: str, backend: object):

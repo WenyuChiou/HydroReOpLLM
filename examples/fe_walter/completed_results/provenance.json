@@ -1,0 +1,151 @@
+{
+  "schema_version": "published-case-results.v1",
+  "status": "COPIED_FROM_ACCEPTED_RESULTS",
+  "daily_period": [
+    "2021-01-01",
+    "2025-12-31"
+  ],
+  "completed_seeds_per_llm_scenario": 3,
+  "daily_knowledge_refresh": "2026-10-29/30 DKPv1.2",
+  "hourly_events": {
+    "Ida": [
+      "2021-08-30T04:00:00Z",
+      "2021-09-13T04:00:00Z"
+    ],
+    "Rain": [
+      "2023-12-16T05:00:00Z",
+      "2023-12-26T05:00:00Z"
+    ]
+  },
+  "hourly_end_exclusive": true,
+  "new_simulations": 0,
+  "new_model_calls": 0,
+  "files": [
+    {
+      "file": "daily_2021_2025.png",
+      "sha256": "9a99f4ed5037afb768ce2eadfcfdbec7db333f3e8bfb0678e6042c9278c154e3",
+      "bytes": 1508179,
+      "source": "_qa/daily-full-timeseries-wide-target-no-band-20261101/daily_full_timeseries_2021_2025_wide_target_no_band.png"
+    },
+    {
+      "file": "daily_2021_2025.pdf",
+      "sha256": "7057e5878c62991d4e4dd983e8e37385b82403ba660bac90a507e18d366c6472",
+      "bytes": 82452,
+      "source": "_qa/daily-full-timeseries-wide-target-no-band-20261101/daily_full_timeseries_2021_2025_wide_target_no_band.pdf"
+    },
+    {
+      "file": "daily_2021_2025.svg",
+      "sha256": "86f77a03553c411a2c78e2a8e5a410b74528a0b88ad93df8904ed087516ebd4a",
+      "bytes": 222727,
+      "source": "_qa/daily-full-timeseries-wide-target-no-band-20261101/daily_full_timeseries_2021_2025_wide_target_no_band.svg"
+    },
+    {
+      "file": "daily_2021_2025_range.png",
+      "sha256": "ef8fbc6ab87f242698dec5a1bdb3629f38f54f1e9370d665fd1a06870415415f",
+      "bytes": 1703659,
+      "source": "_qa/daily-full-timeseries-wide-shaded-target-20261101/daily_full_timeseries_2021_2025_wide_shaded_target.png"
+    },
+    {
+      "file": "daily_2021_2025_range.pdf",
+      "sha256": "33e24c6ba0057ce337fc18382609bee665fafffd45fc56b10d698387a1270891",
+      "bytes": 198385,
+      "source": "_qa/daily-full-timeseries-wide-shaded-target-20261101/daily_full_timeseries_2021_2025_wide_shaded_target.pdf"
+    },
+    {
+      "file": "daily_2021_2025_range.svg",
+      "sha256": "4c73a8602c1597118cda8467d2e375ce8d3fe7f333a41b11835ffb98c99560ce",
+      "bytes": 606999,
+      "source": "_qa/daily-full-timeseries-wide-shaded-target-20261101/daily_full_timeseries_2021_2025_wide_shaded_target.svg"
+    },
+    {
+      "file": "hourly_events_AB.png",
+      "sha256": "880603179aa0cd753f214de6e81e5283a299f65d18dcff725a53114b2b0eff6f",
+      "bytes": 601267,
+      "source": "_qa/hourly-operator-preparation-20261029/live-readiness-events-v1-20261030/recovery/daily-parity-correction-20261031/final-results-20261031/hourly-AB-final/hourly_events_AB.png"
+    },
+    {
+      "file": "hourly_events_AB.pdf",
+      "sha256": "5e3d7403835f251fa692bd8af1fd72a7e325cac06a43f5c50586db06f58792d1",
+      "bytes": 56551,
+      "source": "_qa/hourly-operator-preparation-20261029/live-readiness-events-v1-20261030/recovery/daily-parity-correction-20261031/final-results-20261031/hourly-AB-final/hourly_events_AB.pdf"
+    },
+    {
+      "file": "hourly_events_AB.svg",
+      "sha256": "b2286810313739f94b1b1ce0d774c5d7591dbad01c9ad4313f80b1dc9fe548c8",
+      "bytes": 106851,
+      "source": "_qa/hourly-operator-preparation-20261029/live-readiness-events-v1-20261030/recovery/daily-parity-correction-20261031/final-results-20261031/hourly-AB-final/hourly_events_AB.svg"
+    },
+    {
+      "file": "daily_chart_data.csv",
+      "sha256": "b511786a1f42ddc0ad37291721424151016a1268986e156a2804b14d97efb822",
+      "bytes": 433010,
+      "source": "_qa/daily-full-timeseries-wide-target-no-band-20261101/chart-data.csv"
+    },
+    {
+      "file": "daily_run_range.csv",
+      "sha256": "ccc43df6a6c38725e9e720d972d1c2667496c58b9d10a5ea7ef8c4eb9273cc87",
+      "bytes": 531772,
+      "source": "_qa/daily-full-timeseries-wide-shaded-target-20261101/band-data.csv"
+    },
+    {
+      "file": "daily_target_reference.csv",
+      "sha256": "cd2c3c03b65e76aec899308215cead3b73b8662a0bb7a752e9d09748ec518085",
+      "bytes": 37108,
+      "source": "_qa/daily-full-timeseries-wide-target-no-band-20261101/target-reference.csv"
+    },
+    {
+      "file": "hourly_chart_data.csv",
+      "sha256": "be4f8d4f21010453d860508b605dec4b8a2a8c89e17b9de97544ae6443c92e61",
+      "bytes": 118081,
+      "source": "_qa/hourly-operator-preparation-20261029/live-readiness-events-v1-20261030/recovery/daily-parity-correction-20261031/final-results-20261031/hourly-AB-final/chart-data.csv"
+    },
+    {
+      "file": "table3_daily_simulation_performance.png",
+      "sha256": "23958c71ac6d64fc7e96ce2d31530bf6d54686ef961baade9cca83d7d5edf5cb",
+      "bytes": 161004,
+      "source": "_qa/table3-reference-version-20261101/table3_daily_simulation_performance.png"
+    },
+    {
+      "file": "table3_daily_simulation_performance.pdf",
+      "sha256": "7a4f11842cf5008cb6c4635cba9e90d31c847771642da5a355fc88c321c0eedf",
+      "bytes": 41964,
+      "source": "_qa/table3-reference-version-20261101/table3_daily_simulation_performance.pdf"
+    },
+    {
+      "file": "table3_daily_simulation_performance.md",
+      "sha256": "9334b70c3cec6eedec41e91cc5e70061f735aa1d69ed311bb29fa0e9aea394ce",
+      "bytes": 440,
+      "source": "_qa/table3-reference-version-20261101/table3_daily_simulation_performance.md"
+    },
+    {
+      "file": "table3_summary.csv",
+      "sha256": "be857722b55c9b8e3959c24c31d5b80fb8a336068871484d26ec7e96e504ffce",
+      "bytes": 496,
+      "source": "_qa/table3-reference-version-20261101/table3_summary.csv"
+    },
+    {
+      "file": "table3_metrics_per_seed.csv",
+      "sha256": "b9ad3383ca7b11e1d67a2e4c8da0c67952e978b40c04f7a8c16a17b4979185d0",
+      "bytes": 3588,
+      "source": "_qa/table3-reference-version-20261101/table3_metrics_per_seed.csv"
+    }
+  ],
+  "acceptance_records": [
+    {
+      "source": "_qa/daily-full-timeseries-wide-target-no-band-20261101/delivery-verification.json",
+      "sha256": "1a7e06240c214820c7fa441b716fe3bffb534541bd980fa52da2fbc4e1f73547"
+    },
+    {
+      "source": "_qa/daily-full-timeseries-wide-shaded-target-20261101/delivery-verification.json",
+      "sha256": "1cfb553af94ccf5e07410c8ad44378cd3a8fc760ba0bbb1bc43195bacdeb6b95"
+    },
+    {
+      "source": "_qa/hourly-operator-preparation-20261029/live-readiness-events-v1-20261030/recovery/daily-parity-correction-20261031/final-results-20261031/hourly-AB-final/figure-acceptance.json",
+      "sha256": "0bd24b0f0a31f43adf94d584805e104fe6df20bde429968b1e3a6ce2076ebdfb"
+    },
+    {
+      "source": "_qa/table3-reference-version-20261101/native-verification.json",
+      "sha256": "d23ed90a9aac1b61aeb212acaf80c3ecf8c4e72b61f020598b79d5b5436b9293"
+    }
+  ]
+}

@@ -1,11 +1,19 @@
-"""HydroCNHS Dam-API-compatible reservoir agent.
+"""HydroCNHS Dam adapter for one reservoir decision and physical transition.
 
-Role: Connect HydroCNHS Dam calls to one reservoir decision and physical update.
+Purpose and data flow
+---------------------
+The host supplies a verified routed inlet (m3/s) and operation clock.
+The agent observes beginning storage (m3), requests a policy action, validates
+it and applies the shared mass-balance kernel. Implemented controlled release
+plus spill is returned as the downstream Dam boundary. Ending storage carries
+forward once; repeated calls at a committed step return cached total outflow.
 
-Connections and data: Reads the routed inlet and beginning storage, calls
-policy.decide(observation), then passes the requested release to
-physics.apply_transition. Returns implemented controlled release plus spill to the
-native host; record_transition receives the completed outcome once.
+Dependencies and side effects
+-----------------------------
+Uses contracts, physics, deterministic policies and TimeAxis.
+Construction creates operation/error fields on the host data collector. act
+updates reservoir state and appends a record; policy/information callbacks may
+have their own I/O. Rejected policy attempts are logged and re-raised.
 """
 
 from __future__ import annotations
@@ -21,10 +29,31 @@ from .time_axis import TimeAxis
 
 
 class LLMReservoirAgent:
-    """Offline Dam agent returning total outflow in cubic metres per second.
+    """Operate one reservoir through the native HydroCNHS Dam API.
 
-    Hosts must mark supplied inflow ready, or verify the native simulation
-    sequence. Neither a positive value nor zero proves routing has run.
+    Parameters
+    ----------
+    **kwargs : object
+        Native host arguments: name (output node), config (Inputs.Links and
+        Attributes.Physical/Context/Policy), start_date and current_date (objects
+        with ISO labels), data_length (positive step count), t (current zero-based
+        step), dc (collector with Q_routed and add_field), and rn_gen (host random
+        generator). Optional policy replaces Attributes.Policy and must expose
+        decide(observation). Physical storage is in m3, rates in m3/s, dt in seconds.
+
+    Raises
+    ------
+    TypeError
+        A required host argument is absent or host/config/policy types are invalid.
+    ValueError
+        Identity, physical configuration, context, links or policy settings fail
+        validation. Exactly one -1 inlet and one +1 output link are required.
+
+    Notes
+    -----
+    Hosts must mark assigned inflow ready or verify native simulation order
+    before operating. Numeric zero or a positive routed value does not establish
+    readiness. ReservoirDamAgent is a compatibility alias for this class.
     """
 
     def __init__(self, **kwargs: Any) -> None:
@@ -151,6 +180,25 @@ class LLMReservoirAgent:
         raise ValueError("Attributes.Policy.provider must be 'pass_through' or 'constant'")
 
     def mark_inflow_ready(self, timestep: int) -> None:
+        """Mark a host-assigned inlet value ready for one operation step.
+
+        Parameters
+        ----------
+        timestep : int
+            Zero-based step in [0, data_length); readiness is consumed on commit.
+
+        Returns
+        -------
+        None
+            Updates the internal readiness set without operating the reservoir.
+
+        Raises
+        ------
+        TypeError
+            timestep is not an integer or is boolean.
+        ValueError
+            timestep is outside the allocated run.
+        """
         if isinstance(timestep, bool) or not isinstance(timestep, int):
             raise TypeError("timestep must be an integer")
         if not 0 <= timestep < self.data_length:
@@ -158,7 +206,23 @@ class LLMReservoirAgent:
         self._ready_timesteps.add(timestep)
 
     def verify_simulation_sequence(self, sequence) -> None:
-        """Confirm the native host routes this inflow before each Dam call."""
+        """Confirm the native host routes this inlet before calling the Dam.
+
+        Parameters
+        ----------
+        sequence : iterable of str
+            Host simulation order containing the inlet and output exactly once.
+
+        Returns
+        -------
+        None
+            Sets persistent topology readiness for subsequent operation steps.
+
+        Raises
+        ------
+        ValueError
+            Either Dam node is absent/duplicated or the inlet follows the output.
+        """
         sequence = list(sequence)
         for outlet in (self.inflow_outlet, self.output_outlet):
             if sequence.count(outlet) != 1:
@@ -194,6 +258,39 @@ class LLMReservoirAgent:
         return self.t
 
     def act(self, outlet: str) -> float:
+        """Request, implement and record one causally ready reservoir interval.
+
+        Parameters
+        ----------
+        outlet : str
+            Positive Dam output link, which must equal the configured agent name.
+
+        Returns
+        -------
+        float
+            Implemented controlled release plus capacity spill in m3/s. Repeated
+            calls for the latest committed step return the cached value.
+
+        Raises
+        ------
+        TypeError
+            Host step or routed inlet has an invalid type, or policy action is invalid.
+        ValueError
+            Clock/order, outlet, inlet, observation or action violates its contract.
+        IndexError
+            Host step is outside data_length.
+        RuntimeError
+            Inlet routing readiness has not been established.
+        ArithmeticError
+            The shared physical transition fails its finite/balance checks.
+
+        Notes
+        -----
+        Policy/information exceptions are appended to the rejection log and
+        propagate before a physical commit. Optional record_transition feedback occurs
+        after storage/log/cache commit; its exceptions propagate without rollback.
+        Evaporation and seepage are zero in the common physical observation.
+        """
         timestep = self._validate_clock()
         if outlet != self.output_outlet:
             raise ValueError(f"act must be called for output link {self.output_outlet!r}")
@@ -226,6 +323,7 @@ class LLMReservoirAgent:
             timestep=timestep,
             timestamp=timestamp,
             inflow_cms=inflow,
+            # Convert usable beginning storage to a mean rate, then add this inlet.
             release_upper_bound_cms=min(
                 self.physical.maximum_release_cms,
                 max(
@@ -278,6 +376,7 @@ class LLMReservoirAgent:
             "policy_id": str(self.policy_id),
         }
         self.operations_log.append(record)
+        # Commit end-of-interval storage (m3) as the next interval's beginning state.
         self.storage_m3 = transition.storage_end_m3
         self._last_committed_t = timestep
         self._cached_outflow_cms = transition.total_outflow_cms

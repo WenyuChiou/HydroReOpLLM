@@ -1,10 +1,13 @@
-"""Strict serialization of caller-supplied audits, without re-auditing decisions.
+"""Serialize reported decision audits and bind their provenance to decisions.
 
-Role: Represent and retain reported decision audits.
-
-Connections and data: Used by auditor, trace and verification. Inputs are declared
-rubrics and reported audit payloads; outputs are detached JSON, hashes and normalized
-status records. Normalization does not rerun a rule or turn missing evidence into PASS.
+``auditor`` supplies declared rubrics and plugin results; ``trace`` and
+``verification`` use the detached JSON, identities and SHA256 bindings produced
+here. Suite aggregation requires every enabled checker and retains original
+payloads: FAIL dominates UNKNOWN, then WARN, then PASS. No enabled check means
+UNKNOWN. Normalization never reruns an operating rule or changes a release.
+Schema versions describe serialized contracts; hashes identify exact canonical
+JSON content. Values retain their source units. This module performs no file or
+network I/O; invalid JSON, versions, identities or digests raise immediately.
 """
 
 from __future__ import annotations
@@ -17,6 +20,7 @@ from collections.abc import Mapping
 from typing import Any
 
 
+# Serialization versions identify payload contracts, not checker revisions.
 AUDIT_SCHEMA_VERSION = "reservoir-audit.v1"
 AUDIT_STATUSES = frozenset({"PASS", "WARN", "FAIL", "UNKNOWN"})
 AUDIT_SUITE_SCHEMA_VERSION = "reservoir-audit-suite.v1"
@@ -25,19 +29,59 @@ AUDITOR_SCHEMA_VERSION = "reservoir-auditor.v1"
 
 
 def canonical_sha256(value: Any) -> str:
-    """Hash detached finite JSON without depending on platform line endings."""
+    """Hash finite JSON with a stable UTF-8 canonical representation.
+
+    Parameters
+    ----------
+    value : JSON-compatible object
+        Content to detach and hash; mapping keys must be strings and numbers must be finite.
+
+    Returns
+    -------
+    str
+        Lowercase SHA256 digest of sorted, compact JSON; independent of platform line endings.
+
+    Raises
+    ------
+    TypeError
+        A value has the wrong type or is not finite JSON.
+    ValueError
+        A required field, version, numeric bound or digest is invalid.
+    """
     data = json.dumps(json_snapshot(value), ensure_ascii=False, allow_nan=False,
                       sort_keys=True, separators=(",", ":")).encode("utf-8")
     return hashlib.sha256(data).hexdigest()
 
 
 def _digest(value: Any, label: str) -> str:
+    """Require exactly 64 lowercase hexadecimal characters; validation does not prove the referenced content exists."""
+
     if not isinstance(value, str) or not re.fullmatch(r"[0-9a-f]{64}", value):
         raise ValueError(f"{label} must be a lowercase SHA256 digest")
     return value
 
 
 def validate_auditor_spec(value: Mapping[str, Any]) -> dict[str, Any]:
+    """Validate a versioned rubric declaration and its content hash.
+
+    Parameters
+    ----------
+    value : Mapping[str, Any]
+        Exact reservoir-auditor.v1 fields, including rubric and optional implementation digest.
+
+    Returns
+    -------
+    dict[str, Any]
+        Detached validated specification; rubric_sha256 must equal the canonical rubric hash.
+
+    Raises
+    ------
+    TypeError
+        A value has the wrong type or is not finite JSON.
+    ValueError
+        A required field, version, numeric bound or digest is invalid.
+    """
+
     spec = json_snapshot(value, label="auditor spec")
     fields = {"schema_version", "auditor_id", "version", "rubric", "rubric_sha256",
               "implementation_sha256"}
@@ -58,6 +102,26 @@ def validate_auditor_spec(value: Mapping[str, Any]) -> dict[str, Any]:
 
 
 def auditor_identity(spec: Mapping[str, Any]) -> dict[str, Any]:
+    """Derive the retained identity of one declared checker.
+
+    Parameters
+    ----------
+    spec : Mapping[str, Any]
+        Versioned auditor specification to validate before deriving identity.
+
+    Returns
+    -------
+    dict[str, Any]
+        Auditor ID/version plus rubric, implementation and complete-spec hashes; unknown implementation remains None.
+
+    Raises
+    ------
+    TypeError
+        A value has the wrong type or is not finite JSON.
+    ValueError
+        A required field, version, numeric bound or digest is invalid.
+    """
+
     checked = validate_auditor_spec(spec)
     return {"auditor_id": checked["auditor_id"], "version": checked["version"],
             "rubric_sha256": checked["rubric_sha256"],
@@ -66,7 +130,25 @@ def auditor_identity(spec: Mapping[str, Any]) -> dict[str, Any]:
 
 
 def validate_audit_provenance(value: Mapping[str, Any]) -> None:
-    """Validate optional versioned audit metadata without inventing identities."""
+    """Validate supplied audit identity metadata without filling unknown identities.
+
+    Parameters
+    ----------
+    value : Mapping[str, Any]
+        Metadata optionally declaring a versioned suite hash and unique checker identities.
+
+    Returns
+    -------
+    None
+        Returns normally when supplied metadata is structurally valid; the mapping is not modified.
+
+    Raises
+    ------
+    TypeError
+        A value has the wrong type or is not finite JSON.
+    ValueError
+        A required field, version, numeric bound or digest is invalid.
+    """
     if "auditor_version" in value and value["auditor_version"] is not None:
         if not isinstance(value["auditor_version"], str) or not value["auditor_version"].strip():
             raise ValueError("auditor_version must be nonempty")
@@ -97,12 +179,56 @@ def validate_audit_provenance(value: Mapping[str, Any]) -> None:
 
 
 def audit_binding(decision_id: str, normalized: Mapping[str, Any]) -> str:
+    """Bind a normalized versioned audit to its causal decision ID.
+
+    Parameters
+    ----------
+    decision_id : str
+        Run/reservoir/timestep/time digest from the journal.
+    normalized : Mapping[str, Any]
+        Normalized suite audit containing audit_contract, status and original_payload.
+
+    Returns
+    -------
+    str
+        SHA256 binding of the decision identity, contract, status and original-payload hash.
+
+    Raises
+    ------
+    KeyError
+        The normalized input lacks a required suite binding field.
+    TypeError
+        A value has the wrong type or is not finite JSON.
+    ValueError
+        A required field, version, numeric bound or digest is invalid.
+    """
+
     return canonical_sha256({"decision_id": decision_id, "audit_contract": normalized["audit_contract"],
                              "status": normalized["status"],
                              "original_payload_sha256": canonical_sha256(normalized["original_payload"])})
 
 
 def validate_audit_config(value: Mapping[str, Any]) -> dict[str, Any]:
+    """Validate the fixed all-required checker configuration.
+
+    Parameters
+    ----------
+    value : Mapping[str, Any]
+        reservoir-audit-config.v1 declaration with backend provenance and ordered unique auditor specs.
+
+    Returns
+    -------
+    dict[str, Any]
+        Detached configuration with validated specifications in their original order.
+
+    Raises
+    ------
+    TypeError
+        A value has the wrong type or is not finite JSON.
+    ValueError
+        A required field, version, numeric bound or digest is invalid.
+    """
+
     config = json_snapshot(value, label="audit config")
     if not isinstance(config, dict) or set(config) != {
         "schema_version", "aggregation", "backend_provenance", "auditor_specs"
@@ -123,11 +249,30 @@ def validate_audit_config(value: Mapping[str, Any]) -> dict[str, Any]:
 
 def build_audit_suite(config: Mapping[str, Any], context: Mapping[str, Any],
                       components: list[Mapping[str, Any]]) -> dict[str, Any]:
-    """Aggregate explicitly configured checks; retain every original payload.
+    """Aggregate exactly one retained result for every enabled checker.
 
-    A backend with no declared auditor and no audit is not an enabled checker. An enabled plugin that
-    returns None is UNKNOWN. FAIL dominates UNKNOWN, then WARN, then PASS;
-    no enabled check is UNKNOWN. This does not re-evaluate a checker's findings.
+    Missing plugin results remain UNKNOWN. This checks component consistency, not whether a checker reached the scientifically correct finding.
+
+    Parameters
+    ----------
+    config : Mapping[str, Any]
+        Validated all_required.v1 suite configuration.
+    context : Mapping[str, Any]
+        Exact observation, requested action, backend audit and backend trace for this decision.
+    components : list[Mapping[str, Any]]
+        Backend component when enabled, followed by configured plugin components in specification order.
+
+    Returns
+    -------
+    dict[str, Any]
+        Versioned suite status, retained components/findings and hashes of the configuration and decision input.
+
+    Raises
+    ------
+    TypeError
+        A value has the wrong type or is not finite JSON.
+    ValueError
+        A required field, version, numeric bound or digest is invalid.
     """
     config = validate_audit_config(config)
     context = json_snapshot(context, label="audit input")
@@ -157,6 +302,7 @@ def build_audit_suite(config: Mapping[str, Any], context: Mapping[str, Any],
         if spec is None and row["payload"] != context["backend_audit"]:
             raise ValueError("original backend audit was changed")
         normalized.append(normalize_audit(row["payload"]))
+    # Preserve reported diagnostic severity; an absent required check is UNKNOWN.
     statuses = {r["status"] for r in normalized}
     status = next((s for s in ("FAIL", "UNKNOWN", "WARN", "PASS") if s in statuses), "UNKNOWN")
     return {
@@ -169,7 +315,27 @@ def build_audit_suite(config: Mapping[str, Any], context: Mapping[str, Any],
 
 
 def json_snapshot(value: Any, *, label: str = "payload") -> Any:
-    """Copy JSON data and reject non-finite numbers and non-JSON objects."""
+    """Detach finite JSON and reject non-JSON values recursively.
+
+    Parameters
+    ----------
+    value : JSON-compatible object
+        Scalars, string-keyed mappings and lists; tuples and arbitrary objects are rejected.
+    label : str, optional
+        Field path used to explain invalid nested content.
+
+    Returns
+    -------
+    JSON-compatible object
+        Independent mappings/lists with original scalar values; physical units are unchanged.
+
+    Raises
+    ------
+    TypeError
+        A value has the wrong type or is not finite JSON.
+    ValueError
+        A required field, version, numeric bound or digest is invalid.
+    """
     if value is None or isinstance(value, (str, bool, int)):
         return value
     if isinstance(value, float):
@@ -189,6 +355,8 @@ def json_snapshot(value: Any, *, label: str = "payload") -> Any:
 
 
 def _lists(payload: dict[str, Any], names: tuple[str, ...], *, text: bool) -> list[Any]:
+    """Collect only declared finding-list aliases; reject scalar fields and nontext reasons rather than silently dropping them."""
+
     result = []
     for name in names:
         if name not in payload:
@@ -203,11 +371,26 @@ def _lists(payload: dict[str, Any], names: tuple[str, ...], *, text: bool) -> li
 
 
 def normalize_audit(payload: Mapping[str, Any] | None) -> dict[str, Any]:
-    """Retain the reported status and full original payload; absent means UNKNOWN.
+    """Retain an audit status and original payload in the shared diagnostic contract.
 
-    ``audit_status`` is the original DKP field; ``status`` supports other
-    auditors. A supplied audit must report one of the four statuses explicitly.
-    The audit's findings never change its reported status here.
+    Supplied conflicting statuses are rejected. Suite status and hashes are reconstructed from retained components; findings never promote a status to PASS.
+
+    Parameters
+    ----------
+    payload : Mapping[str, Any] or None
+        Reported audit with status/audit_status, a versioned suite, or absent evidence.
+
+    Returns
+    -------
+    dict[str, Any]
+        reservoir-audit.v1 record with status, reasons, warnings, citations, hits and original_payload; None becomes UNKNOWN.
+
+    Raises
+    ------
+    TypeError
+        A value has the wrong type or is not finite JSON.
+    ValueError
+        A required field, version, numeric bound or digest is invalid.
     """
     if payload is None:
         return {
