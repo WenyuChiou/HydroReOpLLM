@@ -1,8 +1,11 @@
 # F.E. Walter outputs and notebook
 
-The saved 2016 experiment has 366 daily records for each of the three methods.
-The manual shows the [water elevation and water release figure](results.md).
-Use the files below to inspect the values or prepare your own figure.
+Start with the [completed Daily and Hourly comparison figures and Table 3](completed_results/README.md).
+For a configurable executable lesson, open the [2021–2025 operation tutorial](../../tutorials/operation.ipynb).
+It reads the complete prepared settings, runs an offline preflight, and displays
+the completed Rule-based teaching baseline. Its two LLM entry files are optional
+examples; the separately completed comparison is linked above. Download the baseline inputs, daily files, figures, and
+score summary from the [operation folder](operation/README.md).
 
 For the step-by-step tutorial, open the repository's [tutorials folder](../../tutorials/).
 Its README introduces [main.ipynb](../../tutorials/main.ipynb), from `experiment.yaml`

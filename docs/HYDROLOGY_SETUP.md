@@ -8,6 +8,36 @@ parameter estimation, calibration, and validation remain user work.
 Download [hydrology.yaml](../templates/coupled/hydrology.yaml) or browse the
 [complete template folder](TEMPLATES.md).
 
+## Connect a model to the operation network
+
+The complete [two-reservoir teaching example](MULTI_RESERVOIR.md) provides filled
+files. Its native model contains `basin_a` and `basin_b`; their local runoff is
+bound to `inlet_a` and `inlet_b`. The physical network connects these inlet IDs
+to `lake_a` and `lake_b`. The two `river_*` nodes add no local runoff.
+
+```{literalinclude} ../examples/multiple_reservoirs/hydrology.yaml
+:language: yaml
+```
+
+The corresponding forcing begins as follows. Precipitation is mm/day,
+temperature is °C, and PET is cm/day. Each basin needs one row per model day.
+The invented values below teach the format; replace them with your accepted
+basin inputs for a real study.
+
+```{literalinclude} ../examples/multiple_reservoirs/forcing.csv
+:language: text
+:lines: 1-5
+```
+
+Keep [model.yaml](../examples/multiple_reservoirs/model.yaml),
+[forcing.csv](../examples/multiple_reservoirs/forcing.csv) and
+[reservoirs.yaml](../examples/multiple_reservoirs/reservoirs.yaml) together.
+Use `runoff` for a local catchment contribution and `routed` for a native routed
+outlet. A downstream reservoir already receives upstream releases through the
+water network; do not add that same water again as local inflow.
+
+## Configure your own hydrology file
+
 ```{literalinclude} ../templates/coupled/hydrology.yaml
 :language: yaml
 ```

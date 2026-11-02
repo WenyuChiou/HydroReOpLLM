@@ -30,10 +30,13 @@ METHODS = ("llm_available", "llm_knowledge")
 ENGINES = ("original", "framework")
 MODEL = "gemma4:12b"
 DIGEST = "4eb23ef187e2c5462566d6a1d3bbbc2f1346d0b4327cbb66d58fffbcc9b2b05c"
-PROMPTS = {
+# Immutable prompt identities in accepted 2016 raw requests.
+HISTORICAL_PROMPTS = {
     "llm_available": ("available_information.txt", "0c557d4e51e4bb938d36c65808eb91e9ba5bc29db8b37d958149fee38bae9f75"),
     "llm_knowledge": ("retrieved_knowledge.txt", "ae5e19ee4a8f3749d80f06088c7ee7f4cb14997a72d40a9d39c1ab2e51a7bf48"),
 }
+# Current canonical Daily prompts, distinct from the archived 2016 payloads.
+PROMPTS = {'llm_available': ('available_information.txt', 'd378d13afe320c447f84ca23ed4491b6b7eac8cf63a29f41c7dca96a603eda4d'), 'llm_knowledge': ('retrieved_knowledge.txt', '96d7ae1550da8bc3e83307e2282f64c4fa7b28f590f13e8230178abc1de52ce7')}
 
 
 def require(condition: bool, message: str) -> None:
@@ -156,7 +159,7 @@ def real_tape(run: Path, engine: str, method: str) -> tuple[list[dict], list[dic
         require(payload["model"] == MODEL and payload["think"] is False and payload["stream"] is False, "Invalid saved comparison evidence: payload['model'] == MODEL and payload['think'] is False and (payload['stream'] is False)")
         require(payload["keep_alive"] == "30m", "Invalid saved comparison evidence: payload['keep_alive'] == '30m'")
         require(payload["options"] == {"temperature": 0.7, "num_predict": 2048, "num_ctx": 16384}, "Invalid saved comparison evidence: payload['options'] == {'temperature': 0.7, 'num_predict': 2048, 'num_ctx': 16384}")
-        require(hashlib.sha256(payload["messages"][0]["content"].encode()).hexdigest() == PROMPTS[method][1], "Invalid saved comparison evidence: hashlib.sha256(payload['messages'][0]['content'].encode()).hexdigest() == PROMPTS[method][1]")
+        require(hashlib.sha256(payload["messages"][0]["content"].encode()).hexdigest() == HISTORICAL_PROMPTS[method][1], "Invalid saved comparison evidence: hashlib.sha256(payload['messages'][0]['content'].encode()).hexdigest() == HISTORICAL_PROMPTS[method][1]")
         require(raw["model"] == MODEL and raw["done"] and raw["eval_count"] > 0, "Invalid saved comparison evidence: raw['model'] == MODEL and raw['done'] and (raw['eval_count'] > 0)")
         require(raw["done_reason"] == "stop" and raw["total_duration"] > 0, "Invalid saved comparison evidence: raw['done_reason'] == 'stop' and raw['total_duration'] > 0")
         parsed = json.loads(raw["message"]["content"])

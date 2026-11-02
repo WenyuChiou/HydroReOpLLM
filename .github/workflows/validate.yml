@@ -4,7 +4,11 @@ permissions:
   contents: read
 jobs:
   validate:
-    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -25,7 +29,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: information-e2e
+          name: information-e2e-${{ matrix.os }}
           path: |
             build/e2e
             build/e2e-junit.xml
@@ -42,11 +46,12 @@ jobs:
       - name: Verify wheel outside the source checkout
         run: |
           python -m pip uninstall -y hydroreopllm llm-reservoir-agent
-          python -m pip install --no-deps dist/*.whl
+          python -c "import glob,subprocess,sys; subprocess.check_call([sys.executable,'-m','pip','install','--no-deps',*glob.glob('dist/*.whl')])"
           python -I scripts/check_installed_runtime.py
+          python -I scripts/check_daily_install.py --examples examples/daily_offline
       - uses: actions/upload-artifact@v4
         with:
-          name: hydroreopllm-html-and-package
+          name: hydroreopllm-html-and-package-${{ matrix.os }}
           path: |
             build/docs
             dist

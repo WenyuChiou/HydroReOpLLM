@@ -11,7 +11,7 @@ Reservoir information (public sources):
 - Spillway type: concrete
 - Catchment area: 289 square miles
 - Total capacity (publicly reported): 110,700 acre-feet
-- Operation target: Your goal is to keep the water level within the designated seasonal pool levels. From November 1 through March 14, keep the pool near the conservation pool at 1300.0 ft N.G.V.D., within 1297.0 to 1303.0 ft. From March 15 through May 9, keep the pool between 1300.0 and 1370.0 ft and, when hydrologic conditions allow, fill toward 1370.0 ft by May 10. From May 10 through October 14, keep the pool at or below 1370.0 ft. From October 15 through October 31, keep the pool between 1300.0 and 1370.0 ft and lower it toward 1300.0 ft by November 1.
+- Operation target: Your goal is to keep the water level within the designated seasonal pool levels. From mid-October until late spring, keep the pool near the conservation pool at 1300.0 ft N.G.V.D. On or before 1 April, when hydrologic conditions allow, raise the pool toward 1370.0 ft N.G.V.D., the top of the temporary recreation pool, to reach it by early May. From May through mid-October, keep the pool at or below 1370.0 ft N.G.V.D. By mid-October, release any remaining stored water to return the pool to 1300.0 ft.
 
 From the reservoir's water control manual:
 - Storage at spillway crest (el. 1450.0 ft): 109,878 acre-feet

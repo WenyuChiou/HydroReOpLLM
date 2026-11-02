@@ -41,12 +41,12 @@ def test_alternate_criteria_preview_records_its_actual_source(tmp_path, monkeypa
 
     build_prompt_review.main()
 
-    preview = json.loads(output.with_name("seasonal-context-preview.json").read_text())
+    preview = json.loads(output.with_name("seasonal-context-preview.json").read_text(encoding="utf-8"))
     assert preview["criteria_file"] == "external/alternate_pool_criteria.json"
     assert preview["criteria_sha256"] == hashlib.sha256(criteria.read_bytes()).hexdigest()
     assert str(tmp_path) not in preview["criteria_file"]
     assert preview["model_requests"] == 0
-    assert json.loads(output.read_text()) == actual
+    assert json.loads(output.read_text(encoding="utf-8")) == actual
     assert actual_file.read_bytes() == actual_bytes
 
 

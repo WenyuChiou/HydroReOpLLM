@@ -1,11 +1,13 @@
-"""Small declarative decision checks; physical enforcement remains separate.
+"""Evaluate small declarative requested-action checks selected in YAML.
 
-Role: Evaluate small YAML-selected operating checks.
-
-Connections and data: workflow constructs ConfiguredAudit plugins; auditor supplies
-decision context. release_bounds uses m3/s; field_range uses the units of the selected
-field. Missing or nonnumeric fields return UNKNOWN. These checks report findings without
-changing release or reservoir storage.
+``workflow`` constructs ``ConfiguredAudit`` plugins, and ``AuditedBackend``
+passes each the detached decision input. ``release_bounds`` compares requested
+release to the observation's feasible upper bound in m3/s. ``field_range`` uses
+the selected observation/action field's native units. Missing or nonnumeric
+field-range values report UNKNOWN. Results are diagnostic mappings and never
+modify requested release, implemented flow, spill or reservoir storage.
+Construction validates the rubric and reads this source file to pin its exact
+implementation bytes. Evaluation performs no file or network I/O.
 """
 import hashlib
 import math
@@ -15,6 +17,27 @@ from .auditor import AuditSpec
 
 
 class ConfiguredAudit:
+    """Construct one versioned, deterministic decision-bound checker.
+
+    A version labels the rubric revision. The implementation hash pins this file, including documentation; network_calls is observed zero for this local checker.
+
+    Parameters
+    ----------
+    identifier : str
+        Nonempty auditor ID used in suite provenance.
+    settings : dict
+        release_bounds with nonnegative tolerance_cms, or field_range with a dotted path, inclusive bounds and optional FAIL/WARN severity.
+
+    Raises
+    ------
+    TypeError
+        A value has the wrong type or is not finite JSON.
+    ValueError
+        A required field, version, numeric bound or digest is invalid.
+    OSError
+        A required file cannot be read, created, flushed or replaced.
+    """
+
     network_calls = 0
 
     def __init__(self, identifier, settings):
@@ -51,10 +74,32 @@ class ConfiguredAudit:
 
     @staticmethod
     def _number(value):
+        """Reject boolean, nonnumeric and nonfinite audit bounds; signed values remain allowed for general field ranges."""
+
         if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value):
             raise ValueError("audit bounds must be finite numbers")
 
     def audit(self, context):
+        """Evaluate the configured bound against one supplied decision context.
+
+        Release checks apply to the request before physics. Field-range limits retain the selected field units; this is not a downstream routed-outcome check.
+
+        Parameters
+        ----------
+        context : Mapping[str, Any]
+            Contains observation and action; release_cms and release_upper_bound_cms are in m3/s.
+
+        Returns
+        -------
+        dict[str, Any]
+            PASS or configured violation severity with the checked value; missing/nonnumeric field_range inputs yield UNKNOWN.
+
+        Raises
+        ------
+        KeyError
+            A release_bounds context lacks its required observation/action fields.
+        """
+
         rule = self.spec.rubric
         if rule["type"] == "release_bounds":
             value = context["action"]["release_cms"]

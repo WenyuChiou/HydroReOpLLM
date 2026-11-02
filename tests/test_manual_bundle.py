@@ -116,9 +116,11 @@ def test_current_2016_exports_are_local_exact_and_do_not_replace_history(prepare
         relative = 'examples/fe_walter/coupled/outputs/2016/' + name
         assert (output / relative).read_bytes() == (ROOT / relative).read_bytes()
     tutorial_downloads = output / '_tutorial_downloads'
-    assert {item.name for item in tutorial_downloads.iterdir() if item.is_file()} == set(
-        builder.TUTORIAL_DOWNLOADS.values()
-    )
+    flat = {name for name in builder.TUTORIAL_DOWNLOADS.values() if '/' not in name}
+    assert len(flat) == 11
+    assert {item.name for item in tutorial_downloads.iterdir() if item.is_file()} == flat
+    assert {item.relative_to(tutorial_downloads).as_posix()
+            for item in tutorial_downloads.rglob('*') if item.is_file()} == set(builder.TUTORIAL_DOWNLOADS.values())
     for relative, published_name in builder.TUTORIAL_DOWNLOADS.items():
         expected = (ROOT / relative).read_bytes()
         assert (output / relative).read_bytes() == expected, relative

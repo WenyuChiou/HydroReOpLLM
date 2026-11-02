@@ -1,12 +1,11 @@
-"""Translate one reservoir agent section into the execution contract.
+"""Translate one reservoir agent section into the canonical execution vocabulary.
 
-The global experiment chooses the case and dates; each agent chooses a reservoir
-and operating method; model and auditor profiles are referenced by ID. File
-resolution belongs to :mod:`configuration`, while workflow validates resources
-and builds providers. This pure adapter performs no I/O and contains no site,
-prompt or seasonal rules. Legacy specifications pass through unchanged, so
-historical provenance remains readable. A specification must use one vocabulary,
-without implicit overrides.
+``configuration`` supplies the declaring file's paths; ``workflow`` validates
+resources and constructs the selected rule or LLM backend. ``normalize_agent``
+copies public or legacy mappings into detached settings without reading files,
+calling a model or choosing site rules. Public and legacy names cannot be mixed.
+Operating method (rule_based/llm) and execution mode (live/replay) are separate.
+Rule parameters keep the selected extension's units; no conversion occurs here.
 """
 from copy import deepcopy
 
@@ -25,17 +24,32 @@ _CUSTOM = {*_ADVANCED, 'system_prompt_file', 'backend', 'parameters', 'execution
 
 
 def _text(value, label):
+    """Require a nonempty identifier without coercing numbers or missing values to text."""
+
     if not isinstance(value, str) or not value.strip():
         raise ValueError(label + ' must be a nonempty string')
     return value
 
 
 def normalize_agent(spec):
-    """Return a detached canonical agent; reject ambiguous or unused options.
+    """Copy one agent declaration into canonical backend settings.
 
-    ``type`` describes the operating method. ``execution: replay`` is a custom
-    backend's test mode and never becomes another method or an LLM fallback.
-    Plugin parameters stay opaque except for protected framework field names.
+    Extension parameters are opaque, retain their declared units, and cannot replace protected framework settings. This function performs no I/O.
+
+    Parameters
+    ----------
+    spec : dict or JSON-compatible object
+        Public reservoir_id/type settings or a legacy declaration; legacy inputs are copied unchanged.
+
+    Returns
+    -------
+    dict or object
+        Detached canonical settings; rule_based agents use an explicit registered rule, while replay remains an LLM execution mode.
+
+    Raises
+    ------
+    ValueError
+        Public and legacy keys overlap, required identifiers are missing, or customization is incompatible with the selected method.
     """
     if not isinstance(spec, dict) or not (set(spec) & (_PUBLIC - {'auditors', 'rule_parameters'})):
         return deepcopy(spec)

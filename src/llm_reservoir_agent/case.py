@@ -1,10 +1,19 @@
-"""Hash-pinned input loaders and explicitly offline response fixtures.
+"""Load pinned network inputs and explicitly offline response fixtures.
 
-Role: Load a network case, pinned inflows and saved response fixtures.
+Purpose and data flow
+---------------------
+Case JSON plus declared inflow/knowledge/rating files become a validated
+network configuration and consecutive incremental local-flow rows in m3/s.
+Legacy cfs input is converted once by CFS_TO_CMS. RecordedResponseBackend
+replays supplied release actions by step and timestamp; it does not generate
+new model responses or establish model performance.
 
-Connections and data: workflow uses load_case to obtain configuration and ordered daily
-rows. RecordedResponseBackend returns supplied actions for offline tests; it is not
-evidence of a newly generated model response. Network validation remains in network.py.
+Dependencies and side effects
+-----------------------------
+Reads UTF-8 JSON/CSV with duplicate/non-finite checks and verifies source
+SHA256. Uses network validation, contracts and TimeAxis. Loaded dictionaries
+are normalized in memory. Replay decisions update trace/audit state; feedback
+is appended by reference. No network calls or output files are produced.
 """
 from collections.abc import Mapping
 import csv
@@ -20,6 +29,25 @@ HYDROCNHS_COMMIT = "fdd5097a3fcabb312c6c3739efc71da2d67c47da"
 
 
 def inside(root, relative):
+    """Resolve an input path and require it to stay beneath the allowed root.
+
+    Parameters
+    ----------
+    root : str or pathlib.Path
+        Allowed filesystem root.
+    relative : str or pathlib.Path
+        Relative path, or an absolute path already within root.
+
+    Returns
+    -------
+    pathlib.Path
+        Resolved absolute path; existence is not checked here.
+
+    Raises
+    ------
+    ValueError
+        Resolved path escapes root.
+    """
     path = (Path(root) / relative).resolve()
     if not path.is_relative_to(Path(root).resolve()):
         raise ValueError("input path must remain inside the project")
@@ -27,6 +55,25 @@ def inside(root, relative):
 
 
 def read_json(path):
+    """Read UTF-8 JSON while rejecting duplicate keys and non-finite literals.
+
+    Parameters
+    ----------
+    path : str or pathlib.Path
+        JSON source file; a UTF-8 BOM is accepted.
+
+    Returns
+    -------
+    object
+        Parsed JSON value; object keys are unique within each object.
+
+    Raises
+    ------
+    ValueError
+        JSON syntax, duplicate keys or non-finite literals are invalid.
+    OSError
+        The file cannot be read.
+    """
     def unique(pairs):
         result = {}
         for key, value in pairs:
@@ -40,6 +87,37 @@ def read_json(path):
 
 
 def load_case(path, *, project_root=PROJECT_ROOT):
+    """Load a pinned case and normalize its local inflows for the network engine.
+
+    Parameters
+    ----------
+    path : str or pathlib.Path
+        Network-case or supported legacy single-reservoir JSON beneath project_root.
+    project_root : str or pathlib.Path, optional
+        Allowed input root, defaulting to the checkout/installed runtime root.
+
+    Returns
+    -------
+    config : dict
+        Validated network configuration, normalized passive ratings, knowledge
+        package pins and source-file provenance. Storage uses m3.
+    rows : list of dict
+        Consecutive interval-start date and local_inflow_cms mapping for every
+        routing node; rates use m3/s and exclude upstream routed contributions.
+
+    Raises
+    ------
+    ValueError
+        Path containment, schema, pinned bytes, identity, unit or timestep/inflow
+        validation fails. Daily CSV format requires dt_seconds=86400.
+    OSError
+        A case or referenced source cannot be read.
+
+    Notes
+    -----
+    Inline inflow is restricted to explicit synthetic fixtures. Legacy cfs
+    flows are multiplied by 0.028316846592; existing m3/s rates are retained.
+    """
     path = inside(project_root, path)
     case = read_json(path)
     if case.get("schema_version") == "llm-reservoir-network-case.v1":
@@ -115,6 +193,7 @@ def load_case(path, *, project_root=PROJECT_ROOT):
             raise ValueError("inflow checksum mismatch")
         if case["inflow_unit"] not in ("cfs", "cms"):
             raise ValueError("inflow_unit must be cfs or cms")
+        # Convert ft3/s to m3/s once; storage and volume are not involved here.
         factor = CFS_TO_CMS if case["inflow_unit"] == "cfs" else 1.0
         with source.open(encoding="utf-8-sig", newline="") as handle:
             rows = [dict(date=row["date"], local_inflow_cms={inlet:
@@ -130,6 +209,29 @@ def load_case(path, *, project_root=PROJECT_ROOT):
 
 
 class RecordedResponseBackend:
+    """Replay a supplied offline action sequence without making model requests.
+
+    Parameters
+    ----------
+    records : list of dict
+        Nonempty records with date and exactly one release_cms or release_cfs;
+        optional rationale/audit fields are retained. Legacy nested responses
+        with release_cfs and reasoning are normalized.
+    data_kind : {'recorded_llm_response', 'synthetic_fixture'}
+        Explicit provenance classification of the supplied responses.
+    source_sha256 : str
+        Hash recorded for the source file by load_responses.
+
+    Raises
+    ------
+    ValueError
+        Record schema, JSON values, release units or data_kind is invalid.
+
+    Notes
+    -----
+    Requested rates are normalized to m3/s; network_calls is zero. Trace
+    and audit describe the supplied fixture, with no new model-generation claim.
+    """
     policy_id = "offline_recorded_responses"
     network_calls = 0
 
@@ -161,6 +263,32 @@ class RecordedResponseBackend:
         self.feedback = []
 
     def decide(self, observation):
+        """Select the recorded action for the observed step and verify its timestamp.
+
+        Parameters
+        ----------
+        observation : mapping
+            Common observation with timestep, timestamp and state.dt_seconds.
+
+        Returns
+        -------
+        dict
+            Stored reservoir-action.v1 request in m3/s; also updates latest trace/audit.
+
+        Raises
+        ------
+        ValueError
+            Recorded and observed timestamps or clock conventions differ.
+        IndexError
+            timestep exceeds the supplied response sequence.
+        KeyError
+            A required observation field is missing.
+
+        Notes
+        -----
+        The stored action mapping is returned directly. Callers should treat the
+        fixture records and returned action as read-only.
+        """
         record = self.records[observation["timestep"]]
         if record["date"] != observation["timestamp"][:10]:
             raise ValueError("response date differs from the observation")
@@ -169,10 +297,48 @@ class RecordedResponseBackend:
         return record["action"]
 
     def record_transition(self, record):
+        """Retain the host's committed feedback record in replay order.
+
+        Parameters
+        ----------
+        record : mapping
+            Committed observation/action/transition record; retained by reference.
+
+        Returns
+        -------
+        None
+            Appends to feedback without changing fixture actions.
+        """
         self.feedback.append(record)
 
 
 def load_responses(path, config, rows, *, project_root=PROJECT_ROOT):
+    """Load offline responses covering controlled reservoirs and all inflow steps.
+
+    Parameters
+    ----------
+    path : str or pathlib.Path
+        Recorded-response JSON beneath project_root.
+    config : mapping
+        Network configuration declaring controlled/passive reservoir modes.
+    rows : sequence of mapping
+        Validated inflow rows whose dates must exactly match response records.
+    project_root : str or pathlib.Path, optional
+        Allowed input root, defaulting to the runtime asset root.
+
+    Returns
+    -------
+    dict of str to RecordedResponseBackend
+        One offline replay backend per controlled reservoir; passive nodes are
+        deliberately omitted and completed by the physical backend layer.
+
+    Raises
+    ------
+    ValueError
+        Path, schema, reservoir coverage, records or date alignment is invalid.
+    OSError
+        Response source cannot be read.
+    """
     path = inside(project_root, path)
     value = read_json(path)
     controlled = {name for name, spec in config["reservoirs"].items()

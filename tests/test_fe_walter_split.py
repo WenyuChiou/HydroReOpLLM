@@ -25,7 +25,7 @@ MODEL = {
     "max_attempts": 2, "retry_delay_seconds": 2,
 }
 CURRENT_MODEL = {**MODEL, "model": "gemma4:12b"}
-# Pins from the unchanged bcb420d physical/weather/prompt inputs.
+# Preserved physical/weather/knowledge inputs; active prompt pins are separate.
 SOURCE_PINS = {
     "examples/fe_walter/coupled/reservoirs.json":
         "0e761a97bd75e2adbd57227525c5ce9d7a7d085eb075f543282a86bda8316db1",
@@ -35,15 +35,17 @@ SOURCE_PINS = {
         "2d030c5e53b15ba5ef7dcb0979dd223889870e6f9a41396bb3b1e2adb4e6a826",
     "data/benchmark/fe_walter_statistics.json":
         "44a5d67ef9d256b1710403b641ff0629deff21f196cd1d951823197f0ffcbdf7",
-    "examples/fe_walter/prompts/available_information.txt":
-        "0c557d4e51e4bb938d36c65808eb91e9ba5bc29db8b37d958149fee38bae9f75",
-    "examples/fe_walter/prompts/retrieved_knowledge.txt":
-        "ae5e19ee4a8f3749d80f06088c7ee7f4cb14997a72d40a9d39c1ab2e51a7bf48",
     "examples/fe_walter/knowledge/operating_rules.md":
         "7fb3b9e75c1d6a52168049afa80c527a49e606f1c0889e5d14b31f874502b206",
 }
+CURRENT_PROMPT_PINS = {
+    "examples/fe_walter/prompts/available_information.txt":
+        "d378d13afe320c447f84ca23ed4491b6b7eac8cf63a29f41c7dca96a603eda4d",
+    "examples/fe_walter/prompts/retrieved_knowledge.txt":
+        "96d7ae1550da8bc3e83307e2282f64c4fa7b28f590f13e8230178abc1de52ce7",
+}
 CONFIRMED_DKP_PROMPT = "examples/fe_walter/prompts/retrieved_knowledge.txt"
-CONFIRMED_DKP_SHA256 = "ae5e19ee4a8f3749d80f06088c7ee7f4cb14997a72d40a9d39c1ab2e51a7bf48"
+CONFIRMED_DKP_SHA256 = CURRENT_PROMPT_PINS[CONFIRMED_DKP_PROMPT]
 
 
 def _read(path):
@@ -109,8 +111,6 @@ def _confirmed_document(method):
         data["models"] = {"reservoir_model": deepcopy(CURRENT_MODEL)}
         ref = data["agents"]["fe_operator"]["customization"]["parameters"]["reference"]
         ref.update(hide_availability_line=True, dkp_no_missing_inputs=True)
-        # Keep the approved daily context separate from the preserved v1 fixture.
-        ref["seasonal_criteria_file"] = _resource("../seasonal_pool_criteria.json")
         if method == "llm_knowledge":
             ref["system_prompt"] = str((ROOT / CONFIRMED_DKP_PROMPT).resolve())
     return data
@@ -202,7 +202,7 @@ def test_previous_v1_documents_still_load_without_rewriting_their_contract(metho
     assert ref["dkp_no_missing_inputs"] is False
     source = ("examples/fe_walter/prompts/available_information.txt" if method == "llm_available"
               else "examples/fe_walter/prompts/retrieved_knowledge.txt")
-    assert hashlib.sha256(Path(ref["system_prompt"]).read_bytes()).hexdigest() == SOURCE_PINS[source]
+    assert hashlib.sha256(Path(ref["system_prompt"]).read_bytes()).hexdigest() == CURRENT_PROMPT_PINS[source]
     assert "seasonal_criteria_file" not in ref
     for relative, digest in SOURCE_PINS.items():
         assert hashlib.sha256((ROOT / relative).read_bytes()).hexdigest() == digest
@@ -254,7 +254,7 @@ def test_shared_physics_sources_public_agents_and_output_identity(loaded):
             if method == "llm_knowledge":
                 required.append("examples/fe_walter/knowledge/operating_rules.md")
         for relative in required:
-            assert checked.files[str((ROOT / relative).resolve())] == SOURCE_PINS[relative]
+            assert checked.files[str((ROOT / relative).resolve())] == (SOURCE_PINS | CURRENT_PROMPT_PINS)[relative]
     assert "models" not in default.data
     assert rule.data["extensions"] == {"hanasaki": _resource("../../rules/hanasaki/__init__.py")}
     assert available.data["extensions"] == knowledge.data["extensions"] == {

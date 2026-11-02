@@ -148,6 +148,18 @@ class CaseProfile:
         e1, s1 = self.curve[index]
         return s0 + (elevation_ft - e0) * (s1 - s0) / (e1 - e0)
 
+    def target_elevation(self, day: date) -> float:
+        """Return the retrieval target; optional knots describe calendar interpolation."""
+        points = self.data.get("retrieval_target_curve")
+        if points is None:
+            return float(self.target_period(day)["target_ft"])
+        calendar = [(date.fromisoformat(f"{day.year}-{key}"), float(value))
+                    for key, value in points]
+        for (start, left), (end, right) in zip(calendar, calendar[1:]):
+            if start <= day <= end:
+                return left + (right - left) * (day - start).days / (end - start).days
+        raise ValueError("retrieval target curve does not cover the calendar")
+
     def target_period(self, day: date) -> Mapping[str, Any]:
         key = day.strftime("%m-%d")
         for period in self.data["target_periods"]:
@@ -161,12 +173,30 @@ def case_profile_path() -> Path:
     return (Path(__file__).resolve().parents[1] / "profiles" / "reservoir.json").resolve()
 
 
-def load_case_profile(runtime_root: Path | str) -> CaseProfile:
-    path = case_profile_path()
+def load_case_profile(runtime_root: Path | str, profile_file: Path | str | None = None) -> CaseProfile:
+    path = case_profile_path() if profile_file is None else Path(profile_file).resolve()
     blob = path.read_bytes()
     data = json.loads(blob.decode("utf-8"))
     if data.get("schema_version") != "anik-case-profile.v1" or data.get("profile_id") != "fe_walter":
         raise ValueError("invalid FE Walter case profile")
+    knots = data.get("retrieval_target_curve")
+    if knots is not None:
+        if not isinstance(knots, list) or len(knots) < 2:
+            raise ValueError("retrieval_target_curve requires at least two calendar knots")
+        dates = []
+        for point in knots:
+            if not isinstance(point, list) or len(point) != 2 or not isinstance(point[0], str):
+                raise ValueError("retrieval_target_curve knots require [MM-DD, elevation_ft]")
+            key, value = point
+            parsed = date.fromisoformat("2001-" + key)
+            if parsed.strftime("%m-%d") != key:
+                raise ValueError("retrieval target dates must use MM-DD")
+            _number(value, "retrieval target elevation", nonnegative=True)
+            dates.append(parsed)
+        if (dates[0].strftime("%m-%d") != "01-01"
+                or dates[-1].strftime("%m-%d") != "12-31"
+                or any(b <= a for a, b in zip(dates, dates[1:]))):
+            raise ValueError("retrieval target knots must be ordered from Jan 1 through Dec 31")
     curve_path = (path.parent / data["elevation_storage_csv"]).resolve()
     curve_blob = curve_path.read_bytes()
     curve_hash = hashlib.sha256(curve_blob).hexdigest()
@@ -397,7 +427,7 @@ class NativePromptFormatter:
         inflow_cfs = _number(observation["inflow_cms"], "inflow_cms", nonnegative=True) / CFS_TO_CMS
         storage_af = _number(state["storage_m3"], "state.storage_m3", nonnegative=True) / ACREFT_TO_M3
         period = self.profile.target_period(day)
-        target = float(period["target_ft"])
+        target = self.profile.target_elevation(day)
         pool = self.profile.storage_to_elevation(storage_af)
         target_storage = self.profile.elevation_to_storage(target)
         bottom = self.profile.elevation_to_storage(self.profile.data["flood_pool_bottom_ft"])

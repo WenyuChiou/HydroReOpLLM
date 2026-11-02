@@ -1,0 +1,101 @@
+{
+  "schema_version": 1,
+  "purpose": "Maintained offline teaching-source compatibility; not a replacement scientific run receipt.",
+  "historical_provenance_sha256": "657bb3bcc2cfe03320673b93ac858419323b0cf015cddb7948f40d60168d250d",
+  "scientific_outputs": "Unchanged. Historical input, output and calibration hashes remain authoritative in provenance.json.",
+  "source_basis": "The approved Daily baseline imported into the isolated daily-readiness branch; no new model responses or calibration.",
+  "dependencies": {
+    "examples/fe_walter/coupled/auditors.yaml": {
+      "historical_sha256": "ed2afb7c2bee773510d2a934a1e96c2d607d2b8771ccc6ff165b5a1a39206a0f",
+      "current_sha256": "ed2afb7c2bee773510d2a934a1e96c2d607d2b8771ccc6ff165b5a1a39206a0f"
+    },
+    "data/benchmark/fe_walter_statistics.json": {
+      "historical_sha256": "44a5d67ef9d256b1710403b641ff0629deff21f196cd1d951823197f0ffcbdf7",
+      "current_sha256": "44a5d67ef9d256b1710403b641ff0629deff21f196cd1d951823197f0ffcbdf7"
+    },
+    "data/accepted/fe_walter_inflow_reference_1996_2025.csv.gz": {
+      "historical_sha256": "91759fdfbaa3e85b0257a5708391f53d264eb0ef898f94c4e580a391e131b64f",
+      "current_sha256": "91759fdfbaa3e85b0257a5708391f53d264eb0ef898f94c4e580a391e131b64f"
+    },
+    "examples/fe_walter/extensions/__init__.py": {
+      "historical_sha256": "dac0260d45542d3ee33d49f9f0db7cd9791f7ab31545cd71f9fee92e256360dd",
+      "current_sha256": "dac0260d45542d3ee33d49f9f0db7cd9791f7ab31545cd71f9fee92e256360dd"
+    },
+    "examples/fe_walter/extensions/anik_v3_7.py": {
+      "historical_sha256": "b634a9dc666e529f4d467e1e4d1f8fdebd3318486928c98767feee5ebdce24a7",
+      "current_sha256": "b634a9dc666e529f4d467e1e4d1f8fdebd3318486928c98767feee5ebdce24a7"
+    },
+    "examples/fe_walter/extensions/daily_inputs.py": {
+      "historical_sha256": "b02a3d928d94fcb96e01dc4999271f97e99240afe53bc875cd9b03419e5e3203",
+      "current_sha256": "b02a3d928d94fcb96e01dc4999271f97e99240afe53bc875cd9b03419e5e3203"
+    },
+    "examples/fe_walter/extensions/dkp_adapter.py": {
+      "historical_sha256": "2c00e207b574b1dba624db0a9ffa22dbcbe4f0005568b494050b69a67a96d85e",
+      "current_sha256": "2c00e207b574b1dba624db0a9ffa22dbcbe4f0005568b494050b69a67a96d85e"
+    },
+    "examples/fe_walter/extensions/dkp_audit.py": {
+      "historical_sha256": "0b7607a0d74631cffc2a9a8398b28c8337fff08235b8902616d41d79f6daec64",
+      "current_sha256": "0b7607a0d74631cffc2a9a8398b28c8337fff08235b8902616d41d79f6daec64"
+    },
+    "examples/fe_walter/extensions/native_case.py": {
+      "historical_sha256": "470883792b0ea5d98429f10131bf4e760c4df0cf6ad22a19d4b95158f536b0f6",
+      "current_sha256": "8cb58568d27f00b95076547ab90e50fb055a7fa97590aeb87cdb5589fe1ac39f"
+    },
+    "examples/fe_walter/extensions/reference_backend.py": {
+      "historical_sha256": "4c198f704e2753f5c60627ac7a40fe4b9ba9b09db39317c9e575ea52c7f6319e",
+      "current_sha256": "9b1e6f290c47c0a72556842bc9648c45ae77f0a34661f36c47f612a61021d174"
+    },
+    "examples/fe_walter/extensions/reservoir_profile.py": {
+      "historical_sha256": "f30f547171b8930f1e1f03e4d9ed24b9452329b7dda7057310b1ada925236e71",
+      "current_sha256": "f30f547171b8930f1e1f03e4d9ed24b9452329b7dda7057310b1ada925236e71"
+    },
+    "examples/fe_walter/extensions/retrieval/__init__.py": {
+      "historical_sha256": "57efdf1d113946bc37b4281b7c02efa08afeb64ac1ff7b7d946e82b2782edb8d",
+      "current_sha256": "57efdf1d113946bc37b4281b7c02efa08afeb64ac1ff7b7d946e82b2782edb8d"
+    },
+    "examples/fe_walter/extensions/seasonal_prompt_context.py": {
+      "historical_sha256": "c7039b8896770311d449e73239124f3766853091a8aa31df3fcda1f84f5462f8",
+      "current_sha256": "c7039b8896770311d449e73239124f3766853091a8aa31df3fcda1f84f5462f8"
+    },
+    "examples/fe_walter/coupled/models.yaml": {
+      "historical_sha256": "37134b94eb42fb53ec362f0a33dbb09bf5f697eaab2196a47589b7d00299e71e",
+      "current_sha256": "37134b94eb42fb53ec362f0a33dbb09bf5f697eaab2196a47589b7d00299e71e"
+    },
+    "examples/fe_walter/coupled/agents.llm_available.yaml": {
+      "historical_sha256": "27976fb493a48e644417238f2ea2b1af02d15a64bceead6922cdfffa3e787aff",
+      "current_sha256": "a855fddc63f9e151b263b9e576891149c86040b459e21bccaac914cdf79fde24"
+    },
+    "examples/fe_walter/prompts/available_information.txt": {
+      "historical_sha256": "0c557d4e51e4bb938d36c65808eb91e9ba5bc29db8b37d958149fee38bae9f75",
+      "current_sha256": "d378d13afe320c447f84ca23ed4491b6b7eac8cf63a29f41c7dca96a603eda4d"
+    },
+    "examples/fe_walter/seasonal_pool_criteria.json": {
+      "historical_sha256": "51ba8e957218ced8923c7c22caaa80aec1b1a75eb9a5d19e73a3f0c1f416d4a7",
+      "current_sha256": "51ba8e957218ced8923c7c22caaa80aec1b1a75eb9a5d19e73a3f0c1f416d4a7"
+    },
+    "examples/fe_walter/profiles/reservoir.json": {
+      "historical_sha256": "6a6124d721120ac1e42d86e108fb0c59fd63fd96595b09bc7f222417758079e3",
+      "current_sha256": "9374b533ef3ad873388c50623dd5422bf0171e98d4e4499d255415cc4b91dbc6"
+    },
+    "cases/fe_belt_prompton_offline/fe_walter_storage_elevation.csv": {
+      "historical_sha256": "baa89b33023c23002b94ac48e68c69278c384d15a64a72d2587a1e6ad458999d",
+      "current_sha256": "baa89b33023c23002b94ac48e68c69278c384d15a64a72d2587a1e6ad458999d"
+    },
+    "examples/fe_walter/coupled/agents.llm_knowledge.yaml": {
+      "historical_sha256": "eeae76bcda7a90d2b486ef320e265eb5c94c808e7fd12f9f449d998516bfaf52",
+      "current_sha256": "c06f063f37d5154b19765552d3704e799312bbeb2377e93bbd70b59a186af95a"
+    },
+    "examples/fe_walter/prompts/retrieved_knowledge.txt": {
+      "historical_sha256": "ae5e19ee4a8f3749d80f06088c7ee7f4cb14997a72d40a9d39c1ab2e51a7bf48",
+      "current_sha256": "96d7ae1550da8bc3e83307e2282f64c4fa7b28f590f13e8230178abc1de52ce7"
+    },
+    "examples/fe_walter/knowledge/operating_rules.md": {
+      "historical_sha256": "7fb3b9e75c1d6a52168049afa80c527a49e606f1c0889e5d14b31f874502b206",
+      "current_sha256": "7fb3b9e75c1d6a52168049afa80c527a49e606f1c0889e5d14b31f874502b206"
+    },
+    "examples/fe_walter/downstream/outputs/hydrology_validation/summary.json": {
+      "historical_sha256": "56abfd6b7d95cbe7934396bb73fe3874ff5923fa32675aebbd67b389633490f8",
+      "current_sha256": "56abfd6b7d95cbe7934396bb73fe3874ff5923fa32675aebbd67b389633490f8"
+    }
+  }
+}

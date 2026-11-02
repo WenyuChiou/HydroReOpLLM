@@ -30,6 +30,7 @@ change the upstream rainfall–runoff calculation.
 | [Hydrology](HYDROLOGY_SETUP.md) | Supply the accepted native model and weather. |
 | [Reservoirs and network](BUILD_SIMULATION.md) | Connect inflow, storage and downstream paths. |
 | [Agents and LLM](CONFIGURATION.md) | Select a rule or a model, prompt and optional context. |
+| [Available information](INFORMATION.md) | Add observations, forecasts or operating targets to an agent's prompt. |
 | [Check and run](RUNNING.md) | Check files, prepare inflow, run operations and verify records. |
 | [Case studies](CASE_STUDIES.md) | Follow complete examples after learning the settings. |
 | [Results](RESULTS_GUIDE.md) | Read water elevation and controlled release. |

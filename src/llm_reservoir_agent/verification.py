@@ -1,11 +1,18 @@
-"""Independent saved-file acceptance for a completed reservoir-network run.
+"""Verify completed network-run files without rerunning controllers or hydrology.
 
-Role: Verify a completed experiment from saved files.
-
-Connections and data: workflow.verify_settings_output checks current input/runtime
-compatibility before verify_run checks hashes, event ordering, physical records, routing
-and information. Returns acceptance evidence without rerunning the controller or
-simulation. A file-consistency pass does not override a strategy FAIL, WARN or UNKNOWN.
+``verify_run`` reads the saved experiment, index/summary, JSONL/raw evidence and
+CSV/reach outputs. It independently checks exact-byte hashes, complete durable
+causal sequences, observation/action contracts, configured reservoir transitions,
+storage continuity, routed upstream contributions, reach in-transit volumes and
+system/component water balances. Information and routed-outcome checks are
+reconstructed from frozen or completed records. Flow uses m3/s, volume/residuals
+use m3, and saved dt_seconds governs all integration and clock labels.
+``workflow.verify_settings_output`` adds current-input/runtime compatibility;
+this module can also inspect historical completed runs. It reads files and uses
+pure physical calculations, never calls providers or advances a simulation.
+A consistency PASS preserves every reported audit FAIL/WARN/UNKNOWN and leaves
+operating_strategy_accepted unknown. Optional offline checks require observed
+zero-call evidence and an accepted explicit offline backend declaration.
 """
 from collections import Counter
 from collections.abc import Mapping
@@ -33,11 +40,15 @@ _AUDIT_STATUSES = {"PASS", "WARN", "FAIL", "UNKNOWN"}
 
 
 def _check(condition, message):
+    """Raise ValueError for a failed saved-evidence invariant; a failed consistency check must not be converted into acceptance."""
+
     if not condition:
         raise ValueError(message)
 
 
 def _close(a, b, message, *, tolerance=1e-6):
+    """Require finite numeric values whose absolute difference is within the supplied tolerance in the compared field units."""
+
     try:
         a, b = float(a), float(b)
     except (TypeError, ValueError) as exc:
@@ -46,11 +57,13 @@ def _close(a, b, message, *, tolerance=1e-6):
 
 
 def _volume_tolerance(*values):
-    """Match the physical kernels' absolute-plus-scale volume tolerance."""
+    """Return 1e-6 + 1e-12 * max(1, absolute compared volumes), in m3, matching physical-kernel balance tolerances."""
     return 1e-6 + 1e-12 * max(1.0, *(abs(float(value)) for value in values))
 
 
 def _decision_id(run_id, reservoir_id, timestep, timestamp):
+    """Independently reconstruct the run/reservoir/zero-based-step/time hash using the journal's exact compact JSON plus LF convention."""
+
     data = json.dumps(
         [run_id, reservoir_id, timestep, timestamp], ensure_ascii=False,
         allow_nan=False, sort_keys=True, separators=(",", ":"),
@@ -59,6 +72,8 @@ def _decision_id(run_id, reservoir_id, timestep, timestamp):
 
 
 def _csv(path):
+    """Read UTF-8 CSV field names and all rows for independent coverage/value checks; I/O/parser failures propagate."""
+
     with path.open(encoding="utf-8", newline="") as handle:
         reader = csv.DictReader(handle)
         rows = list(reader)
@@ -81,10 +96,34 @@ def _event_key(event, *, result, ids, timestamps, expected_type=None):
 
 
 def verify_run(output, *, require_offline=False, expected_audit_suites=None):
-    """Verify hashes, durable causality, exported physics and routed volumes.
+    """Verify saved-run integrity, causal completeness and independently reconstructed physics.
 
-    Existing audit FAIL/WARN/UNKNOWN values remain unchanged. Passing these file
-    checks does not accept an operating strategy that was not separately audited.
+    Verification reads existing evidence and recalculates pure transitions/routed ledgers. It does not run a backend or accept the scientific operating strategy; operating_strategy_accepted remains None. Current-input/runtime compatibility belongs to verify_settings_output.
+
+    Parameters
+    ----------
+    output : str or pathlib.Path
+        Completed run directory containing experiment, trace, raw and exported-output files.
+    require_offline : bool, optional
+        Require explicit accepted offline backend provenance and zero observed requests for every reservoir.
+    expected_audit_suites : Mapping[str, str] or None, optional
+        Trusted external reservoir-ID to lowercase suite-hash pins; pinned decisions must retain a matching versioned suite.
+
+    Returns
+    -------
+    dict[str, Any]
+        PASS evidence with clock/dimension counts, retained audit statuses, reservoir/system residuals m3, routing difference m3/s and binding counts.
+
+    Raises
+    ------
+    ValueError
+        A file hash, schema, causal sequence, contract, physical/routing balance, information record, audit binding or offline declaration is inconsistent.
+    TypeError
+        A saved numeric/contract field has the wrong type.
+    KeyError
+        A required saved field is absent.
+    OSError
+        A required file cannot be read, created, flushed or replaced.
     """
     output = Path(output).resolve()
     result = read_json(output / "summary.json")
@@ -185,6 +224,7 @@ def verify_run(output, *, require_offline=False, expected_audit_suites=None):
         spec = config["reservoirs"][name]
         physical_config = spec["physical"]
         kernel_config = PhysicalConfig(**physical_config)
+        # Committed ending volume becomes the next beginning volume, both in m3.
         previous = physical_config["initial_storage_m3"]
         passive = PassiveOutlet(physical_config, spec["passive_outlet"]) if spec.get("operation_mode") == "passive_outlet" else None
         for timestep in range(n):
@@ -360,6 +400,7 @@ def verify_run(output, *, require_offline=False, expected_audit_suites=None):
     _check(reach_document.get("schema_version") == "reach-volume-trace.v1", "reach trace schema mismatch")
     reaches = reach_document.get("reaches")
     _check(isinstance(reaches, list) and len(reaches) == len(topology["edges"]), "reach trace edge coverage mismatch")
+    # Reach water still in transit is system storage, not a disappearance of routed volume.
     stocks = [0.0] * n
     component_stocks = {c["component_id"]: [0.0] * n for c in topology["components"]}
     node_components = {node: c["component_id"] for c in topology["components"] for node in c["nodes"]}
@@ -487,6 +528,11 @@ def verify_run(output, *, require_offline=False, expected_audit_suites=None):
         _check(set(information["bindings"]) <= set(records), "information bindings contain unknown reservoirs")
         for name, series in records.items():
             def read_completed(source, observation):
+                """Reconstruct native information from independently verified flows and earlier completed transitions.
+
+                Only the acting reservoir's current inlet/beginning storage is immediately visible; other flows/releases require period completion and other ending storage is dated at its completed boundary.
+                """
+
                 location, quantity = source["location"], source["quantity"]
                 step = observation["timestep"]
                 clock = _parse_timestamp(observation["timestamp"], "decision clock", allow_legacy=True)

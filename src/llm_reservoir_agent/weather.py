@@ -1,8 +1,19 @@
-"""Generic, daily HydroCNHS weather preparation; no reservoir policy or regional data.
+"""Daily native HydroCNHS forcing validation and hydrology preparation.
 
-Users supply an accepted native model and a complete subbasin weather table.
-This module preserves its initialization interval and exposes runoff/routed
-boundaries to the existing reservoir engine. It never downloads or calibrates.
+Purpose and data flow
+---------------------
+An accepted agent-free GWLF/ABCD model and complete subbasin table
+provide precipitation (mm/day), temperature (degrees C) and PET (cm/day).
+Preparation converts precipitation to cm/day and produces runoff/routed daily
+means in m3/s, including the configured hydrological warm-up. Explicit
+operation bindings select nonoverlapping incremental catchment contributions.
+
+Dependencies and side effects
+-----------------------------
+Validation reads YAML and CSV/gzip CSV through strict workflow helpers.
+Simulation lazily loads HydroCNHS/NumPy, verifies native source pins and uses
+a copied model. Native runtime may create its own logs. No calibration, data
+download, reservoir policy or model-provider call occurs in this module.
 """
 import csv
 from datetime import datetime, timedelta
@@ -14,7 +25,35 @@ from pathlib import Path
 
 
 def load_weather(spec, base):
-    """Validate every day/unit without running HydroCNHS or constructing an LLM."""
+    """Read and validate complete daily forcing without running hydrology.
+
+    Parameters
+    ----------
+    spec : mapping
+        Hydrology settings: model and forcing paths, optional zero_flow_nodes,
+        inflow_bindings and reusable prepared_from directory.
+    base : str or pathlib.Path
+        Directory for resolving the model and forcing source paths.
+
+    Returns
+    -------
+    dict
+        Native model, inclusive YYYY-MM-DD dates, weather-driven units, zero-flow
+        nodes, samples keyed by unit/date, source paths and declared bindings.
+        Each sample is [precipitation_mm, temperature_c, pet_cm].
+
+    Raises
+    ------
+    ValueError
+        Native schema/calendar, unit coverage, columns or forcing values are invalid.
+    OSError
+        Model or forcing source cannot be read.
+
+    Notes
+    -----
+    Every nonzero-flow native outlet requires one finite sample for each day.
+    Negative temperature is allowed; precipitation and PET must be nonnegative.
+    """
     from .workflow import UniqueLoader, _mapping
     import yaml
     _mapping(spec, {"model", "forcing", "zero_flow_nodes", "inflow_bindings", "prepared_from", "diagnostics"}, "hydrology")
@@ -45,6 +84,7 @@ def load_weather(spec, base):
     zero = spec.get("zero_flow_nodes", [])
     if not isinstance(zero, list) or len(zero) != len(set(zero)) or set(zero)-set(outlets):
         raise ValueError("zero_flow_nodes must be unique native outlet names")
+    # Zero-flow boundary nodes own no weather-driven runoff; other outlets do.
     units = [u for u in outlets if u not in zero]
     if not units or set(model["RainfallRunoff"]) != set(outlets):
         raise ValueError("native model must declare its weather-driven units")
@@ -78,7 +118,32 @@ def load_weather(spec, base):
 
 
 def validate_bindings(weather, routing_nodes):
-    """Require explicit incremental boundaries; never inject the same catchment twice."""
+    """Require explicit nonoverlapping incremental operation boundaries.
+
+    Parameters
+    ----------
+    weather : mapping
+        load_weather result with native routing and declared bindings.
+    routing_nodes : sequence of str
+        Operation-network inlets, junctions and outlets requiring local flow.
+
+    Returns
+    -------
+    list of str
+        Sorted weather-driven native units unused by any operation binding.
+
+    Raises
+    ------
+    ValueError
+        Coverage, binding type/source, zero constant or native topology is invalid,
+        or two bindings reuse a contributing catchment.
+
+    Notes
+    -----
+    A runoff binding owns one catchment; a routed binding owns all upstream
+    weather catchments. Only constant zero is allowed. Ownership sets prevent
+    inserting upstream water twice when coupling to reservoir routing.
+    """
     bindings = weather["bindings"]
     if not isinstance(bindings, dict) or set(bindings) != set(routing_nodes):
         raise ValueError("inflow_bindings must cover every operation-network local-flow node")
@@ -103,6 +168,7 @@ def validate_bindings(weather, routing_nodes):
         elif kind == "runoff" and source in units:
             covered = {source}
         elif kind == "routed" and source in native_routing:
+            # A routed source already contains every upstream catchment in this set.
             covered = contributors(source)
             if not covered:
                 raise ValueError("routed binding has no weather-driven contributing catchment")
@@ -115,7 +181,39 @@ def validate_bindings(weather, routing_nodes):
 
 
 def simulate_weather(weather, runtime_root):
-    """Run the accepted native engine over its full initialization interval."""
+    """Run pinned daily native rainfall-runoff and routing over the full forcing.
+
+    Parameters
+    ----------
+    weather : mapping
+        Validated load_weather result, including hydrological initialization days.
+    runtime_root : str or pathlib.Path
+        Root containing environment/hydrocnhs-core.json and native working directory.
+
+    Returns
+    -------
+    dict
+        routed and runoff mappings of native nodes/units to finite nonnegative
+        daily mean flows in m3/s, aligned with weather dates.
+
+    Raises
+    ------
+    ValueError
+        Installed native source bytes differ from accepted normalized hashes.
+    ArithmeticError
+        Native output has the wrong length, negative flow or non-finite values.
+    OSError
+        Runtime pin/source files cannot be read.
+
+    Notes
+    -----
+    Precipitation mm/day is divided by 10 to cm/day; PET already uses cm/day.
+    Zero-flow nodes are explicitly assigned zero m3/s. A copied model and fixed
+    native random seed are used; the original accepted model is not calibrated.
+
+    When requested by the weather configuration, the result also contains
+    per-catchment diagnostics and final states; these do not change flow units.
+    """
     from copy import deepcopy
     import hydrocnhs
     import numpy as np

@@ -1,16 +1,15 @@
-"""Backend-neutral decision and feedback boundary for reservoir policies.
+"""Enforce the backend-neutral decision-to-completed-physics feedback boundary.
 
-The supplied backend owns prompts, providers, and any network access. This
-module imports only the shared reservoir contracts. Releases are requested
-controlled flow in cms; the physics result separately reports controlled flow,
-spill, total outflow in cms, and storage in m3.
-
-Role: Enforce the decision-to-physical-feedback sequence.
-
-Connections and data: agent calls decide with an observation, then record_transition
-with the matching completed outcome. The wrapper validates the backend action and
-retains committed ending storage for the next observation. It does not clip release;
-callback failures stop further decisions rather than retrying side effects.
+``agent`` supplies a current observation, then its matching host transition.
+``LLMPolicyAdapter`` detaches JSON, validates the requested action and requires
+one completed physical record before the next decision. Zero-based timesteps,
+chronological timestamps, declared dt_seconds and beginning/previous-ending
+storage must agree. Native flow uses m3/s and storage uses m3.
+Requested controlled release is never clipped here. Completed feedback retains
+implemented controlled release, spill and their total outflow separately; the
+host kernel owns feasibility and storage updates. The supplied backend owns
+prompts/providers and any network I/O. Host commit runs before optional backend
+feedback, and callback failures stop further decisions without retrying effects.
 """
 
 from __future__ import annotations
@@ -25,6 +24,8 @@ from .prompt import validate_provenance
 
 
 def _copy_mapping(value: Mapping[str, Any], label: str) -> dict[str, Any]:
+    """Detach finite JSON mappings before crossing a backend/callback boundary; mutable aliases and nonfinite payloads are rejected."""
+
     if not isinstance(value, Mapping):
         raise TypeError(f"{label} must be a mapping")
     try:
@@ -34,6 +35,8 @@ def _copy_mapping(value: Mapping[str, Any], label: str) -> dict[str, Any]:
 
 
 def _observation(value: Mapping[str, Any] | ReservoirObservation) -> ReservoirObservation:
+    """Revalidate and detach state/context even for an existing observation object so backend access cannot mutate pending host evidence."""
+
     if isinstance(value, ReservoirObservation):
         # Revalidate and detach mutable state/context even for an existing object.
         return ReservoirObservation(**value.to_dict())
@@ -41,6 +44,8 @@ def _observation(value: Mapping[str, Any] | ReservoirObservation) -> ReservoirOb
 
 
 def _timestamp(value: str) -> datetime:
+    """Parse the supplied ISO decision timestamp; cross-step checks separately require consistent timezone awareness and duration."""
+
     try:
         return datetime.fromisoformat(value)
     except ValueError as exc:
@@ -48,16 +53,33 @@ def _timestamp(value: str) -> datetime:
 
 
 def _same(actual: float, expected: float, label: str) -> None:
+    """Require numeric continuity within rel_tol=1e-12 and abs_tol=1e-6 in the compared field units; errors identify the pending/committed mismatch."""
+
     if not math.isclose(actual, expected, rel_tol=1e-12, abs_tol=1e-6):
         raise ValueError(f"{label} does not match the pending or committed state")
 
 
 def validate_isolated_backends(backends: Mapping[str, Any]) -> None:
-    """Reject shared state before execution, including nested adapter ownership.
+    """Reject mutable backend or plugin ownership shared across reservoirs.
 
-    Wrappers expose ``state_owner`` and optionally multiple ``state_owners``.
-    The frozen bridge's public ``policy`` remains supported. Every owned object must be
-    exclusive to that reservoir; backend equality is deliberately irrelevant.
+    Object identity defines ownership; equality is irrelevant. Cyclic ownership references are visited once per reservoir.
+
+    Parameters
+    ----------
+    backends : Mapping[str, object]
+        Reservoir-name to backend mapping; wrappers may expose state_owner/state_owners or the legacy policy owner.
+
+    Returns
+    -------
+    None
+        All recursively declared owned objects belong to one reservoir each.
+
+    Raises
+    ------
+    ValueError
+        The same object identity is claimed by different reservoirs.
+    TypeError
+        A declared state_owners collection is not a list or tuple.
     """
     claimed: dict[int, str] = {}
     for name, backend in backends.items():
@@ -81,19 +103,25 @@ def validate_isolated_backends(backends: Mapping[str, Any]) -> None:
 
 
 class LLMPolicyAdapter:
-    """Wrap any backend with ``decide(observation)`` and optional feedback.
+    """Wrap an isolated rule or LLM backend with ordered physical feedback.
 
-    A backend returns a ``reservoir-action.v1`` mapping or ``ReservoirAction``.
-    An explicit ``policy_id`` overrides the backend's ``policy_id``. No release
-    clipping or provider-specific unit conversion occurs here: the host physics
-    applies operating bounds and calculates spill.
+    Decisions start at step zero. A pending decision requires exactly one matching completed transition; end storage becomes the next beginning storage. Failures after external callbacks begin are terminal, preventing partial side effects from being retried.
 
-    Decisions start at timestep zero and require one matching completed physics
-    record before the next decision. ISO timestamps increase chronologically;
-    when ``state.dt_seconds`` is present, it sets the next timestamp interval.
-    When storage is supplied, the next observation must use committed end
-    storage. Backend or callback failures stop the adapter, preventing retries
-    after potentially partial external side effects.
+    Parameters
+    ----------
+    backend : object
+        Exposes decide(observation), policy_id and optionally describe/provenance, latest_audit, network_calls and record_transition.
+    policy_id : str or None, optional
+        Explicit identity overriding backend.policy_id; a nonempty effective ID is required.
+    on_commit : callable or None, optional
+        Host callback(record) invoked after validation and before backend feedback, usually to persist completed physics.
+
+    Raises
+    ------
+    TypeError
+        The backend decision or supplied host commit callback is not callable.
+    ValueError
+        No nonempty policy identity is available.
     """
 
     def __init__(
@@ -113,6 +141,7 @@ class LLMPolicyAdapter:
         self.backend = backend
         self.policy_id = selected_id
         self.on_commit = on_commit
+        # Host operation index expected next; a decision alone does not advance it.
         self._next_timestep = 0
         # Pending = a request awaiting its one matching completed physics record.
         self._pending: dict[str, Any] | None = None
@@ -125,17 +154,44 @@ class LLMPolicyAdapter:
 
     @property
     def state_owner(self) -> Any:
-        """Declare immediate mutable ownership for reservoir isolation checks."""
+        """Expose the immediate mutable backend for isolation checks.
+
+        Returns
+        -------
+        object
+            The backend instance owned by this adapter.
+        """
         return self.backend
 
     @property
     def latest_audit(self) -> Any:
-        """Expose the backend's existing audit payload; absence remains unknown."""
+        """Expose existing backend findings without inventing a fresh result.
+
+        Returns
+        -------
+        object or None
+            Backend-supplied latest_audit; missing evidence remains None/unknown.
+        """
 
         return getattr(self.backend, "latest_audit", None)
 
     def describe(self) -> dict[str, Any] | None:
-        """Return detached declared provenance, without guessing missing metadata."""
+        """Return detached declared backend provenance.
+
+        The backend describe callback may perform its own side effects or raise; no identities, hashes or network status are inferred.
+
+        Returns
+        -------
+        dict[str, Any] or None
+            Validated describe()/provenance metadata, or None when the backend declares none.
+
+        Raises
+        ------
+        TypeError
+            A value has the wrong type or is not finite JSON.
+        ValueError
+            A required field, version, numeric bound or digest is invalid.
+        """
 
         describe = getattr(self.backend, "describe", None)
         value = describe() if callable(describe) else getattr(self.backend, "provenance", None)
@@ -143,7 +199,13 @@ class LLMPolicyAdapter:
 
     @property
     def network_calls(self) -> int | None:
-        """Return an observed backend counter, or None when it is unknown."""
+        """Read the observed backend request counter.
+
+        Returns
+        -------
+        int or None
+            Nonnegative integer count, or None when accounting is missing/invalid; unknown is not zero.
+        """
 
         observed = getattr(self.backend, "network_calls", None)
         if isinstance(observed, int) and not isinstance(observed, bool) and observed >= 0:
@@ -151,13 +213,37 @@ class LLMPolicyAdapter:
         return None
 
     def _ensure_running(self) -> None:
+        """Reject terminal failures and active/reentrant callbacks before any new backend action or feedback side effect."""
+
         if self._terminal_error is not None:
             raise RuntimeError("adapter is stopped after a backend or commit failure") from self._terminal_error
         if self._active_call is not None:
             raise RuntimeError(f"adapter {self._active_call} callback is still in progress")
 
     def decide(self, observation: Mapping[str, Any] | ReservoirObservation) -> dict[str, Any]:
-        """Validate one observation, call the backend once, and await physics."""
+        """Validate one causal observation and call the backend once.
+
+        Timestamps must increase with consistent timezone awareness and match the previous declared duration. Beginning storage must match committed ending storage. Backend exceptions propagate and stop future execution.
+
+        Parameters
+        ----------
+        observation : Mapping[str, Any] or ReservoirObservation
+            Next zero-based observation; state.storage_m3 is beginning storage and state.dt_seconds, when present, sets the next interval.
+
+        Returns
+        -------
+        dict[str, Any]
+            Canonical requested controlled release in m3/s; the adapter retains it pending physical feedback.
+
+        Raises
+        ------
+        TypeError
+            A value has the wrong type or is not finite JSON.
+        ValueError
+            A required field, version, numeric bound or digest is invalid.
+        RuntimeError
+            A previous decision lacks feedback, execution stopped or a callback is already active.
+        """
 
         self._ensure_running()
         if self._pending is not None:
@@ -205,14 +291,28 @@ class LLMPolicyAdapter:
         return action
 
     def record_transition(self, record: Mapping[str, Any]) -> None:
-        """Forward one matching completed physics result, without aliased data.
+        """Commit one matching completed physical record and forward detached feedback.
 
-        Feedback keeps the requested decision distinct from implemented
-        controlled release and total outflow (controlled release plus spill).
-        A rejected record is correctable before any callback is invoked.
-        Once callbacks begin, feedback is consumed even if a callback raises.
-        The host commit callback runs before backend feedback, preserving the
-        completed physics record if the backend cannot accept its outcome.
+        The requested action must equal transition.target_release_cms; total outflow must equal controlled release plus spill. Invalid records can be corrected before callbacks. Once callbacks begin, feedback is consumed even if one raises, and further execution stops. Physical feasibility and full mass balance remain the host kernel's responsibility.
+
+        Parameters
+        ----------
+        record : Mapping[str, Any]
+            Exact pending observation/action plus transition: start/end storage m3; inflow, target/implemented release, spill and total outflow m3/s.
+
+        Returns
+        -------
+        None
+            The decision is consumed, ending storage/time become continuity references, and host then backend callbacks receive copies.
+
+        Raises
+        ------
+        TypeError
+            A value has the wrong type or is not finite JSON.
+        ValueError
+            A required field, version, numeric bound or digest is invalid.
+        RuntimeError
+            No decision is pending, execution stopped or a callback reenters.
         """
 
         self._ensure_running()
@@ -235,6 +335,7 @@ class LLMPolicyAdapter:
             "storage_start_m3", "inflow_cms", "target_release_cms",
             "controlled_release_cms", "spill_cms", "total_outflow_cms", "storage_end_m3",
         )
+        # target_release is requested; controlled_release is implemented; spill is separate.
         values = {
             name: finite_nonnegative(transition.get(name), f"transition.{name}")
             for name in required

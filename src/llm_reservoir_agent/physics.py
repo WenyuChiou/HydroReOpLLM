@@ -1,14 +1,18 @@
-"""Auditable daily reservoir mass-balance kernel.
+"""Auditable fixed-step reservoir mass-balance kernel.
 
-Prototype assumption: evaporation and seepage are zero. All outflow consists of
-controlled release plus spill, and every policy uses this same transition.
+Purpose and data flow
+---------------------
+PhysicalConfig, beginning storage (m3), interval-mean inlet flow (m3/s)
+and requested controlled release (m3/s) produce a Transition. Controlled
+withdrawal is limited by operating bounds and water above dead storage.
+Remaining water above capacity becomes spill; ending storage starts the next
+interval. Evaporation and seepage are explicitly zero.
 
-Role: Implement a requested release with a daily reservoir water balance.
-
-Connections and data: agent supplies PhysicalConfig, beginning storage, current inlet
-and requested controlled release. apply_transition returns implemented release, spill,
-ending storage and the balance residual. All policies share this calculation;
-evaporation and seepage are zero in this kernel.
+Dependencies and side effects
+-----------------------------
+Uses contracts.finite_nonnegative for numeric validation and dataclasses
+for immutable results. Every policy shares this kernel. No routing, model
+request, persistent state mutation or file I/O occurs.
 """
 
 from __future__ import annotations
@@ -22,12 +26,31 @@ from .contracts import finite_nonnegative
 
 @dataclass(frozen=True)
 class PhysicalConfig:
-    """Fixed physical limits in m3, m3/s and seconds.
+    """Store validated physical limits for one reservoir and interval.
 
-    capacity_m3 is the maximum stored volume; dead_storage_m3 is the
-    protected minimum. initial_storage_m3 applies only at initialization.
-    Release bounds constrain controlled flow; spill is calculated separately.
-    dt_seconds converts the supplied mean rates into timestep volumes.
+    Parameters
+    ----------
+    reservoir_id : str
+        Nonempty physical identity, independent of the host's internal node alias.
+    capacity_m3 : float
+        Positive maximum reservoir storage, in m3.
+    dead_storage_m3 : float
+        Protected minimum storage, in m3.
+    initial_storage_m3 : float
+        Beginning storage for the first operation interval, in m3; must lie
+        between dead storage and capacity.
+    minimum_release_cms, maximum_release_cms : float
+        Ordered nonnegative controlled-release bounds, in m3/s. Capacity spill is
+        separate and is not capped by maximum_release_cms.
+    dt_seconds : float, optional
+        Positive interval duration in seconds, default 86400.
+
+    Raises
+    ------
+    TypeError
+        A numeric field is not an accepted number.
+    ValueError
+        Identity, finite values, storage ordering or release bounds are invalid.
     """
 
     reservoir_id: str
@@ -64,14 +87,34 @@ class PhysicalConfig:
 
 @dataclass(frozen=True)
 class Transition:
-    """One completed physical step; storage is volume and flow is m3/s.
+    """Record beginning state, implemented fluxes and ending state for one step.
 
-    target_release_cms retains the policy request. controlled_release_cms
-    is the implemented release after operating/water-availability limits.
-    spill_cms is capacity overflow; total_outflow_cms is their sum.
-    storage_end_m3 becomes the next step's beginning storage. The residual
-    is input minus output minus storage change, in m3; adjustments explain
-    physical limiting and shortfall reports unmet minimum release in m3/s.
+    Parameters
+    ----------
+    storage_start_m3, storage_end_m3 : float
+        Storage before and after all interval fluxes, in m3.
+    inflow_cms : float
+        Interval-mean inlet flow in m3/s, included before withdrawal is limited.
+    target_release_cms : float
+        Policy request in m3/s before physical clipping.
+    controlled_release_cms : float
+        Implemented controlled withdrawal in m3/s.
+    spill_cms : float
+        Capacity overflow after controlled release, in m3/s.
+    total_outflow_cms : float
+        Controlled release plus spill in m3/s; the downstream routing boundary.
+    mass_balance_residual_m3 : float
+        Beginning storage plus inlet volume minus outlet volume minus ending
+        storage, in m3.
+    minimum_release_shortfall_cms : float
+        Unmet minimum controlled release, in m3/s, due to limited available water.
+    adjustments : tuple of str
+        Explanations of clipping, spill and floating-point boundary snapping.
+
+    Notes
+    -----
+    Instances are immutable records. Validation occurs in apply_transition;
+    direct construction does not independently enforce physical consistency.
     """
 
     storage_start_m3: float
@@ -86,6 +129,14 @@ class Transition:
     adjustments: tuple[str, ...]
 
     def to_dict(self) -> dict[str, Any]:
+        """Convert a completed transition to its JSON-compatible record shape.
+
+        Returns
+        -------
+        dict of str to object
+            Field values with adjustments copied from tuple to list; units match
+            the Transition fields.
+        """
         result = asdict(self)
         result["adjustments"] = list(self.adjustments)
         return result
@@ -97,7 +148,41 @@ def apply_transition(
     inflow_cms: float,
     target_release_cms: float,
 ) -> Transition:
-    """Apply one bucket transition without evaporation or seepage."""
+    """Implement one requested release and close the reservoir water balance.
+
+    Parameters
+    ----------
+    config : PhysicalConfig
+        Validated capacity, protected storage, controlled-release limits and dt.
+    storage_start_m3 : float
+        Beginning storage in m3, within the configured physical bounds.
+    inflow_cms : float
+        Nonnegative interval-mean inlet rate in m3/s.
+    target_release_cms : float
+        Nonnegative requested controlled release in m3/s.
+
+    Returns
+    -------
+    Transition
+        Implemented controlled release, spill, next-step storage and an explicit
+        mass-balance residual and limiting explanations.
+
+    Raises
+    ------
+    TypeError
+        A supplied state or flow is not an accepted numeric value.
+    ValueError
+        Values are non-finite/negative, storage is outside its bounds, or the
+        available-water calculation overflows.
+    ArithmeticError
+        Computed state/flows are non-finite or violate storage/balance tolerances.
+
+    Notes
+    -----
+    Inflow is available within the same interval. Storage changes use a bucket
+    balance with no evaporation or seepage. Roundoff tolerance is 1e-6 m3 plus
+    1e-12 times the largest relevant volume.
+    """
 
     storage = finite_nonnegative(storage_start_m3, "storage_start_m3")
     inflow = finite_nonnegative(inflow_cms, "inflow_cms")
@@ -108,6 +193,7 @@ def apply_transition(
         raise ValueError("storage_start_m3 cannot be below dead_storage_m3")
 
     adjustments: list[str] = []
+    # Apply controlled-flow bounds (m3/s) before testing available volume (m3).
     bounded = min(config.maximum_release_cms, max(config.minimum_release_cms, target))
     if bounded != target:
         adjustments.append("target_clipped_to_operating_bounds")

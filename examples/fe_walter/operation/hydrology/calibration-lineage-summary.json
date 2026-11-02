@@ -1,0 +1,286 @@
+{
+  "schema_version": 1,
+  "status": "completed_native_cv_summary",
+  "selection": {
+    "label": "seed-314159",
+    "model_origin": "new_lower_calibration",
+    "seed": 314159,
+    "criterion": "maximum calibration KGE2009",
+    "validation_used_for_parameter_selection": false,
+    "selected_model_sha256": "7129cb86faf3c3b59d3ef0b26fafbce3da10fea38a4252768653ba6b5598bd6e"
+  },
+  "optimizer_evidence": {
+    "configured_population": 40,
+    "configured_max_generation": 30,
+    "budget_completed": true,
+    "completion_does_not_establish_convergence": true,
+    "seeds": {
+      "112358": {
+        "evaluations": 1210,
+        "recorded_generations": 31,
+        "first_generation": 0,
+        "last_generation": 30,
+        "training_winner_kge": 0.9143904193838462
+      },
+      "271828": {
+        "evaluations": 1210,
+        "recorded_generations": 31,
+        "first_generation": 0,
+        "last_generation": 30,
+        "training_winner_kge": 0.9288178413179189
+      },
+      "314159": {
+        "evaluations": 1210,
+        "recorded_generations": 31,
+        "first_generation": 0,
+        "last_generation": 30,
+        "training_winner_kge": 0.9350456214268003
+      }
+    }
+  },
+  "metrics": {
+    "selected": {
+      "calibration": {
+        "start": "1990-01-01",
+        "end": "2010-12-31",
+        "paired_days": 7670,
+        "missing_days": 0,
+        "excluded_days": 0,
+        "mae_cms": 7.192977784934415,
+        "rmse_cms": 13.45099231164119,
+        "bias_cms": 0.710171430591028,
+        "relative_volume_bias": 0.018692161006614916,
+        "nse": 0.8772161826410154,
+        "kge": 0.9350456214268003,
+        "kge_method": "2009",
+        "kge_components": {
+          "correlation": 0.9383154397632153,
+          "variability_ratio": 0.9919570253557651,
+          "mean_ratio": 1.018692161006615
+        },
+        "undefined_metrics": {}
+      },
+      "validation": {
+        "start": "2011-01-01",
+        "end": "2020-12-31",
+        "paired_days": 3653,
+        "missing_days": 0,
+        "excluded_days": 0,
+        "mae_cms": 7.506741377480015,
+        "rmse_cms": 13.623732267201781,
+        "bias_cms": 1.164395851322823,
+        "relative_volume_bias": 0.02986653581915593,
+        "nse": 0.8753885739887544,
+        "kge": 0.8691405712969543,
+        "kge_method": "2009",
+        "kge_components": {
+          "correlation": 0.9373531967119766,
+          "variability_ratio": 0.8890605653681151,
+          "mean_ratio": 1.0298665358191559
+        },
+        "undefined_metrics": {}
+      }
+    },
+    "transferred_reference": {
+      "calibration": {
+        "start": "1990-01-01",
+        "end": "2010-12-31",
+        "paired_days": 7670,
+        "missing_days": 0,
+        "excluded_days": 0,
+        "mae_cms": 9.067096158932234,
+        "rmse_cms": 17.238010992847805,
+        "bias_cms": -0.24704512266513903,
+        "relative_volume_bias": -0.006502383804587323,
+        "nse": 0.7983460240622919,
+        "kge": 0.8964023736314963,
+        "kge_method": "2009",
+        "kge_components": {
+          "correlation": 0.8977457854327437,
+          "variability_ratio": 0.9846943540717991,
+          "mean_ratio": 0.9934976161954128
+        },
+        "undefined_metrics": {}
+      },
+      "validation": {
+        "start": "2011-01-01",
+        "end": "2020-12-31",
+        "paired_days": 3653,
+        "missing_days": 0,
+        "excluded_days": 0,
+        "mae_cms": 9.898953106892943,
+        "rmse_cms": 17.996365742118062,
+        "bias_cms": -0.5767179213114069,
+        "relative_volume_bias": -0.014792706822879994,
+        "nse": 0.7825620790102263,
+        "kge": 0.8489531931942363,
+        "kge_method": "2009",
+        "kge_components": {
+          "correlation": 0.8849413034028765,
+          "variability_ratio": 0.9032642258084369,
+          "mean_ratio": 0.9852072931771199
+        },
+        "undefined_metrics": {}
+      }
+    }
+  },
+  "parameterization": {
+    "units": 9,
+    "cn2_rule_for_new_calibration": "clip(raw_CN2 * selected m_CN2, 25, 100)",
+    "ur_rule_for_new_calibration": "clip(raw_Ur_cm * selected m_Ur, 1, 15)",
+    "units_claims": {
+      "CN_lookup": "composite_curve_number (dimensionless)",
+      "AWS_mm": "available_water_storage_upper_100cm_mm (mm)",
+      "latitude_deg": "local_centroid_latitude_deg (decimal degrees)",
+      "area_km2": "area_km2 (square kilometres)"
+    },
+    "native_parameter_units_preserved": {
+      "CN2": "dimensionless",
+      "Ur": "cm"
+    },
+    "other_parameter_units": null,
+    "clipped_unit_counts": {
+      "CN2": 0,
+      "Ur_cm": 0
+    }
+  },
+  "physical_coverage": {
+    "per_unit_columns_preserved_in_final_unit_parameters_csv": [
+      "nlcd_recognized_coverage_fraction",
+      "nrcs_geometry_coverage_fraction",
+      "nrcs_valid_hsg_area_fraction_of_returned",
+      "nrcs_valid_aws_area_fraction_of_returned"
+    ],
+    "ranges": {
+      "nlcd_recognized_coverage_fraction": {
+        "minimum": 1.0,
+        "maximum": 1.0
+      },
+      "nrcs_geometry_coverage_fraction": {
+        "minimum": 0.9988891134198535,
+        "maximum": 1.0016941170422582
+      },
+      "nrcs_valid_hsg_area_fraction_of_returned": {
+        "minimum": 0.8557833033476222,
+        "maximum": 0.9855118439113453
+      },
+      "nrcs_valid_aws_area_fraction_of_returned": {
+        "minimum": 0.9744978835402086,
+        "maximum": 0.9974616890450716
+      }
+    },
+    "interpretation": "NRCS HSG/AWS valid-area fractions below one identify missing source attributes; geometry coverage near one may include small source/projection over- or under-coverage. These limitations are preserved per unit and are not filled or hidden by this exporter."
+  },
+  "scope_and_limits": {
+    "local_units": "Nine local units between White Haven and Lehighton; White Haven itself is excluded from local runoff units.",
+    "upstream_boundary": "Measured USGS 01447800 White Haven discharge is the observed upstream boundary.",
+    "routing": "Local runoff and the White Haven boundary route directly to one Lehighton aggregation outlet using each full mapped path length. Travel paths are aggregated; intermediate junctions are not instantiated.",
+    "observed_boundary_routing": "The observed White Haven assigned-flow connection effectively uses channel Velo and Diff only; stored GShape and GScale on that connection are inactive. All four Lohmann parameters apply to local runoff paths, and the observed gauge is not convolved as catchment runoff a second time.",
+    "inference_limits": "Fitting combined USGS 01449000 Lehighton discharge does not independently validate each tributary and does not prove an LLM improvement.",
+    "reserved_period": "2021-01-01 through 2025-12-31 remains reserved and was not evaluated."
+  },
+  "source": {
+    "archive_id": "run-20261020T075124Z",
+    "completion_sha256": "2da1342404d161c2b8d6fa3c155882d0a9c327e45522799e1f20f1854cf0f563",
+    "selection_sha256": "adcb6208fdbd35e5e7e21ebf90ed26fe4c64df7ce4be7db3ac0c1da404d21219",
+    "daily_run_sha256": "11db0d0c25aa7144427e6354cb28115d29268ea9b4d8ba8a16b668e1992c0f76",
+    "report_sha256": "71b2c3d60874cfed84ca42f9a648b41e9c75d7c43cccf3b2bf0bdee9c40a6901",
+    "verified_export_summary_sha256": "78b907f6b26cd27352f1137e9b127de55fee6839fb3883ab5ccfa947eadddd84",
+    "figure_verification_sha256": "ca1ca2e664cb9d017acb04bbe8a05972895d2594ca9ee4d2a344c14aef9b92df",
+    "execution_input_sha256": [
+      {
+        "filename": "observations.csv",
+        "sha256": "ed213d30206a3647bf671094db5030740aef52bf10267710d185738b3e8c2212"
+      },
+      {
+        "filename": "source_manifest.json",
+        "sha256": "abaf38690853e7e6a8d3f38f8de59b2edd7942f2d951158e0f9d9bc8fa14ac99"
+      },
+      {
+        "filename": "native_raw_mapped_model.yaml",
+        "sha256": "3642cc17f46271195ece3a2679b31c55262aa468d9e43a9879756a968b21a11a"
+      },
+      {
+        "filename": "daily_forcing.csv.gz",
+        "sha256": "e672ec572b12b1e2163c5ae2ca928fb6558216a55b02e1cb27ba7269b3d87779"
+      },
+      {
+        "filename": "partition.json",
+        "sha256": "c26b43f7e77ba1b429051d72eeb72db60d2c07636d293cd6755f78eed841f6d6"
+      },
+      {
+        "filename": "validation.yaml",
+        "sha256": "bc9f4bf4063aeacb15be295f302db27863aa3ac175034a782674ed229981b64c"
+      },
+      {
+        "filename": "transferred_reference_model.yaml",
+        "sha256": "cdd9b95d7dccd4883d2bc3c1b7b7fd7d74cb3bfa0d5ae1af8767a0649ebc71fa"
+      },
+      {
+        "filename": "verification.json",
+        "sha256": "407848ffd9a4196648704049be3708e79ba60f0b9d78f954315eb1311b83c7c1"
+      },
+      {
+        "filename": "calibration_seed_112358.yaml",
+        "sha256": "56b9449734169542c848bdda3dc6a4bdffc165f0552ca5b640f7c610d9933681"
+      },
+      {
+        "filename": "calibration_seed_271828.yaml",
+        "sha256": "2aaaf0e12d3ee976c80725e7816ba92b55c3da9372f0af6f5f76d2a7e17593d4"
+      },
+      {
+        "filename": "calibration_seed_314159.yaml",
+        "sha256": "9cecd09d1ac267956cf112b4ab291bf3013417db97baea4ec6240c8d0aeb77a6"
+      },
+      {
+        "filename": "run_native_cv.py",
+        "sha256": "db9a3b218321630063418e4a78990de3e5fb0f82c580d10987e6dd1abe8fc954"
+      },
+      {
+        "filename": "validate.py",
+        "sha256": "3ca93368da0af2bdf6f1adf128691984acb64e4dac60a97065529e273b4950df"
+      },
+      {
+        "filename": "reach_validation.py",
+        "sha256": "cc93e95efa1ef50942ed2572e937af10ddeca1e91ea0ce57cad38121e3a5ebeb"
+      },
+      {
+        "filename": "hydrocnhs-core.json",
+        "sha256": "859076b340741ff2d599767597c439a15b7a1b23f6c6ef8648964522b21650a4"
+      }
+    ],
+    "upstream_boundary": "USGS 01447800 White Haven observed discharge",
+    "downstream_evaluation": "USGS 01449000 Lehighton",
+    "archival_scope": "Full immutable input, model, candidate and command evidence retained outside the repository.",
+    "figure_source_sha256": "27c2cb87a43d6e87fd43f09f83ab82ffb6098fd05de484f567dd5c11c6f282e5"
+  },
+  "figure_design": {
+    "figure_mm": [
+      180.0,
+      150.0
+    ],
+    "font_family": "Arial",
+    "minimum_text_size_pt": 9,
+    "png_dpi": 600,
+    "panels": [
+      "calibration",
+      "validation"
+    ],
+    "layout": [
+      2,
+      1
+    ],
+    "station_name": "Lehigh River at Lehighton, PA",
+    "station_id": "01449000"
+  },
+  "output_sha256": {
+    "hydrology_validation.pdf": "c033dd5da8d654f9989dbd2f797f80fe88c8349067d4878908278e4948a3ef95",
+    "hydrology_validation.svg": "49a34c9d7594bd24592361cb472ef9cbe67f719cc4c00b2c2aa105a9a49b31f6",
+    "hydrology_validation.png": "30dd7e199a0182041721dacc11406328b1e9b2e86d66fbf5ce078bcaaad0d3ab",
+    "daily.csv": "498f52c7a830addfb3d9467f5bd976de515a33237572e18fdc108ea2a5fe7f43",
+    "calibration_progress.svg": "50234263ba1777a0169af926402024a3448980c81f5d9540aabf121e106b8ee7",
+    "calibration_progress.pdf": "e19721e54d9143d959c8647553614264302fa8e5ca1e538039c311a8200634dd",
+    "regionalization.csv": "59b15c50e3a5d932eb91250d6059b231cc0db74abbe796e341fd002117302bcf",
+    "model_selection.csv": "2beae4db34c46a44feab37b0775fb314b3363c0da3a5ab15589ee4e5093266f9"
+  }
+}
