@@ -55,7 +55,12 @@ def test_manual_navigation_keeps_one_reader_route_without_right_toc():
     for name in ('README.md', 'README.zh-TW.md', 'index.md', 'index.zh-TW.md'):
         page = (ROOT / 'docs' / name).read_text(encoding='utf-8')
         assert 'figures/hydrocnhs-coupling-framework-en.png' in page
-        assert 'figures/hydroopslm-cover.png' not in page
+        if name.startswith('index'):
+            # Branding belongs on the landing page; the technical diagram stays
+            # in the separate explanation of how the simulation works.
+            assert page.index('figures/hydroopslm-cover.png') < page.index('figures/hydrocnhs-coupling-framework-en.png')
+        else:
+            assert 'figures/hydroopslm-cover.png' not in page
 
 
 def test_generic_files_download_locally_and_main_route_reaches_cases_after_settings(tmp_path):

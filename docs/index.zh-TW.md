@@ -1,5 +1,7 @@
 # HydroReOpLLM 使用手冊
 
+![HydroReOpLLM 封面：建立於 HydroCNHS 的水庫決策代理](figures/hydroopslm-cover.png)
+
 :::::{container} manual-intro
 
 水文模擬 · 水庫操作
@@ -43,3 +45,14 @@ LLM 回覆會先通過格式與數值檢查。操作規則稽核記錄決策是�
 
 回查章節可使用側欄；API、開發檢查與歷史研究紀錄集中放在 **Reference**。
 集水區建立與校正請參閱 [HydroCNHS 教學](https://github.com/cylin928/HydroCNHS/tree/main/tutorials)。
+
+## 選擇範例
+
+| 範例 | 學習內容 | 起始輸入 |
+|---|---|---|
+| [單水庫與串聯](DAILY_EXAMPLES.md) | 先執行一座水庫，再連接三座水庫 | 已備妥入流；不需模型服務 |
+| [多水庫](MULTI_RESERVOIR.md) | 接入氣象驅動水文與各壩獨立操作員 | 預設 Rule-based，另有 LLM 設定 |
+| [時間尺度](../examples/time_scales/README.md) | 選擇 Daily、Hourly 或明確步長 | 非 LLM 的小型設定 |
+| [F.E. Walter](CASE_STUDIES.md) | 將設定應用於真實研究案例 | 2021–2025 已備妥入流，或獨立的 2016 氣象驅動設定 |
+
+建立自己的案例時，先依序閱讀設定章節；需要引導操作可參閱 [Notebook 教學](../tutorials/README.zh-TW.md)。
