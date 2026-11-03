@@ -1,5 +1,7 @@
 # HydroReOpLLM User Manual
 
+![HydroReOpLLM cover: reservoir decision agents built on HydroCNHS](figures/hydroopslm-cover.png)
+
 :::::{container} manual-intro
 
 Hydrological simulation · Reservoir operations
@@ -48,3 +50,15 @@ historical research records are grouped under **Reference**.
 
 For basin construction and calibration, see the
 [HydroCNHS tutorials](https://github.com/cylin928/HydroCNHS/tree/main/tutorials).
+
+## Choose an example
+
+| Example | What you will learn | Starting inputs |
+|---|---|---|
+| [Single reservoir and cascade](DAILY_EXAMPLES.md) | Run one reservoir, then connect three in a chain | Supplied inflows; no model service |
+| [Multiple reservoirs](MULTI_RESERVOIR.md) | Connect weather-driven hydrology and independent operators | Rule-based default; optional LLM configuration |
+| [Time scales](../examples/time_scales/README.md) | Select Daily, Hourly or an explicit interval | Small non-LLM configurations |
+| [F.E. Walter](CASE_STUDIES.md) | Apply the configuration to a real research case | Prepared 2021–2025 inflows or a separate 2016 weather-driven setup |
+
+Follow the configuration chapters first when building your own case. For a
+guided walkthrough, see the [notebooks](../tutorials/README.md).
