@@ -622,6 +622,16 @@ water-level targets.
 The auditor records compliance. The physical engine separately implements release
 and water-availability limits. Seasonal compliance is recorded without resampling
 an LLM response or forcing its release to a seasonal target.'''),
+        md('''### MOSART-Urban benchmark option
+
+[The MOSART-Urban rule guide](../examples/rules/mosart_urban/README.md) describes
+the calendar-year snapshot and 85% operating-storage ceiling. Select
+`experiment.mosart.yaml` for this alternative benchmark. Its separate physical
+profile sets the extra minimum-release and protected-storage limits to zero.
+Keep the same physical profile across methods in a new comparison.'''),
+        code('''show_file("examples/fe_walter/coupled/experiment.mosart.yaml")
+show_file("examples/fe_walter/coupled/agents.mosart.yaml")
+show_file("examples/fe_walter/coupled/reservoirs.mosart.json")'''),
         md('''## 5. Switch to an LLM operator
 
 Choose one of the supplied experiment entries in the [same folder](../examples/fe_walter/coupled/).

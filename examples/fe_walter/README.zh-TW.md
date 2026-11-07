@@ -1,5 +1,9 @@
 # F.E. Walter 水庫研究案例
 
+可用 `coupled/experiment.mosart.yaml` 或 `operation/experiment.mosart.yaml`
+選擇共用的 [MOSART-Urban 規則](../rules/mosart_urban/README.md)。
+其獨立物理設定將額外最小放水與死庫容限制設為零，以重現原始規則。
+
 [English](README.md) | [繁體中文](README.zh-TW.md)
 
 本案例將已接受的 HydroCNHS 水文結果連接至單一受控水庫，比較

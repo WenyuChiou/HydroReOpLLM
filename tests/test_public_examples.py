@@ -47,7 +47,8 @@ def test_current_teaching_agents_use_public_fields(path):
         assert "reservoir_id" in spec
         assert not {"reservoir", "mode", "model", "prompt", "strategy", "benchmark", "reference"} & set(spec)
         if spec["type"] == "rule_based":
-            assert spec["rule"] == "hanasaki"
+            expected_rule = "mosart_urban" if path.name == "agents.mosart.yaml" else "hanasaki"
+            assert spec["rule"] == expected_rule
             assert "inflow_statistics_file" in spec["rule_parameters"]
         else:
             assert spec["type"] == "llm"

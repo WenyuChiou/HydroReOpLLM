@@ -1,0 +1,13 @@
+schema_version: llm-reservoir-experiment.v2
+run_id: fe-walter-2021-2025-mosart
+case: case.mosart.json
+output: ../../../runs/fe-walter-2021-2025-mosart
+start_date: '2021-01-01'
+end_date: '2025-12-31'
+max_calls: 0
+agents:
+  file: ../coupled/agents.mosart.yaml
+auditors:
+  file: ../coupled/auditors.yaml
+extensions:
+  mosart_urban: ../../rules/mosart_urban/__init__.py

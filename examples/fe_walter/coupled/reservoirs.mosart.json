@@ -1,0 +1,40 @@
+{
+  "network": {
+    "schema_version": "llm-reservoir-network.v1",
+    "data_kind": "simulated_local_inflow",
+    "start_date": "2016-01-01",
+    "reservoirs": {
+      "FEWalter": {
+        "inflow_node": "FEW_INFLOW",
+        "physical": {
+          "reservoir_id": "fe_walter",
+          "capacity_m3": 135532852.33895192,
+          "dead_storage_m3": 0.0,
+          "initial_storage_m3": 2457848.279729185,
+          "minimum_release_cms": 0.0,
+          "maximum_release_cms": 283.16847,
+          "dt_seconds": 86400.0
+        }
+      }
+    },
+    "connections": [
+      {
+        "source": "FEWalter",
+        "target": "Downstream",
+        "unit_hydrograph": [
+          1.0
+        ]
+      }
+    ],
+    "outlet": "Downstream"
+  },
+  "data_kind": "simulated_local_inflow",
+  "live_readiness": {
+    "ready": true,
+    "notes": [
+      "Diagnostic teaching case; explicit initial storage assumption; identity downstream unit hydrograph is not a calibrated travel time.",
+      "MOSART-Urban comparison profile: no extra protected-storage or minimum-release override; original capacity, initial storage, maximum release, forcing and routing retained. Strict source parity rejects binding physical limits."
+    ]
+  },
+  "schema_version": "reservoir-physical-case.v1"
+}

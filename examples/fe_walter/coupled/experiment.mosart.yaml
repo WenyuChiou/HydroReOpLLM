@@ -1,0 +1,16 @@
+# MOSART source-compatible limits are explicit in the separate case profile.
+schema_version: hydroops-coupled-simulation.v2
+run_id: fe-walter-coupled-mosart
+output: ../../../runs/fe-walter-coupled-mosart
+case: reservoirs.mosart.json
+start_date: '2016-01-01'
+end_date: '2016-12-31'
+max_calls: 0
+hydrology:
+  file: hydrology.yaml
+agents:
+  file: agents.mosart.yaml
+auditors:
+  file: auditors.yaml
+extensions:
+  mosart_urban: ../../rules/mosart_urban/__init__.py
