@@ -19,6 +19,8 @@ operational knowledge with the same physical profile and forcing.
 | [preparation.json](preparation.json) | Scope, station/node distinctions, boundary ownership and unresolved requirements. This is a preparation record, not an experiment-CLI configuration. |
 | [ratings_inventory.csv](ratings_inventory.csv) | Three current rating IDs, effective-date headers, source hashes and missing historical coverage. |
 | [data_requirements.csv](data_requirements.csv) | Data to obtain and the C&V stage that needs each item. |
+| [prepare_observations.py](prepare_observations.py) | Retrieve and audit the explicitly configured USGS Daily series; standard library only. |
+| [observation_inventory.csv](observation_inventory.csv) | Coverage and quality counts from the 2026-11-08 retrieval; not a model-validation result. |
 | [usgs_data_request.md](usgs_data_request.md) | An unsent request for historical rating/shift records and Bethlehem discharge conventions. |
 
 Read the station findings below, obtain the missing records, and then follow the
@@ -26,6 +28,45 @@ C&V sequence. There is no `reservoir-experiment run` command for this example ye
 new catchment inputs, river routing and a stage provider must first be built.
 Store retrieved data and generated outputs in your own study directory; preserve
 source URLs, retrieval timestamps, bytes, hashes and quality flags.
+
+## Prepare Daily observations
+
+From a cloned checkout, run this command with your own **new** output directory:
+
+```bash
+python examples/fe_walter_bethlehem/prepare_observations.py --start 1989-01-01 --end 2025-12-31 --output ./study-data/bethlehem-daily-v1
+```
+
+Network access to the [USGS OGC API](https://api.waterdata.usgs.gov/docs/ogcapi/)
+is required. This command retrieves observations; it does not run a simulation.
+The profile's `observation_requests` selects station, parameter, statistic, units
+and role. `coverage_periods` defines the reporting intervals. `--end` is inclusive.
+Daily dates remain source calendar labels; they are not shifted as UTC instants.
+
+Outputs are `raw/` response pages, `observations_daily.csv`,
+`coverage_daily.csv` and `manifest.json` with URLs, timestamps, hashes and quality
+flags. Streamflow is converted exactly from ft³/s to m³/s. Pool elevation stays
+in reported feet, with its datum unresolved. Missing values remain empty;
+estimated/ice/revised flags remain attached. Duplicate dates, conflicting units
+or source identities stop retrieval. A failed output directory retains evidence;
+there is no automatic retry or overwrite. Inspect the saved failure before
+creating a separately named retrieval.
+
+The 2026-11-08 snapshot covers:
+
+| Series | Daily numeric coverage, 1989–2025 | Remaining issue |
+|---|---|---|
+| Lehighton, Walnutport and Bethlehem flow | 13,514/13,514 days each | Quality flags retained; Bethlehem comparison convention remains unresolved. |
+| Beltzville boundary flow | 13,514/13,514 days | Gage-to-mouth routing and overlapping area exclusion remain to be built. |
+| Aquashicola, Little Lehigh (01451650), Jordan and Monocacy flow | 13,514/13,514 days each | Validation/diagnostic observations, not extra flows to add on top of simulated runoff. |
+| Beltzville pool elevation | 5,876/13,514 days; first value 2009-10-14 | 45 missing days in 2011–2020; two in 2021–2025 (2025-02-09–10); historical datum still to verify. |
+
+All returned numeric values in this snapshot have source status `Approved`,
+including values flagged as estimated. Completeness does not establish accuracy
+or immediate decision availability. The eight discharge series support further
+assessment of the candidate flow-C/V dates; forcing, spatial inputs and ratings
+must also be ready. No source gaps were filled. The inventory describes this
+snapshot; a later USGS revision can change retrieved values or flags.
 
 ## Station and rating findings
 

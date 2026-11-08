@@ -122,7 +122,8 @@ TUTORIAL_DOWNLOADS.update({
 # These are preparation records, not executable or calibrated basin inputs.
 BETHLEHEM_DOWNLOADS = {
     f"examples/fe_walter_bethlehem/{name}": name
-    for name in ("preparation.json", "ratings_inventory.csv", "data_requirements.csv")
+    for name in ("preparation.json", "ratings_inventory.csv", "data_requirements.csv",
+                 "prepare_observations.py", "observation_inventory.csv")
 }
 DAILY_DOWNLOADS = {
     "examples/daily_offline/" + name: "daily-offline/" + name

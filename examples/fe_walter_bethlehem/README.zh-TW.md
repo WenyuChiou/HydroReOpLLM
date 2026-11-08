@@ -15,11 +15,44 @@ LLM with operational knowledge，使用相同物理 profile 與 forcing。
 | [preparation.json](preparation.json) | 研究範圍、測站／節點、邊界所有權與未解項目；不是 experiment CLI 的設定檔。 |
 | [ratings_inventory.csv](ratings_inventory.csv) | 三站目前 rating ID、生效時間原始欄位、來源雜湊及歷史缺口。 |
 | [data_requirements.csv](data_requirements.csv) | 需補資料、取得來源及使用它的 C&V 階段。 |
+| [prepare_observations.py](prepare_observations.py) | 下載設定中指定的 USGS Daily 觀測並檢查；只需 Python 標準函式庫。 |
+| [observation_inventory.csv](observation_inventory.csv) | 2026-11-08 下載快照的覆蓋及品質統計；不是模型驗證成績。 |
 | [usgs_data_request.md](usgs_data_request.md) | 尚未寄出的 USGS 資料需求稿。 |
 
 先取得缺少的紀錄，再依下列順序建置。這裡尚無 `reservoir-experiment run` 指令；
 新增產流、河網與模擬水位 provider 都還需要建立。下載資料及輸出放在自己的研究目錄，
 保存來源、時間、原始 bytes、雜湊和品質碼。
+
+## 準備 Daily 觀測資料
+
+在 clone 後的專案目錄執行，輸出目錄必須尚未存在：
+
+```bash
+python examples/fe_walter_bethlehem/prepare_observations.py --start 1989-01-01 --end 2025-12-31 --output ./study-data/bethlehem-daily-v1
+```
+
+需要連線至 [USGS OGC API](https://api.waterdata.usgs.gov/docs/ogcapi/)。此指令只整理觀測，
+不執行模擬。`preparation.json` 的 `observation_requests` 定義測站、參數、統計量、單位及用途；
+`coverage_periods` 定義統計期間。`--end` 包含當日。Daily 日期沿用來源日曆標籤，不做 UTC 位移。
+
+輸出包含 `raw/` 原始回應、`observations_daily.csv`、`coverage_daily.csv` 及
+`manifest.json` 的 URL、時間與雜湊。流量由 ft³/s 換算 m³/s；庫水位保留原始 ft，datum 待確認。
+缺值留空，估算、冰況及修訂碼原樣保留。重複日期、單位或來源身分不符會停止；失敗目錄保存
+證據，不自動重試或覆寫。先檢視原因，再決定是否建立不同名稱的新下載目錄。
+
+2026-11-08 快照的覆蓋如下：
+
+| 序列 | 1989–2025 有數值的 Daily 日期 | 待處理事項 |
+|---|---|---|
+| Lehighton、Walnutport、Bethlehem 流量 | 各 13,514/13,514 天 | 保留品質碼；Bethlehem 比較口徑仍待確認。 |
+| Beltzville 邊界流量 | 13,514/13,514 天 | 建置站下至匯流口 routing，排除已代表面積的重複產流。 |
+| Aquashicola、Little Lehigh (01451650)、Jordan、Monocacy 流量 | 各 13,514/13,514 天 | 用於 C&V／診斷，不能在模擬產流之外重複加總。 |
+| Beltzville 庫水位 | 5,876/13,514 天；首筆 2009-10-14 | 2011–2020 缺 45 天；2021–2025 缺 2025-02-09–10 兩天；歷史 datum 待確認。 |
+
+所有數值均為來源標示的 Approved，部分仍帶有 estimated 等品質碼。
+沒有補值。完整日期不等於精度或決策時可用性；
+流量 C/V 候選年份仍需配合 forcing、空間輸入與 rating 資料確認。
+inventory 只描述這次快照，後續 USGS 修訂可能改變數值或品質碼。
 
 ## 已確認的 rating 狀態
 
