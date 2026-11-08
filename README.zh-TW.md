@@ -69,9 +69,10 @@ reservoir-experiment verify runs/daily-single
 | [多水庫](examples/multiple_reservoirs/README.md) | 氣象驅動水文與各壩獨立操作員 | 預設 Rule-based，另有可選的 LLM 設定 |
 | [時間尺度](examples/time_scales/README.md) | Daily、Hourly 與明確步長的設定 | 採用非 LLM 操作員的小型設定 |
 | [F.E. Walter](examples/fe_walter/README.md) | 比較 Rule-based 與 LLM 方法的研究案例 | 依[案例指南](https://wenyuchiou.github.io/HydroReOpLLM/docs/CASE_STUDIES.html)選擇 2021–2025 已備妥入流，或 2016 氣象驅動設定 |
+| [F.E. Walter 延伸至 Bethlehem](examples/fe_walter_bethlehem/README.zh-TW.md) | 獨立的下游水位資料準備範例 | 歷史 rating、測站口徑與 C&V 需求；尚未提供模擬 |
 
 也可查看[範例目錄](examples/README.zh-TW.md)與 [Notebook 教學](tutorials/README.zh-TW.md)。
-`examples/` 放可執行研究範例，`templates/` 放起始設定。
+`examples/` 放可執行研究及明確標示的資料準備範例，`templates/` 放起始設定。
 
 ## 設定自己的研究案例
 

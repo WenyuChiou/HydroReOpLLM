@@ -1,0 +1,36 @@
+{
+  "schema_version": "hydroreopllm.case-preparation.v1",
+  "case_id": "fe_walter_bethlehem",
+  "status": "data_preparation_only",
+  "simulation_ready": false,
+  "experiment_cli_configuration": false,
+  "controlled_reservoirs": ["FEWalter"],
+  "comparison_policies": ["mosart_urban", "llm_without_operational_knowledge", "llm_with_operational_knowledge"],
+  "shared_physics": "Select the same explicit physical profile, initial state and forcing for every policy; do not relabel old results.",
+  "reference_guide": "https://wenyuchiou.github.io/HydroReOpLLM/docs/CASE_STUDIES.html",
+  "evaluation_period": {"start_local": "2021-01-01", "end_exclusive_local": "2026-01-01", "calendar": "America/New_York", "status": "retrospective"},
+  "cv_periods": {
+    "daily_discharge_candidate": {"warmup_year": 1989, "calibration_years": [1990, 2010], "validation_years": [2011, 2020], "status": "conditional_on_new_area_data_coverage"},
+    "stage": {"calibration": null, "validation": null, "earliest_catalogued_subdaily_stage": "2007-10-01", "status": "unassigned_until_historical_ratings_and_joint_coverage_are_verified"}
+  },
+  "stations": [
+    {"station_id": "01449000", "name": "Lehighton", "stage_node": "lehighton_stage_gage", "discharge_comparison_node": "lehighton_published_discharge", "gage_height_parameter": "00065", "stage_units": "ft", "discharge_parameter": "00060", "source_discharge_units": "ft3/s", "historical_rating_status": "incomplete"},
+    {"station_id": "01451000", "name": "Walnutport", "stage_node": "walnutport_stage_gage", "discharge_comparison_node": "walnutport_published_discharge", "gage_height_parameter": "00065", "stage_units": "ft", "discharge_parameter": "00060", "source_discharge_units": "ft3/s", "historical_rating_status": "incomplete"},
+    {"station_id": "01453000", "name": "Bethlehem", "stage_node": "bethlehem_stage_gage", "discharge_comparison_node": "bethlehem_published_discharge", "gage_height_parameter": "00065", "stage_units": "ft", "discharge_parameter": "00060", "source_discharge_units": "ft3/s", "historical_rating_status": "incomplete", "monocacy_convention": "documented_in_WY2000_report_but_2021_2025_computation_and_rating_quantity_unconfirmed", "measurement_operator_status": "not_implemented"}
+  ],
+  "common_boundaries": [
+    {"boundary_id": "beltzville_downstream_observed_flow", "station_id": "01449800", "quantity": "observed_creek_discharge_not_direct_gate_release", "parameter_code": "00060", "source_units": "ft3/s", "model_units": "m3/s", "same_series_for_all_policies": true, "exclude_already_represented_upstream_runoff": true, "gage_to_mouth_routing_status": "not_built", "numerical_data_qa_status": "pending"}
+  ],
+  "additional_boundary_information": {"beltzville_pool_station": "01449790", "required_if_selected_rules_need_pool_state": true, "status": "catalogued_not_numerically_audited"},
+  "information_contract": {
+    "feedback_source": "each_policy_own_completed_routing_and_stage_history",
+    "observed_mainstem_stage_use": "calibration_validation_only",
+    "missing_stage_or_trend": "unknown_never_assumed_below_threshold",
+    "same_step_completed_stage_in_current_decision": false,
+    "perfect_future_boundary_information": false,
+    "absolute_elevation_is_local_stage": false,
+    "published_PA_geodetic_conversion_changes_local_stage": false,
+    "stage_provider_status": "not_built"
+  },
+  "pending_requirements": ["historical_rating_versions_effective_intervals_shifts_corrections", "local_zero_and_datum_history", "bethlehem_published_Q_and_stage_geometry", "new_area_forcing_soils_land_cover_and_topology", "boundary_and_discharge_numeric_QA", "new_runoff_routing_and_three_station_stage_CV", "free_running_chain_and_information_binding"]
+}

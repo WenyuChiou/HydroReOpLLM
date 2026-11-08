@@ -10,6 +10,7 @@ Choose the smallest example that fits your study:
 | [multiple_reservoirs](multiple_reservoirs/README.md) | Independent operators in a connected network. |
 | [time_scales](time_scales/README.md) | Daily, Hourly and explicit interval configurations. |
 | [fe_walter](fe_walter/README.md) | A real-reservoir study with prepared inflows or weather-driven hydrology. |
+| [fe_walter_bethlehem](fe_walter_bethlehem/README.md) | Data preparation for a downstream-stage extension; new hydrology and C&V are not yet available. |
 
 `rules/` supplies shared Hanasaki and [MOSART-Urban](rules/mosart_urban/README.md)
 extensions. The MOSART guide lists configurations for all three example families.
