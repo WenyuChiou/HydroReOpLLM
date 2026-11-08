@@ -1,5 +1,10 @@
 # F.E. Walter Reservoir research example
 
+The optional [MOSART-Urban rule](../rules/mosart_urban/README.md) is selected by
+`coupled/experiment.mosart.yaml` or `operation/experiment.mosart.yaml`.
+Its separate physical profile removes the extra minimum-release/protected-storage
+overrides so the original rule can be reproduced.
+
 [English](README.md) | [繁體中文](README.zh-TW.md)
 
 This case connects accepted HydroCNHS hydrology to one controlled reservoir and

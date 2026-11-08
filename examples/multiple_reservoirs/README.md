@@ -3,6 +3,9 @@
 This Daily example connects two reservoirs and a downstream outlet.
 Each reservoir has its own operator, state and completed history.
 
+`experiment.mosart.yaml` selects the shared [MOSART-Urban flood-control
+rule](../rules/mosart_urban/README.md), with a separate controller per reservoir.
+
 From the repository root:
 
 ```bash

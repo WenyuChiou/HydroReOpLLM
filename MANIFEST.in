@@ -1,1 +1,2 @@
 include scripts/package_build.py
+include scripts/verify_mosart_rule.py

@@ -1,0 +1,9 @@
+fe_operator:
+  reservoir_id: FEWalter
+  type: rule_based
+  rule: mosart_urban
+  rule_parameters:
+    purpose: flood_control
+    alpha: 0.85
+    inflow_statistics_file: ../../../data/benchmark/fe_walter_statistics.json
+  auditors: [release_limits]

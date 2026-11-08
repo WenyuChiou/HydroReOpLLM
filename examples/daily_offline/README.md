@@ -5,6 +5,9 @@ existing `reservoir-experiment` CLI. Copy this entire folder when moving them.
 They include Leap Day, one-day routing delays and independent reservoir state.
 They do not require an API key, Ollama or a model download.
 
+`single.mosart.yaml` selects the shared [MOSART-Urban flood-control
+rule](../rules/mosart_urban/README.md) using the same synthetic physical case.
+
 From the repository root:
 
 ```shell

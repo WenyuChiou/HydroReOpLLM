@@ -212,6 +212,7 @@ examples/daily_offline/cascade.json
 examples/daily_offline/cascade.yaml
 examples/daily_offline/operator.txt
 examples/daily_offline/single.json
+examples/daily_offline/single.mosart.yaml
 examples/daily_offline/single.yaml
 examples/fe_walter/README.md
 examples/fe_walter/README.zh-TW.md
@@ -220,8 +221,10 @@ examples/fe_walter/configuration.md
 examples/fe_walter/coupled/README.md
 examples/fe_walter/coupled/agents.llm_available.yaml
 examples/fe_walter/coupled/agents.llm_knowledge.yaml
+examples/fe_walter/coupled/agents.mosart.yaml
 examples/fe_walter/coupled/agents.rule.yaml
 examples/fe_walter/coupled/auditors.yaml
+examples/fe_walter/coupled/experiment.mosart.yaml
 examples/fe_walter/coupled/experiment.yaml
 examples/fe_walter/coupled/export_comparison.py
 examples/fe_walter/coupled/export_year.py
@@ -231,6 +234,7 @@ examples/fe_walter/coupled/llm_knowledge.yaml
 examples/fe_walter/coupled/models.yaml
 examples/fe_walter/coupled/plot_results.py
 examples/fe_walter/coupled/reservoirs.json
+examples/fe_walter/coupled/reservoirs.mosart.json
 examples/fe_walter/coupling.md
 examples/fe_walter/coupling.zh-TW.md
 examples/fe_walter/downstream/README.md
@@ -273,10 +277,12 @@ examples/fe_walter/operation/README.zh-TW.md
 examples/fe_walter/operation/__init__.py
 examples/fe_walter/operation/agents.rule.yaml
 examples/fe_walter/operation/case.json
+examples/fe_walter/operation/case.mosart.json
 examples/fe_walter/operation/engineering-sources-v2.json
 examples/fe_walter/operation/engineering-sources-v3.json
 examples/fe_walter/operation/engineering-sources-v4.json
 examples/fe_walter/operation/execution.py
+examples/fe_walter/operation/experiment.mosart.yaml
 examples/fe_walter/operation/experiment.yaml
 examples/fe_walter/operation/figures.py
 examples/fe_walter/operation/hydrology/calibration-lineage-summary.json
@@ -312,9 +318,11 @@ examples/fe_walter/seasonal_pool_criteria.json
 examples/llm_reservoir_abm.py
 examples/multiple_reservoirs/README.md
 examples/multiple_reservoirs/agents.llm.yaml
+examples/multiple_reservoirs/agents.mosart.yaml
 examples/multiple_reservoirs/agents.rule.yaml
 examples/multiple_reservoirs/auditors.yaml
 examples/multiple_reservoirs/experiment.llm.yaml
+examples/multiple_reservoirs/experiment.mosart.yaml
 examples/multiple_reservoirs/experiment.yaml
 examples/multiple_reservoirs/extensions/__init__.py
 examples/multiple_reservoirs/forcing.csv
@@ -331,6 +339,8 @@ examples/multiple_reservoirs/reservoirs.yaml
 examples/multiple_reservoirs/statistics_a.json
 examples/multiple_reservoirs/statistics_b.json
 examples/rules/hanasaki/__init__.py
+examples/rules/mosart_urban/README.md
+examples/rules/mosart_urban/__init__.py
 examples/time_scales/README.md
 examples/time_scales/daily.yaml
 examples/time_scales/fixed_interval.case.json
@@ -351,6 +361,7 @@ scripts/check_docs_site.py
 scripts/check_installed_runtime.py
 scripts/package_build.py
 scripts/plot_offline_network.py
+scripts/verify_mosart_rule.py
 scripts/verify_offline_run.py
 scripts/verify_results.py
 src/hydrocnhs/Config_logging.yaml
@@ -736,6 +747,7 @@ tests/test_manual_reading_route.py
 tests/test_manual_results.py
 tests/test_manual_templates.py
 tests/test_metadata_io.py
+tests/test_mosart_urban.py
 tests/test_native_examples.py
 tests/test_native_providers.py
 tests/test_network_outlets.py
