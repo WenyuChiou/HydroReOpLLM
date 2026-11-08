@@ -16,7 +16,8 @@ def test_bethlehem_preparation_downloads_are_separate_from_saved_teaching(tmp_pa
     spec.loader.exec_module(builder)
     with patch('socket.socket.connect', side_effect=AssertionError('network forbidden')):
         builder.prepare(tmp_path)
-    names = {'preparation.json', 'ratings_inventory.csv', 'data_requirements.csv'}
+    names = {'preparation.json', 'ratings_inventory.csv', 'data_requirements.csv',
+             'prepare_observations.py', 'observation_inventory.csv'}
     assert set(builder.BETHLEHEM_DOWNLOADS.values()) == names
     for name in names:
         original = ROOT / 'examples/fe_walter_bethlehem' / name
