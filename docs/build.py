@@ -119,6 +119,11 @@ TUTORIAL_DOWNLOADS.update({
         "outputs/downstream_streamflow.png", "outputs/downstream_streamflow.svg", "outputs/downstream_streamflow.pdf",
     )
 })
+# These are preparation records, not executable or calibrated basin inputs.
+TUTORIAL_DOWNLOADS.update({
+    f"examples/fe_walter_bethlehem/{name}": f"bethlehem/{name}"
+    for name in ("preparation.json", "ratings_inventory.csv", "data_requirements.csv")
+})
 DAILY_DOWNLOADS = {
     "examples/daily_offline/" + name: "daily-offline/" + name
     for name in ("single.yaml", "single.json", "cascade.yaml", "cascade.json", "operator.txt")
@@ -187,6 +192,9 @@ PAGES = {
     "README.zh-TW.md": "repository.zh-TW.md",
     "examples/fe_walter/README.md": "examples/fe_walter/README.md",
     "examples/fe_walter/README.zh-TW.md": "examples/fe_walter/README.zh-TW.md",
+    "examples/fe_walter_bethlehem/README.md": "examples/fe_walter_bethlehem/README.md",
+    "examples/fe_walter_bethlehem/README.zh-TW.md": "examples/fe_walter_bethlehem/README.zh-TW.md",
+    "examples/fe_walter_bethlehem/usgs_data_request.md": "examples/fe_walter_bethlehem/usgs_data_request.md",
     "examples/fe_walter/operation/README.md": "examples/fe_walter/operation/README.md",
     "docs/results/fe_walter/completed/README.md": "docs/results/fe_walter/completed/README.md",
     "examples/fe_walter/operation/README.zh-TW.md": "examples/fe_walter/operation/README.zh-TW.md",

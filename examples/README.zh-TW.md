@@ -10,6 +10,7 @@
 | [multiple_reservoirs](multiple_reservoirs/README.md) | 水庫網路中各自獨立的操作員。 |
 | [time_scales](time_scales/README.md) | Daily、Hourly 與指定時間間隔的設定。 |
 | [fe_walter](fe_walter/README.md) | 使用準備好的入流或氣象驅動水文的真實水庫案例。 |
+| [fe_walter_bethlehem](fe_walter_bethlehem/README.zh-TW.md) | 下游水位擴域的資料準備；新增水文模型與 C&V 尚未完成。 |
 
 `rules/` 提供共用的 Hanasaki 與 [MOSART-Urban](rules/mosart_urban/README.md) extension。
 MOSART 說明列出單壩、多壩與 F.E. Walter 的選用設定。`llm_reservoir_abm.py` 是範例所需的 HydroCNHS 接口。
