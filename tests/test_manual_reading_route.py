@@ -9,6 +9,25 @@ import json
 ROOT = Path(__file__).resolve().parents[1]
 
 
+def test_bethlehem_preparation_downloads_are_separate_from_saved_teaching(tmp_path):
+    """Publish new preparation inputs without changing accepted teaching bundles."""
+    spec = importlib.util.spec_from_file_location('bethlehem_builder', ROOT / 'docs/build.py')
+    builder = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(builder)
+    with patch('socket.socket.connect', side_effect=AssertionError('network forbidden')):
+        builder.prepare(tmp_path)
+    names = {'preparation.json', 'ratings_inventory.csv', 'data_requirements.csv'}
+    assert set(builder.BETHLEHEM_DOWNLOADS.values()) == names
+    for name in names:
+        original = ROOT / 'examples/fe_walter_bethlehem' / name
+        assert (tmp_path / '_bethlehem_downloads' / name).read_bytes() == original.read_bytes()
+        assert not (tmp_path / '_tutorial_downloads/bethlehem' / name).exists()
+        for locale in ('README.md', 'README.zh-TW.md'):
+            page = (tmp_path / 'examples/fe_walter_bethlehem' / locale).read_text(encoding='utf-8')
+            assert '../../_bethlehem_downloads/' + name in page
+            assert not any('/blob/' in line and name in line for line in page.splitlines())
+
+
 def test_manual_current_downloads_have_an_isolated_namespace(tmp_path):
     spec = importlib.util.spec_from_file_location('reader_route_builder', ROOT / 'docs/build.py')
     builder = importlib.util.module_from_spec(spec)

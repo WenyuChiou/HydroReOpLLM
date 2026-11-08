@@ -120,10 +120,10 @@ TUTORIAL_DOWNLOADS.update({
     )
 })
 # These are preparation records, not executable or calibrated basin inputs.
-TUTORIAL_DOWNLOADS.update({
-    f"examples/fe_walter_bethlehem/{name}": f"bethlehem/{name}"
+BETHLEHEM_DOWNLOADS = {
+    f"examples/fe_walter_bethlehem/{name}": name
     for name in ("preparation.json", "ratings_inventory.csv", "data_requirements.csv")
-})
+}
 DAILY_DOWNLOADS = {
     "examples/daily_offline/" + name: "daily-offline/" + name
     for name in ("single.yaml", "single.json", "cascade.yaml", "cascade.json", "operator.txt")
@@ -288,6 +288,10 @@ def prepare(source: Path, *, source_ref: str = "main") -> None:
                 import os
                 output = source / "_tutorial_downloads" / TUTORIAL_DOWNLOADS[relative]
                 value = Path(os.path.relpath(output, (source / destination).parent)).as_posix()
+            elif not match[1].startswith("!") and relative in BETHLEHEM_DOWNLOADS:
+                import os
+                output = source / "_bethlehem_downloads" / BETHLEHEM_DOWNLOADS[relative]
+                value = Path(os.path.relpath(output, (source / destination).parent)).as_posix()
             elif not match[1].startswith("!") and relative in DAILY_DOWNLOADS:
                 import os
                 output = source / "_daily_downloads" / DAILY_DOWNLOADS[relative]
@@ -424,6 +428,11 @@ def prepare(source: Path, *, source_ref: str = "main") -> None:
         canonical = source / relative
         canonical.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(ROOT / relative, canonical)
+    # Preparation files have their own namespace; accepted teaching stays fixed.
+    bethlehem_downloads = source / "_bethlehem_downloads"
+    bethlehem_downloads.mkdir()
+    for relative, name in BETHLEHEM_DOWNLOADS.items():
+        shutil.copyfile(ROOT / relative, bethlehem_downloads / name)
     for relative, name in DOWNSTREAM_DOWNLOADS.items():
         download = source / "_downstream_downloads" / name
         download.parent.mkdir(parents=True, exist_ok=True)
