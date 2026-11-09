@@ -2,13 +2,26 @@
 
 [English](README.md) | [繁體中文](README.zh-TW.md)
 
-Open the [five-year tutorial](../../../tutorials/operation.ipynb) for the complete
-settings and an executable walkthrough with daily progress. This folder contains a prepared common case,
-one completed 1,826-day Rule-based teaching baseline and two optional LLM entry
-files. The separately completed **LLM w/o additional knowledge** and **LLM w/
-additional knowledge** campaign, updated figures and Table 3 are on the
-[completed comparisons page](../../../docs/results/fe_walter/completed/README.md). That campaign
-retains its own pinned inputs and initialization.
+## Paper baseline with MOSART-Urban
+
+From the repository root, use [experiment.mosart.yaml](experiment.mosart.yaml)
+to run the 2021–2025 rule-based baseline with prepared daily inflows.
+
+```shell
+reservoir-experiment check examples/fe_walter/operation/experiment.mosart.yaml
+reservoir-experiment run examples/fe_walter/operation/experiment.mosart.yaml
+reservoir-experiment verify runs/fe-walter-2021-2025-mosart
+```
+
+[Table 3](../../../docs/results/fe_walter/completed/README.md#daily-performance-against-observations)
+reports KGE and RMSE. The saved LLM runs retain their own configuration and
+initialization.
+
+## Historical Hanasaki teaching lesson
+
+The [five-year tutorial](../../../tutorials/operation.ipynb), settings and saved
+plots below describe the earlier Hanasaki teaching run. They retain the original
+1,826-day result and two optional LLM entry files.
 
 The prepared-operation schema is `llm-reservoir-experiment.v2`. It reads the frozen
 daily hydrology boundaries in `inflows.csv`; the accepted coupled stage already

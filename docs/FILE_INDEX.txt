@@ -185,6 +185,7 @@ docs/results/fe_walter/completed/hourly_events_AB.pdf
 docs/results/fe_walter/completed/hourly_events_AB.png
 docs/results/fe_walter/completed/hourly_events_AB.svg
 docs/results/fe_walter/completed/provenance.json
+docs/results/fe_walter/completed/table3_daily_kge_rmse.csv
 docs/results/fe_walter/completed/table3_daily_simulation_performance.md
 docs/results/fe_walter/completed/table3_daily_simulation_performance.pdf
 docs/results/fe_walter/completed/table3_daily_simulation_performance.png

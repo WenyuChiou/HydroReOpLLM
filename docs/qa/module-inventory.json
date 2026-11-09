@@ -2306,9 +2306,9 @@
         "Parent-owned security fix sanitizes JSONDecodeError.msg/doc before the unchanged-message early return; five-provider regression added by this lane."
       ],
       "path": "src/llm_reservoir_agent/configured_backend.py",
-      "sha256": "0b05f5890b1310e07b9c622d4f75f2df646676ff931ccd2f163343fb5396492b",
-      "bytes": 50382,
-      "line_count": 1017,
+      "sha256": "a8678d9130bfa547b8a020a88dce898a880ae5c1d17452c0eafff1972503a297",
+      "bytes": 51113,
+      "line_count": 1028,
       "line_endings": "LF",
       "dependencies": [
         ".audit",
@@ -2344,8 +2344,8 @@
         },
         {
           "symbol": "http_json_transport",
-          "first_line": 411,
-          "last_line": 475,
+          "first_line": 410,
+          "last_line": 474,
           "has_docstring": true,
           "numpy_sections": [
             "Parameters",
@@ -2356,8 +2356,8 @@
         },
         {
           "symbol": "ConfiguredBackend",
-          "first_line": 484,
-          "last_line": 1017,
+          "first_line": 483,
+          "last_line": 1028,
           "has_docstring": true,
           "numpy_sections": [
             "Parameters",
@@ -2367,8 +2367,8 @@
         },
         {
           "symbol": "ConfiguredBackend.network_calls",
-          "first_line": 630,
-          "last_line": 640,
+          "first_line": 629,
+          "last_line": 639,
           "has_docstring": true,
           "numpy_sections": [
             "Returns"
@@ -2376,8 +2376,8 @@
         },
         {
           "symbol": "ConfiguredBackend.prepare_context",
-          "first_line": 671,
-          "last_line": 703,
+          "first_line": 670,
+          "last_line": 702,
           "has_docstring": true,
           "numpy_sections": [
             "Parameters",
@@ -2388,8 +2388,8 @@
         },
         {
           "symbol": "ConfiguredBackend.preview",
-          "first_line": 746,
-          "last_line": 798,
+          "first_line": 745,
+          "last_line": 797,
           "has_docstring": true,
           "numpy_sections": [
             "Parameters",
@@ -2400,8 +2400,8 @@
         },
         {
           "symbol": "ConfiguredBackend.decide",
-          "first_line": 825,
-          "last_line": 937,
+          "first_line": 824,
+          "last_line": 948,
           "has_docstring": true,
           "numpy_sections": [
             "Parameters",
@@ -2412,8 +2412,8 @@
         },
         {
           "symbol": "ConfiguredBackend.record_transition",
-          "first_line": 939,
-          "last_line": 977,
+          "first_line": 950,
+          "last_line": 988,
           "has_docstring": true,
           "numpy_sections": [
             "Parameters",
@@ -2424,8 +2424,8 @@
         },
         {
           "symbol": "ConfiguredBackend.describe",
-          "first_line": 979,
-          "last_line": 1017,
+          "first_line": 990,
+          "last_line": 1028,
           "has_docstring": true,
           "numpy_sections": [
             "Returns",
@@ -2498,14 +2498,14 @@
         "missing_public_symbols": [],
         "public_symbol_lines": {
           "validate_model_settings": 148,
-          "http_json_transport": 411,
-          "ConfiguredBackend": 484,
-          "ConfiguredBackend.network_calls": 630,
-          "ConfiguredBackend.prepare_context": 671,
-          "ConfiguredBackend.preview": 746,
-          "ConfiguredBackend.decide": 825,
-          "ConfiguredBackend.record_transition": 939,
-          "ConfiguredBackend.describe": 979
+          "http_json_transport": 410,
+          "ConfiguredBackend": 483,
+          "ConfiguredBackend.network_calls": 629,
+          "ConfiguredBackend.prepare_context": 670,
+          "ConfiguredBackend.preview": 745,
+          "ConfiguredBackend.decide": 824,
+          "ConfiguredBackend.record_transition": 950,
+          "ConfiguredBackend.describe": 990
         }
       },
       "current_static_checks": {
@@ -6957,7 +6957,7 @@
     },
     {
       "path": "src/llm_reservoir_agent/recovery.py",
-      "sha256": "730df72aeb07d2cd4abcd98925415c66f587a4d875231c784f0471ceab72273d",
+      "sha256": "634cdd531ea98a183394c727de97e25e4025a4d5e9a6f2203644a8206f2dd38f",
       "baseline_sha256": "12eefed8abe4c76d9e5ad1b9cbe2645ae388473231121e4fc6733a67fecb68c9",
       "purpose": "Pinned interrupted-run replay and cumulative request accounting",
       "inputs": "Interrupted run, current settings, regenerated requests/physics",
@@ -6971,6 +6971,7 @@
         ".network",
         ".workflow",
         "hashlib",
+        "http.client",
         "json",
         "pathlib",
         "platform",
@@ -6981,17 +6982,18 @@
       "doc_coverage": {
         "scope": "Current AST: public top-level classes/functions and public methods/properties of public classes; excludes private/dunder definitions and imported aliases",
         "module_header": true,
-        "public_symbols": 7,
-        "documented_public_symbols": 7,
+        "public_symbols": 8,
+        "documented_public_symbols": 8,
         "missing_public_symbols": [],
         "public_symbol_lines": {
-          "RecoveryTape": 39,
-          "RecoveryTape.next_reply": 208,
-          "RecoveryTape.context_value": 262,
-          "RecoveryTape.check_physics": 297,
-          "RecoveryTape.finish": 327,
-          "RecoveryTape.describe": 344,
-          "resume_settings": 364
+          "RecoveryEvidenceError": 34,
+          "RecoveryTape": 54,
+          "RecoveryTape.next_reply": 224,
+          "RecoveryTape.context_value": 284,
+          "RecoveryTape.check_physics": 319,
+          "RecoveryTape.finish": 349,
+          "RecoveryTape.describe": 366,
+          "resume_settings": 386
         }
       },
       "entrypoints": [
@@ -7200,14 +7202,21 @@
           "execution": "Static read only; no test execution in this reconciliation"
         }
       ],
-      "bytes": 20730,
-      "line_count": 411,
+      "bytes": 21642,
+      "line_count": 433,
       "line_endings": "LF",
       "public_documentation": [
         {
+          "symbol": "RecoveryEvidenceError",
+          "first_line": 34,
+          "last_line": 35,
+          "has_docstring": true,
+          "numpy_sections": []
+        },
+        {
           "symbol": "RecoveryTape",
-          "first_line": 39,
-          "last_line": 361,
+          "first_line": 54,
+          "last_line": 383,
           "has_docstring": true,
           "numpy_sections": [
             "Parameters",
@@ -7216,8 +7225,8 @@
         },
         {
           "symbol": "RecoveryTape.next_reply",
-          "first_line": 208,
-          "last_line": 260,
+          "first_line": 224,
+          "last_line": 282,
           "has_docstring": true,
           "numpy_sections": [
             "Parameters",
@@ -7227,8 +7236,8 @@
         },
         {
           "symbol": "RecoveryTape.context_value",
-          "first_line": 262,
-          "last_line": 295,
+          "first_line": 284,
+          "last_line": 317,
           "has_docstring": true,
           "numpy_sections": [
             "Parameters",
@@ -7238,8 +7247,8 @@
         },
         {
           "symbol": "RecoveryTape.check_physics",
-          "first_line": 297,
-          "last_line": 325,
+          "first_line": 319,
+          "last_line": 347,
           "has_docstring": true,
           "numpy_sections": [
             "Parameters",
@@ -7249,8 +7258,8 @@
         },
         {
           "symbol": "RecoveryTape.finish",
-          "first_line": 327,
-          "last_line": 342,
+          "first_line": 349,
+          "last_line": 364,
           "has_docstring": true,
           "numpy_sections": [
             "Returns",
@@ -7259,8 +7268,8 @@
         },
         {
           "symbol": "RecoveryTape.describe",
-          "first_line": 344,
-          "last_line": 361,
+          "first_line": 366,
+          "last_line": 383,
           "has_docstring": true,
           "numpy_sections": [
             "Returns"
@@ -7268,8 +7277,8 @@
         },
         {
           "symbol": "resume_settings",
-          "first_line": 364,
-          "last_line": 411,
+          "first_line": 386,
+          "last_line": 433,
           "has_docstring": true,
           "numpy_sections": [
             "Parameters",

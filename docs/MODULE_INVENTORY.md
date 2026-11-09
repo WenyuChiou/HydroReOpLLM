@@ -332,7 +332,7 @@ The machine-readable inventory refreshes source hashes, public AST locations and
 
 ## `configured_backend.py`
 
-[Source](../src/llm_reservoir_agent/configured_backend.py) · SHA256 `0b05f5890b1310e07b9c622d4f75f2df646676ff931ccd2f163343fb5396492b`
+[Source](../src/llm_reservoir_agent/configured_backend.py) · SHA256 `a8678d9130bfa547b8a020a88dce898a880ae5c1d17452c0eafff1972503a297`
 
 - **Purpose:** Validate explicit profiles, render causal decision context once, bound provider attempts/fallback, strictly parse actions, and retain redacted attempt evidence.
 - **Inputs:** PromptSpec and SHA256-matched knowledge texts; observation at the decision timestamp; committed previous transition; explicit primary/fallback model profiles; optional injected transport and declared context/parser callbacks
@@ -912,7 +912,7 @@ No module-specific test definition is asserted in this inventory.
 
 ## `recovery.py`
 
-[Source](../src/llm_reservoir_agent/recovery.py) · SHA256 `730df72aeb07d2cd4abcd98925415c66f587a4d875231c784f0471ceab72273d`
+[Source](../src/llm_reservoir_agent/recovery.py) · SHA256 `634cdd531ea98a183394c727de97e25e4025a4d5e9a6f2203644a8206f2dd38f`
 
 - **Purpose:** Pinned interrupted-run replay and cumulative request accounting
 - **Inputs:** Interrupted run, current settings, regenerated requests/physics
