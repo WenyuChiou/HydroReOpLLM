@@ -6957,7 +6957,7 @@
     },
     {
       "path": "src/llm_reservoir_agent/recovery.py",
-      "sha256": "634cdd531ea98a183394c727de97e25e4025a4d5e9a6f2203644a8206f2dd38f",
+      "sha256": "931f19302b61d47ea1182f63018314a18edb3b4c7c6a7302a8cdc4bf667e55b7",
       "baseline_sha256": "12eefed8abe4c76d9e5ad1b9cbe2645ae388473231121e4fc6733a67fecb68c9",
       "purpose": "Pinned interrupted-run replay and cumulative request accounting",
       "inputs": "Interrupted run, current settings, regenerated requests/physics",
@@ -6986,14 +6986,14 @@
         "documented_public_symbols": 8,
         "missing_public_symbols": [],
         "public_symbol_lines": {
-          "RecoveryEvidenceError": 34,
-          "RecoveryTape": 54,
-          "RecoveryTape.next_reply": 224,
-          "RecoveryTape.context_value": 284,
-          "RecoveryTape.check_physics": 319,
-          "RecoveryTape.finish": 349,
-          "RecoveryTape.describe": 366,
-          "resume_settings": 386
+          "RecoveryEvidenceError": 35,
+          "RecoveryTape": 55,
+          "RecoveryTape.next_reply": 225,
+          "RecoveryTape.context_value": 288,
+          "RecoveryTape.check_physics": 323,
+          "RecoveryTape.finish": 353,
+          "RecoveryTape.describe": 370,
+          "resume_settings": 390
         }
       },
       "entrypoints": [
@@ -7208,15 +7208,15 @@
       "public_documentation": [
         {
           "symbol": "RecoveryEvidenceError",
-          "first_line": 34,
-          "last_line": 35,
+          "first_line": 35,
+          "last_line": 36,
           "has_docstring": true,
           "numpy_sections": []
         },
         {
           "symbol": "RecoveryTape",
-          "first_line": 54,
-          "last_line": 383,
+          "first_line": 55,
+          "last_line": 387,
           "has_docstring": true,
           "numpy_sections": [
             "Parameters",
@@ -7225,8 +7225,8 @@
         },
         {
           "symbol": "RecoveryTape.next_reply",
-          "first_line": 224,
-          "last_line": 282,
+          "first_line": 225,
+          "last_line": 286,
           "has_docstring": true,
           "numpy_sections": [
             "Parameters",
@@ -7236,8 +7236,8 @@
         },
         {
           "symbol": "RecoveryTape.context_value",
-          "first_line": 284,
-          "last_line": 317,
+          "first_line": 288,
+          "last_line": 321,
           "has_docstring": true,
           "numpy_sections": [
             "Parameters",
@@ -7247,8 +7247,8 @@
         },
         {
           "symbol": "RecoveryTape.check_physics",
-          "first_line": 319,
-          "last_line": 347,
+          "first_line": 323,
+          "last_line": 351,
           "has_docstring": true,
           "numpy_sections": [
             "Parameters",
@@ -7258,8 +7258,8 @@
         },
         {
           "symbol": "RecoveryTape.finish",
-          "first_line": 349,
-          "last_line": 364,
+          "first_line": 353,
+          "last_line": 368,
           "has_docstring": true,
           "numpy_sections": [
             "Returns",
@@ -7268,8 +7268,8 @@
         },
         {
           "symbol": "RecoveryTape.describe",
-          "first_line": 366,
-          "last_line": 383,
+          "first_line": 370,
+          "last_line": 387,
           "has_docstring": true,
           "numpy_sections": [
             "Returns"
@@ -7277,8 +7277,8 @@
         },
         {
           "symbol": "resume_settings",
-          "first_line": 386,
-          "last_line": 433,
+          "first_line": 390,
+          "last_line": 437,
           "has_docstring": true,
           "numpy_sections": [
             "Parameters",

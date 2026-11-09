@@ -912,7 +912,7 @@ No module-specific test definition is asserted in this inventory.
 
 ## `recovery.py`
 
-[Source](../src/llm_reservoir_agent/recovery.py) · SHA256 `634cdd531ea98a183394c727de97e25e4025a4d5e9a6f2203644a8206f2dd38f`
+[Source](../src/llm_reservoir_agent/recovery.py) · SHA256 `931f19302b61d47ea1182f63018314a18edb3b4c7c6a7302a8cdc4bf667e55b7`
 
 - **Purpose:** Pinned interrupted-run replay and cumulative request accounting
 - **Inputs:** Interrupted run, current settings, regenerated requests/physics

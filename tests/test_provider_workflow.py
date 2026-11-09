@@ -182,15 +182,18 @@ def test_interrupted_native_provider_replays_committed_requests_and_context(tmp_
     assert verify_run(tmp_path / "recovered")["days"] == 4
 
 
-@pytest.mark.parametrize("disconnect,max_attempts,primary_calls,remaining_calls", [
+@pytest.mark.parametrize("transport_error,max_attempts,primary_calls,remaining_calls", [
     (ConnectionError("disconnect"), 1, 1, 4),
     (ConnectionResetError("reset"), 2, 2, 9),
     (RemoteDisconnected("remote closed"), 2, 2, 9),
     (URLError(ConnectionResetError("wrapped reset")), 2, 2, 9),
     (URLError("permanent URL failure"), 2, 1, 4),
+    (ValueError("provider response must be UTF-8 JSON"), 2, 1, 4),
+    (TypeError("provider response must be a JSON object"), 2, 1, 4),
+    (json.JSONDecodeError("invalid envelope", "{", 1), 2, 1, 4),
 ])
 def test_interrupted_fallback_replays_failed_primary_without_a_new_call(
-    tmp_path, monkeypatch, disconnect, max_attempts, primary_calls, remaining_calls
+    tmp_path, monkeypatch, transport_error, max_attempts, primary_calls, remaining_calls
 ):
     from llm_reservoir_agent.coupled import prepared_experiment
     from llm_reservoir_agent.recovery import resume_settings
@@ -211,7 +214,7 @@ def test_interrupted_fallback_replays_failed_primary_without_a_new_call(
         if len(attempts) == 6:
             raise RuntimeError("injected process stop")
         if url.endswith("/responses"):
-            raise deepcopy(disconnect)
+            raise deepcopy(transport_error)
         return reply("anthropic")
     with pytest.raises(RuntimeError, match="injected process stop"):
         run_coupled(checked, allow_network=True, transport=interrupted)
@@ -219,7 +222,7 @@ def test_interrupted_fallback_replays_failed_primary_without_a_new_call(
     def transport(url, payload, headers, timeout):
         resumed.append(url)
         if url.endswith("/responses"):
-            raise deepcopy(disconnect)
+            raise deepcopy(transport_error)
         return reply("anthropic")
     resume_settings(load_settings(prepared_experiment(checked)), tmp_path / "run/operation",
                     output=tmp_path / "recovered", run_id="recovered", allow_network=True, transport=transport)
@@ -230,7 +233,7 @@ def test_interrupted_fallback_replays_failed_primary_without_a_new_call(
               for attempt in (record.get("backend_trace") or {}).get("attempts", [])
               if attempt["provider"] == "openai"]
     assert len(failed) == 4 * primary_calls
-    assert {attempt["error_class"] for attempt in failed} == {type(disconnect).__name__}
+    assert {attempt["error_class"] for attempt in failed} == {type(transport_error).__name__}
 
 
 @pytest.mark.parametrize("provider,fault", [
