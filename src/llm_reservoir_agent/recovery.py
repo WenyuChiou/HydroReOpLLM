@@ -27,6 +27,7 @@ _REPLAYABLE_DIRECT_TRANSPORT_ERRORS = {
     for error in (
         TimeoutError, ConnectionError, BrokenPipeError, ConnectionAbortedError,
         ConnectionRefusedError, ConnectionResetError, RemoteDisconnected,
+        TypeError, ValueError,
     )
 }
 
@@ -244,8 +245,8 @@ class RecoveryTape:
         ------
         RecoveryEvidenceError
             Request identity, saved-prefix physics, or failure evidence cannot be reconstructed.
-        HTTPError, URLError, TimeoutError or ConnectionError
-            A retained provider failure is reproduced from its saved error class/status.
+        HTTPError, URLError, TimeoutError, ConnectionError, TypeError or ValueError
+            A retained transport or response-envelope failure is reproduced from its saved error class/status.
         """
         if self._cursor == len(self._replies):
             if self._checked_physics != set(self._physics):
@@ -270,6 +271,9 @@ class RecoveryTape:
             failure = HTTPError(url, item["http_status"], "recorded provider failure", {}, None)
         elif failure_type is not None:
             failure = failure_type("recorded provider transport failure")
+        elif error == "JSONDecodeError":
+            # The original invalid envelope is unavailable. Replay its class only.
+            failure = json.JSONDecodeError("recorded provider JSON failure", "", 0)
         elif error == "URLError":
             retryable = item.get("url_error_retryable", True)  # Legacy traces used a connection reason.
             if not isinstance(retryable, bool):
