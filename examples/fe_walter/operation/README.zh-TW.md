@@ -2,11 +2,24 @@
 
 [English](README.md) | [繁體中文](README.zh-TW.md)
 
-請開啟[五年教學](../../../tutorials/operation.ipynb)閱讀設定，並查看實際執行時的逐日進度。
-最新已完成的三個 seed Daily／Hourly 比較、圖表與 Table 3，請見
-[完成結果頁](../../../docs/results/fe_walter/completed/README.md)。該實驗保留自己的設定與初始狀態。
-此資料夾另包含一個教學共用案例、一份已完成的 1,826 日規則基準，以及兩種可選的
-LLM 方法：**無額外操作知識的 LLM**與**含額外操作知識的 LLM**。
+## MOSART-Urban 文章基準
+
+在專案根目錄用 [experiment.mosart.yaml](experiment.mosart.yaml)
+讀取已準備的每日入流，執行 2021–2025 年的規則法基準。
+
+```shell
+reservoir-experiment check examples/fe_walter/operation/experiment.mosart.yaml
+reservoir-experiment run examples/fe_walter/operation/experiment.mosart.yaml
+reservoir-experiment verify runs/fe-walter-2021-2025-mosart
+```
+
+[Table 3](../../../docs/results/fe_walter/completed/README.md#daily-performance-against-observations)
+列出 KGE 與 RMSE。已保存的 LLM 實驗各自保留原設定與初始狀態。
+
+## 歷史 Hanasaki 教學
+
+[五年教學](../../../tutorials/operation.ipynb)、下列設定與圖表屬於較早的
+Hanasaki 教學，保留原本的 1,826 日結果及兩個可選的 LLM 入口。
 
 已準備操作使用 `llm-reservoir-experiment.v2`，直接讀取 `inflows.csv` 的凍結每日
 水文邊界。已接受的耦合階段先前已模擬 1989–2025 上游與區間逕流及河道路由。

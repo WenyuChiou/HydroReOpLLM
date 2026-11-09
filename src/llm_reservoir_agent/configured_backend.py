@@ -365,14 +365,13 @@ def _provider_attempts(
                 )
             except Exception as exc:
                 attempt["error_class"] = type(exc).__name__
+                retryable = _retryable_transport_error(exc, settings.get("retryable_http_statuses", ()))
                 if isinstance(exc, HTTPError):
                     attempt["http_status"] = exc.code
-                if (
-                    not _retryable_transport_error(
-                        exc, settings.get("retryable_http_statuses", ())
-                    )
-                    or attempt_number == settings["max_attempts"]
-                ):
+                elif isinstance(exc, URLError):
+                    # The class alone cannot reproduce urllib's nested reason.
+                    attempt["url_error_retryable"] = retryable
+                if not retryable or attempt_number == settings["max_attempts"]:
                     raise
             else:
                 try:
@@ -878,6 +877,17 @@ class ConfiguredBackend:
         credential_headers = []
         for profile_index, settings in enumerate(profiles):
             assert settings is not None
+            try:
+                headers = chat_headers(settings)
+            except RuntimeError as exc:
+                # Credential lookup occurs only when a profile is reached.
+                # Keep the previous real attempt as the request summary.
+                trace["credential_failure"] = {
+                    "provider": settings["provider"], "model": settings["model"],
+                    "profile": profile_index, "error_class": type(exc).__name__,
+                }
+                last_error = exc
+                break
             url, payload = chat_request(settings, messages, schema=self.response_json_schema)
             record = {"url": url, "payload": payload, "provider": settings["provider"]}
             request_sha256 = _canonical_sha256(record)
@@ -886,7 +896,6 @@ class ConfiguredBackend:
                                       "request_sha256": request_sha256})
             trace["provider"], trace["model"], trace["request_sha256"] = (
                 settings["provider"], settings["model"], request_sha256)
-            headers = chat_headers(settings)
             credential_headers.append(headers)
             start = len(trace["attempts"])
             def parse_provider_reply(raw, attempt, current=settings):
@@ -920,17 +929,19 @@ class ConfiguredBackend:
                     attempt["provider"], attempt["model"] = settings["provider"], settings["model"]
                     attempt["profile"] = profile_index
                 break
-        latest = trace["attempts"][-1]
-        trace["latest_attempt"] = json_snapshot(latest)
-        trace["raw_reply"], trace["usage"] = latest["provider_reply"], latest["usage"]
-        trace["request_id"], trace["error_class"] = latest["request_id"], latest["error_class"]
-        trace["refusal"], trace["truncated"] = latest["refusal"], latest["truncated"]
-        self.last_request_id = latest["request_id"]
+        latest = trace["attempts"][-1] if trace["attempts"] else None
+        if latest is not None:
+            trace["latest_attempt"] = json_snapshot(latest)
+            trace["raw_reply"], trace["usage"] = latest["provider_reply"], latest["usage"]
+            trace["request_id"], trace["error_class"] = latest["request_id"], latest["error_class"]
+            trace["refusal"], trace["truncated"] = latest["refusal"], latest["truncated"]
+            self.last_request_id = latest["request_id"]
         if action is None:
             assert last_error is not None
             for headers in credential_headers:
                 last_error = _redacted_provider_error(last_error, headers)
             raise last_error from None
+        assert latest is not None
         if latest.get("decision_metadata") is not None:
             trace["decision_metadata"] = latest["decision_metadata"]
         trace["parsed_action"] = action.to_dict()

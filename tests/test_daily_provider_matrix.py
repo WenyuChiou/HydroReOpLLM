@@ -216,6 +216,53 @@ def test_missing_credentials_do_not_call_or_fallback(monkeypatch, provider):
     assert item.latest_trace["attempts"] == []
 
 
+
+def test_missing_fallback_key_preserves_primary_attempt(monkeypatch):
+    monkeypatch.setenv("DAILY_PRIMARY_KEY", "synthetic-primary-key")
+    monkeypatch.delenv("DAILY_MISSING_FALLBACK_KEY", raising=False)
+    transport = ScriptedTransport(HTTPError("https://primary.invalid", 503, "unavailable", {}, None))
+    backup = _settings("anthropic", api_key_env="DAILY_MISSING_FALLBACK_KEY")
+    item = _backend("openai", transport, fallbacks=[backup], api_key_env="DAILY_PRIMARY_KEY")
+
+    with pytest.raises(RuntimeError, match="DAILY_MISSING_FALLBACK_KEY"):
+        item.decide(_observation())
+
+    trace = item.latest_trace
+    assert len(transport.calls) == item.network_calls == 1
+    assert trace["provider"] == "openai"
+    assert [request["provider"] for request in trace["requests"]] == ["openai"]
+    assert trace["latest_attempt"]["http_status"] == 503
+    assert trace["credential_failure"]["provider"] == "anthropic"
+    assert trace["credential_failure"]["profile"] == 1
+
+
+
+def test_replay_evidence_error_does_not_trigger_fallback():
+    from llm_reservoir_agent.recovery import RecoveryEvidenceError
+
+    transport = ScriptedTransport(RecoveryEvidenceError("request mismatch"))
+    item = _backend("ollama", transport, fallbacks=[_settings("openai_compatible")])
+
+    with pytest.raises(RecoveryEvidenceError, match="request mismatch"):
+        item.decide(_observation())
+
+    assert len(transport.calls) == item.network_calls == 1
+    assert item.latest_trace["latest_attempt"]["error_class"] == "RecoveryEvidenceError"
+
+
+def test_unused_fallback_key_is_not_resolved(monkeypatch):
+    monkeypatch.setenv("DAILY_PRIMARY_KEY", "synthetic-primary-key")
+    monkeypatch.delenv("DAILY_MISSING_FALLBACK_KEY", raising=False)
+    transport = ScriptedTransport(_reply("openai"))
+    backup = _settings("anthropic", api_key_env="DAILY_MISSING_FALLBACK_KEY")
+    item = _backend("openai", transport, fallbacks=[backup], api_key_env="DAILY_PRIMARY_KEY")
+
+    item.decide(_observation())
+
+    assert len(transport.calls) == item.network_calls == 1
+    assert "credential_failure" not in item.latest_trace
+
+
 @pytest.mark.parametrize("provider", PROVIDERS)
 def test_success_text_and_usage_are_detached_from_native_reply(provider):
     native = _reply(provider)

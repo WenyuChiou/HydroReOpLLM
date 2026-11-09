@@ -13,11 +13,26 @@ Dynamic numeric extension information is rejected without a durable replay
 contract. Incomplete final journal lines remain in the source and are reported.
 """
 import hashlib
+from http.client import RemoteDisconnected
 import json
 from pathlib import Path
 import platform
+from urllib.error import HTTPError, URLError
 
 from .audit import canonical_sha256, json_snapshot
+
+
+_REPLAYABLE_DIRECT_TRANSPORT_ERRORS = {
+    error.__name__: error
+    for error in (
+        TimeoutError, ConnectionError, BrokenPipeError, ConnectionAbortedError,
+        ConnectionRefusedError, ConnectionResetError, RemoteDisconnected,
+    )
+}
+
+
+class RecoveryEvidenceError(ValueError):
+    """Stop replay when saved evidence cannot reproduce the original request path."""
 
 
 def _sha(path):
@@ -173,6 +188,7 @@ class RecoveryTape:
                         request_sha256=canonical_sha256({"url": request["url"], "payload": request["payload"]}),
                         provider=request["provider"], response=response,
                         error_class=attempt.get("error_class"), http_status=attempt.get("http_status"),
+                        url_error_retryable=attempt.get("url_error_retryable", True),
                         hash_with_provider=False))
                 continue
             provider = trace.get("provider") or trace.get("model", {}).get("provider")
@@ -226,14 +242,14 @@ class RecoveryTape:
 
         Raises
         ------
-        ValueError
-            Request identity/content/order differs or saved-prefix physics is not fully reconstructed.
+        RecoveryEvidenceError
+            Request identity, saved-prefix physics, or failure evidence cannot be reconstructed.
         HTTPError, URLError, TimeoutError or ConnectionError
             A retained provider failure is reproduced from its saved error class/status.
         """
         if self._cursor == len(self._replies):
             if self._checked_physics != set(self._physics):
-                raise ValueError("recovery prefix physics has not been reconstructed")
+                raise RecoveryEvidenceError("recovery prefix physics has not been reconstructed")
             return False, None
         item = self._replies[self._cursor]
         request = {"url": url, "payload": payload}
@@ -243,21 +259,27 @@ class RecoveryTape:
         if item.get("hash_with_provider") is not False:
             hashes.add(canonical_sha256(dict(request, provider=item["provider"])))
         if item["reservoir_id"] != reservoir_id or item["request_sha256"] not in hashes:
-            raise ValueError("reconstructed provider request differs from recovery evidence")
+            raise RecoveryEvidenceError("reconstructed provider request differs from recovery evidence")
+        if item["response"] is not None:
+            self._cursor += 1
+            return True, json_snapshot(item["response"])
+
+        error = item.get("error_class")
+        failure_type = _REPLAYABLE_DIRECT_TRANSPORT_ERRORS.get(error) if isinstance(error, str) else None
+        if error == "HTTPError" and type(item.get("http_status")) is int:
+            failure = HTTPError(url, item["http_status"], "recorded provider failure", {}, None)
+        elif failure_type is not None:
+            failure = failure_type("recorded provider transport failure")
+        elif error == "URLError":
+            retryable = item.get("url_error_retryable", True)  # Legacy traces used a connection reason.
+            if not isinstance(retryable, bool):
+                raise RecoveryEvidenceError("saved URL error has an invalid retry category")
+            reason = ConnectionError("recorded provider connection failure") if retryable else "recorded provider URL failure"
+            failure = URLError(reason)
+        else:
+            raise RecoveryEvidenceError("saved provider failure cannot be reconstructed safely")
         self._cursor += 1
-        if item["response"] is None:
-            from urllib.error import HTTPError, URLError
-            error = item.get("error_class")
-            if error == "HTTPError" and isinstance(item.get("http_status"), int):
-                raise HTTPError(url, item["http_status"], "recorded provider failure", {}, None)
-            if error == "TimeoutError":
-                raise TimeoutError("recorded provider timeout")
-            if error == "ConnectionError":
-                raise ConnectionError("recorded provider connection failure")
-            if error == "URLError":
-                raise URLError(ConnectionError("recorded provider connection failure"))
-            raise ValueError("saved provider failure cannot be reconstructed safely")
-        return True, json_snapshot(item["response"])
+        raise failure
 
     def context_value(self, reservoir_id, timestep, alias):
         """Reuse a retained prompt binding before constructing its retriever.

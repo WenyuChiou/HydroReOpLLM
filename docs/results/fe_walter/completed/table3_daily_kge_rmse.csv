@@ -1,0 +1,19 @@
+method,quantity,metric,run_count,daily_pairs,mean,minimum,maximum,units
+Rule-based (MOSART-Urban),Reservoir level,KGE,1,1826,0.07697744268876971,,,dimensionless
+Rule-based (MOSART-Urban),Reservoir level,RMSE,1,1826,96.21019252608613,,,ft
+Rule-based (MOSART-Urban),Water release,KGE,1,1826,0.6396323656987515,,,dimensionless
+Rule-based (MOSART-Urban),Water release,RMSE,1,1826,598.4707035877345,,,ft3/s
+Rule-based (MOSART-Urban),Downstream flow,KGE,1,1826,0.8153169972881849,,,dimensionless
+Rule-based (MOSART-Urban),Downstream flow,RMSE,1,1826,706.185962625611,,,ft3/s
+LLM without operational knowledge,Reservoir level,KGE,5,1826,0.8170892664661491,0.7932396740845955,0.8384564782705142,dimensionless
+LLM without operational knowledge,Reservoir level,RMSE,5,1826,20.37810154141314,19.271993837761418,22.153033324943724,ft
+LLM without operational knowledge,Water release,KGE,5,1826,0.6947106953470578,0.6826404338271572,0.7159246039373262,dimensionless
+LLM without operational knowledge,Water release,RMSE,5,1826,581.295203723452,561.9085516275956,592.13705418648,ft3/s
+LLM without operational knowledge,Downstream flow,KGE,5,1826,0.8295562467409746,0.8255896129221388,0.8329730586050084,dimensionless
+LLM without operational knowledge,Downstream flow,RMSE,5,1826,706.911889647028,689.8631853562555,716.4981046766025,ft3/s
+LLM with operational knowledge,Reservoir level,KGE,5,1826,0.8469703416997943,0.7866621250437311,0.8784669044091947,dimensionless
+LLM with operational knowledge,Reservoir level,RMSE,5,1826,16.705520946408303,14.859228041638236,19.671152278882467,ft
+LLM with operational knowledge,Water release,KGE,5,1826,0.6191402255493512,0.6067107814577748,0.6406083884276754,dimensionless
+LLM with operational knowledge,Water release,RMSE,5,1826,671.0128861660938,647.5254403567686,684.9940048730647,ft3/s
+LLM with operational knowledge,Downstream flow,KGE,5,1826,0.8322700667920069,0.8281265094948,0.8411850056966916,dimensionless
+LLM with operational knowledge,Downstream flow,RMSE,5,1826,754.6847205352184,728.3576258166024,769.0850741408229,ft3/s

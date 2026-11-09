@@ -1,9 +1,11 @@
 """Offline native-provider requests through weather, agents, audit and routing."""
 from copy import deepcopy
 import hashlib
+from http.client import RemoteDisconnected
 import json
 from pathlib import Path
 import shutil
+from urllib.error import URLError
 
 import pytest
 import yaml
@@ -180,13 +182,23 @@ def test_interrupted_native_provider_replays_committed_requests_and_context(tmp_
     assert verify_run(tmp_path / "recovered")["days"] == 4
 
 
-def test_interrupted_fallback_replays_failed_primary_without_a_new_call(tmp_path, monkeypatch):
+@pytest.mark.parametrize("disconnect,max_attempts,primary_calls,remaining_calls", [
+    (ConnectionError("disconnect"), 1, 1, 4),
+    (ConnectionResetError("reset"), 2, 2, 9),
+    (RemoteDisconnected("remote closed"), 2, 2, 9),
+    (URLError(ConnectionResetError("wrapped reset")), 2, 2, 9),
+    (URLError("permanent URL failure"), 2, 1, 4),
+])
+def test_interrupted_fallback_replays_failed_primary_without_a_new_call(
+    tmp_path, monkeypatch, disconnect, max_attempts, primary_calls, remaining_calls
+):
     from llm_reservoir_agent.coupled import prepared_experiment
     from llm_reservoir_agent.recovery import resume_settings
     from llm_reservoir_agent.workflow import load_settings
     monkeypatch.setenv("OFFLINE_PROVIDER_KEY", "never-save-this-secret")
     path, data = setup_case(tmp_path, "openai")
-    data["models"]["backup"] = dict(data["models"]["chosen"], provider="anthropic")
+    data["models"]["chosen"].update(max_attempts=max_attempts, retry_delay_seconds=0)
+    data["models"]["backup"] = dict(data["models"]["chosen"], provider="anthropic", max_attempts=1)
     agents_path = path.parent / "agents.llm.yaml"
     agents = yaml.safe_load(agents_path.read_text())
     agents["operator_a"]["customization"]["fallback_models"] = ["backup"]
@@ -199,7 +211,7 @@ def test_interrupted_fallback_replays_failed_primary_without_a_new_call(tmp_path
         if len(attempts) == 6:
             raise RuntimeError("injected process stop")
         if url.endswith("/responses"):
-            raise ConnectionError("injected primary disconnect")
+            raise deepcopy(disconnect)
         return reply("anthropic")
     with pytest.raises(RuntimeError, match="injected process stop"):
         run_coupled(checked, allow_network=True, transport=interrupted)
@@ -207,12 +219,18 @@ def test_interrupted_fallback_replays_failed_primary_without_a_new_call(tmp_path
     def transport(url, payload, headers, timeout):
         resumed.append(url)
         if url.endswith("/responses"):
-            raise ConnectionError("injected primary disconnect")
+            raise deepcopy(disconnect)
         return reply("anthropic")
     resume_settings(load_settings(prepared_experiment(checked)), tmp_path / "run/operation",
                     output=tmp_path / "recovered", run_id="recovered", allow_network=True, transport=transport)
-    assert len(resumed) == 4
-    assert verify_run(tmp_path / "recovered")["observed_network_calls"] == 4
+    assert len(resumed) == remaining_calls
+    assert verify_run(tmp_path / "recovered")["observed_network_calls"] == remaining_calls
+    records = [json.loads(p.read_text()) for p in (tmp_path / "recovered/raw").glob("policy_*.json")]
+    failed = [attempt for record in records
+              for attempt in (record.get("backend_trace") or {}).get("attempts", [])
+              if attempt["provider"] == "openai"]
+    assert len(failed) == 4 * primary_calls
+    assert {attempt["error_class"] for attempt in failed} == {type(disconnect).__name__}
 
 
 @pytest.mark.parametrize("provider,fault", [

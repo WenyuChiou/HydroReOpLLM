@@ -35,7 +35,7 @@ FIGURE_DOWNLOADS.update({
         "daily_chart_data.csv", "daily_run_range.csv", "daily_target_reference.csv",
         "hourly_chart_data.csv", "table3_daily_simulation_performance.png",
         "table3_daily_simulation_performance.pdf", "table3_summary.csv",
-        "table3_metrics_per_seed.csv", "provenance.json",
+        "table3_metrics_per_seed.csv", "table3_daily_kge_rmse.csv", "provenance.json",
     )
 })
 MAP_DOWNLOADS = {

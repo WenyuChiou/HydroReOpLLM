@@ -1,9 +1,9 @@
 # F.E. Walter Reservoir research example
 
-The optional [MOSART-Urban rule](../rules/mosart_urban/README.md) is selected by
-`coupled/experiment.mosart.yaml` or `operation/experiment.mosart.yaml`.
-Its separate physical profile removes the extra minimum-release/protected-storage
-overrides so the original rule can be reproduced.
+Start with the [MOSART-Urban paper baseline](operation/README.md#paper-baseline-with-mosart-urban)
+and [Table 3 results](../../docs/results/fe_walter/completed/README.md#daily-performance-against-observations).
+The separate baseline profile reproduces the [MOSART-Urban rule](../rules/mosart_urban/README.md)
+with extra minimum-release and protected-storage overrides set to zero.
 
 [English](README.md) | [繁體中文](README.zh-TW.md)
 
