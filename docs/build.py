@@ -119,11 +119,6 @@ TUTORIAL_DOWNLOADS.update({
         "outputs/downstream_streamflow.png", "outputs/downstream_streamflow.svg", "outputs/downstream_streamflow.pdf",
     )
 })
-# These are preparation records, not executable or calibrated basin inputs.
-BETHLEHEM_DOWNLOADS = {
-    f"examples/fe_walter_bethlehem/{name}": name
-    for name in ("preparation.json", "ratings_inventory.csv", "data_requirements.csv")
-}
 DAILY_DOWNLOADS = {
     "examples/daily_offline/" + name: "daily-offline/" + name
     for name in ("single.yaml", "single.json", "cascade.yaml", "cascade.json", "operator.txt")
@@ -192,9 +187,6 @@ PAGES = {
     "README.zh-TW.md": "repository.zh-TW.md",
     "examples/fe_walter/README.md": "examples/fe_walter/README.md",
     "examples/fe_walter/README.zh-TW.md": "examples/fe_walter/README.zh-TW.md",
-    "examples/fe_walter_bethlehem/README.md": "examples/fe_walter_bethlehem/README.md",
-    "examples/fe_walter_bethlehem/README.zh-TW.md": "examples/fe_walter_bethlehem/README.zh-TW.md",
-    "examples/fe_walter_bethlehem/usgs_data_request.md": "examples/fe_walter_bethlehem/usgs_data_request.md",
     "examples/fe_walter/operation/README.md": "examples/fe_walter/operation/README.md",
     "docs/results/fe_walter/completed/README.md": "docs/results/fe_walter/completed/README.md",
     "examples/fe_walter/operation/README.zh-TW.md": "examples/fe_walter/operation/README.zh-TW.md",
@@ -287,10 +279,6 @@ def prepare(source: Path, *, source_ref: str = "main") -> None:
             elif not match[1].startswith("!") and relative in TUTORIAL_DOWNLOADS:
                 import os
                 output = source / "_tutorial_downloads" / TUTORIAL_DOWNLOADS[relative]
-                value = Path(os.path.relpath(output, (source / destination).parent)).as_posix()
-            elif not match[1].startswith("!") and relative in BETHLEHEM_DOWNLOADS:
-                import os
-                output = source / "_bethlehem_downloads" / BETHLEHEM_DOWNLOADS[relative]
                 value = Path(os.path.relpath(output, (source / destination).parent)).as_posix()
             elif not match[1].startswith("!") and relative in DAILY_DOWNLOADS:
                 import os
@@ -428,11 +416,6 @@ def prepare(source: Path, *, source_ref: str = "main") -> None:
         canonical = source / relative
         canonical.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(ROOT / relative, canonical)
-    # Preparation files have their own namespace; accepted teaching stays fixed.
-    bethlehem_downloads = source / "_bethlehem_downloads"
-    bethlehem_downloads.mkdir()
-    for relative, name in BETHLEHEM_DOWNLOADS.items():
-        shutil.copyfile(ROOT / relative, bethlehem_downloads / name)
     for relative, name in DOWNSTREAM_DOWNLOADS.items():
         download = source / "_downstream_downloads" / name
         download.parent.mkdir(parents=True, exist_ok=True)
