@@ -315,12 +315,6 @@ examples/fe_walter/results.zh-TW.md
 examples/fe_walter/results_history.md
 examples/fe_walter/results_history.zh-TW.md
 examples/fe_walter/seasonal_pool_criteria.json
-examples/fe_walter_bethlehem/README.md
-examples/fe_walter_bethlehem/README.zh-TW.md
-examples/fe_walter_bethlehem/data_requirements.csv
-examples/fe_walter_bethlehem/preparation.json
-examples/fe_walter_bethlehem/ratings_inventory.csv
-examples/fe_walter_bethlehem/usgs_data_request.md
 examples/llm_reservoir_abm.py
 examples/multiple_reservoirs/README.md
 examples/multiple_reservoirs/agents.llm.yaml

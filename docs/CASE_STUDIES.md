@@ -49,19 +49,3 @@ The [site and data guide](../examples/fe_walter/README.md) describes the reservo
 and observations. The [notebook guide](../examples/fe_walter/notebook.md) links
 the optional executable notebooks and downloads. You can download the settings
 and view the plots within this manual; repository sources are supplementary.
-
-## Prepare a separate downstream extension
-
-The [F.E. Walter to Bethlehem preparation example](../examples/fe_walter_bethlehem/README.md)
-keeps FEW as the only controlled reservoir and observed flow below Beltzville as
-a common external boundary. It inventories historical ratings, distinguishes
-Bethlehem stage from published discharge, and orders the new C&V work. This is
-preparation material; a calibrated downstream simulation is not yet supplied.
-
-```{toctree}
-:hidden:
-
-../examples/fe_walter_bethlehem/README
-../examples/fe_walter_bethlehem/README.zh-TW
-../examples/fe_walter_bethlehem/usgs_data_request
-```

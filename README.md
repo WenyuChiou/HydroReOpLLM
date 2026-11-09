@@ -78,11 +78,9 @@ for the remaining logs. Use a new run name and output path for another experimen
 | [Multiple reservoirs](examples/multiple_reservoirs/README.md) | Weather-driven hydrology and independent reservoir operators | Rule-based default; an optional LLM configuration |
 | [Time scales](examples/time_scales/README.md) | Daily, Hourly and explicit interval settings | Small configurations with non-LLM operators |
 | [F.E. Walter](examples/fe_walter/README.md) | A worked research case with Rule-based and LLM methods | Choose prepared 2021–2025 inflows or the 2016 weather-driven setup in the [case guide](https://wenyuchiou.github.io/HydroReOpLLM/docs/CASE_STUDIES.html) |
-| [F.E. Walter to Bethlehem](examples/fe_walter_bethlehem/README.md) | A separate downstream-stage preparation example | Historical ratings, station conventions and C&V requirements; simulation not yet available |
 
 See the [example directory](examples/README.md) and [Notebook walkthroughs](tutorials/README.md).
-`examples/` contains runnable studies and explicitly marked preparation examples;
-`templates/` contains starting configurations.
+`examples/` contains runnable studies; `templates/` contains starting configurations.
 
 ## Configure your own study
 
