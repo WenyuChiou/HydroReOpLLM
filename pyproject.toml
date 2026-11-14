@@ -6,6 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "hydroreopllm"
 version = "0.1.0"
 description = "HydroReOpLLM: configurable reservoir operations coupled with HydroCNHS"
+readme = "README.md"
 requires-python = ">=3.12"
 dependencies = ["joblib", "matplotlib", "numpy", "pandas", "ruamel.yaml", "scipy", "scikit-learn", "tqdm", "PyYAML>=6", "deap"]
 

@@ -87,9 +87,9 @@ HydroReOpLLM 提供本機 JSON 選取範例，沒有內建向量資料庫 connec
 - Ollama Chat；
 - OpenAI-compatible Chat Completions。
 
-回覆 adapter 要求各 provider 對應的完成證據，
-並拒絕拒答、截斷、缺少完成狀態或格式錯誤的輸出。
-檢查後的提案通常如下：
+回覆 adapter 會拒絕拒答、截斷、明確的異常完成標記與格式錯誤的輸出。
+完全沒有完成標記的回覆，五種 provider 都會接受；只有 prompt 使用 `$information`
+時才要求完成標記。檢查後的提案通常如下：
 
 ```json
 {"schema_version":"reservoir-action.v1","release_cms":5.0}

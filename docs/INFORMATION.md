@@ -4,11 +4,29 @@
 
 Decision information is optional typed data selected for an operator at decision
 time, such as a published forecast or operating target. A profile exposes only
-named fields and enforces causal availability. It does not change the physical
-river network, inflow, storage, or release limits.
+named fields. Causal availability is enforced for information sources and
+history; the current step's own inflow is the stated exception described in
+[Timing of the current inflow](#timing-of-the-current-inflow). A profile does not
+change the physical river network, inflow, storage, or release limits.
 
 Download [information.yaml](../templates/coupled/information.yaml) or browse the
 [complete template folder](TEMPLATES.md).
+
+## Timing of the current inflow
+
+At each Daily step, every decision gets that step's own interval-mean inflow:
+the local inflow plus the routed upstream inflow that arrives in that step. This
+holds for LLM, Rule-based and MOSART/Hanasaki operators alike. Beginning storage
+is the state before that step's release. History fields contain only completed
+steps, and other reservoirs' values come only from completed steps.
+
+The Daily decision clock is 00:00 UTC of the step's date. An external
+observation or forecast is used only if its `available_at` is at or before that
+instant.
+
+Results therefore assume that the operator knows the current day's mean inflow.
+A study that needs a strictly previous-day information set has no built-in
+setting for it and must design its own.
 
 ## Add an observed station series
 

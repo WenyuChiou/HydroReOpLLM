@@ -15,6 +15,12 @@ operation output directory specified by that experiment.
 **Controlled release** passes through the outlet. **Spill** is calculated
 separately. Routing receives their sum. Requested release may differ from actual
 controlled release when available water or physical limits constrain the request.
+A requested value above a limit is clipped by the physics and flagged in the
+`adjustments` column of `reservoir_trajectory.csv`; it is not an error.
+
+`reservoir_trajectory.csv` writes `date` as a timestamp (`2020-02-28T00:00:00`),
+while `network_flows.csv` writes it as a plain date (`2020-02-28`). Normalise
+both columns to one form before joining the two files.
 
 Convert storage to elevation with your reservoir's storage–elevation curve.
 Label figure units: FE Walter displays use feet for elevation and cfs for flow,
@@ -31,11 +37,19 @@ Check complete dates, water balance and the intended initial state and parameter
 before comparing operators. Verification establishes record consistency, not
 whether the operator meets seasonal or flood-management goals.
 
+Auditors are separate. An auditor FAIL or WARN is diagnostic: it does not change
+the run status, the exit code or the PASS from `verify`, so read `audit.jsonl`
+as well. If an agent uses backup model profiles, also
+[count which profile served each decision](RECORDS.md#count-which-model-profile-served-each-decision):
+a run that fell back to a backup model still ends COMPLETED and verifies.
+
 ## Explain a decision
 
 Match a change in the trajectory to its decision ID. Read the rendered prompt,
 raw reply, requested release, physical result and operation audit together.
-[Decision records](RECORDS.md) explains the fields, runtime and token logs.
+[Decision records](RECORDS.md) explains the fields and how to
+[count tokens, requests and runtime](RECORDS.md#count-tokens-requests-and-runtime)
+from the per-request records.
 
 For each reservoir, compare elevation and release first; use downstream flow to
 see the routed outcome. Keep individual runs available when displaying a median

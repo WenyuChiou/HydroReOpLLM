@@ -11,11 +11,13 @@
 4. [水文](HYDROLOGY_SETUP.md)：提供原生模型與氣象資料。
 5. [水庫與河網](BUILD_SIMULATION.zh-TW.md)：連接入流、蓄水與下游。
 6. [Agents 與 LLM](CONFIGURATION.md)：選擇規則或 LLM，再設定 prompt 與資訊。
-7. [檢查與執行](RUNNING.md)：驗證設定、準備入流、執行與查核。
-8. [案例](CASE_STUDIES.md)：依完整研究範例操作。
-9. [結果](RESULTS_GUIDE.md)：區分建議放流、實際放流、溢流與水位。
-10. [問題排查](TROUBLESHOOTING.md)：診斷無效或未完成結果。
-11. [API 文件](API_REFERENCE.md)：查詢設定對應的函數。
+7. [決策資訊](INFORMATION.zh-TW.md)：為 prompt 選擇額外的觀測、預報或目標。
+8. [檢查與執行](RUNNING.md)：驗證設定、準備入流、執行與查核。
+9. [案例](CASE_STUDIES.md)：依完整研究範例操作。
+10. [結果](RESULTS_GUIDE.md)：區分建議放流、實際放流、溢流與水位。
+11. [問題排查](TROUBLESHOOTING.md)：診斷無效或未完成結果。
+
+撰寫自訂 extension 時可查閱 [API 文件](API_REFERENCE.md)；設定檔流程不需要它。
 
 [模板清單](TEMPLATES.md)集中列出通用設定。相對路徑以宣告它的檔案為起點。
 Profile 是一組具名設定，例如某個模型設定；共用 profile 不會共用水庫狀態與歷史。

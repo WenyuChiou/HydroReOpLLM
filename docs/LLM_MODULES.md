@@ -91,9 +91,10 @@ shapes:
 - Ollama Chat; and
 - OpenAI-compatible Chat Completions.
 
-The response adapter requires provider-specific completion evidence and rejects
-refusal, truncation, missing completion status and malformed output. The checked
-proposal is normally:
+The response adapter rejects refusal, truncation, an explicit abnormal completion
+marker and malformed output. A reply with no completion marker at all is
+accepted for all five providers; the marker is required only when the prompt uses
+`$information`. The checked proposal is normally:
 
 ```json
 {"schema_version":"reservoir-action.v1","release_cms":5.0}

@@ -25,3 +25,6 @@ the native hydrology model and forcing are external inputs you must supply.
 
 The template YAML parses before replacement so editors can lint it. Runtime
 validation deliberately rejects unresolved physical and date placeholders.
+
+If you already have local inflow series and no HydroCNHS model, start from the
+prepared-inflow template instead; see [Prepared inflows](PREPARED_INFLOWS.md).

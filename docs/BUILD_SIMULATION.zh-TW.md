@@ -17,7 +17,7 @@
 | `schema_version` | 選擇物理案例格式 | 必填 | 保留 `reservoir-physical-case.v1` |
 | `data_kind` | 宣告局部入流來源 | 必填 | 原生水文使用 `simulated_local_inflow` |
 | `network.schema_version` | 選擇有向網路格式 | 必填 | 保留 `llm-reservoir-network.v2` |
-| `network.start_date` | 第一個操作日 | 必填 | 與 `experiment.start_date` 相同 |
+| `network.start_date` | 第一個操作日 | 必填 | 保持與 `experiment.start_date` 相同；見下方起始日說明 |
 | `reservoirs.<id>` | 穩定的網路水庫 ID | 必填 | 使用者定義且不可重複 |
 | `inflow_node` | 供應水庫局部入流的節點 | 必填 | `hydrology.inflow_bindings` 的 key |
 | `physical.reservoir_id` | 物理紀錄識別碼 | 必填 | 使用者的穩定識別碼 |
@@ -28,8 +28,17 @@
 | `maximum_release_cms` | 最大控制放流，m³/s | 必填 | 不小於最小值 |
 | `dt_seconds` | 決策間隔，秒 | 必填 | 每日輸入使用 `86400` |
 | `connections` | 有向水流路徑 | 視網路需要 | source、target 與因果單位歷線 |
-| `unit_hydrograph` | 各延遲步的 routing 權重 | 每條連線必填 | 非負且總和為一 |
+| `unit_hydrograph` | 各延遲步的 routing 權重（以步數計） | 每條連線選填；缺少時視為 `[1.0]` | 非空、非負且總和為一的列表 |
 | `outlets` | 網路末端節點 | 必填 | 包含所有末端節點 |
+
+**單位歷線。**每個權重是連線出流中，延遲相應步數後抵達的比例；索引 0 是與放流
+同一步。省略 `unit_hydrograph` 時，預設 `[1.0]` 表示全部出流在離開水庫的同一步
+送到下游。延遲一步請寫 `[0.0, 1.0]`。
+
+**起始日與蓄水量。**實驗的 `start_date` 與 `end_date` 可以選入流紀錄中的任何子區間。
+案例的 `initial_storage_m3` 是第一個操作日開始時的蓄水量，與該日期是哪一天無關。
+更早的日子不會被模擬，若日期與你預期的初始蓄水日期不同，也不會有警告。
+耦合執行時，操作案例的 `network.start_date` 取自 `experiment.start_date`。
 
 各檔案以節點 ID 連接。`inflow_node` 指定水庫的局部水流邊界；connection
 把實際水庫出流與溢流送往下游節點。串聯水庫的下游局部 binding 只能含

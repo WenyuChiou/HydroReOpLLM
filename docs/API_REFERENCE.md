@@ -5,6 +5,21 @@ when configuring a study. This reference explains the selected Python interfaces
 behind the CLI and the contracts needed to add a rule, parser or context source.
 The [code structure](CODE_STRUCTURE.md) maps the remaining implementation modules.
 
+## Public interface and stability
+
+These levels describe the intended compatibility for the 0.1.x releases. They
+become a commitment with the first tagged release.
+
+| Level | What it covers |
+|---|---|
+| Intended stable in 0.1.x | The YAML and JSON `schema_version` formats documented in this manual (for example `hydroops-coupled-simulation.v2`, `reservoir-physical-case.v1`, `llm-reservoir-network.v2`); the names exported in `llm_reservoir_agent.__all__`; the `reservoir-experiment` commands (`check`, `prepare`, `run`, `verify`, `resume`); and the rule-extension hooks `validate_backend` and `build_backend`. |
+| Experimental | The Hourly and interval modules (network `v3`, hourly GWLF, interval weather), and the response and auditor extension hooks (`parse_response`, `validate_response_configuration`, `validate_auditor`, `build_auditor`). They can change in a 0.1.x release. |
+| Case implementations | Everything under `examples/`, including the F.E. Walter extension. These are examples of a study, not a package interface. |
+
+`llm_reservoir_agent.__version__` holds the installed package version.
+`reservoir-experiment` and `python -m llm_reservoir_agent.workflow` run the same
+command line.
+
 Use the [HydroCNHS documentation](https://cylin928.github.io/HydroCNHS/index.html)
 for native model building, rainfall–runoff, routing, calibration and data collection.
 The added package does not replace those APIs.
@@ -147,10 +162,16 @@ class ExampleController:
     network_calls = 0
 
     def decide(self, observation):
-        return ReservoirAction(release_cms=min(5.0, observation.release_upper_bound_cms))
+        # observation is a mapping, not an object: ReservoirObservation.to_dict().
+        return ReservoirAction(release_cms=min(5.0, observation["release_upper_bound_cms"]))
 ```
 
-This illustrates the return contract only. Supply the extension hooks, settings
+`decide` receives a detached mapping with the keys `schema_version`, `timestep`,
+`timestamp`, `inflow_cms`, `release_upper_bound_cms`, `state` and `context`
+(`state["storage_m3"]` is the beginning storage). Reading an attribute such as
+`observation.release_upper_bound_cms` raises `AttributeError`. The working
+[template rule](../templates/coupled/extensions/user_registered_rule/__init__.py)
+shows the full set of hooks. This illustrates the return contract only. Supply the extension hooks, settings
 validation and scientific rule required by the study before using it.
 The generic `rule_based.RuleBasedBackend` records rule provenance and delegates
 decisions. Physics/routing remain shared. The [Hanasaki example](../examples/rules/hanasaki/__init__.py)
@@ -168,8 +189,9 @@ It is an example implementation, not the generic algorithm definition.
 | `experiment.record_provider_attempt(path, value)` | Durable attempt evidence. Write/flush failure raises `ProviderEvidenceError`. Normally called by the experiment runner. |
 | `recovery.py` | Verify and reconstruct a committed prefix through the `resume` CLI. |
 
-Use [auditor plugins](auditor_plugins.md) for custom check hooks and
-[provider settings](MODEL_PROVIDERS.md) for supported profile fields.
+Use [auditor plugins](auditor_plugins.md) for custom check hooks, including the
+[custom response fields and checks](auditor_plugins.md#custom-response-fields-and-checks)
+hooks, and [provider settings](MODEL_PROVIDERS.md) for supported profile fields.
 Secrets belong in the selected environment variables, not settings or raw logs.
 
 ## Physical calculation and verification

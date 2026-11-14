@@ -542,3 +542,7 @@ def main(argv=None):
                               run_id=args.run_id or args.output.name, project_root=root)
     print(json.dumps(result, ensure_ascii=False, allow_nan=False, indent=2))
     return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

@@ -25,6 +25,10 @@
         "label": "Hydrology"
       },
       {
+        "path": "docs/PREPARED_INFLOWS",
+        "label": "Prepared inflows"
+      },
+      {
         "path": "docs/BUILD_SIMULATION",
         "label": "Reservoirs and network"
       },
@@ -162,28 +166,12 @@
         "label": "Replaceable reservoir auditors"
       },
       {
-        "path": "docs/PROJECT_INVENTORY",
-        "label": "HydroReOpLLM project inventory"
-      },
-      {
-        "path": "docs/BUILDING",
-        "label": "Publish or build the HTML manual"
-      },
-      {
         "path": "docs/DAILY_WORKFLOW",
         "label": "Daily simulation workflow"
       },
       {
-        "path": "docs/MODULE_INVENTORY",
-        "label": "Owned Python module inventory"
-      },
-      {
         "path": "docs/VARIABLES_AND_UNITS",
         "label": "Variables, phases and units"
-      },
-      {
-        "path": "docs/DAILY_QA",
-        "label": "Daily offline verification"
       },
       {
         "path": "docs/TIME_SCALES",
@@ -236,6 +224,28 @@
       {
         "path": "repository",
         "label": "Repository README"
+      }
+    ]
+  },
+  {
+    "title": "Development and QA",
+    "reference": true,
+    "pages": [
+      {
+        "path": "docs/PROJECT_INVENTORY",
+        "label": "HydroReOpLLM project inventory"
+      },
+      {
+        "path": "docs/BUILDING",
+        "label": "Publish or build the HTML manual"
+      },
+      {
+        "path": "docs/MODULE_INVENTORY",
+        "label": "Owned Python module inventory"
+      },
+      {
+        "path": "docs/DAILY_QA",
+        "label": "Daily offline verification"
       }
     ]
   },

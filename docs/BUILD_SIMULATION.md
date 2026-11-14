@@ -18,7 +18,7 @@ Download [reservoirs.yaml](../templates/coupled/reservoirs.yaml) or browse the
 | `schema_version` | Selects the physical case format | Required | Keep `reservoir-physical-case.v1` |
 | `data_kind` | Declares the origin of local inflow | Required | Use `simulated_local_inflow` for native hydrology |
 | `network.schema_version` | Selects directed network format | Required | Keep `llm-reservoir-network.v2` |
-| `network.start_date` | First operation day | Required | Match `experiment.start_date` |
+| `network.start_date` | First operation day | Required | Keep equal to `experiment.start_date`; see the start date note below |
 | `reservoirs.<id>` | Stable network reservoir ID | Required | User-defined unique key |
 | `inflow_node` | Node supplying local reservoir inflow | Required | Key from `hydrology.inflow_bindings` |
 | `physical.reservoir_id` | Physical record identifier | Required | Stable user identifier |
@@ -29,8 +29,21 @@ Download [reservoirs.yaml](../templates/coupled/reservoirs.yaml) or browse the
 | `maximum_release_cms` | Upper controlled release limit, m³/s | Required | At least the minimum |
 | `dt_seconds` | Decision interval, seconds | Required | `86400` for daily inputs |
 | `connections` | Directed routed water paths | Required as needed | Source, target, and causal unit hydrograph |
-| `unit_hydrograph` | Routing weights by lag | Required per connection | Nonnegative user values summing to one |
+| `unit_hydrograph` | Routing weights by lag, in steps | Optional per connection; a missing field means `[1.0]` | Nonnegative non-empty list summing to one |
 | `outlets` | Terminal network nodes | Required | Include every terminal node |
+
+**Unit hydrograph.** Each weight is the share of a connection's outflow that
+arrives that many steps later; index 0 is the same step as the release. If you
+omit `unit_hydrograph`, the default `[1.0]` delivers the whole outflow
+downstream in the step it leaves the reservoir. Write `[0.0, 1.0]` for a delay
+of one step.
+
+**Start date and storage.** The experiment's `start_date` and `end_date` may
+select any sub-range of the inflow record. The case's `initial_storage_m3` is the
+storage at the start of the first operated day, whatever its date. Days before
+that day are not simulated, and no warning is given if the date differs from
+the one you had in mind for the initial storage. In a coupled run, the
+operation case takes its `network.start_date` from `experiment.start_date`.
 
 Node IDs connect files. `inflow_node` identifies the local water boundary for a
 reservoir. A connection moves implemented reservoir outflow, including spill,

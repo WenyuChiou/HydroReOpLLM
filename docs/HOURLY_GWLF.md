@@ -98,7 +98,7 @@ instead of silently reinterpreting the state. The caller must not skip, overlap
 or reorder forcing blocks. Whole-block forcing and state validation occurs
 before any diagnostics are appended.
 
-Every interval audits, in m³:
+Every interval records this water balance, in m³:
 
     initial U+S+B+snow + precipitation
       = final U+S+B+snow + streamflow + actual ET + deep seepage loss.
@@ -106,6 +106,12 @@ Every interval audits, in m³:
 Internal percolation, snowmelt and shallow-to-deep recharge are transfers and
 are not counted twice as external inputs or losses. Tiny CN-increment floating
 point caps are exposed as `runoff_roundoff_adjustment_cm` in diagnostics.
+
+The residual of this balance is saved as `mass_balance_residual_m3` in the
+hourly diagnostics, and the interval catchment routing records its own residual
+(`residual_m3`). Neither is checked against a tolerance: the run stops only when
+a value is non-finite (or, for the GWLF stores, negative). Read the residuals
+yourself when you rely on a run.
 
 ## What is ready and what remains
 
@@ -122,7 +128,7 @@ Run the deterministic engineering demonstration from the repository root:
 
 ```powershell
 $env:PYTHONPATH = (Join-Path (Get-Location) 'src')
-python -X utf8 examples/hydrology/hourly_gwlf_smoke.py --output <new-folder>
+python -X utf8 examples/time_scales/hourly_gwlf_smoke.py --output <new-folder>
 ```
 
 It writes synthetic forcing, runoff, balances, restart state and a reproducible

@@ -20,6 +20,12 @@ appropriate interval inputs and routing before using it for a scientific case.
 The supplied-data path performs no resampling, forecast generation or download.
 Its metadata identifies the engine as `fixed_step_reservoir_network`.
 
+Daily is the main workflow that the tests and the F.E. Walter case exercise. For Hourly and explicit intervals, the
+shipped configurations in `examples/time_scales` use offline (non-LLM) operators
+and pass `check`; tests exercise fixed-interval operation and Hourly YAML
+bundles. No LLM-operated Hourly experiment and no calibrated Hourly basin is
+part of the evidence. Treat these paths as engineering demonstrations.
+
 ## Define the clock
 
 An interval network uses `outlets`, `start_time` and `dt_seconds`:
@@ -128,8 +134,8 @@ semantics explicitly before declaring support.
 From the repository root, after installing the package:
 
 ```console
-reservoir-experiment check examples/fixed_interval/experiment.yaml
-reservoir-experiment run examples/fixed_interval/experiment.yaml
+reservoir-experiment check examples/time_scales/fixed_interval.yaml
+reservoir-experiment run examples/time_scales/fixed_interval.yaml
 reservoir-experiment verify runs/fixed-interval-offline --require-offline
 ```
 

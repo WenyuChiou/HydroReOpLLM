@@ -1,4 +1,8 @@
 include scripts/package_build.py
 include scripts/verify_mosart_rule.py
+include README.zh-TW.md
+include THIRD_PARTY_NOTICES.md
+include licenses/*
+include environment/requirements-bundled.txt
 # The full test suite and its fixtures live in the repository.
 prune tests

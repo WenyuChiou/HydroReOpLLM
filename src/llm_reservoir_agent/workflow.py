@@ -552,6 +552,18 @@ def load_settings(path, *, runtime_root=PROJECT_ROOT, information_providers=None
     return ExperimentSettings(path, json_snapshot(data), network, rows, agents, files, report, catalog, outcome_checks)
 
 
+def _live_gate_message(prefix, allow_network, report):
+    """Name each unmet condition of the live-request gate (permission and case readiness)."""
+    problems = []
+    if not allow_network:
+        problems.append("--allow-network was not given")
+    if not report["live_ready"]:
+        problems.append(
+            'the case is not live-ready: set "live_readiness": {"ready": true} in the physical case file '
+            f'(data_kind is {report.get("data_kind")!r}; only a synthetic_fixture case is ready without it)')
+    return f"{prefix} makes {report['planned_llm_calls']} model request(s) but " + " and ".join(problems)
+
+
 def run_settings(settings, *, allow_network=False, runtime_root=PROJECT_ROOT, transport=None, information_providers=None,
                  recovery=None, output=None, run_id=None):
     """Reload a checked plan, construct isolated backends and run native physics.
@@ -606,7 +618,7 @@ def run_settings(settings, *, allow_network=False, runtime_root=PROJECT_ROOT, tr
     if Path(plan["output"]).exists():
         raise FileExistsError("output already exists; choose a new run_id/output, never overwrite or implicitly resume")
     if plan["planned_llm_calls"] and (not allow_network or not plan["live_ready"]):
-        raise ValueError("LLM run requires --allow-network, max_calls, and a live-ready case (synthetic cases are diagnostic only)")
+        raise ValueError(_live_gate_message("LLM run", allow_network, plan))
     # Shared cumulative provider attempts include inherited crash-time STARTED reservations.
     attempts = recovery.prior_network_calls if recovery is not None else 0
     def transport_for(reservoir_id, agent_id):
@@ -859,3 +871,7 @@ def main(argv=None):
                 _, result = run_settings(settings, allow_network=args.allow_network)
     print(json.dumps(result, ensure_ascii=False, allow_nan=False, indent=2))
     return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

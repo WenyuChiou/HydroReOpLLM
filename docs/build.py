@@ -222,7 +222,7 @@ PAGES = {
         "CONFIGURATION.md", "MODEL_PROVIDERS.md", "MULTI_RESERVOIR.md", "INPUT_OUTPUT.md", "API_REFERENCE.md",
         "GLOBAL_SETTINGS.md", "TEMPLATES.md", "CASE_STUDIES.md",
         "PARAMETER_REFERENCE.md", "RESULTS_GUIDE.md", "REFERENCE.md", "RUNNING.md", "CODE_STRUCTURE.md", "WEATHER_INPUTS.md",
-        "TROUBLESHOOTING.md", "RECORDS.md",
+        "TROUBLESHOOTING.md", "RECORDS.md", "PREPARED_INFLOWS.md",
     )},
 }
 # Match the inner image in a linked badge before its enclosing Markdown link.

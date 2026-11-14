@@ -6,10 +6,12 @@ Open the [F.E. Walter notebook tutorial](main.ipynb). Follow one route: experime
 hydrology → reservoir/network → agent method → prompt or retrieved knowledge →
 saved 2016 results.
 
-| Notebook | Purpose |
-|---|---|
-| [Main](main.ipynb) | Read each complete configuration, check the three decision methods, then inspect saved annual results. |
-| [Downstream validation](downstream_validation.ipynb) | Prepare the White Haven–Lehighton observation-boundary test, check inputs, and follow the separate calibration and validation stages. |
+| Notebook | Purpose | Data and model service |
+|---|---|---|
+| [Main](main.ipynb) | Read each complete configuration, check the three decision methods, then inspect saved annual results. | Committed saved results only; no model service. |
+| [Operation](operation.ipynb) | Calculate F.E. Walter inflow from weather, operate with the Hanasaki rule for 2021–2025 and compare with observations. | Weather, calibrated model and observations are in the repository; all computation is local and no model service is needed. |
+| [Advanced](advanced.ipynb) | Read the generic `examples/multiple_reservoirs` configuration: IDs, topology, method mixing and state separation. | Reads the files in `examples/multiple_reservoirs`; runs no simulation and needs no model service. |
+| [Downstream validation](downstream_validation.ipynb) | Prepare the White Haven–Lehighton observation-boundary test, check inputs, and follow the separate calibration and validation stages. | Checks inputs by default; downloads, native runs and calibration each need an explicit switch; no model service. |
 
 The main notebook reads committed evidence only. Its default path makes no model
 request, download, hydrology run, or reservoir simulation.
@@ -40,6 +42,13 @@ This command executes only the main notebook from existing files. It preserves
 the accepted CSV, figure exports and advanced notebook. To refresh all notebooks
 and figure exports from saved data, omit `--notebook`. The saved trajectories retain
 the prompts recorded by their source runs, before daily seasonal context was added.
+
+CI runs `python tutorials/build_notebooks.py --execute --check`. That regenerates
+and executes `main.ipynb` and `advanced.ipynb` in-process, from saved evidence
+with network access blocked. `operation.ipynb` keeps its saved outputs unless you
+select it (`--notebook operation.ipynb --execute`), and
+`downstream_validation.ipynb` is not built by this script. Both run only on
+request.
 
 [Generic configuration](../docs/INPUT_OUTPUT.md) ·
 [HydroCNHS setup](../docs/HYDROLOGY_SETUP.md) ·

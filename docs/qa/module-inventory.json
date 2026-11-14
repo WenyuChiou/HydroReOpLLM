@@ -10,7 +10,7 @@
   "modules": [
     {
       "path": "src/llm_reservoir_agent/__init__.py",
-      "sha256": "ad7663a2d54ef6901d24d595bc13ca7d5116d646b1d722793840136c02d63e52",
+      "sha256": "0628e6928359de873ec79086ca107848408f5ff001d64bbd9a512842d615c83c",
       "baseline_sha256": "f0f801e5239f9d0f2055a0dd852bf9b4c15396f47c412581fd29cea116a5ac4d",
       "purpose": "Public package imports",
       "inputs": "Python imports",
@@ -3087,7 +3087,7 @@
         "run_coupled"
       ],
       "path": "src/llm_reservoir_agent/coupled.py",
-      "sha256": "fafbba7446ec1f0be51abf4602200fc9c1e15a3b08282b57f591f47793c7c8b5",
+      "sha256": "df396058bd541cfd1ba9d328e56f9e61852360386dd9866f91f16163b731ddec",
       "baseline_sha256": "e278bd39bc0211564457a908d107e269951361f4dbabe9238ec3b56fdd923feb",
       "dependencies": [
         ".audit",
@@ -3406,7 +3406,7 @@
     },
     {
       "path": "src/llm_reservoir_agent/experiment.py",
-      "sha256": "31bd806ab9bac5c7aee08faea228e2fc7f4b591b2cccf8ffc41772fb8ac83b0d",
+      "sha256": "aea2a6c26696d5f7bc0c6d8aad28d20700a1a8666713d7a3194984cad07cb815",
       "baseline_sha256": "35db7b23c41af7680b2f19afbae904113eef121c37d2171424bda9835d867c7c",
       "purpose": "Orchestrate daily native or explicit interval network execution and durable run evidence.",
       "inputs": "Network, local inflow rows, isolated decision backends",
@@ -9042,7 +9042,7 @@
     },
     {
       "path": "src/llm_reservoir_agent/workflow.py",
-      "sha256": "e66281a57c72e8f8325bc6ea8cab519a0778b40f2a9676ae1214a0034ca89292",
+      "sha256": "17ab56426e210416b5040be6f54265400da6f5632c64a9e116c599ac9c6cd81f",
       "baseline_sha256": "ef64447199938f79845a088118ff20170d1da19f3b48fe868ceb40192df79ece",
       "purpose": "YAML validation, bounded execution, cached verification and CLI routing",
       "inputs": "Experiment YAML/sections, native case resources, declared providers/extensions",
@@ -9100,9 +9100,9 @@
           "UniqueLoader": 36,
           "ExperimentSettings": 132,
           "load_settings": 170,
-          "run_settings": 555,
-          "verify_settings_output": 719,
-          "main": 786
+          "run_settings": 567,
+          "verify_settings_output": 731,
+          "main": 798
         }
       },
       "entrypoints": [
