@@ -37,11 +37,25 @@ and replace its clearly marked `YOUR_...` values with your study settings.
 You do not need to run developer tests to use the model. `check` checks your
 study configuration; it does not make a model request or run a calibration.
 
+## Timing of the current inflow
+
+At each Daily step, every decision gets that step's own interval-mean inflow:
+the local inflow plus the routed upstream inflow that arrives in that step.
+This holds for LLM, Rule-based and MOSART/Hanasaki operators alike. Beginning
+storage is the state before that step's release. History fields and other
+reservoirs' values come only from completed steps. An external observation is
+used only if its `available_at` is at or before 00:00 UTC of the step's date.
+
+Results therefore assume that the operator knows the current day's mean inflow.
+A study that needs a strictly previous-day information set has no built-in
+setting for it and must design its own. See [Available information](INFORMATION.md#timing-of-the-current-inflow).
+
 ## Choose the input route
 
 Most new HydroCNHS studies use the **coupled** route. If you already have
-prepared local inflow series, use the prepared-inflow route instead. The files
-have different schemas; do not substitute one case file for the other.
+prepared local inflow series, use the [prepared-inflow route](PREPARED_INFLOWS.md)
+instead. The files have different schemas; do not substitute one case file for
+the other.
 
 | Route | Entry and inputs | Commands |
 |---|---|---|

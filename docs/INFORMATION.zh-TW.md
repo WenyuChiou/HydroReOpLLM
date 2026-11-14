@@ -3,11 +3,24 @@
 [English](INFORMATION.md) | [繁體中文](INFORMATION.zh-TW.md)
 
 決策資訊是在決策時間由 operator 明確選取的額外型別資料，例如已發布預報或
-操作目標。profile 只公開具名欄位並檢查時間因果性，不會改變水流網路、入流、
-蓄水或放流限制。
+操作目標。profile 只公開具名欄位。時間因果性的檢查適用於資訊來源與歷史資料；
+當步自己的入流是明確的例外，見[當步入流的時間假設](#當步入流的時間假設)。
+profile 不會改變水流網路、入流、蓄水或放流限制。
 
 下載 [information.yaml](../templates/coupled/information.yaml)，或瀏覽
 [完整模板資料夾](TEMPLATES.md)。
+
+## 當步入流的時間假設
+
+Daily 每一步中，每個決策拿到的都是該步自己的區間平均入流：局部入流加上該步抵達的
+上游 routing 入流。LLM、Rule-based 與 MOSART/Hanasaki 操作員都一樣。起始蓄水量是該步
+放流之前的狀態。歷史欄位只含已完成的步，其他水庫的數值也只來自已完成的步。
+
+Daily 的決策時鐘是該步日期的 00:00 UTC。外部觀測或預報只有在 `available_at` 不晚於
+該時刻時才會使用。
+
+因此結果假設操作員知道當天的平均入流。若研究需要嚴格只用前一天的資訊，套件沒有內建設定，
+必須自行設計。
 
 ```{literalinclude} ../templates/coupled/information.yaml
 :language: yaml

@@ -1,0 +1,52 @@
+{
+  "schema_version": "llm-reservoir-network-case.v1",
+  "data_kind": "synthetic_fixture",
+  "network": {
+    "schema_version": "llm-reservoir-network.v2",
+    "start_date": "2026-03-26",
+    "reservoirs": {
+      "upper": {
+        "inflow_node": "upper_local",
+        "physical": {
+          "reservoir_id": "upper",
+          "capacity_m3": 8000000.0,
+          "dead_storage_m3": 200000.0,
+          "initial_storage_m3": 3000000.0,
+          "minimum_release_cms": 0.0,
+          "maximum_release_cms": 20.0,
+          "dt_seconds": 86400.0
+        }
+      },
+      "lower": {
+        "inflow_node": "lower_local",
+        "physical": {
+          "reservoir_id": "lower",
+          "capacity_m3": 1000000.0,
+          "dead_storage_m3": 100000.0,
+          "initial_storage_m3": 800000.0,
+          "minimum_release_cms": 0.0,
+          "maximum_release_cms": 20.0,
+          "dt_seconds": 86400.0
+        }
+      }
+    },
+    "connections": [
+      {
+        "source": "upper",
+        "target": "lower_local",
+        "unit_hydrograph": [0.0, 0.7, 0.3]
+      },
+      {
+        "source": "lower",
+        "target": "outlet",
+        "unit_hydrograph": [1.0]
+      }
+    ],
+    "outlets": ["outlet"]
+  },
+  "inflow_source": {
+    "path": "inflows.csv",
+    "sha256": "ae4b83eb8ccd4918667f564e573a9cfdde64058ee28489516ddc7493200d7cac",
+    "format": "daily-node-local-cms.v1"
+  }
+}

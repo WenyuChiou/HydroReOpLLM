@@ -18,7 +18,7 @@ Download [experiment.yaml](../templates/coupled/experiment.yaml) or browse the
 | `output` | Destination directory | Required | Replace with an unused path |
 | `case` | Physical reservoir/network document | Required | Path to `reservoirs.yaml` or equivalent |
 | `start_date`, `end_date` | First and last operation day, inclusive | Required | Quoted `YYYY-MM-DD` inside the hydrology period |
-| `max_calls` | Total provider-attempt ceiling, including retries | Optional | Nonnegative integer or `null`; zero permits no provider attempts |
+| `max_calls` | Total provider-attempt ceiling, including retries, fallback-profile attempts and requests in flight when a run was interrupted | Optional | Integer at least the planned request count, or `null` for no cap; zero permits no provider attempts. A resumed run refuses any changed setting, including a larger value, so leave headroom from the start |
 | `hydrology.file` | Complete hydrology section | Required | Path relative to `experiment.yaml` |
 | `agents.file` | Complete operator section | Required | Select the Rule-based or LLM file |
 | `models.file` | Shared model profiles | Required for the template | Used only by LLM operators |

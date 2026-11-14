@@ -36,7 +36,6 @@ docs/DAILY_EXAMPLES.md
 docs/DAILY_QA.md
 docs/DAILY_WORKFLOW.md
 docs/FILE_INDEX.txt
-docs/FIRST_DECISION.md
 docs/GETTING_STARTED.md
 docs/GLOBAL_SETTINGS.md
 docs/GWLF_GROUNDWATER.md
@@ -52,6 +51,7 @@ docs/MODEL_PROVIDERS.md
 docs/MODULE_INVENTORY.md
 docs/MULTI_RESERVOIR.md
 docs/PARAMETER_REFERENCE.md
+docs/PREPARED_INFLOWS.md
 docs/PROJECT_INVENTORY.md
 docs/README.md
 docs/README.zh-TW.md
@@ -72,12 +72,6 @@ docs/_static/docs-badge-zh-TW.svg
 docs/_static/hydroopslm-social-preview.json
 docs/_static/hydroopslm-social-preview.png
 docs/_static/hydroopslm-social-preview.svg
-docs/_static/icons/SOURCES.json
-docs/_static/icons/language-model.png
-docs/_static/icons/prompt.png
-docs/_static/icons/records.png
-docs/_static/icons/reservoir.png
-docs/_static/icons/rule.png
 docs/_static/manual.css
 docs/_static/manual.js
 docs/_static/navigation.js
@@ -361,7 +355,6 @@ scripts/check_daily_install.py
 scripts/check_docs_site.py
 scripts/check_installed_runtime.py
 scripts/package_build.py
-scripts/plot_offline_network.py
 scripts/verify_mosart_rule.py
 scripts/verify_offline_run.py
 scripts/verify_results.py
@@ -444,6 +437,11 @@ templates/coupled/prompts/system.txt
 templates/coupled/reservoirs.yaml
 templates/legacy/README.md
 templates/legacy/prompts/operator.txt
+templates/prepared/README.md
+templates/prepared/case.json
+templates/prepared/experiment.yaml
+templates/prepared/inflows.csv
+templates/prepared/prompts/operator.txt
 tests/__init__.py
 tests/fixtures/README.md
 tests/fixtures/__init__.py
@@ -758,12 +756,14 @@ tests/test_operations.py
 tests/test_package_build.py
 tests/test_passive_and_balance.py
 tests/test_path_portability.py
+tests/test_prepared_template.py
 tests/test_prompt_context.py
 tests/test_prompt_review.py
 tests/test_provider_controls.py
 tests/test_provider_workflow.py
 tests/test_public_agent_configuration.py
 tests/test_public_examples.py
+tests/test_publication_entrypoints.py
 tests/test_python_support.py
 tests/test_reach_validation.py
 tests/test_reach_validation_case.py

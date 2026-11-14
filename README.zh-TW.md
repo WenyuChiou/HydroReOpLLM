@@ -13,6 +13,11 @@ HydroReOpLLM 是使用大型語言模型（LLM）研究水庫操作的 Python �
 水文模型提供入流，操作員提出放水要求；水庫物理計算套用限制、更新庫容與溢流，
 再把總出流 routing 到下游。每座水庫保留獨立的狀態與決策歷史。
 
+時間假設：Daily 每一步中，無論 LLM、Rule-based 或 MOSART/Hanasaki，每位操作員拿到的
+都是該步自己的平均入流。因此結果假設操作員知道當天的平均入流。若研究需要嚴格只用
+前一天的資訊，套件沒有內建設定，必須自行設計；見
+[決策資訊](docs/INFORMATION.zh-TW.md)。
+
 ## 提供的功能
 
 - **單水庫與水庫網路：**在共用水文輸入及水庫物理計算下，比較 Rule-based 與 LLM 操作員。
@@ -22,12 +27,15 @@ HydroReOpLLM 是使用大型語言模型（LLM）研究水庫操作的 Python �
 - **可追查的結果：**保存要求與實際放水、溢流、庫容、下游流量、reason、原始回覆、runtime 及服務回報的 token 用量。
   設定檢查、回覆驗證、水量守恆驗證與操作規則稽核分別處理實驗的不同部分。
 
-主要流程以 Daily 為主；[時間尺度範例](examples/time_scales/README.md)也提供 Hourly 與明確步長的設定。
+主要流程是 Daily，測試與 F.E. Walter 案例都以它為對象。[時間尺度範例](examples/time_scales/README.md)
+示範 Hourly 與明確步長的設定，使用離線（非 LLM）操作員，屬工程示範；證據中沒有
+LLM 操作的 Hourly 實驗，也沒有經校正的 Hourly 流域。
 新的流域仍需要適當的輸入資料、水庫特性，以及水文模型的校正與驗證。
 
 ## 安裝
 
-使用 **Python 3.12**。取得 repository 並建立虛擬環境：
+使用 **Python 3.12**。套件要求 3.12 或更新版本，但只測試過 3.12。
+取得 repository 並建立虛擬環境：
 
 ```bash
 git clone https://github.com/WenyuChiou/HydroReOpLLM.git
@@ -45,6 +53,15 @@ reservoir-experiment --help
 
 選配依賴請見[安裝說明](https://wenyuchiou.github.io/HydroReOpLLM/docs/GETTING_STARTED.html)。
 安裝不會下載或啟動 LLM。目前是研究候選包，尚未提供 PyPI 安裝。
+
+套件會安裝自己的頂層 `hydrocnhs` 套件，那是固定版本並已修補的 HydroCNHS 副本
+（見 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)）。請勿把 PyPI 的 `hydrocnhs`
+裝進同一個環境。若檔案被覆蓋，氣象驅動流程會以「installed HydroCNHS core differs from
+its accepted pin」停止；請在乾淨的環境重新安裝。
+
+範例、模板、教學與資料在 repository 中，不在 wheel 內。wheel 只含
+`examples/daily_offline`、MOSART-Urban 規則與固定版本的執行檔案，安裝在
+`<環境 prefix>/share/llm-reservoir-agent/`。因此下方的第一次執行需要 clone repository。
 
 ## 執行第一個範例
 
@@ -85,7 +102,8 @@ reservoir-experiment verify runs/daily-single
 
 從[設定指南](https://wenyuchiou.github.io/HydroReOpLLM/docs/INPUT_OUTPUT.html)與
 [耦合設定範本](templates/coupled/README.md)開始。氣象驅動流程使用
-`check → prepare → run → verify`；已備妥入流使用 `check → run → verify`。
+`check → prepare → run → verify`；已備妥入流使用 `check → run → verify`
+（見[已備妥入流](docs/PREPARED_INFLOWS.md)）。
 案例自己的規則、測站名稱與知識放在研究檔案或 extension；多數設定不必修改核心模組。
 
 查閱程式可從[專案結構](docs/CODE_STRUCTURE.md)與
@@ -95,4 +113,5 @@ reservoir-experiment verify runs/daily-single
 ## 引用與授權
 
 報告實驗時請記錄專案 revision，依[引用說明](docs/REFERENCE.md)引用本專案及 HydroCNHS。
-主專案授權尚待確定；隨附依賴保留各自的[授權與來源](THIRD_PARTY_NOTICES.md)。
+主專案授權尚待確定。授權公布之前，程式碼可以閱讀，但不授予重用權利。
+隨附依賴保留各自的[授權與來源](THIRD_PARTY_NOTICES.md)。

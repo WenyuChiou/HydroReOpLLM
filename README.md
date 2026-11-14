@@ -16,6 +16,12 @@ Hydrology supplies inflow; operators request release; reservoir physics applies
 physical limits, updates storage and spill, and routes total outflow downstream.
 Each reservoir keeps its own state and decision history.
 
+Timing assumption: at each Daily step every operator, whether LLM, Rule-based or
+MOSART/Hanasaki, is given that step's own mean inflow. Results therefore assume
+the operator knows the current day's mean inflow. A study that needs a strictly
+previous-day information set has no built-in setting and must design its own; see
+[available information](https://wenyuchiou.github.io/HydroReOpLLM/docs/INFORMATION.html#timing-of-the-current-inflow).
+
 ## What it provides
 
 - **Single reservoirs and connected networks:** compare Rule-based and LLM
@@ -29,13 +35,17 @@ Each reservoir keeps its own state and decision history.
   Configuration checks, response validation, water-balance verification and
   operating-rule audits address different parts of the experiment.
 
-The main workflow is Daily. [Time-scale examples](examples/time_scales/README.md)
-also demonstrate Hourly and explicit interval settings. A new basin still needs
-appropriate input data, reservoir properties and hydrological calibration/validation.
+The main workflow is Daily; the tests and the F.E. Walter case exercise it. The
+[time-scale examples](examples/time_scales/README.md) demonstrate Hourly and
+explicit interval settings. They use offline (non-LLM) operators and are
+engineering demonstrations; no LLM-operated Hourly experiment and no calibrated
+Hourly basin is part of the evidence. A new basin still needs appropriate input
+data, reservoir properties and hydrological calibration/validation.
 
 ## Install
 
-Use **Python 3.12**. Clone the repository and create a virtual environment:
+Use **Python 3.12**. The package requires 3.12 or newer, and only 3.12 is
+tested. Clone the repository and create a virtual environment:
 
 ```bash
 git clone https://github.com/WenyuChiou/HydroReOpLLM.git
@@ -54,6 +64,17 @@ reservoir-experiment --help
 See [installation](https://wenyuchiou.github.io/HydroReOpLLM/docs/GETTING_STARTED.html)
 for optional dependencies. Installation does not download or start an LLM.
 This is a research candidate; installation from PyPI is not available.
+
+The package installs its own top-level `hydrocnhs` package, a pinned and patched
+copy of HydroCNHS (see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)). Do not
+install PyPI `hydrocnhs` into the same environment. If its files are overwritten,
+the weather-driven path stops with "installed HydroCNHS core differs from its
+accepted pin"; reinstall into a clean environment.
+
+The examples, templates, tutorials and data are in the repository, not in the
+wheel. The wheel carries only `examples/daily_offline`, the MOSART-Urban rule and
+pinned runtime files, under `<environment prefix>/share/llm-reservoir-agent/`.
+The first run below therefore needs a clone.
 
 ## Run your first example
 
@@ -95,7 +116,8 @@ the settings in this order:
 
 Begin with the [configuration guide](https://wenyuchiou.github.io/HydroReOpLLM/docs/INPUT_OUTPUT.html)
 and [coupled templates](templates/coupled/README.md). The weather-driven workflow
-uses `check → prepare → run → verify`; prepared inflows use `check → run → verify`.
+uses `check → prepare → run → verify`; prepared inflows use `check → run → verify`
+(see [prepared inflows](docs/PREPARED_INFLOWS.md)).
 Case-specific rules, station names and knowledge stay in your study files or
 extensions. Most study settings do not require changes to the core modules.
 
@@ -108,5 +130,6 @@ basin model or operating strategy requires its own evaluation.
 
 Record the project revision when reporting an experiment. Follow the
 [citation guide](docs/REFERENCE.md), including the original HydroCNHS reference.
-The main project license is pending; bundled dependencies retain their
+The main project license is pending. Until a license is published, the code may
+be read but reuse rights are not granted. Bundled dependencies retain their
 [licenses and attribution](THIRD_PARTY_NOTICES.md).

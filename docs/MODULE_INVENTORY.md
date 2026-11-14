@@ -54,7 +54,7 @@ The machine-readable inventory refreshes source hashes, public AST locations and
 
 ## `__init__.py`
 
-[Source](../src/llm_reservoir_agent/__init__.py) · SHA256 `ad7663a2d54ef6901d24d595bc13ca7d5116d646b1d722793840136c02d63e52`
+[Source](../src/llm_reservoir_agent/__init__.py) · SHA256 `0628e6928359de873ec79086ca107848408f5ff001d64bbd9a512842d615c83c`
 
 - **Purpose:** Public package imports
 - **Inputs:** Python imports
@@ -419,7 +419,7 @@ The machine-readable inventory refreshes source hashes, public AST locations and
 
 ## `coupled.py`
 
-[Source](../src/llm_reservoir_agent/coupled.py) · SHA256 `fafbba7446ec1f0be51abf4602200fc9c1e15a3b08282b57f591f47793c7c8b5`
+[Source](../src/llm_reservoir_agent/coupled.py) · SHA256 `df396058bd541cfd1ba9d328e56f9e61852360386dd9866f91f16163b731ddec`
 
 - **Purpose:** Check daily/hourly weather-to-operation plans, prepare pinned inflows and run the shared workflow.
 - **Inputs:** Coupled configuration and physical network; daily native weather or explicit hourly GWLF model/forcing, operation window and agent profiles
@@ -462,7 +462,7 @@ The machine-readable inventory refreshes source hashes, public AST locations and
 
 ## `experiment.py`
 
-[Source](../src/llm_reservoir_agent/experiment.py) · SHA256 `31bd806ab9bac5c7aee08faea228e2fc7f4b591b2cccf8ffc41772fb8ac83b0d`
+[Source](../src/llm_reservoir_agent/experiment.py) · SHA256 `aea2a6c26696d5f7bc0c6d8aad28d20700a1a8666713d7a3194984cad07cb815`
 
 - **Purpose:** Orchestrate daily native or explicit interval network execution and durable run evidence.
 - **Inputs:** Network, local inflow rows, isolated decision backends
@@ -1173,7 +1173,7 @@ Existing main implementation inventoried statically; no new documentation review
 
 ## `workflow.py`
 
-[Source](../src/llm_reservoir_agent/workflow.py) · SHA256 `e66281a57c72e8f8325bc6ea8cab519a0778b40f2a9676ae1214a0034ca89292`
+[Source](../src/llm_reservoir_agent/workflow.py) · SHA256 `17ab56426e210416b5040be6f54265400da6f5632c64a9e116c599ac9c6cd81f`
 
 - **Purpose:** YAML validation, bounded execution, cached verification and CLI routing
 - **Inputs:** Experiment YAML/sections, native case resources, declared providers/extensions

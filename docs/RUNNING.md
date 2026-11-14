@@ -45,9 +45,25 @@ reservoir-experiment run path/to/experiment.yaml --allow-network
 ```
 
 `max_calls` limits total provider attempts; `null` means no total cap.
+Retries, fallback-profile attempts and requests that were in flight when a run
+was interrupted all count against it, and a resumed run refuses any changed
+setting, including a larger `max_calls`. Set headroom above the planned request
+count from the start; an exhausted budget cannot be raised on resume.
 A model profile's `max_attempts` limits attempts per decision, including the
 first. `timeout_seconds` applies to each attempt. A valid decision is not
 resampled because it misses an operating target.
+
+An LLM run on real (non-synthetic) data needs all three of these, or `run`
+stops before any request:
+
+1. `--allow-network` on the command.
+2. A `max_calls` that covers the planned requests: a positive integer at least
+   the number of decisions made by LLM agents, or `null`. The default `0` is
+   too small for an LLM run.
+3. A live-ready physical case: the case file (for example `reservoirs.yaml`)
+   contains `live_readiness` with `ready: true`. Only a case whose `data_kind`
+   is `synthetic_fixture` is ready without it. See
+   [Before a new LLM experiment](LIVE_READINESS.md).
 
 ## Verify saved results
 

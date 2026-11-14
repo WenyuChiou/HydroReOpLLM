@@ -52,7 +52,10 @@ The following table describes the implemented adapters. Each request uses the
 exact configured model ID. Optional generation controls are sent only when
 configured; there is no default model, capability discovery, tool execution, or
 additional prompt instruction. Schema fields request structured output from the
-service, and local action validation remains mandatory.
+service, and local action validation remains mandatory. Only the standard
+`reservoir-action.v1` schema is sent this way. A custom response schema declared
+in YAML is validated on the reply but is not sent to the provider as a native
+structured-output schema, so the prompt must describe the fields.
 
 | Provider | Endpoint appended to `base_url` | Native request and schema fields | Accepted text and preserved usage |
 |---|---|---|---|
@@ -99,12 +102,25 @@ It does not perform retries itself.
 ## Retries, fallback, and evidence
 
 Each profile owns its `max_attempts` limit, including its first attempt. The
-default is one call. Parsed reply/action validation failures can use another
+default is one call per request, so no retry happens unless you raise it. Parsed reply/action validation failures can use another
 attempt within that limit, as can timeouts and connection failures. HTTP errors
 retry only when their status is explicitly in `retryable_http_statuses`; 429 and
 5xx are not retried automatically. An explicitly selected 401 or 403 can retry
 within its profile, but never triggers fallback. Retries reuse the same rendered
 messages, payload and request hash; callbacks are not evaluated again.
+
+The delay between attempts is the constant `retry_delay_seconds`; there is no
+backoff, and a `Retry-After` header is not honoured. An HTTP error body is not
+saved: the attempt record keeps the status and the error class only.
+`templates/coupled/models.yaml` sets `max_attempts: 2` but no
+`retryable_http_statuses`, so a template run retries timeouts, connection
+failures and invalid replies once, while an HTTP 429 still stops the run unless
+a fallback profile is configured. Add `retryable_http_statuses: [429]` (and the
+5xx statuses you want) to retry them.
+
+Each attempt, including every retry and every fallback attempt, counts against
+the experiment's `max_calls`. See [Global settings](GLOBAL_SETTINGS.md) before
+choosing its value.
 
 Envelope decoding failures raised by the HTTP transport (for example malformed
 wire JSON, invalid UTF-8 or an oversized envelope) do not retry within that
@@ -122,6 +138,14 @@ errors occur outside its response retry path and do not trigger fallback.
 Records retain the actual provider, model, profile index, attempt, request hash,
 reported usage, response metadata and error class. Elapsed times use seconds.
 
+A run that used a fallback profile still ends COMPLETED and `verify` still
+reports PASS. `decisions.jsonl` records the *configured primary* profile under
+`provenance.model`, not the profile that served the decision; the serving
+profile is recorded in each decision's `raw/policy_*.json` file. There is no
+rule-based, last-release or fixed-value fallback; if every profile fails, the
+run fails. Before attributing results to one model, follow
+[Count which model profile served each decision](RECORDS.md#count-which-model-profile-served-each-decision).
+
 ## Offline verification and service limits
 
 `tests/test_daily_provider_matrix.py` uses handwritten native response envelopes,
@@ -132,6 +156,8 @@ HTTP 401/403/429/5xx, timeouts, exact retry limits and ordered fallback. It also
 checks the default transport's byte limit, UTF-8 decoding and strict JSON rules.
 These are offline contract tests. They do not contact OpenAI, Anthropic, Gemini,
 an OpenAI-compatible service, or a running Ollama service, and do not load a model.
+The tests that use the real HTTP transport talk to local fixture servers on the
+test machine. No automated test has exercised a real provider service.
 
 Real service authentication, model availability, schema support, optional
 parameter support, latency, rate limits and latest-model compatibility remain

@@ -521,7 +521,8 @@ def run_coupled(settings, *, allow_network=False, runtime_root=PROJECT_ROOT, tra
     from .workflow import load_settings, run_settings
     current = _current(settings, runtime_root)
     if current.report["planned_llm_calls"] and (not allow_network or not current.report["live_ready"]):
-        raise ValueError("LLM execution requires --allow-network and a live-ready physical case")
+        from .workflow import _live_gate_message
+        raise ValueError(_live_gate_message("LLM execution", allow_network, dict(current.report, data_kind=current.case.get("data_kind"))))
     if not Path(current.report["output"]).exists():
         prepare_coupled(current, runtime_root=runtime_root)
     experiment = prepared_experiment(current)

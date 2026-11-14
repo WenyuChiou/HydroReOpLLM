@@ -16,7 +16,7 @@ accepted.
 | `output` | required path | New folder for preparation and its `operation/` results subfolder; existing output is refused. |
 | `case` | required path | Physical reservoir/network YAML or JSON using `reservoir-physical-case.v1`. |
 | `start_date`, `end_date` | required quoted dates | Inclusive operation period inside the native model period. |
-| `max_calls` | default `0` | Integer covering planned LLM requests, or explicit `null` for no total cap. |
+| `max_calls` | default `0` | Integer covering planned LLM requests, or explicit `null` for no total cap. Retries, fallback-profile attempts and requests in flight when a run was interrupted all count against it. A resumed run refuses any changed setting, including a larger `max_calls`, so an exhausted budget cannot be raised on resume: set headroom above the planned request count from the start. |
 | `hydrology` | required mapping or file section | Native model, forcing and inlet bindings. |
 | `agents` | required nonempty mapping or file section | One agent per controlled reservoir. |
 | `models` | default `{}` | Named provider/model settings selected by LLM agents. |

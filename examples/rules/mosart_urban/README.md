@@ -5,6 +5,11 @@ This shared extension follows the reservoir-operation equations in
 It uses the normal operator, physics, routing, auditing and output interfaces.
 The original Hanasaki extension remains available under its existing ID.
 
+At the time of writing, the upstream MOSART-Urban repository is access-restricted
+(the link above returns HTTP 404 without authorization). The commit ID is kept so
+the source can be identified. The numerical parity check below therefore needs
+authorised upstream access.
+
 | Setting | MOSART-Urban behavior |
 |---|---|
 | Annual coefficient | Beginning storage at January 1; held until the next year |

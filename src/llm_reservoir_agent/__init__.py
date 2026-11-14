@@ -9,6 +9,8 @@ controlled release; implemented release and spill belong to the physical result.
 Imports load package dependencies but do not start a simulation or model request.
 """
 
+from importlib.metadata import PackageNotFoundError, version as _distribution_version
+
 from .agent import LLMReservoirAgent, ReservoirDamAgent
 from .auditor import AuditPlugin, AuditSpec, AuditedBackend
 from .contracts import ReservoirAction, ReservoirObservation, parse_action
@@ -17,8 +19,13 @@ from .policies import ConstantPolicy, PassThroughPolicy
 from .policy_adapter import LLMPolicyAdapter
 from .prompt import Auditor, PromptRequest, PromptSpec, PromptStrategy, ResponseParser
 
+try:
+    __version__ = _distribution_version("hydroreopllm")
+except PackageNotFoundError:  # source checkout used through PYTHONPATH
+    __version__ = "0+unknown"
+
 __all__ = [
-    "LLMReservoirAgent", "ReservoirDamAgent", "LLMPolicyAdapter",
+    "__version__", "LLMReservoirAgent", "ReservoirDamAgent", "LLMPolicyAdapter",
     "ReservoirAction", "ReservoirObservation", "PhysicalConfig", "Transition",
     "apply_transition", "parse_action", "ConstantPolicy", "PassThroughPolicy",
     "PromptSpec", "PromptRequest", "PromptStrategy", "ResponseParser", "Auditor",

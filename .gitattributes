@@ -4,6 +4,8 @@ tests/fixtures/cases/** -text whitespace=blank-at-eol,blank-at-eof,space-before-
 examples/fe_walter/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 # Generic teaching CSVs are pinned by their exact source bytes as well.
 examples/multiple_reservoirs/*.csv -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+# The prepared-inflow template pins its CSV by SHA256 in case.json.
+templates/prepared/inflows.csv -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 examples/llm_reservoir_abm.py -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 data/benchmark/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 data/figures/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol

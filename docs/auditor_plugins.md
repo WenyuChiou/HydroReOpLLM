@@ -68,6 +68,13 @@ cannot replace actions; a reported FAIL is retained in diagnostic record mode.
 An exception stops execution and is different from a completed FAIL audit.
 Post-physics or joint-network strategy plugins are not part of this contract.
 
+An auditor FAIL or WARN is diagnostic only. It does not change the run status,
+the exit code or the PASS from `reservoir-experiment verify`, which checks record
+integrity and water balance. It also does not change the action: a requested
+release above a limit is clipped by the physics and flagged in the `adjustments`
+column of `reservoir_trajectory.csv`. Read `audit.jsonl` as well as the
+verification result.
+
 The original backend's emitted audit participates unchanged when present. A
 backend that declares an `auditor_id` but emits no audit contributes UNKNOWN.
 Enabled plugins are added in declared order, with unique IDs. The versioned
@@ -97,6 +104,43 @@ swallows the nested exception. No feedback can run during an audit. A failed
 backend call retains the observation and any available backend payloads; their
 freshness is marked unverified because a backend may retain an older reply.
 Failure-evidence capture errors are recorded without replacing the primary error.
+
+## Custom response fields and checks
+
+These hooks are experimental. Both are provided by an extension package that the
+experiment registers under `extensions` (a path to the package's `__init__.py`;
+see the [rule extension contract](API_REFERENCE.md#rule-extension-contract)).
+The [F.E. Walter extension](../examples/fe_walter/extensions/__init__.py) is a
+complete example.
+
+**Custom response schema.** An agent's `response_schema` is `reservoir-action.v1`
+unless it names a registered extension ID. That extension provides:
+
+| Hook | Responsibility |
+|---|---|
+| `validate_response_configuration(spec, plugins, *, template)` | Called while loading. Receives the agent's settings, its built auditor plugins and the prompt template text; raise `ValueError` for an unusable combination. |
+| `parse_response(value)` | Receives the reply's parsed JSON object. Return `(action, decision)`: `action` is a `ReservoirAction` or a mapping with exactly `schema_version` and `release_cms`, and `decision` is any JSON-compatible value or `None`. |
+| `parser_id` (optional attribute) | Text recorded in provenance as the response parser identity. |
+
+The returned `decision` is kept in the backend trace as
+`backend_trace["decision_metadata"]`, where the agent's auditors can read it in
+their `context`. The extra reply fields do not reach the physics: only
+`release_cms` does. The schema is validated on the reply but is not sent to the
+provider as a native structured-output schema, so the prompt itself must tell
+the model which fields to return.
+
+**Custom auditor.** An entry in `auditors.yaml` whose `type` is a registered
+extension ID is built by that extension:
+
+| Hook or attribute | Responsibility |
+|---|---|
+| `validate_auditor(settings)` | Called while loading; raise on invalid settings. |
+| `build_auditor(identifier, settings, *, base_path, knowledge_paths, runtime_root)` | Return the plugin object. |
+| Plugin `identifier` | The audit ID (the key in `auditors.yaml`). |
+| Plugin `spec` | An `AuditSpec`, as in the first example above. |
+| Plugin `audit(context)` | Return the audit mapping described above. |
+| Plugin `file_pins` | Mapping of each source file path to its SHA256; the loader adds these to the run's pinned files. |
+| Optional `prepare_context(observation)`, `rebase_auditor(spec, *, base_path)` | Supply facts shared with the prompt, and resolve relative paths in the settings. |
 
 ## Trace and independent verification
 
