@@ -34,7 +34,27 @@ profile allows more than one attempt; it says nothing about fallback. There is
 no rule-based, last-release or fixed-value fallback. If every profile fails, the
 run fails.
 
-To count the serving profile for each decision:
+Runs written by this version record the answer directly. Each decision that a
+model answered has a `served_by` key in `decisions.jsonl`:
+
+```json
+"served_by": {"model": "backup-model", "profile": 1, "provider": "anthropic"}
+```
+
+`profile` is the position in the order primary profile first, then
+`fallback_models` (`0` is the primary). `served_by` is copied from the successful
+attempt in that decision's `raw/policy_*.json` file. Decisions made without a
+model (rule-based or offline) have no `served_by`. `summary.json` counts them:
+`serving_profiles` (per reservoir ID, profile index to number of decisions),
+`fallback_served_decisions` (decisions answered by a profile other than `0`) and
+`fallback_used` (`true` when that number is above zero). Runs with no model
+decisions do not have these three keys. `verify` checks each `served_by` against
+its raw file and the summary counts against the decisions, and fails if they
+differ. After a resume, the new run's `decisions.jsonl` and counts cover every
+decision, including the replayed ones.
+
+For a run written before this change, which has no `served_by` and no such
+summary keys, count the serving profile for each decision by hand:
 
 1. Take the decision's `raw_policy_ref` from `decisions.jsonl` and open that
    `raw/policy_*.json` file.

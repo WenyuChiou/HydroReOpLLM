@@ -3406,7 +3406,7 @@
     },
     {
       "path": "src/llm_reservoir_agent/experiment.py",
-      "sha256": "aea2a6c26696d5f7bc0c6d8aad28d20700a1a8666713d7a3194984cad07cb815",
+      "sha256": "eda8a435821eb9522a95333c677dee13be4d6893e10e8faf3ac311c95d5911cd",
       "baseline_sha256": "35db7b23c41af7680b2f19afbae904113eef121c37d2171424bda9835d867c7c",
       "purpose": "Orchestrate daily native or explicit interval network execution and durable run evidence.",
       "inputs": "Network, local inflow rows, isolated decision backends",
@@ -3447,7 +3447,7 @@
           "ProviderEvidenceError": 97,
           "record_provider_attempt": 104,
           "run_experiment": 317,
-          "main": 501
+          "main": 506
         }
       },
       "entrypoints": [
@@ -8290,7 +8290,7 @@
     },
     {
       "path": "src/llm_reservoir_agent/trace.py",
-      "sha256": "37806a11e0ecb9de6fd05e13cd921ed39da681641c1df00769c15bea427d0897",
+      "sha256": "d1813bfb3864e415faf65805b25122736e24403ed285e620fae1c3622432450b",
       "baseline_sha256": "ca6a1cce6abec3b5f231f71069f89d9eb2ee79b7ea0266ccac25bfb8eeca8a2b",
       "purpose": "Durable causal event journaling and terminal summaries",
       "inputs": "Decision/audit/raw payloads, completed physics, backend lifecycle events",
@@ -8314,18 +8314,20 @@
       "doc_coverage": {
         "scope": "Current AST: public top-level classes/functions and public methods/properties of public classes; excludes private/dunder definitions and imported aliases",
         "module_header": true,
-        "public_symbols": 8,
-        "documented_public_symbols": 8,
+        "public_symbols": 10,
+        "documented_public_symbols": 10,
         "missing_public_symbols": [],
         "public_symbol_lines": {
-          "TraceJournal": 103,
-          "TraceJournal.provenance": 154,
-          "TraceJournal.record_decision": 267,
-          "TraceJournal.record_physics": 370,
-          "TraceJournal.record_backend_event": 420,
-          "TraceJournal.record_feedback_failure": 486,
-          "TraceJournal.finalize": 586,
-          "TraceJournal.fail": 616
+          "served_by_from_raw": 103,
+          "TraceJournal": 131,
+          "TraceJournal.provenance": 182,
+          "TraceJournal.record_decision": 295,
+          "TraceJournal.serving_profile_counts": 401,
+          "TraceJournal.record_physics": 418,
+          "TraceJournal.record_backend_event": 468,
+          "TraceJournal.record_feedback_failure": 534,
+          "TraceJournal.finalize": 634,
+          "TraceJournal.fail": 664
         }
       },
       "entrypoints": [
@@ -8600,7 +8602,7 @@
     },
     {
       "path": "src/llm_reservoir_agent/verification.py",
-      "sha256": "648747cf2d5febfac99e3ac7ef3c3f78be58f480f185b6961f8cf00729ceb00f",
+      "sha256": "8abbaf0bd442e12b14850349585c65a3a1b7fad898400e63ec9c329d3c77a12a",
       "baseline_sha256": "e2ddf7a09e48c08ef4d21fdd18f15d2b612495162611be1ad05274cb9de256d9",
       "purpose": "Independent saved-file causal and physical verification",
       "inputs": "Completed run files and optional trusted audit hashes",
@@ -8636,7 +8638,7 @@
         "documented_public_symbols": 1,
         "missing_public_symbols": [],
         "public_symbol_lines": {
-          "verify_run": 98
+          "verify_run": 102
         }
       },
       "entrypoints": [

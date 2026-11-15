@@ -774,6 +774,7 @@ tests/test_repository_scope.py
 tests/test_reservoir_coupling.py
 tests/test_reservoir_profile.py
 tests/test_seasonal_prompt_context.py
+tests/test_serving_profile_records.py
 tests/test_temporal_output.py
 tests/test_time_axis.py
 tests/test_time_scale_yaml.py
