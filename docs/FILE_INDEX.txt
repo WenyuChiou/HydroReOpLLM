@@ -197,6 +197,16 @@ docs/results/fe_walter/hydrology/reproduction_20261016.json
 docs/results/fe_walter/hydrology/subcatchments.csv
 docs/results/fe_walter/paper_runs/README.md
 docs/results/fe_walter/paper_runs/daily_per_run.csv
+docs/results/fe_walter/paper_runs/decisions/llm_with_operational_knowledge_run1.jsonl.gz
+docs/results/fe_walter/paper_runs/decisions/llm_with_operational_knowledge_run2.jsonl.gz
+docs/results/fe_walter/paper_runs/decisions/llm_with_operational_knowledge_run3.jsonl.gz
+docs/results/fe_walter/paper_runs/decisions/llm_with_operational_knowledge_run4.jsonl.gz
+docs/results/fe_walter/paper_runs/decisions/llm_with_operational_knowledge_run5.jsonl.gz
+docs/results/fe_walter/paper_runs/decisions/llm_without_operational_knowledge_run1.jsonl.gz
+docs/results/fe_walter/paper_runs/decisions/llm_without_operational_knowledge_run2.jsonl.gz
+docs/results/fe_walter/paper_runs/decisions/llm_without_operational_knowledge_run3.jsonl.gz
+docs/results/fe_walter/paper_runs/decisions/llm_without_operational_knowledge_run4.jsonl.gz
+docs/results/fe_walter/paper_runs/decisions/llm_without_operational_knowledge_run5.jsonl.gz
 docs/results/fe_walter/paper_runs/observations.csv
 docs/results/fe_walter/paper_runs/provenance.json
 docs/results/fe_walter/paper_runs/scores_per_run.csv
@@ -728,6 +738,7 @@ tests/test_external_reference_boundary.py
 tests/test_fe_walter_downstream.py
 tests/test_fe_walter_information.py
 tests/test_fe_walter_llm_start_case.py
+tests/test_fe_walter_paper_decisions.py
 tests/test_fe_walter_paper_runs.py
 tests/test_fe_walter_seasonal_pool.py
 tests/test_fe_walter_split.py
