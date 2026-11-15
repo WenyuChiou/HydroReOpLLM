@@ -34,13 +34,23 @@ simulated 1989–2025 upstream and local runoff and routing.
 | [experiment.yaml](experiment.yaml) | Rule-based five-year entry | Inclusive daily dates | Yes |
 | [llm_available.yaml](llm_available.yaml) / [llm_knowledge.yaml](llm_knowledge.yaml) | Prepared LLM entries | Not executed | One per future LLM method |
 | [case.json](case.json) | Shared reservoir and downstream network | Storage m³; release m³/s | Yes |
+| [case.llm.json](case.llm.json) | Same network as `case.json`; only `initial_storage_m3` differs (4,337,390.926410141 m³) | Storage m³ | Only for the completed-start LLM entries |
+| [llm_available.completed_start.yaml](llm_available.completed_start.yaml) / [llm_knowledge.completed_start.yaml](llm_knowledge.completed_start.yaml) | LLM entries that start from `case.llm.json` | Not executed | Optional |
 | [inflows.csv](inflows.csv) | Frozen upstream and local daily inflows | `local_inflow_cms`, m³/s | Yes |
 | [agents.rule.yaml](agents.rule.yaml) | Generic Hanasaki comparator | `alpha: 0.85` | Yes for the baseline |
 | [initialization.json](initialization.json) | Prior-year coefficient seed and common physical start | Storage m³ | Yes for the baseline |
 | [hydrology/model.yaml](hydrology/model.yaml), [hydrology/hydrology.yaml](hydrology/hydrology.yaml), [hydrology/forcing.csv.gz](hydrology/forcing.csv.gz) | Accepted hydrology inputs used by the executable lesson | Precipitation mm, temperature °C, PET cm | Required for hydrology |
 | [provenance.json](provenance.json) | Hashes, periods, warmup, and readiness boundary | 21 primary-score warmup days | Yes |
 
-All methods share the 2021-01-01 physical storage of 4,287,715.370246947 m³.
+The three prepared methods (`experiment.yaml`, `llm_available.yaml`,
+`llm_knowledge.yaml`, the files `preflight.py` checks) share the observed
+2021-01-01 local-midnight storage of 4,287,715.370246947 m³ (pool 1,312.4 ft).
+The completed LLM runs reported in the paper started from 4,337,390.926410141 m³
+(1,312.7 ft), 49,676 m³ (0.3 ft) higher. The two `*.completed_start.yaml` files,
+with `case.llm.json`, reproduce that starting storage only; they are otherwise
+identical to the prepared LLM entries. No record documents why the two values
+differ.
+
 The Rule-based coefficient uses 21,914,228.648262143 m³ on 2020-05-01,
 `k = 0.19022285020658533`, then refreshes from simulated beginning-of-day storage
 each May 1.
