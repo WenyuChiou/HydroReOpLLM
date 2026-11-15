@@ -41,7 +41,8 @@ Auditors are separate. An auditor FAIL or WARN is diagnostic: it does not change
 the run status, the exit code or the PASS from `verify`, so read `audit.jsonl`
 as well. If an agent uses backup model profiles, also
 [count which profile served each decision](RECORDS.md#count-which-model-profile-served-each-decision):
-a run that fell back to a backup model still ends COMPLETED and verifies.
+a run that fell back to a backup model still ends COMPLETED and verifies, but
+`summary.json` shows it with `fallback_used`.
 
 ## Explain a decision
 

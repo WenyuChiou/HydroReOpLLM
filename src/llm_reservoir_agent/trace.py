@@ -100,6 +100,34 @@ def _bytes(value: Any) -> bytes:
     return (json.dumps(value, ensure_ascii=False, allow_nan=False, sort_keys=True, separators=(",", ":")) + "\n").encode("utf-8")
 
 
+def served_by_from_raw(raw: Any) -> dict[str, Any] | None:
+    """Return the model profile that answered a decision, read from its saved raw policy trace.
+
+    Parameters
+    ----------
+    raw : Any
+        Raw policy mapping as saved under ``raw/policy_*.json``; an audit wrapper's ``backend_trace`` is unwrapped.
+
+    Returns
+    -------
+    dict[str, Any] or None
+        ``{"profile": int, "provider": str, "model": str}`` from the one attempt marked ``success`` (profile 0 is the configured primary), or None when no model answered or the trace predates profile records.
+    """
+
+    trace = raw.get("backend_trace", raw) if isinstance(raw, Mapping) else None
+    attempts = trace.get("attempts") if isinstance(trace, Mapping) else None
+    if not isinstance(attempts, list):
+        return None
+    winners = [item for item in attempts if isinstance(item, Mapping) and item.get("success") is True]
+    if len(winners) != 1:
+        return None
+    profile, provider, model = (winners[0].get(name) for name in ("profile", "provider", "model"))
+    if (isinstance(profile, bool) or not isinstance(profile, int) or profile < 0
+            or not isinstance(provider, str) or not isinstance(model, str)):
+        return None
+    return {"profile": profile, "provider": provider, "model": model}
+
+
 class TraceJournal:
     """Create a single-writer journal in a new, exclusive output directory.
 
@@ -349,12 +377,15 @@ class TraceJournal:
             refs["original_payload_ref"] = self._raw("audit", scope["decision_id"], original)
         if raw_copy is not None:
             refs["raw_policy_ref"] = self._raw("policy", scope["decision_id"], raw_copy)
+        served = served_by_from_raw(raw_copy)
         decision = {
             **scope, "event_type": "decision", "status": "RECORDED",
             "observation": observation_copy, "action": action_copy, "provenance": metadata, **binding,
         }
         if "raw_policy_ref" in refs:
             decision["raw_policy_ref"] = refs["raw_policy_ref"]
+        if served is not None:
+            decision["served_by"] = served
         audit_event = {
             **scope, "event_type": "audit", "audit_schema_version": audit_schema,
             **normalized, "provenance": metadata, **binding,
@@ -366,6 +397,23 @@ class TraceJournal:
         self._decisions[key] = decision
         self._last[reservoir_id] = (scope["timestep"], scope["timestamp"])
         return scope["decision_id"]
+
+    def serving_profile_counts(self) -> dict[str, dict[str, int]]:
+        """Count recorded decisions by the model profile that served them.
+
+        Returns
+        -------
+        dict[str, dict[str, int]]
+            Reservoir ID to profile index (as text) to decision count, over every decision in this journal; decisions without ``served_by`` are not counted and a reservoir with none is omitted.
+        """
+
+        counts: dict[str, dict[str, int]] = {}
+        for (reservoir_id, _), decision in self._decisions.items():
+            served = decision.get("served_by")
+            if served is not None:
+                row = counts.setdefault(reservoir_id, {})
+                row[str(served["profile"])] = row.get(str(served["profile"]), 0) + 1
+        return {name: dict(sorted(row.items(), key=lambda item: int(item[0]))) for name, row in counts.items()}
 
     def record_physics(self, reservoir_id: str, record: Mapping[str, Any]) -> None:
         """Append one completed host physical record for a retained decision.

@@ -29,6 +29,7 @@ from .network import validate_inflows
 from .passive import PassiveOutlet
 from .physics import PhysicalConfig, apply_transition
 from .time_axis import TimeAxis
+from .trace import served_by_from_raw
 
 
 _STREAMS = ("decisions", "physics", "audit", "backend_events")
@@ -37,6 +38,9 @@ _OUTPUTS = {
     "network_balance.csv", "reach_volume_trace.json",
 }
 _AUDIT_STATUSES = {"PASS", "WARN", "FAIL", "UNKNOWN"}
+
+
+_SERVING_KEYS = ("serving_profiles", "fallback_served_decisions", "fallback_used")
 
 
 def _check(condition, message):
@@ -218,6 +222,8 @@ def verify_run(output, *, require_offline=False, expected_audit_suites=None):
         expected_backend.extend(events)
     _check(expected_backend == backend, "backend lifecycle order mismatch")
 
+    summary_serving = any(key in summary for key in _SERVING_KEYS)
+    served_counts: dict[str, dict[str, int]] = {}
     records = {name: [] for name in config["reservoirs"]}
     max_balance = 0.0
     for reservoir_id, name in ids.items():
@@ -234,6 +240,14 @@ def verify_run(output, *, require_offline=False, expected_audit_suites=None):
             _check(decision.get("request_id") == physical.get("request_id") == audit.get("request_id"), "uncorrelated request IDs")
             _check(decision.get("status") == "RECORDED" and physical.get("status") == "RECORDED", "unrecorded event")
             _check(audit.get("status") in _AUDIT_STATUSES, "invalid retained audit status")
+            if "served_by" in decision or summary_serving:
+                # Saved evidence is the authority: the claimed profile must be the successful raw attempt.
+                derived = (served_by_from_raw(read_json(inside(output, decision["raw_policy_ref"]["path"])))
+                           if "raw_policy_ref" in decision else None)
+                _check(json.dumps(decision.get("served_by"), sort_keys=True) == json.dumps(derived, sort_keys=True), "served_by does not match the successful attempt in its raw policy trace")
+            if "served_by" in decision:
+                tally = served_counts.setdefault(reservoir_id, {})
+                tally[str(derived["profile"])] = tally.get(str(derived["profile"]), 0) + 1
             original = (read_json(inside(output, audit["original_payload_ref"]["path"]))
                         if "original_payload_ref" in audit else None)
             retained = normalize_audit(original)
@@ -493,6 +507,16 @@ def verify_run(output, *, require_offline=False, expected_audit_suites=None):
 
     counts = Counter(event["status"] for event in streams["audit"])
     _check(dict(counts) == summary.get("audit_counts"), "audit counts mismatch")
+    if served_counts or summary_serving:
+        # New optional fields: absent from older runs, exact when present.
+        expected_serving = {name: dict(sorted(row.items(), key=lambda item: int(item[0])))
+                            for name, row in served_counts.items()}
+        backup = sum(count for row in expected_serving.values() for profile, count in row.items() if profile != "0")
+        _check(all(key in summary for key in _SERVING_KEYS) and
+               summary["serving_profiles"] == expected_serving and
+               summary["fallback_served_decisions"] == backup and
+               summary["fallback_used"] is (backup > 0),
+               "summary serving-profile counts do not match the decisions")
     if clock.legacy_daily:
         _check(summary.get("days") == n and summary.get("reservoir_count") == nr,
                "summary dimensions mismatch")
@@ -625,6 +649,7 @@ def verify_run(output, *, require_offline=False, expected_audit_suites=None):
         "max_routing_difference_cms": max_routing,
         "final_channel_storage_m3": stocks[-1],
         "observed_network_calls": summary["observed_network_calls"],
+        **({key: summary[key] for key in _SERVING_KEYS} if summary_serving else {}),
         "operating_strategy_accepted": None,
         "audit_binding_counts": audit_bindings,
         "external_audit_pins_checked": sorted(expected_audit_suites),

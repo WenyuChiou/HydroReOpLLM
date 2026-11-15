@@ -140,8 +140,11 @@ reported usage, response metadata and error class. Elapsed times use seconds.
 
 A run that used a fallback profile still ends COMPLETED and `verify` still
 reports PASS. `decisions.jsonl` records the *configured primary* profile under
-`provenance.model`, not the profile that served the decision; the serving
-profile is recorded in each decision's `raw/policy_*.json` file. There is no
+`provenance.model`, not the profile that served the decision. The serving
+profile is recorded in each decision under `served_by` and counted in
+`summary.json` (`serving_profiles`, `fallback_served_decisions`,
+`fallback_used`); runs written before this change have only the attempt records
+in each decision's `raw/policy_*.json` file. There is no
 rule-based, last-release or fixed-value fallback; if every profile fails, the
 run fails. Before attributing results to one model, follow
 [Count which model profile served each decision](RECORDS.md#count-which-model-profile-served-each-decision).

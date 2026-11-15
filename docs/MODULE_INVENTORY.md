@@ -462,7 +462,7 @@ The machine-readable inventory refreshes source hashes, public AST locations and
 
 ## `experiment.py`
 
-[Source](../src/llm_reservoir_agent/experiment.py) · SHA256 `aea2a6c26696d5f7bc0c6d8aad28d20700a1a8666713d7a3194984cad07cb815`
+[Source](../src/llm_reservoir_agent/experiment.py) · SHA256 `eda8a435821eb9522a95333c677dee13be4d6893e10e8faf3ac311c95d5911cd`
 
 - **Purpose:** Orchestrate daily native or explicit interval network execution and durable run evidence.
 - **Inputs:** Network, local inflow rows, isolated decision backends
@@ -1089,7 +1089,7 @@ Existing main implementation inventoried statically; no new documentation review
 
 ## `trace.py`
 
-[Source](../src/llm_reservoir_agent/trace.py) · SHA256 `37806a11e0ecb9de6fd05e13cd921ed39da681641c1df00769c15bea427d0897`
+[Source](../src/llm_reservoir_agent/trace.py) · SHA256 `d1813bfb3864e415faf65805b25122736e24403ed285e620fae1c3622432450b`
 
 - **Purpose:** Durable causal event journaling and terminal summaries
 - **Inputs:** Decision/audit/raw payloads, completed physics, backend lifecycle events
@@ -1098,7 +1098,7 @@ Existing main implementation inventoried statically; no new documentation review
 - **Dependencies:** .audit; .time_axis; __future__; collections.abc; datetime; hashlib; json; os; pathlib; re; typing
 - **Entrypoints:** TraceJournal(...); record_decision/record_physics/finalize
 
-**Current static documentation coverage:** 8/8 public AST definitions have docstrings. Current symbol lines are in the machine-readable inventory.
+**Current static documentation coverage:** 10/10 public AST definitions have docstrings. Current symbol lines are in the machine-readable inventory.
 
 **Test definitions (static references):**
 
@@ -1117,7 +1117,7 @@ Existing main implementation inventoried statically; no new documentation review
 
 ## `verification.py`
 
-[Source](../src/llm_reservoir_agent/verification.py) · SHA256 `648747cf2d5febfac99e3ac7ef3c3f78be58f480f185b6961f8cf00729ceb00f`
+[Source](../src/llm_reservoir_agent/verification.py) · SHA256 `8abbaf0bd442e12b14850349585c65a3a1b7fad898400e63ec9c329d3c77a12a`
 
 - **Purpose:** Independent saved-file causal and physical verification
 - **Inputs:** Completed run files and optional trusted audit hashes

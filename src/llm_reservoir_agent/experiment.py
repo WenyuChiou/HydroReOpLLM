@@ -440,6 +440,11 @@ def run_experiment(config, rows, backends, *, output, run_id, project_root=PROJE
             output_files={name: hashlib.sha256((journal.output / name).read_bytes()).hexdigest()
                           for name in ("experiment.json", "reservoir_trajectory.csv", "network_flows.csv",
                                        "network_balance.csv", "reach_volume_trace.json")})
+        serving = journal.serving_profile_counts()
+        if serving:
+            # Profile 0 is the configured primary; any other index is a backup that answered.
+            backup = sum(count for row in serving.values() for profile, count in row.items() if profile != "0")
+            summary.update(serving_profiles=serving, fallback_served_decisions=backup, fallback_used=backup > 0)
         if not clock.legacy_daily:
             summary["completed_reservoir_steps"] = summary.pop("completed_reservoir_days")
             summary["completed_network_steps"] = min(committed.values())
