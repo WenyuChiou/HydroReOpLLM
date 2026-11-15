@@ -31,13 +31,22 @@ Hanasaki 教學，保留原本的 1,826 日結果及兩個可選的 LLM 入口�
 | [experiment.yaml](experiment.yaml) | 規則法五年入口 | 起訖日皆納入的每日資料 | 是 |
 | [llm_available.yaml](llm_available.yaml) / [llm_knowledge.yaml](llm_knowledge.yaml) | 已準備的 LLM 入口 | 尚未執行 | 未來各 LLM 方法擇一 |
 | [case.json](case.json) | 共用水庫與下游網路 | 蓄水量 m³；放流 m³/s | 是 |
+| [case.llm.json](case.llm.json) | 網路與 `case.json` 相同，僅 `initial_storage_m3` 不同（4,337,390.926410141 m³） | 蓄水量 m³ | 僅 completed-start LLM 入口需要 |
+| [llm_available.completed_start.yaml](llm_available.completed_start.yaml) / [llm_knowledge.completed_start.yaml](llm_knowledge.completed_start.yaml) | 以 `case.llm.json` 起算的 LLM 入口 | 尚未執行 | 選用 |
 | [inflows.csv](inflows.csv) | 凍結的上游與區間每日入流 | `local_inflow_cms`，m³/s | 是 |
 | [agents.rule.yaml](agents.rule.yaml) | 通用 Hanasaki 比較基準 | `alpha: 0.85` | 基準需要 |
 | [initialization.json](initialization.json) | 前一操作年係數種子與共用物理初始狀態 | 蓄水量 m³ | 基準需要 |
 | [hydrology/model.yaml](hydrology/model.yaml)、[hydrology/hydrology.yaml](hydrology/hydrology.yaml)、[hydrology/forcing.csv.gz](hydrology/forcing.csv.gz) | 實作教學使用的已接受水文輸入 | 降水 mm、溫度 °C、PET cm | 水文計算需要 |
 | [provenance.json](provenance.json) | 雜湊、期間、暖機與就緒邊界 | 主要評分排除前 21 日 | 是 |
 
-三種方法共用 2021-01-01 的物理蓄水量 4,287,715.370246947 m³。規則法係數以
+三種已準備的方法（`experiment.yaml`、`llm_available.yaml`、`llm_knowledge.yaml`，
+即 `preflight.py` 檢查的檔案）共用觀測到的 2021-01-01 當地午夜蓄水量
+4,287,715.370246947 m³（水位 1,312.4 ft）。論文報告的已完成 LLM 執行則從
+4,337,390.926410141 m³（1,312.7 ft）起算，高出 49,676 m³（0.3 ft）。兩個
+`*.completed_start.yaml` 搭配 `case.llm.json` 只重現這個起始蓄水量，其餘與已準備的
+LLM 入口相同。目前沒有任何紀錄說明兩個數值為何不同。
+
+規則法係數以
 2020-05-01 的 21,914,228.648262143 m³ 得到 `k = 0.19022285020658533`；之後
 每年 5 月 1 日以各方法模擬的當日初始蓄水量更新。
 
