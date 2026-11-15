@@ -195,6 +195,12 @@ docs/results/fe_walter/hydrology/provenance.json
 docs/results/fe_walter/hydrology/reproduced_cv_metrics_20261016.csv
 docs/results/fe_walter/hydrology/reproduction_20261016.json
 docs/results/fe_walter/hydrology/subcatchments.csv
+docs/results/fe_walter/paper_runs/README.md
+docs/results/fe_walter/paper_runs/daily_per_run.csv
+docs/results/fe_walter/paper_runs/observations.csv
+docs/results/fe_walter/paper_runs/provenance.json
+docs/results/fe_walter/paper_runs/scores_per_run.csv
+docs/results/fe_walter/paper_runs/scores_summary.csv
 environment/hydrocnhs-core.json
 environment/hydrocnhs-hydrology-core.json
 environment/interface-runtime.json
@@ -722,6 +728,7 @@ tests/test_external_reference_boundary.py
 tests/test_fe_walter_downstream.py
 tests/test_fe_walter_information.py
 tests/test_fe_walter_llm_start_case.py
+tests/test_fe_walter_paper_runs.py
 tests/test_fe_walter_seasonal_pool.py
 tests/test_fe_walter_split.py
 tests/test_fe_walter_year_export.py

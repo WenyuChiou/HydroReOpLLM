@@ -66,6 +66,8 @@ examples/daily_offline/** -text
 docs/qa/*.json -text
 # Accepted comparison exports keep exact bytes, including native SVG path spacing.
 docs/results/fe_walter/completed/** -text whitespace=-blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol
+# Paper-run daily outputs keep exact bytes so the SHA-256 values in provenance.json hold.
+docs/results/fe_walter/paper_runs/** -text
 
 # Relocated climate/metric displays retain the original exact-byte pins.
 docs/results/fe_walter/hydrology/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol

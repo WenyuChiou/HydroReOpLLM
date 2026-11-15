@@ -25,6 +25,10 @@ under their respective configurations.
 
 [Download Table 3 KGE and RMSE values](table3_daily_kge_rmse.csv)
 
+The daily outputs behind these scores, one row per run and day, are in the
+[paper runs folder](../paper_runs/) with a test that recomputes the scores.
+The daily files in this folder are the earlier three-run comparison.
+
 ## Historical comparison figures and scores
 
 The archived figures and scores preserve the original Hanasaki comparator and

@@ -1,0 +1,148 @@
+{
+  "description": "Daily outputs behind the paper's results for F. E. Walter Reservoir, 2021-01-01 to 2025-12-31 (1,826 days): one rule-based run and five completed runs per LLM agent. Sources are private; only base file names and SHA-256 are recorded.",
+  "files": {
+    "daily_per_run.csv": {
+      "sha256": "e8dbe23ac1a8b0b4ab62ddf7fd9daafd4dd8da7d883c85fbbbfa01607794e65a",
+      "rows": 20086
+    },
+    "observations.csv": {
+      "sha256": "a98256e3f7080a97a7d5dab778ac779f715fce8f0acff1690afcc19d125e16dd",
+      "rows": 1826
+    },
+    "scores_per_run.csv": {
+      "sha256": "e8eab3c47b42eeb386d50c36d6fd608ab7cd9fc0c129e2eb322de6206ff1c178",
+      "rows": 33
+    },
+    "scores_summary.csv": {
+      "sha256": "398ec0af310c56f2954aa1e71cb6eada6ec6e0b503c8ecf941294ae908cacd23",
+      "rows": 9
+    }
+  },
+  "private_sources": [
+    {
+      "role": "storage_elevation_curve",
+      "file": "fe_walter_storage_elevation.csv",
+      "sha256": "baa89b33023c23002b94ac48e68c69278c384d15a64a72d2587a1e6ad458999d"
+    },
+    {
+      "role": "runs/without_knowledge/seed_1/reservoir_trajectory.csv",
+      "file": "reservoir_trajectory.csv",
+      "sha256": "c3b525d799d3fbc6944ebc3f7a380f5b006cb71443001bc7e884ccf727f97ac2"
+    },
+    {
+      "role": "runs/without_knowledge/seed_1/network_flows.csv",
+      "file": "network_flows.csv",
+      "sha256": "799b8eccbc282134be803cb28e272e14d72eabc2d96e1b43d3777f8716bb860b"
+    },
+    {
+      "role": "runs/without_knowledge/seed_2/reservoir_trajectory.csv",
+      "file": "reservoir_trajectory.csv",
+      "sha256": "76b664d72504bc5ef2628965013266aec70377ad0607e35646b66d1a33833594"
+    },
+    {
+      "role": "runs/without_knowledge/seed_2/network_flows.csv",
+      "file": "network_flows.csv",
+      "sha256": "88e60ba23b298a6326f8ea062ae436626448862746535f4ada5521198a7931f2"
+    },
+    {
+      "role": "runs/without_knowledge/seed_3/reservoir_trajectory.csv",
+      "file": "reservoir_trajectory.csv",
+      "sha256": "405500ffc46a000825b5a04bbc3046993e967429f4caff61c9aab27a6d00fc3c"
+    },
+    {
+      "role": "runs/without_knowledge/seed_3/network_flows.csv",
+      "file": "network_flows.csv",
+      "sha256": "6e068877cba38ff330d4d6fdde4affcb6e1c1e43c6253bfb96cf3ef9c11a122b"
+    },
+    {
+      "role": "runs/with_knowledge/seed_1/reservoir_trajectory.csv",
+      "file": "reservoir_trajectory.csv",
+      "sha256": "d6884f088919ef4c2666c792a9ddade2ff84196b95a3cce269fedd5c423e1dc7"
+    },
+    {
+      "role": "runs/with_knowledge/seed_1/network_flows.csv",
+      "file": "network_flows.csv",
+      "sha256": "407e0c06ea33b2afb07c2639fbebfa7670b67517ce93e5aa42b94868c2f8126f"
+    },
+    {
+      "role": "runs/with_knowledge/seed_2/reservoir_trajectory.csv",
+      "file": "reservoir_trajectory.csv",
+      "sha256": "df7926d8216e2465409ffabe40e10fa57bc5812e7261f22b096f09663a151017"
+    },
+    {
+      "role": "runs/with_knowledge/seed_2/network_flows.csv",
+      "file": "network_flows.csv",
+      "sha256": "dc7fb9b3a857643e75406e7ee40760ea0e1a56f836b4185832bbfaf54b12027c"
+    },
+    {
+      "role": "runs/with_knowledge/seed_3/reservoir_trajectory.csv",
+      "file": "reservoir_trajectory.csv",
+      "sha256": "73220cc91e8b41bc8417694794723fadd02a234a7bdeaf480a55bf4761444d3d"
+    },
+    {
+      "role": "runs/with_knowledge/seed_3/network_flows.csv",
+      "file": "network_flows.csv",
+      "sha256": "fe979f262ed198a8bcc9cf2137b5a7297d9fa6b43b208e0f843150ed263709b0"
+    },
+    {
+      "role": "runs/without_knowledge/seed_4/reservoir_trajectory.csv",
+      "file": "reservoir_trajectory.csv",
+      "sha256": "27eccbe1d1baa891990ef880c4c2d4293591255075c974da62519f52bcd7f92d"
+    },
+    {
+      "role": "runs/without_knowledge/seed_4/network_flows.csv",
+      "file": "network_flows.csv",
+      "sha256": "57403dff5d983993c21d2398a985da0c51130deba59f6c83019fa48ca7166388"
+    },
+    {
+      "role": "runs/without_knowledge/seed_5/reservoir_trajectory.csv",
+      "file": "reservoir_trajectory.csv",
+      "sha256": "7f41de525096916d83f0d62856dec0fd5c65ee96b6727e5fbf9e631e13c6a105"
+    },
+    {
+      "role": "runs/without_knowledge/seed_5/network_flows.csv",
+      "file": "network_flows.csv",
+      "sha256": "ab064c07e460190f12e98437089bfb44d55a8c68c6de0bbd6b78194c058e07eb"
+    },
+    {
+      "role": "runs/with_knowledge/seed_4/reservoir_trajectory.csv",
+      "file": "reservoir_trajectory.csv",
+      "sha256": "cbc553b3b6b405f701b1cf51ece75a9e6a7ab2058faff2ca89c2eeaa5903c101"
+    },
+    {
+      "role": "runs/with_knowledge/seed_4/network_flows.csv",
+      "file": "network_flows.csv",
+      "sha256": "5dbe0a72c66f73f7aa3f090db59f10492697dd5d13df0dbc4f790651ff5b5ab9"
+    },
+    {
+      "role": "runs/with_knowledge/seed_5/reservoir_trajectory.csv",
+      "file": "reservoir_trajectory.csv",
+      "sha256": "3bb4670e3bed8cae36f2ed79d793d9e798fd97fbaa78271799c057c560de90ed"
+    },
+    {
+      "role": "runs/with_knowledge/seed_5/network_flows.csv",
+      "file": "network_flows.csv",
+      "sha256": "852b455cbb63615cbd846b87a1ce17a9cb334a0f858055e288cb10cbf724beac"
+    },
+    {
+      "role": "rule_based/mosart_daily_1826.csv",
+      "file": "mosart_daily_1826.csv",
+      "sha256": "bb8c945cad2057e0ea194c8d4fba83c00a393dd4e975973089d34f3d464ae9e0"
+    },
+    {
+      "role": "observations/observations_exact_dates.csv",
+      "file": "observations_exact_dates.csv",
+      "sha256": "866cb3372bf70dd1ffd81fa116f0855466173829a500f4dc0693401c93d4314b"
+    },
+    {
+      "role": "figure3_medians/figure3_daily_seed_medians_and_iqr.csv",
+      "file": "figure3_daily_seed_medians_and_iqr.csv",
+      "sha256": "b2ad88f3de6a6c0247f9e9191b89fb5dd580236f80b5849b8f10674cd6a1ee50"
+    },
+    {
+      "role": "plot_inputs_manifest",
+      "file": "plot-inputs.json",
+      "sha256": "8e689d8736f0bc9737726e89f2141cd8e3a88dccd98fe1ce930ec5aa7573fe66"
+    }
+  ]
+}
