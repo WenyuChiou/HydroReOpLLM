@@ -16,7 +16,7 @@ ROOT = Path(__file__).resolve().parents[1]
 REMOTE = "https://github.com/WenyuChiou/HydroReOpLLM"
 FIGURE_DOWNLOADS = {
     f"docs/figures/hydrocnhs-coupling-framework-en.{ext}": f"hydroopsllm-figure1.{ext}"
-    for ext in ("png", "pdf")
+    for ext in ("png",)
 }
 FIGURE_DOWNLOADS.update({
     f"docs/figures/{name}.{ext}": f"{name}.{ext}"
@@ -40,7 +40,7 @@ FIGURE_DOWNLOADS.update({
 })
 MAP_DOWNLOADS = {
     **{f"docs/figures/fe-walter-catchment.{ext}": f"fe-walter-catchment.{ext}"
-       for ext in ("png", "svg", "pdf")},
+       for ext in ("png",)},
     "data/figures/manual_map/fe-walter-arcgis-source.zip": "fe-walter-arcgis-source.zip",
 }
 HYDROLOGY_DOWNLOADS = {

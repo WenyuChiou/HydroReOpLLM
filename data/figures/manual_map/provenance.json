@@ -18,14 +18,6 @@
     "fe-walter-catchment.png": {
       "bytes": 2405716,
       "sha256": "ab04fb7854c446413e591c72de573b97dae56d490c24cf08b5f6bc4f1e97c825"
-    },
-    "fe-walter-catchment.svg": {
-      "bytes": 19015302,
-      "sha256": "3428a34d0af8b71d847a67928ee4037e4eebaa7f640a99bb6b7b2a31afffd783"
-    },
-    "fe-walter-catchment.pdf": {
-      "bytes": 2899803,
-      "sha256": "2a1e6a95748c2f30c96f1bbc6a1c2d94ba4b1ffb58b5eca87ba9022de47c10ef"
     }
   },
   "exporter": {
@@ -375,9 +367,7 @@
         },
         "broken_sources": [],
         "exports": {
-          "fe-walter-catchment.pdf": "ff911d34ec249fe80b89b7eec16768d61b8ef66b0f818e01dc11bd6572bdd8fc",
-          "fe-walter-catchment.png": "d845a23a122e1c0ad03a81977cb48b6ef62026bb1f6a318e564b608d779c979d",
-          "fe-walter-catchment.svg": "3623f16ce98c0710f5410a5a0b29027858981cf0d1172d5044d0bcd2acae0e06"
+          "fe-walter-catchment.png": "d845a23a122e1c0ad03a81977cb48b6ef62026bb1f6a318e564b608d779c979d"
         }
       }
     },
@@ -434,9 +424,7 @@
         },
         "broken_sources": [],
         "exports": {
-          "fe-walter-catchment.pdf": "262ca7a28493bfa5bad13bdf62518dd6904e28d8ea07cede48a979fc2ff86618",
-          "fe-walter-catchment.png": "d845a23a122e1c0ad03a81977cb48b6ef62026bb1f6a318e564b608d779c979d",
-          "fe-walter-catchment.svg": "d082442da4fdcde0b038e0d50d0245c6a9ef635ae72931b26cd459ba3add0521"
+          "fe-walter-catchment.png": "d845a23a122e1c0ad03a81977cb48b6ef62026bb1f6a318e564b608d779c979d"
         }
       }
     },
@@ -481,17 +469,9 @@
       "map_extents_unchanged": true,
       "scientific_members_unchanged": true,
       "exports": {
-        "fe-walter-catchment.pdf": {
-          "bytes": 1720048,
-          "sha256": "996093caed87288686ffd3e66e027ac9a781efdb9109b221efe52f1636ace5cc"
-        },
         "fe-walter-catchment.png": {
           "bytes": 2658118,
           "sha256": "39c0c9e733e64b857d242794a15f6bd05532020e04296ec08c18b245b41a8e07"
-        },
-        "fe-walter-catchment.svg": {
-          "bytes": 15154879,
-          "sha256": "9053ccd8e0070a0514edaa8155b23f7135568b9e31b02f7f4c1cdafdc2d11b38"
         }
       }
     },
@@ -541,17 +521,9 @@
       "added_gis_members": 24,
       "broken_sources": [],
       "exports": {
-        "fe-walter-catchment.pdf": {
-          "bytes": 1850707,
-          "sha256": "f5881b50a2cd163df3d3690a8da754de339c13274e3dd6951bb3f3c11d2259ee"
-        },
         "fe-walter-catchment.png": {
           "bytes": 2801256,
           "sha256": "63eb5678785d3768905804034f9c32f81d99dc82586cd77623342a23fff3abe6"
-        },
-        "fe-walter-catchment.svg": {
-          "bytes": 16337352,
-          "sha256": "05115aae5534db031a00baad7baaae17dae89fc1cf8e4b66c97697da9f63a6b0"
         }
       },
       "edit_script_sha256": "b5c561c071f4671cb321da40f380c61d69cb99253b6014b0b0f68f2515465d94"
@@ -569,14 +541,6 @@
         "fe-walter-catchment.png": {
           "bytes": 2798898,
           "sha256": "32f43f16e899274c07f4f922f45ed59d4659bcca9117197cf4b46ebf22465055"
-        },
-        "fe-walter-catchment.svg": {
-          "bytes": 16337548,
-          "sha256": "3321a6e3e3c5611a1d0ba55f46434d286a7920a462155bea18efbbbb2cdaf31b"
-        },
-        "fe-walter-catchment.pdf": {
-          "bytes": 1851843,
-          "sha256": "6ee8ce132f72e962ed8d09803a2f2f23588fe8d17929676700e2e0f432a428e8"
         }
       }
     },
@@ -595,14 +559,6 @@
           "fe-walter-catchment.png": {
             "bytes": 2798898,
             "sha256": "32f43f16e899274c07f4f922f45ed59d4659bcca9117197cf4b46ebf22465055"
-          },
-          "fe-walter-catchment.svg": {
-            "bytes": 16337548,
-            "sha256": "3321a6e3e3c5611a1d0ba55f46434d286a7920a462155bea18efbbbb2cdaf31b"
-          },
-          "fe-walter-catchment.pdf": {
-            "bytes": 1851843,
-            "sha256": "6ee8ce132f72e962ed8d09803a2f2f23588fe8d17929676700e2e0f432a428e8"
           }
         },
         "exporter": {
