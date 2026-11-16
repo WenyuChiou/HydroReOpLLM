@@ -38,8 +38,7 @@ def test_branding_file_index_describes_current_bytes():
 
 def test_social_preview_source_and_export_fields_agree():
     receipt = json.loads((ROOT / MANIFESTS[0]).read_text(encoding="utf-8"))
-    for prefix, field in (("source", "source_file"), ("editable", "editable_file"),
-                          ("export", "export_file")):
+    for prefix, field in (("editable", "editable_file"), ("export", "export_file")):
         data = (ROOT / receipt[field]).read_bytes()
         assert hashlib.sha256(data).hexdigest() == receipt[prefix + "_sha256"]
     assert len((ROOT / receipt["export_file"]).read_bytes()) == receipt["export_bytes"]

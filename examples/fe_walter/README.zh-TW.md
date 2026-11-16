@@ -19,7 +19,7 @@ Bear Creek 匯流處。U.S. Army Corps of Engineers 以洪水風險管理與遊�
 
 研究區域涵蓋下游的 White Haven 與 Lehighton 兩個測站。[下游水文流程](downstream/validation.zh-TW.md)提供兩站間的實測邊界檢驗，仍需補齊下游模型與逐日輸入。[保存的下游比較](downstream/README.zh-TW.md)則使用歷史 2016 年決策評估 White Haven。
 
-地圖下載：[PDF](../../docs/figures/fe-walter-catchment.pdf)、[SVG](../../docs/figures/fe-walter-catchment.svg)、[可編輯 ArcGIS 圖源](../../data/figures/manual_map/fe-walter-arcgis-source.zip)。
+地圖下載：[可編輯 ArcGIS 圖源](../../data/figures/manual_map/fe-walter-arcgis-source.zip)。
 
 ```{figure-md} fe-walter-study-area-zh-tw
 :class: study-area-figure

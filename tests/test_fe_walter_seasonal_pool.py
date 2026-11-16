@@ -142,7 +142,7 @@ class FigureManualTests(unittest.TestCase):
             # Keep the core workflow in the Overview and its original figure
             # downloads byte-exact; branding stays separate from that workflow.
             self.assertIn("hydrocnhs-coupling-framework-en.png", overview)
-            for ext in ["png", "pdf"]:
+            for ext in ["png"]:
                 name = "hydroopsllm-figure1." + ext
                 self.assertEqual((target / "_figure_downloads" / name).read_bytes(),
                                  (ROOT / ("docs/figures/hydrocnhs-coupling-framework-en." + ext)).read_bytes())

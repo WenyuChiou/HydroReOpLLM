@@ -1,11 +1,7 @@
-# Editable figure sources
+# Figure sources
 
-The main README uses the HydroReOpLLM [cover](../hydroopslm-cover.svg) and generic [coupling framework](../hydrocnhs-coupling-framework-en.drawio).
-[Branding editing instructions](../assets/branding/EDITING.md) describe the cover's native SVG groups and reusable components.
-Edit the coupling framework's native draw.io cards, icons and attached connectors independently;
-[editing instructions](../assets/coupling-framework/EDITING.md) explain exports and icon provenance.
-`build_coupling_drawio.py` preserves the native master and derives its relationship manifest.
-Use the current editing instructions above to export that reviewed layout.
+The main README uses the HydroReOpLLM [cover](../hydroopslm-cover.png) and generic [coupling framework](../hydrocnhs-coupling-framework-en.png).
+Their editable and vector sources are not kept in this repository.
 
 The maintained study map is [fe-walter-catchment.png](../fe-walter-catchment.png).
 `render_fe_catchment.py` exports its portable ArcGIS package; this optional authoring
