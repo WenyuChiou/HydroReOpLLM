@@ -24,7 +24,6 @@ data/figures/fe_walter_map.json
 data/figures/manual_map/fe-walter-arcgis-source.zip
 data/figures/manual_map/provenance.json
 data/fixtures/fe_walter_synthetic_responses.json
-data/fixtures/reservoir_network_responses.json
 docs/API_REFERENCE.md
 docs/BUILDING.md
 docs/BUILD_SIMULATION.md
@@ -128,13 +127,9 @@ docs/figures/downstream-validation.drawio
 docs/figures/downstream-validation.svg
 docs/figures/downstream-workflow.drawio
 docs/figures/downstream-workflow.svg
-docs/figures/fe-walter-available-information-tutorial.png
-docs/figures/fe-walter-available-information-tutorial.svg
 docs/figures/fe-walter-catchment.pdf
 docs/figures/fe-walter-catchment.png
 docs/figures/fe-walter-catchment.svg
-docs/figures/fe-walter-retrieved-knowledge-tutorial.png
-docs/figures/fe-walter-retrieved-knowledge-tutorial.svg
 docs/figures/fe-walter-weather-workflow.drawio
 docs/figures/fe-walter-weather-workflow.svg
 docs/figures/hydrocnhs-coupling-framework-en.drawio
@@ -143,12 +138,6 @@ docs/figures/hydrocnhs-coupling-framework-en.png
 docs/figures/hydrocnhs-coupling-framework-en.svg
 docs/figures/hydroopslm-cover.png
 docs/figures/hydroopslm-cover.svg
-docs/figures/note-capacity-ratio.png
-docs/figures/note-capacity-ratio.svg
-docs/figures/note-rule-release.png
-docs/figures/note-rule-release.svg
-docs/figures/note-storage-balance.png
-docs/figures/note-storage-balance.svg
 docs/figures/prompt-context-workflow.drawio
 docs/figures/prompt-context-workflow.svg
 docs/figures/reservoir-agent-mapping.drawio
@@ -159,7 +148,6 @@ docs/figures/source/README.md
 docs/figures/source/build_coupling_drawio.py
 docs/figures/source/extract_fe_map.py
 docs/figures/source/render_fe_catchment.py
-docs/figures/source/render_note_equations.py
 docs/index.md
 docs/index.zh-TW.md
 docs/navigation.json
@@ -243,7 +231,6 @@ examples/fe_walter/coupled/hydrology.yaml
 examples/fe_walter/coupled/llm_available.yaml
 examples/fe_walter/coupled/llm_knowledge.yaml
 examples/fe_walter/coupled/models.yaml
-examples/fe_walter/coupled/plot_results.py
 examples/fe_walter/coupled/reservoirs.json
 examples/fe_walter/coupled/reservoirs.mosart.json
 examples/fe_walter/coupling.md
@@ -698,7 +685,6 @@ tests/fixtures/fe_walter_legacy/replay.py
 tests/fixtures/fe_walter_legacy/reservoir_agent.py
 tests/fixtures/fe_walter_legacy/reservoir_coupling.py
 tests/fixtures/gwlf_daily_legacy.json
-tests/fixtures/prompts/daily_dkp_release.txt
 tests/fixtures/prompts/daily_release.txt
 tests/fixtures/reservoir_abm.py
 tests/fixtures/synthetic/README.md
@@ -814,8 +800,6 @@ third_party/hydrocnhs/upstream-pyproject.toml
 tutorials/README.md
 tutorials/README.zh-TW.md
 tutorials/advanced.ipynb
-tutorials/assets/fe_walter_three_method.png
-tutorials/assets/three_reservoir_month.png
 tutorials/build_notebooks.py
 tutorials/config/fe_walter_information.yaml
 tutorials/config/fe_walter_tutorial_benchmark.yaml
