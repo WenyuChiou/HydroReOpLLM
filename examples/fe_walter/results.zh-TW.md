@@ -1,7 +1,5 @@
 # 2016 年 FE Walter 教學案例：水位與控制放流
 
-[2021–2025 論文結果與十個種子的逐日資料](../../docs/results/fe_walter/manuscript/README.md)
-
 [English](results.md) | [繁體中文](results.zh-TW.md)
 
 比較同一 FE Walter 案例的三種方法：**Rule-based**、**未提供額外操作知識的 LLM**、

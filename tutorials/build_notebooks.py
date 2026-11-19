@@ -1,7 +1,9 @@
-"""Build executable lessons and historical teaching figures.
+"""Build source-only executable lessons and historical teaching figures.
 
-Execution blocks socket and urllib access. The selected operation lesson runs
-local hydrology and Rule-based operation; historical lessons read saved results.
+Execution blocks socket and urllib access. The selected operation lesson can run
+local hydrology and Rule-based operation for verification, then clears those
+results before writing. Independent 2016 teaching notebooks retain their verified
+configuration displays and figures.
 """
 from __future__ import annotations
 
@@ -1020,55 +1022,20 @@ def _notebook(cells: list[dict], name: str, execute: bool) -> dict:
     return {"nbformat": 4, "nbformat_minor": 5,
             "metadata": {"kernelspec": {"name": "python3", "language": "python", "display_name": "Python 3"},
                          "language_info": {"name": "python", "version": platform.python_version()},
-                         "tutorial_mode": "executable-rule-based" if name == "operation.ipynb" else "saved-evidence-only",
+                         "tutorial_mode": ("source-only" if name == "operation.ipynb"
+                                           else "saved-evidence-only"),
                          "execution_method": "ordered pure-Python cells with socket/urllib blocked"},
             "cells": cells}
 
 
-def _retain_execution(cells: list[dict], name: str, path: Path) -> dict:
-    """Keep verified outputs only when every executable cell is unchanged.
-
-    Documentation builds must not erase the completed lesson or silently attach
-    old outputs to changed computation. Explicit execution refreshes the record.
-    """
-    current = _notebook(cells, name, execute=False)
-    previous = json.loads(path.read_text(encoding="utf-8"))
-    old = [cell for cell in previous["cells"] if cell["cell_type"] == "code"]
-    new = [cell for cell in current["cells"] if cell["cell_type"] == "code"]
-    if ([cell["source"] for cell in new] != [cell["source"] for cell in old]
-            or previous["metadata"].get("execution_dependencies") != _operation_dependencies()
-            or not old
-            or [cell.get("execution_count") for cell in old] != list(range(1, len(old) + 1))
-            or any(output["output_type"] == "error" for cell in old for output in cell.get("outputs", []))
-            or sum("image/png" in output.get("data", {}) for cell in old for output in cell.get("outputs", [])) != 2
-            or not any("text/html" in output.get("data", {}) for cell in old for output in cell.get("outputs", []))):
-        raise ValueError("Operation lesson needs a completed execution matching its code cells")
-    for target, source in zip(new, old, strict=True):
-        target["execution_count"] = source["execution_count"]
-        target["outputs"] = source["outputs"]
-    current["metadata"] = previous["metadata"]
-    return current
-
-
-def _operation_dependencies() -> dict[str, str]:
-    """Bind retained results to their current case inputs and implementation."""
-    case = ROOT / "examples/fe_walter/operation"
-    provenance = json.loads((case / "provenance.json").read_text(encoding="utf-8"))
-    paths = {case / name for name in provenance["originals"]}
-    paths.update(case / name for name in provenance["artifacts"])
-    engineering = json.loads((case / "engineering-sources-v4.json").read_text(encoding="utf-8"))
-    paths.update(ROOT / engineering["dependencies"][name]["current_path"]
-                 for name in provenance["shared_dependencies"])
-    paths.update((ROOT / "src/llm_reservoir_agent").rglob("*.py"))
-    paths.update(case.rglob("*.py"))
-    paths.add(case / "provenance.json")
-    paths.add(case / "engineering-sources-v4.json")
-    retained = case / "hydrology/calibration-lineage-summary.json"
-    if retained.is_file():
-        paths.add(retained)
-    return {path.relative_to(ROOT).as_posix(): hashlib.sha256(
-        path.read_bytes().replace(b"\r\n", b"\n") if path.suffix == ".py" else path.read_bytes()).hexdigest()
-        for path in sorted(paths)}
+def _clear_execution(document: dict) -> dict:
+    """Remove outputs after optional verification, before writing a notebook."""
+    for cell in document["cells"]:
+        if cell["cell_type"] == "code":
+            cell["execution_count"] = None
+            cell["outputs"] = []
+    document["metadata"].pop("execution_dependencies", None)
+    return document
 
 
 def build(*, execute: bool, notebook: str | None = None) -> list[dict]:
@@ -1093,11 +1060,9 @@ def build(*, execute: bool, notebook: str | None = None) -> list[dict]:
         cells = builders[name]()
         path = TUTORIALS / name
         run_cells = execute and (name != "operation.ipynb" or notebook == name)
-        document = (_retain_execution(cells, name, path)
-                    if name == "operation.ipynb" and notebook is None
-                    else _notebook(cells, name, run_cells))
-        if name == "operation.ipynb" and run_cells:
-            document["metadata"]["execution_dependencies"] = _operation_dependencies()
+        document = _notebook(cells, name, run_cells)
+        if name == "operation.ipynb":
+            document = _clear_execution(document)
         path.write_text(json.dumps(document, indent=1, ensure_ascii=False) + "\n",
                         encoding="utf-8", newline="\n")
         receipts.append({"path": str(path.relative_to(ROOT)), "executed": run_cells, "sha256": _sha(path)})
@@ -1108,29 +1073,25 @@ def check() -> list[dict]:
     reports = []
     for name in NOTEBOOKS:
         path = TUTORIALS / name; notebook = json.loads(path.read_text(encoding="utf-8"))
-        expected_mode = "executable-rule-based" if name == "operation.ipynb" else "saved-evidence-only"
+        expected_mode = "source-only" if name == "operation.ipynb" else "saved-evidence-only"
         assert notebook["metadata"]["tutorial_mode"] == expected_mode
         cells = [c for c in notebook["cells"] if c["cell_type"] == "code"]
         source = "\n".join("".join(c["source"]) for c in cells)
         forbidden = ("subprocess.", "urlopen(", "requests.", "ollama.chat", "allow_network=True")
         assert not any(token in source for token in forbidden)
-        if name != "operation.ipynb":
-            assert "run_settings(" not in source
-            assert all(c.get("execution_count") is not None for c in cells)
         mime = {m for c in cells for o in c.get("outputs", []) for m in o.get("data", {})}
-        if name != "operation.ipynb":
-            assert "text/html" in mime
-        if name == "main.ipynb":
-            assert "image/png" in mime
         if name == "operation.ipynb":
-            _retain_execution(operation_cells(), name, path)
+            assert all(c.get("execution_count") is None and c.get("outputs") == [] for c in cells)
             assert "check_preparation" in source
             assert "prepare_coupled(simulation)" in source
             assert "run_settings(operation_settings, runtime_root=ROOT)" in source
             assert "plot_run(run_output" in source
-            counts = [c.get("execution_count") for c in cells]
-            assert counts == list(range(1, len(cells) + 1))
-            assert "image/png" in mime and "text/html" in mime
+        else:
+            assert "run_settings(" not in source
+            assert all(c.get("execution_count") is not None for c in cells)
+            assert "text/html" in mime
+            if name == "main.ipynb":
+                assert "image/png" in mime
         reports.append({"path": str(path.relative_to(ROOT)), "cells": len(notebook["cells"]), "mime_types": sorted(mime), "sha256": _sha(path)})
     manifest = json.loads((CURRENT / "provenance.json").read_text(encoding="utf-8"))
     for source in manifest["sources"].values():

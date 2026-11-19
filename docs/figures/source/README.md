@@ -1,11 +1,13 @@
 # Figure sources
 
-The main README uses the HydroReOpLLM [cover](../hydroopslm-cover.png) and generic [coupling framework](../hydrocnhs-coupling-framework-en.png).
-Their editable and vector sources are not kept in this repository.
+The main README uses the HydroReOpLLM [cover](../hydroopslm-cover.png). Its
+editable source is not kept in this repository. The manual uses the maintained
+[simulation stages](../simulation-stages.svg) software diagram.
 
-The maintained study map is [fe-walter-catchment.png](../fe-walter-catchment.png).
-`render_fe_catchment.py` exports its portable ArcGIS package; this optional authoring
-step requires ArcGIS Pro and is not needed to install or run the module.
+`render_fe_catchment.py` can export a user-supplied ArcGIS Pro package. This
+optional authoring step requires ArcGIS Pro and is not needed to install or run
+the module. Generated maps stay under `outputs/` and are not published by the
+documentation build.
 
 `extract_fe_map.py` preserves the geographic input extraction used by the
 downstream example. Its frozen geometry remains an active example dependency;

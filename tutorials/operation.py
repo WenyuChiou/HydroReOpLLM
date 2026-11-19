@@ -14,8 +14,8 @@ rule, and compare water elevation and downstream flow with observations.
 The operation period is **2021–2025 (1,826 days)**.
 
 Run the cells in order: **settings → hydrology → operation → checks → figures**.
-Verified tables and figures from the completed run are included below.
-Rerun the cells to calculate your own results in a fresh output folder.
+Run the cells to calculate results in a fresh output folder. Repository copies
+of this notebook intentionally contain no executed outputs.
 All computation is local. LLM settings are introduced at the end for a later comparison.
 
 ## Setup
@@ -156,11 +156,9 @@ reservoir-experiment check examples/fe_walter/operation/llm_available.yaml
 reservoir-experiment run examples/fe_walter/operation/llm_available.yaml --allow-network
 ```
 
-The [completed Daily and Hourly comparisons](../docs/results/fe_walter/completed/README.md)
-include the archived three-seed comparison figures and the five-seed daily means.
-This notebook does not generate or overwrite those LLM results. The
-[saved three-method illustration](../examples/fe_walter/results.md) covers **2016**
-with the earlier prompt; its figures can be read directly without executing an LLM.
+This notebook does not execute an LLM or provide archived LLM results. To make a
+comparison, run each selected entry into a new output directory and evaluate the
+resulting records with the same checks.
 
 ## Next steps
 

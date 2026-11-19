@@ -1,11 +1,7 @@
 # F.E. Walter Reservoir research example
 
-[Manuscript results for all ten seeds per LLM](../../docs/results/fe_walter/manuscript/README.md)
-
 To reproduce the rule-based run, start with the
-[MOSART-Urban paper baseline](operation/README.md#paper-baseline-with-mosart-urban).
-The [archived five-seed means](../../docs/results/fe_walter/completed/README.md#daily-performance-against-observations)
-document the earlier comparison.
+[MOSART-Urban prepared baseline](operation/README.md#prepared-baseline-with-mosart-urban).
 The separate baseline profile reproduces the [MOSART-Urban rule](../rules/mosart_urban/README.md)
 with extra minimum-release and protected-storage overrides set to zero.
 
@@ -24,33 +20,20 @@ support downstream boating and fishing [[1]](#fe-walter-ref-1).
 The study area includes both downstream gauges, White Haven and Lehighton. The [downstream hydrology workflow](downstream/validation.md) prepares an observed-boundary test between them; its lower model and daily inputs remain to be supplied. The [saved downstream comparison](downstream/README.md) evaluates White Haven using the historical 2016 decisions.
 
 
-```{figure-md} fe-walter-study-area
-:class: study-area-figure
-
-![Study watershed at Lehighton, F. E. Walter watershed, and USGS streamflow gauges](../../docs/figures/fe-walter-catchment.png)
-
-**Figure 1. Study area in the Lehigh River basin, Pennsylvania, USA.** The study
-watershed (black outline) drains to the USGS streamflow gauge at Lehighton (01449000).
-Within it, the F. E. Walter watershed (teal outline) drains to F. E. Walter Dam. The
-part of the study watershed outside the F. E. Walter watershed contributes runoff to the
-Lehigh River and its tributaries between the dam and Lehighton. Stoddartsville
-(01447500) is upstream of the reservoir; White Haven (01447800) is downstream of the
-dam. The inset shows the reservoir, dam, and White Haven gauge. Internal boundaries
-delineate subbasins. Shading shows Daymet [[2]](#fe-walter-ref-2) mean annual
-precipitation for 1996–2025 (mm/year).[^map-sources]
-```
-
-[^map-sources]: Esri, CGIAR, USGS, data.pa.gov, TomTom, Garmin, SafeGraph,
-    METI/NASA, EPA, NPS, USDA, USFWS, New Jersey Office of GIS, FAO, and NOAA.
+To render a study-area map from an ArcGIS Pro package that you are authorized to
+use, run `python docs/figures/source/render_fe_catchment.py --package PATH`.
+Exports are written under `outputs/figures/` by default and are not published by
+the documentation build.
 
 ## Climate and hydrology
 
 The accepted forcing contains daily precipitation, temperature, and PET for
 seven contributing units from 1989 through 2025. Precipitation and minimum and
 maximum temperature come from Daymet V4 R1 [[2]](#fe-walter-ref-2); nClimGrid-Daily fills
-the documented December 31 entries in leap years [[3]](#fe-walter-ref-3). The chart sums
-area-weighted daily precipitation and saved PET within each month and averages
-area-weighted daily mean temperature. This is display aggregation only: saved
+the documented December 31 entries in leap years [[3]](#fe-walter-ref-3). For a
+monthly summary, sum area-weighted daily precipitation and saved PET within each
+month and average area-weighted daily mean temperature. This is display
+aggregation only: saved
 PET is converted from cm to mm, without recalculation or weather resampling.
 
 HydroCNHS computes daily Hamon PET as implemented in the native source
@@ -75,18 +58,6 @@ and evaluates a separate period. Here, 1990–2010 is the calibration period and
 covers two units; the other five are not independently gauge-validated. See
 [hydrology, parameters, and calibration/validation](hydrology.md) for periods,
 metrics, parameters, and the 2021–2025 simulation using those same parameters.
-
-Downloads: [monthly CSV](../../docs/results/fe_walter/hydrology/climate/fe_walter_climate_monthly_1989_2025.csv),
-[source and aggregation record](../../docs/results/fe_walter/hydrology/climate/provenance.json),
-
-```{figure-md} fe-walter-climate-forcing
-:class: climate-figure
-
-![Monthly precipitation, PET, and temperature for the modeled F.E. Walter catchment](../../docs/results/fe_walter/hydrology/climate/fe_walter_climate_1989_2025.png)
-
-**Figure 2.** Area-weighted monthly climate inputs, 1989–2025. Precipitation and
-PET are monthly totals (mm/month); temperature is the monthly mean (°C).
-```
 
 ## Reservoir experiment
 

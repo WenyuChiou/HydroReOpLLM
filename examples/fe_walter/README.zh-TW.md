@@ -1,7 +1,6 @@
 # F.E. Walter 水庫研究案例
 
-論文的規則法入口為 [MOSART-Urban 五年案例](operation/README.zh-TW.md#mosart-urban-文章基準)。
-另見[早期五個 seed 的平均值](../../docs/results/fe_walter/completed/README.md#daily-performance-against-observations)。
+規則法入口為 [MOSART-Urban 五年已準備案例](operation/README.zh-TW.md#mosart-urban-已準備基準)。
 這個獨立設定將額外最小放水與死庫容限制設為零，以重現
 [MOSART-Urban 規則](../rules/mosart_urban/README.md)。
 
@@ -19,25 +18,16 @@ Bear Creek 匯流處。U.S. Army Corps of Engineers 以洪水風險管理與遊�
 
 研究區域涵蓋下游的 White Haven 與 Lehighton 兩個測站。[下游水文流程](downstream/validation.zh-TW.md)提供兩站間的實測邊界檢驗，仍需補齊下游模型與逐日輸入。[保存的下游比較](downstream/README.zh-TW.md)則使用歷史 2016 年決策評估 White Haven。
 
-地圖下載：[可編輯 ArcGIS 圖源](../../data/figures/manual_map/fe-walter-arcgis-source.zip)。
-
-```{figure-md} fe-walter-study-area-zh-tw
-:class: study-area-figure
-
-![以 Lehighton 為出口的研究集水區、F. E. Walter 上游集水區與 USGS 流量測站](../../docs/figures/fe-walter-catchment.png)
-
-**圖 1。美國賓夕法尼亞州 Lehigh River 流域的研究區域。** 黑色邊界圈出流向 Lehighton 測站（01449000）的完整集水區；其中的青綠色邊界圈出流向 F. E. Walter 壩的上游集水區。兩個邊界之間的區域，經由 Lehigh River 及其支流匯入壩下游至 Lehighton 之間的河段。Stoddartsville 測站（01447500）位於水庫上游，White Haven 測站（01447800）位於壩下游。局部放大圖顯示水庫、壩與 White Haven 測站；內部分界為子集水區。底色表示 Daymet [[2]](#fe-walter-ref-2-zh) 1996–2025 年平均年降雨量（mm/year）。[^map-sources]
-```
-
-[^map-sources]: Esri、CGIAR、USGS、data.pa.gov、TomTom、Garmin、SafeGraph、
-    METI/NASA、EPA、NPS、USDA、USFWS、New Jersey Office of GIS、FAO、NOAA。
+如有獲授權使用的 ArcGIS Pro package，可執行
+`python docs/figures/source/render_fe_catchment.py --package PATH` 繪製研究區域圖。
+預設輸出位於 `outputs/figures/`，文件建置不會發布這些圖檔。
 
 ## 氣候與水文
 
 已接受的強迫資料涵蓋 1989–2025 年七個貢獻單元的每日降水、溫度與 PET。
 降水及最低／最高溫來自 Daymet V4 R1 [[2]](#fe-walter-ref-2-zh)；nClimGrid-Daily 只補入
-有紀錄的閏年 12 月 31 日資料 [[3]](#fe-walter-ref-3-zh)。下圖先依單元面積加權，再將每日
-降水與既有 PET 加總為月總量，並計算每日平均溫度的月平均。這只是一項顯示用
+有紀錄的閏年 12 月 31 日資料 [[3]](#fe-walter-ref-3-zh)。如需月彙整，先依單元面積加權，
+再將每日降水與既有 PET 加總為月總量，並計算每日平均溫度的月平均。這只是一項顯示用
 彙整：既有 PET 由 cm 轉為 mm，沒有重新計算 PET 或重採樣氣象資料。
 
 HydroCNHS 依原生程式 [[4]](#fe-walter-ref-4-zh) 計算每日 Hamon PET：
@@ -55,18 +45,6 @@ $$
 評估。本案例在 USGS 01447500 [[5]](#fe-walter-ref-5-zh) 以 1990–2010 年校準、2011–2020 年
 驗證。該測站涵蓋七個單元中的兩個；其餘五個單元沒有獨立測站驗證。期間、指標、
 參數與 2021–2025 年固定參數前推模擬詳見[水文、參數與校準／驗證](hydrology.zh-TW.md)。
-
-下載：[月資料 CSV](../../docs/results/fe_walter/hydrology/climate/fe_walter_climate_monthly_1989_2025.csv)、
-[來源與彙整紀錄](../../docs/results/fe_walter/hydrology/climate/provenance.json)、
-
-```{figure-md} fe-walter-climate-forcing-zh-tw
-:class: climate-figure
-
-![F.E. Walter 模式集水區逐月降水、PET 與溫度](../../docs/results/fe_walter/hydrology/climate/fe_walter_climate_1989_2025.png)
-
-**圖 2。** 1989–2025 年面積加權月氣象輸入。降水與 PET 為月總量（mm/month），
-溫度為月平均（°C）。
-```
 
 ## 水庫實驗
 

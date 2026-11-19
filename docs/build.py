@@ -9,41 +9,19 @@ import shutil
 import subprocess
 import sys
 import tempfile
-import tomllib
 import zipfile
 from urllib.parse import quote, unquote, urlsplit
 
 ROOT = Path(__file__).resolve().parents[1]
 REMOTE = "https://github.com/WenyuChiou/HydroReOpLLM"
-FIGURE_DOWNLOADS = {
-    f"docs/figures/hydrocnhs-coupling-framework-en.{ext}": f"hydroopsllm-figure1.{ext}"
-    for ext in ("png",)
-}
+FIGURE_DOWNLOADS = {}
 FIGURE_DOWNLOADS.update({
     f"docs/figures/{name}.{ext}": f"{name}.{ext}"
     for name in ("simulation-stages", "reservoir-agent-mapping",
                  "prompt-context-workflow", "fe-walter-weather-workflow")
     for ext in ("drawio", "svg")
 })
-# Publish only accepted comparison plots and their numeric display exports.
-# Raw model records and unrelated experiment folders remain outside the manual.
-FIGURE_DOWNLOADS.update({
-    "docs/results/fe_walter/completed/" + name: "completed_results/" + name
-    for name in (
-        "daily_2021_2025.png", "daily_2021_2025.pdf", "daily_2021_2025.svg",
-        "daily_2021_2025_range.png", "daily_2021_2025_range.pdf", "daily_2021_2025_range.svg",
-        "hourly_events_AB.png", "hourly_events_AB.pdf", "hourly_events_AB.svg",
-        "daily_chart_data.csv", "daily_run_range.csv", "daily_target_reference.csv",
-        "hourly_chart_data.csv", "table3_daily_simulation_performance.png",
-        "table3_daily_simulation_performance.pdf", "table3_summary.csv",
-        "table3_metrics_per_seed.csv", "table3_daily_kge_rmse.csv", "provenance.json",
-    )
-})
-MAP_DOWNLOADS = {
-    **{f"docs/figures/fe-walter-catchment.{ext}": f"fe-walter-catchment.{ext}"
-       for ext in ("png",)},
-    "data/figures/manual_map/fe-walter-arcgis-source.zip": "fe-walter-arcgis-source.zip",
-}
+MAP_DOWNLOADS = {}
 HYDROLOGY_DOWNLOADS = {
     **{f"docs/results/fe_walter/hydrology/{name}": name for name in (
         "calibration_validation_metrics.csv", "subcatchments.csv", "provenance.json",
@@ -52,13 +30,6 @@ HYDROLOGY_DOWNLOADS = {
     "data/accepted/fe_walter_hydrology.yaml": "fe_walter_hydrology.yaml",
     "data/accepted/historical_manifest.json": "historical_manifest.json",
 }
-HYDROLOGY_DOWNLOADS.update({
-    f"docs/results/fe_walter/hydrology/climate/{name}": name
-    for name in ("fe_walter_climate_monthly_1989_2025.csv",
-                 "fe_walter_climate_1989_2025.png", "fe_walter_climate_1989_2025.svg",
-                 "fe_walter_climate_1989_2025.pdf")
-})
-HYDROLOGY_DOWNLOADS["docs/results/fe_walter/hydrology/climate/provenance.json"] = "climate-provenance.json"
 ANNUAL_DOWNLOADS = {
     **{
     f"tests/fixtures/fe_walter_history/annual/outputs/{name}": name for name in (
@@ -127,12 +98,6 @@ DAILY_DOWNLOADS = {
 DAILY_DOWNLOADS.update({
     "docs/qa/module-inventory.json": "qa/module-inventory.json",
 })
-# Publish the same manuscript assets in the installed package and offline manual.
-with (ROOT / "pyproject.toml").open("rb") as stream:
-    paper_files = tomllib.load(stream)["tool"]["setuptools"]["data-files"]["share/llm-reservoir-agent/manuscript"]
-DAILY_DOWNLOADS.update({
-    path: "manuscript/" + Path(path).name for path in paper_files if not path.endswith("/README.md")
-})
 # Generic templates are maintained once and included verbatim in the chapters.
 DOWNSTREAM_DOWNLOADS = {
     ("tests/fixtures/fe_walter_history/downstream_outputs/" + name[8:]
@@ -184,8 +149,28 @@ MULTI_RESERVOIR_DOWNLOADS = {
     f"examples/multiple_reservoirs/{name}": name for name in MULTI_RESERVOIR_FILES
 }
 MULTI_SHARED_RULES = ("examples/rules/hanasaki/__init__.py",)
+WITHDRAWN_PUBLICATION_PREFIXES = (
+    "docs/results/fe_walter/manuscript/",
+    "docs/results/fe_walter/completed/",
+    "docs/results/fe_walter/paper_runs/",
+    "docs/results/fe_walter/hydrology/climate/",
+)
+WITHDRAWN_PUBLICATION_PATHS = {
+    "docs/figures/hydrocnhs-coupling-framework-en.png",
+    "docs/figures/fe-walter-catchment.png",
+}
+ALLOWED_DOC_FIGURE_EMBEDS = {
+    "docs/figures/hydroopslm-cover.png",
+    *FIGURE_DOWNLOADS,
+}
+STATIC_FILES = (
+    "docs-badge-en.svg", "docs-badge-zh-TW.svg", "hydroopslm-social-preview.json",
+    "hydroopslm-social-preview.png", "hydroopslm-social-preview.svg", "manual.css",
+    "manual.js", "navigation.js", "prompt-review-data.json", "prompt-review.js",
+    "reading.css", "seasonal-context-preview.json",
+)
+TEMPLATE_FILES_FOR_SITE = ("layout.html", "navigation.html")
 PAGES = {
-    "docs/results/fe_walter/manuscript/README.md": "docs/results/fe_walter/manuscript/README.md",
     "docs/index.md": "index.md",
     "docs/index.zh-TW.md": "index.zh-TW.md",
     "README.md": "repository.md",
@@ -193,7 +178,6 @@ PAGES = {
     "examples/fe_walter/README.md": "examples/fe_walter/README.md",
     "examples/fe_walter/README.zh-TW.md": "examples/fe_walter/README.zh-TW.md",
     "examples/fe_walter/operation/README.md": "examples/fe_walter/operation/README.md",
-    "docs/results/fe_walter/completed/README.md": "docs/results/fe_walter/completed/README.md",
     "examples/fe_walter/operation/README.zh-TW.md": "examples/fe_walter/operation/README.zh-TW.md",
     "examples/fe_walter/hydrology.md": "examples/fe_walter/hydrology.md",
     "examples/fe_walter/configuration.md": "examples/fe_walter/configuration.md",
@@ -236,6 +220,22 @@ LINK = re.compile(r"(!?\[[^\[\]]*\]\()([^\s)]+)(\))")
 
 def prepare(source: Path, *, source_ref: str = "main") -> None:
     """Keep manual pages local; link source/evidence to the private repository."""
+    publication_sources = set(PAGES)
+    for downloads in (
+        FIGURE_DOWNLOADS, MAP_DOWNLOADS, HYDROLOGY_DOWNLOADS, ANNUAL_DOWNLOADS,
+        CONFIG_DOWNLOADS, COMPLETED_DOWNLOADS, YEAR_DOWNLOADS,
+        COMPARISON_DOWNLOADS, TUTORIAL_DOWNLOADS, DAILY_DOWNLOADS,
+        DOWNSTREAM_DOWNLOADS, TEMPLATE_DOWNLOADS, MULTI_RESERVOIR_DOWNLOADS,
+    ):
+        publication_sources.update(downloads)
+    withdrawn = sorted(
+        path for path in publication_sources
+        if path in WITHDRAWN_PUBLICATION_PATHS
+        or path.startswith(WITHDRAWN_PUBLICATION_PREFIXES)
+    )
+    if withdrawn:
+        raise ValueError(f"withdrawn publication assets configured for site build: {withdrawn}")
+
     def rewrite(text: str, original: str, destination: str) -> str:
         def replace(match: re.Match) -> str:
             href = match[2]
@@ -246,6 +246,17 @@ def prepare(source: Path, *, source_ref: str = "main") -> None:
             if not target.is_relative_to(ROOT) or not target.exists():
                 raise ValueError(f"missing or escaping link in {original}: {href}")
             relative = target.relative_to(ROOT).as_posix()
+            if (relative in WITHDRAWN_PUBLICATION_PATHS
+                    or relative.startswith(WITHDRAWN_PUBLICATION_PREFIXES)):
+                raise ValueError(f"withdrawn publication asset in {original}: {href}")
+            if (match[1].startswith("!") and relative.startswith("docs/figures/")
+                    and relative not in ALLOWED_DOC_FIGURE_EMBEDS):
+                raise ValueError(f"unapproved documentation figure in {original}: {href}")
+            if match[1].startswith("!") and relative.startswith("docs/results/"):
+                raise ValueError(f"documentation results cannot be embedded: {href}")
+            if (relative.startswith("docs/_static/")
+                    and target.name not in STATIC_FILES):
+                raise ValueError(f"unapproved static asset in {original}: {href}")
             if relative in PAGES:
                 import os
                 value = Path(os.path.relpath(source / PAGES[relative], (source / destination).parent)).as_posix()
@@ -482,14 +493,30 @@ def prepare(source: Path, *, source_ref: str = "main") -> None:
     shutil.copyfile(ROOT / "docs/FILE_INDEX.txt", source / "docs/FILE_INDEX.txt")
     shutil.copyfile(ROOT / "docs/conf.py", source / "conf.py")
     shutil.copyfile(ROOT / "docs/navigation.json", source / "navigation.json")
-    shutil.copytree(ROOT / "docs/_static", source / "_static")
+    (source / "_static").mkdir()
+    for name in STATIC_FILES:
+        shutil.copyfile(ROOT / "docs/_static" / name, source / "_static" / name)
     # Reuse accepted identity assets without regenerating or changing their bytes.
     for size in (32, 64):
         shutil.copyfile(ROOT / f"docs/figures/assets/branding/logo-{size}.png",
                         source / f"_static/logo-{size}.png")
     shutil.copyfile(ROOT / "docs/figures/assets/branding/hydroopslm-logo.svg",
                     source / "_static/hydroopslm-logo.svg")
-    shutil.copytree(ROOT / "docs/_templates", source / "_templates")
+    (source / "_templates").mkdir()
+    for name in TEMPLATE_FILES_FOR_SITE:
+        shutil.copyfile(ROOT / "docs/_templates" / name, source / "_templates" / name)
+
+
+def publish_site(rendered: Path, output: Path) -> int:
+    """Update a site without retaining extra downloads or deleting user files."""
+    for item in output.rglob("*"):
+        expected = rendered / item.relative_to(output)
+        if item.is_symlink() or not expected.exists() or item.is_dir() != expected.is_dir():
+            print(f"Existing output differs at {item}. Choose an empty output directory.",
+                  file=sys.stderr)
+            return 2
+    shutil.copytree(rendered, output, dirs_exist_ok=True)
+    return 0
 
 
 def main() -> int:
@@ -497,15 +524,21 @@ def main() -> int:
     parser.add_argument("--output", type=Path, default=ROOT / "build/docs")
     parser.add_argument("--source-ref", default="main", help="Git ref used for repository source links")
     args = parser.parse_args()
+    output = args.output.resolve()
     build = ROOT / "build"
     build.mkdir(exist_ok=True)
     with tempfile.TemporaryDirectory(prefix="docs-source-", dir=build) as folder:
-        source = Path(folder).resolve()
+        source = Path(folder).resolve() / "source"
+        source.mkdir()
         assert source.is_relative_to(build.resolve())
         prepare(source, source_ref=args.source_ref)
-        # Sphinx/MyST-NB reads saved MIME outputs; execution is disabled in conf.py.
-        return subprocess.run([sys.executable, "-m", "sphinx", "-W", "--keep-going",
-                               "-b", "html", str(source), str(args.output.resolve())], check=False).returncode
+        # Build from an empty directory, so Sphinx cannot retain old downloads.
+        rendered = Path(folder) / "html"
+        result = subprocess.run([sys.executable, "-m", "sphinx", "-W", "--keep-going",
+                                 "-b", "html", str(source), str(rendered)], check=False)
+        if result.returncode:
+            return result.returncode
+        return publish_site(rendered, output)
 
 
 if __name__ == "__main__":

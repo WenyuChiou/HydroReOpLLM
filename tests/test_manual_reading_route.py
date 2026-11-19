@@ -54,11 +54,9 @@ def test_manual_navigation_keeps_one_reader_route_without_right_toc():
     assert 'manual_sections' in navigation
     for name in ('README.md', 'README.zh-TW.md', 'index.md', 'index.zh-TW.md'):
         page = (ROOT / 'docs' / name).read_text(encoding='utf-8')
-        assert 'figures/hydrocnhs-coupling-framework-en.png' in page
+        assert 'figures/hydrocnhs-coupling-framework-en.png' not in page
         if name.startswith('index'):
-            # Branding belongs on the landing page; the technical diagram stays
-            # in the separate explanation of how the simulation works.
-            assert page.index('figures/hydroopslm-cover.png') < page.index('figures/hydrocnhs-coupling-framework-en.png')
+            assert 'figures/hydroopslm-cover.png' in page
         else:
             assert 'figures/hydroopslm-cover.png' not in page
 

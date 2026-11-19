@@ -36,19 +36,6 @@
         "sha256": "aecc300574c8728e17d123136a3d606e90a60cd973a183d69d08b8a48fba509a",
         "bytes": 1671
       },
-      "docs/figures/hydrocnhs-coupling-framework-en.png": {
-        "sha256": "e7ff3d2036bcc8e6c68fdc6c31a70c574702ba6800d62ea9b590ecf87565f71c",
-        "bytes": 1863364,
-        "baseline_approval": {
-          "date": "2026-10-19",
-          "decision": "Author approved synchronizing v34 source records only",
-          "rationale": "Matches the author-approved Figure 1 v34 with attached connector and synchronized exports",
-          "previous": {
-            "sha256": "3eff9d5491c011c3af5504841e867207056f0868f8e8a8a2a4a6c6699b14ba00",
-            "bytes": 2003766
-          }
-        }
-      },
       "docs/figures/hydroopslm-cover.png": {
         "sha256": "fade329b1e76f709c4acdf0720e55869e4dfffc6dd3168870bcafccf4fcca35a",
         "bytes": 273025
@@ -58,7 +45,7 @@
         "bytes": 171155
       }
     },
-    "visual_review": "Parent inspected current native PNG and cropped one-page PDF renderings: brand visible, no clipping/overlap; paper workflow preserves approved geometry. No claim of human-reader or scientific validation."
+    "visual_review": "Parent inspected current native PNG renderings: brand visible, with no clipping or overlap. No claim of human-reader or scientific validation."
   },
   "historical_records": {
     "before_name_change": {
@@ -129,10 +116,6 @@
             "sha256": "aecc300574c8728e17d123136a3d606e90a60cd973a183d69d08b8a48fba509a",
             "bytes": 1671
           },
-          "docs\\figures\\hydrocnhs-coupling-framework-en.png": {
-            "sha256": "3eff9d5491c011c3af5504841e867207056f0868f8e8a8a2a4a6c6699b14ba00",
-            "bytes": 2003766
-          },
           "docs\\figures\\hydroopslm-cover.png": {
             "sha256": "fade329b1e76f709c4acdf0720e55869e4dfffc6dd3168870bcafccf4fcca35a",
             "bytes": 273025
@@ -142,7 +125,7 @@
             "bytes": 171155
           }
         },
-        "visual_review": "Parent inspected current native PNG and cropped one-page PDF renderings: brand visible, no clipping/overlap; paper workflow preserves approved geometry. No claim of human-reader or scientific validation."
+        "visual_review": "Parent inspected current native PNG renderings: brand visible, with no clipping or overlap. No claim of human-reader or scientific validation."
       }
     }
   },

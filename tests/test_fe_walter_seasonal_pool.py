@@ -123,7 +123,7 @@ class SeasonalPoolTests(unittest.TestCase):
 
 
 class FigureManualTests(unittest.TestCase):
-    def test_manual_downloads_keep_the_current_figure_bytes(self):
+    def test_manual_keeps_software_diagrams_after_paper_figure_withdrawal(self):
         spec = importlib.util.spec_from_file_location("figure_manual_build", ROOT / "docs/build.py")
         build = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(build)
@@ -133,19 +133,17 @@ class FigureManualTests(unittest.TestCase):
             home = (target / "index.md").read_text(encoding="utf-8")
             overview = (target / "docs/README.md").read_text(encoding="utf-8")
             for page in (home, overview):
-                self.assertIn("hydrocnhs-coupling-framework-en.png", page)
-                self.assertNotIn("_figure_downloads/", page)
+                self.assertNotIn("hydrocnhs-coupling-framework-en.png", page)
             self.assertIn("hydroopslm-cover.png", home)
             self.assertNotIn("hydroopslm-cover.png", overview)
-            self.assertLess(home.index("hydroopslm-cover.png"),
-                            home.index("hydrocnhs-coupling-framework-en.png"))
-            # Keep the core workflow in the Overview and its original figure
-            # downloads byte-exact; branding stays separate from that workflow.
-            self.assertIn("hydrocnhs-coupling-framework-en.png", overview)
-            for ext in ["png"]:
-                name = "hydroopsllm-figure1." + ext
-                self.assertEqual((target / "_figure_downloads" / name).read_bytes(),
-                                 (ROOT / ("docs/figures/hydrocnhs-coupling-framework-en." + ext)).read_bytes())
+            self.assertEqual(
+                (target / "docs/figures/simulation-stages.svg").read_bytes(),
+                (ROOT / "docs/figures/simulation-stages.svg").read_bytes(),
+            )
+            self.assertEqual(
+                (target / "_figure_downloads/simulation-stages.svg").read_bytes(),
+                (ROOT / "docs/figures/simulation-stages.svg").read_bytes(),
+            )
 
 
 if __name__ == "__main__":
