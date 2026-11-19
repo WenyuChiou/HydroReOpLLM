@@ -1,7 +1,7 @@
 # F.E. Walter Reservoir research example
 
 Start with the [MOSART-Urban paper baseline](operation/README.md#paper-baseline-with-mosart-urban)
-and [Table 3 results](../../docs/results/fe_walter/completed/README.md#daily-performance-against-observations).
+and [archived five-seed means](../../docs/results/fe_walter/completed/README.md#daily-performance-against-observations).
 The separate baseline profile reproduces the [MOSART-Urban rule](../rules/mosart_urban/README.md)
 with extra minimum-release and protected-storage overrides set to zero.
 

@@ -9,6 +9,7 @@ or `experiments/` tree. [The file index](FILE_INDEX.txt) lists every maintained 
 | `src/hydrocnhs/` | Bundled, version-pinned upstream hydrology and routing. |
 | `examples/` | Four study entry points: one reservoir, multiple reservoirs, time scales and FE Walter. Shared adapters and rules support them. |
 | `templates/coupled/` | Blank settings to copy when starting a new study. |
+| `templates/prepared/` | Starting configuration, physical network and inflows for the prepared-inflow workflow. |
 | `templates/legacy/` | Compatibility templates used by regression fixtures. |
 | `tutorials/` | Guided notebooks and their source builder. |
 | `docs/` | User manual, API descriptions, figure sources and curated result displays. |
@@ -28,7 +29,9 @@ seasonal criteria. `downstream/` contains the optional observed-boundary
 downstream workflow and its required inputs.
 
 Earlier annual attempts, compatibility adapters and raw teaching outputs are in
-`tests/fixtures/`. Display figures and tables are in `docs/results/fe_walter/`.
+`tests/fixtures/`. The `docs/results/fe_walter/paper_runs/` directory holds daily records for seeds 1–5.
+The `completed/` directory holds the five-seed means and earlier three-seed comparisons.
+The manuscript comparison uses ten seeds per LLM setting.
 Historical manifests retain their original logical paths and hashes; current
 readers translate the location without changing the identity of the evidence.
 

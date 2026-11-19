@@ -9,13 +9,9 @@ templates/prepared/inflows.csv -text whitespace=blank-at-eol,blank-at-eof,space-
 examples/llm_reservoir_abm.py -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 data/benchmark/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 data/figures/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
-# Preserve the byte hashes recorded by the editable generic figure's provenance.
-docs/figures/hydrocnhs-coupling-framework-en.* -text
-docs/figures/assets/coupling-framework/** -text
-# Preserve the generated cover and editable title source alongside their hashes.
-docs/figures/hydroopslm-cover.* -text
-docs/figures/assets/hydroopslm-cover* -text
-docs/figures/source/build_coupling_drawio.py -text
+# Preserve the two published PNG exports.
+docs/figures/hydrocnhs-coupling-framework-en.png -text
+docs/figures/hydroopslm-cover.png -text
 tests/fixtures/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 tutorials/*.ipynb -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 tutorials/build_notebooks.py -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
@@ -35,14 +31,9 @@ environment/hydrocnhs-core.json -text whitespace=blank-at-eol,blank-at-eof,space
 src/hydrocnhs/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 third_party/hydrocnhs/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 
-# Generated SVG path spacing and captured logs retain exact source bytes.
-
 # Preserve exported ArcGIS figure bytes and their recorded hashes.
-docs/figures/fe-walter-catchment.* -text
+docs/figures/fe-walter-catchment.png -text
 docs/figures/source/render_fe_catchment.py -text
-docs/figures/fe-walter-catchment.svg -text whitespace=-blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol
-
-# Original accepted plot exports retain their generated SVG whitespace.
 
 # Curated teaching snapshots retain original bytes after relocation.
 tests/fixtures/fe_walter_history/reference_outputs/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol

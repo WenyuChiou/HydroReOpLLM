@@ -162,7 +162,6 @@ environment/hydrocnhs-core.json
 environment/hydrocnhs-hydrology-core.json
 environment/interface-runtime.json
 environment/requirements-bundled.txt
-environment/requirements-hydrocnhs.txt
 examples/README.md
 examples/README.zh-TW.md
 examples/daily_offline/README.md

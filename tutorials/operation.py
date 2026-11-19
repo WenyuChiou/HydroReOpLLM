@@ -157,7 +157,7 @@ reservoir-experiment run examples/fe_walter/operation/llm_available.yaml --allow
 ```
 
 The [completed Daily and Hourly comparisons](../docs/results/fe_walter/completed/README.md)
-provide the latest accepted figures and Table 3 from a separately pinned campaign.
+include the archived three-seed comparison figures and the five-seed daily means.
 This notebook does not generate or overwrite those LLM results. The
 [saved three-method illustration](../examples/fe_walter/results.md) covers **2016**
 with the earlier prompt; its figures can be read directly without executing an LLM.

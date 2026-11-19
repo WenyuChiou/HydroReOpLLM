@@ -8,6 +8,8 @@ Retrieve its exact CSV from Git revision `f6eff89:archive/inventory.csv`, or the
 maintainer's preserved recovery package. It is not the current file index;
 see [current project structure](../docs/CODE_STRUCTURE.md).
 
+The historical [external HydroCNHS installation list](https://github.com/WenyuChiou/HydroReOpLLM/blob/bd6dd4e8311c54eb5d8ec87736b74a752c571285/environment/requirements-hydrocnhs.txt) records the upstream Git dependency used before bundling. For current installs, use [the bundled constraints](../environment/requirements-bundled.txt).
+
 The seven historical root launchers and retired guides/notebooks are in the
 external **HydroOpsLM-pre-cleanup-20261012-fbd9a993** recovery package.
 The maintained entry is [run_experiment.py](../run_experiment.py).

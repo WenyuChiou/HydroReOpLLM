@@ -99,7 +99,7 @@
       },
       {
         "path": "docs/results/fe_walter/completed/README",
-        "label": "Completed F.E. Walter comparisons"
+        "label": "F.E. Walter archived comparisons (three and five seeds)"
       },
       {
         "path": "examples/fe_walter/hydrology",
@@ -119,7 +119,7 @@
       },
       {
         "path": "examples/fe_walter/results",
-        "label": "F.E. Walter results"
+        "label": "2016 F.E. Walter teaching results"
       },
       {
         "path": "examples/fe_walter/downstream/README",
@@ -297,7 +297,7 @@
       },
       {
         "path": "examples/fe_walter/results.zh-TW",
-        "label": "FE Walter：水位與控制放流"
+        "label": "2016 年 FE Walter 教學案例：水位與控制放流"
       },
       {
         "path": "examples/fe_walter/downstream/README.zh-TW",

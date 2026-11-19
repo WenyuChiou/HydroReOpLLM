@@ -13,7 +13,7 @@ reservoir-experiment run examples/fe_walter/operation/experiment.mosart.yaml
 reservoir-experiment verify runs/fe-walter-2021-2025-mosart
 ```
 
-[Table 3](../../../docs/results/fe_walter/completed/README.md#daily-performance-against-observations)
+[The archived five-seed comparison](../../../docs/results/fe_walter/completed/README.md#daily-performance-against-observations)
 reports KGE and RMSE. The saved LLM runs retain their own configuration and
 initialization.
 
