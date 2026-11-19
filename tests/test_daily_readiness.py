@@ -83,17 +83,3 @@ def test_daily_download_namespace_preserves_historical_teaching(tmp_path):
     for source, name in builder.DAILY_DOWNLOADS.items():
         assert (tmp_path / '_daily_downloads' / name).read_bytes() == (ROOT / source).read_bytes()
         assert (tmp_path / source).read_bytes() == (ROOT / source).read_bytes()
-
-
-def test_published_results_preserve_accepted_binary_bytes():
-    """Text-converted patches must never replace a published PDF with plain text."""
-    folder = ROOT / 'docs/results/fe_walter/completed'
-    provenance = json.loads((folder / 'provenance.json').read_text(encoding='utf-8'))
-    mismatches = []
-    for row in provenance['files']:
-        raw = (folder / row['file']).read_bytes()
-        if hashlib.sha256(raw).hexdigest() != row['sha256']:
-            mismatches.append(row['file'])
-        elif row['file'].endswith('.pdf') and not raw.startswith(b'%PDF-'):
-            mismatches.append(row['file'] + ': missing PDF header')
-    assert mismatches == []

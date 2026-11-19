@@ -5,7 +5,7 @@
 HydroReOpLLM 為 HydroCNHS 加入水庫操作員。操作員可依規則或詢問 LLM 要求放水；
 水文模型與水庫物理計算獨立於這項選擇。
 
-![HydroReOpLLM 模擬與水庫決策流程](figures/hydrocnhs-coupling-framework-en.png)
+![HydroReOpLLM 模擬階段](figures/simulation-stages.svg)
 
 1. HydroCNHS 計算操作期間的逕流與上游 routing 入流。
 2. 每天，各水庫操作員讀取自己的狀態、入流與所選資訊。

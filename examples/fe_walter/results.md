@@ -1,7 +1,5 @@
 # F.E. Walter teaching results, 2016
 
-[2021–2025 manuscript results](../../docs/results/fe_walter/manuscript/README.md)
-
 The saved LLM trajectories use the **previous prompts**, without the new daily
 seasonal context. [Review the actual October requests and proposed addition](prompt_review.md). No new model result is shown.
 

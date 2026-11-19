@@ -98,14 +98,6 @@
         "label": "F.E. Walter prepared operation, 2021–2025"
       },
       {
-        "path": "docs/results/fe_walter/manuscript/README",
-        "label": "F.E. Walter manuscript results (ten seeds per LLM)"
-      },
-      {
-        "path": "docs/results/fe_walter/completed/README",
-        "label": "F.E. Walter archived comparisons (three and five seeds)"
-      },
-      {
         "path": "examples/fe_walter/hydrology",
         "label": "FE Walter: hydrology, parameters and calibration / validation"
       },

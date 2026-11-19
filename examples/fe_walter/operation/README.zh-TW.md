@@ -2,7 +2,7 @@
 
 [English](README.md) | [繁體中文](README.zh-TW.md)
 
-## MOSART-Urban 文章基準
+## MOSART-Urban 已準備基準
 
 在專案根目錄用 [experiment.mosart.yaml](experiment.mosart.yaml)
 讀取已準備的每日入流，執行 2021–2025 年的規則法基準。
@@ -12,9 +12,6 @@ reservoir-experiment check examples/fe_walter/operation/experiment.mosart.yaml
 reservoir-experiment run examples/fe_walter/operation/experiment.mosart.yaml
 reservoir-experiment verify runs/fe-walter-2021-2025-mosart
 ```
-
-[早期五個 seed 的比較](../../../docs/results/fe_walter/completed/README.md#daily-performance-against-observations)
-列出 KGE 與 RMSE。已保存的 LLM 實驗各自保留原設定與初始狀態。
 
 ## 歷史 Hanasaki 教學
 
@@ -31,8 +28,6 @@ Hanasaki 教學，保留原本的 1,826 日結果及兩個可選的 LLM 入口�
 | [experiment.yaml](experiment.yaml) | 規則法五年入口 | 起訖日皆納入的每日資料 | 是 |
 | [llm_available.yaml](llm_available.yaml) / [llm_knowledge.yaml](llm_knowledge.yaml) | 已準備的 LLM 入口 | 尚未執行 | 未來各 LLM 方法擇一 |
 | [case.json](case.json) | 共用水庫與下游網路 | 蓄水量 m³；放流 m³/s | 是 |
-| [case.llm.json](case.llm.json) | 網路與 `case.json` 相同，僅 `initial_storage_m3` 不同（4,337,390.926410141 m³） | 蓄水量 m³ | 僅 completed-start LLM 入口需要 |
-| [llm_available.completed_start.yaml](llm_available.completed_start.yaml) / [llm_knowledge.completed_start.yaml](llm_knowledge.completed_start.yaml) | 以 `case.llm.json` 起算的 LLM 入口 | 尚未執行 | 選用 |
 | [inflows.csv](inflows.csv) | 凍結的上游與區間每日入流 | `local_inflow_cms`，m³/s | 是 |
 | [agents.rule.yaml](agents.rule.yaml) | 通用 Hanasaki 比較基準 | `alpha: 0.85` | 基準需要 |
 | [initialization.json](initialization.json) | 前一操作年係數種子與共用物理初始狀態 | 蓄水量 m³ | 基準需要 |
@@ -41,10 +36,7 @@ Hanasaki 教學，保留原本的 1,826 日結果及兩個可選的 LLM 入口�
 
 三種已準備的方法（`experiment.yaml`、`llm_available.yaml`、`llm_knowledge.yaml`，
 即 `preflight.py` 檢查的檔案）共用觀測到的 2021-01-01 當地午夜蓄水量
-4,287,715.370246947 m³（水位 1,312.4 ft）。論文報告的已完成 LLM 執行則從
-4,337,390.926410141 m³（1,312.7 ft）起算，高出 49,676 m³（0.3 ft）。兩個
-`*.completed_start.yaml` 搭配 `case.llm.json` 只重現這個起始蓄水量，其餘與已準備的
-LLM 入口相同。目前沒有任何紀錄說明兩個數值為何不同。
+4,287,715.370246947 m³（水位 1,312.4 ft）。
 
 規則法係數以
 2020-05-01 的 21,914,228.648262143 m³ 得到 `k = 0.19022285020658533`；之後
@@ -86,6 +78,6 @@ LLM 入口相同。目前沒有任何紀錄說明兩個數值為何不同。
 核對參數來源，並確認五年比較的共用輸入已備妥。[C&V 參考](../downstream/validation.zh-TW.md)
 說明當時使用 White Haven 觀測流量作為上游邊界。壩口至 White Haven 的短河段與
 小面積區間仍移用上游參數，各支流也沒有個別測站驗證。Notebook 會計算入流、
-在新資料夾執行規則法操作，再繪製該次結果；本教學不會重跑或覆寫另行完成的 LLM 結果。
+在新資料夾執行規則法操作，再繪製該次結果；本教學不會執行 LLM 比較或覆寫已保存結果。
 
 保留的通用係數依據 [Hanasaki et al. (2006), Eq. 3](https://doi.org/10.1016/j.jhydrol.2005.11.011)。

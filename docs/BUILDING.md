@@ -2,8 +2,8 @@
 
 Read the [online manual](https://wenyuchiou.github.io/HydroReOpLLM/). The repository README documentation
 badge and About website link lead to this site. GitHub Pages serves the HTML,
-figures and original notebook downloads; source/data links lead to the public
-GitHub repository.
+figures and original notebook downloads when Pages is enabled. Source links
+follow the repository's access settings.
 
 ## GitHub Pages
 
@@ -14,7 +14,7 @@ calls a model. Maintainers can also dispatch this workflow on `main`.
 
 The build job reads repository contents and Pages settings. Only the deployment
 job receives Pages and OIDC write permissions, through the `github-pages`
-environment. Both the source repository and the rendered manual are public.
+environment.
 
 ## Sharing preview
 
@@ -41,9 +41,10 @@ python scripts/check_docs_site.py build/docs
 Open `build/docs/index.html`. This is the documentation-site home, with chapter
 navigation, the FE Walter case and its downloadable results notebook. Notebook
 downloads retain the original committed bytes.
-Tables and figures come from saved MIME outputs.
+The main and advanced tutorials include their saved teaching outputs.
+The operation notebook produces its tables and figures when run locally.
 MyST-NB execution is **off**: building the site does not run a simulation, start
-Ollama or call a provider. Source/data links lead to the public GitHub repository.
+Ollama or call a provider.
 The same HTML can be viewed locally or on GitHub Pages.
 
 To refresh saved-data tables/plots separately:
@@ -60,10 +61,11 @@ remain unchanged.
 
 在完整 repo 使用上方安裝及建置指令，再開啟 `build/docs/index.html`。
 文件站提供中英文首頁、章節目錄、FE Walter 三方法案例及結果 notebook 下載，
-直接顯示保存的表格／圖片；下載檔保留已提交 notebook 的原始 bytes。
+主教學和進階教學顯示保存的範例輸出。操作教學的圖表在本機執行後產生。
+下載檔保留已提交 notebook 的原始 bytes。
 MyST-NB 不執行 cells；建置不啟動 Ollama、呼叫 provider 或執行模擬。
 [線上文件站](https://wenyuchiou.github.io/HydroReOpLLM/)由 GitHub Pages 提供；README 的文件 badge 可直接進入。
-原始碼／資料連結指向公開的 GitHub repository。部署僅發布建置後的 HTML、圖片與
+原始碼與資料連結依 GitHub 儲存庫的權限設定開放。部署僅發布建置後的 HTML、圖片與
 notebook，不執行 notebook cells，也不啟動模型。
 另用 `--execute --check` 更新保存資料的圖表時，網路會被封鎖，
 不重跑 LLM，原始回覆、科學資料及 audit 判定不變。

@@ -2,7 +2,7 @@
 
 [English](README.md) | [繁體中文](README.zh-TW.md)
 
-## Paper baseline with MOSART-Urban
+## Prepared baseline with MOSART-Urban
 
 From the repository root, use [experiment.mosart.yaml](experiment.mosart.yaml)
 to run the 2021–2025 rule-based baseline with prepared daily inflows.
@@ -12,10 +12,6 @@ reservoir-experiment check examples/fe_walter/operation/experiment.mosart.yaml
 reservoir-experiment run examples/fe_walter/operation/experiment.mosart.yaml
 reservoir-experiment verify runs/fe-walter-2021-2025-mosart
 ```
-
-[The archived five-seed comparison](../../../docs/results/fe_walter/completed/README.md#daily-performance-against-observations)
-reports KGE and RMSE. The saved LLM runs retain their own configuration and
-initialization.
 
 ## Historical Hanasaki teaching lesson
 
@@ -34,8 +30,6 @@ simulated 1989–2025 upstream and local runoff and routing.
 | [experiment.yaml](experiment.yaml) | Rule-based five-year entry | Inclusive daily dates | Yes |
 | [llm_available.yaml](llm_available.yaml) / [llm_knowledge.yaml](llm_knowledge.yaml) | Prepared LLM entries | Not executed | One per future LLM method |
 | [case.json](case.json) | Shared reservoir and downstream network | Storage m³; release m³/s | Yes |
-| [case.llm.json](case.llm.json) | Same network as `case.json`; only `initial_storage_m3` differs (4,337,390.926410141 m³) | Storage m³ | Only for the completed-start LLM entries |
-| [llm_available.completed_start.yaml](llm_available.completed_start.yaml) / [llm_knowledge.completed_start.yaml](llm_knowledge.completed_start.yaml) | LLM entries that start from `case.llm.json` | Not executed | Optional |
 | [inflows.csv](inflows.csv) | Frozen upstream and local daily inflows | `local_inflow_cms`, m³/s | Yes |
 | [agents.rule.yaml](agents.rule.yaml) | Generic Hanasaki comparator | `alpha: 0.85` | Yes for the baseline |
 | [initialization.json](initialization.json) | Prior-year coefficient seed and common physical start | Storage m³ | Yes for the baseline |
@@ -45,11 +39,6 @@ simulated 1989–2025 upstream and local runoff and routing.
 The three prepared methods (`experiment.yaml`, `llm_available.yaml`,
 `llm_knowledge.yaml`, the files `preflight.py` checks) share the observed
 2021-01-01 local-midnight storage of 4,287,715.370246947 m³ (pool 1,312.4 ft).
-The completed LLM runs reported in the paper started from 4,337,390.926410141 m³
-(1,312.7 ft), 49,676 m³ (0.3 ft) higher. The two `*.completed_start.yaml` files,
-with `case.llm.json`, reproduce that starting storage only; they are otherwise
-identical to the prepared LLM entries. No record documents why the two values
-differ.
 
 The Rule-based coefficient uses 21,914,228.648262143 m³ on 2020-05-01,
 `k = 0.19022285020658533`, then refreshes from simulated beginning-of-day storage
@@ -98,7 +87,7 @@ See the [C&V reference](../downstream/validation.md) for the observed White Have
 boundary used in that test. The short dam-to-White Haven reach and its small local
 catchments retain transferred parameters; individual tributaries were not separately
 validated. The notebook calculates inflows and runs Rule-based operation in a new
-output folder, then draws its own figures. This lesson does not generate the
-separately completed LLM comparison or overwrite its saved results.
+output folder, then draws its own figures. This lesson does not generate any LLM
+comparison or overwrite saved results.
 
 The retained generic coefficient follows [Hanasaki et al. (2006), Eq. 3](https://doi.org/10.1016/j.jhydrol.2005.11.011).

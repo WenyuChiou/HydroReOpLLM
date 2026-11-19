@@ -28,8 +28,13 @@ reservoir-experiment = "llm_reservoir_agent.workflow:main"
 # Test this checkout even if another worktree is installed in editable mode.
 pythonpath = ["src"]
 
+[tool.setuptools]
+include-package-data = false
+
 [tool.setuptools.packages.find]
 where = ["src"]
+include = ["hydrocnhs", "hydrocnhs.*", "llm_reservoir_agent", "llm_reservoir_agent.*"]
+namespaces = false
 
 [tool.setuptools.package-dir]
 scripts = "scripts"
@@ -50,23 +55,3 @@ hydrocnhs = ["Config_logging.yaml"]
 "share/llm-reservoir-agent/scripts" = ["scripts/verify_mosart_rule.py"]
 # The original-program oracle is external and opt-in; case extensions live in examples.
 "share/llm-reservoir-agent" = ["THIRD_PARTY_NOTICES.md"]
-"share/llm-reservoir-agent/manuscript" = [
-    "docs/results/fe_walter/manuscript/README.md",
-    "docs/results/fe_walter/manuscript/daily_simulations.csv.gz",
-    "docs/results/fe_walter/manuscript/observations.csv.gz",
-    "docs/results/fe_walter/manuscript/scores_per_run.csv",
-    "docs/results/fe_walter/manuscript/table2_median_range.csv",
-    "docs/results/fe_walter/manuscript/manuscript_table2_reference.csv",
-    "docs/results/fe_walter/manuscript/illustrative_target_full_calendar.csv",
-    "docs/results/fe_walter/manuscript/provenance.json",
-    "docs/results/fe_walter/manuscript/verify.py",
-    "docs/results/fe_walter/manuscript/Figure_3_daily_2021_2025.pdf",
-    "docs/results/fe_walter/manuscript/Figure_4_annual_cycle.pdf",
-    "docs/results/fe_walter/manuscript/figure3_daily_seed_medians.csv",
-    "docs/results/fe_walter/manuscript/figure4_calendar_medians_and_across_year_iqr.csv",
-    "docs/results/fe_walter/manuscript/paper-model-lock.json",
-    "docs/results/fe_walter/manuscript/ollama-manifest.json",
-    "docs/results/fe_walter/manuscript/system_prompt_dkp.txt",
-    "docs/results/fe_walter/manuscript/system_prompt_seasonal_target.txt",
-    "docs/results/fe_walter/manuscript/verify_paper_model.py",
-]

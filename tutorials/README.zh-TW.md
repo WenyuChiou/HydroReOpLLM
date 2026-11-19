@@ -44,9 +44,9 @@ python tutorials/build_notebooks.py --check
 
 CI 執行 `python tutorials/build_notebooks.py --execute --check`。它在同一個行程內，
 以保存的證據並封鎖網路，重新產生並執行 `main.ipynb` 與 `advanced.ipynb`。
-`operation.ipynb` 保留已存的輸出，除非明確選取它
-（`--notebook operation.ipynb --execute`）；`downstream_validation.ipynb` 不由這個
-腳本建置。兩者都只在需要時執行。
+發布的 `operation.ipynb` 只包含教學原始碼。在 Jupyter 依序執行即可查看表格與圖，
+也可用 `--notebook operation.ipynb --execute` 在本機驗算。
+`downstream_validation.ipynb` 則獨立執行。
 
 [通用設定](../docs/INPUT_OUTPUT.md) · [HydroCNHS 設定](../docs/HYDROLOGY_SETUP.md) ·
 [F.E. Walter 範例](../examples/fe_walter/README.zh-TW.md)

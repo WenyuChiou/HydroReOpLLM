@@ -25,7 +25,7 @@ HydroCNHS calculates catchment inflow. Each reservoir operator requests a
 release using the current reservoir state and the information you provide.
 Reservoir physics updates storage and spill; routing carries the outflow downstream.
 
-![HydroCNHS hydrology connected to LLM reservoir decisions, reservoir physics and downstream routing](figures/hydrocnhs-coupling-framework-en.png)
+![Hydrology, reservoir operation, verification and saved-output stages](figures/simulation-stages.svg)
 
 The LLM reply is checked before use. Operating-rule checks record whether a
 decision follows the selected rules; a valid reply alone does not show good operation.

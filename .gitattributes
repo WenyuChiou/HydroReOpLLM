@@ -9,8 +9,7 @@ templates/prepared/inflows.csv -text whitespace=blank-at-eol,blank-at-eof,space-
 examples/llm_reservoir_abm.py -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 data/benchmark/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 data/figures/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
-# Preserve the two published PNG exports.
-docs/figures/hydrocnhs-coupling-framework-en.png -text
+# Preserve the cover image.
 docs/figures/hydroopslm-cover.png -text
 tests/fixtures/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 tutorials/*.ipynb -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
@@ -30,8 +29,6 @@ environment/hydrocnhs-core.json -text whitespace=blank-at-eol,blank-at-eof,space
 src/hydrocnhs/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 third_party/hydrocnhs/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 
-# Preserve exported ArcGIS figure bytes and their recorded hashes.
-docs/figures/fe-walter-catchment.png -text
 docs/figures/source/render_fe_catchment.py -text
 
 # Curated teaching snapshots retain original bytes after relocation.
@@ -54,14 +51,5 @@ tests/*.py text eol=lf
 # The installed Daily examples and their evidence retain exact fixture bytes.
 examples/daily_offline/** -text
 docs/qa/*.json -text
-# Accepted comparison exports keep exact bytes, including native SVG path spacing.
-docs/results/fe_walter/completed/** -text whitespace=-blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol
-# Paper-run daily outputs keep exact bytes so the SHA-256 values in provenance.json hold.
-docs/results/fe_walter/paper_runs/** -text
-# Published paper artifacts have byte-level provenance across platforms.
-docs/results/fe_walter/manuscript/*.csv -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
-docs/results/fe_walter/manuscript/*.txt -text
-docs/results/fe_walter/manuscript/*.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
-
 # Relocated climate/metric displays retain the original exact-byte pins.
 docs/results/fe_walter/hydrology/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol

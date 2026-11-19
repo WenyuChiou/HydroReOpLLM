@@ -22,17 +22,52 @@ def source_paths():
 
 def test_private_execution_and_model_artifacts_are_not_source():
     forbidden_parts = {".ai", ".coord", ".codebase-memory", "_qa", "__pycache__",
-                       ".pytest_cache", ".ruff_cache", ".mypy_cache", "node_modules"}
+                       ".pytest_cache", ".ruff_cache", ".mypy_cache", "node_modules",
+                       "paper", "papers", "manuscript", "manuscripts", "paper_runs"}
+    protected_prefixes = (
+        "data/figures/manual_map/",
+        "docs/results/fe_walter/completed/",
+        "docs/results/fe_walter/hydrology/climate/",
+    )
+    protected_files = {
+        "docs/figures/FIGURE1.md",
+        "docs/figures/fe-walter-catchment.png",
+        "docs/figures/hydrocnhs-coupling-framework-en.png",
+    }
     invalid = []
     for name in source_paths():
         p = Path(name)
-        if (forbidden_parts.intersection(p.parts)
+        normalized = p.as_posix()
+        if ({part.lower() for part in p.parts}.intersection(forbidden_parts)
                 or any(part.startswith(".venv") for part in p.parts)
                 or p.name.startswith(".env")
-                or p.suffix in {".log", ".tmp", ".bkp", ".bak", ".safetensors", ".gguf"}
+                or p.suffix.lower() in {".docx", ".tex", ".log", ".tmp", ".bkp", ".bak",
+                                        ".safetensors", ".gguf"}
+                or normalized in protected_files
+                or normalized.startswith(protected_prefixes)
                 or name.startswith(("runs/", "outputs/", "docs/plans/"))):
             invalid.append(name)
     assert invalid == []
+
+
+def test_private_research_paths_are_ignored_before_they_can_be_added():
+    representatives = (
+        "paper/draft.pdf",
+        "manuscripts/supplement.docx",
+        "paper_runs/run-01/decisions.jsonl",
+        "draft.tex",
+        "docs/results/fe_walter/completed/result.csv",
+        "docs/results/fe_walter/hydrology/climate/figure.png",
+        "docs/figures/hydrocnhs-coupling-framework-en.png",
+        "docs/figures/fe-walter-catchment.png",
+        "data/figures/manual_map/source.zip",
+    )
+    result = subprocess.run(
+        ["git", "check-ignore", "--no-index", "--", *representatives],
+        cwd=ROOT, check=False, capture_output=True, text=True,
+    )
+    ignored = set(result.stdout.splitlines())
+    assert set(representatives) <= ignored
 
 
 def test_complete_file_index_matches_maintained_source():

@@ -23,7 +23,7 @@
 HydroCNHS 計算集水區入流。各水庫操作員依目前狀態與提供的資訊要求放水；
 水庫物理計算更新庫容與溢流，再把總出流 routing 到下游。
 
-![HydroCNHS 水文、LLM 水庫決策、水庫物理與下游 routing 的架構](figures/hydrocnhs-coupling-framework-en.png)
+![水文、水庫操作、驗證與儲存輸出的階段](figures/simulation-stages.svg)
 
 LLM 回覆會先通過格式與數值檢查。操作規則稽核記錄決策是否符合所選規則；
 回覆有效本身不代表操作策略有效。

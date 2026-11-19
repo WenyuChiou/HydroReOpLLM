@@ -29,6 +29,23 @@ def test_all_canonical_example_assets_match_their_sources(prepared_manual):
         assert (output / relative).read_bytes() == (ROOT / relative).read_bytes(), relative
 
 
+def test_site_rebuild_rejects_an_old_download_without_modifying_destination(prepared_manual, tmp_path):
+    builder, _ = prepared_manual
+    rendered = tmp_path / 'rendered'
+    rendered.mkdir()
+    (rendered / 'index.html').write_text('current')
+    site = tmp_path / 'site'
+    assert builder.publish_site(rendered, site) == 0
+    assert builder.publish_site(rendered, site) == 0
+    extra = site / '_downloads' / 'obsolete.csv'
+    extra.parent.mkdir()
+    extra.write_text('private')
+    (rendered / 'index.html').write_text('new build')
+    assert builder.publish_site(rendered, site) != 0
+    assert extra.read_text() == 'private'
+    assert (site / 'index.html').read_text() == 'current'
+
+
 def test_shared_rule_source_is_not_replaced_by_another_asset(prepared_manual):
     builder, output = prepared_manual
     for relative in builder.MULTI_SHARED_RULES:

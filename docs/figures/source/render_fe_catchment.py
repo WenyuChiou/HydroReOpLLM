@@ -1,4 +1,4 @@
-"""Export the F. E. Walter manual map from its portable ArcGIS Pro package."""
+"""Export a user-supplied F. E. Walter ArcGIS Pro package."""
 
 from __future__ import annotations
 
@@ -68,18 +68,19 @@ def export_map(package: Path, output: Path, resolution: int) -> None:
 def main() -> None:
     repository = Path(__file__).resolve().parents[3]
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument(
+    source = parser.add_mutually_exclusive_group(required=True)
+    source.add_argument(
         "--package",
         type=Path,
-        default=repository / "data/figures/manual_map/fe-walter-arcgis-source.zip",
+        help="ArcGIS Pro package supplied by the user",
     )
     parser.add_argument(
         "--output",
         type=Path,
-        default=repository / "docs/figures/fe-walter-catchment",
+        default=repository / "outputs/figures/fe-walter-catchment",
     )
     parser.add_argument("--resolution", type=int, default=240)
-    parser.add_argument("--project", type=Path, help=argparse.SUPPRESS)
+    source.add_argument("--project", type=Path, help=argparse.SUPPRESS)
     arguments = parser.parse_args()
     if arguments.project is not None:
         project_file = arguments.project.resolve()

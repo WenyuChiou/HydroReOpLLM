@@ -31,9 +31,8 @@ HydroCNHS (see `THIRD_PARTY_NOTICES.md`). If another installation overwrites
 those files, the weather-driven path stops with "installed HydroCNHS core
 differs from its accepted pin". Reinstall into a clean environment.
 
-The wheel installs the [F.E. Walter manuscript data and verification tools](results/fe_walter/manuscript/README.md)
-under `<environment prefix>/share/llm-reservoir-agent/manuscript/`. The same
-share directory contains the offline daily example, MOSART-Urban rule and runtime pins.
+The wheel share directory contains the offline daily example, MOSART-Urban rule
+and runtime pins.
 The first run in the manual therefore needs a clone of the repository.
 
 Installation does not download or start an LLM. Select the provider and model

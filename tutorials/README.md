@@ -45,10 +45,10 @@ the prompts recorded by their source runs, before daily seasonal context was add
 
 CI runs `python tutorials/build_notebooks.py --execute --check`. That regenerates
 and executes `main.ipynb` and `advanced.ipynb` in-process, from saved evidence
-with network access blocked. `operation.ipynb` keeps its saved outputs unless you
-select it (`--notebook operation.ipynb --execute`), and
-`downstream_validation.ipynb` is not built by this script. Both run only on
-request.
+with network access blocked. The distributed `operation.ipynb` contains the
+lesson source. Run it in Jupyter to see its tables and plots, or use
+`--notebook operation.ipynb --execute` to verify its calculations offline.
+`downstream_validation.ipynb` runs separately.
 
 [Generic configuration](../docs/INPUT_OUTPUT.md) ·
 [HydroCNHS setup](../docs/HYDROLOGY_SETUP.md) ·

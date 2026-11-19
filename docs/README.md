@@ -6,7 +6,7 @@ HydroReOpLLM adds reservoir operators to HydroCNHS. The operator can follow a
 rule or ask an LLM for release; the hydrological model and reservoir physics
 remain separate from that choice.
 
-![HydroReOpLLM simulation and reservoir decision workflow](figures/hydrocnhs-coupling-framework-en.png)
+![HydroReOpLLM simulation stages](figures/simulation-stages.svg)
 
 1. HydroCNHS calculates runoff and routes upstream inflow for the operation period.
 2. Each day, each reservoir operator reads its own state, inflow and selected information.
