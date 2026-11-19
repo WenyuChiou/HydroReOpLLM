@@ -30,6 +30,8 @@ def _inside(root: Path, relative: str) -> Path:
     # Old receipts retain their logical path; only the fixture location changed.
     if relative.startswith("cases/"):
         relative = "tests/fixtures/" + relative
+    elif relative == "environment/hydrocnhs-hydrology-core.json" and not (root / relative).is_file():
+        relative = "tests/fixtures/fe_walter_legacy/hydrocnhs-hydrology-core.json"
     path = (root / relative).resolve()
     if Path(relative).is_absolute() or not path.is_relative_to(root.resolve()):
         raise ValueError("artifact path escapes the project")

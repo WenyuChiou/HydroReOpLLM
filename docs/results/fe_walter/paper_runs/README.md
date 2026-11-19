@@ -4,9 +4,9 @@ This snapshot covers 1,826 days from 1 January 2021 to 31 December 2025.
 It includes one MOSART-Urban baseline and seeds 1–5 for each LLM setting,
 11 runs in total. The ten LLM decision traces are in [`decisions/`](decisions/).
 
-The manuscript's Table 2 uses seeds 1–10 for each LLM setting. The daily files
-here can reproduce the five-seed summaries below. Recomputing the manuscript
-table also requires seeds 6–10.
+The daily files here reproduce the five-seed summaries below. The
+[manuscript dataset](../manuscript/README.md) contains seeds 1–10 for both LLM
+settings and an offline check of Table 2.
 The provenance manifest retains the description recorded for this earlier snapshot.
 
 **Starting storage.** The rule-based run starts from 4,287,715 m³. The LLM runs

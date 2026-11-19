@@ -68,7 +68,7 @@ def run_smoke(project_root=PROJECT_ROOT):
     import hydrocnhs
     import numpy as np
 
-    core = json.loads((root / CORE).read_text(encoding="utf-8"))
+    core = json.loads(_inside(root, CORE).read_text(encoding="utf-8"))
     if core["hydrocnhs_commit"] != HYDROCNHS_COMMIT:
         raise ValueError("HydroCNHS core pin drift")
     package_root = Path(hydrocnhs.__file__).resolve().parent

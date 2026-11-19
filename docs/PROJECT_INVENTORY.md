@@ -37,7 +37,11 @@ readers translate the location without changing the identity of the evidence.
 
 ## Installed package
 
-The wheel contains the generic package, bundled HydroCNHS, required runtime
-support and the small single-reservoir example. Repository-only research
-fixtures and archived outputs are excluded. Import names, CLI commands and
-configuration schema IDs remain stable.
+The wheel contains the Python package, bundled HydroCNHS, runtime support and
+the daily single-reservoir example. The [manuscript bundle](results/fe_walter/manuscript/README.md)
+installs under `share/llm-reservoir-agent/manuscript/`. It includes observations
+and simulations for all 21 runs, Table 2, Figures 3 and 4 with their data, the
+paper model lock, system prompts and offline verification scripts.
+
+The earlier five-seed results in `paper_runs/` and `completed/`, teaching
+snapshots and regression fixtures are available in the repository checkout.

@@ -1,5 +1,7 @@
 # HydroReOpLLM
 
+[F.E. Walter 論文資料、Table 2 和 Figures 3–4](docs/results/fe_walter/manuscript/README.md)
+
 [English](README.md) | [繁體中文](README.zh-TW.md)
 
 [![使用手冊](docs/_static/docs-badge-zh-TW.svg)](https://wenyuchiou.github.io/HydroReOpLLM/)
@@ -59,7 +61,8 @@ reservoir-experiment --help
 裝進同一個環境。若檔案被覆蓋，氣象驅動流程會以「installed HydroCNHS core differs from
 its accepted pin」停止；請在乾淨的環境重新安裝。
 
-範例、模板、教學與資料在 repository 中，不在 wheel 內。wheel 只含
+wheel 內含 F.E. Walter 論文資料與驗證程式，安裝於環境下的
+`share/llm-reservoir-agent/manuscript/`。其中也包含
 `examples/daily_offline`、MOSART-Urban 規則與固定版本的執行檔案，安裝在
 `<環境 prefix>/share/llm-reservoir-agent/`。因此下方的第一次執行需要 clone repository。
 

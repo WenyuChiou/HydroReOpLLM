@@ -1,0 +1,79 @@
+{
+  "purpose": "Model, runtime and inference settings recorded for the F.E. Walter daily manuscript experiments, 2021–2025.",
+  "model_tag": "gemma4:12b",
+  "manifest_sha256": "4eb23ef187e2c5462566d6a1d3bbbc2f1346d0b4327cbb66d58fffbcc9b2b05c",
+  "ollama_version": "0.40.6",
+  "runtime_windows_amd64_url": "https://github.com/ollama/ollama/releases/download/v0.40.6/ollama-windows-amd64.zip",
+  "runtime_windows_amd64_zip_sha256": "e359637575302f288d76c0007c408a4be9c7376d59c4f28684d63b232a44b427",
+  "blob_base_url": "https://registry.ollama.ai/v2/library/gemma4/blobs/",
+  "ollama_manifest": {
+    "schemaVersion": 2,
+    "mediaType": "application/vnd.docker.distribution.manifest.v2+json",
+    "config": {
+      "mediaType": "application/vnd.docker.container.image.v1+json",
+      "digest": "sha256:c805f5b265d8e695c44f4065dfc368206cd8026447604925fef8db57ee32ee23",
+      "size": 548
+    },
+    "layers": [
+      {
+        "mediaType": "application/vnd.ollama.image.model",
+        "digest": "sha256:1278394b693672ac2799eadc9a83fd98259a6a88a40acfb1dcaa6c6fc895a606",
+        "size": 7381382048
+      },
+      {
+        "mediaType": "application/vnd.ollama.image.projector",
+        "digest": "sha256:675ad6e68101ca9413ec806855c452362f0213f2dfc5800996b086fdb8119842",
+        "size": 175115584,
+        "from": "mmproj-gemma-4-12B-it-bf16.gguf"
+      },
+      {
+        "mediaType": "application/vnd.ollama.image.license",
+        "digest": "sha256:0d542e0c8804e39aa7f37eb00da5a762149dc682d7829451287e11b938e94594",
+        "size": 10174
+      },
+      {
+        "mediaType": "application/vnd.ollama.image.params",
+        "digest": "sha256:56380ca2ab89f1f68c283f4d50863c0bcab52ae3f1b9a88e4ab5617b176f71a3",
+        "size": 42
+      }
+    ]
+  },
+  "paper_run_settings_from_saved_headers": {
+    "provider": "ollama",
+    "model": "gemma4:12b",
+    "temperature": 0.7,
+    "num_ctx": 16384,
+    "max_tokens": 2048,
+    "think": false,
+    "max_attempts": 2,
+    "retry_delay_seconds": 2.0,
+    "timeout_seconds": 120.0,
+    "keep_alive": "30m"
+  },
+  "seeds": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+  ],
+  "prompt_comparison": [
+    {
+      "agent": "llm_with_operational_knowledge",
+      "system_prompt_sha256": "b0e8a42229a94c7389fcd4bd58a44c1cb2f81cbe9af0648d37a620e9f9a2a728",
+      "operating_rules_sha256": "ca07fdc876f63b049a2b5560d9354329a643d30ea027270293effd731efa7021",
+      "system_prompt_file": "system_prompt_dkp.txt"
+    },
+    {
+      "agent": "llm_without_operational_knowledge",
+      "system_prompt_sha256": "6138aac6d50c59b059b1b1f77fcffc97061312152cf96c46619e1a76bed69a9d",
+      "operating_rules_sha256": null,
+      "system_prompt_file": "system_prompt_seasonal_target.txt"
+    }
+  ]
+}

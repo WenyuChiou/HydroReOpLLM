@@ -28,7 +28,7 @@ The table below follows the **2021–2025 prepared-inflow entry**.
 | Rule-based operator | MOSART-Urban flood-control rule | [agents.mosart.yaml](../examples/fe_walter/coupled/agents.mosart.yaml) |
 | LLM example configurations | Provider, example prompts and knowledge references | [Without knowledge](../examples/fe_walter/operation/llm_available.yaml) / [With knowledge](../examples/fe_walter/operation/llm_knowledge.yaml) |
 | Additional information | Add a station observation or retrieval input | [Available information](INFORMATION.md#add-an-observed-station-series) |
-| Daily performance | KGE and RMSE for MOSART-Urban and the saved LLM settings | [Five-seed means](results/fe_walter/completed/README.md#daily-performance-against-observations) |
+| Daily performance | KGE and RMSE for MOSART-Urban and the saved LLM settings | [Manuscript Table 2 and all ten seeds](results/fe_walter/manuscript/README.md) |
 
 The LLM examples use their own prompts and operating-rules document. The
 [five-seed decision records](results/fe_walter/paper_runs/README.md) document

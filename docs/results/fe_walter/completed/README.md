@@ -1,5 +1,7 @@
 # F.E. Walter archived comparisons
 
+[Manuscript Table 2 and Figures 3–4 (ten seeds per LLM)](../manuscript/README.md)
+
 ## Daily performance against observations
 
 **Five-seed mean performance against observations, 2021–2025.** The table below

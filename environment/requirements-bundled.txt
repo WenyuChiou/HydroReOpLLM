@@ -1,5 +1,5 @@
 # Tested direct scientific dependency constraints, Python 3.12.14 on Windows.
-# Complete HydroCNHS source is bundled; historical Git requirement remains archived separately.
+# HydroCNHS source is bundled. Its upstream revision is recorded in hydrocnhs-core.json.
 numpy==2.5.1
 pandas==3.0.5
 scipy==1.18.0
