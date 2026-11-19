@@ -13,7 +13,9 @@ import os
 from pathlib import Path
 import re
 import shutil
-from urllib.error import HTTPError
+import ssl
+from http.client import RemoteDisconnected
+from urllib.error import HTTPError, URLError
 
 import pytest
 import yaml
@@ -45,13 +47,13 @@ class LocalModel:
     """Stands in for the Ollama server: the nth read returns the nth digest (the last one repeats)."""
 
     def __init__(self, *digests):
-        self.digests, self.calls = list(digests or [DIGEST_A]), 0
+        self.digests, self.calls, self.version = list(digests or [DIGEST_A]), 0, "0.99.0"
 
     def __call__(self, model):
         digest = self.digests[min(self.calls, len(self.digests) - 1)]
         self.calls += 1
         return {"digest": digest, "family": "gemma", "parameter_size": "12B",
-                "quantization_level": "Q4_K_M", "version": "0.99.0"}
+                "quantization_level": "Q4_K_M", "version": self.version}
 
 
 @pytest.fixture
@@ -66,26 +68,43 @@ def local(ident, monkeypatch):
 DAY_EVENTS = {1: ["bad", "hold"],        # governance retry (blocked in the checked arms)
               2: ["429", "hold"],        # transient HTTP 429, then success
               3: ["garbage", "hold"]}    # unreadable reply, then a good one
+# Errors that are retried, so they can sit inside a saved day, and errors that stop the run.
+TEMPORARY_ERRORS = {"timeout": TimeoutError("scripted"), "reset": ConnectionResetError("scripted"),
+                    "aborted": ConnectionAbortedError("scripted"), "broken": BrokenPipeError("scripted"),
+                    "disconnected": RemoteDisconnected("scripted"), "url-timeout": URLError(TimeoutError("scripted"))}
+STOPPING_ERRORS = {"ssl": ssl.SSLEOFError("scripted"), "ctrl-c": KeyboardInterrupt()}
 
 
 class Script:
     """Answers by day, so two runs that ask the same questions get the same answers."""
 
-    def __init__(self, *, fail_from_day=None, cloud=False, day_events=None):
-        self.fail_from_day, self.cloud = fail_from_day, cloud
+    def __init__(self, *, fail_from_day=None, cloud=False, day_events=None, provider=None):
+        self.fail_from_day, self.provider = fail_from_day, provider or ("openai" if cloud else "ollama")
         self.events = DAY_EVENTS if day_events is None else day_events
         self.calls, self.day, self.inflow, self.used = [], None, None, {}
 
     def _body(self, text, n):
-        if self.cloud:
+        if self.provider == "openai":
             return {"id": f"resp-{FAKE_KEY}", "model": "gpt-test-a" if n < 3 else "gpt-test-b",
                     "status": "completed", "usage": {"input_tokens": 1, "output_tokens": 1},
                     "output": [{"type": "message", "content": [{"type": "output_text", "text": text}]}]}
+        if self.provider == "anthropic":
+            return {"id": "msg-1", "model": "claude-test", "stop_reason": "end_turn",
+                    "usage": {"input_tokens": 1, "output_tokens": 1}, "content": [{"type": "text", "text": text}]}
+        if self.provider == "gemini":
+            return {"candidates": [{"finishReason": "STOP", "content": {"parts": [{"text": text}]}}],
+                    "usageMetadata": {"promptTokenCount": 1, "candidatesTokenCount": 1}}
+        if self.provider == "openai_compatible":
+            return {"id": "chat-1", "model": "local-test", "usage": {"prompt_tokens": 1, "completion_tokens": 1},
+                    "choices": [{"finish_reason": "stop", "message": {"role": "assistant", "content": text}}]}
         return {"model": "gemma4:12b", "message": {"role": "assistant", "content": text}, "done": True,
                 "done_reason": "stop", "prompt_eval_count": 1, "eval_count": 1}
 
     def __call__(self, url, payload, headers, timeout):
-        user = payload["messages"][-1]["content"] if "messages" in payload else payload["input"][-1]["content"]
+        if "contents" in payload:
+            user = payload["contents"][-1]["parts"][0]["text"]
+        else:
+            user = payload["messages"][-1]["content"] if "messages" in payload else payload["input"][-1]["content"]
         found = re.match(r"Date: \d{4}-\d\d-(\d\d)", user)
         if found:
             self.day = int(found.group(1)) - 1
@@ -100,8 +119,10 @@ class Script:
         self.calls.append((self.day, kind))
         if kind == "cut":
             raise ConnectionRefusedError("scripted interruption in the middle of a day")
-        if kind == "429":
-            raise HTTPError(url, 429, "Too Many Requests", {}, None)
+        if kind in TEMPORARY_ERRORS or kind in STOPPING_ERRORS:
+            raise {**TEMPORARY_ERRORS, **STOPPING_ERRORS}[kind]
+        if kind in ("429", "503"):
+            raise HTTPError(url, int(kind), "Busy", {}, None)
         if kind == "garbage":
             return self._body("this is not json", len(self.calls))
         answer = {"reasoning": "scripted", "decision": "raise_pool", "release_cfs": 20.0} if kind == "bad" else {
@@ -121,12 +142,16 @@ def write_config(folder: Path, name: str, *, arm="full", days=DAYS, provider="ol
     if pin is not None:
         params["wagf"]["expected_model_digest"] = pin
     (folder / f"{name}.agents.yaml").write_text(yaml.safe_dump(agents), encoding="utf-8")
-    if provider == "ollama":
-        profile = {"provider": "ollama", "model": "gemma4:12b", "base_url": "http://localhost:11434"}
-    else:
-        profile = {"provider": "openai", "model": "gpt-test", "base_url": "https://api.openai.com/v1",
-                   "api_key_env": "WAGF_TEST_FAKE_KEY"}
-    profile.update(timeout_seconds=5, max_attempts=3, retry_delay_seconds=0, retryable_http_statuses=[429])
+    profile = {"ollama": {"provider": "ollama", "model": "gemma4:12b", "base_url": "http://localhost:11434"},
+               "openai": {"provider": "openai", "model": "gpt-test", "base_url": "https://api.openai.com/v1",
+                          "api_key_env": "WAGF_TEST_FAKE_KEY"},
+               "anthropic": {"provider": "anthropic", "model": "claude-test", "base_url": "https://api.anthropic.com",
+                             "api_key_env": "WAGF_TEST_FAKE_KEY", "max_tokens": 1000},
+               "gemini": {"provider": "gemini", "model": "gemini-test", "api_key_env": "WAGF_TEST_FAKE_KEY",
+                          "base_url": "https://generativelanguage.googleapis.com/v1beta"},
+               "openai_compatible": {"provider": "openai_compatible", "model": "local-test",
+                                     "base_url": "http://localhost:8000/v1"}}[provider]
+    profile.update(timeout_seconds=5, max_attempts=3, retry_delay_seconds=0, retryable_http_statuses=[429, 503])
     (folder / f"{name}.models.yaml").write_text(yaml.safe_dump({"reservoir_model": profile}), encoding="utf-8")
     run = {"schema_version": "llm-reservoir-experiment.v2", "run_id": name,
            "case": str(ROOT / "examples/fe_walter/operation/case.json"), "output": str(folder / name),
@@ -291,6 +316,91 @@ def test_a_resume_without_the_earlier_wagf_output_is_refused_before_any_request(
     with pytest.raises(ValueError, match="no readable"):
         resume(config, source, script, run_id="second-try")
     assert script.calls == []
+
+
+@pytest.mark.parametrize("provider", ["ollama", "openai", "anthropic", "gemini", "openai_compatible"])
+def test_every_model_provider_resumes_to_the_same_result(extension, local, tmp_path, monkeypatch, provider):
+    monkeypatch.setenv("WAGF_TEST_FAKE_KEY", FAKE_KEY)
+    whole_records, _ = start(write_config(tmp_path, "whole", provider=provider), Script(provider=provider))
+    config = write_config(tmp_path, "part", provider=provider)
+    with pytest.raises(RuntimeError, match="model provider failed"):
+        start(config, Script(provider=provider, fail_from_day=CUT))
+    script = Script(provider=provider)
+    resumed_records, _ = resume(config, tmp_path / "part", script, run_id="part-resumed")
+    assert script.calls[0][0] == CUT
+    assert decision_lines(tmp_path / "part-wagf") == decision_lines(tmp_path / "whole-wagf")
+    assert physics(resumed_records) == physics(whole_records)
+
+
+@pytest.mark.parametrize("kind", [*TEMPORARY_ERRORS, "503"])
+def test_a_temporary_error_inside_a_saved_day_replays_exactly(extension, local, tmp_path, kind):
+    events = {**DAY_EVENTS, 4: [kind, "hold"]}
+    start(write_config(tmp_path, "whole"), Script(day_events=events))
+    config = write_config(tmp_path, "part")
+    with pytest.raises(RuntimeError, match="model provider failed"):
+        start(config, Script(fail_from_day=CUT, day_events=events))
+    script = Script(day_events=events)
+    resume(config, tmp_path / "part", script, run_id="part-resumed")
+    assert script.calls[0][0] == CUT
+    assert decision_lines(tmp_path / "part-wagf") == decision_lines(tmp_path / "whole-wagf")
+
+
+@pytest.mark.parametrize("kind, stopped_by", [("ssl", RuntimeError), ("ctrl-c", KeyboardInterrupt)])
+def test_a_run_stopped_by_an_error_or_ctrl_c_can_be_resumed(extension, local, tmp_path, kind, stopped_by):
+    start(write_config(tmp_path, "whole"), Script())
+    config = write_config(tmp_path, "part")
+    with pytest.raises(stopped_by):
+        start(config, Script(day_events={**DAY_EVENTS, CUT: [kind]}))
+    script = Script()
+    resume(config, tmp_path / "part", script, run_id="part-resumed")
+    assert script.calls[0][0] == CUT
+    assert decision_lines(tmp_path / "part-wagf") == decision_lines(tmp_path / "whole-wagf")
+
+
+@pytest.mark.parametrize("stream", ["decisions", "physics", "audit", "backend_events", "provider_attempts"])
+def test_a_line_cut_off_by_the_crash_does_not_stop_the_resume(extension, local, tmp_path, stream):
+    start(write_config(tmp_path, "whole"), Script())
+    config, source = interrupted(tmp_path, "part", "full")
+    (source / "summary.json").unlink(missing_ok=True)  # a killed process never writes its summary
+    with (source / f"{stream}.jsonl").open("ab") as handle:
+        handle.write(b'{"run_id": "part", "timest')
+    script = Script()
+    resume(config, source, script, run_id="part-resumed")
+    assert script.calls[0][0] == CUT
+    assert decision_lines(tmp_path / "part-wagf") == decision_lines(tmp_path / "whole-wagf")
+
+
+def test_a_run_that_failed_only_at_the_last_version_check_resumes_without_a_new_request(extension, ident, tmp_path,
+                                                                                         monkeypatch):
+    reads = []
+
+    def reader(model):
+        reads.append(model["model"])
+        if len(reads) == 2:
+            raise OSError("server restarting")
+        return {"digest": DIGEST_A, "family": "gemma", "parameter_size": "12B",
+                "quantization_level": "Q4_K_M", "version": "0.99.0"}
+
+    monkeypatch.setattr(ident, "read_local_model", reader)
+    config = write_config(tmp_path, "part", days=4)
+    with pytest.raises(RuntimeError, match="could not confirm the version"):
+        start(config, Script(day_events={}))
+    script = Script(day_events={})
+    resume(config, tmp_path / "part", script, run_id="part-resumed")
+    assert script.calls == []
+    assert len(decision_lines(tmp_path / "part-wagf")) == 4
+    assert json.loads((tmp_path / "part-resumed" / "summary.json").read_text(encoding="utf-8"))["status"] == "COMPLETED"
+
+
+def test_an_ollama_upgrade_does_not_block_a_resume_and_is_recorded(extension, local, tmp_path):
+    start(write_config(tmp_path, "whole"), Script())
+    config, source = interrupted(tmp_path, "part", "full")
+    local.version = "1.0.0"
+    script = Script()
+    resume(config, source, script, run_id="part-resumed")
+    assert decision_lines(tmp_path / "part-wagf") == decision_lines(tmp_path / "whole-wagf")
+    saved = json.loads((tmp_path / "part-wagf" / "run_identity.json").read_text(encoding="utf-8"))["model"]
+    assert (saved["version"], saved["server_versions_seen"]) == ("1.0.0", ["0.99.0", "1.0.0"])
 
 
 def test_a_fresh_run_that_runs_out_of_request_budget_is_not_called_a_resume(extension, local, tmp_path):

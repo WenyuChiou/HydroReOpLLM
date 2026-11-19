@@ -154,7 +154,9 @@ class GovernedBackend:
         self._identity = run_identity.build_identity(
             self.arm, SEED, model, agent_types=AGENT_TYPES_FILE, skill_registry=SKILL_REGISTRY_FILE,
             reader=self._reader, expected_digest=wagf.get("expected_model_digest"))
-        self._earlier_identity_compared = run_identity.prepare_output(output, self._identity) is not None
+        earlier = run_identity.prepare_output(output, self._identity)
+        self._earlier_identity_compared = earlier is not None
+        run_identity.note_server_versions(earlier, self._identity)
         output.mkdir(parents=True, exist_ok=True)
         self._identity_path = output / run_identity.IDENTITY_FILE
         run_identity.write_json_atomic(self._identity_path, self._identity)

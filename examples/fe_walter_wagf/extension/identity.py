@@ -21,10 +21,13 @@ SCHEMA = "fe-walter-wagf-run-identity.v1"
 LOCAL_PROVIDERS = ("ollama",)
 READ_TIMEOUT_SECONDS = 10
 _DIGEST = re.compile(r"[0-9a-f]{64}")
-# Fields that may legitimately differ between a run and its resume.
+# Fields that may legitimately differ between a run and its resume. For a local model the digest
+# is what identifies the weights. The rest is a record: Ollama can update itself after a restart,
+# and that must not cost a long run its saved days.
 _UNSTABLE = {("model", "captured_at"), ("model", "digest_at_end"), ("model", "digest_at_end_error"),
-             ("model", "model_changed_during_run"), ("observed_provider_models",),
-             ("wagf", "git_commit"), ("wagf", "git_dirty")}
+             ("model", "model_changed_during_run"), ("model", "family"), ("model", "parameter_size"),
+             ("model", "quantization_level"), ("model", "version"), ("model", "server_versions_seen"),
+             ("observed_provider_models",), ("wagf", "git_commit"), ("wagf", "git_dirty")}
 
 
 def is_local(provider: str) -> bool:
@@ -187,6 +190,18 @@ def differences(saved: Mapping[str, Any], current: Mapping[str, Any]) -> list[st
         if old.get(key) != new.get(key):
             names.append(".".join(key))
     return names
+
+
+def note_server_versions(earlier: Path | None, identity: dict) -> None:
+    """List every Ollama version this run has used, oldest first."""
+    record = identity["model"]
+    if "version" not in record:
+        return
+    seen: list = []
+    if earlier is not None:
+        saved = json.loads((Path(earlier) / IDENTITY_FILE).read_text(encoding="utf-8")).get("model", {})
+        seen = list(saved.get("server_versions_seen") or [saved.get("version")])
+    record["server_versions_seen"] = seen if record["version"] in seen else seen + [record["version"]]
 
 
 def prepare_output(output: Path, identity: Mapping[str, Any]) -> Path | None:

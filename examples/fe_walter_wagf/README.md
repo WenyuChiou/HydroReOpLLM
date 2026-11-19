@@ -24,14 +24,18 @@ python -m llm_reservoir_agent.workflow resume examples/fe_walter_wagf/run_2021_f
   --allow-network
 ```
 
+This works the same for a local Ollama model and for a cloud model. It covers a crash, a forced
+kill, Ctrl+C, a reboot and a lost connection. When a server stops answering, each of the
+`max_attempts` tries ends after `timeout_seconds` of silence and the run stops. A run that looks
+stuck can also be killed and resumed.
+
 Saved days are replayed from the saved replies and send no request; new requests start at the
 first unsaved day. The crashed folder is not changed. After a second crash, resume from the
-latest resume folder. Do not edit the run file, `config/`, the extension or the WAGF code in
-between: the resume refuses if they changed. Keep the WAGF folder as well. Without it the saved
-days' versions cannot be compared, so the resume stops on the first replayed day. If the crash
-came in the middle of that day, one new request can go out before it stops. A saved provider
-error of a type the replay does not know (an SSL error, for example) also stops the resume with
-an error; run that case again from the start.
+folder with the most saved days, which is normally the latest resume folder. Do not edit the run
+file, `config/`, the extension or the WAGF code in between, and keep the same Python version: the
+resume refuses if they changed. Keep the WAGF folder as well. Without it the saved days' versions
+cannot be compared, so the resume stops on the first replayed day. If the crash came in the middle
+of that day, one new request can go out before it stops.
 
 ## Earlier WAGF output is kept
 
@@ -55,8 +59,9 @@ Written to the WAGF folder before the first request. It records:
   `digest_at_end_error` says why. The saved results stay on disk in both cases.
 
 `wagf.expected_model_digest` (with or without `sha256:`) is an optional pin for a local model.
-A resume needs the stable fields to match, including the digest and the Ollama server version,
-so upgrading Ollama blocks a resume. Read time, git commit and dirty flag do not count.
+A resume needs the model digest to match, so a model pulled again with different weights is
+refused. An Ollama upgrade does not block a resume; `server_versions_seen` lists each version the
+run used. Read time, git commit and dirty flag do not count.
 
 ## Cloud models
 
