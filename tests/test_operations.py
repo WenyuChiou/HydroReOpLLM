@@ -42,6 +42,9 @@ class OperationsTests(unittest.TestCase):
             root = Path(folder)
             for name in ("tests/fixtures/cases", "data", "environment"):
                 shutil.copytree(ROOT / name, root / name)
+            core = Path("tests/fixtures/fe_walter_legacy/hydrocnhs-hydrology-core.json")
+            (root / core).parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(ROOT / core, root / core)
             manifest_path = root / MANIFEST
             manifest = json.loads(manifest_path.read_text())
             manifest["files"] = [item for item in manifest["files"] if item["path"] != REFERENCE]

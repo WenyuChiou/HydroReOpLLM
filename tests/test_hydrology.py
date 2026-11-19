@@ -12,7 +12,7 @@ from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
-from tests.fixtures.fe_walter_legacy.case import sha256
+from tests.fixtures.fe_walter_legacy.case import _inside, sha256
 from tests.fixtures.fe_walter_legacy.hydrology import AGGREGATE, CORE, MANIFEST, MODEL, UNITS, WEATHER, load_smoke_inputs, main, run_smoke
 
 
@@ -22,7 +22,7 @@ class HydrologyInputTests(unittest.TestCase):
             root = Path(folder)
             for relative in (MODEL, WEATHER, CORE, MANIFEST):
                 target = root / relative; target.parent.mkdir(parents=True, exist_ok=True)
-                shutil.copyfile(ROOT / relative, target)
+                shutil.copyfile(_inside(ROOT, relative), target)
             with (root / WEATHER).open(newline="") as stream:
                 reader = csv.DictReader(stream); fields = reader.fieldnames; rows = list(reader)
             with (root / WEATHER).open("w", newline="") as stream:
@@ -39,7 +39,7 @@ class HydrologyInputTests(unittest.TestCase):
             root = Path(folder)
             for relative in (MODEL, WEATHER, CORE, MANIFEST):
                 target = root / relative; target.parent.mkdir(parents=True, exist_ok=True)
-                shutil.copyfile(ROOT / relative, target)
+                shutil.copyfile(_inside(ROOT, relative), target)
             with (root / WEATHER).open("a") as stream: stream.write("changed\n")
             with self.assertRaisesRegex(ValueError, "checksum"):
                 load_smoke_inputs(root)

@@ -1,0 +1,128 @@
+{
+  "accepted_source_comparison": {
+    "file": "table3_metrics_per_seed.csv",
+    "max_absolute_error": {
+      "alpha": 0.0,
+      "beta": 0.0,
+      "kge": 0.0,
+      "r": 0.0,
+      "rmse": 0.0
+    },
+    "quantity_scores": 63,
+    "sha256": "d48d5e613ca58063634cc7c0421b772cca12d711d0305ae7c4bed62aff316c48"
+  },
+  "date_end": "2025-12-31",
+  "date_start": "2021-01-01",
+  "days_per_run": 1826,
+  "description": "Accepted daily manuscript series for F. E. Walter Reservoir, 2021-2025.",
+  "figure3_initial_elevation_ft": {
+    "llm_with_operational_knowledge": 1312.717496583342,
+    "llm_without_operational_knowledge": 1312.717496583342,
+    "rule_based": 1312.4274106596197
+  },
+  "figure_sha256": {
+    "Figure_3_daily_2021_2025.pdf": "e58e6ab59b25c3230d14ea520b27778f7042b48ab38770576c0d0eafe9e0aeea",
+    "Figure_4_annual_cycle.pdf": "935fbaac13a888c626072b53944cf51b8b70580f046728868786a8ada917b2e2",
+    "figure3_daily_seed_medians.csv": "c0309f2b053c7f242991ef23b4cfe844b87c4e5f461108407c30755736a2244f",
+    "figure4_calendar_medians_and_across_year_iqr.csv": "8ba146ea6b61826757c9971707739276f1612c3fb30a7b5df4852612103e1ef4",
+    "illustrative_target_full_calendar.csv": "dbd08bdb7d06bc0a4b66b7f54db3e5a21f1e6c439947077d66bcdccaf5417714"
+  },
+  "files": {
+    "daily_simulations.csv.gz": {
+      "bytes": 943038,
+      "columns": [
+        "date",
+        "agent",
+        "run",
+        "water_elevation_ft",
+        "water_release_cfs",
+        "downstream_flow_cfs"
+      ],
+      "rows": 38346,
+      "sha256": "5cda683cebb20a5464e0b9f1c9c03aa3199fb8449af653c614de68ec2f2ea093"
+    },
+    "manuscript_table2_reference.csv": {
+      "bytes": 732,
+      "columns": [
+        "agent",
+        "quantity",
+        "kge_display",
+        "rmse_display"
+      ],
+      "rows": 9,
+      "sha256": "5b5bbbb7f9fa8e3353ca19b98fb8d9387f12668d9719970bc00c8e314c4cd899"
+    },
+    "observations.csv.gz": {
+      "bytes": 27782,
+      "columns": [
+        "date",
+        "observed_pool_elevation_ft",
+        "observed_white_haven_discharge_cfs",
+        "observed_lehighton_discharge_cfs"
+      ],
+      "rows": 1826,
+      "sha256": "99cb8620393b95d8821489b10491d7af5ef364acfc0b9e515ba05b19de418a01"
+    },
+    "scores_per_run.csv": {
+      "bytes": 10551,
+      "columns": [
+        "agent",
+        "run",
+        "quantity",
+        "observation_station",
+        "units",
+        "pairs",
+        "kge",
+        "rmse",
+        "r",
+        "alpha",
+        "beta"
+      ],
+      "rows": 63,
+      "sha256": "54c080453150a5968d4c005602124beaceb7e0e544d41d98c1c97c1a96140999"
+    },
+    "table2_median_range.csv": {
+      "bytes": 1520,
+      "columns": [
+        "agent",
+        "quantity",
+        "units",
+        "runs",
+        "kge_median",
+        "kge_min",
+        "kge_max",
+        "rmse_median",
+        "rmse_min",
+        "rmse_max"
+      ],
+      "rows": 9,
+      "sha256": "6ff5da749179bf34d402b5429a4f77b3921bdbe0e5a2a36a6a2139a0f6bf6d2a"
+    }
+  },
+  "model_calls": 0,
+  "new_simulations": 0,
+  "runs": {
+    "llm_with_operational_knowledge": 10,
+    "llm_without_operational_knowledge": 10,
+    "rule_based": 1
+  },
+  "source_files": {
+    "build_results.py": {
+      "sha256": "3aeb5d47f5f7b47b2ea24e760ae3f513172243526523e3abb8752d5d2685edcb"
+    },
+    "paper-verification.json": {
+      "sha256": "56c4800f387f88c51591399f5e9d828ac0637cb4e585a0b5d204487dfd8151fb"
+    }
+  },
+  "status": "PASS",
+  "units": {
+    "downstream_flow_cfs": "ft^3/s; routed flow at USGS 01449000",
+    "kge": "dimensionless; Gupta et al. (2009), population standard deviation",
+    "observed_lehighton_discharge_cfs": "ft^3/s; USGS 01449000",
+    "observed_pool_elevation_ft": "ft, NGVD29; USGS 01447780",
+    "observed_white_haven_discharge_cfs": "ft^3/s; USGS 01447800 near-dam release proxy",
+    "rmse": "same physical unit as the quantity",
+    "water_elevation_ft": "ft, NGVD29; simulated end-of-day pool elevation",
+    "water_release_cfs": "ft^3/s; controlled release plus spill"
+  }
+}

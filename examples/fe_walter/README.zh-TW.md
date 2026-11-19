@@ -1,7 +1,7 @@
 # F.E. Walter 水庫研究案例
 
-文章的規則法入口請見 [MOSART-Urban 五年案例](operation/README.zh-TW.md#mosart-urban-文章基準)
-與 [Table 3 結果](../../docs/results/fe_walter/completed/README.md#daily-performance-against-observations)。
+論文的規則法入口為 [MOSART-Urban 五年案例](operation/README.zh-TW.md#mosart-urban-文章基準)。
+另見[早期五個 seed 的平均值](../../docs/results/fe_walter/completed/README.md#daily-performance-against-observations)。
 這個獨立設定將額外最小放水與死庫容限制設為零，以重現
 [MOSART-Urban 規則](../rules/mosart_urban/README.md)。
 

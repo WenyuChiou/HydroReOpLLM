@@ -9,6 +9,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import tomllib
 import zipfile
 from urllib.parse import quote, unquote, urlsplit
 
@@ -125,9 +126,12 @@ DAILY_DOWNLOADS = {
 }
 DAILY_DOWNLOADS.update({
     "docs/qa/module-inventory.json": "qa/module-inventory.json",
-    "examples/fe_walter/operation/engineering-sources-v2.json": "operation/engineering-sources-v2.json",
-    "examples/fe_walter/operation/engineering-sources-v3.json": "operation/engineering-sources-v3.json",
-    "examples/fe_walter/operation/engineering-sources-v4.json": "operation/engineering-sources-v4.json",
+})
+# Publish the same manuscript assets in the installed package and offline manual.
+with (ROOT / "pyproject.toml").open("rb") as stream:
+    paper_files = tomllib.load(stream)["tool"]["setuptools"]["data-files"]["share/llm-reservoir-agent/manuscript"]
+DAILY_DOWNLOADS.update({
+    path: "manuscript/" + Path(path).name for path in paper_files if not path.endswith("/README.md")
 })
 # Generic templates are maintained once and included verbatim in the chapters.
 DOWNSTREAM_DOWNLOADS = {
@@ -181,6 +185,7 @@ MULTI_RESERVOIR_DOWNLOADS = {
 }
 MULTI_SHARED_RULES = ("examples/rules/hanasaki/__init__.py",)
 PAGES = {
+    "docs/results/fe_walter/manuscript/README.md": "docs/results/fe_walter/manuscript/README.md",
     "docs/index.md": "index.md",
     "docs/index.zh-TW.md": "index.zh-TW.md",
     "README.md": "repository.md",

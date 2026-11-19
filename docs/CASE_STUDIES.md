@@ -26,12 +26,14 @@ The table below follows the **2021–2025 prepared-inflow entry**.
 | Inflow | Prepared upstream and local daily inflows | [inflows.csv](../examples/fe_walter/operation/inflows.csv) and [case input guide](../examples/fe_walter/operation/README.md) |
 | Reservoir and river network | Physical limits, water connections and initial state | [case.mosart.json](../examples/fe_walter/operation/case.mosart.json) |
 | Rule-based operator | MOSART-Urban flood-control rule | [agents.mosart.yaml](../examples/fe_walter/coupled/agents.mosart.yaml) |
-| Separate LLM configurations | Provider, prompt and knowledge references | [Without knowledge](../examples/fe_walter/operation/llm_available.yaml) / [With knowledge](../examples/fe_walter/operation/llm_knowledge.yaml) |
+| LLM example configurations | Provider, example prompts and knowledge references | [Without knowledge](../examples/fe_walter/operation/llm_available.yaml) / [With knowledge](../examples/fe_walter/operation/llm_knowledge.yaml) |
 | Additional information | Add a station observation or retrieval input | [Available information](INFORMATION.md#add-an-observed-station-series) |
-| Daily performance | KGE and RMSE for MOSART-Urban and the saved LLM settings | [Table 3](results/fe_walter/completed/README.md#daily-performance-against-observations) |
+| Daily performance | KGE and RMSE for MOSART-Urban and the saved LLM settings | [Manuscript Table 2 and all ten seeds](results/fe_walter/manuscript/README.md) |
 
-The paper baseline and the saved LLM runs have separate configurations and
-initialization. The results page gives the scoring dates and observation
+The LLM examples use their own prompts and operating-rules document. The
+[five-seed decision records](results/fe_walter/paper_runs/README.md) document
+the inputs used in the archived runs. The MOSART-Urban baseline has its own
+initial storage and release constraints. The results page gives the scoring dates and observation
 definitions and labels the historical Hanasaki comparisons.
 
 ## Select the material you need
@@ -39,7 +41,7 @@ definitions and labels the historical Hanasaki comparisons.
 | Material | Period | Use |
 |---|---|---|
 | [MOSART-Urban paper baseline](../examples/fe_walter/operation/README.md#paper-baseline-with-mosart-urban) | Daily 2021–2025 | Run and verify the rule-based baseline |
-| [Table 3 and historical comparisons](results/fe_walter/completed/README.md) | Daily 2021–2025 and fixed Hourly Ida/Rain events | Read current KGE/RMSE and archived figures |
+| [Five-seed summary and three-seed comparisons](results/fe_walter/completed/README.md) | Daily 2021–2025 and fixed Hourly Ida/Rain events | Inspect earlier KGE/RMSE scores and archived figures |
 | [Historical illustration](../examples/fe_walter/results.md) | Daily 2016 | Inspect the older teaching example; do not use it as the current result |
 
 The [site and data guide](../examples/fe_walter/README.md) describes the reservoir

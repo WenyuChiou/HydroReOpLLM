@@ -1,4 +1,4 @@
-"""The published daily outputs reproduce the paper's Table 2 scores."""
+"""The archived daily outputs reproduce the five-seed reference scores."""
 
 import hashlib
 import json
@@ -17,9 +17,9 @@ QUANTITIES = {
     "water_release": ("water_release_cfs", "observed_white_haven_discharge_cfs"),
     "downstream_flow": ("downstream_flow_cfs", "observed_lehighton_discharge_cfs"),
 }
-# Paper Table 2: (median, min, max) of KGE, then of RMSE. A rule-based run is a
+# Five-seed snapshot: (median, min, max) of KGE, then of RMSE. A rule-based run is a
 # single value; downstream flow is printed as a median only for the LLM agents.
-TABLE_2 = {
+FIVE_SEED_REFERENCE = {
     ("water_elevation", RULE): ((0.077,) * 3, (96.21,) * 3),
     ("water_elevation", WITHOUT): ((0.821, 0.793, 0.838), (19.71, 19.27, 22.15)),
     ("water_elevation", WITH): ((0.856, 0.787, 0.878), (16.29, 14.86, 19.67)),
@@ -69,7 +69,7 @@ def test_daily_files_are_complete(daily, observed):
         assert group["date"].tolist() == expected
 
 
-def test_scores_recomputed_from_daily_values_match_table_2(daily, observed):
+def test_scores_recomputed_from_daily_values_match_five_seed_reference(daily, observed):
     rows = []
     for (agent, _run), group in daily.groupby(["agent", "run"]):
         for name, (column, observed_column) in QUANTITIES.items():
@@ -77,7 +77,7 @@ def test_scores_recomputed_from_daily_values_match_table_2(daily, observed):
             sim = group[column].to_numpy(float)
             rows.append((agent, name, kge(obs, sim), rmse(obs, sim)))
     scores = pd.DataFrame(rows, columns=["agent", "quantity", "kge", "rmse"])
-    for (name, agent), (kge_row, rmse_row) in TABLE_2.items():
+    for (name, agent), (kge_row, rmse_row) in FIVE_SEED_REFERENCE.items():
         group = scores[(scores.agent == agent) & (scores.quantity == name)]
         for label, row, values in (("kge", kge_row, group.kge), ("rmse", rmse_row, group.rmse)):
             digits = 3 if label == "kge" else 2

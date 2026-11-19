@@ -14,6 +14,7 @@ import os
 from pathlib import Path
 import shutil
 import subprocess
+import sys
 import sysconfig
 import tempfile
 
@@ -34,6 +35,8 @@ def main() -> None:
     reports = []
     with tempfile.TemporaryDirectory(prefix='daily-wheel-outside-checkout-') as directory:
         root = Path(directory)
+        paper = Path(sysconfig.get_path('data')) / 'share/llm-reservoir-agent/manuscript'
+        subprocess.run([sys.executable, '-I', str(paper / 'verify.py')], cwd=root, check=True)
         fixtures = root / 'examples/daily_offline'
         fixtures.mkdir(parents=True)
         for name in ('single.yaml', 'single.json', 'cascade.yaml', 'cascade.json', 'operator.txt'):

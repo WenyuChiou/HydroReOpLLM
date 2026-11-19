@@ -1,9 +1,11 @@
-# F.E. Walter results
+# F.E. Walter teaching results, 2016
+
+[2021–2025 manuscript results](../../docs/results/fe_walter/manuscript/README.md)
 
 The saved LLM trajectories use the **previous prompts**, without the new daily
 seasonal context. [Review the actual October requests and proposed addition](prompt_review.md). No new model result is shown.
 
-The maintained comparison uses three saved 2016 trajectories: **Rule-based**,
+The teaching comparison uses three saved 2016 trajectories: **Rule-based**,
 **LLM without operational knowledge**, and **LLM with operational knowledge**. All
 three use the same accepted daily inflow and initial physical state.
 

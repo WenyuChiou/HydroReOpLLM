@@ -1,6 +1,6 @@
 # F.E. Walter outputs and notebook
 
-Start with the [completed Daily and Hourly comparison figures and Table 3](../../docs/results/fe_walter/completed/README.md).
+Start with the [archived three-seed figures and five-seed daily scores](../../docs/results/fe_walter/completed/README.md).
 For a configurable executable lesson, open the [2021–2025 operation tutorial](../../tutorials/operation.ipynb).
 It reads the complete prepared settings, runs an offline preflight, and displays
 the completed Rule-based teaching baseline. Its two LLM entry files are optional

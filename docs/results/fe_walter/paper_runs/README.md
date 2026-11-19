@@ -1,15 +1,13 @@
-# F.E. Walter paper runs: daily outputs, 2021–2025
+# F.E. Walter daily outputs for seeds 1–5, 2021–2025
 
-These files hold the daily outputs behind the scores in the paper's Table 2
-(daily performance, F.E. Walter Reservoir, 1 January 2021 to 31 December 2025,
-1,826 days). They let a reader recompute every score from the daily values.
+This snapshot covers 1,826 days from 1 January 2021 to 31 December 2025.
+It includes one MOSART-Urban baseline and seeds 1–5 for each LLM setting,
+11 runs in total. The ten LLM decision traces are in [`decisions/`](decisions/).
 
-**Included runs.** One rule-based run (MOSART-Urban rule), five completed runs
-of "LLM without operational knowledge" and five completed runs of "LLM with
-operational knowledge", 11 runs in all. Five more runs per LLM agent are still
-being executed and are **not included**; this folder will be extended when they
-are accepted. The LLM decision records of the 10 included LLM runs are in
-[`decisions/`](decisions/) (see "Decision records" below).
+The daily files here reproduce the five-seed summaries below. The
+[manuscript dataset](../manuscript/README.md) contains seeds 1–10 for both LLM
+settings and an offline check of Table 2.
+The provenance manifest retains the description recorded for this earlier snapshot.
 
 **Starting storage.** The rule-based run starts from 4,287,715 m³. The LLM runs
 start from 4,337,391 m³. The scores describe agreement with observations under
@@ -18,7 +16,7 @@ each configuration.
 **How this differs from [`../completed/`](../completed/README.md).** The daily
 files there (`daily_chart_data.csv`, `daily_run_range.csv`,
 `table3_metrics_per_seed.csv`) are an earlier three-run comparison with a
-different rule-based comparator. This folder is the paper's own set.
+different rule-based comparator, Hanasaki. The MOSART-Urban baseline is included here.
 
 ## Files
 
@@ -45,7 +43,7 @@ different rule-based comparator. This folder is the paper's own set.
   flows. Every score pairs the same 1,826 dates.
 
 `tests/test_fe_walter_paper_runs.py` recomputes all scores from
-`daily_per_run.csv` and `observations.csv` and checks them against Table 2.
+`daily_per_run.csv` and `observations.csv` and checks them against the five-seed reference values.
 `tests/test_fe_walter_paper_decisions.py` checks the decision files below.
 
 ## Decision records

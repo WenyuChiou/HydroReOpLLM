@@ -1,5 +1,7 @@
 # HydroReOpLLM
 
+[F.E. Walter manuscript data, Table 2 and Figures 3–4](docs/results/fe_walter/manuscript/README.md)
+
 [English](README.md) | [繁體中文](README.zh-TW.md)
 
 [![User manual](docs/_static/docs-badge-en.svg)](https://wenyuchiou.github.io/HydroReOpLLM/)
@@ -71,8 +73,9 @@ install PyPI `hydrocnhs` into the same environment. If its files are overwritten
 the weather-driven path stops with "installed HydroCNHS core differs from its
 accepted pin"; reinstall into a clean environment.
 
-The examples, templates, tutorials and data are in the repository, not in the
-wheel. The wheel carries only `examples/daily_offline`, the MOSART-Urban rule and
+The wheel installs the F.E. Walter manuscript data and verification scripts in
+`share/llm-reservoir-agent/manuscript/` under the environment prefix. It also includes
+`examples/daily_offline`, the MOSART-Urban rule and
 pinned runtime files, under `<environment prefix>/share/llm-reservoir-agent/`.
 The first run below therefore needs a clone.
 

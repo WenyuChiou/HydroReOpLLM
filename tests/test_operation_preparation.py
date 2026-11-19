@@ -51,7 +51,7 @@ def test_calibration_lineage_rejects_changed_parameters(section, name):
 ])
 def test_retained_calibration_evidence_cannot_escape_or_change_identity(change, message):
     provenance = json.loads((preflight.CASE_DIR / "provenance.json").read_text(encoding="utf-8"))
-    engineering = json.loads((preflight.CASE_DIR / "engineering-sources-v3.json").read_text(encoding="utf-8"))
+    engineering = json.loads((preflight.CASE_DIR / "engineering-sources-v4.json").read_text(encoding="utf-8"))
     changed = copy.deepcopy(engineering)
     changed["historical_validation_summary"][change] = "../../../outside.json" if change == "path" else "0" * 64
     with patch.object(preflight.json, "loads", return_value=changed):

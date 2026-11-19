@@ -48,7 +48,7 @@ executable cells and source dependencies match. It refuses to attach old outputs
 to changed sources. An explicitly requested operation lesson refresh is a local
 fixed-parameter hydrology/Rule-based regression, not a calibration or new LLM
 experiment. Old source receipts remain immutable; a separate
-[engineering-source record](../examples/fe_walter/operation/engineering-sources-v3.json)
+[engineering-source record](../examples/fe_walter/operation/engineering-sources-v4.json)
 identifies the maintained teaching sources.
 
 ## Boundaries and limitations

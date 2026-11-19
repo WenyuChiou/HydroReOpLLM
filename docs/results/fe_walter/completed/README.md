@@ -1,8 +1,11 @@
-# F.E. Walter results
+# F.E. Walter archived comparisons
+
+[Manuscript Table 2 and Figures 3–4 (ten seeds per LLM)](../manuscript/README.md)
 
 ## Daily performance against observations
 
-**Table 3. Daily simulation performance against observations, 2021–2025.**
+**Five-seed mean performance against observations, 2021–2025.** The table below
+uses seeds 1–5 for each LLM setting. Manuscript Table 2 uses medians over seeds 1–10.
 
 | Agent type | Reservoir level KGE | Reservoir level RMSE | Water release KGE | Water release RMSE | Downstream flow KGE | Downstream flow RMSE |
 |---|---:|---:|---:|---:|---:|---:|
@@ -23,10 +26,10 @@ seeds. The MOSART-Urban run and the saved LLM campaign use different initial
 storage and release constraints. The scores describe agreement with observations
 under their respective configurations.
 
-[Download Table 3 KGE and RMSE values](table3_daily_kge_rmse.csv)
+[Download the five-seed means and ranges](table3_daily_kge_rmse.csv)
 
 The daily outputs behind these scores, one row per run and day, are in the
-[paper runs folder](../paper_runs/) with a test that recomputes the scores.
+[five-seed snapshot in the repository](../paper_runs/README.md).
 The daily files in this folder are the earlier three-run comparison.
 
 ## Historical comparison figures and scores

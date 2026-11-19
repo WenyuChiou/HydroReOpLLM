@@ -13,7 +13,7 @@ reservoir-experiment run examples/fe_walter/operation/experiment.mosart.yaml
 reservoir-experiment verify runs/fe-walter-2021-2025-mosart
 ```
 
-[Table 3](../../../docs/results/fe_walter/completed/README.md#daily-performance-against-observations)
+[早期五個 seed 的比較](../../../docs/results/fe_walter/completed/README.md#daily-performance-against-observations)
 列出 KGE 與 RMSE。已保存的 LLM 實驗各自保留原設定與初始狀態。
 
 ## 歷史 Hanasaki 教學
