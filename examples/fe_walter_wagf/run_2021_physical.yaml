@@ -1,0 +1,16 @@
+# One-year F.E. Walter prototype, governance arm "physical". Hydrology is the frozen paper inflow.
+schema_version: llm-reservoir-experiment.v2
+run_id: fe-walter-wagf-2021-physical
+case: ../fe_walter/operation/case.json
+output: ../../runs/fe-walter-wagf-2021-physical
+start_date: '2021-01-01'
+end_date: '2021-12-31'
+max_calls: null
+agents:
+  file: agents.physical.yaml
+auditors:
+  file: ../fe_walter/coupled/auditors.yaml
+models:
+  file: ../fe_walter/coupled/models.yaml
+extensions:
+  wagf_governed: extension/__init__.py

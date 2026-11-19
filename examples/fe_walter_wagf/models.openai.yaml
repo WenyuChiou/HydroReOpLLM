@@ -1,0 +1,11 @@
+# OpenAI profile for the WAGF prototype. The key is read from the named environment variable.
+# No temperature or token limit is sent, so the model's own defaults apply.
+reservoir_model:
+  provider: openai
+  model: gpt-6.1-sol
+  base_url: https://api.openai.com/v1
+  api_key_env: OPENAI_API_KEY
+  timeout_seconds: 300
+  max_attempts: 4
+  retry_delay_seconds: 5
+  retryable_http_statuses: [429, 500, 502, 503, 504]

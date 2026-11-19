@@ -1,0 +1,26 @@
+# F.E. Walter operator; governance arm "physical" (see README.md).
+fe_operator:
+  reservoir_id: FEWalter
+  type: llm
+  model_profile: reservoir_model
+  customization:
+    backend: wagf_governed
+    parameters:
+      wagf:
+        arm: physical
+        output: ../../runs/fe-walter-wagf-2021-physical-wagf
+      # Same knowledge and prompt inputs as the paper's domain-knowledge method.
+      reference:
+        profile: fe_walter
+        method: dkp
+        consultation_mode: daily
+        response_validation: policy
+        system_prompt: ../fe_walter/prompts/retrieved_knowledge.txt
+        system_prompt_mode: custom
+        dkp: ../fe_walter/knowledge/operating_rules.md
+        prompt_storage: false
+        hide_availability_line: true
+        dkp_no_missing_inputs: true
+        zeroshot_knowledge: target
+  auditors:
+  - release_limits

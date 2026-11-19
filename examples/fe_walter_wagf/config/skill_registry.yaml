@@ -1,0 +1,38 @@
+# The three pool directions an F.E. Walter operator can choose each day.
+default_skill: hold_pool
+skills:
+  - skill_id: lower_pool
+    category: setpoint
+    intensity: continuous
+    reversibility: daily
+    description: "lower_pool: release more than today's inflow, so the pool falls."
+    eligible_agent_types: ["reservoir_operator"]
+    preconditions: []
+    institutional_constraints: {}
+    allowed_state_changes: []
+    implementation_mapping: "set_release"
+    conflicts_with: []
+
+  - skill_id: hold_pool
+    category: setpoint
+    intensity: continuous
+    reversibility: daily
+    description: "hold_pool: release about today's inflow (within 5% or 10 cfs, whichever is larger), so the pool stays about level."
+    eligible_agent_types: ["reservoir_operator"]
+    preconditions: []
+    institutional_constraints: {}
+    allowed_state_changes: []
+    implementation_mapping: "set_release"
+    conflicts_with: []
+
+  - skill_id: raise_pool
+    category: setpoint
+    intensity: continuous
+    reversibility: daily
+    description: "raise_pool: release less than today's inflow, so the pool rises."
+    eligible_agent_types: ["reservoir_operator"]
+    preconditions: []
+    institutional_constraints: {}
+    allowed_state_changes: []
+    implementation_mapping: "set_release"
+    conflicts_with: []

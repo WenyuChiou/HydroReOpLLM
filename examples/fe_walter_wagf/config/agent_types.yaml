@@ -1,0 +1,112 @@
+# WAGF settings for the F.E. Walter daily release decision.
+#
+# Arms are selected with GOVERNANCE_PROFILE:
+#   none      no checks: the model's number goes straight to the simulator
+#   physical  type 1 only: the Python checks in extension/checks.py
+#   full      type 1 plus the type 2 state rules below
+#
+# The pool bands come from examples/fe_walter/profiles/reservoir.json
+# (target_periods). seasonal_pool_criteria.json describes them as study-defined,
+# not an official daily schedule. No rule reads a label the model reports about
+# itself: every condition uses a value computed from the simulated state.
+global_config:
+  memory:
+    window_size: 1
+  llm:
+    max_retries: 3
+  governance:
+    domain: fe_walter
+    dispatch_domain_physical: true
+    max_retries: 3
+    max_reports_per_retry: 3
+    on_retry_exhausted: default
+
+reservoir_operator:
+  agent_type: reservoir_operator
+  multi_param_action:
+    enabled: true
+  prompt_template: |
+    {native_prompt}
+
+    ### OPTIONS
+    Choose exactly one pool direction for today:
+    {options_text}
+
+    ### ANSWER
+    Return one JSON object with these fields, in this order:
+    - reasoning: brief rule citation and the storage change the release will cause
+    - decision: lower_pool, hold_pool or raise_pool
+    - release_cfs: the mean release for this interval, in cfs
+  response_format:
+    fields:
+      - { key: "reasoning", type: "text", required: true }
+      - { key: "decision", type: "text", required: true,
+          description: "lower_pool, hold_pool or raise_pool" }
+      # No min/max here: WAGF would silently clamp the number before the checks see it.
+      - { key: "release_cfs", type: "numeric", sign: "both", unit: "cfs", required: true,
+          description: "Mean release for this interval, in cfs" }
+  actions:
+    - id: lower_pool
+      aliases: ["lower_pool", "lower pool", "lower"]
+      description: "Release more than today's inflow"
+    - id: hold_pool
+      aliases: ["hold_pool", "hold pool", "hold"]
+      description: "Release about today's inflow"
+    - id: raise_pool
+      aliases: ["raise_pool", "raise pool", "raise"]
+      description: "Release less than today's inflow"
+  parsing:
+    default_skill: hold_pool
+    decision_keywords: ["decision"]
+    constructs: {}
+  governance:
+    none:
+      thinking_rules: []
+    physical:
+      thinking_rules: []
+    full:
+      thinking_rules:
+        - id: winter_above_band_no_raise
+          level: ERROR
+          conditions:
+            - { variable: season, scope: env, operator: "==", value: winter }
+            - { variable: pool_elevation_ft, scope: env, operator: ">", value: 1303.0 }
+          blocked_skills: [raise_pool]
+          message: "From November 1 to March 14 the pool should stay between 1,297 and 1,303 ft. It is above 1,303 ft, so do not raise it."
+        - id: winter_below_band_no_lower
+          level: ERROR
+          conditions:
+            - { variable: season, scope: env, operator: "==", value: winter }
+            - { variable: pool_elevation_ft, scope: env, operator: "<", value: 1297.0 }
+          blocked_skills: [lower_pool]
+          message: "From November 1 to March 14 the pool should stay between 1,297 and 1,303 ft. It is below 1,297 ft, so do not lower it."
+        - id: spring_below_band_no_lower
+          level: ERROR
+          conditions:
+            - { variable: season, scope: env, operator: "==", value: spring_fill }
+            - { variable: pool_elevation_ft, scope: env, operator: "<", value: 1300.0 }
+          blocked_skills: [lower_pool]
+          message: "From March 15 to May 9 the pool should fill from 1,300 toward 1,370 ft. It is below 1,300 ft, so do not lower it."
+        - id: spring_at_top_no_raise
+          level: ERROR
+          conditions:
+            - { variable: season, scope: env, operator: "==", value: spring_fill }
+            - { variable: pool_elevation_ft, scope: env, operator: ">=", value: 1370.0 }
+          blocked_skills: [raise_pool]
+          message: "From March 15 to May 9 the pool should not go above 1,370 ft. It has reached 1,370 ft, so do not raise it."
+        - id: summer_above_top_no_raise
+          level: ERROR
+          conditions:
+            - { variable: season, scope: env, operator: "==", value: summer }
+            - { variable: pool_elevation_ft, scope: env, operator: ">", value: 1370.0 }
+          blocked_skills: [raise_pool]
+          message: "From May 10 to October 14 the pool should stay at or below 1,370 ft. It is above 1,370 ft, so do not raise it."
+        # Fires only while lowering is possible and the pool is still above the 1,300 ft goal.
+        - id: fall_drawdown_must_lower
+          level: ERROR
+          conditions:
+            - { variable: season, scope: env, operator: "==", value: fall_drawdown }
+            - { variable: pool_elevation_ft, scope: env, operator: ">", value: 1300.0 }
+            - { variable: lower_feasible, scope: env, operator: "is_true" }
+          blocked_skills: [raise_pool, hold_pool]
+          message: "From October 15 to October 31 the pool should fall back to 1,300 ft. It is still above 1,300 ft, so lower it."
