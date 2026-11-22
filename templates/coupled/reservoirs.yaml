@@ -1,0 +1,31 @@
+# Physical case consumed by the coupled simulation entry.
+schema_version: reservoir-physical-case.v1
+# Use simulated_local_inflow for a study supplied by native hydrology.
+data_kind: simulated_local_inflow
+network:
+  schema_version: llm-reservoir-network.v2
+  # User-filled first operation date; keep it equal to experiment.start_date.
+  start_date: 'YOUR_START_DATE_YYYY-MM-DD'
+  reservoirs:
+    YOUR_RESERVOIR_ID:
+      # Must match one key in hydrology.inflow_bindings.
+      inflow_node: YOUR_RESERVOIR_INLET_NODE
+      physical:
+        # Stable identifier recorded with physical transitions.
+        reservoir_id: YOUR_RESERVOIR_ID
+        # User-supplied SI physical values. Do not use uncalibrated examples.
+        capacity_m3: YOUR_CAPACITY_M3
+        dead_storage_m3: YOUR_DEAD_STORAGE_M3
+        initial_storage_m3: YOUR_INITIAL_STORAGE_M3
+        minimum_release_cms: YOUR_MINIMUM_RELEASE_CMS
+        maximum_release_cms: YOUR_MAXIMUM_RELEASE_CMS
+        # Daily simulations use 86400 seconds; change only with matching inputs.
+        dt_seconds: YOUR_TIMESTEP_SECONDS
+  connections:
+    # Directed route from reservoir outflow to a downstream network node.
+    - source: YOUR_RESERVOIR_ID
+      target: YOUR_DOWNSTREAM_OUTLET_NODE
+      # User-supplied causal routing weights; they must sum to one.
+      unit_hydrograph: [YOUR_ROUTING_WEIGHT]
+  # Every terminal network node must be listed.
+  outlets: [YOUR_DOWNSTREAM_OUTLET_NODE]

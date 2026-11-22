@@ -1,0 +1,12 @@
+[
+  {
+    "id": "demo-1",
+    "text": "This synthetic case checks software connections, not a validated operating policy.",
+    "available_at": "2019-01-01T00:00:00Z"
+  },
+  {
+    "id": "demo-2",
+    "text": "Choose controlled release using current inflow and storage. The physical kernel computes spill.",
+    "available_at": "2019-01-01T00:00:00Z"
+  }
+]

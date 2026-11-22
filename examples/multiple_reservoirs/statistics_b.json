@@ -1,0 +1,31 @@
+{
+  "schema_version": "reservoir-benchmark-statistics.v1",
+  "reservoir_id": "lake_b",
+  "reference_start": "2019-01-01",
+  "reference_end": "2019-12-31",
+  "mean_inflow_cms": 0.2,
+  "monthly_mean_inflow_cms": {
+    "1": 0.2,
+    "2": 0.2,
+    "3": 0.2,
+    "4": 0.2,
+    "5": 0.2,
+    "6": 0.2,
+    "7": 0.2,
+    "8": 0.2,
+    "9": 0.2,
+    "10": 0.2,
+    "11": 0.2,
+    "12": 0.2
+  },
+  "reference_day_count": 365,
+  "source": {
+    "path": "reference_b.csv",
+    "sha256": "d0a2a6ef9334255aeafd81c6334ad44178fde96e9901b1a0d9a2fbcbd2e0b2a2",
+    "date_column": "date",
+    "flow_column": "flow",
+    "flow_to_cms": 1.0,
+    "reservoir_column": "reservoir",
+    "reservoir_value": "lake_b"
+  }
+}

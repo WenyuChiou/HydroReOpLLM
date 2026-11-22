@@ -1,0 +1,8 @@
+* text=auto eol=lf
+# These inputs, vendor files and the native adapter have byte-level provenance.
+examples/**/*.csv -text
+templates/prepared/inflows.csv -text
+examples/llm_reservoir_abm.py -text
+src/hydrocnhs/** -text
+third_party/hydrocnhs/** -text
+*.png binary

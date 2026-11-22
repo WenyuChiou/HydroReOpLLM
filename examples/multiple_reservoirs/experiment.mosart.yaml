@@ -1,0 +1,15 @@
+schema_version: hydroops-coupled-simulation.v2
+run_id: independent-rivers-mosart
+output: ../../runs/independent-rivers-mosart
+case: reservoirs.yaml
+start_date: '2020-02-28'
+end_date: '2020-03-02'
+max_calls: 0
+hydrology:
+  file: hydrology.yaml
+agents:
+  file: agents.mosart.yaml
+auditors:
+  file: auditors.yaml
+extensions:
+  mosart_urban: ../rules/mosart_urban/__init__.py

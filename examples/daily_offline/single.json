@@ -1,0 +1,66 @@
+{
+  "schema_version": "llm-reservoir-network-case.v1",
+  "data_kind": "synthetic_fixture",
+  "network": {
+    "schema_version": "llm-reservoir-network.v2",
+    "data_kind": "synthetic_fixture",
+    "start_date": "2020-02-28",
+    "reservoirs": {
+      "Lake_1": {
+        "inflow_node": "local_1",
+        "physical": {
+          "reservoir_id": "Lake_1",
+          "capacity_m3": 2000000.0,
+          "dead_storage_m3": 0.0,
+          "initial_storage_m3": 1000000.0,
+          "minimum_release_cms": 0.0,
+          "maximum_release_cms": 10.0,
+          "dt_seconds": 86400.0
+        }
+      }
+    },
+    "connections": [
+      {
+        "source": "Lake_1",
+        "target": "outlet",
+        "unit_hydrograph": [
+          0.0,
+          1.0
+        ]
+      }
+    ],
+    "outlets": [
+      "outlet"
+    ]
+  },
+  "inflow_records": [
+    {
+      "date": "2020-02-28",
+      "local_inflow_cms": {
+        "local_1": 2.0,
+        "outlet": 0.0
+      }
+    },
+    {
+      "date": "2020-02-29",
+      "local_inflow_cms": {
+        "local_1": 2.0,
+        "outlet": 0.0
+      }
+    },
+    {
+      "date": "2020-03-01",
+      "local_inflow_cms": {
+        "local_1": 2.0,
+        "outlet": 0.0
+      }
+    },
+    {
+      "date": "2020-03-02",
+      "local_inflow_cms": {
+        "local_1": 2.0,
+        "outlet": 0.0
+      }
+    }
+  ]
+}

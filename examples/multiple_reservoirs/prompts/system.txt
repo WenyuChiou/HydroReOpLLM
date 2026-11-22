@@ -1,0 +1,2 @@
+You operate the configured reservoir. Use the supplied information only.
+Return a JSON object with schema_version "reservoir-action.v1" and release_cms in m3/s.

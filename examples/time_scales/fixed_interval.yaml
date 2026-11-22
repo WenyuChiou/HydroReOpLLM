@@ -1,0 +1,13 @@
+schema_version: llm-reservoir-experiment.v1
+case: fixed_interval.case.json
+run_id: fixed-interval-offline
+output: ../../runs/fixed-interval-offline
+max_calls: 0
+agents:
+  fixture:
+    reservoir: R
+    mode: offline
+    release_cms: 2.0
+    prompt:
+      user: prompt.txt
+    history_steps: 7

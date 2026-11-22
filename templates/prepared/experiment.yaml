@@ -1,0 +1,26 @@
+# Runnable prepared-inflow template: two reservoirs in series, no model request.
+# Every invented value below is a placeholder number; replace it with your own (see README.md).
+schema_version: llm-reservoir-experiment.v1
+case: case.json                       # Your physical network plus inflow source.
+run_id: prepared-template             # Trace identity; change it for each new run.
+output: ../../runs/prepared-template  # Must not exist; relative to this file; pick a new path per run.
+start_date: "2026-03-27"              # First operated day (inside the inflow record). Quote the date.
+end_date: "2026-04-05"                # Last operated day, inclusive. Quote the date.
+max_calls: 0                          # Zero model requests; raise only for an LLM operator.
+auditors:
+  feasible_release:
+    type: release_bounds
+    version: "1"
+agents:
+  upper_operator:
+    reservoir: upper                  # Exact key under network.reservoirs in case.json.
+    mode: offline                     # Fixed release, no model. Replace with your own release.
+    release_cms: 4.0                  # Requested controlled release, m3/s (invented).
+    prompt: prompts/operator.txt      # Kept so the operator can later become an LLM operator.
+    auditors: [feasible_release]
+  lower_operator:
+    reservoir: lower                  # Exact key under network.reservoirs in case.json.
+    mode: offline
+    release_cms: 5.0                  # Requested controlled release, m3/s (invented).
+    prompt: prompts/operator.txt
+    auditors: [feasible_release]

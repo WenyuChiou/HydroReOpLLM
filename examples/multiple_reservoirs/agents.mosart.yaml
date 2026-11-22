@@ -1,0 +1,18 @@
+operator_a:
+  reservoir_id: lake_a
+  type: rule_based
+  rule: mosart_urban
+  rule_parameters:
+    purpose: flood_control
+    alpha: 0.85
+    inflow_statistics_file: statistics_a.json
+  auditors: [bounds]
+operator_b:
+  reservoir_id: lake_b
+  type: rule_based
+  rule: mosart_urban
+  rule_parameters:
+    purpose: flood_control
+    alpha: 0.85
+    inflow_statistics_file: statistics_b.json
+  auditors: [bounds]

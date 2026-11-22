@@ -1,0 +1,25 @@
+schema_version: reservoir-physical-case.v1
+data_kind: synthetic_fixture
+network:
+  schema_version: llm-reservoir-network.v3
+  start_time: '2020-02-28T00:00:00Z'
+  dt_seconds: 3600
+  outlets:
+  - Outlet
+  reservoirs:
+    R:
+      inflow_node: I
+      physical:
+        reservoir_id: synthetic_reservoir
+        capacity_m3: 20000000.0
+        dead_storage_m3: 0.0
+        initial_storage_m3: 1000000.0
+        minimum_release_cms: 0.0
+        maximum_release_cms: 100.0
+        dt_seconds: 3600
+  connections:
+  - source: R
+    target: Outlet
+    unit_hydrograph:
+    - 0.0
+    - 1.0

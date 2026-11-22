@@ -1,0 +1,58 @@
+[build-system]
+requires = ["setuptools>=70.1"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hydroreopllm"
+version = "0.1.0"
+description = "HydroReOpLLM: configurable reservoir operations coupled with HydroCNHS"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = ["joblib", "matplotlib", "numpy", "pandas", "ruamel.yaml", "scipy", "scikit-learn", "tqdm", "PyYAML>=6", "deap"]
+
+[project.urls]
+Repository = "https://github.com/WenyuChiou/HydroReOpLLM"
+Documentation = "https://github.com/WenyuChiou/HydroReOpLLM/blob/main/docs/README.md"
+
+[project.optional-dependencies]
+hydrocnhs = [] # Compatibility extra: the complete pinned source is now bundled.
+test = ["pytest>=8", "pytest-subtests", "setuptools>=70.1"]
+
+docs = ["mkdocs==1.6.1"]
+gis = ["shapely>=2,<3", "pyproj>=3,<4"]
+
+[project.scripts]
+llm-reservoir-daily = "llm_reservoir_agent.experiment:main"
+reservoir-experiment = "llm_reservoir_agent.workflow:main"
+
+[tool.pytest.ini_options]
+# Test this checkout even if another worktree is installed in editable mode.
+pythonpath = ["src"]
+
+[tool.setuptools]
+include-package-data = false
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["hydrocnhs", "hydrocnhs.*", "llm_reservoir_agent", "llm_reservoir_agent.*"]
+namespaces = false
+
+[tool.setuptools.package-dir]
+scripts = "scripts"
+
+[tool.setuptools.cmdclass]
+bdist_wheel = "scripts.package_build.FreshWheel"
+
+[tool.setuptools.package-data]
+hydrocnhs = ["Config_logging.yaml"]
+
+[tool.setuptools.data-files]
+"share/llm-reservoir-agent/hydrocnhs" = ["third_party/hydrocnhs/LICENSE", "third_party/hydrocnhs/SOURCE.json", "third_party/hydrocnhs/upstream-pyproject.toml"]
+"share/llm-reservoir-agent/hydrocnhs/patches" = ["third_party/hydrocnhs/patches/visual-indicator-api.patch", "third_party/hydrocnhs/patches/gwlf-groundwater-diagnostics.patch"]
+"share/llm-reservoir-agent/environment" = ["environment/hydrocnhs-core.json"]
+"share/llm-reservoir-agent/examples" = ["examples/llm_reservoir_abm.py"]
+"share/llm-reservoir-agent/examples/daily_offline" = ["examples/daily_offline/README.md", "examples/daily_offline/single.yaml", "examples/daily_offline/single.mosart.yaml", "examples/daily_offline/single.json", "examples/daily_offline/cascade.yaml", "examples/daily_offline/cascade.json", "examples/daily_offline/operator.txt"]
+"share/llm-reservoir-agent/examples/rules/mosart_urban" = ["examples/rules/mosart_urban/__init__.py", "examples/rules/mosart_urban/README.md"]
+"share/llm-reservoir-agent/scripts" = ["scripts/verify_mosart_rule.py"]
+# The original-program oracle is external and opt-in; case extensions live in examples.
+"share/llm-reservoir-agent" = ["THIRD_PARTY_NOTICES.md"]

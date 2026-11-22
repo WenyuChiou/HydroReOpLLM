@@ -1,0 +1,14 @@
+# One operator is required for each controlled reservoir.
+YOUR_AGENT_ID:
+  # Must match a key in reservoirs.yaml network.reservoirs.
+  reservoir_id: YOUR_RESERVOIR_ID
+  # Rule-based selects explicitly registered user code and makes no model call.
+  type: rule_based
+  # Must match a key in experiment.yaml extensions.
+  rule: user_registered_rule
+  # This mapping belongs to the selected rule module, not to the framework.
+  rule_parameters:
+    # Required by the included minimal rule; replace with a studied release.
+    target_release_cms: YOUR_RELEASE_CMS
+  # Optional diagnostic IDs from auditors.yaml.
+  auditors: [release_bounds]
