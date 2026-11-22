@@ -208,6 +208,27 @@ def load_case(path, *, project_root=PROJECT_ROOT):
     return config, rows
 
 
+def normalize_response_record(record):
+    """Decode one saved daily response, preserving its raw payload and release units in the trace."""
+    original = json.loads(json.dumps(record, allow_nan=False))
+    if not isinstance(record, Mapping):
+        raise ValueError("recorded response must be a mapping")
+    if set(record) == {"date", "response"}:
+        response = record["response"]
+        if not isinstance(response, Mapping) or set(response).difference({"release_cfs", "reasoning"}):
+            raise ValueError("unsupported legacy response fields")
+        record = {"date": record["date"], "release_cfs": response["release_cfs"],
+                  "rationale": response.get("reasoning")}
+    if set(record).difference({"date", "release_cms", "release_cfs", "rationale", "audit"}):
+        raise ValueError("unsupported recorded response fields")
+    if ("release_cms" in record) == ("release_cfs" in record):
+        raise ValueError("supply exactly one release unit")
+    value = record["release_cms"] if "release_cms" in record else (
+        finite_nonnegative(record["release_cfs"], "release_cfs") * CFS_TO_CMS)
+    return {"date": record["date"], "action": parse_action({"release_cms": value}).to_dict(),
+            "audit": record.get("audit"), "raw": original}
+
+
 class RecordedResponseBackend:
     """Replay a supplied offline action sequence without making model requests.
 
@@ -240,23 +261,7 @@ class RecordedResponseBackend:
             raise ValueError("unsupported response data_kind")
         if not isinstance(records, list) or not records:
             raise ValueError("response records must be a non-empty list")
-        self.records = []
-        for record in records:
-            original = json.loads(json.dumps(record, allow_nan=False))
-            if set(record) == {"date", "response"}:
-                response = record["response"]
-                if not isinstance(response, Mapping) or set(response).difference({"release_cfs", "reasoning"}):
-                    raise ValueError("unsupported legacy response fields")
-                record = {"date": record["date"], "release_cfs": response["release_cfs"],
-                          "rationale": response.get("reasoning")}
-            if set(record).difference({"date", "release_cms", "release_cfs", "rationale", "audit"}):
-                raise ValueError("unsupported recorded response fields")
-            if ("release_cms" in record) == ("release_cfs" in record):
-                raise ValueError("supply exactly one release unit")
-            value = record.get("release_cms") if "release_cms" in record else (
-                finite_nonnegative(record["release_cfs"], "release_cfs") * CFS_TO_CMS)
-            self.records.append({"date": record["date"], "action": parse_action({"release_cms": value}).to_dict(),
-                                 "audit": record.get("audit"), "raw": original})
+        self.records = [normalize_response_record(record) for record in records]
         self.provenance = {"data_kind": data_kind, "response_source_sha256": source_sha256}
         self.latest_audit = None
         self.latest_trace = None
