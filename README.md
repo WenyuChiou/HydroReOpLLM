@@ -1,8 +1,24 @@
 # HydroReOpLLM
 
-[User manual](docs/README.md) · [繁體中文使用手冊](docs/README.zh-TW.md) · [繁體中文首頁](README.zh-TW.md)
+[User manual](https://wenyuchiou.github.io/HydroReOpLLM/) · [繁體中文使用手冊](https://github.com/WenyuChiou/HydroReOpLLM/blob/main/docs/README.zh-TW.md) · [繁體中文首頁](https://github.com/WenyuChiou/HydroReOpLLM/blob/main/README.zh-TW.md)
 
 HydroReOpLLM simulates reservoir operations from time series of local inflow or weather forcing. A reservoir operator proposes a release. The physical model applies storage and release limits, routes water downstream, and records the decision and water balance for each time step. Operators can use a rule, a prescribed action, or an LLM with local operating guidance.
+
+## Install the Python package
+
+In a Python 3.12 virtual environment, install the package from GitHub:
+
+```sh
+python -m pip install "hydroreopllm @ git+https://github.com/WenyuChiou/HydroReOpLLM.git"
+```
+
+After a version is published to PyPI, use `python -m pip install hydroreopllm`. To run the installed examples, start in a new directory:
+
+```sh
+python -c "import shutil, sysconfig; from pathlib import Path; shutil.copytree(Path(sysconfig.get_path('data')) / 'share/llm-reservoir-agent/examples', 'examples')"
+reservoir-experiment run examples/daily_offline/single.yaml
+reservoir-experiment verify runs/daily-single --require-offline
+```
 
 ## Install from a clone
 
@@ -39,14 +55,14 @@ From the repository root, use the Python executable in the environment you just 
 
 On macOS or Linux, use `.venv/bin/python` in those three commands. This example simulates one synthetic reservoir for four days with a prescribed release of 1 m³/s. It needs no model service or API key. The run creates `runs/daily-single/` on your machine. Choose a fresh `output` directory in the YAML before repeating a run.
 
-## Examples and tests
+## Examples and tests in the Git checkout
 
-- [Documentation index on GitHub](docs/README.md)
-- [Runnable notebook for the four-day example](tutorials/offline_synthetic.ipynb)
-- [Daily reservoir and cascade](examples/daily_offline/README.md)
-- [Two independently operated reservoirs with weather-driven inflows](examples/multiple_reservoirs/README.md)
-- [Daily, hourly and fixed time steps](examples/time_scales/README.md)
-- [Starting a case from a template](templates/prepared/README.md)
+- [Documentation index on GitHub](https://github.com/WenyuChiou/HydroReOpLLM/blob/main/docs/README.md)
+- [Runnable notebook for the four-day example](https://github.com/WenyuChiou/HydroReOpLLM/blob/main/tutorials/offline_synthetic.ipynb)
+- [Daily reservoir and cascade](https://github.com/WenyuChiou/HydroReOpLLM/blob/main/examples/daily_offline/README.md)
+- [Two independently operated reservoirs with weather-driven inflows](https://github.com/WenyuChiou/HydroReOpLLM/blob/main/examples/multiple_reservoirs/README.md)
+- [Daily, hourly and fixed time steps](https://github.com/WenyuChiou/HydroReOpLLM/blob/main/examples/time_scales/README.md)
+- [Starting a case from a template](https://github.com/WenyuChiou/HydroReOpLLM/blob/main/templates/prepared/README.md)
 
 To run the tests, use the same virtual environment and install the test extra. On Windows:
 
@@ -55,4 +71,6 @@ To run the tests, use the same virtual environment and install the test extra. O
 .\.venv\Scripts\python.exe -m pytest -q
 ```
 
-The checkout includes the bundled HydroCNHS source, upstream license, version information and patches. [Source attribution](THIRD_PARTY_NOTICES.md)
+## License
+
+HydroReOpLLM is distributed under the [BSD 3-Clause License](https://github.com/WenyuChiou/HydroReOpLLM/blob/main/LICENSE). The bundled HydroCNHS source retains the [BSD 3-Clause notice from Chung-Yi Lin](https://github.com/WenyuChiou/HydroReOpLLM/blob/main/licenses/HydroCNHS-BSD-3-Clause.txt). See the [source attribution and patch history](https://github.com/WenyuChiou/HydroReOpLLM/blob/main/THIRD_PARTY_NOTICES.md).

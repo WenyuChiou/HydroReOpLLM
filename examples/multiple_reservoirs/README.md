@@ -20,7 +20,7 @@ in `models.yaml` to an installed tag from `ollama list` before using `--allow-ne
 
 Start with `experiment.yaml`, then follow its references to `hydrology.yaml`,
 `reservoirs.yaml` and `agents.rule.yaml`. See the
-[multi-reservoir guide](../../docs/MULTI_RESERVOIR.md) for the full explanation.
+[multi-reservoir guide](https://wenyuchiou.github.io/HydroReOpLLM/MULTI_RESERVOIR.html) for the full explanation.
 
 `hydrology.yaml` loads `synthetic_catchments.yaml`, which supplies invented
 catchment and routing parameters for this example. The two rule inputs

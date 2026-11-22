@@ -26,6 +26,6 @@ reservoir. All requested releases are 1 m³/s. Final single-reservoir storage is
 1,345,600 m³; the cascade's final storages are 1,345,600, 1,086,400 and
 1,086,400 m³. Routing retains one release interval per edge at the final decision.
 
-Read the [configuration guide](../../docs/CONFIGURATION.md) before replacing these
+Read the [configuration guide](https://wenyuchiou.github.io/HydroReOpLLM/CONFIGURATION.html) before replacing these
 invented inputs or selecting a live provider. These fixtures prove software
 contracts, not hydrological calibration or operating-policy skill.
