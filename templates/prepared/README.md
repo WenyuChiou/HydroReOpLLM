@@ -1,9 +1,7 @@
 # Prepared-inflow template
 
-Use this route when you already have local inflow series for each reservoir and
-no HydroCNHS model. With a native HydroCNHS model use
-[`templates/coupled`](../coupled/README.md) instead. These files run as shipped;
-every number is invented. Run once, then replace the values.
+Use this template with a local inflow series for each reservoir. Run the synthetic example once, then replace its values.
+For a native HydroCNHS model, use the [coupled template](../coupled/README.md).
 
 | File | Purpose |
 |---|---|
@@ -64,9 +62,8 @@ Index 0 is the same step, index 1 the next step. Here `upper` to `lower` uses
 `[0.0, 0.7, 0.3]`: 70% arrives one step later, 30% two steps later. Omitting it
 means `[1.0]`, no delay. A reservoir's output is controlled release plus spill.
 
-**Decision timing.** The operator at step t is given step t's interval-mean
-inflow, including water routed to it that step. This is a modelling assumption:
-a real operator would not know that day's mean inflow in advance.
+**Decision timing.** At each step the operator receives that interval's mean inflow, including routed water.
+This assumes advance knowledge of the daily mean inflow.
 
 ## `data_kind` and model calls
 - `synthetic_fixture`: invented or test data. Ready for LLM operators without
