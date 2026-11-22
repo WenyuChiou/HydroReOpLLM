@@ -1,55 +1,8 @@
-* text=auto
-# New reproducibility artifacts and execution sources retain their recorded bytes.
-tests/fixtures/cases/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
-examples/fe_walter/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
-# Generic teaching CSVs are pinned by their exact source bytes as well.
-examples/multiple_reservoirs/*.csv -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
-# The prepared-inflow template pins its CSV by SHA256 in case.json.
-templates/prepared/inflows.csv -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
-examples/llm_reservoir_abm.py -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
-data/benchmark/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
-data/figures/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
-# Preserve the cover image.
-docs/figures/hydroopslm-cover.png -text
-tests/fixtures/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
-tutorials/*.ipynb -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
-tutorials/build_notebooks.py -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
-docs/figures/source/extract_fe_map.py -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
-src/llm_reservoir_agent/benchmark.py -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
-src/llm_reservoir_agent/benchmark_config.py -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
-src/llm_reservoir_agent/daily_inputs.py -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
-src/llm_reservoir_agent/reservoir_profile.py -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
-src/llm_reservoir_agent/reference_backend.py -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
-src/llm_reservoir_agent/workflow.py -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
-src/llm_reservoir_agent/verification.py -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
-# Frozen evidence must retain its exact bytes on Windows and Unix checkouts.
-data/accepted/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
-tests/fixtures/cases/*.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
-environment/hydrocnhs-core.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
-src/hydrocnhs/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
-third_party/hydrocnhs/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
-
-docs/figures/source/render_fe_catchment.py -text
-
-# Curated teaching snapshots retain original bytes after relocation.
-tests/fixtures/fe_walter_history/reference_outputs/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
-tests/fixtures/fe_walter_history/reference_outputs/**/figures/*.svg -text whitespace=-blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol
-
-# Preserve native SVG path spacing and empty trailing fields in the USGS RDB.
-tests/fixtures/fe_walter_history/downstream_outputs/*.svg -text whitespace=-blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol
-# C&V vector exports retain Matplotlib's recorded path spacing.
-tests/fixtures/fe_walter_history/downstream_outputs/hydrology_validation/*.svg -text whitespace=-blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol
-examples/fe_walter/downstream/inputs/station_metadata.txt -text whitespace=-blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
-
-# Branding SVG bytes are pinned in accepted receipts; preserve LF on Windows.
-docs/_static/hydroopslm-social-preview.svg -text
-docs/figures/assets/branding/**/*.svg -text
-# Maintained module source pins use the same LF bytes on Windows and Linux.
-src/llm_reservoir_agent/**/*.py text eol=lf
-# Published test-definition pins use the indexed LF bytes on every platform.
-tests/*.py text eol=lf
-# The installed Daily examples and their evidence retain exact fixture bytes.
-examples/daily_offline/** -text
-docs/qa/*.json -text
-# Relocated climate/metric displays retain the original exact-byte pins.
-docs/results/fe_walter/hydrology/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+* text=auto eol=lf
+# These inputs, vendor files and the native adapter have byte-level provenance.
+examples/**/*.csv -text
+templates/prepared/inflows.csv -text
+examples/llm_reservoir_abm.py -text
+src/hydrocnhs/** -text
+third_party/hydrocnhs/** -text
+*.png binary

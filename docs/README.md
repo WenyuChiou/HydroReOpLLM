@@ -1,24 +1,36 @@
-# How the Daily simulation works
+# HydroReOpLLM documentation
 
-[English](README.md) | [繁體中文](README.zh-TW.md)
+[繁體中文使用手冊](README.zh-TW.md)
 
-HydroReOpLLM adds reservoir operators to HydroCNHS. The operator can follow a
-rule or ask an LLM for release; the hydrological model and reservoir physics
-remain separate from that choice.
+Return to the [project README](../README.md), or follow this compact path:
 
-![HydroReOpLLM simulation stages](figures/simulation-stages.svg)
+1. [Install the package](GETTING_STARTED.md).
+2. [Choose and configure a workflow](CONFIGURATION.md).
+3. [Run, verify, or resume an experiment](RUNNING.md).
+4. Open the [offline synthetic tutorial](../tutorials/README.md).
 
-1. HydroCNHS calculates runoff and routes upstream inflow for the operation period.
-2. Each day, each reservoir operator reads its own state, inflow and selected information.
-3. The operator requests release. Reservoir physics applies available-water and
-   outlet limits, calculates spill and updates storage.
-4. Routing carries controlled release plus spill downstream. Connected reservoirs
-   receive the routed water, together with any configured local inflow.
-5. The next decision uses the updated state and completed history.
+Focused guides cover [model providers and reproducibility](MODEL_PROVIDERS.md),
+[multiple reservoirs](MULTI_RESERVOIR.md), [time scales and units](TIME_SCALES.md),
+and [native HydroCNHS/GWLF setup](HYDROLOGY_SETUP.md). All bundled examples use
+invented data and are teaching fixtures rather than calibrated studies.
 
-Changing an operator does not recompute upstream rainfall–runoff.
-Reply validation checks whether a decision can be read and used; operation audits
-check the selected rules without automatically changing the release.
+## Build this site locally
 
-Start with [installation](GETTING_STARTED.md), then follow
-[the configuration files](INPUT_OUTPUT.md). The [manual home](index.md) lists the full reading order.
+From the repository root, install the isolated documentation dependency and
+build the site:
+
+```powershell
+python -m pip install -r requirements-docs.txt
+python scripts/build_docs.py
+```
+
+Open `site/index.html` directly in a browser. The build uses only the Markdown
+guides and an explicit allowlist of public synthetic example documentation; it
+does not install or run the scientific package.
+
+## Publish on GitHub Pages
+
+When the repository's plan supports Pages, select **GitHub Actions** as the
+source in **Settings → Pages**. Run **Documentation Pages** from the Actions
+tab on `main`. Subsequent changes to the documentation on `main` rebuild the
+site. The deployment job reports the website URL.

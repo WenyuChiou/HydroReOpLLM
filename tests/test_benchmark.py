@@ -1,4 +1,4 @@
-"""Hand calculations and vectors from pinned Anik Eq. 4, without model I/O."""
+"""Hand calculations and pinned benchmark vectors, without model I/O."""
 
 import math
 

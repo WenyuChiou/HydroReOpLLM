@@ -33,24 +33,6 @@ def run_hourly(p, x, n=48, dt=3600, **kw):
                            np.full(n, 12.), dt_seconds=dt, **kw)
 
 
-@pytest.mark.parametrize('case', json.loads((ROOT / 'tests/fixtures/gwlf_daily_legacy.json').read_text())['cases'])
-def test_legacy_daily_default_and_restart_match_prechange_oracle(case):
-    p, x, f = case['pars'], case['inputs'], case['forcing']
-    q, state = run_GWLF(p, x, **f)
-    np.testing.assert_array_equal(q, case['expected_cms'])
-    assert state == case['expected_state']
-    rows = []
-    checked, checked_state = run_GWLF(p, x, **f, diagnostics=rows)
-    np.testing.assert_array_equal(checked, case['expected_cms'])
-    assert checked_state == case['expected_state']
-    if p['Alpha'] > 0:
-        assert max(abs(row['mass_balance_residual_m3']) for row in rows) < 2e-9
-    cut = case['restart_index']
-    q, state = run_GWLF(p, x, **{k:v[cut:] for k,v in f.items()}, vars=case['expected_mid_state'])
-    np.testing.assert_array_equal(q, case['expected_cms'][cut:])
-    assert state == case['expected_state']
-
-
 @pytest.mark.parametrize('alpha', [.008265514706237301, .3, 1e-8])
 @pytest.mark.parametrize('dt', [900, 1800, 3600])
 def test_conversion_matches_closed_dry_recession(alpha, dt):

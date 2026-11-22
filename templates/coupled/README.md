@@ -20,6 +20,7 @@ placeholder values that do not satisfy the runtime contract.
 
 The default `experiment.yaml` selects `agents.rule.yaml`. After that path
 checks and verifies, change the `agents.file` reference to `agents.llm.yaml` to
-use the LLM operator. The commands are documented in `docs/RUNNING.md`.
+use the LLM operator. The commands are documented in
+[`docs/RUNNING.md`](../../docs/RUNNING.md).
 If you already have prepared inflow series instead of a HydroCNHS model, use
-`../prepared/README.md` and `docs/PREPARED_INFLOWS.md`.
+[`../prepared/README.md`](../prepared/README.md).

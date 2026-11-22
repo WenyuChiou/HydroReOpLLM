@@ -1,4 +1,4 @@
-"""Source-checkout entry point; see docs/USER_GUIDE.md for configuration.
+"""Source-checkout entry point. See docs/CONFIGURATION.md for configuration.
 
 Delegates to llm_reservoir_agent.workflow.main. The selected check/run/verify command
 determines whether files are only validated, an experiment executes, or saved output is

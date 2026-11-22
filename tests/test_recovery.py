@@ -1,5 +1,6 @@
 """Recovery contract: reconstruct the committed prefix without new model requests."""
 from copy import deepcopy
+from datetime import date, timedelta
 import hashlib
 import json
 from pathlib import Path
@@ -11,7 +12,29 @@ import yaml
 
 from llm_reservoir_agent.workflow import load_settings, run_settings
 from llm_reservoir_agent.verification import verify_run
-from tests.test_llm_network import network
+
+
+def network(count=3, *, branch=False, days=4):
+    """Build an entirely synthetic reservoir chain for recovery tests."""
+    reservoirs = {}
+    edges = []
+    for index in range(count):
+        name, inlet = f"R{index + 1}", f"I{index + 1}"
+        reservoirs[name] = {"inflow_node": inlet, "physical": {
+            "reservoir_id": f"reservoir_{index + 1}", "capacity_m3": 20_000_000.0,
+            "dead_storage_m3": 0.0, "initial_storage_m3": 10_000_000.0,
+            "minimum_release_cms": 0.0, "maximum_release_cms": 100.0,
+            "dt_seconds": 86_400.0}}
+        target = "Outlet" if branch or index == count - 1 else f"I{index + 2}"
+        edges.append({"source": name, "target": target, "unit_hydrograph": [1.0]})
+    config = {"schema_version": "llm-reservoir-network.v1",
+              "data_kind": "synthetic_fixture", "start_date": "2020-01-01",
+              "reservoirs": reservoirs, "connections": edges, "outlet": "Outlet"}
+    local = {f"I{i + 1}": 10.0 if i == 0 else 1.0 / i for i in range(count)}
+    local["Outlet"] = 0.0
+    rows = [{"date": (date(2020, 1, 1) + timedelta(days=step)).isoformat(),
+             "local_inflow_cms": dict(local)} for step in range(days)]
+    return config, rows
 
 
 def reply(release=5):
@@ -117,7 +140,7 @@ class RecoveryTests(unittest.TestCase):
         from llm_reservoir_agent.recovery import resume_settings
         source = self.fail_on_second_day()
         sent = []
-        changed = {"anik_adapter.py": "0" * 64}
+        changed = {"policy_adapter.py": "0" * 64}
         with patch("llm_reservoir_agent.experiment._adapter_implementation_files",
                    return_value=changed, create=True):
             with self.assertRaisesRegex(ValueError, "implementation|runtime|adapter"):
@@ -207,55 +230,6 @@ class RecoveryTests(unittest.TestCase):
             "incomplete_tail_bytes_retained_in_source"], {"physics": len(tail)})
         self.assertEqual((source / "physics.jsonl").read_bytes(), before)
         self.assertEqual(verify_run(self.root / "continued")["days"], 3)
-
-    def test_both_reference_scenarios_restore_native_history_and_routing(self):
-        from llm_reservoir_agent.recovery import resume_settings
-        from tests.test_reference_live import ReferenceLiveTests
-        for method in ("zeroshot", "dkp"):
-            with self.subTest(method=method):
-                helper = ReferenceLiveTests()
-                helper.setUp()
-                try:
-                    settings = helper.settings(method)
-                    # Three successful decisions plus one interrupted request.
-                    data = yaml.safe_load(settings.path.read_text(encoding="utf-8"))
-                    data["max_calls"] = 5
-                    settings.path.write_text(yaml.safe_dump(data), encoding="utf-8")
-                    settings = load_settings(settings.path)
-                    replies = helper.replies(method)
-                    sent = []
-                    def failed_transport(*args):
-                        sent.append(args)
-                        if len(sent) == 2:
-                            raise TimeoutError("fixture interruption")
-                        return {"message": {"content": json.dumps(replies[0])},
-                                "done": True, "done_reason": "stop"}
-                    with self.assertRaisesRegex(RuntimeError, "backend failed"):
-                        run_settings(settings, allow_network=True, transport=failed_transport)
-                    continued_calls = []
-                    def continued_transport(*args):
-                        continued_calls.append(args)
-                        return {"message": {"content": json.dumps(replies[len(continued_calls)])},
-                                "done": True, "done_reason": "stop"}
-                    recovered, _ = resume_settings(
-                        settings, settings.report["output"], output=helper.root / "continued",
-                        run_id="continued", allow_network=True, transport=continued_transport)
-                    self.assertEqual(len(continued_calls), 2)
-                    self.assertEqual(verify_run(helper.root / "continued")["days"], 3)
-                    full_calls = []
-                    def full_transport(*args):
-                        full_calls.append(args)
-                        return {"message": {"content": json.dumps(replies[len(full_calls)-1])},
-                                "done": True, "done_reason": "stop"}
-                    data.update(output=str(helper.root / "baseline"), run_id="baseline")
-                    settings.path.write_text(yaml.safe_dump(data), encoding="utf-8")
-                    baseline, _ = run_settings(load_settings(settings.path), allow_network=True,
-                                               transport=full_transport)
-                    self.assertEqual([r["transition"] for r in recovered["FEWalter"]],
-                                     [r["transition"] for r in baseline["FEWalter"]])
-                finally:
-                    helper.tearDown()
-
 
 if __name__ == "__main__":
     unittest.main()

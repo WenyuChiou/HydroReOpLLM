@@ -1,55 +1,18 @@
-# HydroReOpLLM tutorials
+# Offline synthetic tutorial
 
-[English](README.md) | [繁體中文](README.zh-TW.md)
+The notebook reads the bundled single-reservoir fixture, checks its water
+balance, and runs the command-line workflow without any network or model call.
 
-Open the [F.E. Walter notebook tutorial](main.ipynb). Follow one route: experiment entry → accepted
-hydrology → reservoir/network → agent method → prompt or retrieved knowledge →
-saved 2016 results.
-
-| Notebook | Purpose | Data and model service |
-|---|---|---|
-| [Main](main.ipynb) | Read each complete configuration, check the three decision methods, then inspect saved annual results. | Committed saved results only; no model service. |
-| [Operation](operation.ipynb) | Calculate F.E. Walter inflow from weather, operate with the Hanasaki rule for 2021–2025 and compare with observations. | Weather, calibrated model and observations are in the repository; all computation is local and no model service is needed. |
-| [Advanced](advanced.ipynb) | Read the generic `examples/multiple_reservoirs` configuration: IDs, topology, method mixing and state separation. | Reads the files in `examples/multiple_reservoirs`; runs no simulation and needs no model service. |
-| [Downstream validation](downstream_validation.ipynb) | Prepare the White Haven–Lehighton observation-boundary test, check inputs, and follow the separate calibration and validation stages. | Checks inputs by default; downloads, native runs and calibration each need an explicit switch; no model service. |
-
-The main notebook reads committed evidence only. Its default path makes no model
-request, download, hydrology run, or reservoir simulation.
-
-The downstream notebook checks input readiness by default. Downloads, native fixed parameter runs and calibration each require an explicit switch; the notebook contains no LLM execution.
-
-## Open the notebook
-
-Complete [installation](../docs/GETTING_STARTED.md) in a local clone. From the
-repository root, use that Python environment to open the lesson:
+From the repository root, install Jupyter in the same environment and open it:
 
 ```powershell
 python -m pip install jupyterlab
-jupyter lab tutorials/main.ipynb
+jupyter lab tutorials/offline_synthetic.ipynb
 ```
 
-Select the installed environment as the notebook kernel and run cells in order.
-The full configuration explanations and executable cells are maintained in the notebook.
+Select the project environment as the kernel and run cells in order. The
+notebook creates a temporary configuration and output under the operating
+system's temporary directory, then removes them. It never changes the bundled
+example. Saved outputs and execution counts are intentionally absent.
 
-## Build and check
-
-```powershell
-python tutorials/build_notebooks.py --notebook main.ipynb --execute
-python tutorials/build_notebooks.py --check
-```
-
-This command executes only the main notebook from existing files. It preserves
-the accepted CSV, figure exports and advanced notebook. To refresh all notebooks
-and figure exports from saved data, omit `--notebook`. The saved trajectories retain
-the prompts recorded by their source runs, before daily seasonal context was added.
-
-CI runs `python tutorials/build_notebooks.py --execute --check`. That regenerates
-and executes `main.ipynb` and `advanced.ipynb` in-process, from saved evidence
-with network access blocked. The distributed `operation.ipynb` contains the
-lesson source. Run it in Jupyter to see its tables and plots, or use
-`--notebook operation.ipynb --execute` to verify its calculations offline.
-`downstream_validation.ipynb` runs separately.
-
-[Generic configuration](../docs/INPUT_OUTPUT.md) ·
-[HydroCNHS setup](../docs/HYDROLOGY_SETUP.md) ·
-[F.E. Walter example](../examples/fe_walter/README.md)
+[Documentation](../docs/README.md) · [Example files](../examples/daily_offline/README.md)

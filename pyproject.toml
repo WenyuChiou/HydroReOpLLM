@@ -12,12 +12,13 @@ dependencies = ["joblib", "matplotlib", "numpy", "pandas", "ruamel.yaml", "scipy
 
 [project.urls]
 Repository = "https://github.com/WenyuChiou/HydroReOpLLM"
-Documentation = "https://wenyuchiou.github.io/HydroReOpLLM/"
+Documentation = "https://github.com/WenyuChiou/HydroReOpLLM/blob/main/docs/README.md"
 
 [project.optional-dependencies]
 hydrocnhs = [] # Compatibility extra: the complete pinned source is now bundled.
 test = ["pytest>=8", "pytest-subtests", "setuptools>=70.1"]
-docs = ["sphinx>=8,<9", "myst-nb>=1.2,<2"]
+
+docs = ["mkdocs==1.6.1"]
 gis = ["shapely>=2,<3", "pyproj>=3,<4"]
 
 [project.scripts]

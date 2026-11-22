@@ -10,9 +10,11 @@ and spill calculation. Chronology and coefficient state are held per reservoir.
 
 Dependencies and side effects
 -----------------------------
-Uses contracts for observations, actions and JSON copies. Equations and
-operating-year convention follow benchmark_release.py at Anik commit
-6c3dc532d712af55db1f4a1d8e018c86249ce7a8 (Abeshu et al., 2023, Sect. 2.3.3).
+Uses contracts for observations, actions and JSON copies. The release equations
+follow Abeshu et al. (2023, Sect. 2.3.3). The operating-year convention follows
+the reference implementation benchmark_release.py at revision
+6c3dc532d712af55db1f4a1d8e018c86249ce7a8, with file SHA-256
+c11a81c71cdd34b80e30a1da1af6e493e75582b4bb56794d426c0683909604b6.
 No network or file I/O occurs; successful decisions update coefficient/trace
 state. Feedback is retained separately from host-observed reservoir storage.
 """

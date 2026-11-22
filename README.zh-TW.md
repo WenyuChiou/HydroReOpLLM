@@ -1,116 +1,58 @@
 # HydroReOpLLM
 
-[English](README.md) | [繁體中文](README.zh-TW.md)
+[繁體中文使用手冊](docs/README.zh-TW.md) · [English manual](docs/README.md) · [English](README.md)
 
-[![使用手冊](docs/_static/docs-badge-zh-TW.svg)](https://wenyuchiou.github.io/HydroReOpLLM/)
+HydroReOpLLM 使用局部入流或氣象時間序列模擬水庫操作。每個時間步先由操作策略提出放流量，再由物理模型套用庫容與放流限制，將水量往下游演算，並記錄決策和水量平衡。操作策略可採用規則、指定放流量，或讀取本地操作指引的 LLM。
 
-![HydroReOpLLM：結合 LLM 水庫決策代理的人水耦合模擬](docs/figures/hydroopslm-cover.png)
+## 下載與安裝
 
-HydroReOpLLM 是使用大型語言模型（LLM）研究水庫操作的 Python 套件，
-將可設定的水庫操作員接到 [HydroCNHS](https://github.com/cylin928/HydroCNHS) 水文模擬。
-使用 YAML 描述自己的流域、單一水庫或水庫網路，以及各操作員能取得的資訊。
+需要 Git 和 Python 3.12。首次安裝會下載 Python 相依套件。
 
-水文模型提供入流，操作員提出放水要求；水庫物理計算套用限制、更新庫容與溢流，
-再把總出流 routing 到下游。每座水庫保留獨立的狀態與決策歷史。
-
-時間假設：Daily 每一步中，無論 LLM、Rule-based 或 MOSART/Hanasaki，每位操作員拿到的
-都是該步自己的平均入流。因此結果假設操作員知道當天的平均入流。若研究需要嚴格只用
-前一天的資訊，套件沒有內建設定，必須自行設計；見
-[決策資訊](docs/INFORMATION.zh-TW.md)。
-
-## 提供的功能
-
-- **單水庫與水庫網路：**在共用水文輸入及水庫物理計算下，比較 Rule-based 與 LLM 操作員。
-- **可設定的模型接口：**支援 Ollama、OpenAI-compatible、OpenAI、Anthropic 與 Gemini，
-  並明確設定模型參數、retry 與 fallback。
-- **研究案例自己的決策設計：**提供 system/user prompt、操作知識、觀測及決策當時可取得的其他資訊。
-- **可追查的結果：**保存要求與實際放水、溢流、庫容、下游流量、reason、原始回覆、runtime 及服務回報的 token 用量。
-  設定檢查、回覆驗證、水量守恆驗證與操作規則稽核分別處理實驗的不同部分。
-
-主要流程是 Daily，測試與 F.E. Walter 案例都以它為對象。[時間尺度範例](examples/time_scales/README.md)
-示範 Hourly 與明確步長的設定，使用離線（非 LLM）操作員，屬工程示範；證據中沒有
-LLM 操作的 Hourly 實驗，也沒有經校正的 Hourly 流域。
-新的流域仍需要適當的輸入資料、水庫特性，以及水文模型的校正與驗證。
-
-## 安裝
-
-使用 **Python 3.12**。套件要求 3.12 或更新版本，但只測試過 3.12。
-取得 repository 並建立虛擬環境：
-
-```bash
+```sh
 git clone https://github.com/WenyuChiou/HydroReOpLLM.git
 cd HydroReOpLLM
-python -m venv .venv
 ```
 
-Windows PowerShell 使用 `.venv\Scripts\Activate.ps1` 啟用；Linux/macOS 使用
-`source .venv/bin/activate`。接著在 repository 根目錄安裝：
+Windows PowerShell：
 
-```bash
-python -m pip install -e . -c environment/requirements-bundled.txt
-reservoir-experiment --help
+```powershell
+py -3.12 -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -c environment/requirements-bundled.txt .
 ```
 
-選配依賴請見[安裝說明](https://wenyuchiou.github.io/HydroReOpLLM/docs/GETTING_STARTED.html)。
-安裝不會下載或啟動 LLM。目前是研究候選包，尚未提供 PyPI 安裝。
+macOS 或 Linux：
 
-套件會安裝自己的頂層 `hydrocnhs` 套件，那是固定版本並已修補的 HydroCNHS 副本
-（見 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)）。請勿把 PyPI 的 `hydrocnhs`
-裝進同一個環境。若檔案被覆蓋，氣象驅動流程會以「installed HydroCNHS core differs from
-its accepted pin」停止；請在乾淨的環境重新安裝。
-
-wheel 包含 `examples/daily_offline`、MOSART-Urban 規則與固定版本的執行檔案，安裝在
-`<環境 prefix>/share/llm-reservoir-agent/`。因此下方的第一次執行需要 clone repository。
-
-## 執行第一個範例
-
-在 repository 根目錄執行小型單水庫範例。它使用已提供的入流與確定性的操作員，
-不需要 API key 或模型服務：
-
-```bash
-reservoir-experiment check examples/daily_offline/single.yaml
-reservoir-experiment run examples/daily_offline/single.yaml
-reservoir-experiment verify runs/daily-single
+```sh
+python3.12 -m venv .venv
+.venv/bin/python -m pip install -c environment/requirements-bundled.txt .
 ```
 
-結果存於 `runs/daily-single`，先查看 `summary.json`、`reservoir_trajectory.csv` 與
-`network_flows.csv`；其餘紀錄請見[結果與決策紀錄](https://wenyuchiou.github.io/HydroReOpLLM/docs/RESULTS_GUIDE.html)。
-另一個實驗請使用新的執行名稱與輸出位置。
+## 執行單庫範例並驗證輸出
 
-## 範例
+在倉庫根目錄，使用剛建立的虛擬環境。Windows 指令如下。
 
-| 範例 | 說明 | 輸入與操作員 |
-|---|---|---|
-| [單水庫與串聯](examples/daily_offline/README.md) | 從第一次執行，到三座水庫的串聯 | 小型已備妥入流；不需模型服務 |
-| [多水庫](examples/multiple_reservoirs/README.md) | 氣象驅動水文與各壩獨立操作員 | 預設 Rule-based，另有可選的 LLM 設定 |
-| [時間尺度](examples/time_scales/README.md) | Daily、Hourly 與明確步長的設定 | 採用非 LLM 操作員的小型設定 |
-| [F.E. Walter](examples/fe_walter/README.md) | 比較 Rule-based 與 LLM 方法的研究案例 | 依[案例指南](https://wenyuchiou.github.io/HydroReOpLLM/docs/CASE_STUDIES.html)選擇 2021–2025 已備妥入流，或 2016 氣象驅動設定 |
+```powershell
+.\.venv\Scripts\python.exe -m llm_reservoir_agent.workflow check examples/daily_offline/single.yaml
+.\.venv\Scripts\python.exe -m llm_reservoir_agent.workflow run examples/daily_offline/single.yaml
+.\.venv\Scripts\python.exe -m llm_reservoir_agent.workflow verify runs/daily-single --require-offline
+```
 
-也可查看[範例目錄](examples/README.zh-TW.md)與 [Notebook 教學](tutorials/README.zh-TW.md)。
-`examples/` 放可執行研究範例，`templates/` 放起始設定。
+macOS 或 Linux 將上述三條指令的執行檔換成 `.venv/bin/python`。這個範例用一座合成水庫模擬四天，指定放流量為每秒 1 立方公尺，無須模型服務或 API 金鑰。結果寫入本機的 `runs/daily-single/`。重跑前請在 YAML 設定中指定新的 `output` 目錄。
 
-## 設定自己的研究案例
+## 範例與測試
 
-[使用手冊](https://wenyuchiou.github.io/HydroReOpLLM/)依下列順序介紹設定：
+- [使用手冊與範例驗證](docs/README.zh-TW.md)
+- [可直接執行的四天合成水庫教學筆記本](tutorials/offline_synthetic.ipynb)
+- [每日單庫與串聯水庫](examples/daily_offline/README.md)
+- [兩座獨立操作的水庫與氣象驅動入流](examples/multiple_reservoirs/README.md)
+- [逐日、逐時和固定時間步](examples/time_scales/README.md)
+- [從模板建立案例](templates/prepared/README.md)
 
-1. 設定模擬日期、執行名稱與輸出位置。
-2. 接入已備妥入流，或自己的水文模型與氣象資料。
-3. 定義水庫曲線、初始狀態、出流限制與河道連接。
-4. 選擇各操作員、模型、prompt、可用資訊及稽核準則。
-5. 檢查、執行並閱讀保存的結果。
+要執行測試，請在同一虛擬環境安裝測試依賴。Windows 指令如下。
 
-從[設定指南](https://wenyuchiou.github.io/HydroReOpLLM/docs/INPUT_OUTPUT.html)與
-[耦合設定範本](templates/coupled/README.md)開始。氣象驅動流程使用
-`check → prepare → run → verify`；已備妥入流使用 `check → run → verify`
-（見[已備妥入流](docs/PREPARED_INFLOWS.md)）。
-案例自己的規則、測站名稱與知識放在研究檔案或 extension；多數設定不必修改核心模組。
+```powershell
+.\.venv\Scripts\python.exe -m pip install -c environment/requirements-bundled.txt ".[test]"
+.\.venv\Scripts\python.exe -m pytest -q
+```
 
-查閱程式可從[專案結構](docs/CODE_STRUCTURE.md)與
-[API 說明](https://wenyuchiou.github.io/HydroReOpLLM/docs/API_REFERENCE.html)進入。
-套件檢查軟體與數值的一致性；新流域模型或操作策略的有效性仍需另外評估。
-
-## 引用與授權
-
-報告實驗時請記錄專案 revision，依[引用說明](docs/REFERENCE.md)引用本專案及 HydroCNHS。
-主專案授權尚待確定。授權公布之前，程式碼可以閱讀，但不授予重用權利。
-隨附依賴保留各自的[授權與來源](THIRD_PARTY_NOTICES.md)。
+倉庫包含 HydroCNHS 程式、上游授權、版本與修改記錄。[來源與署名](THIRD_PARTY_NOTICES.md)

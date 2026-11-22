@@ -77,7 +77,9 @@ a real operator would not know that day's mean inflow in advance.
 
 An LLM run also needs `--allow-network` and `max_calls` of at least the planned
 requests; `check` reports `live_ready`. This template uses `max_calls: 0` and
-`mode: offline`: no model request. See [`docs/LIVE_READINESS.md`](../../docs/LIVE_READINESS.md).
+`mode: offline`: no model request. For an LLM, document the data-readiness
+decision and follow the explicit network and attempt controls in
+[`docs/RUNNING.md`](../../docs/RUNNING.md).
 
 ## Changing the operator
 `mode: offline` with `release_cms` is a fixed release. For a registered rule or

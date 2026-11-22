@@ -6,11 +6,3 @@ include licenses/*
 include environment/requirements-bundled.txt
 # The full test suite and its fixtures live in the repository.
 prune tests
-
-# Source archives contain only the software and its declared examples.
-prune docs/results
-prune paper
-prune papers
-prune manuscript
-prune manuscripts
-global-exclude *.docx *.tex HydroReOpLLM-FEWalter-paper*.zip hydrocnhs-coupling-framework-en.png

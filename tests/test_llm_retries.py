@@ -17,7 +17,6 @@ from llm_reservoir_agent.configured_backend import (
 )
 from llm_reservoir_agent.contracts import ReservoirObservation
 from llm_reservoir_agent.prompt import PromptSpec
-from examples.fe_walter.extensions.reference_backend import _ReferenceChatTransport
 
 
 ACTION_TEXT = '{"schema_version":"reservoir-action.v1","release_cms":4}'
@@ -230,44 +229,6 @@ class ConfiguredRetryTests(unittest.TestCase):
         self.assertEqual(item.decide(observation()).release_cms, 4.0)
         self.assertEqual(transport.network_calls, 2)
         self.assertEqual(item.network_calls, 2)
-
-
-class ReferenceRetryTests(unittest.TestCase):
-    def test_reference_invalid_json_retries_and_keeps_native_stats(self):
-        calls = []
-
-        def transport(url, payload, headers, timeout):
-            calls.append(deepcopy(payload))
-            return openai_reply("{" if len(calls) == 1 else ACTION_TEXT)
-
-        item = _ReferenceChatTransport(
-            model(max_attempts=2, retry_delay_seconds=0), transport
-        )
-        self.assertEqual(item.decide("system", "prompt", schema=ACTION_SCHEMA)["release_cms"], 4)
-        self.assertEqual(calls[0], calls[1])
-        self.assertEqual(item.network_calls, 2)
-        self.assertEqual(item.last_call_stats["backend_attempts"], 2)
-        self.assertEqual(len(item.latest_trace["attempts"]), 2)
-
-    def test_valid_strategy_fail_value_is_not_retried(self):
-        schema = {
-            "type": "object",
-            "properties": {"audit_status": {"type": "string", "enum": ["FAIL"]}},
-            "required": ["audit_status"],
-            "additionalProperties": False,
-        }
-        calls = []
-
-        def transport(*args):
-            calls.append(args)
-            return openai_reply('{"audit_status":"FAIL"}')
-
-        item = _ReferenceChatTransport(
-            model(max_attempts=3, retry_delay_seconds=0), transport
-        )
-        self.assertEqual(item.decide("system", "prompt", schema=schema), {"audit_status": "FAIL"})
-        self.assertEqual(len(calls), 1)
-        self.assertEqual(item.last_call_stats["backend_attempts"], 1)
 
 
 if __name__ == "__main__":

@@ -1,134 +1,58 @@
 # HydroReOpLLM
 
-[English](README.md) | [繁體中文](README.zh-TW.md)
+[User manual](docs/README.md) · [繁體中文使用手冊](docs/README.zh-TW.md) · [繁體中文首頁](README.zh-TW.md)
 
-[![User manual](docs/_static/docs-badge-en.svg)](https://wenyuchiou.github.io/HydroReOpLLM/)
+HydroReOpLLM simulates reservoir operations from time series of local inflow or weather forcing. A reservoir operator proposes a release. The physical model applies storage and release limits, routes water downstream, and records the decision and water balance for each time step. Operators can use a rule, a prescribed action, or an LLM with local operating guidance.
 
-![HydroReOpLLM: coupled human–water modeling with LLM reservoir decision agents](docs/figures/hydroopslm-cover.png)
+## Install from a clone
 
-HydroReOpLLM is a Python package for studying reservoir operations with large
-language models (LLMs). It connects configurable reservoir operators to
-[HydroCNHS](https://github.com/cylin928/HydroCNHS) hydrological simulations.
-Use YAML files to describe your basin, a single reservoir or connected network,
-and the information available to each operator.
+Use Git and Python 3.12. The first installation downloads the Python dependencies.
 
-Hydrology supplies inflow; operators request release; reservoir physics applies
-physical limits, updates storage and spill, and routes total outflow downstream.
-Each reservoir keeps its own state and decision history.
-
-Timing assumption: at each Daily step every operator, whether LLM, Rule-based or
-MOSART/Hanasaki, is given that step's own mean inflow. Results therefore assume
-the operator knows the current day's mean inflow. A study that needs a strictly
-previous-day information set has no built-in setting and must design its own; see
-[available information](https://wenyuchiou.github.io/HydroReOpLLM/docs/INFORMATION.html#timing-of-the-current-inflow).
-
-## What it provides
-
-- **Single reservoirs and connected networks:** compare Rule-based and LLM
-  operators while sharing hydrological inputs and reservoir physics.
-- **Configurable model interfaces:** Ollama, OpenAI-compatible services, OpenAI,
-  Anthropic and Gemini, with explicit model settings and retry/fallback choices.
-- **Study-specific decisions:** supply your own system/user prompts, operational
-  knowledge, observations and other information available at decision time.
-- **Inspectable results:** save requested and actual release, spill, storage,
-  downstream flow, reasons, raw replies, runtime and reported token usage.
-  Configuration checks, response validation, water-balance verification and
-  operating-rule audits address different parts of the experiment.
-
-The main workflow is Daily; the tests and the F.E. Walter case exercise it. The
-[time-scale examples](examples/time_scales/README.md) demonstrate Hourly and
-explicit interval settings. They use offline (non-LLM) operators and are
-engineering demonstrations; no LLM-operated Hourly experiment and no calibrated
-Hourly basin is part of the evidence. A new basin still needs appropriate input
-data, reservoir properties and hydrological calibration/validation.
-
-## Install
-
-Use **Python 3.12**. The package requires 3.12 or newer, and only 3.12 is
-tested. Clone the repository and create a virtual environment:
-
-```bash
+```sh
 git clone https://github.com/WenyuChiou/HydroReOpLLM.git
 cd HydroReOpLLM
-python -m venv .venv
 ```
 
-Activate it with `.venv\Scripts\Activate.ps1` in Windows PowerShell, or
-`source .venv/bin/activate` on Linux/macOS. Then install from the repository root:
+On Windows PowerShell:
 
-```bash
-python -m pip install -e . -c environment/requirements-bundled.txt
-reservoir-experiment --help
+```powershell
+py -3.12 -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -c environment/requirements-bundled.txt .
 ```
 
-See [installation](https://wenyuchiou.github.io/HydroReOpLLM/docs/GETTING_STARTED.html)
-for optional dependencies. Installation does not download or start an LLM.
-This is a research candidate; installation from PyPI is not available.
+On macOS or Linux:
 
-The package installs its own top-level `hydrocnhs` package, a pinned and patched
-copy of HydroCNHS (see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)). Do not
-install PyPI `hydrocnhs` into the same environment. If its files are overwritten,
-the weather-driven path stops with "installed HydroCNHS core differs from its
-accepted pin"; reinstall into a clean environment.
-
-The wheel includes `examples/daily_offline`, the MOSART-Urban rule and
-pinned runtime files, under `<environment prefix>/share/llm-reservoir-agent/`.
-The first run below therefore needs a clone.
-
-## Run your first example
-
-From the repository root, run the small single-reservoir example. Its supplied
-inflows and deterministic operator require no API key or model service:
-
-```bash
-reservoir-experiment check examples/daily_offline/single.yaml
-reservoir-experiment run examples/daily_offline/single.yaml
-reservoir-experiment verify runs/daily-single
+```sh
+python3.12 -m venv .venv
+.venv/bin/python -m pip install -c environment/requirements-bundled.txt .
 ```
 
-Inspect `summary.json`, `reservoir_trajectory.csv` and `network_flows.csv` under
-`runs/daily-single`. See [results and decision records](https://wenyuchiou.github.io/HydroReOpLLM/docs/RESULTS_GUIDE.html)
-for the remaining logs. Use a new run name and output path for another experiment.
+## Run a reservoir and check the output
 
-## Examples
+From the repository root, use the Python executable in the environment you just created. On Windows:
 
-| Example | What it demonstrates | Inputs and operators |
-|---|---|---|
-| [Single reservoir and cascade](examples/daily_offline/README.md) | A first run, then a three-reservoir chain | Small supplied inflows; no model service |
-| [Multiple reservoirs](examples/multiple_reservoirs/README.md) | Weather-driven hydrology and independent reservoir operators | Rule-based default; an optional LLM configuration |
-| [Time scales](examples/time_scales/README.md) | Daily, Hourly and explicit interval settings | Small configurations with non-LLM operators |
-| [F.E. Walter](examples/fe_walter/README.md) | A worked research case with Rule-based and LLM methods | Choose prepared 2021–2025 inflows or the 2016 weather-driven setup in the [case guide](https://wenyuchiou.github.io/HydroReOpLLM/docs/CASE_STUDIES.html) |
+```powershell
+.\.venv\Scripts\python.exe -m llm_reservoir_agent.workflow check examples/daily_offline/single.yaml
+.\.venv\Scripts\python.exe -m llm_reservoir_agent.workflow run examples/daily_offline/single.yaml
+.\.venv\Scripts\python.exe -m llm_reservoir_agent.workflow verify runs/daily-single --require-offline
+```
 
-See the [example directory](examples/README.md) and [Notebook walkthroughs](tutorials/README.md).
-`examples/` contains runnable studies; `templates/` contains starting configurations.
+On macOS or Linux, use `.venv/bin/python` in those three commands. This example simulates one synthetic reservoir for four days with a prescribed release of 1 m³/s. It needs no model service or API key. The run creates `runs/daily-single/` on your machine. Choose a fresh `output` directory in the YAML before repeating a run.
 
-## Configure your own study
+## Examples and tests
 
-The [user manual](https://wenyuchiou.github.io/HydroReOpLLM/) walks through
-the settings in this order:
+- [Documentation index on GitHub](docs/README.md)
+- [Runnable notebook for the four-day example](tutorials/offline_synthetic.ipynb)
+- [Daily reservoir and cascade](examples/daily_offline/README.md)
+- [Two independently operated reservoirs with weather-driven inflows](examples/multiple_reservoirs/README.md)
+- [Daily, hourly and fixed time steps](examples/time_scales/README.md)
+- [Starting a case from a template](templates/prepared/README.md)
 
-1. Set simulation dates, the run name and output directory.
-2. Connect prepared inflows or your hydrological model and weather.
-3. Define reservoir curves, initial states, outlet limits and river connections.
-4. Choose each operator, model, prompt, available information and audit criteria.
-5. Check, run and inspect the saved results.
+To run the tests, use the same virtual environment and install the test extra. On Windows:
 
-Begin with the [configuration guide](https://wenyuchiou.github.io/HydroReOpLLM/docs/INPUT_OUTPUT.html)
-and [coupled templates](templates/coupled/README.md). The weather-driven workflow
-uses `check → prepare → run → verify`; prepared inflows use `check → run → verify`
-(see [prepared inflows](docs/PREPARED_INFLOWS.md)).
-Case-specific rules, station names and knowledge stay in your study files or
-extensions. Most study settings do not require changes to the core modules.
+```powershell
+.\.venv\Scripts\python.exe -m pip install -c environment/requirements-bundled.txt ".[test]"
+.\.venv\Scripts\python.exe -m pytest -q
+```
 
-For code navigation, see the [project structure](docs/CODE_STRUCTURE.md) and
-[API reference](https://wenyuchiou.github.io/HydroReOpLLM/docs/API_REFERENCE.html).
-The package checks software and numerical consistency; the validity of a new
-basin model or operating strategy requires its own evaluation.
-
-## Citation and license
-
-Record the project revision when reporting an experiment. Follow the
-[citation guide](docs/REFERENCE.md), including the original HydroCNHS reference.
-The main project license is pending. Until a license is published, the code may
-be read but reuse rights are not granted. Bundled dependencies retain their
-[licenses and attribution](THIRD_PARTY_NOTICES.md).
+The checkout includes the bundled HydroCNHS source, upstream license, version information and patches. [Source attribution](THIRD_PARTY_NOTICES.md)

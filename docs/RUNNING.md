@@ -1,100 +1,43 @@
-# Check and run
+# Run lifecycle
 
-Use one experiment file through **check → prepare → run → verify**. Complete
-the [configuration chapters](INPUT_OUTPUT.md) before running these commands.
-Replace `path/to/experiment.yaml` with your configured file. The commands below
-explain execution; reading the manual does not execute them.
-
-## Check the configuration
+Run commands from the repository root.
 
 ```powershell
 reservoir-experiment check path/to/experiment.yaml
-```
-
-`check` resolves referenced files, validates dates and IDs, and previews declared
-prompt inputs. It runs neither hydrology nor a provider request. Fix missing
-files and unmatched reservoir IDs before preparing inflow.
-
-## Prepare upstream inflow
-
-```powershell
 reservoir-experiment prepare path/to/experiment.yaml
-```
-
-`prepare` runs HydroCNHS over its full model period, including warm-up, then saves
-inflow for the operation dates. It makes no LLM request. A matching saved
-preparation can be [reused](WEATHER_INPUTS.md#reuse-a-preparation) when comparing
-operators. The model, forcing, dates, bindings and runtime must match.
-
-## Run daily reservoir operations
-
-```powershell
 reservoir-experiment run path/to/experiment.yaml
+reservoir-experiment verify path/to/output
 ```
 
-Each day the selected agent requests release. Reservoir physics applies water
-availability and release limits, updates storage and spill, and routes actual
-outflow downstream. The next decision uses the updated state and completed
-history. Each experiment needs its own `run_id` and unused `output` directory.
+`check` loads references and validates settings without hydrology execution or a
+provider request. `prepare` writes coupled hydrology products. `run` writes a new
+experiment directory. `verify` reads saved evidence; add `--require-offline` when
+the acceptance condition is zero provider calls.
 
-For an LLM agent, first review the model and prompt files. Its `run` command
-requires explicit provider access:
+Live LLM transport requires both an LLM operator and the explicit
+`reservoir-experiment run ... --allow-network` flag. `max_calls` bounds total
+provider attempts when it is an integer; retries count toward that limit.
+
+## Resume
+
+Preserve the interrupted output and resume into a distinct directory:
 
 ```powershell
-reservoir-experiment run path/to/experiment.yaml --allow-network
+reservoir-experiment resume path/to/experiment.yaml `
+  --from-run path/to/partial-output `
+  --output path/to/new-output `
+  --run-id NEW_RUN_ID
 ```
 
-`max_calls` limits total provider attempts; `null` means no total cap.
-Retries, fallback-profile attempts and requests that were in flight when a run
-was interrupted all count against it, and a resumed run refuses any changed
-setting, including a larger `max_calls`. Set headroom above the planned request
-count from the start; an exhausted budget cannot be raised on resume.
-A model profile's `max_attempts` limits attempts per decision, including the
-first. `timeout_seconds` applies to each attempt. A valid decision is not
-resampled because it misses an operating target.
+Add `--allow-network` only when new provider calls are intended. Reuse is
+accepted only when the saved prefix matches the current settings and runtime.
 
-An LLM run on real (non-synthetic) data needs all three of these, or `run`
-stops before any request:
+## Replay saved daily responses
 
-1. `--allow-network` on the command.
-2. A `max_calls` that covers the planned requests: a positive integer at least
-   the number of decisions made by LLM agents, or `null`. The default `0` is
-   too small for an LLM run.
-3. A live-ready physical case: the case file (for example `reservoirs.yaml`)
-   contains `live_readiness` with `ready: true`. Only a case whose `data_kind`
-   is `synthetic_fixture` is ready without it. See
-   [Before a new LLM experiment](LIVE_READINESS.md).
-
-## Verify saved results
+For a daily case with an existing response file, use the installed offline
+replay command. Supply both input paths relative to the case directory and
+choose a new output directory.
 
 ```powershell
-reservoir-experiment verify path/to/output/operation
+llm-reservoir-daily --case-root path/to/case-directory --case case.json --responses responses.json --output runs/replay
 ```
-
-Here `path/to/output` is the experiment's `output` directory. Verification
-checks saved records, water balance and routing. It does not simulate again.
-A completed, balanced run can still miss a seasonal objective; assess operation
-performance separately.
-
-Hydrology, reservoir calculations and routing use the Python host's CPU.
-A local inference service can use its GPU; a remote provider uses its own
-compute. Retain complete outputs, including failed attempts and raw replies.
-
-## Resume an interrupted run
-
-Preserve the source run and confirm its process has stopped. Keep the same
-inputs, prompts, model settings and runtime, then continue into a new directory:
-
-```powershell
-reservoir-experiment resume path/to/experiment.yaml --from-run runs/interrupted/operation --output runs/continued --run-id continued
-reservoir-experiment verify runs/continued
-```
-
-`resume --output` names the operation directory itself. Add `--allow-network`
-only when unfinished LLM decisions require requests. Completed decisions and
-captured replies are reused where their replay contract permits it.
-
-A crash during a request can leave delivery and cost unknown. Recovery cannot
-guarantee that a provider receives a request exactly once. See
-[Troubleshooting](TROUBLESHOOTING.md) for diagnosis and
-[Decision records](RECORDS.md) for the evidence to preserve.

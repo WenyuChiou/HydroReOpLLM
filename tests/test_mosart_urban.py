@@ -134,10 +134,8 @@ def test_explicit_mean_configuration_has_no_file_or_provider_dependency(tmp_path
 @pytest.mark.parametrize("entry,coupled", [
     ("daily_offline/single.mosart.yaml", False),
     ("multiple_reservoirs/experiment.mosart.yaml", True),
-    ("fe_walter/coupled/experiment.mosart.yaml", True),
-    ("fe_walter/operation/experiment.mosart.yaml", False),
 ])
-def test_three_example_families_execute_through_normal_entrypoints(tmp_path, entry, coupled):
+def test_shipped_example_families_execute_through_normal_entrypoints(tmp_path, entry, coupled):
     from llm_reservoir_agent.coupled import load_coupled_settings, run_coupled
     from llm_reservoir_agent.verification import verify_run
     from llm_reservoir_agent.workflow import load_settings, run_settings
@@ -145,10 +143,6 @@ def test_three_example_families_execute_through_normal_entrypoints(tmp_path, ent
     canonical, _ = read_configuration(ROOT / "examples" / entry)
     canonical["run_id"] = "mosart-entrypoint-test"
     canonical["output"] = str(tmp_path / "output")
-    if entry.startswith("fe_walter"):
-        # Exercise the actual example dependencies without repeating a five-year study.
-        first = date.fromisoformat(canonical["start_date"])
-        canonical["end_date"] = (first + timedelta(days=2)).isoformat()
     path = tmp_path / "experiment.yaml"
     path.write_text(yaml.safe_dump(canonical), encoding="utf-8")
     settings = load_coupled_settings(path) if coupled else load_settings(path)

@@ -1,10 +1,10 @@
 """The advertised minimum must support configured prompt initialization."""
 from pathlib import Path
+import sys
 import tomllib
 
 from packaging.specifiers import SpecifierSet
 import pytest
-import yaml
 
 from llm_reservoir_agent.configured_backend import ConfiguredBackend
 from llm_reservoir_agent.prompt import PromptSpec
@@ -19,12 +19,8 @@ def test_package_minimum_matches_the_validation_runtime():
     assert "3.10" not in supported
     assert "3.11" not in supported
     assert "3.12" in supported
-    for name in ("validate.yml", "docs-pages.yml"):
-        workflow = yaml.safe_load((ROOT / ".github/workflows" / name).read_text())
-        versions = [step["with"]["python-version"]
-                    for job in workflow["jobs"].values() for step in job.get("steps", [])
-                    if step.get("uses", "").startswith("actions/setup-python@")]
-        assert versions and all(str(value) == "3.12" for value in versions)
+    running = ".".join(str(part) for part in sys.version_info[:3])
+    assert running in supported
 
 
 @pytest.mark.parametrize("template, expected", [

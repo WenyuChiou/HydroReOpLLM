@@ -1,0 +1,72 @@
+# Two fictional catchments for the five-day routing example. Areas are in hectares.
+Path:
+  WD: .
+  Modules: ''
+WaterSystem:
+  StartDate: 2020/02/27
+  EndDate: 2020/03/02
+  DataLength: 5
+  NumSubbasins: 2
+  Outlets:
+  - basin_a
+  - basin_b
+  NodeGroups: []
+  RainfallRunoff: GWLF
+  Routing: Lohmann
+  ABM: null
+RainfallRunoff:
+  basin_a:
+    Inputs:
+      Area: 500.0
+      Latitude: 40.0
+      S0: 4.0
+      U0: 8.0
+      SnowS: 0.0
+    Pars:
+      CN2: 65.0
+      IS: 0.15
+      Res: 0.04
+      Sep: 0.01
+      Alpha: 0.10
+      Beta: 0.20
+      Ur: 10.0
+      Kc: 0.8
+      Df: 0.15
+  basin_b:
+    Inputs:
+      Area: 800.0
+      Latitude: 45.0
+      S0: 6.0
+      U0: 10.0
+      SnowS: 0.0
+    Pars:
+      CN2: 75.0
+      IS: 0.20
+      Res: 0.05
+      Sep: 0.02
+      Alpha: 0.15
+      Beta: 0.25
+      Ur: 12.0
+      Kc: 0.9
+      Df: 0.20
+Routing:
+  basin_a:
+    basin_a:
+      Inputs:
+        FlowLength: 0.0
+        InstreamControl: false
+      Pars:
+        GShape: 2.0
+        GScale: 1.5
+        Velo: null
+        Diff: null
+  basin_b:
+    basin_b:
+      Inputs:
+        FlowLength: 0.0
+        InstreamControl: false
+      Pars:
+        GShape: 3.0
+        GScale: 2.0
+        Velo: null
+        Diff: null

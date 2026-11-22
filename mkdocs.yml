@@ -1,0 +1,30 @@
+site_name: HydroReOpLLM
+site_description: Reproducible reservoir-operations software documentation
+docs_dir: docs
+site_dir: site
+use_directory_urls: false
+strict: true
+plugins: []
+theme:
+  name: mkdocs
+  highlightjs: false
+nav:
+  - Home: index.md
+  - 繁體中文使用手冊: zh-TW.md
+  - Getting started: GETTING_STARTED.md
+  - Configuration: CONFIGURATION.md
+  - Run and resume: RUNNING.md
+  - Model providers: MODEL_PROVIDERS.md
+  - Multiple reservoirs: MULTI_RESERVOIR.md
+  - Time scales: TIME_SCALES.md
+  - HydroCNHS setup: HYDROLOGY_SETUP.md
+  - Hourly GWLF: HOURLY_GWLF.md
+  - Troubleshooting: TROUBLESHOOTING.md
+  - Examples:
+      - Offline tutorial: tutorials/index.md
+      - Daily offline: examples/daily_offline/index.md
+      - Multiple reservoirs: examples/multiple_reservoirs/index.md
+      - Time scales: examples/time_scales/index.md
+      - MOSART-Urban rule: examples/rules/mosart_urban/index.md
+      - Prepared inflows: starters/prepared/index.md
+      - Coupled simulation: starters/coupled/index.md

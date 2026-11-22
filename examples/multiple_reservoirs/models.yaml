@@ -1,6 +1,7 @@
 local:
   provider: ollama
-  model: gemma3:4b
+  # Set this to an installed tag from `ollama list` before a live run.
+  model: YOUR_OLLAMA_MODEL
   base_url: http://localhost:11434
   temperature: 0.7
   max_tokens: 2048

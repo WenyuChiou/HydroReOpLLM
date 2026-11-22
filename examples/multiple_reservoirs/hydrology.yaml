@@ -1,4 +1,4 @@
-model: model.yaml
+model: synthetic_catchments.yaml
 forcing: forcing.csv
 zero_flow_nodes: []
 inflow_bindings:

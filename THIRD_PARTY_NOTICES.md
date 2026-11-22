@@ -21,17 +21,8 @@ and checked against a pre-extension numerical oracle. The source manifest retain
 both upstream and installed hashes. The new `groundwater.py` and experimental
 hourly kernel are local extensions, not unmodified upstream GWLF.
 
-The physical separation and source data follow the accepted
-HydroCNHS-Delaware-Demo commit `8d59dcac2f9d06fe16030f68826b425d492c9529`.
-Selected source hashes and explicit prototype assumptions are recorded in
-`data/accepted/manifest.json`.
-
-The supplied Anik V3.7 program is preserved byte for byte in an external recovery
-package and is not distributed in the current source tree or wheel. Optional
-comparisons load hash-verified sources through `HYDROOPS_ANIK_SOURCE_DIR`; see the
-[recovery index](archive/fe_walter/README.md). Its
-[source manifest](archive/fe_walter/original_source_manifest.json) records the
-attachment hashes and discrepancies with README-declared hashes. No license was
-included in that attachment; no redistribution right is claimed. The case's
-operating reference is preserved in
-[`examples/fe_walter/knowledge/operating_rules.md`](examples/fe_walter/knowledge/operating_rules.md).
+The flood-control rule in `examples/rules/mosart_urban/` independently implements
+the reservoir equations and annual storage snapshot from RiverAI-Project/MOSART-Urban,
+commit `7883c5cac62e8c0c585fbafbb1045118cad2dd42`. The implementation records
+the upstream source hash. The optional parity check in `scripts/verify_mosart_rule.py`
+requires a separately obtained copy of that upstream source.
