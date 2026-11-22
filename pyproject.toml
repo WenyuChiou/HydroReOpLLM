@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=70.1"]
+requires = ["setuptools>=77.0.3"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -7,16 +7,18 @@ name = "hydroreopllm"
 version = "0.1.0"
 description = "HydroReOpLLM: configurable reservoir operations coupled with HydroCNHS"
 readme = "README.md"
+license = "BSD-3-Clause"
+license-files = ["LICENSE", "licenses/HydroCNHS-BSD-3-Clause.txt"]
 requires-python = ">=3.12"
 dependencies = ["joblib", "matplotlib", "numpy", "pandas", "ruamel.yaml", "scipy", "scikit-learn", "tqdm", "PyYAML>=6", "deap"]
 
 [project.urls]
 Repository = "https://github.com/WenyuChiou/HydroReOpLLM"
-Documentation = "https://github.com/WenyuChiou/HydroReOpLLM/blob/main/docs/README.md"
+Documentation = "https://wenyuchiou.github.io/HydroReOpLLM/"
 
 [project.optional-dependencies]
 hydrocnhs = [] # Compatibility extra: the complete pinned source is now bundled.
-test = ["pytest>=8", "pytest-subtests", "setuptools>=70.1"]
+test = ["pytest>=8", "pytest-subtests", "setuptools>=77.0.3"]
 
 docs = ["mkdocs==1.6.1"]
 gis = ["shapely>=2,<3", "pyproj>=3,<4"]
@@ -53,6 +55,39 @@ hydrocnhs = ["Config_logging.yaml"]
 "share/llm-reservoir-agent/examples" = ["examples/llm_reservoir_abm.py"]
 "share/llm-reservoir-agent/examples/daily_offline" = ["examples/daily_offline/README.md", "examples/daily_offline/single.yaml", "examples/daily_offline/single.mosart.yaml", "examples/daily_offline/single.json", "examples/daily_offline/cascade.yaml", "examples/daily_offline/cascade.json", "examples/daily_offline/operator.txt"]
 "share/llm-reservoir-agent/examples/rules/mosart_urban" = ["examples/rules/mosart_urban/__init__.py", "examples/rules/mosart_urban/README.md"]
+"share/llm-reservoir-agent/examples/multiple_reservoirs" = [
+    "examples/multiple_reservoirs/README.md",
+    "examples/multiple_reservoirs/agents.llm.yaml",
+    "examples/multiple_reservoirs/agents.mosart.yaml",
+    "examples/multiple_reservoirs/agents.rule.yaml",
+    "examples/multiple_reservoirs/auditors.yaml",
+    "examples/multiple_reservoirs/experiment.llm.yaml",
+    "examples/multiple_reservoirs/experiment.mosart.yaml",
+    "examples/multiple_reservoirs/experiment.yaml",
+    "examples/multiple_reservoirs/forcing.csv",
+    "examples/multiple_reservoirs/hydrology.yaml",
+    "examples/multiple_reservoirs/information.yaml",
+    "examples/multiple_reservoirs/models.yaml",
+    "examples/multiple_reservoirs/reference_a.csv",
+    "examples/multiple_reservoirs/reference_b.csv",
+    "examples/multiple_reservoirs/reservoirs.yaml",
+    "examples/multiple_reservoirs/statistics_a.json",
+    "examples/multiple_reservoirs/statistics_b.json",
+    "examples/multiple_reservoirs/synthetic_catchments.yaml",
+]
+"share/llm-reservoir-agent/examples/multiple_reservoirs/extensions" = [
+    "examples/multiple_reservoirs/extensions/__init__.py",
+]
+"share/llm-reservoir-agent/examples/multiple_reservoirs/knowledge" = [
+    "examples/multiple_reservoirs/knowledge/guidance.json",
+]
+"share/llm-reservoir-agent/examples/multiple_reservoirs/prompts" = [
+    "examples/multiple_reservoirs/prompts/operator.txt",
+    "examples/multiple_reservoirs/prompts/system.txt",
+]
+"share/llm-reservoir-agent/examples/rules/hanasaki" = [
+    "examples/rules/hanasaki/__init__.py",
+]
 "share/llm-reservoir-agent/scripts" = ["scripts/verify_mosart_rule.py"]
 # The original-program oracle is external and opt-in; case extensions live in examples.
 "share/llm-reservoir-agent" = ["THIRD_PARTY_NOTICES.md"]
