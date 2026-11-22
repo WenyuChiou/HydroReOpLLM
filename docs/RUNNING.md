@@ -14,6 +14,12 @@ provider request. `prepare` writes coupled hydrology products. `run` writes a ne
 experiment directory. `verify` reads saved evidence; add `--require-offline` when
 the acceptance condition is zero provider calls.
 
+For a completed coupled run, pass its output directory. For the bundled
+two-reservoir example, use `reservoir-experiment verify runs/independent-rivers-rule --require-offline`.
+Use the `operation/` subdirectory to verify the reservoir operation on its own.
+A directory produced by `prepare` is ready for `run` once hydrology preparation
+succeeds. Verification of the operation requires a completed simulation.
+
 Live LLM transport requires both an LLM operator and the explicit
 `reservoir-experiment run ... --allow-network` flag. `max_calls` bounds total
 provider attempts when it is an integer; retries count toward that limit.
@@ -40,4 +46,11 @@ choose a new output directory.
 
 ```powershell
 llm-reservoir-daily --case-root path/to/case-directory --case case.json --responses responses.json --output runs/replay
+reservoir-experiment verify runs/replay --require-offline
 ```
+
+For responses labeled `recorded_llm_response`, strict verification checks the
+saved source digest against the decision and audit records, matches each raw
+response to its date and requested release, and requires zero observed provider
+calls during replay. Keep the original response file if you also want to compare
+its bytes with the saved SHA-256 digest.

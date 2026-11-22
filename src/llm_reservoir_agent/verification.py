@@ -20,9 +20,12 @@ import csv
 import hashlib
 import json
 import math
-from pathlib import Path
+from pathlib import Path, PurePosixPath, PureWindowsPath
+import re
 
-from .case import inside, read_json
+import yaml
+
+from .case import inside, normalize_response_record, read_json
 from .audit import audit_binding, normalize_audit, validate_audit_provenance
 from .contracts import ReservoirObservation, finite_nonnegative, parse_action
 from .network import validate_inflows
@@ -84,6 +87,30 @@ def _csv(path):
         return reader.fieldnames, rows
 
 
+def _verify_recorded_response(output, metadata, decision, audit, original_audit):
+    """Bind a replay declaration to the retained response, decision and source digest."""
+    raw_ref = decision.get("raw_policy_ref")
+    _check(raw_ref is not None and decision.get("request_id") is None, "missing offline replay evidence")
+    raw = read_json(inside(output, raw_ref["path"]))
+    if "audit_contract" in audit:
+        metadata = original_audit["config"]["backend_provenance"]
+        raw = raw.get("backend_trace")
+        _check(raw == original_audit["input"]["backend_trace"], "replay audit trace mismatch")
+        original_audit = original_audit["input"]["backend_audit"]
+    _check(isinstance(metadata, Mapping) and set(metadata) == {"data_kind", "response_source_sha256"}
+           and metadata["data_kind"] == "recorded_llm_response",
+           "unverified recorded response backend")
+    digest = metadata["response_source_sha256"]
+    _check(isinstance(digest, str) and re.fullmatch(r"[0-9a-f]{64}", digest), "invalid response source SHA-256")
+    for event in (decision, audit):
+        provenance = event.get("provenance")
+        _check(isinstance(provenance, Mapping) and all(provenance.get(k) == v for k, v in metadata.items()),
+               "recorded response provenance mismatch")
+    record = normalize_response_record(raw)
+    _check(record["date"] == decision["observation"]["timestamp"][:10] and record["action"] == decision["action"]
+           and record["audit"] == original_audit, "recorded response does not match decision or audit")
+
+
 def _event_key(event, *, result, ids, timestamps, expected_type=None):
     _check(event.get("schema_version") == result["schema_version"], "trace schema mismatch")
     _check(event.get("run_id") == result["run_id"], "trace run mismatch")
@@ -97,6 +124,109 @@ def _event_key(event, *, result, ids, timestamps, expected_type=None):
     if expected_type is not None:
         _check(event.get("event_type") == expected_type, "unexpected trace event type")
     return reservoir_id, timestep
+
+
+def _recorded_path(value):
+    """Parse a saved absolute path without consulting this host filesystem."""
+
+    _check(isinstance(value, str) and value, "invalid recorded coupled path")
+    path_type = PureWindowsPath if PureWindowsPath(value).is_absolute() else PurePosixPath
+    path = path_type(value)
+    _check(path.is_absolute() and ".." not in path.parts, "invalid recorded coupled path")
+    return path
+
+
+def _coupled_operation_output(output, *, require_offline):
+    """Resolve a coupled preparation root to its bound completed operation run."""
+
+    preparation_path = output / "preparation.json"
+    if not preparation_path.is_file():
+        return output
+    _check(not any((output / name).exists()
+                   for name in ("summary.json", "index.json", "experiment.json")),
+           "ambiguous flat and coupled verification root")
+
+    manifest = read_json(inside(output, "preparation.json"))
+    _check(isinstance(manifest, Mapping)
+           and manifest.get("schema_version") == "hydroops-weather-preparation.v1",
+           "unsupported coupled preparation")
+    generated = manifest.get("generated_files")
+    required = {"inflows.csv", "case.json", "experiment.yaml", "hydrology.json"}
+    diagnostics = {"hydrology_diagnostics.json", "hydrology_state.json"}
+    valid_indexes = (required, required | diagnostics,
+                     required | diagnostics | {"hydrology_routing.json"})
+    present_sidecars = {name for name in diagnostics | {"hydrology_routing.json"}
+                        if (output / name).exists()}
+    _check(isinstance(generated, Mapping) and set(generated) in valid_indexes
+           and set(generated) == required | present_sidecars,
+           "coupled preparation file index is incomplete")
+    for name, digest in generated.items():
+        _check(isinstance(name, str) and Path(name).name == name,
+               "invalid coupled preparation path")
+        _check(isinstance(digest, str) and re.fullmatch(r"[0-9a-f]{64}", digest),
+               "invalid coupled preparation SHA-256")
+        _check(hashlib.sha256(inside(output, name).read_bytes()).hexdigest() == digest,
+               "coupled preparation checksum mismatch: " + name)
+
+    hydrology = read_json(inside(output, "hydrology.json"))
+    _check(isinstance(hydrology, Mapping), "invalid coupled hydrology record")
+    if require_offline:
+        calls = hydrology.get("model_requests")
+        _check(type(calls) is int and calls == 0, "nonzero or unknown hydrology model requests")
+    if hydrology.get("dt_seconds") == 3600:
+        _check(set(generated) == valid_indexes[-1], "hourly hydrology sidecars are missing")
+
+    from .workflow import UniqueLoader
+    settings = yaml.load((output / "experiment.yaml").read_text(encoding="utf-8-sig"), Loader=UniqueLoader)
+    _check(isinstance(settings, Mapping)
+           and settings.get("schema_version") == "llm-reservoir-experiment.v1",
+           "unsupported coupled operation settings")
+    plan = manifest.get("plan")
+    _check(isinstance(plan, Mapping), "invalid coupled preparation plan")
+    recorded_root = _recorded_path(plan.get("output"))
+    sources = manifest.get("source_files")
+    planned = plan.get("source_files")
+    _check(isinstance(planned, Mapping) and isinstance(sources, Mapping)
+           and settings.get("run_id") == plan.get("run_id")
+           and sources == settings.get("source_dependencies")
+           and all(path in sources and sources[path] == digest for path, digest in planned.items()),
+           "coupled preparation settings/plan mismatch")
+    # Reusing hydrology adds the cached preparation and inflow pins after planning.
+    extra = [_recorded_path(path) for path in sources.keys() - planned.keys()]
+    if extra:
+        _check(hydrology.get("reused_preparation") is True and len(extra) == 2
+               and extra[0].parent == extra[1].parent
+               and {path.name for path in extra} == {"preparation.json", "inflows.csv"},
+               "unexpected coupled preparation source pins")
+    _check(_recorded_path(settings.get("output")) == recorded_root / "operation",
+           "coupled operation path mismatch")
+    _check(_recorded_path(settings.get("case")) == recorded_root / "case.json"
+           and _recorded_path(settings.get("case_root")) == recorded_root,
+           "coupled case path mismatch")
+    operation = inside(output, "operation")
+    _check(all(inside(operation, name).is_file() for name in ("summary.json", "index.json", "experiment.json")),
+           "coupled preparation has no completed operation evidence")
+
+    saved_experiment = read_json(operation / "experiment.json")
+    provenance = saved_experiment.get("provenance")
+    _check(isinstance(provenance, Mapping) and provenance.get("settings") == settings
+           and saved_experiment.get("run_id") == settings.get("run_id"),
+           "completed operation is not bound to coupled settings")
+    operation_plan = provenance.get("plan")
+    _check(isinstance(operation_plan, Mapping)
+           and _recorded_path(operation_plan.get("output")) == recorded_root / "operation"
+           and operation_plan.get("run_id") == settings.get("run_id")
+           and operation_plan.get("settings_sha256") == generated["experiment.yaml"],
+           "completed operation plan differs from coupled settings")
+    source_files = provenance.get("source_files")
+    _check(isinstance(source_files, Mapping) and source_files == operation_plan.get("source_files")
+           and all(source_files.get(path) == digest for path, digest in sources.items()),
+           "completed operation source evidence mismatch")
+    for name in ("inflows.csv", "case.json", "experiment.yaml"):
+        matches = [digest for path, digest in source_files.items()
+                   if isinstance(path, str) and _recorded_path(path) == recorded_root / name]
+        _check(matches == [generated[name]], "completed operation source mismatch: " + name)
+    return operation
 
 
 def verify_run(output, *, require_offline=False, expected_audit_suites=None):
@@ -129,7 +259,7 @@ def verify_run(output, *, require_offline=False, expected_audit_suites=None):
     OSError
         A required file cannot be read, created, flushed or replaced.
     """
-    output = Path(output).resolve()
+    output = _coupled_operation_output(Path(output).resolve(), require_offline=require_offline)
     result = read_json(output / "summary.json")
     _check(read_json(output / "index.json") == result, "summary/index mismatch")
     _check(result.get("status") == "COMPLETED" and result.get("error") is None, "run is not completed")
@@ -226,6 +356,27 @@ def verify_run(output, *, require_offline=False, expected_audit_suites=None):
     served_counts: dict[str, dict[str, int]] = {}
     records = {name: [] for name in config["reservoirs"]}
     max_balance = 0.0
+    calls = summary.get("network_calls_by_reservoir")
+    if require_offline:
+        _check(isinstance(calls, Mapping) and set(calls) == set(config["reservoirs"]), "network-call coverage mismatch")
+        _check(all(type(value) is int and value == 0 for value in (*calls.values(), summary.get("observed_network_calls"))),
+               "nonzero or unknown provider calls")
+        provenance = experiment.get("backend_provenance")
+        _check(isinstance(provenance, Mapping) and set(provenance) == set(config["reservoirs"]),
+               "backend provenance coverage mismatch")
+        for metadata in provenance.values():
+            _check(isinstance(metadata, Mapping) and
+                    (metadata.get("provider") == "physical" or metadata.get("data_kind") in
+                     ("synthetic_fixture", "recorded_llm_response") or
+                     (metadata.get('backend') == 'rule_based' and
+                      isinstance(metadata.get('rule_id'), str) and bool(metadata['rule_id'].strip()) and
+                      metadata.get('model_used') is False and metadata.get('network_enabled') is False) or
+                     (metadata.get("backend") == "hanasaki_benchmark" and
+                      metadata.get("mode") == "benchmark" and metadata.get("model_used") is False and
+                      metadata.get("network_enabled") is False and
+                      metadata.get("algorithm_version") == "hanasaki-daily-flood-control.v1")),
+                   "unverified offline backend")
+
     for reservoir_id, name in ids.items():
         spec = config["reservoirs"][name]
         physical_config = spec["physical"]
@@ -292,6 +443,11 @@ def verify_run(output, *, require_offline=False, expected_audit_suites=None):
                         "audit_suite_sha256" in metadata or "auditor_specs" in metadata),
                         "versioned audit cannot be downgraded to unbound legacy")
                 _check(reservoir_id not in expected_audit_suites, "external audit pin requires a versioned suite")
+            if require_offline and any(
+                isinstance(source, Mapping) and source.get("data_kind") == "recorded_llm_response"
+                for source in (provenance[name], decision.get("provenance"), audit.get("provenance"))
+            ):
+                _verify_recorded_response(output, provenance[name], decision, audit, original)
             record = physical["record"]
             _check(record["observation"] == decision["observation"] and record["action"] == decision["action"],
                    "mutated decision/physics trace")
@@ -615,26 +771,6 @@ def verify_run(output, *, require_offline=False, expected_audit_suites=None):
     _close(summary.get("max_mass_balance_residual_m3"), max_balance, "summary reservoir balance mismatch")
     _close(summary.get("max_system_balance_residual_m3"), max_system, "summary system balance mismatch")
     _close(summary.get("final_channel_storage_m3"), stocks[-1], "summary channel stock mismatch")
-
-    calls = summary.get("network_calls_by_reservoir")
-    if require_offline:
-        _check(isinstance(calls, Mapping) and set(calls) == set(config["reservoirs"]), "network-call coverage mismatch")
-        _check(all(value == 0 for value in calls.values()) and summary.get("observed_network_calls") == 0,
-               "nonzero or unknown provider calls")
-        provenance = experiment.get("backend_provenance")
-        _check(isinstance(provenance, Mapping) and set(provenance) == set(config["reservoirs"]),
-               "backend provenance coverage mismatch")
-        for metadata in provenance.values():
-            _check(isinstance(metadata, Mapping) and
-                    (metadata.get("provider") == "physical" or metadata.get("data_kind") == "synthetic_fixture" or
-                     (metadata.get('backend') == 'rule_based' and
-                      isinstance(metadata.get('rule_id'), str) and bool(metadata['rule_id'].strip()) and
-                      metadata.get('model_used') is False and metadata.get('network_enabled') is False) or
-                     (metadata.get("backend") == "hanasaki_benchmark" and
-                      metadata.get("mode") == "benchmark" and metadata.get("model_used") is False and
-                      metadata.get("network_enabled") is False and
-                      metadata.get("algorithm_version") == "hanasaki-daily-flood-control.v1")),
-                   "unverified offline backend")
 
     return {
         "status": "PASS", ("days" if clock.legacy_daily else "steps"): n,

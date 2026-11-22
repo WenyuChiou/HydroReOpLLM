@@ -33,6 +33,12 @@ macOS 或 Linux 請用 `python3.12 -m venv .venv` 建立環境，接著把上述
 
 ## 換成自己的案例
 
+耦合範例執行完成後，可用 `reservoir-experiment verify runs/independent-rivers-rule --require-offline`
+驗證整個輸出目錄。若只要檢查水庫操作，可指定其下的 `operation/`。執行 `prepare` 後，還需要完成 `run` 才能驗證操作結果。
+
+已有逐日模型回覆時，可用 `llm-reservoir-daily` 重播，再對重播輸出執行 `verify --require-offline`。
+驗證器會比對保存的來源雜湊、日期與要求放流量，並檢查重播期間的模型服務呼叫次數是否為零。完整指令見[執行手冊](RUNNING.md#replay-saved-daily-responses)。
+
 | 你要做的事 | 從這裡開始 |
 | --- | --- |
 | 輸入已有的入流序列 | [入流資料與設定範本](../templates/prepared/README.md) |
