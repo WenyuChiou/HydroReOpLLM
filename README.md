@@ -1,18 +1,18 @@
 # HydroReOpLLM
 
-[User manual](https://wenyuchiou.github.io/HydroReOpLLM/) · [繁體中文使用手冊](https://github.com/WenyuChiou/HydroReOpLLM/blob/main/docs/README.zh-TW.md) · [繁體中文首頁](https://github.com/WenyuChiou/HydroReOpLLM/blob/main/README.zh-TW.md)
+[User manual](https://wenyuchiou.github.io/HydroReOpLLM/) · [繁體中文使用手冊](https://wenyuchiou.github.io/HydroReOpLLM/zh-TW.html) · [繁體中文首頁](https://github.com/WenyuChiou/HydroReOpLLM/blob/main/README.zh-TW.md)
 
 HydroReOpLLM simulates reservoir operations from time series of local inflow or weather forcing. A reservoir operator proposes a release. The physical model applies storage and release limits, routes water downstream, and records the decision and water balance for each time step. Operators can use a rule, a prescribed action, or an LLM with local operating guidance.
 
 ## Install the Python package
 
-In a Python 3.12 virtual environment, install the package from GitHub:
+In an active Python 3.12 virtual environment, install the published package from PyPI.
 
 ```sh
-python -m pip install "hydroreopllm @ git+https://github.com/WenyuChiou/HydroReOpLLM.git"
+python -m pip install hydroreopllm
 ```
 
-After a version is published to PyPI, use `python -m pip install hydroreopllm`. To run the installed examples, start in a new directory:
+From an empty working directory, copy the bundled examples, then run and verify the four-day reservoir simulation.
 
 ```sh
 python -c "import shutil, sysconfig; from pathlib import Path; shutil.copytree(Path(sysconfig.get_path('data')) / 'share/llm-reservoir-agent/examples', 'examples')"
@@ -22,7 +22,7 @@ reservoir-experiment verify runs/daily-single --require-offline
 
 ## Install from a clone
 
-Use Git and Python 3.12. The first installation downloads the Python dependencies.
+Clone the default branch for the latest source, tutorials, and case templates. The first installation downloads the Python dependencies.
 
 ```sh
 git clone https://github.com/WenyuChiou/HydroReOpLLM.git

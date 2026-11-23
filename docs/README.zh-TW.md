@@ -6,24 +6,24 @@ HydroReOpLLM 可以從既有的入流資料開始，也可以讓 HydroCNHS 依�
 
 ## 第一次執行
 
-準備 Git 和 Python 3.12，在終端機下載主庫。
-
-```sh
-git clone https://github.com/WenyuChiou/HydroReOpLLM.git
-cd HydroReOpLLM
-```
-
-Windows PowerShell 可直接執行以下指令。首次安裝需要網路，單庫範例可以離線執行。
+在空資料夾建立 Python 3.12 虛擬環境。Windows PowerShell 請執行下列指令。
 
 ```powershell
 py -3.12 -m venv .venv
-.\.venv\Scripts\python.exe -m pip install -c environment/requirements-bundled.txt .
-.\.venv\Scripts\python.exe -m llm_reservoir_agent.workflow check examples/daily_offline/single.yaml
-.\.venv\Scripts\python.exe -m llm_reservoir_agent.workflow run examples/daily_offline/single.yaml
-.\.venv\Scripts\python.exe -m llm_reservoir_agent.workflow verify runs/daily-single --require-offline
+.\.venv\Scripts\Activate.ps1
 ```
 
-macOS 或 Linux 請用 `python3.12 -m venv .venv` 建立環境，接著把上述安裝及模擬指令的 Python 執行檔改為 `.venv/bin/python`。
+macOS 或 Linux 請執行 `python3.12 -m venv .venv` 和 `source .venv/bin/activate`。在啟用的環境中，從 PyPI 安裝套件並複製範例。安裝需要網路，後續的模擬與驗證可離線執行。
+
+```sh
+python -m pip install hydroreopllm
+python -c "import shutil, sysconfig; from pathlib import Path; shutil.copytree(Path(sysconfig.get_path('data')) / 'share/llm-reservoir-agent/examples', 'examples')"
+reservoir-experiment check examples/daily_offline/single.yaml
+reservoir-experiment run examples/daily_offline/single.yaml
+reservoir-experiment verify runs/daily-single --require-offline
+```
+
+需要最新原始碼、教學筆記本或案例範本時，可依照[專案首頁的下載與安裝說明](../README.zh-TW.md#下載與安裝)取得完整專案。
 
 ## 如何判斷這次有跑對
 

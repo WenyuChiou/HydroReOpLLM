@@ -27,10 +27,3 @@ python scripts/build_docs.py
 Open `site/index.html` directly in a browser. The build uses only the Markdown
 guides and an explicit allowlist of public synthetic example documentation; it
 does not install or run the scientific package.
-
-## Publish on GitHub Pages
-
-When the repository's plan supports Pages, select **GitHub Actions** as the
-source in **Settings → Pages**. Run **Documentation Pages** from the Actions
-tab on `main`. Subsequent changes to the documentation on `main` rebuild the
-site. The deployment job reports the website URL.
