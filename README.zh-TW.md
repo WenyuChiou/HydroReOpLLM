@@ -1,18 +1,18 @@
 # HydroReOpLLM
 
-[繁體中文使用手冊](docs/README.zh-TW.md) · [English manual](docs/README.md) · [English](README.md)
+[繁體中文使用手冊](https://wenyuchiou.github.io/HydroReOpLLM/zh-TW.html) · [English manual](https://wenyuchiou.github.io/HydroReOpLLM/) · [English](README.md)
 
 HydroReOpLLM 使用局部入流或氣象時間序列模擬水庫操作。每個時間步先由操作策略提出放流量，再由物理模型套用庫容與放流限制，將水量往下游演算，並記錄決策和水量平衡。操作策略可採用規則、指定放流量，或讀取本地操作指引的 LLM。
 
 ## 安裝 Python 套件
 
-在 Python 3.12 虛擬環境中，可直接從 GitHub 安裝套件。
+啟用 Python 3.12 虛擬環境後，從 PyPI 安裝已發布的套件。
 
 ```sh
-python -m pip install "hydroreopllm @ git+https://github.com/WenyuChiou/HydroReOpLLM.git"
+python -m pip install hydroreopllm
 ```
 
-版本發布至 PyPI 後，可用 `python -m pip install hydroreopllm` 安裝。若要執行套件內附範例，請在新的資料夾執行以下指令。
+在空資料夾複製套件內附的範例，再執行並驗證四天的單庫模擬。
 
 ```sh
 python -c "import shutil, sysconfig; from pathlib import Path; shutil.copytree(Path(sysconfig.get_path('data')) / 'share/llm-reservoir-agent/examples', 'examples')"
@@ -22,7 +22,7 @@ reservoir-experiment verify runs/daily-single --require-offline
 
 ## 下載與安裝
 
-需要 Git 和 Python 3.12。首次安裝會下載 Python 相依套件。
+若要取得最新原始碼、教學筆記本與案例範本，請用 Git 下載預設分支。首次安裝會下載 Python 相依套件。
 
 ```sh
 git clone https://github.com/WenyuChiou/HydroReOpLLM.git
