@@ -58,10 +58,16 @@ def test_walter_notebook_runs_and_plots_verified_results(tmp_path, monkeypatch, 
         assert baseline["output"].is_relative_to(tmp_path)
         assert (baseline["output"] / "reservoir_trajectory.csv").is_file()
         assert len(baseline["trajectory"]) == 7
-        assert len(namespace["baseline_figure"].axes[0].lines) == 2
-        assert namespace["baseline_figure"].axes[1].lines[0].get_ydata()[-1] == pytest.approx(
-            baseline["trajectory"]["storage_end_m3"].iloc[-1] / 1_000_000
+        preview = namespace["reference_runs"]
+        assert len(namespace["preview_figure"].axes[0].lines) == 4
+        assert len(namespace["preview_figure"].axes[1].lines) == 3
+        assert list(preview["Rule-based"]["trajectory"]["storage_end_m3"]) == pytest.approx(
+            baseline["trajectory"]["storage_end_m3"].to_list()
         )
+        assert all(len(run["trajectory"]) == 7 for run in preview.values())
+        assert {name: requests for name, (_, requests) in namespace["reference_cases"].items()} == {
+            "Rule-based": 0, "Without operational knowledge": 7, "With operational knowledge": 7,
+        }
 
         without = "Without operational knowledge"
         with_knowledge = "With operational knowledge"
