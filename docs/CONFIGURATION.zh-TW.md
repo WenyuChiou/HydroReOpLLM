@@ -19,6 +19,16 @@ HydroReOpLLM 支援兩種輸入方式。
 
 `reservoir-experiment check` 會解析並驗證這組設定相依圖，過程中不會執行水文模擬，也不會連線至模型服務。
 
+## 設定檔格式版本一覽
+
+範例與範本會依「既有入流」或「耦合 HydroCNHS 水文模擬」採用三種 `schema_version` 格式：
+
+| `schema_version` | 適用情境 | 操作員欄位寫法 | 日期／時間欄位 |
+| --- | --- | --- | --- |
+| `llm-reservoir-experiment.v1` | 既有入流單檔設定（`daily_offline/single.yaml`、`templates/prepared`） | `reservoir`、`mode: offline` | `start_date` / `end_date`（或沿用網路時鐘） |
+| `llm-reservoir-experiment.v2` | 既有入流並載入自訂規則擴充（`daily_offline/single.mosart.yaml`） | `reservoir_id`、`type: rule_based` | `start_date` / `end_date` |
+| `hydroops-coupled-simulation.v2` | 拆檔式 HydroCNHS 耦合研究（`multiple_reservoirs`、`templates/coupled`、`time_scales/hourly.yaml`） | `reservoir_id` 搭配 `type: rule_based` / `llm`（或 `mode: offline`） | 日尺度用 `start_date` / `end_date`；逐時用 `start_time` / `end_time` |
+
 ## 操作員
 
 每座受控水庫皆僅配有一名操作員，且各自維持獨立狀態。

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import html
 import os
 import re
 import shutil
@@ -187,6 +188,20 @@ class BilingualManual(BasePlugin):
         )
         self.translations = Translations.load(str(locales), ["zh_TW"])
         return nav
+
+    def on_page_content(self, page_html, *, page, config, files):
+        if not (page.toc and page.toc.items and page.toc.items[0].children):
+            return page_html
+        chinese = page.file.src_uri.endswith("zh-TW.md")
+        label = "本頁段落" if chinese else "In this chapter"
+        links = "".join(
+            f'<a href="{html.escape(heading.url, quote=True)}">{html.escape(heading.title)}</a>'
+            for heading in page.toc.items[0].children
+        )
+        toc_block = f'<details class="on-this-page"><summary>{label}</summary>{links}</details>'
+        if "</h1>" in page_html:
+            return page_html.replace("</h1>", f"</h1>\n{toc_block}", 1)
+        return toc_block + "\n" + page_html
 
     def on_page_context(self, context, *, page, config, nav):
         source = page.file.src_uri
