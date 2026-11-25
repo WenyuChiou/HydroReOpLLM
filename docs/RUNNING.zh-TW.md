@@ -19,13 +19,13 @@ reservoir-experiment verify path/to/output
 | 耦合 HydroCNHS | 準備目錄 | `<output>/operation/` | `reservoir-experiment verify <output>` |
 | 既有入流資料 | 操作目錄 | `<output>/` | `reservoir-experiment verify <output>` |
 
-若要驗證隨附的耦合範例，請執行下列指令。
+若要驗證 F.E. Walter 的離線 Rule-based 執行結果，請執行下列指令。
 
 ```powershell
-reservoir-experiment verify runs/independent-rivers-rule --require-offline
+reservoir-experiment verify runs/fe-walter-rule-based --require-offline
 ```
 
-若傳入 `runs/independent-rivers-rule/operation`，則只會驗證其操作紀錄。準備目錄唯有在 `operation/summary.json` 已建立且狀態為 `COMPLETED` 時，才算是一次已完成的執行。
+若是耦合案例，傳入 `<output>/operation` 時，則只會驗證其操作紀錄。準備目錄唯有在 `operation/summary.json` 已建立且狀態為 `COMPLETED` 時，才算是一次已完成的執行。
 
 ## 即時模型呼叫
 

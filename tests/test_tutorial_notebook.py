@@ -25,11 +25,12 @@ def test_walter_notebook_checks_both_cases_without_inference(monkeypatch):
     assert all(window == ["2021-01-01", "2021-01-07"] for window in summary["tutorial_windows"].values())
 
     reports = namespace["check_results"]
-    assert set(reports) == {"Seasonal Target", "DKP"}
-    for checked in reports.values():
-        assert checked["days"] == checked["planned_llm_calls"] == 7
+    assert set(reports) == {"Rule-based", "Seasonal Target", "DKP"}
+    for name, checked in reports.items():
+        assert checked["days"] == 7
+        assert checked["planned_llm_calls"] == (0 if name == "Rule-based" else 7)
         assert checked["network_calls"] == 0
-    assert set(namespace["prompt_texts"]) == set(reports)
+    assert set(namespace["prompt_texts"]) == {"Seasonal Target", "DKP"}
     assert namespace["comparison"]["Seasonal Target"]["knowledge"] == {}
     assert namespace["comparison"]["DKP"]["knowledge"]
     assert not (ROOT / "runs").exists()

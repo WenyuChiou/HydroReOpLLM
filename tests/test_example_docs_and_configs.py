@@ -18,6 +18,7 @@ EXAMPLE_YAMLS = sorted((ROOT / "examples").rglob("*.yaml"))
 
 DIRECT_CHECK_EXPERIMENTS = (
     ("examples/template/experiment.yaml", False),
+    ("examples/fe_walter/rule_based.yaml", False),
     ("tests/fixtures/examples/daily_offline/single.yaml", False),
     ("tests/fixtures/examples/daily_offline/cascade.yaml", False),
     ("tests/fixtures/examples/daily_offline/single.mosart.yaml", False),

@@ -29,13 +29,13 @@ The output layout depends on the input style:
 | Coupled HydroCNHS | preparation directory | `<output>/operation/` | `reservoir-experiment verify <output>` |
 | Prepared inflows | operation directory | `<output>/` | `reservoir-experiment verify <output>` |
 
-For the bundled coupled example, use:
+To verify the offline F.E. Walter rule, use:
 
 ```powershell
-reservoir-experiment verify runs/independent-rivers-rule --require-offline
+reservoir-experiment verify runs/fe-walter-rule-based --require-offline
 ```
 
-Passing `runs/independent-rivers-rule/operation` verifies only its operation
+For a coupled run, passing `<output>/operation` verifies only its operation
 records. A preparation directory is not a completed run until
 `operation/summary.json` exists with status `COMPLETED`.
 
