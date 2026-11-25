@@ -3,6 +3,8 @@
 Use [`examples/multiple_reservoirs`](../examples/multiple_reservoirs/README.md)
 for a complete synthetic two-reservoir network. The essential invariants are:
 
+![Comparison of single reservoir, three-reservoir cascade, and twin separate-outlet topologies](assets/diagrams/example-topologies.svg)
+
 - every reservoir key, physical `reservoir_id`, operator assignment, and inflow
   binding is unique and consistent;
 - each controlled reservoir has one operator and its own decision history;

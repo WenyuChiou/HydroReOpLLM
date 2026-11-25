@@ -9,6 +9,8 @@ reservoir-experiment run path/to/experiment.yaml
 reservoir-experiment verify path/to/output
 ```
 
+![Daily workflow from configuration through check, prepare, run, and verify](assets/simulation-stages.png)
+
 `check` loads references and validates settings without hydrology execution or a
 provider request. To inspect the inflow before a **coupled** run, insert
 `reservoir-experiment prepare path/to/experiment.yaml` between `check` and `run`.

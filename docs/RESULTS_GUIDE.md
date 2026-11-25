@@ -5,6 +5,8 @@ in a prepared-inflow run it is directly under `<output>/`. Confirm `status` is
 `COMPLETED`, then inspect the files named below rather than treating command
 exit alone as an operating-performance result.
 
+![Output directory structure and relationships across CSV and JSONL result files](assets/diagrams/results-outputs-map.svg)
+
 ## Physical and routed results
 
 | File | Main fields | Meaning |

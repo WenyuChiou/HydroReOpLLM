@@ -2,6 +2,8 @@
 
 請先開啟 `summary.json`。在耦合執行中，此檔案位於 `<output>/operation/` 底下。在既有入流資料的執行中，則直接位於 `<output>/` 底下。請先確認 `status` 為 `COMPLETED`，再檢視下列檔案，切勿僅憑指令成功結束就當作水庫操作績效的結果。
 
+![執行輸出目錄結構與各類 CSV／JSONL 結果檔案關聯圖](assets/diagrams/results-outputs-map.svg)
+
 ## 物理模擬與演算結果
 
 | 檔案 | 主要欄位 | 意義 |

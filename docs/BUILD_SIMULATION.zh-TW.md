@@ -2,6 +2,8 @@
 
 完整的合成雙水庫水系範例請見 [`examples/multiple_reservoirs`](../examples/multiple_reservoirs/README.zh-TW.md)。系統必須滿足以下核心不變條件。
 
+![單庫、三庫串聯與雙水庫各自出流水系拓撲比較圖](assets/diagrams/example-topologies.svg)
+
 - 每個水庫鍵值、物理 `reservoir_id`、操作員指派與入流量繫結皆須唯一且彼此一致。
 - 每座受控水庫皆配有一名操作員與獨立的決策歷史紀錄。
 - 區域入流量不含透過連線由上游流入的水量。

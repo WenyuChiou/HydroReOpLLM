@@ -8,6 +8,8 @@ reservoir-experiment run path/to/experiment.yaml
 reservoir-experiment verify path/to/output
 ```
 
+![從設定檔檢查、前處理準備、水庫操作到驗證的執行階段流程圖](assets/simulation-stages.png)
+
 `check` 會載入參照檔案並驗證設定，過程中不會執行水文模擬，也不會發送模型服務請求。若想在執行**耦合**模擬前先檢視入流量，可在 `check` 與 `run` 之間插入 `reservoir-experiment prepare path/to/experiment.yaml`。該指令會執行原生水文模擬，並將鎖定版本的 `inflows.csv`、`case.json`、`experiment.yaml`、`hydrology.json` 與 `preparation.json` 寫入指定的輸出目錄。當輸出目錄尚不存在時，`run` 會自動執行上述準備步驟。若已有準備成果，則會先行驗證並重複使用，接著寫入水庫操作紀錄。`verify` 僅讀取已保存的證據，不會重新執行水文模擬或操作員。若驗收條件要求完全不得呼叫模型服務，請加上 `--require-offline`。
 
 輸出目錄結構會依輸入模式而有所不同。

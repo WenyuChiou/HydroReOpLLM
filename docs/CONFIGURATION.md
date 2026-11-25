@@ -6,6 +6,8 @@ HydroReOpLLM supports two input styles:
 - Native HydroCNHS hydrology: start from
   [`templates/coupled`](../templates/coupled/README.md).
 
+![HydroReOpLLM package structure and split YAML configuration graph](assets/diagrams/package-structure.svg)
+
 The coupled `experiment.yaml` links separate hydrology, reservoir-network,
 operator, model, information, and auditor files. A path is resolved relative to
 the YAML or JSON file that declares it. A `{file: ...}` reference replaces that

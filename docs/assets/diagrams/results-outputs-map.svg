@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 410" width="1100" height="410" role="img" aria-label="Output directory layout and result file relationships for prepared and coupled runs">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#173334"/>
+    </marker>
+    <style>
+      .title { font: 700 20px system-ui, -apple-system, "Segoe UI", Arial, sans-serif; fill: #173334; }
+      .sec { font: 700 15.5px system-ui, -apple-system, "Segoe UI", Arial, sans-serif; fill: #173334; }
+      .mono { font: 600 12.5px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #096c70; }
+      .lbl { font: 700 13.5px system-ui, -apple-system, "Segoe UI", Arial, sans-serif; fill: #173334; }
+      .sub { font: 400 12px system-ui, -apple-system, "Segoe UI", Arial, sans-serif; fill: #355052; }
+    </style>
+  </defs>
+
+  <rect x="2" y="2" width="1096" height="406" rx="14" fill="#f4f1ea" stroke="#34474b" stroke-width="1.5"/>
+  <text x="26" y="36" class="title">Run Output Directory &amp; Evidence Map</text>
+
+  <!-- Left column: Two output roots -->
+  <rect x="24" y="54" width="330" height="162" rx="10" fill="#ffffff" stroke="#b9cbca" stroke-width="1.4"/>
+  <text x="42" y="82" class="sec">1. Prepared-Inflow Output</text>
+  <rect x="42" y="96" width="294" height="102" rx="8" fill="#eef4f4" stroke="#096c70" stroke-width="1.4"/>
+  <text x="56" y="120" class="mono">&lt;output&gt;/</text>
+  <text x="72" y="142" class="mono">summary.json</text>
+  <text x="72" y="162" class="sub">Check status == "COMPLETED" first</text>
+  <text x="72" y="182" class="sub">All CSV &amp; JSONL files live here</text>
+
+  <rect x="24" y="230" width="330" height="160" rx="10" fill="#ffffff" stroke="#b9cbca" stroke-width="1.4"/>
+  <text x="42" y="258" class="sec">2. Coupled HydroCNHS Output</text>
+  <rect x="42" y="272" width="294" height="102" rx="8" fill="#dbeaf5" stroke="#2c5f7c" stroke-width="1.4"/>
+  <text x="56" y="294" class="mono">&lt;output&gt;/</text>
+  <text x="72" y="314" class="sub">inflows.csv, hydrology.json, preparation.json</text>
+  <text x="72" y="336" class="mono">&lt;output&gt;/operation/</text>
+  <text x="86" y="356" class="sub">summary.json + CSV &amp; JSONL evidence</text>
+
+  <!-- Arrows from roots to summary & groups -->
+  <line x1="354" y1="145" x2="394" y2="145" stroke="#173334" stroke-width="1.6" marker-end="url(#arrow)"/>
+  <line x1="354" y1="315" x2="394" y2="300" stroke="#173334" stroke-width="1.6" marker-end="url(#arrow)"/>
+
+  <!-- Middle: Physical & routed results -->
+  <rect x="398" y="54" width="336" height="336" rx="10" fill="#ffffff" stroke="#b9cbca" stroke-width="1.4"/>
+  <text x="416" y="82" class="sec">Physical &amp; Routed Results</text>
+
+  <rect x="416" y="98" width="300" height="64" rx="8" fill="#dbeaf5" stroke="#2c5f7c" stroke-width="1.3"/>
+  <text x="430" y="120" class="mono">reservoir_trajectory.csv</text>
+  <text x="430" y="140" class="sub">Inflow, target vs controlled release,</text>
+  <text x="430" y="155" class="sub">spill, start/end storage, adjustments</text>
+
+  <rect x="416" y="174" width="300" height="58" rx="8" fill="#dbeaf5" stroke="#2c5f7c" stroke-width="1.3"/>
+  <text x="430" y="196" class="mono">network_flows.csv</text>
+  <text x="430" y="216" class="sub">local_inflow_cms &amp; routed_flow_cms by node</text>
+
+  <rect x="416" y="244" width="300" height="58" rx="8" fill="#dbeaf5" stroke="#2c5f7c" stroke-width="1.3"/>
+  <text x="430" y="266" class="mono">network_balance.csv</text>
+  <text x="430" y="286" class="sub">Integrated m³ input, outflow, storage, residual</text>
+
+  <rect x="416" y="314" width="300" height="58" rx="8" fill="#eef4f4" stroke="#096c70" stroke-width="1.3"/>
+  <text x="430" y="336" class="mono">reach_volume_trace.json</text>
+  <text x="430" y="356" class="sub">Water held in routing lags between steps</text>
+
+  <!-- Right: Decision & audit evidence + verify -->
+  <rect x="756" y="54" width="320" height="336" rx="10" fill="#ffffff" stroke="#b9cbca" stroke-width="1.4"/>
+  <text x="774" y="82" class="sec">Decision &amp; Audit Journals</text>
+
+  <rect x="774" y="98" width="284" height="196" rx="8" fill="#c8dfd5" stroke="#2d6352" stroke-width="1.3"/>
+  <text x="788" y="122" class="mono">decisions.jsonl</text>
+  <text x="788" y="140" class="sub">Observation, info view, action, decision_id</text>
+  <text x="788" y="164" class="mono">physics.jsonl &amp; audit.jsonl</text>
+  <text x="788" y="182" class="sub">Binding &amp; PASS / WARN / FAIL / UNKNOWN</text>
+  <text x="788" y="206" class="mono">backend_events.jsonl &amp; raw/</text>
+  <text x="788" y="224" class="sub">Request lifecycle &amp; saved prompt/reply</text>
+  <text x="788" y="248" class="mono">experiment.json</text>
+  <text x="788" y="266" class="sub">Frozen network, inputs &amp; provenance hashes</text>
+  <text x="788" y="284" class="sub">Join records across files by decision_id</text>
+
+  <rect x="774" y="308" width="284" height="64" rx="8" fill="#f6dfc6" stroke="#8a5a2b" stroke-width="1.4"/>
+  <text x="788" y="330" class="mono">reservoir-experiment verify</text>
+  <text x="788" y="350" class="sub">Checks hashes, mass balance, routing,</text>
+  <text x="788" y="364" class="sub">and --require-offline call count == 0</text>
+</svg>
