@@ -43,3 +43,13 @@ def copy_coupled_fixture(folder):
         path = folder / f"statistics_{reservoir[-1]}.json"
         path.write_text(json.dumps(statistics) + "\n", encoding="utf-8")
     return folder
+
+
+
+def walter_study_reply(schema):
+    """Represent a complete native-format response for either study condition."""
+    values_by_type = {"number": 280.0, "string": "Hold storage.", "array": []}
+    return {
+        field: rules["enum"][0] if "enum" in rules else values_by_type[rules["type"]]
+        for field, rules in schema["properties"].items()
+    }

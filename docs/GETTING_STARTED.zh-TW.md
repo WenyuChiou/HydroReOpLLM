@@ -69,7 +69,7 @@ reservoir-experiment check examples/fe_walter/seasonal_target.yaml
 reservoir-experiment check examples/fe_walter/dkp.yaml
 ```
 
-Rule-based 可用 `reservoir-experiment run examples/fe_walter/rule_based.yaml` 離線執行。兩個 LLM 案例需先啟動具備 `gemma4:12b` 的 Ollama，再使用 `reservoir-experiment run <yaml> --allow-network`。[F.E. Walter 範例指南](../examples/fe_walter/README.zh-TW.md)提供提示詞連結與完整研究期間的執行方式。
+Rule-based 可用 `reservoir-experiment run examples/fe_walter/rule_based.yaml` 離線執行。兩個 LLM 案例可依研究指南還原指定的 Ollama 模型，再用研究執行程式重跑。[F.E. Walter 範例指南](../examples/fe_walter/README.zh-TW.md)提供提示詞連結與完整研究期間的執行方式。
 
 ## 重跑案例
 

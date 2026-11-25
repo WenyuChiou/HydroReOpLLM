@@ -112,6 +112,7 @@ def test_cli_init_examples_copies_clean_bundle_and_refuses_overwrite(tmp_path, c
     assert main(["init-examples", str(dest)]) == 0
     payload = yaml.safe_load(capsys.readouterr().out)
     assert Path(payload["destination"]) == dest.resolve()
+    assert not list(dest.rglob("__pycache__"))
     assert {item.name for item in dest.iterdir() if item.is_dir()} == {"fe_walter", "template"}
     assert (dest / "template" / "experiment.yaml").is_file()
     assert (dest / "fe_walter" / "seasonal_target.yaml").is_file()
@@ -121,9 +122,8 @@ def test_cli_init_examples_copies_clean_bundle_and_refuses_overwrite(tmp_path, c
     assert main(["check", str(rule)]) == 0
     report = yaml.safe_load(capsys.readouterr().out)
     assert report["planned_llm_calls"] == 0
-    assert report["agent_rules"] == {"walter_operator": "hanasaki"}
+    assert report["agent_rules"] == {"walter_operator": "mosart_urban"}
     assert Path(payload["first_example"]) == dest / "template" / "experiment.yaml"
-    assert not list(dest.rglob("__pycache__"))
 
     assert main(["init-examples", str(dest)]) == 1
     captured = capsys.readouterr()

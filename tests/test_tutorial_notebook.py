@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import pytest
 
 from llm_reservoir_agent import workflow
+from tests.reservoir_fixtures import walter_study_reply
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -25,10 +26,7 @@ def test_walter_notebook_runs_and_plots_verified_results(tmp_path, monkeypatch, 
             "model": "gemma4:12b",
             "done": True,
             "done_reason": "stop",
-            "message": {"role": "assistant", "content": json.dumps({
-                "schema_version": "reservoir-action.v1",
-                "release_cms": 8.0,
-            })},
+            "message": {"role": "assistant", "content": json.dumps(walter_study_reply(payload["format"]))},
         }
 
     def run_with_local_stub(settings, *, allow_network):
@@ -49,6 +47,7 @@ def test_walter_notebook_runs_and_plots_verified_results(tmp_path, monkeypatch, 
                 assert namespace["RUN_LLM"] is False
                 assert requests == []
                 namespace["RUN_LLM"] = enable_llm
+                namespace["verify_study_model"] = lambda port: None
             exec(compile("".join(cell["source"]), f"{NOTEBOOK}:{cell['id']}", "exec"), namespace)
 
         baseline = namespace["baseline"]

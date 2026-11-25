@@ -26,13 +26,13 @@ reservoir-experiment verify runs/prepared-template --require-offline
 | 入口 | 用途 | 網路使用 |
 | --- | --- | --- |
 | [`examples/template/experiment.yaml`](examples/template/README.zh-TW.md) | 通用雙 agent 合成入流流程 | 無 |
-| [`examples/fe_walter/rule_based.yaml`](examples/fe_walter/README.zh-TW.md) | F.E. Walter 離線 Hanasaki 規則 | 無 |
-| [`examples/fe_walter/seasonal_target.yaml`](examples/fe_walter/README.zh-TW.md) | F.E. Walter **Without operational knowledge**（只用季節目標） | 僅於執行 `run --allow-network` 時連線本機 Ollama |
-| [`examples/fe_walter/dkp.yaml`](examples/fe_walter/README.zh-TW.md) | F.E. Walter **With operational knowledge**（加入決策知識包 DKP） | 僅於執行 `run --allow-network` 時連線本機 Ollama |
+| [`examples/fe_walter/rule_based.yaml`](examples/fe_walter/README.zh-TW.md) | F.E. Walter 離線 MOSART-Urban 規則 | 無 |
+| [`examples/fe_walter/seasonal_target.yaml`](examples/fe_walter/README.zh-TW.md) | F.E. Walter **Without operational knowledge**（只用季節目標） | 透過研究執行程式連線本機 Ollama |
+| [`examples/fe_walter/dkp.yaml`](examples/fe_walter/README.zh-TW.md) | F.E. Walter **With operational knowledge**（加入決策知識包 DKP） | 透過研究執行程式連線本機 Ollama |
 
 [開啟線上 F.E. Walter 教學](https://wenyuchiou.github.io/HydroReOpLLM/tutorials/index.zh-TW.html)。
 
-請先執行 `reservoir-experiment check`。此指令可在不連線 Ollama 的情況下驗證任一 F.E. Walter 設定。三個 F.E. Walter 設定都使用論文的 2021–2025 年入流，預設先跑七天。[案例指南](examples/fe_walter/README.zh-TW.md)說明如何用公開版提示詞及模擬器跑完整期間。
+請先執行 `reservoir-experiment check`。此指令可在不連線 Ollama 的情況下驗證任一 F.E. Walter 設定。三個 F.E. Walter 設定都使用論文的 2021–2025 年入流，預設先跑七天。[案例指南](examples/fe_walter/README.zh-TW.md)說明如何離線重算論文分數，以及如何還原原始模型重新推論。
 
 ## 測試與授權
 

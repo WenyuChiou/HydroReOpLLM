@@ -1,11 +1,11 @@
-# F.E. Walter study inputs with a seven-day tutorial window.
+# F.E. Walter paper design. The tutorial starts with seven days.
 schema_version: llm-reservoir-experiment.v1
 case: case.json
 run_id: fe-walter-seasonal-target
 output: ../../runs/fe-walter-seasonal-target
 start_date: '2021-01-01'
 end_date: '2021-01-07'
-max_calls: 14                         # Seven days, up to two attempts per decision.
+max_calls: 14
 models:
   local:
     provider: ollama
@@ -17,6 +17,9 @@ models:
     max_tokens: 2048
     max_attempts: 2
     think: false
+    keep_alive: 30m
+    timeout_seconds: 120
+    retry_delay_seconds: 2
 auditors:
   release_bounds:
     type: release_bounds
@@ -26,7 +29,14 @@ agents:
     reservoir: FEWalter
     mode: llm
     model: local
-    prompt:
-      system: prompts/seasonal_target.system.txt
-      user: prompts/seasonal_target.user.txt
-    auditors: [release_bounds]
+    auditors:
+    - release_bounds
+    strategy: walter_study
+    study_method: seasonal_target
+extensions:
+  walter_study: study/__init__.py
+source_dependencies:
+  prompts/seasonal_target.system.txt: 6138aac6d50c59b059b1b1f77fcffc97061312152cf96c46619e1a76bed69a9d
+  study/elevation_storage.csv: baa89b33023c23002b94ac48e68c69278c384d15a64a72d2587a1e6ad458999d
+  study/response_schemas.json: 2ea4f1e3dc3d5ff1933b4459c19eba4b444848f73074569acefbbac48bf30c0d
+  study/ollama-manifest.json: 4eb23ef187e2c5462566d6a1d3bbbc2f1346d0b4327cbb66d58fffbcc9b2b05c

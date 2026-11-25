@@ -6,3 +6,9 @@ examples/llm_reservoir_abm.py -text
 src/hydrocnhs/** -text
 third_party/hydrocnhs/** -text
 *.png binary
+
+# The study DKP, prompts and Ollama manifest have exact upstream digests.
+examples/fe_walter/dkp.md -text
+examples/fe_walter/prompts/*.system.txt -text
+examples/fe_walter/study/ollama-manifest.json -text
+examples/fe_walter/study/elevation_storage.csv whitespace=cr-at-eol

@@ -1,7 +1,9 @@
-Today's observation (including beginning storage, inflow, and physical limits):
-$observation
+Date: 2021-01-01 (January, day 1 of the year)
+1. Today's inflow: 376.8 cfs (= 32,556,387 cubic feet (= 747 acre-feet) over 1 days)
+2. Water level at beginning of interval: 1312.72 ft NGVD29
+3. Previous simulated release decisions (and what was actually released):
+   None (first simulated step).
+4. Number of days in this decision interval: 1
+5. Storage at beginning of interval: 153,173,520 cubic feet (= 3,516 acre-feet)
 
-Previous completed transition:
-$previous_transition
-
-Use the seasonal storage target and the current operating conditions to request today's release.
+Decide the mean release for this interval (cfs).
