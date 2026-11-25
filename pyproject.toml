@@ -20,7 +20,7 @@ Documentation = "https://wenyuchiou.github.io/HydroReOpLLM/"
 hydrocnhs = [] # Compatibility extra: the complete pinned source is now bundled.
 test = ["pytest>=8", "pytest-subtests", "setuptools>=77.0.3"]
 
-docs = ["mkdocs==1.6.1"]
+docs = ["mkdocs[i18n]==1.6.1"]
 gis = ["shapely>=2,<3", "pyproj>=3,<4"]
 
 [project.scripts]

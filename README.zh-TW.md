@@ -4,18 +4,18 @@
 
 ![水庫、河川與 LLM 操作員示意圖](https://wenyuchiou.github.io/HydroReOpLLM/assets/branding/cover.png)
 
-HydroReOpLLM 使用局部入流或氣象時間序列模擬水庫操作。每個時間步先由操作策略提出放流量，再由物理模型套用庫容與放流限制，將水量往下游演算，並記錄決策和水量平衡。操作策略可採用規則、指定放流量，或讀取本地操作指引的 LLM。
+HydroReOpLLM 使用局部入流量或氣象時間序列模擬水庫操作。在每個時間步，先由操作策略提出放流量，再由物理模型套用庫容與放流限制，將水量往下游演算，並記錄決策與水量平衡。操作策略可採用規則、指定放流量，或讀取本機操作指引的 LLM。
 
 ## 模擬如何運作
 
-入流可以來自現成的時間序列，也可以由 HydroCNHS 根據氣象資料計算。在每個時間步，操作器讀取可用狀態和操作知識後提出放流量。物理模型執行放流、計算溢流與期末庫容；串聯網路會將上游出流傳給下游節點。
+入流量可來自現成的時間序列，也可由 HydroCNHS 根據氣象資料計算。在每個時間步，操作員讀取可用狀態與操作知識後提出放流量。物理模型執行放流、計算溢流量與期末庫容，串聯網路則將上游出流量傳遞至下游節點。
 
-| 想試的功能 | 對應章節 |
+| 想嘗試的功能 | 從這裡開始 |
 | --- | --- |
-| 追蹤單庫放流如何傳到下一座水庫 | [水庫與水流網路](docs/BUILD_SIMULATION.zh-TW.md) |
-| 從氣象輸入計算兩座水庫的入流 | [雙水庫完整範例](examples/multiple_reservoirs/README.md) |
-| 核對模型看到的資料與使用的模型版本 | [決策資訊](docs/INFORMATION.zh-TW.md)、[操作策略與模型](docs/LLM_MODULES.zh-TW.md) |
-| 確認自己的第一個案例跑對 | [執行與讀取結果](docs/RESULTS_GUIDE.zh-TW.md) |
+| 追蹤指定放流量如何影響單庫與下游水庫 | [單庫與串聯水庫](https://wenyuchiou.github.io/HydroReOpLLM/examples/daily_offline/index.zh-TW.html) |
+| 用氣象資料計算兩座獨立操作水庫的入流量 | [雙水庫耦合範例](https://wenyuchiou.github.io/HydroReOpLLM/examples/multiple_reservoirs/index.zh-TW.html) |
+| 確認模型可讀取哪些資料，並記錄所用版本 | [決策時可用的資訊](https://wenyuchiou.github.io/HydroReOpLLM/INFORMATION.zh-TW.html)與[模型服務](https://wenyuchiou.github.io/HydroReOpLLM/LLM_MODULES.zh-TW.html) |
+| 建立自己的案例並解讀結果 | [設定檔](https://wenyuchiou.github.io/HydroReOpLLM/CONFIGURATION.zh-TW.html)與[結果指南](https://wenyuchiou.github.io/HydroReOpLLM/RESULTS_GUIDE.zh-TW.html) |
 
 ## 安裝 Python 套件
 
@@ -25,7 +25,7 @@ HydroReOpLLM 使用局部入流或氣象時間序列模擬水庫操作。每個�
 python -m pip install hydroreopllm
 ```
 
-在空資料夾複製套件內附的範例，再執行並驗證四天的單庫模擬。
+在空資料夾中複製套件隨附的範例，接著執行並驗證四天的單庫模擬。
 
 ```sh
 python -c "import shutil, sysconfig; from pathlib import Path; shutil.copytree(Path(sysconfig.get_path('data')) / 'share/llm-reservoir-agent/examples', 'examples')"
@@ -35,21 +35,21 @@ reservoir-experiment verify runs/daily-single --require-offline
 
 ## 下載與安裝
 
-若要取得最新原始碼、教學筆記本與案例範本，請用 Git 下載預設分支。首次安裝會下載 Python 相依套件。
+若要取得最新原始碼、教學筆記本與案例範本，請使用 Git 下載預設分支。首次安裝時會下載 Python 相依套件。
 
 ```sh
 git clone https://github.com/WenyuChiou/HydroReOpLLM.git
 cd HydroReOpLLM
 ```
 
-Windows PowerShell：
+Windows PowerShell。
 
 ```powershell
 py -3.12 -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -c environment/requirements-bundled.txt .
 ```
 
-macOS 或 Linux：
+macOS 或 Linux。
 
 ```sh
 python3.12 -m venv .venv
@@ -58,7 +58,7 @@ python3.12 -m venv .venv
 
 ## 執行單庫範例並驗證輸出
 
-在倉庫根目錄，使用剛建立的虛擬環境。Windows 指令如下。
+在專案根目錄中使用剛建立的虛擬環境，Windows 指令如下。
 
 ```powershell
 .\.venv\Scripts\python.exe -m llm_reservoir_agent.workflow check examples/daily_offline/single.yaml
@@ -66,18 +66,18 @@ python3.12 -m venv .venv
 .\.venv\Scripts\python.exe -m llm_reservoir_agent.workflow verify runs/daily-single --require-offline
 ```
 
-macOS 或 Linux 將上述三條指令的執行檔換成 `.venv/bin/python`。這個範例用一座合成水庫模擬四天，指定放流量為每秒 1 立方公尺，無須模型服務或 API 金鑰。結果寫入本機的 `runs/daily-single/`。重跑前請在 YAML 設定中指定新的 `output` 目錄。
+macOS 或 Linux 請將上述三個指令的執行檔改為 `.venv/bin/python`。此範例以一座合成水庫模擬四天，指定放流量為每秒 1 立方公尺，無須模型服務或 API 金鑰。結果會寫入本機的 `runs/daily-single/`。重新執行前，請先在 YAML 設定檔中指定新的 `output` 目錄。
 
 ## Git 專案內的範例與測試
 
 - [使用手冊與範例驗證](docs/README.zh-TW.md)
 - [可直接執行的四天合成水庫教學筆記本](tutorials/offline_synthetic.ipynb)
-- [每日單庫與串聯水庫](examples/daily_offline/README.md)
-- [兩座獨立操作的水庫與氣象驅動入流](examples/multiple_reservoirs/README.md)
-- [逐日、逐時和固定時間步](examples/time_scales/README.md)
-- [從模板建立案例](templates/prepared/README.md)
+- [逐日單庫與串聯水庫](examples/daily_offline/README.zh-TW.md)
+- [兩座獨立操作的水庫與氣象驅動入流量](examples/multiple_reservoirs/README.zh-TW.md)
+- [逐日、逐時與固定時間步長](examples/time_scales/README.zh-TW.md)
+- [從範本建立案例](templates/prepared/README.zh-TW.md)
 
-要執行測試，請在同一虛擬環境安裝測試依賴。Windows 指令如下。
+若要執行測試，請在同一虛擬環境中安裝測試相依套件，Windows 指令如下。
 
 ```powershell
 .\.venv\Scripts\python.exe -m pip install -c environment/requirements-bundled.txt ".[test]"
@@ -86,4 +86,4 @@ macOS 或 Linux 將上述三條指令的執行檔換成 `.venv/bin/python`。這
 
 ## 授權
 
-HydroReOpLLM 採用 [BSD 三條款授權](LICENSE)。隨附的 HydroCNHS 保留 [Chung-Yi Lin 的 BSD 三條款授權聲明](licenses/HydroCNHS-BSD-3-Clause.txt)。[來源與修改記錄](THIRD_PARTY_NOTICES.md)
+HydroReOpLLM 採用 [BSD 三條款授權](LICENSE)。隨附的 HydroCNHS 保留 [Chung-Yi Lin 的 BSD 三條款授權聲明](licenses/HydroCNHS-BSD-3-Clause.txt)。[來源與修改紀錄](THIRD_PARTY_NOTICES.md)

@@ -1,70 +1,48 @@
 # HydroReOpLLM 使用手冊
 
-![水庫、河川與 LLM 操作員示意圖](assets/branding/cover.png)
+![HydroReOpLLM 水庫操作員及其集水區](assets/branding/cover.png)
 
-[English manual](README.md) · [專案首頁](../README.zh-TW.md)
-
-HydroReOpLLM 可以從既有的入流資料開始，也可以讓 HydroCNHS 依氣象資料計算來水。每個時間步，操作策略先根據入流與水庫狀態提出放流量。水庫模組再依可用水量與出口限制計算實際放流、溢流及期末庫容。比較策略時，請分別檢查策略要求的放流量與實際放流量。
-
-## 模擬流程
-
-準備好局部入流後，操作器在每個時間步依水庫狀態提出放流，物理模型執行放流並更新庫容。執行結束後，用保存的紀錄核對水量與操作決策。
-
-![每日模擬依序檢查設定、準備入流、執行操作，最後驗證保存的結果](assets/simulation-stages.png)
-
-## 依序閱讀
-
-| 順序 | 你會完成的事 |
-| --- | --- |
-| 1 | 依下方[第一次執行](#first-run)安裝套件，用離線範例驗證環境。 |
-| 2 | 依[水庫與水流網路](BUILD_SIMULATION.zh-TW.md)設定單庫或串聯系統。 |
-| 3 | 選擇[操作策略與模型](LLM_MODULES.zh-TW.md)，核對[決策資訊](INFORMATION.zh-TW.md)。 |
-| 4 | 用[執行與讀取結果](RESULTS_GUIDE.zh-TW.md)核對四天放流、水量平衡及期末庫容。 |
+使用既有的入流資料或 HydroCNHS 集水區模型建立水庫模擬實驗。建議先從指定放流量著手，檢視水量平衡結果，再為自身案例選用合適的操作策略。
 
 <a id="first-run"></a>
 
-## 第一次執行
+[安裝並執行第一個案例](GETTING_STARTED.zh-TW.md) · [瀏覽逐日範例](../examples/daily_offline/README.zh-TW.md) · [English manual](README.md)
 
-在空資料夾建立 Python 3.12 虛擬環境。Windows PowerShell 請執行下列指令。
+## 運作方式
 
-```powershell
-py -3.12 -m venv .venv
-.\.venv\Scripts\Activate.ps1
-```
+既有的入流檔會直接提供局部入流量。在耦合案例中，系統會先執行 HydroCNHS，並將操作期間的入流量儲存備用。在每個時間步，操作員會提出放流量請求。物理模型則依可用水量與出流限制進行運算，更新庫容與溢流量，並沿水庫網路演算水流。驗證步驟會讀取已儲存的決策紀錄與水量平衡結果。解讀實際研究案例時，請另行評估模擬結果與觀測資料的吻合程度。
 
-macOS 或 Linux 請執行 `python3.12 -m venv .venv` 和 `source .venv/bin/activate`。在啟用的環境中，從 PyPI 安裝套件並複製範例。安裝需要網路，後續的模擬與驗證可離線執行。
+![從設定檔、既有入流資料、水庫操作到驗證的逐日工作流程](assets/simulation-stages.png)
+
+## 建議閱讀順序
+
+| 章節 | 本章內容 |
+| --- | --- |
+| [安裝說明](GETTING_STARTED.zh-TW.md)與[入門教學](../tutorials/README.zh-TW.md) | 安裝軟體、執行四天合成案例並檢視期末庫容。 |
+| [設定檔說明](CONFIGURATION.zh-TW.md) | 設定實驗時間窗、輸入檔案、操作員與輸出目錄。 |
+| [既有入流資料](../templates/prepared/README.zh-TW.md)或[水文設定](HYDROLOGY_SETUP.zh-TW.md) | 直接提供局部入流量，或透過[耦合案例範本](../templates/coupled/README.zh-TW.md)搭配氣象資料與原生模型產生入流量。 |
+| [水庫網路](BUILD_SIMULATION.zh-TW.md)與[時間尺度](TIME_SCALES.zh-TW.md) | 為每座水庫指派操作員、連接水流路徑並選擇時間步長。 |
+| [模型服務](LLM_MODULES.zh-TW.md)與[可用資訊](INFORMATION.zh-TW.md) | 決定 LLM 可見的資訊內容，並記錄所使用的模型識別資訊。 |
+| [執行與驗證](RUNNING.zh-TW.md) | 檢查設定檔、準備輸入資料、完成水庫操作模擬並驗證已儲存的執行結果。 |
+| [判讀結果](RESULTS_GUIDE.zh-TW.md) | 比較請求放流量與實際放流量、庫容變化以及下游流量。 |
+
+## 選擇範例
+
+| 範例 | 輸入與探討問題 |
+| --- | --- |
+| [單座水庫與串聯水庫](../examples/daily_offline/README.zh-TW.md) | 當水庫彼此串聯時，指定放流量會如何影響下游庫容？ |
+| [獨立操作的水庫](../examples/multiple_reservoirs/README.zh-TW.md) | 氣象驅動的入流量如何進入由各自獨立操作員管理的兩座水庫？ |
+| [逐日、逐時與固定間隔](../examples/time_scales/README.zh-TW.md) | 時間戳記、平均流量與時段體積如何隨時間步長改變？ |
+| [MOSART-Urban 規則](../examples/rules/mosart_urban/README.zh-TW.md) | 如何在維持相同物理水庫案例的前提下替換操作規則？ |
+
+每個範例皆採用合成輸入資料。若要建立新的流域案例，請從[耦合案例範本](../templates/coupled/README.zh-TW.md)開始。若執行過程出現預期外的狀況，請參閱[疑難排解](TROUBLESHOOTING.zh-TW.md)。
+
+## 離線閱讀使用手冊
+
+在已完成安裝的 Git 本機專案目錄中建置網站，再以瀏覽器開啟 `site/zh-TW.html`。若要使用全文搜尋功能，請透過本機 HTTP 伺服器提供該資料夾，並開啟 `http://127.0.0.1:8000/zh-TW.html`。
 
 ```sh
-python -m pip install hydroreopllm
-python -c "import shutil, sysconfig; from pathlib import Path; shutil.copytree(Path(sysconfig.get_path('data')) / 'share/llm-reservoir-agent/examples', 'examples')"
-reservoir-experiment check examples/daily_offline/single.yaml
-reservoir-experiment run examples/daily_offline/single.yaml
-reservoir-experiment verify runs/daily-single --require-offline
+python -m pip install -r requirements-docs.txt
+python scripts/build_docs.py
+python -m http.server 8000 --directory site --bind 127.0.0.1
 ```
-
-需要最新原始碼、教學筆記本或案例範本時，可依照[專案首頁的下載與安裝說明](../README.zh-TW.md#下載與安裝)取得完整專案。
-
-## 如何判斷這次有跑對
-
-`check` 會列出預計執行的步驟和模型呼叫次數。這個範例預計呼叫模型 0 次。`run` 會在 `runs/daily-single/` 產生結果。`verify` 應回報 `PASS`，實際網路呼叫次數為 0。
-
-打開 `reservoir_trajectory.csv`，應能看到 2020 年 2 月 28 日至 3 月 2 日共四筆日資料。每天的控制放流量都是 1 m³/s，水量平衡殘差為 0，最後一天的期末庫容為 1,345,600 m³。這組數值對應隨附的合成單庫範例。要保留原結果並重跑，請在設定檔中指定新的 `output` 目錄。
-
-## 換成自己的案例
-
-耦合範例執行完成後，可用 `reservoir-experiment verify runs/independent-rivers-rule --require-offline`
-驗證整個輸出目錄。若只要檢查水庫操作，可指定其下的 `operation/`。執行 `prepare` 後，還需要完成 `run` 才能驗證操作結果。
-
-已有逐日模型回覆時，可用 `llm-reservoir-daily` 重播，再對重播輸出執行 `verify --require-offline`。
-驗證器會比對保存的來源雜湊、日期與要求放流量，並檢查重播期間的模型服務呼叫次數是否為零。完整指令見[執行手冊](RUNNING.md#replay-saved-daily-responses)。
-
-| 你要做的事 | 從這裡開始 |
-| --- | --- |
-| 輸入已有的入流序列 | [入流資料與設定範本](../templates/prepared/README.md) |
-| 從降雨及氣溫模擬入流 | [HydroCNHS 設定](HYDROLOGY_SETUP.md) |
-| 比較單庫、串聯或獨立操作的多座水庫 | [單庫與串聯範例](../examples/daily_offline/README.md)、[多庫手冊](MULTI_RESERVOIR.md) |
-| 切換逐時、逐日或固定時段 | [時間尺度與單位](TIME_SCALES.md) |
-| 改用 LLM，記錄模型權重與執行設定 | [模型服務與可重現性](MODEL_PROVIDERS.md) |
-| 中斷後續跑，或檢查驗證錯誤 | [執行與續跑](RUNNING.md)、[疑難排解](TROUBLESHOOTING.md) |
-
-模型服務指南列出追蹤本機模型所需的權重雜湊、量化方式與推論服務版本。如果要重現某次實驗，請連同該次使用的設定、提示詞和輸入檔一起保存。

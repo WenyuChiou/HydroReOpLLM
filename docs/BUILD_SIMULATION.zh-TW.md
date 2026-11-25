@@ -1,19 +1,22 @@
-# 水庫與水流網路
+# 多水庫系統
 
-先畫出每個水庫的局部入流、上游連線和下游出口，再填案例檔。單一水庫適合先核對水量。串聯水庫則要同時檢查上游放流如何進入下一座水庫。
+完整的合成雙水庫水系範例請見 [`examples/multiple_reservoirs`](../examples/multiple_reservoirs/README.zh-TW.md)。系統必須滿足以下核心不變條件。
 
-## 從單庫改成串聯
+- 每個水庫鍵值、物理 `reservoir_id`、操作員指派與入流量繫結皆須唯一且彼此一致。
+- 每座受控水庫皆配有一名操作員與獨立的決策歷史紀錄。
+- 區域入流量不含透過連線由上游流入的水量。
+- 同一來源的各條出流分配比例總和須為 1。
+- 終端節點必須與 `outlets` 完全一致。
+- 演算權重皆須為非負值，且總和為 1。
 
-先完成[第一次執行](README.zh-TW.md#first-run)。保留單庫輸出，在同一工作目錄驗證它，再執行串聯案例。兩份結果可以直接比較。
+若採用既有入流資料，CSV 須包含所有日期與節點，並使用標頭 `date,node,local_inflow_cms`。若採用原生水文模式，則由 `inflow_bindings` 將模式流量對應至水系的各個入流節點。下游節點僅應承接額外的區域逕流。若同時重複計入上游放流量，將造成水量重複計算。
 
-```sh
-reservoir-experiment verify runs/daily-single --require-offline
-reservoir-experiment run examples/daily_offline/cascade.yaml
-reservoir-experiment verify runs/daily-cascade --require-offline
+切換至 LLM 版本前，請先執行預設的規則式範例以確認設定正確。
+
+```powershell
+reservoir-experiment check examples/multiple_reservoirs/experiment.yaml
+reservoir-experiment run examples/multiple_reservoirs/experiment.yaml
+reservoir-experiment verify runs/independent-rivers-rule --require-offline
 ```
 
-在兩次執行的 `reservoir_trajectory.csv` 中，依水庫和時間排序，檢查期初庫容、入流、放流、溢流與期末庫容。預先準備的入流檔只提供局部入流；上游放流由網路傳遞。建構自己的資料時，要避免將同一股水重複計入。
-
-## 兩座獨立操作的水庫
-
-[氣象驅動的雙水庫範例](../examples/multiple_reservoirs/README.md)示範如何將不同的入流來源接到各自的水庫。[預備入流範本](../templates/prepared/README.md)列出案例檔欄位，可用來核對節點名稱與單位。
+首次執行會在 `runs/independent-rivers-rule/` 建立耦合前處理結果，並將水庫操作紀錄寫入其 `operation/` 子目錄。比較各節點結果前，請先參閱[結果檢視指南](RESULTS_GUIDE.zh-TW.md)。
