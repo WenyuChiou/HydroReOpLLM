@@ -8,6 +8,10 @@ HydroReOpLLM supports two input styles:
 
 ![HydroReOpLLM package structure and split YAML configuration graph](assets/diagrams/package-structure.svg)
 
+- `hydroreopllm` (PyPI) installs the `reservoir-experiment` CLI and bundled `examples/`.
+- `llm_reservoir_agent` manages configuration checks, operators, prompts, auditing, and verification; bundled `hydrocnhs` runs rainfall–runoff, routing, and reservoir water balance.
+- `experiment.yaml` acts as the entry point and links `reservoirs.yaml`, `hydrology.yaml`, `agents.*.yaml`, `models.yaml`, `information.yaml`, and `auditors.yaml` relative to the declaring file.
+
 The coupled `experiment.yaml` links separate hydrology, reservoir-network,
 operator, model, information, and auditor files. A path is resolved relative to
 the YAML or JSON file that declares it. A `{file: ...}` reference replaces that

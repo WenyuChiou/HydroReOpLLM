@@ -1,8 +1,14 @@
 # 水庫網路
 
-完整的合成雙水庫水系範例請見 [`examples/multiple_reservoirs`](../examples/multiple_reservoirs/README.zh-TW.md)。系統必須滿足以下核心不變條件。
+完整的合成雙水庫水系範例請見 [`examples/multiple_reservoirs`](../examples/multiple_reservoirs/README.zh-TW.md)。
 
 ![單庫、三庫串聯與雙水庫各自出流水系拓撲比較圖](assets/diagrams/example-topologies.svg)
+
+- **單庫（`examples/daily_offline/single.yaml`）**：單一受控水庫 `Lake_1` 接收既定入流 `local_1` 並排往 `outlet`。
+- **三庫串聯（`examples/daily_offline/cascade.yaml`）**：三座水庫依序串接（`Lake_1 → Lake_2 → Lake_3 → outlet`），含 1 日河道演算延時。
+- **雙水庫各自出流（`examples/multiple_reservoirs/`）**：兩條平行獨立的集水區與水庫（`basin_a → lake_a → river_a` 與 `basin_b → lake_b → river_b`），彼此無水力串接。
+
+系統必須滿足以下核心不變條件：
 
 - 每個水庫鍵值、物理 `reservoir_id`、操作員指派與入流量繫結皆須唯一且彼此一致。
 - 每座受控水庫皆配有一名操作員與獨立的決策歷史紀錄。

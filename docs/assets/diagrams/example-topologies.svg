@@ -1,100 +1,77 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 420" width="1100" height="420" role="img" aria-label="Comparison of single, cascading, and twin separate-outlet synthetic example topologies">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 320" width="960" height="320" role="img" aria-label="Single, cascade, and twin separate-outlet network topologies">
   <defs>
     <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
       <path d="M 0 1 L 10 5 L 0 9 z" fill="#173334"/>
     </marker>
     <style>
-      .title { font: 700 20px system-ui, -apple-system, "Segoe UI", Arial, sans-serif; fill: #173334; }
-      .card-title { font: 700 15.5px system-ui, -apple-system, "Segoe UI", Arial, sans-serif; fill: #173334; }
-      .mono { font: 600 12px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #096c70; }
-      .node { font: 700 13px system-ui, -apple-system, "Segoe UI", Arial, sans-serif; fill: #173334; }
-      .sub { font: 400 12px system-ui, -apple-system, "Segoe UI", Arial, sans-serif; fill: #355052; }
+      .title { font: 700 17px system-ui, -apple-system, "Segoe UI", Arial, sans-serif; fill: #173334; }
+      .node { font: 700 14.5px system-ui, -apple-system, "Segoe UI", Arial, sans-serif; fill: #173334; }
+      .mono { font: 600 12.5px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #096c70; }
     </style>
   </defs>
 
-  <rect x="2" y="2" width="1096" height="416" rx="14" fill="#f4f1ea" stroke="#34474b" stroke-width="1.5"/>
-  <text x="26" y="36" class="title">Synthetic Example Network Topologies</text>
+  <rect x="2" y="2" width="956" height="316" rx="14" fill="#f4f1ea" stroke="#34474b" stroke-width="1.5"/>
 
-  <!-- Panel 1: Single Reservoir -->
-  <rect x="24" y="54" width="332" height="342" rx="10" fill="#ffffff" stroke="#b9cbca" stroke-width="1.4"/>
-  <text x="42" y="82" class="card-title">1. Single Reservoir (Prepared)</text>
-  <text x="42" y="102" class="mono">examples/daily_offline/single.yaml</text>
+  <!-- 1. Single -->
+  <rect x="20" y="20" width="292" height="280" rx="10" fill="#ffffff" stroke="#b9cbca" stroke-width="1.4"/>
+  <text x="166" y="48" text-anchor="middle" class="title">1. Single</text>
+  <text x="166" y="68" text-anchor="middle" class="mono">daily_offline/single.yaml</text>
 
-  <rect x="115" y="128" width="150" height="40" rx="8" fill="#eef4f4" stroke="#096c70" stroke-width="1.3"/>
-  <text x="190" y="153" text-anchor="middle" class="node">local_1 (2.0 m³/s)</text>
-  <line x1="190" y1="168" x2="190" y2="196" stroke="#173334" stroke-width="1.6" marker-end="url(#arrow)"/>
+  <rect x="96" y="88" width="140" height="40" rx="8" fill="#eef4f4" stroke="#096c70" stroke-width="1.4"/>
+  <text x="166" y="113" text-anchor="middle" class="node">local_1</text>
+  <line x1="166" y1="128" x2="166" y2="156" stroke="#173334" stroke-width="1.6" marker-end="url(#arrow)"/>
 
-  <rect x="100" y="200" width="180" height="52" rx="8" fill="#dbeaf5" stroke="#2c5f7c" stroke-width="1.5"/>
-  <text x="190" y="223" text-anchor="middle" class="node">Lake_1</text>
-  <text x="190" y="241" text-anchor="middle" class="sub">operator_1 (1.0 m³/s)</text>
-  <line x1="190" y1="252" x2="190" y2="282" stroke="#173334" stroke-width="1.6" marker-end="url(#arrow)"/>
+  <rect x="96" y="160" width="140" height="44" rx="8" fill="#dbeaf5" stroke="#2c5f7c" stroke-width="1.5"/>
+  <text x="166" y="187" text-anchor="middle" class="node">Lake_1</text>
+  <line x1="166" y1="204" x2="166" y2="234" stroke="#173334" stroke-width="1.6" marker-end="url(#arrow)"/>
 
-  <rect x="125" y="286" width="130" height="38" rx="18" fill="#c8dfd5" stroke="#2d6352" stroke-width="1.4"/>
-  <text x="190" y="310" text-anchor="middle" class="node">outlet</text>
+  <rect x="106" y="238" width="120" height="38" rx="19" fill="#c8dfd5" stroke="#2d6352" stroke-width="1.4"/>
+  <text x="166" y="262" text-anchor="middle" class="node">outlet</text>
 
-  <text x="42" y="356" class="sub">4 days · initial 1,000,000 m³</text>
-  <text x="42" y="376" class="sub">Final storage: 1,345,600 m³ · 0 LLM calls</text>
+  <!-- 2. Cascade -->
+  <rect x="334" y="20" width="292" height="280" rx="10" fill="#ffffff" stroke="#b9cbca" stroke-width="1.4"/>
+  <text x="480" y="48" text-anchor="middle" class="title">2. Cascade</text>
+  <text x="480" y="68" text-anchor="middle" class="mono">daily_offline/cascade.yaml</text>
 
-  <!-- Panel 2: Cascade -->
-  <rect x="384" y="54" width="332" height="342" rx="10" fill="#ffffff" stroke="#b9cbca" stroke-width="1.4"/>
-  <text x="402" y="82" class="card-title">2. Three-Reservoir Cascade</text>
-  <text x="402" y="102" class="mono">examples/daily_offline/cascade.yaml</text>
+  <rect x="372" y="88" width="118" height="40" rx="8" fill="#dbeaf5" stroke="#2c5f7c" stroke-width="1.4"/>
+  <text x="431" y="113" text-anchor="middle" class="node">Lake_1</text>
+  <line x1="431" y1="128" x2="431" y2="156" stroke="#173334" stroke-width="1.6" marker-end="url(#arrow)"/>
 
-  <rect x="442" y="122" width="132" height="44" rx="8" fill="#dbeaf5" stroke="#2c5f7c" stroke-width="1.4"/>
-  <text x="508" y="142" text-anchor="middle" class="node">Lake_1</text>
-  <text x="508" y="158" text-anchor="middle" class="sub">local_1 · op_1</text>
-  <line x1="508" y1="166" x2="508" y2="188" stroke="#173334" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="372" y="160" width="118" height="40" rx="8" fill="#dbeaf5" stroke="#2c5f7c" stroke-width="1.4"/>
+  <text x="431" y="185" text-anchor="middle" class="node">Lake_2</text>
+  <line x1="431" y1="200" x2="431" y2="232" stroke="#173334" stroke-width="1.6" marker-end="url(#arrow)"/>
 
-  <rect x="442" y="192" width="132" height="44" rx="8" fill="#dbeaf5" stroke="#2c5f7c" stroke-width="1.4"/>
-  <text x="508" y="212" text-anchor="middle" class="node">Lake_2</text>
-  <text x="508" y="228" text-anchor="middle" class="sub">op_2 (1-day lag)</text>
-  <line x1="508" y1="236" x2="508" y2="258" stroke="#173334" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="372" y="236" width="118" height="40" rx="8" fill="#dbeaf5" stroke="#2c5f7c" stroke-width="1.4"/>
+  <text x="431" y="261" text-anchor="middle" class="node">Lake_3</text>
+  <line x1="490" y1="256" x2="520" y2="256" stroke="#173334" stroke-width="1.6" marker-end="url(#arrow)"/>
 
-  <rect x="442" y="262" width="132" height="44" rx="8" fill="#dbeaf5" stroke="#2c5f7c" stroke-width="1.4"/>
-  <text x="508" y="282" text-anchor="middle" class="node">Lake_3</text>
-  <text x="508" y="298" text-anchor="middle" class="sub">op_3 (1-day lag)</text>
-  <line x1="574" y1="284" x2="612" y2="284" stroke="#173334" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="524" y="237" width="82" height="38" rx="19" fill="#c8dfd5" stroke="#2d6352" stroke-width="1.4"/>
+  <text x="565" y="261" text-anchor="middle" class="node">outlet</text>
 
-  <rect x="616" y="265" width="84" height="38" rx="18" fill="#c8dfd5" stroke="#2d6352" stroke-width="1.4"/>
-  <text x="658" y="289" text-anchor="middle" class="node">outlet</text>
+  <!-- 3. Separate outlets -->
+  <rect x="648" y="20" width="292" height="280" rx="10" fill="#ffffff" stroke="#b9cbca" stroke-width="1.4"/>
+  <text x="794" y="48" text-anchor="middle" class="title">3. Separate Outlets</text>
+  <text x="794" y="68" text-anchor="middle" class="mono">multiple_reservoirs/</text>
 
-  <text x="402" y="336" class="sub">Serial downstream routing across 3 reservoirs</text>
-  <text x="402" y="356" class="sub">Final: 1,345,600 / 1,086,400 / 1,086,400 m³</text>
-  <text x="402" y="376" class="sub">All local inflows exclude upstream release</text>
+  <rect x="668" y="88" width="116" height="40" rx="8" fill="#eef4f4" stroke="#096c70" stroke-width="1.4"/>
+  <text x="726" y="113" text-anchor="middle" class="node">basin_a</text>
+  <line x1="726" y1="128" x2="726" y2="156" stroke="#173334" stroke-width="1.6" marker-end="url(#arrow)"/>
 
-  <!-- Panel 3: Twin separate-outlet -->
-  <rect x="744" y="54" width="332" height="342" rx="10" fill="#ffffff" stroke="#b9cbca" stroke-width="1.4"/>
-  <text x="762" y="82" class="card-title">3. Twin Separate-Outlet (Coupled)</text>
-  <text x="762" y="102" class="mono">examples/multiple_reservoirs/</text>
+  <rect x="668" y="160" width="116" height="44" rx="8" fill="#dbeaf5" stroke="#2c5f7c" stroke-width="1.5"/>
+  <text x="726" y="187" text-anchor="middle" class="node">lake_a</text>
+  <line x1="726" y1="204" x2="726" y2="234" stroke="#173334" stroke-width="1.6" marker-end="url(#arrow)"/>
 
-  <!-- Branch A -->
-  <rect x="762" y="128" width="136" height="42" rx="8" fill="#eef4f4" stroke="#096c70" stroke-width="1.3"/>
-  <text x="830" y="147" text-anchor="middle" class="node">basin_a</text>
-  <text x="830" y="163" text-anchor="middle" class="sub">GWLF runoff</text>
-  <line x1="830" y1="170" x2="830" y2="198" stroke="#173334" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="674" y="238" width="104" height="38" rx="19" fill="#c8dfd5" stroke="#2d6352" stroke-width="1.4"/>
+  <text x="726" y="262" text-anchor="middle" class="node">river_a</text>
 
-  <rect x="762" y="202" width="136" height="50" rx="8" fill="#dbeaf5" stroke="#2c5f7c" stroke-width="1.4"/>
-  <text x="830" y="224" text-anchor="middle" class="node">lake_a</text>
-  <text x="830" y="242" text-anchor="middle" class="sub">operator_a</text>
-  <line x1="830" y1="252" x2="830" y2="282" stroke="#173334" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="804" y="88" width="116" height="40" rx="8" fill="#eef4f4" stroke="#096c70" stroke-width="1.4"/>
+  <text x="862" y="113" text-anchor="middle" class="node">basin_b</text>
+  <line x1="862" y1="128" x2="862" y2="156" stroke="#173334" stroke-width="1.6" marker-end="url(#arrow)"/>
 
-  <rect x="774" y="286" width="112" height="38" rx="18" fill="#c8dfd5" stroke="#2d6352" stroke-width="1.4"/>
-  <text x="830" y="310" text-anchor="middle" class="node">river_a</text>
+  <rect x="804" y="160" width="116" height="44" rx="8" fill="#f6dfc6" stroke="#8a5a2b" stroke-width="1.5"/>
+  <text x="862" y="187" text-anchor="middle" class="node">lake_b</text>
+  <line x1="862" y1="204" x2="862" y2="234" stroke="#173334" stroke-width="1.6" marker-end="url(#arrow)"/>
 
-  <!-- Branch B -->
-  <rect x="922" y="128" width="136" height="42" rx="8" fill="#eef4f4" stroke="#096c70" stroke-width="1.3"/>
-  <text x="990" y="147" text-anchor="middle" class="node">basin_b</text>
-  <text x="990" y="163" text-anchor="middle" class="sub">GWLF runoff</text>
-  <line x1="990" y1="170" x2="990" y2="198" stroke="#173334" stroke-width="1.5" marker-end="url(#arrow)"/>
-
-  <rect x="922" y="202" width="136" height="50" rx="8" fill="#f6dfc6" stroke="#8a5a2b" stroke-width="1.4"/>
-  <text x="990" y="224" text-anchor="middle" class="node">lake_b</text>
-  <text x="990" y="242" text-anchor="middle" class="sub">operator_b</text>
-  <line x1="990" y1="252" x2="990" y2="282" stroke="#173334" stroke-width="1.5" marker-end="url(#arrow)"/>
-
-  <rect x="934" y="286" width="112" height="38" rx="18" fill="#c8dfd5" stroke="#2d6352" stroke-width="1.4"/>
-  <text x="990" y="310" text-anchor="middle" class="node">river_b</text>
-
-  <text x="762" y="356" class="sub">No hydraulic link between lake_a &amp; lake_b</text>
-  <text x="762" y="376" class="sub">Supports rule, MOSART-Urban, or mixed LLM</text>
+  <rect x="810" y="238" width="104" height="38" rx="19" fill="#c8dfd5" stroke="#2d6352" stroke-width="1.4"/>
+  <text x="862" y="262" text-anchor="middle" class="node">river_b</text>
 </svg>

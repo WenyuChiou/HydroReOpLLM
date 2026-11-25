@@ -1,9 +1,15 @@
 # Reservoir networks
 
 Use [`examples/multiple_reservoirs`](../examples/multiple_reservoirs/README.md)
-for a complete synthetic two-reservoir network. The essential invariants are:
+for a complete synthetic two-reservoir network.
 
 ![Comparison of single reservoir, three-reservoir cascade, and twin separate-outlet topologies](assets/diagrams/example-topologies.svg)
+
+- **Single (`examples/daily_offline/single.yaml`)**: one controlled reservoir (`Lake_1`) with prepared inflow `local_1` draining to `outlet`.
+- **Cascade (`examples/daily_offline/cascade.yaml`)**: three series reservoirs (`Lake_1 → Lake_2 → Lake_3 → outlet`) with 1-day routing lags.
+- **Separate outlets (`examples/multiple_reservoirs/`)**: two parallel HydroCNHS catchments (`basin_a`, `basin_b`) feeding `lake_a → river_a` and `lake_b → river_b` independently.
+
+The essential invariants are:
 
 - every reservoir key, physical `reservoir_id`, operator assignment, and inflow
   binding is unique and consistent;
