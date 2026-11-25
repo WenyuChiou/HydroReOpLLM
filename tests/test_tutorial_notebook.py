@@ -1,36 +1,91 @@
-"""Execute the tutorial notebook cells end-to-end without leaving artifacts in the repo."""
+"""Exercise the real notebook workflow with and without enabling Ollama."""
 
 import json
 from pathlib import Path
 
+import matplotlib.pyplot as plt
+import pytest
+
+from llm_reservoir_agent import workflow
+
 
 ROOT = Path(__file__).resolve().parents[1]
+NOTEBOOK = ROOT / "tutorials" / "fe_walter.ipynb"
 
 
-def test_walter_notebook_checks_both_cases_without_inference(monkeypatch):
-    notebook_path = ROOT / "tutorials" / "fe_walter.ipynb"
-    notebook = json.loads(notebook_path.read_text(encoding="utf-8"))
-    code_cells = [cell for cell in notebook["cells"] if cell["cell_type"] == "code"]
-    assert len(code_cells) == 4
+@pytest.mark.parametrize("directory, enable_llm", [(ROOT, False), (ROOT / "tutorials", True)])
+def test_walter_notebook_runs_and_plots_verified_results(tmp_path, monkeypatch, directory, enable_llm):
+    cells = json.loads(NOTEBOOK.read_text(encoding="utf-8"))["cells"]
+    requests = []
+    run_original = workflow.run_settings
 
-    monkeypatch.chdir(ROOT)
+    def transport(_url, payload, _headers, _timeout):
+        requests.append(payload["messages"])
+        return {
+            "model": "gemma4:12b",
+            "done": True,
+            "done_reason": "stop",
+            "message": {"role": "assistant", "content": json.dumps({
+                "schema_version": "reservoir-action.v1",
+                "release_cms": 8.0,
+            })},
+        }
+
+    def run_with_local_stub(settings, *, allow_network):
+        return run_original(settings, allow_network=allow_network, transport=transport)
+
+    monkeypatch.setattr("tempfile.tempdir", str(tmp_path))
+    monkeypatch.setattr(workflow, "run_settings", run_with_local_stub)
+    plt.switch_backend("Agg")
+    monkeypatch.setattr(plt, "show", lambda: None)
+    monkeypatch.chdir(directory)
     namespace: dict = {}
-    for cell in code_cells:
-        source = "".join(cell["source"])
-        exec(compile(source, str(notebook_path), "exec"), namespace)
 
-    summary = namespace["case_summary"]
-    assert summary["input_days"] == 1826
-    assert summary["input_period"] == ["2021-01-01", "2025-12-31"]
-    assert all(window == ["2021-01-01", "2021-01-07"] for window in summary["tutorial_windows"].values())
+    try:
+        for cell in cells:
+            if cell["cell_type"] != "code":
+                continue
+            if cell["id"] == "compare-llm-runs":
+                assert namespace["RUN_LLM"] is False
+                assert requests == []
+                namespace["RUN_LLM"] = enable_llm
+            exec(compile("".join(cell["source"]), f"{NOTEBOOK}:{cell['id']}", "exec"), namespace)
 
-    reports = namespace["check_results"]
-    assert set(reports) == {"Rule-based", "Without operational knowledge", "With operational knowledge"}
-    for name, checked in reports.items():
-        assert checked["days"] == 7
-        assert checked["planned_llm_calls"] == (0 if name == "Rule-based" else 7)
-        assert checked["network_calls"] == 0
-    assert set(namespace["prompt_texts"]) == {"Without operational knowledge", "With operational knowledge"}
-    assert namespace["comparison"]["Without operational knowledge"]["knowledge"] == {}
-    assert namespace["comparison"]["With operational knowledge"]["knowledge"]
-    assert not (ROOT / "runs").exists()
+        baseline = namespace["baseline"]
+        assert baseline["verification"]["status"] == "PASS"
+        assert baseline["verification"]["days"] == 7
+        assert baseline["verification"]["observed_network_calls"] == 0
+        assert baseline["output"].is_relative_to(tmp_path)
+        assert (baseline["output"] / "reservoir_trajectory.csv").is_file()
+        assert len(baseline["trajectory"]) == 7
+        assert len(namespace["baseline_figure"].axes[0].lines) == 2
+        assert namespace["baseline_figure"].axes[1].lines[0].get_ydata()[-1] == pytest.approx(
+            baseline["trajectory"]["storage_end_m3"].iloc[-1] / 1_000_000
+        )
+
+        without = "Without operational knowledge"
+        with_knowledge = "With operational knowledge"
+        reports = namespace["check_results"]
+        assert set(reports) == {"Rule-based", without, with_knowledge}
+        for name, checked in reports.items():
+            assert (checked["start_date"], checked["end_date"]) == ("2021-01-01", "2021-01-07")
+            assert checked["planned_llm_calls"] == (0 if name == "Rule-based" else 7)
+            assert checked["network_calls"] == 0
+        assert namespace["comparison"][without]["Operating guidance"] == ""
+        assert namespace["comparison"][with_knowledge]["Operating guidance"] == "dkp.md"
+        assert not (ROOT / "runs").exists()
+        if enable_llm:
+            assert set(namespace["llm_runs"]) == {without, with_knowledge}
+            assert len(requests) == 14
+            assert all("R-MINNORM" not in messages[1]["content"] for messages in requests[:7])
+            assert all("R-MINNORM" in messages[1]["content"] for messages in requests[7:])
+            assert len(namespace["comparison_figure"].axes[0].lines) == 4
+            for run in namespace["llm_runs"].values():
+                assert run["verification"]["status"] == "PASS"
+                assert run["verification"]["days"] == 7
+                assert run["output"].is_relative_to(tmp_path)
+        else:
+            assert namespace["llm_runs"] == {}
+            assert requests == []
+    finally:
+        plt.close("all")
