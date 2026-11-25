@@ -1,14 +1,14 @@
 # F.E. Walter 水庫
 
-Rule-based、Seasonal Target 與 DKP 共用 F.E. Walter 論文案例的每日模擬入流、初始蓄水量和下游演算參數。預設期間為 2021 年 1 月 1 日至 7 日，方便先熟悉流程再跑完整期間。
+Rule-based 基準與兩個 LLM 案例共用 F.E. Walter 論文案例的每日模擬入流、初始蓄水量和下游演算參數。預設期間為 2021 年 1 月 1 日至 7 日，方便先熟悉流程再跑完整期間。
 
 | 案例 | 設定檔 | System prompt | 每日 prompt |
 | --- | --- | --- | --- |
 | Rule-based | [rule_based.yaml](rule_based.yaml) | — | — |
-| 季節目標（Seasonal Target） | [seasonal_target.yaml](seasonal_target.yaml) | [季節目標 system prompt](prompts/seasonal_target.system.txt) | [季節目標每日 prompt](prompts/seasonal_target.user.txt) |
-| 決策知識套件（DKP） | [dkp.yaml](dkp.yaml) | [DKP system prompt](prompts/dkp.system.txt) | [DKP 每日 prompt](prompts/dkp.user.txt) |
+| Without operational knowledge（只用季節目標） | [seasonal_target.yaml](seasonal_target.yaml) | [季節目標 system prompt](prompts/seasonal_target.system.txt) | [季節目標每日 prompt](prompts/seasonal_target.user.txt) |
+| With operational knowledge（加入 DKP） | [dkp.yaml](dkp.yaml) | [DKP system prompt](prompts/dkp.system.txt) | [DKP 每日 prompt](prompts/dkp.user.txt) |
 
-DKP 案例另外提供[在地操作指引](dkp.md)。兩個 LLM 案例共用季節目標，三個設定共用[水庫及河網設定](case.json)。[入流 CSV](inflows.csv)收錄 2021-01-01 至 2025-12-31 共 1,826 天的 GWLF 模擬入流，包含水庫上游入流，以及 White Haven 和 Lehighton 的區間逕流。流量單位為 m³/s。案例設定以 SHA-256 鎖定這份 CSV。
+兩個 LLM 案例共用季節目標。**With operational knowledge** 也會把[在地操作指引](dkp.md)放進每日提示詞。三個設定共用[水庫及河網設定](case.json)。[入流 CSV](inflows.csv)收錄 2021-01-01 至 2025-12-31 共 1,826 天的 GWLF 模擬入流，包含水庫上游入流，以及 White Haven 和 Lehighton 的區間逕流。流量單位為 m³/s。案例設定以 SHA-256 鎖定這份 CSV。
 
 ## 檢查三份設定
 

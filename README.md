@@ -27,8 +27,8 @@ Choose a fresh `run_id` and `output` before repeating the template. See the [ins
 | --- | --- | --- |
 | [`examples/template/experiment.yaml`](examples/template/README.md) | Generic synthetic prepared-inflow workflow | None |
 | [`examples/fe_walter/rule_based.yaml`](examples/fe_walter/README.md) | F.E. Walter offline Hanasaki rule | None |
-| [`examples/fe_walter/seasonal_target.yaml`](examples/fe_walter/README.md) | F.E. Walter seasonal-target operator with its named system prompt | Local Ollama only when `run --allow-network` is requested |
-| [`examples/fe_walter/dkp.yaml`](examples/fe_walter/README.md) | F.E. Walter Decision Knowledge Package (DKP) operator with its named system prompt | Local Ollama only when `run --allow-network` is requested |
+| [`examples/fe_walter/seasonal_target.yaml`](examples/fe_walter/README.md) | F.E. Walter **Without operational knowledge** (Seasonal Target) | Local Ollama only when `run --allow-network` is requested |
+| [`examples/fe_walter/dkp.yaml`](examples/fe_walter/README.md) | F.E. Walter **With operational knowledge** (DKP) | Local Ollama only when `run --allow-network` is requested |
 
 [Open the hosted F.E. Walter tutorial](https://wenyuchiou.github.io/HydroReOpLLM/tutorials/index.html).
 

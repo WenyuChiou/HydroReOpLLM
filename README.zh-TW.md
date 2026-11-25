@@ -27,8 +27,8 @@ reservoir-experiment verify runs/prepared-template --require-offline
 | --- | --- | --- |
 | [`examples/template/experiment.yaml`](examples/template/README.zh-TW.md) | 通用雙 agent 合成入流流程 | 無 |
 | [`examples/fe_walter/rule_based.yaml`](examples/fe_walter/README.zh-TW.md) | F.E. Walter 離線 Hanasaki 規則 | 無 |
-| [`examples/fe_walter/seasonal_target.yaml`](examples/fe_walter/README.zh-TW.md) | 使用具名系統提示詞的 F.E. Walter 季節目標操作員 | 僅於執行 `run --allow-network` 時連線本機 Ollama |
-| [`examples/fe_walter/dkp.yaml`](examples/fe_walter/README.zh-TW.md) | 使用具名系統提示詞的 F.E. Walter 決策知識包（Decision Knowledge Package，DKP）操作員 | 僅於執行 `run --allow-network` 時連線本機 Ollama |
+| [`examples/fe_walter/seasonal_target.yaml`](examples/fe_walter/README.zh-TW.md) | F.E. Walter **Without operational knowledge**（只用季節目標） | 僅於執行 `run --allow-network` 時連線本機 Ollama |
+| [`examples/fe_walter/dkp.yaml`](examples/fe_walter/README.zh-TW.md) | F.E. Walter **With operational knowledge**（加入決策知識包 DKP） | 僅於執行 `run --allow-network` 時連線本機 Ollama |
 
 [開啟線上 F.E. Walter 教學](https://wenyuchiou.github.io/HydroReOpLLM/tutorials/index.zh-TW.html)。
 
