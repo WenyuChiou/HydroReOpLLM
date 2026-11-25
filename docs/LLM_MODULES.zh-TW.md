@@ -1,18 +1,22 @@
-# 選擇操作策略與模型
+# 模型服務與可重現性
 
-可以先用指定放流建立可重跑的基準，再改用規則或 LLM。在相同案例上比較兩種策略時，保留相同的入流、初始庫容、時間步長與物理限制，每次使用獨立的輸出目錄。
+系統支援的模型服務轉接器包含 `openai`、`anthropic`、`gemini`、`ollama` 與 `openai_compatible`。每份設定檔皆須明確宣告模型服務供應商、模型 ID，以及最終的 HTTP(S) `base_url`。託管式模型服務通常也會宣告 `api_key_env`。完整範本請參閱 [`templates/coupled/models.yaml`](../templates/coupled/models.yaml)。
 
-## 先驗證規則，再檢查 LLM 設定
+## 確切的模型識別
 
-```sh
-reservoir-experiment check examples/daily_offline/single.mosart.yaml
-reservoir-experiment run examples/daily_offline/single.mosart.yaml
-reservoir-experiment verify runs/daily-single-mosart --require-offline
-reservoir-experiment check examples/multiple_reservoirs/experiment.llm.yaml
-```
+即使文字標籤維持不變，模型名稱與本機標籤所對應的實際內容仍可能變動。使用本機模型時，請記錄不可變權重檔案（例如 GGUF 檔）的 SHA-256 雜湊值、模型清單或範本、量化設定，以及推論伺服器的名稱與版本。在授權條款允許的情況下，請私下保留確切的權重與範本位元組。公開儲存庫則可僅發布雜湊值與來源追蹤資訊，無須重新散佈受限制的產物。託管式模型的權重由模型服務供應商控管，因此單憑模型 ID 與日期並不足以確立位元組層級的一致性。
 
-最後一行會檢查混合操作案例的設定與預估呼叫需求。要真的呼叫模型，還需讓指定的模型服務可連線，並在執行時明確加入 `--allow-network`。
+為了進行可重現的比較，請記錄或固定以下資訊。
 
-## 保存可重現的設定
+- 模型服務供應商與確切的模型識別碼。
+- base URL，以及適用的本機伺服器版本。
+- 提示詞檔案與提示詞版本標籤。
+- temperature、token 上限，以及各模型服務專屬的控制參數。
+- 逾時時間、重試策略、備援順序與總 `max_calls` 上限。
+- 套件修訂版本、設定檔位元組內容、輸入資料與執行輸出。
 
-相同的模型標籤可能在不同時間指向不同權重。保存實際載入模型的 digest、量化方式、執行服務版本、取樣參數、seed、prompt 與操作知識文件。各提供者支援的識別與固定方式請見[模型服務章節](MODEL_PROVIDERS.md)。
+HydroReOpLLM 會記錄所選用的設定檔與執行證據，包含模型服務呼叫嘗試的中繼資料。使用者須另行記錄本機權重雜湊值、清單／範本位元組或雜湊值、量化設定、伺服器版本、託管式服務的版本／日期資訊、帳號端設定，以及 API 未回傳的任何供應商端變更。缺漏的模型服務中繼資料一律視為未知，切勿僅憑模型標籤自行推斷。
+
+僅 `ollama` 與 `openai_compatible` 接受 `seed` 參數。設定該參數有助於提升重複性，但不保證每次回覆完全一致。Ollama 專屬的控制參數包含 `num_ctx`、`think` 與 `keep_alive`。Anthropic 專屬的 API 版本控制則使用 `anthropic_version`。
+
+設定檔驗證不會偵測遠端模型是否存在。模型服務的可用性、計費狀況與決定性，必須與本機 `check` 及 `verify` 的結果分開報告。切勿提交憑證或原始密鑰。

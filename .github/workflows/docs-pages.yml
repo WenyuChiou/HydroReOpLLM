@@ -6,10 +6,13 @@ on:
     paths:
       - "docs/**"
       - "examples/**/README.md"
+      - "examples/**/README.zh-TW.md"
       - "templates/**/README.md"
+      - "templates/**/README.zh-TW.md"
       - "templates/coupled/hydrology.yaml"
       - "templates/coupled/models.yaml"
       - "tutorials/README.md"
+      - "tutorials/README.zh-TW.md"
       - "README.md"
       - "README.zh-TW.md"
       - "mkdocs.yml"

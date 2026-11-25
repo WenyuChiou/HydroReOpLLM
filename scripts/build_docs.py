@@ -10,18 +10,21 @@ from html.parser import HTMLParser
 from pathlib import Path, PurePosixPath
 from urllib.parse import unquote, urlsplit
 
+from babel.support import Translations
 from mkdocs.commands.build import build
 from mkdocs.config import load_config
+from mkdocs.plugins import BasePlugin
 
 
 ROOT = Path(__file__).resolve().parents[1]
 SITE = ROOT / "site"
 REPOSITORY_BLOB = "https://github.com/WenyuChiou/HydroReOpLLM/blob/main/"
+PUBLIC_SITE = "https://wenyuchiou.github.io/HydroReOpLLM/"
 
 # Destination paths are site source paths. Only invented, public teaching
 # material is included; scientific outputs, working notes, and manuscripts are
 # excluded by construction.
-SAFE_FILES = {
+ENGLISH_FILES = {
     "docs/README.md": "index.md",
     "docs/assets/branding/cover.png": "assets/branding/cover.png",
     "docs/assets/branding/logo.svg": "assets/branding/logo.svg",
@@ -29,16 +32,12 @@ SAFE_FILES = {
     "docs/assets/branding/docs-badge-en.svg": "assets/branding/docs-badge-en.svg",
     "docs/assets/branding/docs-badge-zh-TW.svg": "assets/branding/docs-badge-zh-TW.svg",
     "docs/assets/branding/branding.css": "assets/branding/branding.css",
-    "docs/BUILD_SIMULATION.zh-TW.md": "BUILD_SIMULATION.zh-TW.md",
-    "docs/LLM_MODULES.zh-TW.md": "LLM_MODULES.zh-TW.md",
-    "docs/INFORMATION.zh-TW.md": "INFORMATION.zh-TW.md",
-    "docs/RESULTS_GUIDE.zh-TW.md": "RESULTS_GUIDE.zh-TW.md",
-    "docs/README.zh-TW.md": "zh-TW.md",
     "docs/GETTING_STARTED.md": "GETTING_STARTED.md",
     "docs/CONFIGURATION.md": "CONFIGURATION.md",
     "docs/INFORMATION.md": "INFORMATION.md",
     "docs/RESULTS_GUIDE.md": "RESULTS_GUIDE.md",
     "docs/assets/simulation-stages.png": "assets/simulation-stages.png",
+    "docs/assets/search-zh-TW.js": "assets/search-zh-TW.js",
     "docs/RUNNING.md": "RUNNING.md",
     "docs/MODEL_PROVIDERS.md": "MODEL_PROVIDERS.md",
     "docs/MULTI_RESERVOIR.md": "MULTI_RESERVOIR.md",
@@ -57,6 +56,33 @@ SAFE_FILES = {
     "templates/coupled/models.yaml": "assets/templates/coupled/models.yaml",
 }
 
+# Keep the original public URLs for the homepage and two renamed chapters.
+ZH_NAMES = {
+    "MULTI_RESERVOIR.md": "BUILD_SIMULATION.zh-TW.md",
+    "MODEL_PROVIDERS.md": "LLM_MODULES.zh-TW.md",
+}
+
+
+def _translated(path: str) -> str:
+    file = PurePosixPath(path)
+    if path == "index.md":
+        return "zh-TW.md"
+    return str(file.with_name(ZH_NAMES.get(file.name, f"{file.stem}.zh-TW.md")))
+
+
+SAFE_FILES = dict(ENGLISH_FILES)
+CHAPTER_PAIRS = {}
+for source, destination in ENGLISH_FILES.items():
+    if source.endswith(".md"):
+        translated = _translated(destination)
+        SAFE_FILES[_translated(source)] = translated
+        CHAPTER_PAIRS[destination] = translated
+
+PUBLISHED_CHAPTERS = {
+    PUBLIC_SITE + path.removesuffix(".md") + ".html": path
+    for pair in CHAPTER_PAIRS.items()
+    for path in pair
+}
 MARKDOWN_LINK = re.compile(r"(\[[^\]]*\]\()([^)\s]+)([^)]*\))")
 
 
@@ -68,22 +94,24 @@ def _rewrite_links(text: str, source: str, destination: str) -> str:
     def replace(match: re.Match[str]) -> str:
         raw_target = match.group(2)
         parsed = urlsplit(raw_target)
-        if parsed.scheme or parsed.netloc or raw_target.startswith("#"):
-            return match.group(0)
-
-        resolved = _repo_path(source, parsed.path)
         fragment = f"#{parsed.fragment}" if parsed.fragment else ""
-        if resolved in SAFE_FILES:
-            staged_target = SAFE_FILES[resolved]
-            relative = os.path.relpath(
-                staged_target, PurePosixPath(destination).parent
-            ).replace("\\", "/")
-            target = relative + fragment
-        elif (ROOT / resolved).is_file():
-            target = REPOSITORY_BLOB + resolved + fragment
+        if parsed.scheme or parsed.netloc:
+            # Source READMEs also ship with the wheel, where hosted links are needed.
+            staged_target = PUBLISHED_CHAPTERS.get(raw_target.split("#", 1)[0])
+            if staged_target is None:
+                return match.group(0)
+        elif raw_target.startswith("#"):
+            return match.group(0)
         else:
-            target = raw_target
-        return match.group(1) + target + match.group(3)
+            resolved = _repo_path(source, parsed.path)
+            staged_target = SAFE_FILES.get(resolved)
+            if staged_target is None:
+                target = REPOSITORY_BLOB + resolved + fragment if (ROOT / resolved).is_file() else raw_target
+                return match.group(1) + target + match.group(3)
+        relative = os.path.relpath(
+            staged_target, PurePosixPath(destination).parent
+        ).replace("\\", "/")
+        return match.group(1) + relative + fragment + match.group(3)
 
     return MARKDOWN_LINK.sub(replace, text)
 
@@ -98,7 +126,7 @@ class _LinkCollector(HTMLParser):
         values = dict(attrs)
         if values.get("id"):
             self.anchors.add(values["id"] or "")
-        if tag == "img" and values.get("src"):
+        if tag in {"img", "script"} and values.get("src"):
             self.hrefs.append(values["src"] or "")
         if tag in {"a", "link"} and values.get("href"):
             self.hrefs.append(values["href"] or "")
@@ -129,6 +157,60 @@ def _validate_site() -> None:
         raise RuntimeError("Broken generated links:\n" + "\n".join(failures))
 
 
+class BilingualManual(BasePlugin):
+    """Pair the two navigation trees and render each page in its reader's language."""
+
+    def on_nav(self, nav, *, config, files):
+        english, chinese = nav.items
+        self.alternates = {}
+
+        def pair(left, right):
+            if left.is_section and right.is_section:
+                for first, second in zip(left.children, right.children, strict=True):
+                    pair(first, second)
+                return
+            if left.is_page and right.is_page:
+                en, zh = left.file.src_uri, right.file.src_uri
+                if CHAPTER_PAIRS.get(en) == zh and en not in self.alternates:
+                    self.alternates[en] = right
+                    self.alternates[zh] = left
+                    return
+            raise ValueError(f"Unpaired or duplicate manual chapters: {left.title} / {right.title}")
+
+        pair(english, chinese)
+        if len(self.alternates) != 2 * len(CHAPTER_PAIRS):
+            raise ValueError("Every allowlisted manual chapter must appear once in each language")
+        locales = next(
+            Path(d) / "locales" for d in config.theme.dirs
+            if (Path(d) / "locales/zh_TW/LC_MESSAGES/messages.mo").is_file()
+        )
+        self.translations = Translations.load(str(locales), ["zh_TW"])
+        return nav
+
+    def on_page_context(self, context, *, page, config, nav):
+        source = page.file.src_uri
+        chinese = source.endswith("zh-TW.md")
+        context.update(
+            chinese=chinese,
+            english_url=self.alternates[source].url if chinese else page.url,
+            chinese_url=page.url if chinese else self.alternates[source].url,
+            chapters=nav.items[1 if chinese else 0].children,
+        )
+        if chinese:
+            # Keep the shared build config immutable while the theme renders this page.
+            context["config"] = {
+                **config,
+                "theme": {**config.theme, "locale": "zh-Hant"},
+                "extra_javascript": [
+                    "assets/search-zh-TW.js" if str(script) == "search/main.js" else script
+                    for script in config.extra_javascript
+                ],
+            }
+            context["gettext"] = self.translations.gettext
+            context["ngettext"] = self.translations.ngettext
+        return context
+
+
 def main() -> int:
     with tempfile.TemporaryDirectory(prefix="hydroreopllm-docs-") as temporary:
         temporary_root = Path(temporary)
@@ -150,6 +232,7 @@ def main() -> int:
         config = load_config(
             config_file=str(ROOT / "mkdocs.yml"), docs_dir=str(stage), site_dir=str(SITE)
         )
+        config.plugins["bilingual-manual"] = BilingualManual()
         build(config)
         # MkDocs' optional 404 page uses site-root navigation, which is wrong for
         # both file:// use and a GitHub Pages project subpath. Pages supplies its
