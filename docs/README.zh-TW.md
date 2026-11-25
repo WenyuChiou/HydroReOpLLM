@@ -31,7 +31,7 @@
 | 範例 | 輸入與探討問題 |
 | --- | --- |
 | [單座水庫與串聯水庫](../examples/daily_offline/README.zh-TW.md) | 當水庫彼此串聯時，指定放流量會如何影響下游庫容？ |
-| [獨立操作的水庫](../examples/multiple_reservoirs/README.zh-TW.md) | 氣象驅動的入流量如何進入由各自獨立操作員管理的兩座水庫？ |
+| [雙水庫各自出流範例](../examples/multiple_reservoirs/README.zh-TW.md) | 氣象驅動的入流量如何進入由各自獨立操作員管理的兩座水庫？ |
 | [逐日、逐時與固定間隔](../examples/time_scales/README.zh-TW.md) | 時間戳記、平均流量與時段體積如何隨時間步長改變？ |
 | [MOSART-Urban 規則](../examples/rules/mosart_urban/README.zh-TW.md) | 如何在維持相同物理水庫案例的前提下替換操作規則？ |
 

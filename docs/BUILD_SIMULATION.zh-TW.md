@@ -1,4 +1,4 @@
-# 多水庫系統
+# 水庫網路
 
 完整的合成雙水庫水系範例請見 [`examples/multiple_reservoirs`](../examples/multiple_reservoirs/README.zh-TW.md)。系統必須滿足以下核心不變條件。
 

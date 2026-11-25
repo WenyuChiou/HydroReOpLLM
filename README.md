@@ -8,11 +8,15 @@ HydroReOpLLM builds on HydroCNHS to simulate reservoir operations using prepared
 
 ## Quick start
 
-Run a four-day synthetic single-reservoir case with a prescribed release. Start in an empty working directory with an active Python 3.12 or newer virtual environment. [Create a virtual environment](https://wenyuchiou.github.io/HydroReOpLLM/GETTING_STARTED.html#install-from-pypi).
+Run a four-day synthetic single-reservoir case with a prescribed release. The simulation requires no API key. Start in an empty working directory with an active Python 3.12 or newer virtual environment. [Create a virtual environment](https://wenyuchiou.github.io/HydroReOpLLM/GETTING_STARTED.html#install-from-pypi).
 
 ```sh
 python -m pip install hydroreopllm
-python -c "import shutil, sysconfig; from pathlib import Path; shutil.copytree(Path(sysconfig.get_path('data')) / 'share/llm-reservoir-agent/examples', 'examples')"
+python -c "from pathlib import Path
+from shutil import copytree
+from sysconfig import get_path
+source = Path(get_path('data')) / 'share/llm-reservoir-agent/examples'
+copytree(source, 'examples')"
 reservoir-experiment check examples/daily_offline/single.yaml
 reservoir-experiment run examples/daily_offline/single.yaml
 reservoir-experiment verify runs/daily-single --require-offline
@@ -29,7 +33,7 @@ The PyPI package includes ready-to-run examples. Clone the repository for the no
 | What you want to do | Where to start |
 | --- | --- |
 | Trace releases through one reservoir or a connected cascade | [Single-reservoir and cascade examples](https://wenyuchiou.github.io/HydroReOpLLM/examples/daily_offline/index.html) |
-| Run two independent reservoirs driven by weather data, each draining to its own outlet | [Coupled two-reservoir example](https://wenyuchiou.github.io/HydroReOpLLM/examples/multiple_reservoirs/index.html) |
+| Run two independent reservoirs driven by weather data, each draining to its own outlet | [Two reservoirs with separate outlets](https://wenyuchiou.github.io/HydroReOpLLM/examples/multiple_reservoirs/index.html) |
 | Run daily, hourly, or fixed-interval simulations | [Time-step examples](https://wenyuchiou.github.io/HydroReOpLLM/examples/time_scales/index.html) |
 | Set up your own case and inspect decisions, storage, and water balance | [Configuration](https://wenyuchiou.github.io/HydroReOpLLM/CONFIGURATION.html) · [Results guide](https://wenyuchiou.github.io/HydroReOpLLM/RESULTS_GUIDE.html) |
 

@@ -37,6 +37,7 @@ ENGLISH_FILES = {
     "docs/INFORMATION.md": "INFORMATION.md",
     "docs/RESULTS_GUIDE.md": "RESULTS_GUIDE.md",
     "docs/assets/simulation-stages.png": "assets/simulation-stages.png",
+    "docs/assets/copy-code.js": "assets/copy-code.js",
     "docs/assets/search-zh-TW.js": "assets/search-zh-TW.js",
     "docs/RUNNING.md": "RUNNING.md",
     "docs/MODEL_PROVIDERS.md": "MODEL_PROVIDERS.md",

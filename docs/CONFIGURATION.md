@@ -47,6 +47,6 @@ step. A reservoir output is controlled release plus spill. Connections route a
 fraction of that output; `unit_hydrograph` weights are dimensionless, sum to 1,
 and use index 0 for the same step, index 1 for the next step, and so on.
 
-See [multiple reservoirs](MULTI_RESERVOIR.md), [time scales](TIME_SCALES.md), and
+See [reservoir networks](MULTI_RESERVOIR.md), [time scales](TIME_SCALES.md), and
 [providers](MODEL_PROVIDERS.md) before extending the starter files. Then follow
 the [run lifecycle](RUNNING.md).

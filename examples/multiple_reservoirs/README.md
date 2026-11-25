@@ -1,4 +1,4 @@
-# Multiple reservoirs
+# Two reservoirs with separate outlets
 
 This daily example connects each of two reservoirs to its own downstream outlet.
 Each reservoir has its own operator, state and completed history.
