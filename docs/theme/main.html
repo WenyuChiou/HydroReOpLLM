@@ -26,20 +26,64 @@
   <aside>
     <button type="button" class="chapters-toggle d-md-none" data-bs-toggle="collapse" data-bs-target="#chapters" aria-expanded="false" aria-controls="chapters">{{ '章節目錄' if chinese else 'Chapters' }}</button>
     <nav id="chapters" class="collapse d-md-block" aria-label="{{ '章節目錄' if chinese else 'Chapters' }}">
+      {% set is_home = page.file.src_uri in ('index.md', 'zh-TW.md') %}
+      <div class="nav-toolbar">
+        {% for section in chapters %}
+          {% if not section.is_section %}
+            <a class="nav-home" href="{{ section.url|url }}"{% if section.active %} aria-current="page"{% endif %}>{{ section.title }}</a>
+          {% endif %}
+        {% endfor %}
+        <button type="button" class="nav-expand-all" aria-expanded="false" data-expand-label="{{ '全部展開' if chinese else 'Expand all' }}" data-collapse-label="{{ '全部收合' if chinese else 'Collapse all' }}">{{ '全部展開' if chinese else 'Expand all' }}</button>
+      </div>
       {% for section in chapters %}
         {% if section.is_section %}
-          <p>{{ section.title }}</p>
-          {% for item in section.children %}
-          <a href="{{ item.url|url }}"{% if item.active %} aria-current="page"{% endif %}>{{ item.title }}</a>
-          {% endfor %}
-        {% else %}
-          <a href="{{ section.url|url }}"{% if section.active %} aria-current="page"{% endif %}>{{ section.title }}</a>
+          {% set group_open = section.active or (is_home and section.title in ('Start', '開始使用')) %}
+          <details class="nav-group{% if section.active %} is-active{% endif %}"{% if group_open %} open{% endif %}>
+            <summary class="nav-group-title">{{ section.title }}</summary>
+            <div class="nav-group-items">
+              {% for item in section.children %}
+                {% if item.is_section %}
+                  <details class="nav-subgroup{% if item.active %} is-active{% endif %}" open>
+                    <summary class="nav-subgroup-title">{{ item.title }}</summary>
+                    <div class="nav-subgroup-items">
+                      {% for leaf in item.children %}
+                        <a href="{{ leaf.url|url }}"{% if leaf.active %} aria-current="page"{% endif %}>{{ leaf.title }}</a>
+                      {% endfor %}
+                    </div>
+                  </details>
+                {% else %}
+                  <a href="{{ item.url|url }}"{% if item.active %} aria-current="page"{% endif %}>{{ item.title }}</a>
+                {% endif %}
+              {% endfor %}
+            </div>
+          </details>
         {% endif %}
       {% endfor %}
     </nav>
+    <script>
+      (() => {
+        const nav = document.getElementById('chapters');
+        const btn = nav && nav.querySelector('.nav-expand-all');
+        if (!btn) return;
+        const groups = () => Array.from(nav.querySelectorAll('details.nav-group'));
+        const sync = () => {
+          const allOpen = groups().length > 0 && groups().every((d) => d.open);
+          btn.setAttribute('aria-expanded', String(allOpen));
+          btn.textContent = allOpen ? btn.dataset.collapseLabel : btn.dataset.expandLabel;
+        };
+        btn.addEventListener('click', () => {
+          const expand = !groups().every((d) => d.open);
+          for (const d of nav.querySelectorAll('details.nav-group')) d.open = expand;
+          if (expand) for (const sub of nav.querySelectorAll('details.nav-subgroup')) sub.open = true;
+          sync();
+        });
+        nav.addEventListener('toggle', sync, true);
+        sync();
+      })();
+    </script>
   </aside>
   <main id="manual-content" lang="{{ 'zh-Hant' if chinese else 'en' }}">
-    {% if page.parent and page.parent.parent %}<p class="chapter-section">{{ page.parent.title }}</p>{% endif %}
+    {% if page.parent and page.parent.parent %}<p class="chapter-section">{% if page.parent.parent.parent %}{{ page.parent.parent.title }} / {% endif %}{{ page.parent.title }}</p>{% endif %}
     {{ page.content }}
     <nav class="chapter-turn" aria-label="{{ '章節導覽' if chinese else 'Chapter navigation' }}">
 
