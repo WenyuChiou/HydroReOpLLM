@@ -2,6 +2,12 @@
 
 請先開啟 `summary.json`。在耦合執行中，此檔案位於 `<output>/operation/` 底下。在既有入流資料的執行中，則直接位於 `<output>/` 底下。請先確認 `status` 為 `COMPLETED`，再檢視下列檔案，切勿僅憑指令成功結束就當作水庫操作績效的結果。
 
+![執行輸出目錄結構與各類 CSV／JSONL 結果檔案關聯圖](assets/diagrams/results-outputs-map.svg)
+
+- **輸出目錄位置**：既有入流案例直接輸出於 `<output>/`；耦合模擬則將水文前處理放於 `<output>/`、水庫操作結果放於 `<output>/operation/`。
+- **摘要與物理結果**：先確認 `summary.json` 的 `status` 為 `COMPLETED`，再查看 `reservoir_trajectory.csv`、`network_flows.csv` 與 `network_balance.csv`。
+- **決策軌跡與驗證**：`decisions.jsonl`、`physics.jsonl`、`audit.jsonl` 與 `raw/` 保存逐步驟證據，供 `reservoir-experiment verify` 檢查。
+
 ## 物理模擬與演算結果
 
 | 檔案 | 主要欄位 | 意義 |

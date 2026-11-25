@@ -10,7 +10,7 @@ Build a reservoir experiment with prepared inflows or a HydroCNHS catchment mode
 
 A prepared file supplies local inflow directly. In a coupled case, HydroCNHS runs first and saves inflow for the operating period. At each step, an operator requests a release. The physical model applies the available water and outlet limits, updates storage and spill, and routes flow through the reservoir network. Verification reads the saved decisions and water balance. Assess agreement with observations separately when interpreting a real study.
 
-![Daily workflow from configuration through prepared inflow, reservoir operation and verification](assets/simulation-stages.png)
+![HydroReOpLLM coupled architecture linking HydroCNHS hydrology, rule or LLM operators, audits, and trace records](assets/diagrams/framework.png)
 
 ## Read in order
 

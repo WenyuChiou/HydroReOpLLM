@@ -6,6 +6,12 @@ HydroReOpLLM 支援兩種輸入方式。
 - 原生 HydroCNHS 水文模式：從
   [`templates/coupled`](../templates/coupled/README.zh-TW.md) 開始。
 
+![HydroReOpLLM 套件結構與拆分式設定檔關聯圖](assets/diagrams/package-structure.svg)
+
+- PyPI 套件 `hydroreopllm` 提供命令列工具 `reservoir-experiment` 與隨附範例 `examples/`。
+- `llm_reservoir_agent` 負責設定檢查、操作員、提示詞、稽核與驗證；內建的 `hydrocnhs` 負責產流、河道演算與水庫水量平衡。
+- `experiment.yaml` 為主設定入口，可依各檔案所在位置相對連結 `reservoirs.yaml`、`hydrology.yaml`、`agents.*.yaml`、`models.yaml`、`information.yaml` 與 `auditors.yaml`。
+
 耦合設定檔 `experiment.yaml` 會連結各自獨立的水文、水庫水系、操作員、模型、決策資訊與稽核設定檔。所有路徑皆相對於宣告該路徑的 YAML 或 JSON 檔案進行解析。`{file: ...}` 參照會取代整個對應區段，而非進行深層合併。
 
 請依下列順序設定研究案例。

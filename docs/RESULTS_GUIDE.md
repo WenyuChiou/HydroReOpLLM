@@ -5,6 +5,12 @@ in a prepared-inflow run it is directly under `<output>/`. Confirm `status` is
 `COMPLETED`, then inspect the files named below rather than treating command
 exit alone as an operating-performance result.
 
+![Output directory structure and relationships across CSV and JSONL result files](assets/diagrams/results-outputs-map.svg)
+
+- **Output root**: prepared-inflow runs write directly to `<output>/`, whereas coupled runs place hydrology prep in `<output>/` and operation results in `<output>/operation/`.
+- **Summary & CSVs**: check `status == "COMPLETED"` in `summary.json`, then inspect `reservoir_trajectory.csv`, `network_flows.csv`, and `network_balance.csv`.
+- **Trace & verify**: `decisions.jsonl`, `physics.jsonl`, `audit.jsonl`, and `raw/` record step-level provenance for `reservoir-experiment verify`.
+
 ## Physical and routed results
 
 | File | Main fields | Meaning |

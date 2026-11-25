@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 300" width="960" height="300" role="img" aria-label="Output directory layout and result file map">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#173334"/>
+    </marker>
+    <style>
+      .title { font: 700 17px system-ui, -apple-system, "Segoe UI", Arial, sans-serif; fill: #173334; }
+      .lbl { font: 700 14.5px system-ui, -apple-system, "Segoe UI", Arial, sans-serif; fill: #173334; }
+      .mono { font: 600 14px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #096c70; }
+    </style>
+  </defs>
+
+  <rect x="2" y="2" width="956" height="296" rx="14" fill="#f4f1ea" stroke="#34474b" stroke-width="1.5"/>
+
+  <!-- Column 1: Output roots -->
+  <rect x="20" y="20" width="276" height="260" rx="10" fill="#ffffff" stroke="#b9cbca" stroke-width="1.4"/>
+  <text x="38" y="48" class="title">1. Output Root</text>
+
+  <rect x="38" y="68" width="240" height="82" rx="8" fill="#eef4f4" stroke="#096c70" stroke-width="1.4"/>
+  <text x="158" y="98" text-anchor="middle" class="lbl">Prepared</text>
+  <text x="158" y="124" text-anchor="middle" class="mono">&lt;output&gt;/</text>
+
+  <rect x="38" y="168" width="240" height="92" rx="8" fill="#dbeaf5" stroke="#2c5f7c" stroke-width="1.4"/>
+  <text x="158" y="196" text-anchor="middle" class="lbl">Coupled</text>
+  <text x="158" y="220" text-anchor="middle" class="mono">&lt;output&gt;/</text>
+  <text x="158" y="244" text-anchor="middle" class="mono">&lt;output&gt;/operation/</text>
+
+  <line x1="296" y1="110" x2="328" y2="110" stroke="#173334" stroke-width="1.6" marker-end="url(#arrow)"/>
+  <line x1="296" y1="214" x2="328" y2="190" stroke="#173334" stroke-width="1.6" marker-end="url(#arrow)"/>
+
+  <!-- Column 2: Physical CSVs -->
+  <rect x="332" y="20" width="300" height="260" rx="10" fill="#ffffff" stroke="#b9cbca" stroke-width="1.4"/>
+  <text x="350" y="48" class="title">2. Summary &amp; Physical</text>
+
+  <rect x="350" y="68" width="264" height="38" rx="7" fill="#eef4f4" stroke="#096c70" stroke-width="1.4"/>
+  <text x="482" y="92" text-anchor="middle" class="mono">summary.json</text>
+
+  <rect x="350" y="116" width="264" height="38" rx="7" fill="#dbeaf5" stroke="#2c5f7c" stroke-width="1.3"/>
+  <text x="482" y="140" text-anchor="middle" class="mono">reservoir_trajectory.csv</text>
+
+  <rect x="350" y="164" width="264" height="38" rx="7" fill="#dbeaf5" stroke="#2c5f7c" stroke-width="1.3"/>
+  <text x="482" y="188" text-anchor="middle" class="mono">network_flows.csv</text>
+
+  <rect x="350" y="212" width="264" height="48" rx="7" fill="#dbeaf5" stroke="#2c5f7c" stroke-width="1.3"/>
+  <text x="482" y="233" text-anchor="middle" class="mono">network_balance.csv</text>
+  <text x="482" y="251" text-anchor="middle" class="mono">reach_volume_trace.json</text>
+
+  <line x1="632" y1="150" x2="660" y2="150" stroke="#173334" stroke-width="1.6" marker-end="url(#arrow)"/>
+
+  <!-- Column 3: Journals & Verify -->
+  <rect x="664" y="20" width="276" height="260" rx="10" fill="#ffffff" stroke="#b9cbca" stroke-width="1.4"/>
+  <text x="682" y="48" class="title">3. Trace &amp; Verify</text>
+
+  <rect x="682" y="68" width="240" height="46" rx="7" fill="#c8dfd5" stroke="#2d6352" stroke-width="1.3"/>
+  <text x="802" y="96" text-anchor="middle" class="mono">decisions / physics.jsonl</text>
+
+  <rect x="682" y="124" width="240" height="46" rx="7" fill="#c8dfd5" stroke="#2d6352" stroke-width="1.3"/>
+  <text x="802" y="152" text-anchor="middle" class="mono">audit.jsonl &amp; raw/</text>
+
+  <rect x="682" y="180" width="240" height="38" rx="7" fill="#c8dfd5" stroke="#2d6352" stroke-width="1.3"/>
+  <text x="802" y="204" text-anchor="middle" class="mono">experiment.json</text>
+
+  <rect x="682" y="228" width="240" height="38" rx="7" fill="#f6dfc6" stroke="#8a5a2b" stroke-width="1.4"/>
+  <text x="802" y="252" text-anchor="middle" class="mono">reservoir-experiment verify</text>
+</svg>
