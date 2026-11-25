@@ -1,0 +1,10 @@
+.navbar-brand::before {
+    content: "";
+    display: inline-block;
+    width: 2rem;
+    height: 2rem;
+    margin-inline-end: .45rem;
+    vertical-align: middle;
+    border-radius: 50%;
+    background: white url("logo.svg") center / 85% no-repeat;
+}

@@ -1,6 +1,8 @@
 # HydroReOpLLM
 
-[User manual](https://wenyuchiou.github.io/HydroReOpLLM/) · [繁體中文使用手冊](https://wenyuchiou.github.io/HydroReOpLLM/zh-TW.html) · [繁體中文首頁](https://github.com/WenyuChiou/HydroReOpLLM/blob/main/README.zh-TW.md)
+[![User manual](https://wenyuchiou.github.io/HydroReOpLLM/assets/branding/docs-badge-en.svg)](https://wenyuchiou.github.io/HydroReOpLLM/) · [繁體中文使用手冊](https://wenyuchiou.github.io/HydroReOpLLM/zh-TW.html) · [繁體中文首頁](https://github.com/WenyuChiou/HydroReOpLLM/blob/main/README.zh-TW.md)
+
+![Reservoirs and rivers with LLM reservoir operators](https://wenyuchiou.github.io/HydroReOpLLM/assets/branding/cover.png)
 
 HydroReOpLLM simulates reservoir operations from time series of local inflow or weather forcing. A reservoir operator proposes a release. The physical model applies storage and release limits, routes water downstream, and records the decision and water balance for each time step. Operators can use a rule, a prescribed action, or an LLM with local operating guidance.
 

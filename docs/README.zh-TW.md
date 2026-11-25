@@ -1,5 +1,7 @@
 # HydroReOpLLM 使用手冊
 
+![水庫、河川與 LLM 操作員示意圖](assets/branding/cover.png)
+
 [English manual](README.md) · [專案首頁](../README.zh-TW.md)
 
 HydroReOpLLM 可以從既有的入流資料開始，也可以讓 HydroCNHS 依氣象資料計算來水。每個時間步，操作策略先根據入流與水庫狀態提出放流量。水庫模組再依可用水量與出口限制計算實際放流、溢流及期末庫容。比較策略時，請分別檢查策略要求的放流量與實際放流量。

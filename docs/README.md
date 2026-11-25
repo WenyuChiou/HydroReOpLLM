@@ -1,5 +1,7 @@
 # HydroReOpLLM documentation
 
+![Reservoirs and rivers with LLM reservoir operators](assets/branding/cover.png)
+
 [繁體中文使用手冊](README.zh-TW.md)
 
 Return to the [project README](../README.md), or follow this compact path:

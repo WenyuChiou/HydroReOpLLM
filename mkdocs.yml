@@ -5,6 +5,8 @@ site_dir: site
 use_directory_urls: false
 strict: true
 plugins: [search]
+extra_css:
+  - assets/branding/branding.css
 theme:
   name: mkdocs
   highlightjs: false

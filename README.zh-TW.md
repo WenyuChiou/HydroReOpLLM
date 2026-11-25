@@ -1,6 +1,8 @@
 # HydroReOpLLM
 
-[繁體中文使用手冊](https://wenyuchiou.github.io/HydroReOpLLM/zh-TW.html) · [English manual](https://wenyuchiou.github.io/HydroReOpLLM/) · [English](README.md)
+[![繁體中文使用手冊](https://wenyuchiou.github.io/HydroReOpLLM/assets/branding/docs-badge-zh-TW.svg)](https://wenyuchiou.github.io/HydroReOpLLM/zh-TW.html) · [English manual](https://wenyuchiou.github.io/HydroReOpLLM/) · [English](README.md)
+
+![水庫、河川與 LLM 操作員示意圖](https://wenyuchiou.github.io/HydroReOpLLM/assets/branding/cover.png)
 
 HydroReOpLLM 使用局部入流或氣象時間序列模擬水庫操作。每個時間步先由操作策略提出放流量，再由物理模型套用庫容與放流限制，將水量往下游演算，並記錄決策和水量平衡。操作策略可採用規則、指定放流量，或讀取本地操作指引的 LLM。
 
