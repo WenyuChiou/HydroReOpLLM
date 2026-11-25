@@ -31,7 +31,7 @@ Choose a fresh `run_id` and `output` before repeating the template. See the [ins
 
 [Open the hosted F.E. Walter tutorial](https://wenyuchiou.github.io/HydroReOpLLM/tutorials/index.html).
 
-Run `reservoir-experiment check` first. It validates either F.E. Walter configuration without contacting Ollama. The included inflows are synthetic teaching inputs; model outputs and article results are not bundled.
+Run `reservoir-experiment check` first. It validates either F.E. Walter configuration without contacting Ollama. Both F.E. Walter configurations use the study's prepared 2021–2025 inflows and start with a seven-day tutorial run. The [case guide](examples/fe_walter/README.md) explains how to run the full period with the public prompts and simulator.
 
 ## Tests and license
 

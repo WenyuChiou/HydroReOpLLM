@@ -1,6 +1,6 @@
 # F.E. Walter 提示詞教學
 
-此筆記本比較兩份七天的 F.E. Walter 教學設定。它會讀取兩份 YAML 與各自具名的系統、使用者提示詞，再對兩個案例執行離線 `check`。預設流程不會發出模型請求。
+此筆記本使用 F.E. Walter 論文案例的前七天入流，比較 Seasonal Target 與 DKP。它會讀取兩份 YAML 與各自具名的系統、使用者提示詞，再對兩個案例執行離線 `check`。預設流程不會發出模型請求。
 
 ```sh
 python -m pip install -c environment/requirements-bundled.txt . jupyterlab
@@ -9,7 +9,7 @@ python -m jupyterlab tutorials/fe_walter.ipynb
 
 請從儲存庫根目錄開啟筆記本，並選擇已安裝 HydroReOpLLM 的環境。預設儲存格會顯示：
 
-1. 兩案例共用的既有入流設定與七天期間；
+1. 兩案例共用的論文入流設定與 2021 年 1 月 1–7 日的教學期間；
 2. 每份 YAML 所選用的 Seasonal Target 與 DKP 提示詞檔案；
 3. 僅 DKP 設定具有的 `knowledge.fe_walter_operating_guidance` 參照；以及
 4. 兩個入口皆通過離線設定檢查。

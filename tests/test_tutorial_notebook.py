@@ -19,6 +19,11 @@ def test_walter_notebook_checks_both_cases_without_inference(monkeypatch):
         source = "".join(cell["source"])
         exec(compile(source, str(notebook_path), "exec"), namespace)
 
+    summary = namespace["case_summary"]
+    assert summary["input_days"] == 1826
+    assert summary["input_period"] == ["2021-01-01", "2025-12-31"]
+    assert all(window == ["2021-01-01", "2021-01-07"] for window in summary["tutorial_windows"].values())
+
     reports = namespace["check_results"]
     assert set(reports) == {"Seasonal Target", "DKP"}
     for checked in reports.values():

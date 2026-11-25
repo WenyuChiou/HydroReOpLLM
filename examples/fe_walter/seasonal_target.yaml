@@ -1,8 +1,10 @@
-# Daily F.E. Walter teaching case with invented prepared inflows.
+# F.E. Walter study inputs with a seven-day tutorial window.
 schema_version: llm-reservoir-experiment.v1
 case: case.json
 run_id: fe-walter-seasonal-target
 output: ../../runs/fe-walter-seasonal-target
+start_date: '2021-01-01'
+end_date: '2021-01-07'
 max_calls: 14                         # Seven days, up to two attempts per decision.
 models:
   local:
