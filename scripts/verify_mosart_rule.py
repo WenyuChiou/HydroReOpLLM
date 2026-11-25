@@ -153,7 +153,7 @@ def compare(upstream_path, rule_path, output):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--upstream-source", type=Path, required=True)
-    parser.add_argument("--rule", type=Path, default=Path(__file__).resolve().parents[1] / "examples/rules/mosart_urban/__init__.py")
+    parser.add_argument("--rule", type=Path, default=Path(__file__).resolve().parents[1] / "tests/fixtures/examples/rules/mosart_urban/__init__.py")
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     print(json.dumps(compare(args.upstream_source.resolve(), args.rule.resolve(), args.output.resolve()), indent=2))

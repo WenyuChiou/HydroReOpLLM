@@ -18,6 +18,8 @@ jobs:
           python-version: '3.12'
       - run: python -m pip install -c environment/requirements-bundled.txt ".[test]"
       - run: python -m pytest -q
-      - run: reservoir-experiment check examples/daily_offline/single.yaml
-      - run: reservoir-experiment run examples/daily_offline/single.yaml
-      - run: reservoir-experiment verify runs/daily-single --require-offline
+      - run: reservoir-experiment check examples/template/experiment.yaml
+      - run: reservoir-experiment check examples/fe_walter/seasonal_target.yaml
+      - run: reservoir-experiment check examples/fe_walter/dkp.yaml
+      - run: reservoir-experiment run examples/template/experiment.yaml
+      - run: reservoir-experiment verify runs/prepared-template --require-offline

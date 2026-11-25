@@ -1,0 +1,32 @@
+# Daily F.E. Walter teaching case with invented prepared inflows.
+schema_version: llm-reservoir-experiment.v1
+case: case.json
+run_id: fe-walter-dkp
+output: ../../runs/fe-walter-dkp
+max_calls: 14                         # Seven days, up to two attempts per decision.
+models:
+  local:
+    provider: ollama
+    model: gemma4:12b
+    base_url: http://127.0.0.1:11434
+    temperature: 0.7
+    seed: 3
+    num_ctx: 16384
+    max_tokens: 2048
+    max_attempts: 2
+    think: false
+auditors:
+  release_bounds:
+    type: release_bounds
+    version: '1'
+agents:
+  walter_operator:
+    reservoir: FEWalter
+    mode: llm
+    model: local
+    prompt:
+      system: prompts/dkp.system.txt
+      user: prompts/dkp.user.txt
+    knowledge:
+      fe_walter_operating_guidance: dkp.md
+    auditors: [release_bounds]

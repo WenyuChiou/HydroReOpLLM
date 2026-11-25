@@ -51,10 +51,6 @@ kernel only rejects invalid/non-finite physical states. Validate parameters,
 initial-state spinup, event-memory assumptions, runoff, and routing against
 independent observations before interpreting an operational comparison.
 
-For a complete file-based synthetic demonstration:
-
-```powershell
-.\.venv\Scripts\python.exe examples/time_scales/hourly_gwlf_smoke.py --output runs/hourly-gwlf
-```
-
-See [time scales and units](TIME_SCALES.md) for coupled configuration rules.
+The public examples remain daily prepared-inflow cases. Build and validate a
+study-specific forcing file before connecting this kernel to a reservoir case.
+See [time scales and units](TIME_SCALES.md) for interval rules.

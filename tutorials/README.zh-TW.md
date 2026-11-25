@@ -1,24 +1,19 @@
-# 離線合成案例教學
+# F.E. Walter 提示詞教學
 
-在 JupyterLab 中執行四天的單庫模擬，並檢視水量平衡。此教學無需 API 金鑰。
-
-## 開啟筆記本
-
-[下載並安裝 HydroReOpLLM](../docs/GETTING_STARTED.zh-TW.md#install-from-a-clone)。保持虛擬環境啟用，並從專案根目錄開始。
-
-安裝 JupyterLab 並開啟筆記本。
+此筆記本比較兩份七天的 F.E. Walter 教學設定。它會讀取兩份 YAML 與各自具名的系統、使用者提示詞，再對兩個案例執行離線 `check`。預設流程不會發出模型請求。
 
 ```sh
-python -m pip install jupyterlab
-python -m jupyterlab tutorials/offline_synthetic.ipynb
+python -m pip install -c environment/requirements-bundled.txt . jupyterlab
+python -m jupyterlab tutorials/fe_walter.ipynb
 ```
 
-## 執行儲存格
+請從儲存庫根目錄開啟筆記本，並選擇已安裝 HydroReOpLLM 的環境。預設儲存格會顯示：
 
-1. 如果 JupyterLab 停在啟動器（Launcher），請從左側檔案瀏覽器開啟筆記本。若看見 `tutorials/` 資料夾，請進入該資料夾再開啟 `offline_synthetic.ipynb`。
-2. 選擇專案 `.venv` 的核心，再按 **Run → Run All Cells**。
-3. 檢查結果。**Expected storage** 中最後一筆 `storage_m3` 應為 `1345600.0`（**1,345,600 m³**）。驗證報告應顯示 `PASS`、執行 4 天及 `observed_network_calls: 0`，且 **Inspect the simulated trajectory** 會列出四天的 `reservoir_trajectory.csv` 表格供對照。
+1. 兩案例共用的既有入流設定與七天期間；
+2. 每份 YAML 所選用的 Seasonal Target 與 DKP 提示詞檔案；
+3. 僅 DKP 設定具有的 `knowledge.fe_walter_operating_guidance` 參照；以及
+4. 兩個入口皆通過離線設定檢查。
 
-## 保留輸出
+最後的儲存格只會列印兩行可自行選擇執行的本機 Ollama 指令。請先檢閱提示詞、以 `gemma4:12b` 啟動 Ollama、指定新的輸出路徑，並確認接受 `--allow-network` 所代表的本機網路使用，再手動執行。筆記本本身不會進行即時推論。
 
-筆記本會使用暫存目錄，並在執行結束後清除。若要將命令列輸出保存在 `runs/daily-single/`，請依照[執行離線範例](../docs/GETTING_STARTED.zh-TW.md#執行離線範例)操作。各輸出檔案的讀法請見[結果指南](../docs/RESULTS_GUIDE.zh-TW.md)，或繼續嘗試[單庫與串聯／MOSART-Urban 範例](../examples/daily_offline/README.zh-TW.md)。
+選擇執行前，請先閱讀 [F.E. Walter 指南](../examples/fe_walter/README.zh-TW.md)及[執行生命週期](../docs/RUNNING.zh-TW.md)。

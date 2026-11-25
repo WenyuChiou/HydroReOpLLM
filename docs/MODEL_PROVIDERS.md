@@ -3,7 +3,8 @@
 Supported provider adapters are `openai`, `anthropic`, `gemini`, `ollama`, and
 `openai_compatible`. Every profile declares the exact provider, model ID, and
 final HTTP(S) `base_url`. Hosted services normally also declare `api_key_env`.
-See the complete starter in [`templates/coupled/models.yaml`](../templates/coupled/models.yaml).
+The [F.E. Walter configurations](../examples/fe_walter/README.md) show an
+explicit local Ollama profile with named prompts.
 
 ## Exact model identity
 

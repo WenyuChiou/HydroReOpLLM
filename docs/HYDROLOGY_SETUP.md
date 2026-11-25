@@ -1,9 +1,9 @@
 # Native HydroCNHS and GWLF setup
 
-The coupled template uses the bundled, pinned HydroCNHS source. Configure the
-native model and forcing in `hydrology.yaml`, then bind routed or constant model
-flows to network nodes. Start from
-[`templates/coupled/hydrology.yaml`](../templates/coupled/hydrology.yaml).
+HydroReOpLLM includes pinned HydroCNHS source for study-specific coupled work.
+Configure the native model and forcing in `hydrology.yaml`, then bind routed or
+constant model flows to network nodes. The public starting cases use prepared
+inflows, so a coupled study must supply and validate its own hydrology files.
 
 For daily GWLF forcing, provide a continuous date range for every modeled
 subbasin and declare the expected columns and units. Basin construction,

@@ -26,8 +26,8 @@ def _forbid_network(*args, **kwargs):
         ("cascade", {"Lake_1": 1_345_600.0, "Lake_2": 1_086_400.0, "Lake_3": 1_086_400.0}),
     ),
 )
-def test_shipped_offline_example_runs_and_verifies(tmp_path, name, expected_storage):
-    source = ROOT / "examples" / "daily_offline" / f"{name}.yaml"
+def test_internal_offline_fixture_runs_and_verifies(tmp_path, name, expected_storage):
+    source = ROOT / "tests" / "fixtures" / "examples" / "daily_offline" / f"{name}.yaml"
     data = yaml.safe_load(source.read_text(encoding="utf-8"))
     data["case"] = str((source.parent / data["case"]).resolve())
     data["output"] = str(tmp_path / name)
@@ -53,7 +53,7 @@ def test_shipped_offline_example_runs_and_verifies(tmp_path, name, expected_stor
 
 def test_cli_rejects_existing_output_with_rerun_instructions(tmp_path, capsys):
     examples = tmp_path / "examples" / "daily_offline"
-    shutil.copytree(ROOT / "examples" / "daily_offline", examples)
+    shutil.copytree(ROOT / "tests" / "fixtures" / "examples" / "daily_offline", examples)
     config = examples / "single.yaml"
 
     assert main(["run", str(config)]) == 0
@@ -74,7 +74,7 @@ def test_cli_rejects_existing_output_with_rerun_instructions(tmp_path, capsys):
 
 def test_cli_reports_output_created_between_check_and_run(tmp_path, monkeypatch, capsys):
     examples = tmp_path / "examples" / "daily_offline"
-    shutil.copytree(ROOT / "examples" / "daily_offline", examples)
+    shutil.copytree(ROOT / "tests" / "fixtures" / "examples" / "daily_offline", examples)
     output = tmp_path / "runs" / "daily-single"
     mkdir = Path.mkdir
 
@@ -96,7 +96,7 @@ def test_cli_reports_output_created_between_check_and_run(tmp_path, monkeypatch,
 
 def test_cli_propagates_unrelated_file_exists_error(tmp_path, monkeypatch):
     examples = tmp_path / "examples" / "daily_offline"
-    shutil.copytree(ROOT / "examples" / "daily_offline", examples)
+    shutil.copytree(ROOT / "tests" / "fixtures" / "examples" / "daily_offline", examples)
 
     def fail_stream_write(*args, **kwargs):
         raise FileExistsError("journal stream collision")
@@ -112,8 +112,11 @@ def test_cli_init_examples_copies_clean_bundle_and_refuses_overwrite(tmp_path, c
     assert main(["init-examples", str(dest)]) == 0
     payload = yaml.safe_load(capsys.readouterr().out)
     assert Path(payload["destination"]) == dest.resolve()
-    assert (dest / "daily_offline" / "single.yaml").is_file()
-    assert (dest / "time_scales" / "hourly.yaml").is_file()
+    assert {item.name for item in dest.iterdir() if item.is_dir()} == {"fe_walter", "template"}
+    assert (dest / "template" / "experiment.yaml").is_file()
+    assert (dest / "fe_walter" / "seasonal_target.yaml").is_file()
+    assert (dest / "fe_walter" / "dkp.yaml").is_file()
+    assert Path(payload["first_example"]) == dest / "template" / "experiment.yaml"
     assert not list(dest.rglob("__pycache__"))
 
     assert main(["init-examples", str(dest)]) == 1
@@ -123,7 +126,7 @@ def test_cli_init_examples_copies_clean_bundle_and_refuses_overwrite(tmp_path, c
     assert "Traceback" not in captured.err
 
 
-def test_pyproject_data_files_cover_time_scales_and_existing_paths():
+def test_pyproject_ships_the_template_and_water_control_examples():
     pyproject = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
     data_files = pyproject["tool"]["setuptools"]["data-files"]
     packaged = set()
@@ -131,7 +134,9 @@ def test_pyproject_data_files_cover_time_scales_and_existing_paths():
         for rel in paths:
             assert (ROOT / rel).is_file(), f"missing data-file: {rel}"
             packaged.add(rel)
-    assert "examples/time_scales/daily.yaml" in packaged
-    assert "examples/time_scales/hourly.yaml" in packaged
-    assert "examples/time_scales/fixed_interval.yaml" in packaged
+    assert {p for p in packaged if p.startswith("examples/") and p.endswith(".yaml")} == {
+        "examples/template/experiment.yaml",
+        "examples/fe_walter/seasonal_target.yaml",
+        "examples/fe_walter/dkp.yaml",
+    }
     assert "examples/README.zh-TW.md" in packaged

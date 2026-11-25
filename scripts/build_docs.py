@@ -40,7 +40,6 @@ ENGLISH_FILES = {
     "docs/assets/simulation-stages.png": "assets/simulation-stages.png",
     "docs/assets/diagrams/framework.png": "assets/diagrams/framework.png",
     "docs/assets/diagrams/package-structure.svg": "assets/diagrams/package-structure.svg",
-    "docs/assets/diagrams/example-topologies.svg": "assets/diagrams/example-topologies.svg",
     "docs/assets/diagrams/results-outputs-map.svg": "assets/diagrams/results-outputs-map.svg",
     "docs/assets/copy-code.js": "assets/copy-code.js",
     "docs/assets/search-zh-TW.js": "assets/search-zh-TW.js",
@@ -52,14 +51,8 @@ ENGLISH_FILES = {
     "docs/HOURLY_GWLF.md": "HOURLY_GWLF.md",
     "docs/TROUBLESHOOTING.md": "TROUBLESHOOTING.md",
     "tutorials/README.md": "tutorials/index.md",
-    "examples/daily_offline/README.md": "examples/daily_offline/index.md",
-    "examples/multiple_reservoirs/README.md": "examples/multiple_reservoirs/index.md",
-    "examples/time_scales/README.md": "examples/time_scales/index.md",
-    "examples/rules/mosart_urban/README.md": "examples/rules/mosart_urban/index.md",
-    "templates/prepared/README.md": "starters/prepared/index.md",
-    "templates/coupled/README.md": "starters/coupled/index.md",
-    "templates/coupled/hydrology.yaml": "assets/templates/coupled/hydrology.yaml",
-    "templates/coupled/models.yaml": "assets/templates/coupled/models.yaml",
+    "examples/template/README.md": "examples/template/index.md",
+    "examples/fe_walter/README.md": "examples/fe_walter/index.md",
 }
 
 # Keep the original public URLs for the homepage and two renamed chapters.

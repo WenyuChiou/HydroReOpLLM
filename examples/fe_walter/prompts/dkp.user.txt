@@ -1,0 +1,10 @@
+Today's observation (including beginning storage, inflow, and physical limits):
+$observation
+
+Previous completed transition:
+$previous_transition
+
+Local operating guidance:
+$knowledge
+
+Apply the relevant operating guidance and the same seasonal target to request today's release.

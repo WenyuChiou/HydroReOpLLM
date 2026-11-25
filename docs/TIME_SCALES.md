@@ -1,8 +1,8 @@
 # Time scales and units
 
-The daily workflow is the maintained default. Explicit interval configurations
-also support hourly or fixed-duration teaching cases in
-[`examples/time_scales`](../examples/time_scales/README.md).
+The public template and F.E. Walter cases use the maintained daily workflow.
+Explicit study configurations may also use supported hourly or fixed-duration
+intervals when their forcing, routing, and reservoir clocks agree.
 
 | Quantity | Unit or convention |
 |---|---|
@@ -19,11 +19,6 @@ label daily forcing or daily unit-hydrograph bins as hourly. Finer forcing also
 requires an interval-aware runoff kernel, continuous timestamps, correctly
 integrated depths, interval routing, and a compatible reservoir step.
 
-The [experimental hourly GWLF path](HOURLY_GWLF.md) accepts 3600, 1800, or 900 second intervals.
-It is an engineering formulation rather than evidence of calibrated hourly
-skill. The deterministic smoke script documents its synthetic inputs:
-
-```powershell
-$env:PYTHONPATH = (Join-Path (Get-Location) 'src')
-python -X utf8 examples/time_scales/hourly_gwlf_smoke.py --output NEW_FOLDER
-```
+The [experimental hourly GWLF path](HOURLY_GWLF.md) accepts 3600, 1800, or 900
+second intervals. It is an engineering formulation rather than evidence of
+calibrated hourly skill.

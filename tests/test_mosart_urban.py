@@ -12,7 +12,7 @@ from llm_reservoir_agent.physics import apply_transition
 
 
 ROOT = Path(__file__).resolve().parents[1]
-MODULE_PATH = ROOT / "examples/rules/mosart_urban/__init__.py"
+MODULE_PATH = ROOT / "tests/fixtures/examples/rules/mosart_urban/__init__.py"
 spec = importlib.util.spec_from_file_location("mosart_rule_tests", MODULE_PATH)
 rule = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(rule)
@@ -135,12 +135,17 @@ def test_explicit_mean_configuration_has_no_file_or_provider_dependency(tmp_path
     ("daily_offline/single.mosart.yaml", False),
     ("multiple_reservoirs/experiment.mosart.yaml", True),
 ])
-def test_shipped_example_families_execute_through_normal_entrypoints(tmp_path, entry, coupled):
+def test_internal_fixtures_execute_through_normal_entrypoints(tmp_path, entry, coupled):
     from llm_reservoir_agent.coupled import load_coupled_settings, run_coupled
     from llm_reservoir_agent.verification import verify_run
     from llm_reservoir_agent.workflow import load_settings, run_settings
+    from tests.reservoir_fixtures import copy_coupled_fixture
 
-    canonical, _ = read_configuration(ROOT / "examples" / entry)
+    if coupled:
+        config = copy_coupled_fixture(tmp_path / "example") / Path(entry).name
+    else:
+        config = ROOT / "tests/fixtures/examples" / entry
+    canonical, _ = read_configuration(config)
     canonical["run_id"] = "mosart-entrypoint-test"
     canonical["output"] = str(tmp_path / "output")
     path = tmp_path / "experiment.yaml"

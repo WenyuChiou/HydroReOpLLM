@@ -21,8 +21,7 @@ explicit UTC offset.
 
 ## Configure a profile
 
-Start from [`templates/coupled/information.yaml`](../templates/coupled/information.yaml).
-This runnable structure exposes one static value under one prompt-safe alias:
+The following structure exposes one static value under one prompt-safe alias:
 
 ```yaml
 sources:

@@ -12,7 +12,7 @@ import yaml
 from llm_reservoir_agent.workflow import UniqueLoader, main
 
 ROOT = Path(__file__).resolve().parents[1]
-TEMPLATE = ROOT / "templates" / "prepared"
+TEMPLATE = ROOT / "examples" / "template"
 EXPERIMENTS = sorted(path.name for path in TEMPLATE.glob("experiment*.yaml"))
 
 
@@ -24,7 +24,7 @@ def _rows(path):
 @pytest.fixture
 def folder(tmp_path):
     """Copy beside a runs/ directory so the template's relative output lands in tmp_path."""
-    target = tmp_path / "templates" / "prepared"
+    target = tmp_path / "examples" / "template"
     shutil.copytree(TEMPLATE, target)
     return target
 
