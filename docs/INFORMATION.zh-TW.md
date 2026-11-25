@@ -10,7 +10,7 @@
 
 ## 設定資訊設定檔
 
-請從 [`templates/coupled/information.yaml`](../templates/coupled/information.yaml) 開始著手。以下可執行的設定結構會以適用於提示詞的安全別名，公開一項靜態數值。
+以下設定結構會以適用於提示詞的安全別名，公開一項靜態數值。
 
 ```yaml
 sources:

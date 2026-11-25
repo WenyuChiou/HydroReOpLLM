@@ -3,8 +3,6 @@ from copy import deepcopy
 import hashlib
 from http.client import RemoteDisconnected
 import json
-from pathlib import Path
-import shutil
 from urllib.error import URLError
 
 import pytest
@@ -12,16 +10,10 @@ import yaml
 
 from llm_reservoir_agent.coupled import load_coupled_settings, run_coupled
 from llm_reservoir_agent.verification import verify_run
-
-ROOT = Path(__file__).resolve().parents[1]
-
+from tests.reservoir_fixtures import copy_coupled_fixture
 
 def setup_case(tmp_path, provider=None):
-    folder = tmp_path / "example"
-    shutil.copytree(ROOT / "examples/multiple_reservoirs", folder)
-    # The copied entry registers a shared sibling rule package by relative path.
-    shutil.copytree(ROOT / "examples/rules", tmp_path / "rules",
-                    ignore=shutil.ignore_patterns("__pycache__"))
+    folder = copy_coupled_fixture(tmp_path / "example")
     path = folder / "experiment.yaml"
     data = yaml.safe_load(path.read_text())
     data["output"] = str(tmp_path / "run")

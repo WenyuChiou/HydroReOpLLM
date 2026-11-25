@@ -1,7 +1,6 @@
 """Coupled preparation-root verification and operation evidence binding."""
 import hashlib
 import json
-from pathlib import Path
 import shutil
 
 import pytest
@@ -10,9 +9,7 @@ import yaml
 from llm_reservoir_agent.coupled import load_coupled_settings, run_coupled
 from llm_reservoir_agent.verification import _recorded_path, verify_run
 from llm_reservoir_agent.workflow import main
-
-
-ROOT = Path(__file__).resolve().parents[1]
+from tests.reservoir_fixtures import copy_coupled_fixture
 
 
 def test_archive_path_syntax_uses_the_recorded_operating_system():
@@ -22,10 +19,7 @@ def test_archive_path_syntax_uses_the_recorded_operating_system():
 
 
 def _completed_coupled_root(tmp_path):
-    folder = tmp_path / "example"
-    shutil.copytree(ROOT / "examples/multiple_reservoirs", folder)
-    shutil.copytree(ROOT / "examples/rules", tmp_path / "rules",
-                    ignore=shutil.ignore_patterns("__pycache__"))
+    folder = copy_coupled_fixture(tmp_path / "example")
     path = folder / "experiment.yaml"
     data = yaml.safe_load(path.read_text(encoding="utf-8"))
     data["output"] = str(tmp_path / "run")

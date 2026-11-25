@@ -1,5 +1,4 @@
 include scripts/package_build.py
-include scripts/verify_mosart_rule.py
 include README.zh-TW.md
 include THIRD_PARTY_NOTICES.md
 include licenses/*

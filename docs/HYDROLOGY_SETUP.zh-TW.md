@@ -1,6 +1,6 @@
 # 原生 HydroCNHS 與 GWLF 設定
 
-耦合範本使用隨附且鎖定版本的 HydroCNHS 原始碼。請在 `hydrology.yaml` 中設定原生水文模式與氣象驅動資料，再將經演算或常數的模式流量繫結至水系節點。請從 [`templates/coupled/hydrology.yaml`](../templates/coupled/hydrology.yaml) 開始設定。
+HydroReOpLLM 內含鎖定版本的 HydroCNHS 原始碼，可用於個別研究的耦合工作。請在 `hydrology.yaml` 中設定原生水文模式與氣象驅動資料，再將經演算或常數的模式流量繫結至水系節點。公開起始案例使用既有入流資料，因此耦合研究須自行提供並驗證水文設定檔。
 
 若使用日尺度 GWLF 驅動資料，須為每個模擬子集水區提供連續的日期區間，並明確宣告預期欄位與單位。集水區建置、參數率定與觀測資料驗證皆屬個別研究範疇。合成範例僅用於確認軟體運作行為。
 

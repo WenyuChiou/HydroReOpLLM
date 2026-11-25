@@ -1,0 +1,7 @@
+Today's observation (including beginning storage, inflow, and physical limits):
+$observation
+
+Previous completed transition:
+$previous_transition
+
+Use the seasonal storage target and the current operating conditions to request today's release.

@@ -1,68 +1,42 @@
 # Configuration
 
-HydroReOpLLM supports two input styles:
+The public starting point is the prepared-inflow [`examples/template`](../examples/template/README.md). Copy its directory before replacing synthetic inflows, physical values, dates, or operators.
 
-- Prepared inflows: start from [`templates/prepared`](../templates/prepared/README.md).
-- Native HydroCNHS hydrology: start from
-  [`templates/coupled`](../templates/coupled/README.md).
+![HydroReOpLLM package structure and configuration graph](assets/diagrams/package-structure.svg)
 
-![HydroReOpLLM package structure and split YAML configuration graph](assets/diagrams/package-structure.svg)
-
-- `hydroreopllm` (PyPI) installs the `reservoir-experiment` CLI and bundled `examples/`.
-- `llm_reservoir_agent` manages configuration checks, operators, prompts, auditing, and verification; bundled `hydrocnhs` runs rainfall–runoff, routing, and reservoir water balance.
-- `experiment.yaml` acts as the entry point and links `reservoirs.yaml`, `hydrology.yaml`, `agents.*.yaml`, `models.yaml`, `information.yaml`, and `auditors.yaml` relative to the declaring file.
-
-The coupled `experiment.yaml` links separate hydrology, reservoir-network,
-operator, model, information, and auditor files. A path is resolved relative to
-the YAML or JSON file that declares it. A `{file: ...}` reference replaces that
-complete section; it is not a deep merge.
+`experiment.yaml` is the entry point. Referenced YAML, JSON, CSV, prompt, and knowledge paths are resolved relative to the file that declares them. A `{file: ...}` reference replaces that complete section; it is not a deep merge. Keep the case, inflows, prompts, and knowledge files together when copying an example.
 
 Configure a study in this order:
 
-1. Set `run_id`, an unused `output`, and the operation dates in `experiment.yaml`.
-2. Define hydrology and inflow bindings in `hydrology.yaml`.
-3. Define storage, release limits, routing, and outlets in `reservoirs.yaml`.
-4. Select one operator per controlled reservoir in an agents file.
-5. For LLM operators, select a model profile and explicit prompt files.
-6. Optionally select a named [decision-information profile](INFORMATION.md).
+1. Set `run_id`, an unused `output`, and the operation dates.
+2. Define or reference the prepared-inflow case and confirm its data hash.
+3. Define storage, release limits, routing, and outlets in the network case.
+4. Select exactly one operator per controlled reservoir.
+5. For an LLM operator, name the model profile and explicit system and user prompt files.
+6. Add only the decision-time information and knowledge the operator should receive.
 
-`reservoir-experiment check` resolves and validates this graph without running
-hydrology or contacting a provider.
+`reservoir-experiment check` resolves and validates the graph without running a simulation or contacting a provider.
 
-## Configuration schemas at a glance
+## Public configuration schemas
 
-Examples and templates use one of three experiment `schema_version` formats depending on whether inflows are prepared in advance or simulated by HydroCNHS:
+| `schema_version` | Public use | Operator keys |
+| --- | --- | --- |
+| `llm-reservoir-experiment.v1` | Generic template and F.E. Walter prepared-inflow cases | `reservoir`, with `mode: offline` or `mode: llm` |
 
-| `schema_version` | Typical use | Agent keys | Date / clock keys |
-| --- | --- | --- | --- |
-| `llm-reservoir-experiment.v1` | Prepared-inflow single-file cases (`daily_offline/single.yaml`, `templates/prepared`) | `reservoir`, `mode: offline` | `start_date` / `end_date` (or network clock) |
-| `llm-reservoir-experiment.v2` | Prepared-inflow cases with custom rule extensions (`daily_offline/single.mosart.yaml`) | `reservoir_id`, `type: rule_based` | `start_date` / `end_date` |
-| `hydroops-coupled-simulation.v2` | Split-file coupled HydroCNHS + reservoir studies (`multiple_reservoirs`, `templates/coupled`, `time_scales/hourly.yaml`) | `reservoir_id` + `type: rule_based` / `llm` (or `mode: offline`) | `start_date` / `end_date` (daily) or `start_time` / `end_time` (hourly) |
+The runtime also supports split-file HydroCNHS studies. Those require study-specific forcing, calibration, and validation; the public repository does not present a generic coupled case as a complete study.
 
 ## Operators
 
-Each controlled reservoir has exactly one operator and independent state.
-
-- `mode: offline` gives a fixed synthetic action and makes no model request.
+- `mode: offline` applies a fixed action and makes no model request.
 - `type: rule_based` selects registered local code.
-- `type: llm` selects an explicit profile from `models.yaml`.
+- `type: llm` selects an explicit model profile and named prompts.
 
-Begin with an offline or rule-based operator to check IDs, dates, physics, and
-routing. Switch to an LLM only after `check` succeeds. Keep secrets in the
-environment variable named by `api_key_env`, never in YAML.
+Begin offline, confirm identifiers, dates, data hashes, physics, and routing, then run an LLM only with explicit network authorization. Keep credentials in the environment variable named by `api_key_env`.
 
-At each step, the operator requests a controlled release. The physical kernel
-applies release bounds and available water, calculates spill separately, routes
-controlled release plus spill, and carries ending storage into the next step.
-Changing an operator does not change a previously pinned hydrology preparation.
+At each step, the operator requests a controlled release. The physical kernel applies release bounds and available water, calculates spill separately, routes controlled release plus spill, and carries ending storage to the next step.
 
 ## Physical values and routing
 
-Storage is in m3, flow is interval-mean m3/s, and `dt_seconds` is the operation
-step. A reservoir output is controlled release plus spill. Connections route a
-fraction of that output; `unit_hydrograph` weights are dimensionless, sum to 1,
-and use index 0 for the same step, index 1 for the next step, and so on.
+Storage is in m3, flow is interval-mean m3/s, and `dt_seconds` is the operation step. Connection fractions split total output. `unit_hydrograph` weights are dimensionless, sum to 1, and use index 0 for the same step, index 1 for the next step, and so on.
 
-See [reservoir networks](MULTI_RESERVOIR.md), [time scales](TIME_SCALES.md), and
-[providers](MODEL_PROVIDERS.md) before extending the starter files. Then follow
-the [run lifecycle](RUNNING.md).
+See [reservoir networks](MULTI_RESERVOIR.md), [time scales](TIME_SCALES.md), [providers](MODEL_PROVIDERS.md), and the [run lifecycle](RUNNING.md) before extending the template.

@@ -16,7 +16,7 @@ from llm_reservoir_agent.verification import verify_run
 @pytest.fixture
 def replay_output(tmp_path):
     case_path = tmp_path / "case.json"
-    copyfile(Path(__file__).resolve().parents[1] / "examples/daily_offline/single.json", case_path)
+    copyfile(Path(__file__).resolve().parents[1] / "tests/fixtures/examples/daily_offline/single.json", case_path)
     rows = json.loads(case_path.read_text(encoding="utf-8"))["inflow_records"]
     records = [{"date": row["date"], "release_cms": 1.0} for row in rows]
     records[0] = {"date": rows[0]["date"], "response": {"release_cfs": 12, "reasoning": "fixture"}}
@@ -38,7 +38,7 @@ def test_strict_offline_accepts_saved_recorded_responses(replay_output):
 
 
 def test_strict_offline_preserves_audit_binding_for_replay(tmp_path):
-    cases = Path(__file__).resolve().parents[1] / "examples/daily_offline"
+    cases = Path(__file__).resolve().parents[1] / "tests/fixtures/examples/daily_offline"
     config, rows = load_case(cases / "single.json", project_root=cases)
     records = [{"date": row["date"], "release_cms": 1.0, "audit": {"status": "PASS"}} for row in rows]
     backend = AuditedBackend(RecordedResponseBackend(records, data_kind="recorded_llm_response",

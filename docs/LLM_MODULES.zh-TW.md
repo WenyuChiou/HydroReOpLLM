@@ -1,6 +1,6 @@
 # 模型服務與可重現性
 
-系統支援的模型服務轉接器包含 `openai`、`anthropic`、`gemini`、`ollama` 與 `openai_compatible`。每份設定檔皆須明確宣告模型服務供應商、模型 ID，以及最終的 HTTP(S) `base_url`。託管式模型服務通常也會宣告 `api_key_env`。完整範本請參閱 [`templates/coupled/models.yaml`](../templates/coupled/models.yaml)。
+系統支援的模型服務轉接器包含 `openai`、`anthropic`、`gemini`、`ollama` 與 `openai_compatible`。每份設定檔皆須明確宣告模型服務供應商、模型 ID，以及最終的 HTTP(S) `base_url`。託管式模型服務通常也會宣告 `api_key_env`。[F.E. Walter 設定](../examples/fe_walter/README.zh-TW.md)示範一份明確的本機 Ollama 設定檔與具名提示詞。
 
 ## 確切的模型識別
 

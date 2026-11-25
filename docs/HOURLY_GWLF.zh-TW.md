@@ -36,10 +36,4 @@ assert len(flow_cms) == 48
 
 診斷資訊會輸出各時間步的蓄水項、通量項以及水量平衡殘差。請依據研究尺度與精度要求自行檢視殘差大小。核心函式僅會拒絕無效或非有限值的物理狀態。在解讀任何水庫操作比較結果之前，請先以獨立實測資料驗證參數、初始狀態暖機（spinup）、事件記憶假設、逕流與演算結果。
 
-若需檢視完整的檔案型合成示範，請執行。
-
-```powershell
-.\.venv\Scripts\python.exe examples/time_scales/hourly_gwlf_smoke.py --output runs/hourly-gwlf
-```
-
-耦合設定規則請參閱[時間尺度與單位](TIME_SCALES.zh-TW.md)。
+公開範例皆為逐日既有入流案例。將此核心函式連接至水庫案例前，請先建立並驗證個別研究所需的驅動資料。時距規則請參閱[時間尺度與單位](TIME_SCALES.zh-TW.md)。

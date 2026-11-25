@@ -4,34 +4,34 @@
 
 ![Reservoirs and rivers with LLM reservoir operators](https://wenyuchiou.github.io/HydroReOpLLM/assets/branding/cover.png)
 
-HydroReOpLLM builds on HydroCNHS to simulate reservoir operations using prepared inflows or weather data, with rule-based, prescribed, or LLM-based release decisions.
+HydroReOpLLM builds on HydroCNHS to simulate reservoir operations with prepared inflows and prescribed or LLM-based release decisions.
 
 ## Quick start
 
-Run a four-day synthetic single-reservoir case with a prescribed release. The simulation requires no API key. Start in an empty working directory with an active Python 3.12 or newer virtual environment. [Create a virtual environment](https://wenyuchiou.github.io/HydroReOpLLM/GETTING_STARTED.html#install-from-pypi).
+Run the generic prepared-inflow template from this checkout without an API key. Python 3.12 or newer is required.
 
 ```sh
-python -m pip install hydroreopllm
-reservoir-experiment init-examples
-reservoir-experiment check examples/daily_offline/single.yaml
-reservoir-experiment run examples/daily_offline/single.yaml
-reservoir-experiment verify runs/daily-single --require-offline
+git clone https://github.com/WenyuChiou/HydroReOpLLM.git
+cd HydroReOpLLM
+python -m pip install -c environment/requirements-bundled.txt .
+reservoir-experiment check examples/template/experiment.yaml
+reservoir-experiment run examples/template/experiment.yaml
+reservoir-experiment verify runs/prepared-template --require-offline
 ```
 
-Look for `PASS`, 4 days, and `observed_network_calls: 0` in the verification output. Open `runs/daily-single/summary.json` to confirm the run is `COMPLETED` and the final storage of `Lake_1` is **1,345,600 m³**. To repeat the case, [set a new run ID and output path](https://wenyuchiou.github.io/HydroReOpLLM/GETTING_STARTED.html#repeat-a-run).
+Choose a fresh `run_id` and `output` before repeating the template. See the [installation and first-run guide](https://wenyuchiou.github.io/HydroReOpLLM/GETTING_STARTED.html) and [results guide](https://wenyuchiou.github.io/HydroReOpLLM/RESULTS_GUIDE.html).
 
-## Clone and run the notebook
+## Public examples
 
-The PyPI package includes ready-to-run examples. Clone the repository for the notebook and the full collection of examples and templates. [Clone and install HydroReOpLLM](https://wenyuchiou.github.io/HydroReOpLLM/GETTING_STARTED.html#install-from-a-clone) · [Open the notebook tutorial](https://wenyuchiou.github.io/HydroReOpLLM/tutorials/index.html)
+| Entry point | Purpose | Network use |
+| --- | --- | --- |
+| [`examples/template/experiment.yaml`](examples/template/README.md) | Generic synthetic prepared-inflow workflow | None |
+| [`examples/fe_walter/seasonal_target.yaml`](examples/fe_walter/README.md) | F.E. Walter seasonal-target operator with its named system prompt | Local Ollama only when `run --allow-network` is requested |
+| [`examples/fe_walter/dkp.yaml`](examples/fe_walter/README.md) | F.E. Walter Decision Knowledge Package (DKP) operator with its named system prompt | Local Ollama only when `run --allow-network` is requested |
 
-## Choose an example
+[Open the hosted F.E. Walter tutorial](https://wenyuchiou.github.io/HydroReOpLLM/tutorials/index.html).
 
-| What you want to do | Where to start |
-| --- | --- |
-| Trace releases through one reservoir or a connected cascade | [Single-reservoir and cascade examples](https://wenyuchiou.github.io/HydroReOpLLM/examples/daily_offline/index.html) |
-| Run two independent reservoirs driven by weather data, each draining to its own outlet | [Two reservoirs with separate outlets](https://wenyuchiou.github.io/HydroReOpLLM/examples/multiple_reservoirs/index.html) |
-| Run daily, hourly, or fixed-interval simulations | [Time-step examples](https://wenyuchiou.github.io/HydroReOpLLM/examples/time_scales/index.html) |
-| Set up your own case and inspect decisions, storage, and water balance | [Configuration](https://wenyuchiou.github.io/HydroReOpLLM/CONFIGURATION.html) · [Results guide](https://wenyuchiou.github.io/HydroReOpLLM/RESULTS_GUIDE.html) |
+Run `reservoir-experiment check` first. It validates either F.E. Walter configuration without contacting Ollama. The included inflows are synthetic teaching inputs; model outputs and article results are not bundled.
 
 ## Tests and license
 

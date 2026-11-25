@@ -1,30 +1,11 @@
 # 水庫網路
 
-完整的合成雙水庫水系範例請見 [`examples/multiple_reservoirs`](../examples/multiple_reservoirs/README.zh-TW.md)。
+水系案例可包含單一水庫、串聯水庫、平行支線、匯流點或多個出口。公開的[通用範本](../examples/template/README.zh-TW.md)示範使用既有入流資料的雙庫水系。F.E. Walter 範例則固定為單一水庫，方便在相同物理案例下比較提示詞差異。
 
-![單庫、三庫串聯與雙水庫各自出流水系拓撲比較圖](assets/diagrams/example-topologies.svg)
+每座受控水庫皆須有唯一的水庫識別碼、一個入流節點、物理庫容與放流限制，以及且僅有一名操作員。每筆連線須宣告 `source` 與 `target`；選填的 `fraction` 可分配出流量，`unit_hydrograph` 權重則可延遲演算。所有終端節點必須與 `network.outlets` 完全一致。
 
-- **單庫（`examples/daily_offline/single.yaml`）**：單一受控水庫 `Lake_1` 接收既定入流 `local_1` 並排往 `outlet`。
-- **三庫串聯（`examples/daily_offline/cascade.yaml`）**：三座水庫依序串接（`Lake_1 → Lake_2 → Lake_3 → outlet`），含 1 日河道演算延時。
-- **雙水庫各自出流（`examples/multiple_reservoirs/`）**：兩條平行獨立的集水區與水庫（`basin_a → lake_a → river_a` 與 `basin_b → lake_b → river_b`），彼此無水力串接。
+使用既有入流資料時，每個日期與節點都必須有數值。這些數值是時段平均的區域入流量，不含上游水庫演算而來的水量。水庫總入流量為區域入流量加上先前連線所演算抵達的水量。
 
-系統必須滿足以下核心不變條件：
+每個時間步的操作員皆依固定順序執行。在其他水庫完成該期轉換前，操作員無法取得其同一期資訊。若操作員需要符合因果時序的觀測、預報或已提交模擬狀態，請設定明確的[決策時資訊](INFORMATION.zh-TW.md)。
 
-- 每個水庫鍵值、物理 `reservoir_id`、操作員指派與入流量繫結皆須唯一且彼此一致。
-- 每座受控水庫皆配有一名操作員與獨立的決策歷史紀錄。
-- 區域入流量不含透過連線由上游流入的水量。
-- 同一來源的各條出流分配比例總和須為 1。
-- 終端節點必須與 `outlets` 完全一致。
-- 演算權重皆須為非負值，且總和為 1。
-
-若採用既有入流資料，CSV 須包含所有日期與節點，並使用標頭 `date,node,local_inflow_cms`。若採用原生水文模式，則由 `inflow_bindings` 將模式流量對應至水系的各個入流節點。下游節點僅應承接額外的區域逕流。若同時重複計入上游放流量，將造成水量重複計算。
-
-切換至 LLM 版本前，請先執行預設的規則式範例以確認設定正確。
-
-```powershell
-reservoir-experiment check examples/multiple_reservoirs/experiment.yaml
-reservoir-experiment run examples/multiple_reservoirs/experiment.yaml
-reservoir-experiment verify runs/independent-rivers-rule --require-offline
-```
-
-首次執行會在 `runs/independent-rivers-rule/` 建立耦合前處理結果，並將水庫操作紀錄寫入其 `operation/` 子目錄。比較各節點結果前，請先參閱[結果檢視指南](RESULTS_GUIDE.zh-TW.md)。
+修改識別碼、連線、比例、延遲、操作員或出口後，請執行 `reservoir-experiment check path/to/experiment.yaml`。設定檢查通過僅代表結構有效，不代表水文模式已完成率定或操作策略具備良好表現。

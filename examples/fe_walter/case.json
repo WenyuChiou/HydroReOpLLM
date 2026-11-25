@@ -1,0 +1,86 @@
+{
+  "schema_version": "llm-reservoir-network-case.v1",
+  "data_kind": "synthetic_fixture",
+  "network": {
+    "schema_version": "llm-reservoir-network.v2",
+    "data_kind": "synthetic_fixture",
+    "start_date": "2026-05-01",
+    "reservoirs": {
+      "FEWalter": {
+        "inflow_node": "walter_inflow",
+        "physical": {
+          "reservoir_id": "FEWalter",
+          "capacity_m3": 135534500,
+          "dead_storage_m3": 0,
+          "initial_storage_m3": 25000000,
+          "minimum_release_cms": 1.4158423296,
+          "maximum_release_cms": 283.16846592,
+          "dt_seconds": 86400
+        }
+      }
+    },
+    "connections": [
+      {
+        "source": "FEWalter",
+        "target": "walter_outlet",
+        "unit_hydrograph": [
+          1.0
+        ]
+      }
+    ],
+    "outlets": [
+      "walter_outlet"
+    ]
+  },
+  "inflow_records": [
+    {
+      "date": "2026-05-01",
+      "local_inflow_cms": {
+        "walter_inflow": 8,
+        "walter_outlet": 0.0
+      }
+    },
+    {
+      "date": "2026-05-02",
+      "local_inflow_cms": {
+        "walter_inflow": 8.5,
+        "walter_outlet": 0.0
+      }
+    },
+    {
+      "date": "2026-05-03",
+      "local_inflow_cms": {
+        "walter_inflow": 13,
+        "walter_outlet": 0.0
+      }
+    },
+    {
+      "date": "2026-05-04",
+      "local_inflow_cms": {
+        "walter_inflow": 22,
+        "walter_outlet": 0.0
+      }
+    },
+    {
+      "date": "2026-05-05",
+      "local_inflow_cms": {
+        "walter_inflow": 10,
+        "walter_outlet": 0.0
+      }
+    },
+    {
+      "date": "2026-05-06",
+      "local_inflow_cms": {
+        "walter_inflow": 7,
+        "walter_outlet": 0.0
+      }
+    },
+    {
+      "date": "2026-05-07",
+      "local_inflow_cms": {
+        "walter_inflow": 6,
+        "walter_outlet": 0.0
+      }
+    }
+  ]
+}
