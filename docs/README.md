@@ -1,31 +1,46 @@
-# HydroReOpLLM documentation
+# HydroReOpLLM User Manual
 
-![Reservoirs and rivers with LLM reservoir operators](assets/branding/cover.png)
+![HydroReOpLLM reservoir operators and their catchments](assets/branding/cover.png)
 
-[繁體中文使用手冊](README.zh-TW.md)
+Build a reservoir experiment with prepared inflows or a HydroCNHS catchment model. Start with a prescribed release, inspect its water balance, then choose the operating policy for your own case.
 
-Return to the [project README](../README.md), or follow this compact path:
+[Install and run your first case](GETTING_STARTED.md) · [Browse the daily examples](../examples/daily_offline/README.md) · [繁體中文手冊](README.zh-TW.md)
 
-1. [Install the package](GETTING_STARTED.md).
-2. [Choose and configure a workflow](CONFIGURATION.md).
-3. [Run, verify, or resume an experiment](RUNNING.md).
-4. Open the [offline synthetic tutorial](../tutorials/README.md).
+## How it works
 
-Focused guides cover [model providers and reproducibility](MODEL_PROVIDERS.md),
-[multiple reservoirs](MULTI_RESERVOIR.md), [time scales and units](TIME_SCALES.md),
-and [native HydroCNHS/GWLF setup](HYDROLOGY_SETUP.md). All bundled examples use
-invented data and are teaching fixtures rather than calibrated studies.
+A prepared file supplies local inflow directly. In a coupled case, HydroCNHS runs first and saves inflow for the operating period. At each step, an operator requests a release. The physical model applies the available water and outlet limits, updates storage and spill, and routes flow through the reservoir network. Verification reads the saved decisions and water balance. Assess agreement with observations separately when interpreting a real study.
 
-## Build this site locally
+![Daily workflow from configuration through prepared inflow, reservoir operation and verification](assets/simulation-stages.png)
 
-From the repository root, install the isolated documentation dependency and
-build the site:
+## Read in order
 
-```powershell
+| Chapter | What you will do |
+| --- | --- |
+| [Installation](GETTING_STARTED.md) and [first tutorial](../tutorials/README.md) | Install the software, run four synthetic days and inspect the final storage. |
+| [Configuration files](CONFIGURATION.md) | Set the experiment window, input files, operator and output directory. |
+| [Prepared inflows](../templates/prepared/README.md) or [hydrology](HYDROLOGY_SETUP.md) | Supply local flows, or generate them from weather and a native model using the [coupled template](../templates/coupled/README.md). |
+| [Reservoir networks](MULTI_RESERVOIR.md) and [time scales](TIME_SCALES.md) | Assign an operator to each reservoir, connect the flow paths and choose the step length. |
+| [Model providers](MODEL_PROVIDERS.md) and [available information](INFORMATION.md) | Decide what an LLM can see and record the identity of the model used. |
+| [Run and verify](RUNNING.md) | Check the configuration, prepare inputs, complete operations and verify the saved run. |
+| [Read the results](RESULTS_GUIDE.md) | Compare requested and actual releases, storage and downstream flow. |
+
+## Choose an example
+
+| Example | Input and question |
+| --- | --- |
+| [One reservoir and a cascade](../examples/daily_offline/README.md) | How does a prescribed release affect downstream storage when reservoirs are connected? |
+| [Independent reservoirs](../examples/multiple_reservoirs/README.md) | How do weather-driven inflows reach two reservoirs with separate operators? |
+| [Daily, hourly and fixed intervals](../examples/time_scales/README.md) | How do timestamps, average flow and interval volumes change with step length? |
+| [MOSART-Urban rule](../examples/rules/mosart_urban/README.md) | How do you replace the operating rule while keeping the physical case? |
+
+Each example uses synthetic inputs. For a new basin, start with the [coupled case template](../templates/coupled/README.md). For unexpected run behavior, see [troubleshooting](TROUBLESHOOTING.md).
+
+## Read the manual offline
+
+From an installed Git checkout, build the site and open `site/index.html` in a browser. For full-text search, serve that folder over local HTTP and open `http://127.0.0.1:8000/`.
+
+```sh
 python -m pip install -r requirements-docs.txt
 python scripts/build_docs.py
+python -m http.server 8000 --directory site --bind 127.0.0.1
 ```
-
-Open `site/index.html` directly in a browser. The build uses only the Markdown
-guides and an explicit allowlist of public synthetic example documentation; it
-does not install or run the scientific package.

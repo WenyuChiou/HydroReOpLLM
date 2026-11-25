@@ -9,24 +9,37 @@ extra_css:
   - assets/branding/branding.css
 theme:
   name: mkdocs
+  custom_dir: docs/theme
+  nav_style: light
   highlightjs: false
 nav:
-  - Home: index.md
-  - 繁體中文使用手冊: zh-TW.md
-  - Getting started: GETTING_STARTED.md
-  - Configuration: CONFIGURATION.md
-  - Run and resume: RUNNING.md
-  - Model providers: MODEL_PROVIDERS.md
-  - Multiple reservoirs: MULTI_RESERVOIR.md
-  - Time scales: TIME_SCALES.md
-  - HydroCNHS setup: HYDROLOGY_SETUP.md
-  - Hourly GWLF: HOURLY_GWLF.md
-  - Troubleshooting: TROUBLESHOOTING.md
-  - Examples:
+  - User manual: index.md
+  - Start:
+      - Installation: GETTING_STARTED.md
       - Offline tutorial: tutorials/index.md
-      - Daily offline: examples/daily_offline/index.md
-      - Multiple reservoirs: examples/multiple_reservoirs/index.md
-      - Time scales: examples/time_scales/index.md
-      - MOSART-Urban rule: examples/rules/mosart_urban/index.md
+  - Configure:
+      - Configuration files: CONFIGURATION.md
       - Prepared inflows: starters/prepared/index.md
-      - Coupled simulation: starters/coupled/index.md
+      - Hydrology: HYDROLOGY_SETUP.md
+      - Coupled template: starters/coupled/index.md
+      - Reservoir networks: MULTI_RESERVOIR.md
+      - Time scales and units: TIME_SCALES.md
+      - Model providers: MODEL_PROVIDERS.md
+      - Available information: INFORMATION.md
+  - Run and inspect:
+      - Run, verify and resume: RUNNING.md
+      - Read the results: RESULTS_GUIDE.md
+  - Complete examples:
+      - One reservoir and a cascade: examples/daily_offline/index.md
+      - Independent reservoirs: examples/multiple_reservoirs/index.md
+      - Time-step examples: examples/time_scales/index.md
+      - MOSART-Urban rule: examples/rules/mosart_urban/index.md
+  - Help and reference:
+      - Hourly GWLF: HOURLY_GWLF.md
+      - Troubleshooting: TROUBLESHOOTING.md
+  - 繁體中文:
+      - 手冊首頁: zh-TW.md
+      - 水庫與水流網路: BUILD_SIMULATION.zh-TW.md
+      - 操作策略與模型: LLM_MODULES.zh-TW.md
+      - 決策資訊: INFORMATION.zh-TW.md
+      - 執行與讀取結果: RESULTS_GUIDE.zh-TW.md

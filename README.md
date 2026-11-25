@@ -6,6 +6,17 @@
 
 HydroReOpLLM simulates reservoir operations from time series of local inflow or weather forcing. A reservoir operator proposes a release. The physical model applies storage and release limits, routes water downstream, and records the decision and water balance for each time step. Operators can use a rule, a prescribed action, or an LLM with local operating guidance.
 
+## How a simulation works
+
+HydroCNHS can calculate local inflow from weather, or you can supply prepared flows directly. Within each step, the operator reads the available state and operating guidance and requests a release. The physical model computes the actual release, spill and end storage. In a connected network, upstream outflow feeds downstream nodes.
+
+| To try | Start here |
+| --- | --- |
+| Trace a prescribed release through one reservoir and a cascade | [Daily examples](https://wenyuchiou.github.io/HydroReOpLLM/examples/daily_offline/index.html) |
+| Generate weather-driven inflows for two independently operated reservoirs | [Coupled example](https://wenyuchiou.github.io/HydroReOpLLM/examples/multiple_reservoirs/index.html) |
+| Decide what a model sees and preserve its identity | [Available information](https://wenyuchiou.github.io/HydroReOpLLM/INFORMATION.html) and [model providers](https://wenyuchiou.github.io/HydroReOpLLM/MODEL_PROVIDERS.html) |
+| Set up your own case and interpret its output | [Configuration](https://wenyuchiou.github.io/HydroReOpLLM/CONFIGURATION.html) and [results guide](https://wenyuchiou.github.io/HydroReOpLLM/RESULTS_GUIDE.html) |
+
 ## Install the Python package
 
 In an active Python 3.12 virtual environment, install the published package from PyPI.

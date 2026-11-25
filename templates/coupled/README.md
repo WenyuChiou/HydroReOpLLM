@@ -19,8 +19,14 @@ placeholder values that do not satisfy the runtime contract.
 | `extensions/user_registered_rule/__init__.py` | Minimal user rule package |
 
 The default `experiment.yaml` selects `agents.rule.yaml`. After that path
-checks and verifies, change the `agents.file` reference to `agents.llm.yaml` to
+checks, runs, and verifies, change the `agents.file` reference to `agents.llm.yaml` to
 use the LLM operator. The commands are documented in
 [`docs/RUNNING.md`](../../docs/RUNNING.md).
+The starter contains `YOUR_` placeholders, so it is a copy-and-fill template;
+it is not a runnable case until every placeholder is replaced with a real study
+value or path. The rule-based branch is the default validation path and requires
+no provider access. `information.yaml` is optional operator context; read the
+[decision-time information guide](../../docs/INFORMATION.md) before binding its
+profile to an agent.
 If you already have prepared inflow series instead of a HydroCNHS model, use
 [`../prepared/README.md`](../prepared/README.md).

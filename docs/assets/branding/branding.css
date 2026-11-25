@@ -1,10 +1,35 @@
-.navbar-brand::before {
-    content: "";
-    display: inline-block;
-    width: 2rem;
-    height: 2rem;
-    margin-inline-end: .45rem;
-    vertical-align: middle;
-    border-radius: 50%;
-    background: white url("logo.svg") center / 85% no-repeat;
+:root { --ink: #173334; --muted: #52686a; --teal: #096c70; --line: #dce6e5; }
+body { color: var(--ink); background: white; font-family: Arial, "Microsoft JhengHei", sans-serif; line-height: 1.65; padding-top: 0; }
+body::before { display: none; }
+body > .container, .navbar .container { max-width: 1280px; }
+.navbar { background: white !important; border-bottom: 1px solid var(--line); box-shadow: none; }
+.navbar .nav-link, .navbar .navbar-brand { color: var(--ink); }
+.navbar .nav-link:hover, main a { color: var(--teal); }
+.masthead-brand { display: flex; align-items: center; gap: .55rem; font-weight: 700; }
+.masthead-brand img { border: 1px solid var(--line); border-radius: 50%; padding: 3px; }
+.manual-layout { display: grid; grid-template-columns: 248px minmax(0, 1fr); gap: clamp(1rem, 3vw, 3rem); align-items: start; margin-top: 1rem; }
+.manual-layout aside { position: sticky; top: 5rem; max-height: calc(100vh - 6rem); overflow-y: auto; border-right: 1px solid var(--line); }
+#chapters { padding: .25rem .8rem 1.25rem 0; }
+#chapters p, .chapter-section { color: var(--muted); margin: 1rem 0 .25rem; font-weight: 700; }
+#chapters a { display: block; padding: .25rem .65rem; color: var(--ink); border-radius: 4px; text-decoration: none; }
+#chapters a:hover, #chapters [aria-current] { color: var(--teal); background: #eaf4f3; }
+#chapters [aria-current] { font-weight: 700; }
+#manual-content { max-width: 920px; min-width: 0; padding-bottom: 2rem; }
+main h1, main h2, main h3 { color: var(--ink); font-weight: 650; line-height: 1.25; scroll-margin-top: 5rem; }
+main h1 { margin: .5rem 0 1rem; font-size: clamp(2rem, 4vw, 2.8rem); }
+main h2 { margin-top: 1.8rem; font-size: 1.6rem; }
+main h3 { margin-top: 1.4rem; font-size: 1.23rem; }
+main img { max-width: 100%; height: auto; padding: 0; background: transparent; border: none; border-radius: 0; }
+main p, main li, main td { overflow-wrap: anywhere; }
+main pre { overflow-x: auto; padding: .8rem 1rem; border: 1px solid var(--line); }
+main table { display: block; overflow-x: auto; }
+main td, main th { padding: .45rem .65rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+.on-this-page { color: var(--muted); font-size: .95rem; margin-bottom: .65rem; }
+.on-this-page a { display: block; }
+.chapter-turn { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 1rem; padding: 1.25rem 0; margin-top: 2rem; border-top: 1px solid var(--line); }
+.chapter-turn a[rel="next"] { margin-inline-start: auto; }
+.chapters-toggle { padding: .4rem .8rem; background: white; color: var(--teal); border: 1px solid var(--line); border-radius: 4px; }
+@media (max-width: 767.98px) {
+  .manual-layout { display: block; }
+  .manual-layout aside { position: static; max-height: none; border: none; padding: .25rem 0 .75rem; }
 }

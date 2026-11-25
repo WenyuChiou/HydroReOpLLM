@@ -29,9 +29,16 @@ SAFE_FILES = {
     "docs/assets/branding/docs-badge-en.svg": "assets/branding/docs-badge-en.svg",
     "docs/assets/branding/docs-badge-zh-TW.svg": "assets/branding/docs-badge-zh-TW.svg",
     "docs/assets/branding/branding.css": "assets/branding/branding.css",
+    "docs/BUILD_SIMULATION.zh-TW.md": "BUILD_SIMULATION.zh-TW.md",
+    "docs/LLM_MODULES.zh-TW.md": "LLM_MODULES.zh-TW.md",
+    "docs/INFORMATION.zh-TW.md": "INFORMATION.zh-TW.md",
+    "docs/RESULTS_GUIDE.zh-TW.md": "RESULTS_GUIDE.zh-TW.md",
     "docs/README.zh-TW.md": "zh-TW.md",
     "docs/GETTING_STARTED.md": "GETTING_STARTED.md",
     "docs/CONFIGURATION.md": "CONFIGURATION.md",
+    "docs/INFORMATION.md": "INFORMATION.md",
+    "docs/RESULTS_GUIDE.md": "RESULTS_GUIDE.md",
+    "docs/assets/simulation-stages.png": "assets/simulation-stages.png",
     "docs/RUNNING.md": "RUNNING.md",
     "docs/MODEL_PROVIDERS.md": "MODEL_PROVIDERS.md",
     "docs/MULTI_RESERVOIR.md": "MULTI_RESERVOIR.md",
@@ -91,7 +98,9 @@ class _LinkCollector(HTMLParser):
         values = dict(attrs)
         if values.get("id"):
             self.anchors.add(values["id"] or "")
-        if tag == "a" and values.get("href"):
+        if tag == "img" and values.get("src"):
+            self.hrefs.append(values["src"] or "")
+        if tag in {"a", "link"} and values.get("href"):
             self.hrefs.append(values["href"] or "")
 
 

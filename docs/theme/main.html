@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block site_name %}
+<a class="visually-hidden-focusable" href="#manual-content">Skip to content</a>
+<a class="navbar-brand masthead-brand" href="{{ nav.homepage.url|url }}"><img src="{{ 'assets/branding/logo.svg'|url }}" width="38" height="38" alt=""> HydroReOpLLM</a>
+{% endblock %}
+{% block site_nav %}
+<ul class="nav navbar-nav">
+    <li><a class="nav-link" href="{{ 'index.html'|url }}" lang="en">English manual</a></li>
+    <li><a class="nav-link" href="{{ 'zh-TW.html'|url }}" lang="zh-Hant">繁體中文手冊</a></li>
+    <li><a class="nav-link" href="https://github.com/WenyuChiou/HydroReOpLLM">GitHub</a></li>
+</ul>
+{% endblock %}
+{% macro chapter_links(page) %}
+      {% if page.previous_page and page.previous_page.file.src_uri.endswith('zh-TW.md') == page.file.src_uri.endswith('zh-TW.md') %}<a rel="prev" href="{{ page.previous_page.url|url }}">← {{ page.previous_page.title }}</a>{% endif %}
+      {% if page.next_page and page.next_page.file.src_uri.endswith('zh-TW.md') == page.file.src_uri.endswith('zh-TW.md') %}<a rel="next" href="{{ page.next_page.url|url }}">{{ page.next_page.title }} →</a>{% endif %}
+{% endmacro %}
+{% block next_prev %}
+    {# The bundled MkDocs keyboard handler looks up relative links inside .navbar. #}
+    {% if page %}<li hidden>{{ chapter_links(page) }}</li>{% endif %}
+{% endblock %}
+{% block content %}
+{% if page %}
+{% set chinese = page.file.src_uri.endswith('zh-TW.md') %}
+<div class="manual-layout">
+  <aside>
+    <button type="button" class="chapters-toggle d-md-none" data-bs-toggle="collapse" data-bs-target="#chapters" aria-expanded="false" aria-controls="chapters">{{ '章節目錄' if chinese else 'Chapters' }}</button>
+    <nav id="chapters" class="collapse d-md-block" aria-label="Chapters">
+      {% for section in nav %}
+        {% if section.is_section %}
+          <p>{{ section.title }}</p>
+          {% for item in section.children %}
+          <a href="{{ item.url|url }}"{% if item.active %} aria-current="page"{% endif %}>{{ item.title }}</a>
+          {% endfor %}
+        {% else %}
+          <a href="{{ section.url|url }}"{% if section.active %} aria-current="page"{% endif %}>{{ section.title }}</a>
+        {% endif %}
+      {% endfor %}
+    </nav>
+  </aside>
+  <main id="manual-content" lang="{{ 'zh-Hant' if chinese else 'en' }}">
+    {% if page.parent %}<p class="chapter-section">{{ page.parent.title }}</p>{% endif %}
+    {% if page.toc and page.toc.items[0].children %}
+    <details class="on-this-page"><summary>{{ '本頁段落' if chinese else 'In this chapter' }}</summary>
+      {% for heading in page.toc.items[0].children %}<a href="{{ heading.url }}">{{ heading.title }}</a>{% endfor %}
+    </details>
+    {% endif %}
+    {{ page.content }}
+    <nav class="chapter-turn" aria-label="Chapter navigation">
+
+      {{ chapter_links(page) }}
+    </nav>
+  </main>
+</div>
+{% endif %}
+{% endblock %}
+{% block footer %}{% endblock %}

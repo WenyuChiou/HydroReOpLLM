@@ -23,6 +23,9 @@ reservoir-experiment verify runs/prepared-template
 `end_date`, inclusive) and ends with 5,808,000 m3 in `upper` and 1,000,000 m3
 (full, spilling) in `lower`. The window may be a subset of the inflow record;
 `initial_storage_m3` applies on the first operated day, not the first CSV day.
+This prepared-inflow workflow writes operation records directly into
+`runs/prepared-template`; it has no `operation/` subdirectory. Start with
+`summary.json`, then follow the [results guide](../../docs/RESULTS_GUIDE.md).
 
 ## Case file fields (`case.json`; JSON has no comments, so replace the values listed)
 
@@ -64,6 +67,9 @@ means `[1.0]`, no delay. A reservoir's output is controlled release plus spill.
 
 **Decision timing.** At each step the operator receives that interval's mean inflow, including routed water.
 This assumes advance knowledge of the daily mean inflow.
+Additional timestamped observations, forecasts, and simulation history are
+available through the coupled information catalog; see
+[`docs/INFORMATION.md`](../../docs/INFORMATION.md).
 
 ## `data_kind` and model calls
 - `synthetic_fixture`: invented or test data. Ready for LLM operators without

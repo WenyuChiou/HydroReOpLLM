@@ -21,4 +21,9 @@ Check the default rule-based example before selecting its LLM variant:
 ```powershell
 reservoir-experiment check examples/multiple_reservoirs/experiment.yaml
 reservoir-experiment run examples/multiple_reservoirs/experiment.yaml
+reservoir-experiment verify runs/independent-rivers-rule --require-offline
 ```
+
+The first run creates a coupled preparation at
+`runs/independent-rivers-rule/` and operation records in its `operation/`
+subdirectory. Read the [results guide](RESULTS_GUIDE.md) before comparing nodes.
