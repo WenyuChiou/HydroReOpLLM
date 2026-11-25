@@ -1,6 +1,6 @@
 # HydroReOpLLM
 
-[![User manual](https://wenyuchiou.github.io/HydroReOpLLM/assets/branding/docs-badge-en.svg)](https://wenyuchiou.github.io/HydroReOpLLM/)
+[![User manual](https://wenyuchiou.github.io/HydroReOpLLM/assets/branding/docs-badge-en.svg)](https://wenyuchiou.github.io/HydroReOpLLM/) · [繁體中文](README.zh-TW.md)
 
 ![Reservoirs and rivers with LLM reservoir operators](https://wenyuchiou.github.io/HydroReOpLLM/assets/branding/cover.png)
 
@@ -12,11 +12,7 @@ Run a four-day synthetic single-reservoir case with a prescribed release. The si
 
 ```sh
 python -m pip install hydroreopllm
-python -c "from pathlib import Path
-from shutil import copytree
-from sysconfig import get_path
-source = Path(get_path('data')) / 'share/llm-reservoir-agent/examples'
-copytree(source, 'examples')"
+reservoir-experiment init-examples
 reservoir-experiment check examples/daily_offline/single.yaml
 reservoir-experiment run examples/daily_offline/single.yaml
 reservoir-experiment verify runs/daily-single --require-offline

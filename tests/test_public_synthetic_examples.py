@@ -2,6 +2,7 @@
 
 from pathlib import Path
 import shutil
+import tomllib
 
 import pytest
 import yaml
@@ -104,3 +105,33 @@ def test_cli_propagates_unrelated_file_exists_error(tmp_path, monkeypatch):
 
     with pytest.raises(FileExistsError, match="journal stream collision"):
         main(["run", str(examples / "single.yaml")])
+
+
+def test_cli_init_examples_copies_clean_bundle_and_refuses_overwrite(tmp_path, capsys):
+    dest = tmp_path / "examples"
+    assert main(["init-examples", str(dest)]) == 0
+    payload = yaml.safe_load(capsys.readouterr().out)
+    assert Path(payload["destination"]) == dest.resolve()
+    assert (dest / "daily_offline" / "single.yaml").is_file()
+    assert (dest / "time_scales" / "hourly.yaml").is_file()
+    assert not list(dest.rglob("__pycache__"))
+
+    assert main(["init-examples", str(dest)]) == 1
+    captured = capsys.readouterr()
+    assert captured.out == ""
+    assert str(dest) in captured.err
+    assert "Traceback" not in captured.err
+
+
+def test_pyproject_data_files_cover_time_scales_and_existing_paths():
+    pyproject = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
+    data_files = pyproject["tool"]["setuptools"]["data-files"]
+    packaged = set()
+    for paths in data_files.values():
+        for rel in paths:
+            assert (ROOT / rel).is_file(), f"missing data-file: {rel}"
+            packaged.add(rel)
+    assert "examples/time_scales/daily.yaml" in packaged
+    assert "examples/time_scales/hourly.yaml" in packaged
+    assert "examples/time_scales/fixed_interval.yaml" in packaged
+    assert "examples/README.zh-TW.md" in packaged

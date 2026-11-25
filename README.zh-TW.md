@@ -12,11 +12,7 @@ HydroReOpLLM 以 HydroCNHS 為基礎，使用既有入流資料或氣象資料�
 
 ```sh
 python -m pip install hydroreopllm
-python -c "from pathlib import Path
-from shutil import copytree
-from sysconfig import get_path
-source = Path(get_path('data')) / 'share/llm-reservoir-agent/examples'
-copytree(source, 'examples')"
+reservoir-experiment init-examples
 reservoir-experiment check examples/daily_offline/single.yaml
 reservoir-experiment run examples/daily_offline/single.yaml
 reservoir-experiment verify runs/daily-single --require-offline

@@ -19,7 +19,9 @@ from datetime import date
 import errno
 import hashlib
 import json
+import shutil
 import sys
+import sysconfig
 from pathlib import Path
 from string import Template
 
@@ -799,10 +801,23 @@ def verify_settings_output(settings, *, runtime_root=PROJECT_ROOT, information_p
     return verify_run(output, require_offline=True)
 
 
-def main(argv=None):
-    """Dispatch check, prepare, run, verify or resume from the command line.
+def _find_bundled_examples():
+    """Locate bundled synthetic examples in the installed environment or checkout."""
+    candidates = [
+        Path(sysconfig.get_path("data")) / "share" / "llm-reservoir-agent" / "examples",
+        Path(sys.prefix) / "share" / "llm-reservoir-agent" / "examples",
+        PROJECT_ROOT / "examples",
+    ]
+    for candidate in candidates:
+        if (candidate / "daily_offline" / "single.yaml").is_file():
+            return candidate
+    raise FileNotFoundError("bundled examples directory was not found in the active Python environment")
 
-    check reads/pins/previews; prepare writes prepared coupled hydrology; run writes native results; verify reads completed evidence; resume preserves the source and creates a distinct output. Live transport remains an explicit --allow-network choice.
+
+def main(argv=None):
+    """Dispatch check, prepare, run, verify, resume or init-examples from the CLI.
+
+    check reads/pins/previews; prepare writes prepared coupled hydrology; run writes native results; verify reads completed evidence; resume preserves the source and creates a distinct output; init-examples copies bundled examples into a fresh directory. Live transport remains an explicit --allow-network choice.
 
     Parameters
     ----------
@@ -812,7 +827,7 @@ def main(argv=None):
     Returns
     -------
     int
-        Zero after printing a successful JSON report, or one if the run output already exists.
+        Zero after printing a successful JSON report, or one if the destination/output already exists.
 
     Raises
     ------
@@ -833,6 +848,8 @@ def main(argv=None):
     verify = sub.add_parser("verify")
     verify.add_argument("output", type=Path)
     verify.add_argument("--require-offline", action="store_true")
+    init_examples = sub.add_parser("init-examples")
+    init_examples.add_argument("destination", nargs="?", type=Path, default=Path("examples"))
     resume = sub.add_parser("resume")
     resume.add_argument("config", type=Path)
     resume.add_argument("--from-run", type=Path, required=True)
@@ -840,7 +857,26 @@ def main(argv=None):
     resume.add_argument("--run-id", required=True)
     resume.add_argument("--allow-network", action="store_true")
     args = parser.parse_args(argv)
-    if args.command == "verify":
+    if args.command == "init-examples":
+        if args.destination.exists():
+            print(
+                f"Examples destination already exists: {args.destination}\n"
+                "Choose a fresh directory, e.g. reservoir-experiment init-examples my-examples.",
+                file=sys.stderr,
+            )
+            return 1
+        source = _find_bundled_examples()
+        shutil.copytree(
+            source,
+            args.destination,
+            ignore=shutil.ignore_patterns("__pycache__", "*.pyc", "*.pyo"),
+        )
+        result = {
+            "destination": str(args.destination.resolve()),
+            "source": str(source),
+            "first_example": str(args.destination / "daily_offline" / "single.yaml"),
+        }
+    elif args.command == "verify":
         from .verification import verify_run
         result = verify_run(args.output, require_offline=args.require_offline)
     elif args.command == "resume":
