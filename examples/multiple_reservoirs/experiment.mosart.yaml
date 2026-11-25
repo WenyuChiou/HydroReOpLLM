@@ -1,14 +1,16 @@
+# Variant of the two-reservoir coupled study using the MOSART-Urban flood-control rule.
+# Offline deterministic run (max_calls: 0); compare against experiment.yaml (Hanasaki rule).
 schema_version: hydroops-coupled-simulation.v2
-run_id: independent-rivers-mosart
-output: ../../runs/independent-rivers-mosart
-case: reservoirs.yaml
-start_date: '2020-02-28'
-end_date: '2020-03-02'
-max_calls: 0
+run_id: independent-rivers-mosart     # Trace identity; change with output before repeating.
+output: ../../runs/independent-rivers-mosart  # Unused output path, relative to this file.
+case: reservoirs.yaml                 # Shared two-reservoir network definition.
+start_date: '2020-02-28'              # Inclusive operation start date.
+end_date: '2020-03-02'                # Inclusive operation end date.
+max_calls: 0                          # Zero model calls allowed.
 hydrology:
   file: hydrology.yaml
 agents:
-  file: agents.mosart.yaml
+  file: agents.mosart.yaml            # Separate MOSART-Urban controller for lake_a and lake_b.
 auditors:
   file: auditors.yaml
 extensions:

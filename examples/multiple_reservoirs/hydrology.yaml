@@ -1,12 +1,15 @@
-model: synthetic_catchments.yaml
-forcing: forcing.csv
-zero_flow_nodes: []
+# Native HydroCNHS catchment model and climate forcing bindings for the two-reservoir study.
+# `forcing.csv` columns: date, subbasin_id, precipitation_mm (mm), temperature_c (deg C), pet_cm (cm).
+model: synthetic_catchments.yaml      # Native HydroCNHS GWLF+Lohmann catchment YAML.
+forcing: forcing.csv                  # Complete daily forcing table covering 2020-02-27..2020-03-02.
+zero_flow_nodes: []                   # Native outlets with zero local runoff (unused here).
+# One-to-one mapping from every non-reservoir inflow/outlet node in reservoirs.yaml.
 inflow_bindings:
   inlet_a:
-    runoff: basin_a
+    runoff: basin_a                   # Local GWLF runoff from subbasin basin_a.
   inlet_b:
-    runoff: basin_b
+    runoff: basin_b                   # Local GWLF runoff from subbasin basin_b.
   river_a:
-    constant: 0
+    constant: 0                       # Outlet node adds zero lateral runoff.
   river_b:
-    constant: 0
+    constant: 0                       # Outlet node adds zero lateral runoff.

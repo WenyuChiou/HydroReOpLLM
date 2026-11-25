@@ -1,10 +1,11 @@
+# Deterministic MOSART-Urban flood-control controllers for lake_a and lake_b (0 model calls).
 operator_a:
-  reservoir_id: lake_a
+  reservoir_id: lake_a                # Key under reservoirs.yaml network.reservoirs.
   type: rule_based
-  rule: mosart_urban
+  rule: mosart_urban                  # Extension key in experiment.mosart.yaml.
   rule_parameters:
     purpose: flood_control
-    alpha: 0.85
+    alpha: 0.85                       # Protected-storage ceiling = alpha * capacity_m3.
     inflow_statistics_file: statistics_a.json
   auditors: [bounds]
 operator_b:

@@ -1,10 +1,13 @@
+# Coupled synthetic daily example: two independent-outlet reservoirs using Hanasaki rules.
+# No API key or model request is made; see hydrology.yaml, reservoirs.yaml, and agents.rule.yaml.
 schema_version: hydroops-coupled-simulation.v2
-run_id: independent-rivers-rule
-output: ../../runs/independent-rivers-rule
-case: reservoirs.yaml
-start_date: '2020-02-28'
-end_date: '2020-03-02'
-max_calls: null
+run_id: independent-rivers-rule       # Trace identity; change with output before repeating.
+output: ../../runs/independent-rivers-rule  # Unused output path, relative to this file.
+case: reservoirs.yaml                 # Physical two-reservoir network definition.
+start_date: '2020-02-28'              # Inclusive operation start date (inside hydrology window).
+end_date: '2020-03-02'                # Inclusive operation end date.
+max_calls: null                       # No ceiling set; rule_based agents make 0 model calls.
+# Each {file: ...} replaces that entire section (not a deep merge).
 hydrology:
   file: hydrology.yaml
 agents:

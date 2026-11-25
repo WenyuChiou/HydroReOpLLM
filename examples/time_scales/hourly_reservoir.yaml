@@ -1,25 +1,27 @@
+# Physical single-reservoir network for hourly.yaml (network v3 supports sub-daily dt_seconds).
+# Storage values are in m3, flow rates in m3/s, and dt_seconds=3600 (1 hour).
 schema_version: reservoir-physical-case.v1
-data_kind: synthetic_fixture
+data_kind: synthetic_fixture          # Synthetic teaching fixture; not a calibrated basin.
 network:
   schema_version: llm-reservoir-network.v3
-  start_time: '2020-02-28T00:00:00Z'
-  dt_seconds: 3600
+  start_time: '2020-02-28T00:00:00Z'  # Matches hourly.yaml start_time (UTC ISO-8601).
+  dt_seconds: 3600                    # Interval length in seconds (1 hour).
   outlets:
   - Outlet
   reservoirs:
     R:
-      inflow_node: I
+      inflow_node: I                  # Bound to routed basin runoff in hourly.yaml.
       physical:
-        reservoir_id: synthetic_reservoir
-        capacity_m3: 20000000.0
-        dead_storage_m3: 0.0
-        initial_storage_m3: 1000000.0
-        minimum_release_cms: 0.0
-        maximum_release_cms: 100.0
-        dt_seconds: 3600
+        reservoir_id: synthetic_reservoir  # Physical ID recorded in output tables.
+        capacity_m3: 20000000.0       # Maximum storage, m3.
+        dead_storage_m3: 0.0          # Minimum storage floor, m3.
+        initial_storage_m3: 1000000.0 # Initial storage on start_time, m3.
+        minimum_release_cms: 0.0      # Lower controlled-release limit, m3/s.
+        maximum_release_cms: 100.0    # Upper controlled-release limit, m3/s.
+        dt_seconds: 3600              # Step length in seconds.
   connections:
   - source: R
     target: Outlet
-    unit_hydrograph:
+    unit_hydrograph:                  # 1-step routing lag ([0.0, 1.0], dimensionless, sums to 1).
     - 0.0
     - 1.0

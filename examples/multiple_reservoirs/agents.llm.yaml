@@ -1,16 +1,17 @@
+# Mixed operator setup: operator_a uses an LLM with local retrieval; operator_b uses Hanasaki.
 operator_a:
   reservoir_id: lake_a
-  type: llm
-  model_profile: local
-  prompt_file: prompts/operator.txt
+  type: llm                           # Requires --allow-network and a valid model_profile on run.
+  model_profile: local                # Profile key in models.yaml (Ollama by default).
+  prompt_file: prompts/operator.txt   # User prompt template, relative to this file.
   customization:
     system_prompt_file: prompts/system.txt
-    prompt_version: '1'
+    prompt_version: '1'               # User-assigned version recorded in provenance.
     prompt_variables:
       purpose: demonstrate an independently configured operator
     context_providers:
       guidance:
-        extension: local_retrieval
+        extension: local_retrieval    # Extension key in experiment.llm.yaml.
         config:
           documents: knowledge/guidance.json
         preview: 'Offline preview: use only the supplied state and local operating guidance.'

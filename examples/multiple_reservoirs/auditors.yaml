@@ -1,3 +1,4 @@
+# Diagnostic release-bounds auditor; reports PASS/WARN/FAIL without modifying physical transitions.
 bounds:
   type: release_bounds
   version: '1'

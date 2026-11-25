@@ -1,17 +1,18 @@
-# Source-aligned flood-control rule using the same synthetic single-reservoir case.
+# Source-aligned MOSART-Urban flood-control rule on the synthetic single-reservoir case.
+# Uses v2 schema with a registered extension rule; no API key or model call required.
 schema_version: llm-reservoir-experiment.v2
-case: single.json
-run_id: daily-single-mosart
-output: ../../runs/daily-single-mosart
-max_calls: 0
+case: single.json                    # Prepared local inflows and physical network (relative to this file).
+run_id: daily-single-mosart          # Trace identity; change together with output before repeating.
+output: ../../runs/daily-single-mosart  # Unused output directory, relative to this file.
+max_calls: 0                         # Rule-based operator makes zero model requests.
 extensions:
-  mosart_urban: ../rules/mosart_urban/__init__.py
+  mosart_urban: ../rules/mosart_urban/__init__.py  # Custom rule module path, relative to this file.
 agents:
   operator_1:
-    reservoir_id: Lake_1
-    type: rule_based
-    rule: mosart_urban
+    reservoir_id: Lake_1             # Physical reservoir key in single.json (v2 uses reservoir_id).
+    type: rule_based                 # Deterministic user-registered rule (v2 equivalent of offline/rule).
+    rule: mosart_urban               # Key under extensions above.
     rule_parameters:
-      purpose: flood_control
-      alpha: 0.85
-      mean_inflow_cms: 2.0  # Explicit teaching mean, m3/s.
+      purpose: flood_control         # Operating mode expected by mosart_urban.
+      alpha: 0.85                    # Protected-storage fraction (0.85 * physical capacity).
+      mean_inflow_cms: 2.0           # Explicit teaching historical mean inflow, m3/s.
