@@ -1,8 +1,21 @@
 # HydroReOpLLM
 
-[繁體中文使用手冊](https://wenyuchiou.github.io/HydroReOpLLM/zh-TW.html) · [English manual](https://wenyuchiou.github.io/HydroReOpLLM/) · [English](README.md)
+[![繁體中文使用手冊](https://wenyuchiou.github.io/HydroReOpLLM/assets/branding/docs-badge-zh-TW.svg)](https://wenyuchiou.github.io/HydroReOpLLM/zh-TW.html) · [English manual](https://wenyuchiou.github.io/HydroReOpLLM/) · [English](README.md)
+
+![水庫、河川與 LLM 操作員示意圖](https://wenyuchiou.github.io/HydroReOpLLM/assets/branding/cover.png)
 
 HydroReOpLLM 使用局部入流或氣象時間序列模擬水庫操作。每個時間步先由操作策略提出放流量，再由物理模型套用庫容與放流限制，將水量往下游演算，並記錄決策和水量平衡。操作策略可採用規則、指定放流量，或讀取本地操作指引的 LLM。
+
+## 模擬如何運作
+
+入流可以來自現成的時間序列，也可以由 HydroCNHS 根據氣象資料計算。在每個時間步，操作器讀取可用狀態和操作知識後提出放流量。物理模型執行放流、計算溢流與期末庫容；串聯網路會將上游出流傳給下游節點。
+
+| 想試的功能 | 對應章節 |
+| --- | --- |
+| 追蹤單庫放流如何傳到下一座水庫 | [水庫與水流網路](docs/BUILD_SIMULATION.zh-TW.md) |
+| 從氣象輸入計算兩座水庫的入流 | [雙水庫完整範例](examples/multiple_reservoirs/README.md) |
+| 核對模型看到的資料與使用的模型版本 | [決策資訊](docs/INFORMATION.zh-TW.md)、[操作策略與模型](docs/LLM_MODULES.zh-TW.md) |
+| 確認自己的第一個案例跑對 | [執行與讀取結果](docs/RESULTS_GUIDE.zh-TW.md) |
 
 ## 安裝 Python 套件
 

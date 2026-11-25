@@ -18,11 +18,9 @@ reservoir-experiment run templates/prepared/experiment.yaml
 reservoir-experiment verify runs/prepared-template
 ```
 
-`output` is relative to `experiment.yaml` and must not exist; change it and
-`run_id` for each run. The shipped run operates 10 days (`start_date` to
-`end_date`, inclusive) and ends with 5,808,000 m3 in `upper` and 1,000,000 m3
-(full, spilling) in `lower`. The window may be a subset of the inflow record;
-`initial_storage_m3` applies on the first operated day, not the first CSV day.
+Choose a fresh `output` relative to `experiment.yaml` and a new `run_id` for each run. The shipped case operates for 10 days, from `start_date` through `end_date`.
+Final storage is 5,808,000 m3 in `upper` and 1,000,000 m3 in `lower`, which reaches capacity and spills. For a shorter window, `initial_storage_m3` applies on the first operated day.
+Open `runs/prepared-template/summary.json`. This workflow writes operation records directly to that directory. The [results guide](../../docs/RESULTS_GUIDE.md) explains how to read them.
 
 ## Case file fields (`case.json`; JSON has no comments, so replace the values listed)
 
@@ -62,8 +60,8 @@ Index 0 is the same step, index 1 the next step. Here `upper` to `lower` uses
 `[0.0, 0.7, 0.3]`: 70% arrives one step later, 30% two steps later. Omitting it
 means `[1.0]`, no delay. A reservoir's output is controlled release plus spill.
 
-**Decision timing.** At each step the operator receives that interval's mean inflow, including routed water.
-This assumes advance knowledge of the daily mean inflow.
+**Decision timing.** At each step the operator receives the interval-mean inflow, including routed water. This assumes advance knowledge of the daily mean.
+In coupled cases, use the [information catalog](../../docs/INFORMATION.md) for timestamped observations, forecasts and simulation history.
 
 ## `data_kind` and model calls
 - `synthetic_fixture`: invented or test data. Ready for LLM operators without
