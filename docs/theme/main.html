@@ -3,11 +3,12 @@
 {% block site_name %}
 <a class="visually-hidden-focusable" href="#manual-content">{{ '跳至正文' if chinese else 'Skip to content' }}</a>
 <a class="navbar-brand masthead-brand" href="{{ ('zh-TW.html' if chinese else 'index.html')|url }}"><img src="{{ 'assets/branding/logo.svg'|url }}" width="38" height="38" alt=""> HydroReOpLLM</a>
+<a class="mobile-lang-switch d-md-none" href="{{ (english_url if chinese else chinese_url)|default('index.html' if chinese else 'zh-TW.html')|url }}" lang="{{ 'en' if chinese else 'zh-Hant' }}">{{ 'English' if chinese else '繁體中文' }}</a>
 {% endblock %}
 {% block site_nav %}
 <ul class="nav navbar-nav">
-    <li><a class="nav-link" href="{{ english_url|default('index.html')|url }}" lang="en">English manual</a></li>
-    <li><a class="nav-link" href="{{ chinese_url|default('zh-TW.html')|url }}" lang="zh-Hant">繁體中文手冊</a></li>
+    <li><a class="nav-link" href="{{ english_url|default('index.html')|url }}" lang="en"{% if not chinese %} aria-current="true"{% endif %}>English manual</a></li>
+    <li><a class="nav-link" href="{{ chinese_url|default('zh-TW.html')|url }}" lang="zh-Hant"{% if chinese %} aria-current="true"{% endif %}>繁體中文手冊</a></li>
     <li><a class="nav-link" href="https://github.com/WenyuChiou/HydroReOpLLM">GitHub</a></li>
 </ul>
 {% endblock %}
@@ -39,11 +40,6 @@
   </aside>
   <main id="manual-content" lang="{{ 'zh-Hant' if chinese else 'en' }}">
     {% if page.parent and page.parent.parent %}<p class="chapter-section">{{ page.parent.title }}</p>{% endif %}
-    {% if page.toc and page.toc.items[0].children %}
-    <details class="on-this-page"><summary>{{ '本頁段落' if chinese else 'In this chapter' }}</summary>
-      {% for heading in page.toc.items[0].children %}<a href="{{ heading.url }}">{{ heading.title }}</a>{% endfor %}
-    </details>
-    {% endif %}
     {{ page.content }}
     <nav class="chapter-turn" aria-label="{{ '章節導覽' if chinese else 'Chapter navigation' }}">
 

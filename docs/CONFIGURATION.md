@@ -23,6 +23,16 @@ Configure a study in this order:
 `reservoir-experiment check` resolves and validates this graph without running
 hydrology or contacting a provider.
 
+## Configuration schemas at a glance
+
+Examples and templates use one of three experiment `schema_version` formats depending on whether inflows are prepared in advance or simulated by HydroCNHS:
+
+| `schema_version` | Typical use | Agent keys | Date / clock keys |
+| --- | --- | --- | --- |
+| `llm-reservoir-experiment.v1` | Prepared-inflow single-file cases (`daily_offline/single.yaml`, `templates/prepared`) | `reservoir`, `mode: offline` | `start_date` / `end_date` (or network clock) |
+| `llm-reservoir-experiment.v2` | Prepared-inflow cases with custom rule extensions (`daily_offline/single.mosart.yaml`) | `reservoir_id`, `type: rule_based` | `start_date` / `end_date` |
+| `hydroops-coupled-simulation.v2` | Split-file coupled HydroCNHS + reservoir studies (`multiple_reservoirs`, `templates/coupled`, `time_scales/hourly.yaml`) | `reservoir_id` + `type: rule_based` / `llm` (or `mode: offline`) | `start_date` / `end_date` (daily) or `start_time` / `end_time` (hourly) |
+
 ## Operators
 
 Each controlled reservoir has exactly one operator and independent state.
