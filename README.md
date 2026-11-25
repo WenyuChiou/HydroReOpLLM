@@ -26,13 +26,13 @@ Choose a fresh `run_id` and `output` before repeating the template. See the [ins
 | Entry point | Purpose | Network use |
 | --- | --- | --- |
 | [`examples/template/experiment.yaml`](examples/template/README.md) | Generic synthetic prepared-inflow workflow | None |
-| [`examples/fe_walter/rule_based.yaml`](examples/fe_walter/README.md) | F.E. Walter offline Hanasaki rule | None |
-| [`examples/fe_walter/seasonal_target.yaml`](examples/fe_walter/README.md) | F.E. Walter **Without operational knowledge** (Seasonal Target) | Local Ollama only when `run --allow-network` is requested |
-| [`examples/fe_walter/dkp.yaml`](examples/fe_walter/README.md) | F.E. Walter **With operational knowledge** (DKP) | Local Ollama only when `run --allow-network` is requested |
+| [`examples/fe_walter/rule_based.yaml`](examples/fe_walter/README.md) | F.E. Walter offline MOSART-Urban rule | None |
+| [`examples/fe_walter/seasonal_target.yaml`](examples/fe_walter/README.md) | F.E. Walter **Without operational knowledge** (Seasonal Target) | Local Ollama through the study launcher |
+| [`examples/fe_walter/dkp.yaml`](examples/fe_walter/README.md) | F.E. Walter **With operational knowledge** (DKP) | Local Ollama through the study launcher |
 
 [Open the hosted F.E. Walter tutorial](https://wenyuchiou.github.io/HydroReOpLLM/tutorials/index.html).
 
-Run `reservoir-experiment check` first. It validates all three F.E. Walter configurations without contacting Ollama. The three F.E. Walter configurations use the study's prepared 2021–2025 inflows and start with a seven-day tutorial run. The [case guide](examples/fe_walter/README.md) explains how to run the full period with the public prompts and simulator.
+Run `reservoir-experiment check` first. It validates all three F.E. Walter configurations without contacting Ollama. The three F.E. Walter configurations use the study's prepared 2021–2025 inflows and start with a seven-day tutorial run. The [case guide](examples/fe_walter/README.md) shows how to reproduce the published scores offline and restore the exact model for new runs.
 
 ## Tests and license
 

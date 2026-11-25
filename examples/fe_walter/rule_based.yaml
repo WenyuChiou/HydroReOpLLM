@@ -1,6 +1,6 @@
-# Offline Hanasaki rule using F.E. Walter study inputs and the pre-study inflow climatology.
+# MOSART-Urban rule and reservoir settings used in the paper.
 schema_version: llm-reservoir-experiment.v1
-case: case.json
+case: rule_case.json
 run_id: fe-walter-rule-based
 output: ../../runs/fe-walter-rule-based
 start_date: '2021-01-01'
@@ -14,9 +14,13 @@ agents:
   walter_operator:
     reservoir: FEWalter
     mode: offline
-    strategy: benchmark
-    benchmark:
-      statistics: rule_statistics.json
+    strategy: mosart_urban
+    auditors:
+    - release_bounds
+    agent_type: rule_based
+    rule_parameters:
       purpose: flood_control
       alpha: 0.85
-    auditors: [release_bounds]
+      inflow_statistics_file: rule_statistics.json
+extensions:
+  mosart_urban: study/rule/__init__.py

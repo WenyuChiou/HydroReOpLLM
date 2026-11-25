@@ -67,7 +67,7 @@ reservoir-experiment check examples/fe_walter/seasonal_target.yaml
 reservoir-experiment check examples/fe_walter/dkp.yaml
 ```
 
-Run the rule-based configuration with `reservoir-experiment run examples/fe_walter/rule_based.yaml`. For either LLM configuration, start Ollama with the configured `gemma4:12b` model and use `reservoir-experiment run <yaml> --allow-network`. The [F.E. Walter guide](../examples/fe_walter/README.md) links the prompts and explains the full study window.
+Run the rule-based configuration with `reservoir-experiment run examples/fe_walter/rule_based.yaml`. For either LLM configuration, follow the study guide to restore the pinned Ollama model and run the study launcher. The [F.E. Walter guide](../examples/fe_walter/README.md) links the prompts and explains the full study window.
 
 ## Repeat a run
 

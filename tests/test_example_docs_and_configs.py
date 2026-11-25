@@ -10,7 +10,7 @@ import yaml
 from llm_reservoir_agent.coupled import load_coupled_settings
 from llm_reservoir_agent.verification import verify_run
 from llm_reservoir_agent.workflow import load_settings, run_settings
-from tests.reservoir_fixtures import copy_coupled_fixture
+from tests.reservoir_fixtures import copy_coupled_fixture, walter_study_reply
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -67,10 +67,7 @@ def test_walter_examples_pin_and_use_the_documented_prompts(tmp_path, case_name)
             "model": "gemma4:12b",
             "done": True,
             "done_reason": "stop",
-            "message": {"role": "assistant", "content": json.dumps({
-                "schema_version": "reservoir-action.v1",
-                "release_cms": 8.0,
-            })},
+            "message": {"role": "assistant", "content": json.dumps(walter_study_reply(payload["format"]))},
         }
 
     assert settings.report["planned_llm_calls"] == 7
@@ -87,9 +84,11 @@ def test_walter_examples_pin_and_use_the_documented_prompts(tmp_path, case_name)
     full_check = load_settings(config).report
     assert full_check["days"] == full_check["planned_llm_calls"] == 1826
     assert full_check["network_calls"] == 0
+    first_message = (example / "prompts" / f"{case_name}.user.txt").read_text(encoding="utf-8")
+    assert sent[0][1]["content"] == first_message.rstrip("\n")
     for messages in sent:
         assert messages[0]["role"] == "system"
         assert messages[0]["content"].strip() == system_prompt
         assert messages[1]["role"] == "user"
-        assert "Previous completed transition" in messages[1]["content"]
+        assert "Previous simulated release decisions" in messages[1]["content"]
         assert ("R-MINNORM" in messages[1]["content"]) == (case_name == "dkp")

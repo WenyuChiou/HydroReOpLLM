@@ -67,6 +67,7 @@ hydrocnhs = ["Config_logging.yaml"]
     "examples/fe_walter/README.md",
     "examples/fe_walter/README.zh-TW.md",
     "examples/fe_walter/case.json",
+    "examples/fe_walter/rule_case.json",
     "examples/fe_walter/inflows.csv",
     "examples/fe_walter/rule_based.yaml",
     "examples/fe_walter/rule_reference_inflow_1996_2015.csv",
@@ -81,4 +82,18 @@ hydrocnhs = ["Config_logging.yaml"]
     "examples/fe_walter/prompts/dkp.system.txt",
     "examples/fe_walter/prompts/dkp.user.txt",
 ]
+"share/llm-reservoir-agent/examples/fe_walter/study" = [
+    "examples/fe_walter/study/__init__.py",
+    "examples/fe_walter/study/formatter.py",
+    "examples/fe_walter/study/elevation_storage.csv",
+    "examples/fe_walter/study/response_schemas.json",
+    "examples/fe_walter/study/ollama-manifest.json",
+    "examples/fe_walter/study/model.py",
+    "examples/fe_walter/study/run.py",
+    "examples/fe_walter/study/replay.py",
+    "examples/fe_walter/study/archived_releases.csv",
+    "examples/fe_walter/study/observations.csv",
+    "examples/fe_walter/study/expected_scores.csv",
+]
+"share/llm-reservoir-agent/examples/fe_walter/study/rule" = ["examples/fe_walter/study/rule/__init__.py"]
 "share/llm-reservoir-agent" = ["THIRD_PARTY_NOTICES.md"]

@@ -1,11 +1,11 @@
-# F.E. Walter study inputs with a seven-day tutorial window.
+# F.E. Walter paper design. The tutorial starts with seven days.
 schema_version: llm-reservoir-experiment.v1
 case: case.json
 run_id: fe-walter-dkp
 output: ../../runs/fe-walter-dkp
 start_date: '2021-01-01'
 end_date: '2021-01-07'
-max_calls: 14                         # Seven days, up to two attempts per decision.
+max_calls: 14
 models:
   local:
     provider: ollama
@@ -17,6 +17,9 @@ models:
     max_tokens: 2048
     max_attempts: 2
     think: false
+    keep_alive: 30m
+    timeout_seconds: 120
+    retry_delay_seconds: 2
 auditors:
   release_bounds:
     type: release_bounds
@@ -26,9 +29,15 @@ agents:
     reservoir: FEWalter
     mode: llm
     model: local
-    prompt:
-      system: prompts/dkp.system.txt
-      user: prompts/dkp.user.txt
-    knowledge:
-      fe_walter_operating_guidance: dkp.md
-    auditors: [release_bounds]
+    auditors:
+    - release_bounds
+    strategy: walter_study
+    study_method: dkp
+extensions:
+  walter_study: study/__init__.py
+source_dependencies:
+  prompts/dkp.system.txt: b0e8a42229a94c7389fcd4bd58a44c1cb2f81cbe9af0648d37a620e9f9a2a728
+  study/elevation_storage.csv: baa89b33023c23002b94ac48e68c69278c384d15a64a72d2587a1e6ad458999d
+  study/response_schemas.json: 2ea4f1e3dc3d5ff1933b4459c19eba4b444848f73074569acefbbac48bf30c0d
+  study/ollama-manifest.json: 4eb23ef187e2c5462566d6a1d3bbbc2f1346d0b4327cbb66d58fffbcc9b2b05c
+  dkp.md: ca07fdc876f63b049a2b5560d9354329a643d30ea027270293effd731efa7021

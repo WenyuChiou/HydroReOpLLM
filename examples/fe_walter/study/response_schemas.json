@@ -1,0 +1,129 @@
+{
+  "seasonal_target": {
+    "type": "object",
+    "properties": {
+      "applicable_target_ft": {
+        "type": "number",
+        "description": "Operation-target water level (ft NGVD29) that applies to this interval, read from the operation target"
+      },
+      "pool_position": {
+        "type": "string",
+        "enum": [
+          "below_target",
+          "at_target",
+          "above_target"
+        ],
+        "description": "Beginning water level compared with applicable_target_ft"
+      },
+      "intended_storage_direction": {
+        "type": "string",
+        "enum": [
+          "increase",
+          "hold",
+          "decrease"
+        ],
+        "description": "How you intend storage to change over this interval"
+      },
+      "release_relation_to_inflow": {
+        "type": "string",
+        "enum": [
+          "below_inflow",
+          "equal_to_inflow",
+          "above_inflow"
+        ],
+        "description": "How your release will compare with this interval's inflow"
+      },
+      "reasoning": {
+        "type": "string",
+        "description": "One or two sentences: the storage change your release will cause, and why it moves toward the target"
+      },
+      "release_cfs": {
+        "type": "number",
+        "description": "Target mean release for the interval in cubic feet per second"
+      }
+    },
+    "required": [
+      "applicable_target_ft",
+      "pool_position",
+      "intended_storage_direction",
+      "release_relation_to_inflow",
+      "reasoning",
+      "release_cfs"
+    ],
+    "additionalProperties": false
+  },
+  "dkp": {
+    "type": "object",
+    "properties": {
+      "applicable_target_ft": {
+        "type": "number",
+        "description": "Operation-target water level (ft NGVD29) that applies to this interval, read from the operation target"
+      },
+      "pool_position": {
+        "type": "string",
+        "enum": [
+          "below_target",
+          "at_target",
+          "above_target"
+        ],
+        "description": "Beginning water level compared with applicable_target_ft"
+      },
+      "intended_storage_direction": {
+        "type": "string",
+        "enum": [
+          "increase",
+          "hold",
+          "decrease"
+        ],
+        "description": "How you intend storage to change over this interval"
+      },
+      "release_relation_to_inflow": {
+        "type": "string",
+        "enum": [
+          "below_inflow",
+          "equal_to_inflow",
+          "above_inflow"
+        ],
+        "description": "How your release will compare with this interval's inflow"
+      },
+      "operating_mode": {
+        "type": "string",
+        "enum": [
+          "pass_inflow",
+          "store_toward_target",
+          "draw_toward_target",
+          "minimum_release",
+          "flood_control",
+          "post_flood_drawdown",
+          "recreation_plan"
+        ]
+      },
+      "rules_applied": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "description": "Exact retrieved DKP section headings used"
+      },
+      "reasoning": {
+        "type": "string",
+        "description": "Brief rule citation and water-balance explanation: the storage change the release will cause"
+      },
+      "release_cfs": {
+        "type": "number",
+        "description": "Target mean release for the interval in cfs"
+      }
+    },
+    "required": [
+      "applicable_target_ft",
+      "pool_position",
+      "intended_storage_direction",
+      "release_relation_to_inflow",
+      "operating_mode",
+      "rules_applied",
+      "reasoning",
+      "release_cfs"
+    ],
+    "additionalProperties": false
+  }
+}

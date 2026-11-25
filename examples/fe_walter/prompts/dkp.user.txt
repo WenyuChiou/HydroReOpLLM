@@ -1,10 +1,122 @@
-Today's observation (including beginning storage, inflow, and physical limits):
-$observation
+Date: 2021-01-01 (January, day 1 of the year)
+1. Today's inflow: 376.8 cfs (= 32,556,387 cubic feet (= 747 acre-feet) over 1 days)
+2. Water level at beginning of interval: 1312.72 ft NGVD29
+3. Previous simulated release decisions (and what was actually released):
+   None (first simulated step).
+4. Number of days in this decision interval: 1
+5. Storage at beginning of interval: 153,173,520 cubic feet (= 3,516 acre-feet)
+6. Release limits for this interval (water control manual): 50-10,000 cfs (= 4,320,000-864,000,000 cubic feet over 1 days)
 
-Previous completed transition:
-$previous_transition
+Retrieved DKP sections relevant to current conditions:
 
-Local operating guidance:
-$knowledge
+--- DKP excerpt 1: R-RELEASE (composite per-timestep decision; WCM Table 7-1 Parts A and B; §7-01, §7-03, §7-05) ---
+```pseudo
+plan = R-PLAN(pool_elevation, stages, season)
 
-Apply the relevant operating guidance and the same seasonal target to request today's release.
+active_min = R-MINFC       if plan in {C, D} or impounding_for_flood_emergency   # 100 cfs
+           | R-MINDROUGHT  if drbc_drought_declared                              #  43 cfs
+           | R-MINNORM                                                           #  50 cfs
+
+CASE plan OF
+  A:  release = inflow_cfs, holding pool at or near target_pool_ft;
+        obligations = Minimum Release Schedule + Water Quality Release Schedule (R-TEMP)
+
+  B:  release_combined = MaxReleaseSchedule_Rising(stages)      # §2.4.5 — MOST RESTRICTIVE gage governs
+        release_walter  = R-BALANCE(release_combined, pct_fc_storage_used,
+                                    beltzville_state.pct_fc_storage_used)
+        summer: defer to Exhibit D Recreation Plan (NOT SUPPLIED)
+        apply R-FILLING whenever pool exceeds any previously attained elevation
+
+  C:  release = active_min                                       # store all inflow at BOTH projects
+        on stages_trend == falling_after_peak, switch to MaxReleaseSchedule_Falling (§2.4.5)
+
+  D:  release = pass inflow (hourly or finer), gates incrementally to full open;
+        once outlet capacity exceeded, HOLD full open until pool < EL_SPILLWAY;
+        then outflow = inflow until MaxReleaseSchedule_Rising (Plan B) can be resumed
+
+release = clip(release, lower = active_min,
+                        upper = min( Q_CHANNEL_CAP,            # conditional — see R-ATSITE
+                                     outlet_capacity(pool_elevation),
+                                     R-DOWNSTREAM limit ) )
+
+subject to R-ROC (gate-position limits, NOT a discharge-rate limit)
+
+IF pool_elevation > EL_SPILLWAY:
+    total_outflow = release + spillway_discharge(pool_elevation)   # uncontrolled, §2.4.3
+```
+
+--- DKP excerpt 2: R-MINNORM, R-MINFC, R-MINDROUGHT (Minimum Release Schedule; WCM Table 7-1 Part B; §7-01, §7-05,c,3, §8-04) ---
+```pseudo
+Flows maintained at the reservoir OUTFLOW gaging station (White Haven for Walter):
+
+   Regulation purpose                     Walter (cfs)   Beltzville (cfs)
+   1. Flood control regulation (storing)      100              35     -> R-MINFC
+   2. Normal regulation                        50              35     -> R-MINNORM
+   3. Drought warning and drought               43              15     -> R-MINDROUGHT
+
+Precedence: R-MINFC applies whenever storing under Plans C/D; R-MINDROUGHT relaxes
+R-MINNORM under a declared DRBC drought warning or emergency; R-MINNORM otherwise.
+The 50 cfs is a Commonwealth of Pennsylvania Fish Commission requirement set to protect
+downstream brook trout habitat (Table 7-1 Part B).
+```
+
+--- DKP excerpt 3: R-ATSITE (maximum release; WCM §4-09, §7-02a, §7-05,c,1, Table 7-2 notes 1–2) ---
+```pseudo
+release ≤ 10,000 cfs  "during non-spillway flow conditions ... should not be exceeded IF POSSIBLE"
+   equivalently: stage_WhiteHaven ≤ 8.4 ft (Table 7-1 Part B note 5)
+release ≤ outlet_capacity(pool_elevation)   [≈17,000 cfs at EL_SPILLWAY]
+
+EXCEPTION (Table 7-2 note 1): during FALLING stages after a peak, releases in excess of
+10,000 cfs MAY be considered, provided the release — combined with Beltzville's — does not
+cause any key Lehigh station to exceed max(event_peak_stage, flood stage), whichever governs.
+CONFIRMED BY RECORD: the WY1996 maximum discharge of 11,452 cfs (Table 8-1, 29 Jan 1996)
+exceeds 10,000 cfs -- the exception is exercised in practice, not merely permitted.
+=> the 10,000 cfs cap is a CONDITIONAL constraint, not a physical invariant.
+```
+
+--- DKP excerpt 4: R-ZONE (seasonal rule curve — the normal operating target; WCM §7-01, Plate 7-2) ---
+```pseudo
+target_pool_ft = 1300.0   # winter normal pool
+Storage for recreation begins on/about 1 April; target date mid-May to reach 1370.0;
+1370.0 is held and drawn on to make releases through mid-October; thereafter any
+remaining water is released and the pool returns to 1300.0.
+
+RATIONALE (§3-05,b,2(b)): 1370 is "the limit imposed to keep adequate flood control space
+available since this volume can be quickly evacuated in advance of an oncoming storm event."
+
+=> Recreation storage is ALWAYS subordinate and pre-releasable; it is NOT protected storage.
+```
+
+--- DKP excerpt 5: R-PLAN (Schedule Plan selection — the Layer 2 spine; WCM Table 7-1 Part A; §7-05,a,2) ---
+```pseudo
+Control-gage thresholds (Table 7-1 Part A):
+    Bethlehem 12.0 ft | Walnutport 7.0 ft | Lehighton 9.0 ft
+    Note (1): for Plans A and B, stages at ALL control gages must be below these levels.
+    Note (2): for Plan C, the threshold need be exceeded at only ONE gage.
+    [Lehighton 9.0 here conflicts with the 9.5 action stage of Table 7-2 and of the
+     Maximum Release Schedule -- see Provenance 3(o).]
+
+Pool bands (Walter | Beltzville):
+    Plan A: below 1300.0        | below 628.0
+    Plan B: 1300-1450 (winter)  | 628.0-651.0      <- summer band is 1370-1450
+    Plan C: 1300-1450 (winter)  | 628.0-651.0      <- summer band is 1370-1450
+    Plan D: above 1450.0        | above 651.0
+
+IF pool_elevation > EL_SPILLWAY:                                 plan = D
+ELIF any control gage >= its Part A threshold
+     AND target_pool_ft <= pool_elevation <= EL_SPILLWAY:         plan = C
+ELIF all control gages < their Part A thresholds
+     AND target_pool_ft <= pool_elevation <= EL_SPILLWAY:         plan = B
+ELSE:                                                             plan = A
+
+target_pool_ft = 1300.0 (winter) | 1370.0 (summer) per R-ZONE -- so the Plan-A/Plan-B
+boundary MOVES SEASONALLY. This is the single most consequential coupling between the
+recreation rule curve and the flood-control plan logic.
+
+Plan B splits further on stages_trend (rising/stationary vs falling-after-peak), each
+branch selecting a different Maximum Release Schedule (§2.4.5). Plan D ignores
+downstream stages entirely.
+```
+
+The simulated year is 2021. Check the year of every dated DKP instruction before applying it.
+Apply these DKP rules to decide the mean release for this interval (cfs).
