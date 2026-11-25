@@ -1,21 +1,23 @@
+# Physical network for two reservoirs draining to separate outlets (river_a and river_b).
+# Storage is in m3, flow rates are interval means in m3/s, and dt_seconds is 86400 (1 day).
 schema_version: reservoir-physical-case.v1
-data_kind: synthetic_fixture
+data_kind: synthetic_fixture          # Synthetic teaching data; do not treat as calibrated.
 network:
   schema_version: llm-reservoir-network.v2
-  start_date: '2020-02-28'
+  start_date: '2020-02-28'            # Matches experiment.start_date.
   reservoirs:
     lake_a:
-      inflow_node: inlet_a
+      inflow_node: inlet_a            # Bound to basin_a runoff in hydrology.yaml.
       physical:
-        reservoir_id: lake_a
-        capacity_m3: 1000000.0
-        dead_storage_m3: 0.0
-        initial_storage_m3: 500000.0
-        minimum_release_cms: 0.0
-        maximum_release_cms: 20.0
-        dt_seconds: 86400.0
+        reservoir_id: lake_a          # Physical key recorded in output trajectories.
+        capacity_m3: 1000000.0        # Maximum storage, m3.
+        dead_storage_m3: 0.0          # Minimum storage floor, m3.
+        initial_storage_m3: 500000.0  # Starting storage on start_date, m3.
+        minimum_release_cms: 0.0      # Lower controlled-release bound, m3/s.
+        maximum_release_cms: 20.0     # Upper controlled-release bound, m3/s.
+        dt_seconds: 86400.0           # Daily time step length, seconds.
     lake_b:
-      inflow_node: inlet_b
+      inflow_node: inlet_b            # Bound to basin_b runoff in hydrology.yaml.
       physical:
         reservoir_id: lake_b
         capacity_m3: 1000000.0
@@ -24,6 +26,7 @@ network:
         minimum_release_cms: 0.0
         maximum_release_cms: 20.0
         dt_seconds: 86400.0
+  # Each reservoir routes to its own independent downstream outlet (1-day lag: [0.0, 1.0]).
   connections:
   - source: lake_a
     target: river_a

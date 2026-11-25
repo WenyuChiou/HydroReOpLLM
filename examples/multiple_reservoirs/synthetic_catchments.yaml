@@ -1,4 +1,5 @@
-# Two fictional catchments for the five-day routing example. Areas are in hectares.
+# Two fictional HydroCNHS catchments (GWLF rainfall-runoff + Lohmann routing) for a 5-day synthetic run.
+# Units: Area (ha), Latitude (deg), initial states S0/U0/SnowS (cm), CN2 (0-100), rates Res/Sep/Alpha/Beta (1/day), Ur (cm), Df (cm/day/deg C).
 Path:
   WD: .
   Modules: ''

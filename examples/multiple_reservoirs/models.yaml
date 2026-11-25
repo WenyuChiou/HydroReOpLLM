@@ -1,3 +1,5 @@
+# Example model provider profiles for experiment.llm.yaml (unused by offline rule examples).
+# Replace YOUR_* placeholders and pass --allow-network only when running a live LLM case.
 local:
   provider: ollama
   # Set this to an installed tag from `ollama list` before a live run.

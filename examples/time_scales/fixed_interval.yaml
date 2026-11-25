@@ -1,13 +1,14 @@
+# Minimal fixed-interval offline example with prepared hourly inflows (24 steps, 0 model calls).
 schema_version: llm-reservoir-experiment.v1
-case: fixed_interval.case.json
-run_id: fixed-interval-offline
-output: ../../runs/fixed-interval-offline
-max_calls: 0
+case: fixed_interval.case.json        # Prepared inflow records + physical network (dt_seconds=3600).
+run_id: fixed-interval-offline        # Trace identity; change with output before repeating.
+output: ../../runs/fixed-interval-offline  # Unused output directory, relative to this file.
+max_calls: 0                          # Offline fixture makes 0 model calls.
 agents:
   fixture:
-    reservoir: R
-    mode: offline
-    release_cms: 2.0
+    reservoir: R                      # Reservoir key in fixed_interval.case.json.
+    mode: offline                     # Deterministic action fixture, not an LLM.
+    release_cms: 2.0                  # Requested controlled release, m3/s.
     prompt:
-      user: prompt.txt
-    history_steps: 7
+      user: prompt.txt                # Prompt template mapping used for offline preview.
+    history_steps: 7                  # Recent steps exposed in $completed_history.
