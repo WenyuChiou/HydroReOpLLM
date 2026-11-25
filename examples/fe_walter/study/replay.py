@@ -71,7 +71,7 @@ def replay(output):
     if set(groups) != {(condition, seed) for condition in CONDITIONS for seed in range(1, 11)}:
         raise ValueError("expected ten complete release series per LLM condition")
     runtime = default_runtime_root()
-    config, inflows = load_case(HERE.parent / "case.json", project_root=runtime)
+    config, inflows = load_case(HERE.parent / "case.json", project_root=HERE.parent)
     dates = [row["date"] for row in inflows]
     if [row["date"] for row in obs_rows] != dates:
         raise ValueError("observations and inflow dates differ")
@@ -84,7 +84,7 @@ def replay(output):
 
     rule = load_settings(HERE.parent / "rule_based.yaml", runtime_root=runtime)
     spec = rule.agents["walter_operator"]
-    rule_config, rule_inflows = load_case(HERE.parent / "rule_case.json", project_root=runtime)
+    rule_config, rule_inflows = load_case(HERE.parent / "rule_case.json", project_root=HERE.parent)
     backend = spec["extension_runtime"].build_backend(
         spec, physical=rule_config["reservoirs"]["FEWalter"]["physical"], runtime_root=runtime,
         mode="offline", model=None, transport=no_model_transport)
