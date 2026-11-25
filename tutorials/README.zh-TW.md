@@ -1,6 +1,6 @@
 # 離線合成案例教學
 
-在 JupyterLab 中執行四天的單庫模擬，並檢視水量平衡。
+在 JupyterLab 中執行四天的單庫模擬，並檢視水量平衡。此教學無需 API 金鑰。
 
 ## 開啟筆記本
 
@@ -15,8 +15,9 @@ python -m jupyterlab tutorials/offline_synthetic.ipynb
 
 ## 執行儲存格
 
-1. 選擇專案 `.venv` 的核心，再按 **Run → Run All Cells**。
-2. 檢查結果。**Expected storage** 中最後一筆 `storage_m3` 應為 `1345600.0`（**1,345,600 m³**）。最後的驗證報告應顯示 `PASS`、執行 4 天及 `observed_network_calls: 0`。
+1. 如果 JupyterLab 停在啟動器（Launcher），請從左側檔案瀏覽器開啟筆記本。若看見 `tutorials/` 資料夾，請進入該資料夾再開啟 `offline_synthetic.ipynb`。
+2. 選擇專案 `.venv` 的核心，再按 **Run → Run All Cells**。
+3. 檢查結果。**Expected storage** 中最後一筆 `storage_m3` 應為 `1345600.0`（**1,345,600 m³**）。最後的驗證報告應顯示 `PASS`、執行 4 天及 `observed_network_calls: 0`。
 
 ## 保留輸出
 

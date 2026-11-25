@@ -128,6 +128,10 @@ def served_by_from_raw(raw: Any) -> dict[str, Any] | None:
     return {"profile": profile, "provider": provider, "model": model}
 
 
+class RunOutputExistsError(FileExistsError):
+    """The requested run output already exists."""
+
+
 class TraceJournal:
     """Create a single-writer journal in a new, exclusive output directory.
 
@@ -174,7 +178,12 @@ class TraceJournal:
         self._io_error: BaseException | None = None
         self._feedback_error: BaseException | str | None = None
         self._terminal = False
-        self.output.mkdir(parents=True, exist_ok=False)
+        try:
+            self.output.mkdir(parents=True, exist_ok=False)
+        except FileExistsError as error:
+            if error.filename is None or Path(error.filename) != self.output:
+                raise
+            raise RunOutputExistsError(error.errno, "run output already exists", error.filename) from error
         for stream in _STREAMS:
             self._write_file(self.output / f"{stream}.jsonl", b"", exclusive=True)
 

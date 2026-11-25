@@ -29,7 +29,7 @@ A prepared file supplies local inflow directly. In a coupled case, HydroCNHS run
 | Example | Input and question |
 | --- | --- |
 | [One reservoir and a cascade](../examples/daily_offline/README.md) | How does a prescribed release affect downstream storage when reservoirs are connected? |
-| [Independent reservoirs](../examples/multiple_reservoirs/README.md) | How do weather-driven inflows reach two reservoirs with separate operators? |
+| [Two reservoirs with separate outlets](../examples/multiple_reservoirs/README.md) | How do weather-driven inflows reach two reservoirs with separate operators? |
 | [Daily, hourly and fixed intervals](../examples/time_scales/README.md) | How do timestamps, average flow and interval volumes change with step length? |
 | [MOSART-Urban rule](../examples/rules/mosart_urban/README.md) | How do you replace the operating rule while keeping the physical case? |
 

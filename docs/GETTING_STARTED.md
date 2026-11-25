@@ -24,8 +24,14 @@ Install the package and copy the bundled examples into the working directory.
 
 ```sh
 python -m pip install hydroreopllm
-python -c "import shutil, sysconfig; from pathlib import Path; shutil.copytree(Path(sysconfig.get_path('data')) / 'share/llm-reservoir-agent/examples', 'examples')"
+python -c "from pathlib import Path
+from shutil import copytree
+from sysconfig import get_path
+source = Path(get_path('data')) / 'share/llm-reservoir-agent/examples'
+copytree(source, 'examples')"
 ```
+
+The PyPI distribution is `hydroreopllm`, the Python import is `llm_reservoir_agent`, and the command is `reservoir-experiment`.
 
 Continue to [Run the offline example](#run-the-offline-example).
 
@@ -48,7 +54,7 @@ The clone already includes `examples/`. [Run the offline example](#run-the-offli
 
 ## Run the offline example
 
-Keep the virtual environment active. Run these commands from the directory containing `examples/`.
+This example requires no API key. Keep the virtual environment active. Run these commands from the directory containing `examples/`.
 
 ```sh
 reservoir-experiment check examples/daily_offline/single.yaml
@@ -60,4 +66,15 @@ reservoir-experiment verify runs/daily-single --require-offline
 
 ## Repeat a run
 
-In `examples/daily_offline/single.yaml`, change `run_id` and `output` to new values before running again. The `output` path is relative to the YAML file. Point `verify` at the new output directory. The previous run remains available for comparison.
+In `examples/daily_offline/single.yaml`, replace the `run_id` and `output` values with the following. The `output` path is relative to the YAML file.
+
+```yaml
+run_id: daily-single-v2
+output: ../../runs/daily-single-v2
+```
+
+Repeat `check` and `run` with the same YAML file, then verify the new output directory. The previous run remains available for comparison.
+
+```sh
+reservoir-experiment verify runs/daily-single-v2 --require-offline
+```

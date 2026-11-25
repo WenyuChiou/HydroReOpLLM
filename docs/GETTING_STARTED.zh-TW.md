@@ -26,8 +26,14 @@ source .venv/bin/activate
 
 ```sh
 python -m pip install hydroreopllm
-python -c "import shutil, sysconfig; from pathlib import Path; shutil.copytree(Path(sysconfig.get_path('data')) / 'share/llm-reservoir-agent/examples', 'examples')"
+python -c "from pathlib import Path
+from shutil import copytree
+from sysconfig import get_path
+source = Path(get_path('data')) / 'share/llm-reservoir-agent/examples'
+copytree(source, 'examples')"
 ```
+
+PyPI 套件名稱是 `hydroreopllm`，Python 匯入名稱是 `llm_reservoir_agent`，命令列指令是 `reservoir-experiment`。
 
 接著[執行離線範例](#執行離線範例)。
 
@@ -52,7 +58,7 @@ python -m pip install -c environment/requirements-bundled.txt .
 
 ## 執行離線範例
 
-保持虛擬環境啟用，並在包含 `examples/` 的目錄中執行以下指令。
+此範例無需 API 金鑰。保持虛擬環境啟用，並在包含 `examples/` 的目錄中執行以下指令。
 
 ```sh
 reservoir-experiment check examples/daily_offline/single.yaml
@@ -66,4 +72,15 @@ reservoir-experiment verify runs/daily-single --require-offline
 
 ## 重跑案例
 
-重新執行前，請在 `examples/daily_offline/single.yaml` 為 `run_id` 和 `output` 指定新值。`output` 是相對於 YAML 檔案的路徑。執行 `verify` 時請指定新的輸出目錄。前一次的結果仍可用來比較。
+在 `examples/daily_offline/single.yaml` 中，將 `run_id` 和 `output` 改成下列值。`output` 是相對於 YAML 檔案的路徑。
+
+```yaml
+run_id: daily-single-v2
+output: ../../runs/daily-single-v2
+```
+
+用同一份 YAML 檔再次執行 `check` 和 `run`，再驗證新的輸出目錄。前一次的結果仍可用來比較。
+
+```sh
+reservoir-experiment verify runs/daily-single-v2 --require-offline
+```

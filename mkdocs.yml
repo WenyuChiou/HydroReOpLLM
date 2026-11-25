@@ -8,6 +8,8 @@ plugins:
   - search
 extra_css:
   - assets/branding/branding.css
+extra_javascript:
+  - assets/copy-code.js
 theme:
   name: mkdocs
   custom_dir: docs/theme
@@ -36,7 +38,7 @@ nav:
         - Read the results: RESULTS_GUIDE.md
     - Complete examples:
         - One reservoir and a cascade: examples/daily_offline/index.md
-        - Independent reservoirs: examples/multiple_reservoirs/index.md
+        - Two reservoirs with separate outlets: examples/multiple_reservoirs/index.md
         - Time-step examples: examples/time_scales/index.md
         - MOSART-Urban rule: examples/rules/mosart_urban/index.md
     - Help and reference:
@@ -61,7 +63,7 @@ nav:
         - 解讀結果: RESULTS_GUIDE.zh-TW.md
     - 完整範例:
         - 單庫與串聯水庫: examples/daily_offline/index.zh-TW.md
-        - 獨立操作的水庫: examples/multiple_reservoirs/index.zh-TW.md
+        - 雙水庫各自出流範例: examples/multiple_reservoirs/index.zh-TW.md
         - 時間步長範例: examples/time_scales/index.zh-TW.md
         - MOSART-Urban 操作規則: examples/rules/mosart_urban/index.zh-TW.md
     - 說明與參考:

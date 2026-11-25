@@ -1,6 +1,6 @@
 # Offline synthetic tutorial
 
-Run a four-day single-reservoir simulation in JupyterLab and check its water balance.
+Run a four-day single-reservoir simulation in JupyterLab and check its water balance. This tutorial requires no API key.
 
 ## Open the notebook
 
@@ -15,8 +15,9 @@ python -m jupyterlab tutorials/offline_synthetic.ipynb
 
 ## Run the cells
 
-1. Select the kernel from the project’s `.venv`, then choose **Run → Run All Cells**.
-2. Check the results. In **Expected storage**, the last `storage_m3` is `1345600.0` (**1,345,600 m³**). The final verification report shows `PASS`, 4 days, and `observed_network_calls: 0`.
+1. If JupyterLab opens on the Launcher, open the notebook from the file browser on the left. Open `offline_synthetic.ipynb` inside `tutorials/` if that folder is visible.
+2. Select the kernel from the project’s `.venv`, then choose **Run → Run All Cells**.
+3. Check the results. In **Expected storage**, the last `storage_m3` is `1345600.0` (**1,345,600 m³**). The final verification report shows `PASS`, 4 days, and `observed_network_calls: 0`.
 
 ## Keep the output
 

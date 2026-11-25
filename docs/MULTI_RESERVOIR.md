@@ -1,4 +1,4 @@
-# Multiple reservoirs
+# Reservoir networks
 
 Use [`examples/multiple_reservoirs`](../examples/multiple_reservoirs/README.md)
 for a complete synthetic two-reservoir network. The essential invariants are:

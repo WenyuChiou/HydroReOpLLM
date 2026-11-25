@@ -16,8 +16,10 @@ attempt reservations. No user request cap or scientific acceptance is inferred.
 import argparse
 from dataclasses import dataclass
 from datetime import date
+import errno
 import hashlib
 import json
+import sys
 from pathlib import Path
 from string import Template
 
@@ -31,6 +33,7 @@ from .extensions import extension_registry
 from .contracts import finite_nonnegative
 from .network import PROJECT_ROOT, validate_inflows
 from .prompt import PromptSpec
+from .trace import RunOutputExistsError
 
 
 class UniqueLoader(yaml.SafeLoader):
@@ -615,8 +618,9 @@ def run_settings(settings, *, allow_network=False, runtime_root=PROJECT_ROOT, tr
     plan = dict(current.report)
     if recovery is not None:
         plan.update(output=str(output), run_id=run_id)
-    if Path(plan["output"]).exists():
-        raise FileExistsError("output already exists; choose a new run_id/output, never overwrite or implicitly resume")
+    output_path = Path(plan["output"])
+    if output_path.exists():
+        raise RunOutputExistsError(errno.EEXIST, "run output already exists", str(output_path))
     if plan["planned_llm_calls"] and (not allow_network or not plan["live_ready"]):
         raise ValueError(_live_gate_message("LLM run", allow_network, plan))
     # Shared cumulative provider attempts include inherited crash-time STARTED reservations.
@@ -808,7 +812,7 @@ def main(argv=None):
     Returns
     -------
     int
-        Zero after successful command completion and a printed JSON report.
+        Zero after printing a successful JSON report, or one if the run output already exists.
 
     Raises
     ------
@@ -855,20 +859,28 @@ def main(argv=None):
         if isinstance(document, dict) and document.get("schema_version") in ("hydroops-coupled-simulation.v1", "hydroops-coupled-simulation.v2"):
             from .coupled import load_coupled_settings, prepare_coupled, run_coupled
             settings = load_coupled_settings(args.config)
-            if args.command == "check":
-                result = settings.report
-            elif args.command == "prepare":
-                result = prepare_coupled(settings)
-            else:
-                _, result = run_coupled(settings, allow_network=args.allow_network)
+            runner = run_coupled
         else:
             if args.command == "prepare":
                 raise ValueError("prepare requires a hydroops-coupled-simulation.v1 configuration")
             settings = load_settings(args.config)
-            if args.command == "check":
-                result = settings.report
-            else:
-                _, result = run_settings(settings, allow_network=args.allow_network)
+            runner = run_settings
+
+        if args.command == "check":
+            result = settings.report
+        elif args.command == "prepare":
+            result = prepare_coupled(settings)
+        else:
+            try:
+                _, result = runner(settings, allow_network=args.allow_network)
+            except RunOutputExistsError as error:
+                print(
+                    f"Run output already exists: {error.filename}\n"
+                    f"Set a new run_id and output in {args.config}, then run again.\n"
+                    "Point reservoir-experiment verify at the new output directory.",
+                    file=sys.stderr,
+                )
+                return 1
     print(json.dumps(result, ensure_ascii=False, allow_nan=False, indent=2))
     return 0
 
