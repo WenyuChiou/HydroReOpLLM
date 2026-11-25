@@ -1,19 +1,16 @@
-# F.E. Walter 提示詞教學
+# 用 notebook 執行 F.E. Walter
 
-此筆記本使用 F.E. Walter 論文案例的前七天入流，對 Rule-based、With operational knowledge 與 Without operational knowledge 執行離線 `check`，並顯示兩個 LLM 案例使用的系統提示詞與每日提示詞。預設流程不會發出模型請求。
+[在 GitHub 開啟 notebook](https://github.com/WenyuChiou/HydroReOpLLM/blob/main/tutorials/fe_walter.ipynb)。
+
+開啟 notebook 可先看到通過驗證的 Rule-based 結果表和圖。要重跑時，在 clone 下來的專案使用 Python 3.12 或更新版本安裝套件，再啟動 JupyterLab。
 
 ```sh
 python -m pip install -c environment/requirements-bundled.txt . jupyterlab
 python -m jupyterlab tutorials/fe_walter.ipynb
 ```
 
-請從儲存庫根目錄開啟筆記本，並選擇已安裝 HydroReOpLLM 的環境。預設儲存格會顯示：
+選擇已安裝 HydroReOpLLM 的 Python 環境，按 **Run All**。筆記本會離線執行並驗證 2021 年 1 月 1–7 日的 Rule-based 基準，顯示每日結果表、入流、控制放流與蓄水量圖，以及儲存結果的位置。看完結果後，再檢查兩個 LLM 案例分別使用哪些提示詞和操作指引。
 
-1. 三個設定共用的論文入流與 2021 年 1 月 1–7 日的教學期間；
-2. 兩個 LLM 設定各自選用的提示詞檔案；
-3. With operational knowledge 設定中的 `knowledge.fe_walter_operating_guidance` 參照；以及
-4. 三個入口皆通過離線設定檢查。
+想跑 **Without operational knowledge** 和 **With operational knowledge** 時，先啟動已有 `gemma4:12b` 的本機 Ollama，再把 `RUN_LLM` 設為 `True` 並執行最後兩格。筆記本會把兩組 LLM 結果與 Rule-based 畫在一起。預設為 `False`，直接 Run All 可離線執行。
 
-最後的儲存格會列印一條 Rule-based 離線指令和兩條可自行執行的 Ollama 指令。請先檢閱提示詞、以 `gemma4:12b` 啟動 Ollama、指定新的輸出路徑，並確認接受 `--allow-network` 所代表的本機網路使用，再手動執行。筆記本本身不會進行即時推論。
-
-選擇執行前，請先閱讀 [F.E. Walter 指南](../examples/fe_walter/README.zh-TW.md)及[執行生命週期](../docs/RUNNING.zh-TW.md)。
+完整研究期間的執行方式見 [F.E. Walter 指南](../examples/fe_walter/README.zh-TW.md)，輸出檔的解讀方式見[結果指南](../docs/RESULTS_GUIDE.zh-TW.md)。

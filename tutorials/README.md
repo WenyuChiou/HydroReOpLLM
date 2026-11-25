@@ -1,19 +1,16 @@
-# F.E. Walter prompt tutorial
+# Run F.E. Walter in a notebook
 
-The notebook checks the Rule-based baseline and both LLM cases, With and Without operational knowledge over the first seven days of the F.E. Walter study inputs. It also displays the system and user prompts selected by the two LLM configurations. It makes no model request by default.
+[Open the notebook on GitHub](https://github.com/WenyuChiou/HydroReOpLLM/blob/main/tutorials/fe_walter.ipynb).
+
+The notebook preview contains a verified Rule-based table and chart. To reproduce them, use Python 3.12 or newer in your clone, install the package, and start JupyterLab.
 
 ```sh
 python -m pip install -c environment/requirements-bundled.txt . jupyterlab
 python -m jupyterlab tutorials/fe_walter.ipynb
 ```
 
-Open the notebook from the repository root and select the environment where HydroReOpLLM is installed. The default cells show:
+Select the Python environment where you installed HydroReOpLLM and choose **Run All**. The notebook runs and verifies the Rule-based baseline for January 1–7, 2021. It displays a daily results table, plots inflow, controlled release, and storage, and prints the saved output directory. It then shows which prompts and operating guidance the two LLM cases use.
 
-1. the shared study inputs and the January 1–7, 2021 tutorial window;
-2. the prompt files selected for the two LLM cases;
-3. the `knowledge.fe_walter_operating_guidance` reference used by With operational knowledge; and
-4. successful offline configuration checks for all three entry points.
+To run **Without operational knowledge** and **With operational knowledge**, start local Ollama with `gemma4:12b`, set `RUN_LLM = True`, and run the last two cells. Both LLM results appear in a comparison plot with the Rule-based baseline. The default `False` keeps Run All offline.
 
-The final cell prints the offline Rule-based command and the two opt-in Ollama commands. Review the prompts, start Ollama with `gemma4:12b`, choose fresh output paths, and run the commands with `--allow-network` when you are ready to call the model.
-
-See the [F.E. Walter guide](../examples/fe_walter/README.md) and [run lifecycle](../docs/RUNNING.md) before opting in.
+See the [F.E. Walter guide](../examples/fe_walter/README.md) for the full study period and the [results guide](../docs/RESULTS_GUIDE.md) for the saved output files.
