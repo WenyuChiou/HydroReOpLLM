@@ -1,89 +1,40 @@
 # HydroReOpLLM
 
-[![User manual](https://wenyuchiou.github.io/HydroReOpLLM/assets/branding/docs-badge-en.svg)](https://wenyuchiou.github.io/HydroReOpLLM/) · [繁體中文使用手冊](https://wenyuchiou.github.io/HydroReOpLLM/zh-TW.html) · [繁體中文首頁](https://github.com/WenyuChiou/HydroReOpLLM/blob/main/README.zh-TW.md)
+[![User manual](https://wenyuchiou.github.io/HydroReOpLLM/assets/branding/docs-badge-en.svg)](https://wenyuchiou.github.io/HydroReOpLLM/)
 
 ![Reservoirs and rivers with LLM reservoir operators](https://wenyuchiou.github.io/HydroReOpLLM/assets/branding/cover.png)
 
-HydroReOpLLM simulates reservoir operations from time series of local inflow or weather forcing. A reservoir operator proposes a release. The physical model applies storage and release limits, routes water downstream, and records the decision and water balance for each time step. Operators can use a rule, a prescribed action, or an LLM with local operating guidance.
+HydroReOpLLM builds on HydroCNHS to simulate reservoir operations using prepared inflows or weather data, with rule-based, prescribed, or LLM-based release decisions.
 
-## How a simulation works
+## Quick start
 
-HydroCNHS can calculate local inflow from weather, or you can supply prepared flows directly. Within each step, the operator reads the available state and operating guidance and requests a release. The physical model computes the actual release, spill and end storage. In a connected network, upstream outflow feeds downstream nodes.
-
-| To try | Start here |
-| --- | --- |
-| Trace a prescribed release through one reservoir and a cascade | [Daily examples](https://wenyuchiou.github.io/HydroReOpLLM/examples/daily_offline/index.html) |
-| Generate weather-driven inflows for two independently operated reservoirs | [Coupled example](https://wenyuchiou.github.io/HydroReOpLLM/examples/multiple_reservoirs/index.html) |
-| Decide what a model sees and preserve its identity | [Available information](https://wenyuchiou.github.io/HydroReOpLLM/INFORMATION.html) and [model providers](https://wenyuchiou.github.io/HydroReOpLLM/MODEL_PROVIDERS.html) |
-| Set up your own case and interpret its output | [Configuration](https://wenyuchiou.github.io/HydroReOpLLM/CONFIGURATION.html) and [results guide](https://wenyuchiou.github.io/HydroReOpLLM/RESULTS_GUIDE.html) |
-
-## Install the Python package
-
-In an active Python 3.12 virtual environment, install the published package from PyPI.
+Run a four-day synthetic single-reservoir case with a prescribed release. Start in an empty working directory with an active Python 3.12 or newer virtual environment. [Create a virtual environment](https://wenyuchiou.github.io/HydroReOpLLM/GETTING_STARTED.html#install-from-pypi).
 
 ```sh
 python -m pip install hydroreopllm
-```
-
-From an empty working directory, copy the bundled examples, then run and verify the four-day reservoir simulation.
-
-```sh
 python -c "import shutil, sysconfig; from pathlib import Path; shutil.copytree(Path(sysconfig.get_path('data')) / 'share/llm-reservoir-agent/examples', 'examples')"
+reservoir-experiment check examples/daily_offline/single.yaml
 reservoir-experiment run examples/daily_offline/single.yaml
 reservoir-experiment verify runs/daily-single --require-offline
 ```
 
-## Install from a clone
+Look for `PASS`, 4 days, and `observed_network_calls: 0` in the verification output. Open `runs/daily-single/summary.json` to confirm the run is `COMPLETED` and the final storage of `Lake_1` is **1,345,600 m³**. To repeat the case, [set a new run ID and output path](https://wenyuchiou.github.io/HydroReOpLLM/GETTING_STARTED.html#repeat-a-run).
 
-Clone the default branch for the latest source, tutorials, and case templates. The first installation downloads the Python dependencies.
+## Clone and run the notebook
 
-```sh
-git clone https://github.com/WenyuChiou/HydroReOpLLM.git
-cd HydroReOpLLM
-```
+The PyPI package includes ready-to-run examples. Clone the repository for the notebook and the full collection of examples and templates. [Clone and install HydroReOpLLM](https://wenyuchiou.github.io/HydroReOpLLM/GETTING_STARTED.html#install-from-a-clone) · [Open the notebook tutorial](https://wenyuchiou.github.io/HydroReOpLLM/tutorials/index.html)
 
-On Windows PowerShell:
+## Choose an example
 
-```powershell
-py -3.12 -m venv .venv
-.\.venv\Scripts\python.exe -m pip install -c environment/requirements-bundled.txt .
-```
+| What you want to do | Where to start |
+| --- | --- |
+| Trace releases through one reservoir or a connected cascade | [Single-reservoir and cascade examples](https://wenyuchiou.github.io/HydroReOpLLM/examples/daily_offline/index.html) |
+| Run two independent reservoirs driven by weather data, each draining to its own outlet | [Coupled two-reservoir example](https://wenyuchiou.github.io/HydroReOpLLM/examples/multiple_reservoirs/index.html) |
+| Run daily, hourly, or fixed-interval simulations | [Time-step examples](https://wenyuchiou.github.io/HydroReOpLLM/examples/time_scales/index.html) |
+| Set up your own case and inspect decisions, storage, and water balance | [Configuration](https://wenyuchiou.github.io/HydroReOpLLM/CONFIGURATION.html) · [Results guide](https://wenyuchiou.github.io/HydroReOpLLM/RESULTS_GUIDE.html) |
 
-On macOS or Linux:
+## Tests and license
 
-```sh
-python3.12 -m venv .venv
-.venv/bin/python -m pip install -c environment/requirements-bundled.txt .
-```
+From a clone, install the test extra with `python -m pip install -c environment/requirements-bundled.txt ".[test]"` and run `python -m pytest -q`.
 
-## Run a reservoir and check the output
-
-From the repository root, use the Python executable in the environment you just created. On Windows:
-
-```powershell
-.\.venv\Scripts\python.exe -m llm_reservoir_agent.workflow check examples/daily_offline/single.yaml
-.\.venv\Scripts\python.exe -m llm_reservoir_agent.workflow run examples/daily_offline/single.yaml
-.\.venv\Scripts\python.exe -m llm_reservoir_agent.workflow verify runs/daily-single --require-offline
-```
-
-On macOS or Linux, use `.venv/bin/python` in those three commands. This example simulates one synthetic reservoir for four days with a prescribed release of 1 m³/s. It needs no model service or API key. The run creates `runs/daily-single/` on your machine. Choose a fresh `output` directory in the YAML before repeating a run.
-
-## Examples and tests in the Git checkout
-
-- [Documentation index on GitHub](https://github.com/WenyuChiou/HydroReOpLLM/blob/main/docs/README.md)
-- [Runnable notebook for the four-day example](https://github.com/WenyuChiou/HydroReOpLLM/blob/main/tutorials/offline_synthetic.ipynb)
-- [Daily reservoir and cascade](https://github.com/WenyuChiou/HydroReOpLLM/blob/main/examples/daily_offline/README.md)
-- [Two independently operated reservoirs with weather-driven inflows](https://github.com/WenyuChiou/HydroReOpLLM/blob/main/examples/multiple_reservoirs/README.md)
-- [Daily, hourly and fixed time steps](https://github.com/WenyuChiou/HydroReOpLLM/blob/main/examples/time_scales/README.md)
-- [Starting a case from a template](https://github.com/WenyuChiou/HydroReOpLLM/blob/main/templates/prepared/README.md)
-
-To run the tests, use the same virtual environment and install the test extra. On Windows:
-
-```powershell
-.\.venv\Scripts\python.exe -m pip install -c environment/requirements-bundled.txt ".[test]"
-.\.venv\Scripts\python.exe -m pytest -q
-```
-
-## License
-
-HydroReOpLLM is distributed under the [BSD 3-Clause License](https://github.com/WenyuChiou/HydroReOpLLM/blob/main/LICENSE). The bundled HydroCNHS source retains the [BSD 3-Clause notice from Chung-Yi Lin](https://github.com/WenyuChiou/HydroReOpLLM/blob/main/licenses/HydroCNHS-BSD-3-Clause.txt). See the [source attribution and patch history](https://github.com/WenyuChiou/HydroReOpLLM/blob/main/THIRD_PARTY_NOTICES.md).
+[BSD 3-Clause License](https://github.com/WenyuChiou/HydroReOpLLM/blob/main/LICENSE) · [Third-party notices](https://github.com/WenyuChiou/HydroReOpLLM/blob/main/THIRD_PARTY_NOTICES.md)

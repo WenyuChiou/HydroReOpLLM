@@ -1,41 +1,63 @@
 # Install and run the first case
 
-HydroReOpLLM requires Python 3.12 or newer. Create a virtual environment in an empty working directory. On Windows PowerShell, run the following commands.
+HydroReOpLLM requires Python 3.12 or newer. Install from PyPI to run the bundled examples. Clone the repository for the notebook and the full collection of examples and templates. The first installation downloads Python dependencies.
+
+## Install from PyPI
+
+Create and activate a virtual environment in an empty working directory.
+
+On Windows PowerShell, run these commands to use the virtual environment in the current shell.
 
 ```powershell
 py -3.12 -m venv .venv
-.\.venv\Scripts\Activate.ps1
+$env:Path = "$PWD\.venv\Scripts;$env:Path"
 ```
 
-On Linux or macOS, use `python3.12 -m venv .venv` and `source .venv/bin/activate`.
-Install from PyPI and copy the bundled examples into the working directory.
+On macOS or Linux, run these commands.
+
+```sh
+python3.12 -m venv .venv
+source .venv/bin/activate
+```
+
+Install the package and copy the bundled examples into the working directory.
 
 ```sh
 python -m pip install hydroreopllm
 python -c "import shutil, sysconfig; from pathlib import Path; shutil.copytree(Path(sysconfig.get_path('data')) / 'share/llm-reservoir-agent/examples', 'examples')"
 ```
 
-This installed example bundle includes the offline daily cases and their local
-rules. The source checkout also includes coupled templates, time-scale examples,
-and the notebook tutorial.
+Continue to [Run the offline example](#run-the-offline-example).
 
-For the latest source, tutorials, and case templates, follow the [clone instructions](../README.md#install-from-a-clone) and [run the example with the clone’s virtual environment](../README.md#run-a-reservoir-and-check-the-output). Both installation paths include HydroCNHS.
+## Install from a clone
+
+Get the source and change to the repository root.
+
+```sh
+git clone https://github.com/WenyuChiou/HydroReOpLLM.git
+cd HydroReOpLLM
+```
+
+Create and activate `.venv` using the [commands for your operating system](#install-from-pypi), then install from the clone.
+
+```sh
+python -m pip install -c environment/requirements-bundled.txt .
+```
+
+The clone already includes `examples/`. [Run the offline example](#run-the-offline-example) or [open the notebook tutorial](../tutorials/README.md).
 
 ## Run the offline example
 
-```powershell
+Keep the virtual environment active. Run these commands from the directory containing `examples/`.
+
+```sh
 reservoir-experiment check examples/daily_offline/single.yaml
 reservoir-experiment run examples/daily_offline/single.yaml
 reservoir-experiment verify runs/daily-single --require-offline
 ```
 
-An output directory must not already exist. Change `run_id` and `output` before
-repeating the example. A successful run creates `summary.json`, decision and
-physics journals, `reservoir_trajectory.csv`, `network_flows.csv`, and
-`network_balance.csv` in `runs/daily-single`. `verify --require-offline` reads
-those files and confirms that the recorded run made zero provider calls; it does
-not run the case again.
+`verify` reads the saved run and reports `PASS`, 4 days, and `observed_network_calls: 0`. In `runs/daily-single/summary.json`, check that `status` is `COMPLETED` and `summary.final_storage_m3.Lake_1` is `1345600.0`. The last row of `reservoir_trajectory.csv` has the same value in `storage_end_m3`. See the [results guide](RESULTS_GUIDE.md) for the other output files.
 
-Next, read [configuration](CONFIGURATION.md), [decision-time information](INFORMATION.md),
-and [the results guide](RESULTS_GUIDE.md). The [notebook tutorial](../tutorials/README.md)
-walks through the same offline case.
+## Repeat a run
+
+In `examples/daily_offline/single.yaml`, change `run_id` and `output` to new values before running again. The `output` path is relative to the YAML file. Point `verify` at the new output directory. The previous run remains available for comparison.
