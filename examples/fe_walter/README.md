@@ -1,14 +1,14 @@
 # F.E. Walter Dam
 
-Rule-based, Seasonal Target and DKP share the daily simulated inflow, initial storage, and downstream routing parameters used in the F.E. Walter study. The default window is January 1–7, 2021, so you can learn the workflow before running the full study period.
+The Rule-based baseline and both LLM cases share the daily simulated inflow, initial storage, and downstream routing parameters used in the F.E. Walter study. The default window is January 1–7, 2021, so you can learn the workflow before running the full study period.
 
 | Case | Configuration | System prompt | Daily prompt |
 | --- | --- | --- | --- |
 | Rule-based | [rule_based.yaml](rule_based.yaml) | — | — |
-| Seasonal Target | [seasonal_target.yaml](seasonal_target.yaml) | [Seasonal Target system prompt](prompts/seasonal_target.system.txt) | [Seasonal Target daily prompt](prompts/seasonal_target.user.txt) |
-| DKP | [dkp.yaml](dkp.yaml) | [DKP system prompt](prompts/dkp.system.txt) | [DKP daily prompt](prompts/dkp.user.txt) |
+| Without operational knowledge (Seasonal Target) | [seasonal_target.yaml](seasonal_target.yaml) | [Seasonal Target system prompt](prompts/seasonal_target.system.txt) | [Seasonal Target daily prompt](prompts/seasonal_target.user.txt) |
+| With operational knowledge (DKP) | [dkp.yaml](dkp.yaml) | [DKP system prompt](prompts/dkp.system.txt) | [DKP daily prompt](prompts/dkp.user.txt) |
 
-The DKP case also supplies the [local operating guidance](dkp.md). The two LLM cases use the same seasonal targets. All three use the same [physical case](case.json). The [input CSV](inflows.csv) contains 1,826 days, from 2021-01-01 through 2025-12-31, of GWLF-simulated local inflow upstream of the dam and incremental runoff to White Haven and Lehighton. Values are in m³/s. The case file pins the input CSV by SHA-256.
+Both LLM cases use the same seasonal targets. **With operational knowledge** also includes the [local operating guidance](dkp.md) in the daily prompt. All three use the same [physical case](case.json). The [input CSV](inflows.csv) contains 1,826 days, from 2021-01-01 through 2025-12-31, of GWLF-simulated local inflow upstream of the dam and incremental runoff to White Haven and Lehighton. Values are in m³/s. The case file pins the input CSV by SHA-256.
 
 ## Check the configurations
 
