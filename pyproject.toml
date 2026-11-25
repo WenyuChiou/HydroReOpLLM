@@ -52,11 +52,12 @@ hydrocnhs = ["Config_logging.yaml"]
 "share/llm-reservoir-agent/hydrocnhs" = ["third_party/hydrocnhs/LICENSE", "third_party/hydrocnhs/SOURCE.json", "third_party/hydrocnhs/upstream-pyproject.toml"]
 "share/llm-reservoir-agent/hydrocnhs/patches" = ["third_party/hydrocnhs/patches/visual-indicator-api.patch", "third_party/hydrocnhs/patches/gwlf-groundwater-diagnostics.patch"]
 "share/llm-reservoir-agent/environment" = ["environment/hydrocnhs-core.json"]
-"share/llm-reservoir-agent/examples" = ["examples/llm_reservoir_abm.py"]
-"share/llm-reservoir-agent/examples/daily_offline" = ["examples/daily_offline/README.md", "examples/daily_offline/single.yaml", "examples/daily_offline/single.mosart.yaml", "examples/daily_offline/single.json", "examples/daily_offline/cascade.yaml", "examples/daily_offline/cascade.json", "examples/daily_offline/operator.txt"]
-"share/llm-reservoir-agent/examples/rules/mosart_urban" = ["examples/rules/mosart_urban/__init__.py", "examples/rules/mosart_urban/README.md"]
+"share/llm-reservoir-agent/examples" = ["examples/README.md", "examples/README.zh-TW.md", "examples/llm_reservoir_abm.py"]
+"share/llm-reservoir-agent/examples/daily_offline" = ["examples/daily_offline/README.md", "examples/daily_offline/README.zh-TW.md", "examples/daily_offline/single.yaml", "examples/daily_offline/single.mosart.yaml", "examples/daily_offline/single.json", "examples/daily_offline/cascade.yaml", "examples/daily_offline/cascade.json", "examples/daily_offline/operator.txt"]
+"share/llm-reservoir-agent/examples/rules/mosart_urban" = ["examples/rules/mosart_urban/__init__.py", "examples/rules/mosart_urban/README.md", "examples/rules/mosart_urban/README.zh-TW.md"]
 "share/llm-reservoir-agent/examples/multiple_reservoirs" = [
     "examples/multiple_reservoirs/README.md",
+    "examples/multiple_reservoirs/README.zh-TW.md",
     "examples/multiple_reservoirs/agents.llm.yaml",
     "examples/multiple_reservoirs/agents.mosart.yaml",
     "examples/multiple_reservoirs/agents.rule.yaml",
@@ -87,6 +88,19 @@ hydrocnhs = ["Config_logging.yaml"]
 ]
 "share/llm-reservoir-agent/examples/rules/hanasaki" = [
     "examples/rules/hanasaki/__init__.py",
+]
+"share/llm-reservoir-agent/examples/time_scales" = [
+    "examples/time_scales/README.md",
+    "examples/time_scales/README.zh-TW.md",
+    "examples/time_scales/daily.yaml",
+    "examples/time_scales/fixed_interval.case.json",
+    "examples/time_scales/fixed_interval.yaml",
+    "examples/time_scales/hourly.yaml",
+    "examples/time_scales/hourly_forcing.csv",
+    "examples/time_scales/hourly_gwlf_smoke.py",
+    "examples/time_scales/hourly_hydrology.yaml",
+    "examples/time_scales/hourly_reservoir.yaml",
+    "examples/time_scales/prompt.txt",
 ]
 "share/llm-reservoir-agent/scripts" = ["scripts/verify_mosart_rule.py"]
 # The original-program oracle is external and opt-in; case extensions live in examples.

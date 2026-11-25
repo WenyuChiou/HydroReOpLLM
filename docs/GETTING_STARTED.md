@@ -24,11 +24,7 @@ Install the package and copy the bundled examples into the working directory.
 
 ```sh
 python -m pip install hydroreopllm
-python -c "from pathlib import Path
-from shutil import copytree
-from sysconfig import get_path
-source = Path(get_path('data')) / 'share/llm-reservoir-agent/examples'
-copytree(source, 'examples')"
+reservoir-experiment init-examples
 ```
 
 The PyPI distribution is `hydroreopllm`, the Python import is `llm_reservoir_agent`, and the command is `reservoir-experiment`.

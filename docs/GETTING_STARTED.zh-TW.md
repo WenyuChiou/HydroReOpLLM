@@ -26,11 +26,7 @@ source .venv/bin/activate
 
 ```sh
 python -m pip install hydroreopllm
-python -c "from pathlib import Path
-from shutil import copytree
-from sysconfig import get_path
-source = Path(get_path('data')) / 'share/llm-reservoir-agent/examples'
-copytree(source, 'examples')"
+reservoir-experiment init-examples
 ```
 
 PyPI 套件名稱是 `hydroreopllm`，Python 匯入名稱是 `llm_reservoir_agent`，命令列指令是 `reservoir-experiment`。
