@@ -1,26 +1,37 @@
 # F.E. Walter Dam
 
-Seasonal Target and DKP share the daily simulated inflow, initial storage, and downstream routing parameters used in the F.E. Walter study. The default window is January 1–7, 2021, so you can learn the workflow before running the full study period.
+Rule-based, Seasonal Target and DKP share the daily simulated inflow, initial storage, and downstream routing parameters used in the F.E. Walter study. The default window is January 1–7, 2021, so you can learn the workflow before running the full study period.
 
 | Case | Configuration | System prompt | Daily prompt |
 | --- | --- | --- | --- |
+| Rule-based | [rule_based.yaml](rule_based.yaml) | — | — |
 | Seasonal Target | [seasonal_target.yaml](seasonal_target.yaml) | [Seasonal Target system prompt](prompts/seasonal_target.system.txt) | [Seasonal Target daily prompt](prompts/seasonal_target.user.txt) |
 | DKP | [dkp.yaml](dkp.yaml) | [DKP system prompt](prompts/dkp.system.txt) | [DKP daily prompt](prompts/dkp.user.txt) |
 
-The DKP case also supplies the [local operating guidance](dkp.md). Both cases use the same seasonal targets and [physical case](case.json). The [input CSV](inflows.csv) contains 1,826 days, from 2021-01-01 through 2025-12-31, of GWLF-simulated local inflow upstream of the dam and incremental runoff to White Haven and Lehighton. Values are in m³/s. The case file pins the input CSV by SHA-256.
+The DKP case also supplies the [local operating guidance](dkp.md). The two LLM cases use the same seasonal targets. All three use the same [physical case](case.json). The [input CSV](inflows.csv) contains 1,826 days, from 2021-01-01 through 2025-12-31, of GWLF-simulated local inflow upstream of the dam and incremental runoff to White Haven and Lehighton. Values are in m³/s. The case file pins the input CSV by SHA-256.
 
-## Check both configurations
+## Check the configurations
 
 Run these commands from the repository root or the parent of an `examples/` directory exported by the package.
 
 ```shell
+reservoir-experiment check examples/fe_walter/rule_based.yaml
 reservoir-experiment check examples/fe_walter/seasonal_target.yaml
 reservoir-experiment check examples/fe_walter/dkp.yaml
 ```
 
-Each check validates the inputs and previews the prompts with zero model calls.
+Each check validates the inputs with zero model calls. The LLM checks also preview the selected prompts.
 
-## Run with local Ollama
+## Run the offline rule
+
+The Hanasaki rule uses F.E. Walter's [1996–2015 inflow statistics](rule_statistics.json), which precede the simulation. The public rule implementation and the archived study rule are distinct.
+
+```shell
+reservoir-experiment run examples/fe_walter/rule_based.yaml
+reservoir-experiment verify runs/fe-walter-rule-based --require-offline
+```
+
+## Run the LLM cases with local Ollama
 
 Use an Ollama service that already has `gemma4:12b`. Both YAML files point to `http://127.0.0.1:11434`. If your service uses another port or tag, change `models.local.base_url` or `models.local.model` in both files.
 
@@ -35,8 +46,8 @@ Use a new `run_id` and `output` when repeating a run. Inspect `decisions.jsonl` 
 
 ## Run the full study period
 
-In each YAML, keep `start_date` at `'2021-01-01'`, set `end_date` to `'2025-12-31'` and set `max_calls` to `3652` for up to two requests per day. Choose a fresh `run_id` and `output`, then check and run the configuration as above.
+In each YAML, keep `start_date` at `'2021-01-01'` and set `end_date` to `'2025-12-31'`. Keep `max_calls` at `0` for Rule-based. Set it to `3652` for either LLM case to allow up to two requests per day. Choose a fresh `run_id` and `output`, then check and run the configuration as above.
 
-These commands use the public SI-unit prompts, abbreviated operating guidance and current simulator. The archived study used the V3.7 backend, its own prompts and Ollama 0.40.6 with Gemma manifest SHA-256 `4eb23ef187e2c5462566d6a1d3bbbc2f1346d0b4327cbb66d58fffbcc9b2b05c`. Treat results from the public configurations as new simulations.
+The LLM commands use the public SI-unit prompts, abbreviated operating guidance and current simulator. The archived study used the V3.7 backend, its own prompts and Ollama 0.40.6 with Gemma manifest SHA-256 `4eb23ef187e2c5462566d6a1d3bbbc2f1346d0b4327cbb66d58fffbcc9b2b05c`. Treat results from the public configurations as new simulations.
 
-[Use both cases in the tutorial](https://wenyuchiou.github.io/HydroReOpLLM/tutorials/index.html)
+[Use all three configurations in the tutorial](https://wenyuchiou.github.io/HydroReOpLLM/tutorials/index.html)

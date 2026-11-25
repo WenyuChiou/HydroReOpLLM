@@ -49,7 +49,7 @@ reservoir-experiment init-examples
 
 ## 執行通用離線範本
 
-此範本無須 API 金鑰或模型伺服器。請在儲存庫根目錄或包含已匯出範例的工作目錄執行。
+此範本由兩個 agent 操作串聯水庫，無須 API 金鑰或模型伺服器。請在儲存庫根目錄或包含已匯出範例的工作目錄執行。
 
 ```sh
 reservoir-experiment check examples/template/experiment.yaml
@@ -61,14 +61,15 @@ reservoir-experiment verify runs/prepared-template --require-offline
 
 ## 檢查 F.E. Walter 範例
 
-兩份 LLM 設定皆可在不發出模型請求的情況下檢查：
+三份設定皆可在不發出模型請求的情況下檢查。
 
 ```sh
+reservoir-experiment check examples/fe_walter/rule_based.yaml
 reservoir-experiment check examples/fe_walter/seasonal_target.yaml
 reservoir-experiment check examples/fe_walter/dkp.yaml
 ```
 
-[F.E. Walter 範例指南](../examples/fe_walter/README.zh-TW.md)提供具名系統提示詞與使用者提示詞的連結。執行任一案例皆是明確的本機網路動作：先以設定的 `gemma4:12b` 模型啟動 Ollama，指定全新的輸出路徑，再執行 `reservoir-experiment run <yaml> --allow-network`。儲存庫不附模型權重或模型輸出。
+Rule-based 可用 `reservoir-experiment run examples/fe_walter/rule_based.yaml` 離線執行。兩個 LLM 案例需先啟動具備 `gemma4:12b` 的 Ollama，再使用 `reservoir-experiment run <yaml> --allow-network`。[F.E. Walter 範例指南](../examples/fe_walter/README.zh-TW.md)提供提示詞連結與完整研究期間的執行方式。
 
 ## 重跑案例
 

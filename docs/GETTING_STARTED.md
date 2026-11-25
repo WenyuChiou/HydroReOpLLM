@@ -47,7 +47,7 @@ The command creates an `examples/` directory. Run the commands below from the wo
 
 ## Run the generic offline template
 
-The template runs with no API key or model server. Use the repository root or the working directory containing the exported examples.
+The template runs two agents operating a reservoir cascade without an API key or model server. Use the repository root or the working directory containing the exported examples.
 
 ```sh
 reservoir-experiment check examples/template/experiment.yaml
@@ -59,14 +59,15 @@ reservoir-experiment verify runs/prepared-template --require-offline
 
 ## Check the F.E. Walter examples
 
-Both LLM configurations can be checked without a model request:
+All three configurations can be checked without a model request.
 
 ```sh
+reservoir-experiment check examples/fe_walter/rule_based.yaml
 reservoir-experiment check examples/fe_walter/seasonal_target.yaml
 reservoir-experiment check examples/fe_walter/dkp.yaml
 ```
 
-Their named system and user prompts are linked from the [F.E. Walter example guide](../examples/fe_walter/README.md). Running either case is an explicit local-network action: start Ollama with the configured `gemma4:12b` model, choose a fresh output, then use `reservoir-experiment run <yaml> --allow-network`. No model weights or model outputs are bundled.
+Run the rule-based configuration with `reservoir-experiment run examples/fe_walter/rule_based.yaml`. For either LLM configuration, start Ollama with the configured `gemma4:12b` model and use `reservoir-experiment run <yaml> --allow-network`. The [F.E. Walter guide](../examples/fe_walter/README.md) links the prompts and explains the full study window.
 
 ## Repeat a run
 

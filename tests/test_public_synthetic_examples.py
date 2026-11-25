@@ -116,6 +116,12 @@ def test_cli_init_examples_copies_clean_bundle_and_refuses_overwrite(tmp_path, c
     assert (dest / "template" / "experiment.yaml").is_file()
     assert (dest / "fe_walter" / "seasonal_target.yaml").is_file()
     assert (dest / "fe_walter" / "dkp.yaml").is_file()
+    rule = dest / "fe_walter" / "rule_based.yaml"
+    assert rule.is_file()
+    assert main(["check", str(rule)]) == 0
+    report = yaml.safe_load(capsys.readouterr().out)
+    assert report["planned_llm_calls"] == 0
+    assert report["agent_rules"] == {"walter_operator": "hanasaki"}
     assert Path(payload["first_example"]) == dest / "template" / "experiment.yaml"
     assert not list(dest.rglob("__pycache__"))
 
@@ -138,5 +144,6 @@ def test_pyproject_ships_the_template_and_water_control_examples():
         "examples/template/experiment.yaml",
         "examples/fe_walter/seasonal_target.yaml",
         "examples/fe_walter/dkp.yaml",
+        "examples/fe_walter/rule_based.yaml",
     }
     assert "examples/README.zh-TW.md" in packaged
