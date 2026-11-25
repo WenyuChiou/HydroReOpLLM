@@ -31,7 +31,7 @@ reservoir-experiment verify runs/prepared-template --require-offline
 
 [開啟線上 F.E. Walter 教學](https://wenyuchiou.github.io/HydroReOpLLM/tutorials/index.zh-TW.html)。
 
-請先執行 `reservoir-experiment check`。此指令可在不連線 Ollama 的情況下驗證任一 F.E. Walter 設定。內附入流量為合成教學輸入；儲存庫不附模型輸出或文章結果。
+請先執行 `reservoir-experiment check`。此指令可在不連線 Ollama 的情況下驗證任一 F.E. Walter 設定。兩個 F.E. Walter 設定都使用論文的 2021–2025 年入流，預設先跑七天。[案例指南](examples/fe_walter/README.zh-TW.md)說明如何用公開版提示詞及模擬器跑完整期間。
 
 ## 測試與授權
 

@@ -1,6 +1,6 @@
 # F.E. Walter operating guidance for the teaching example
 
-This short Decision Knowledge Package (DKP) uses selected principles from Sections 7-01, 7-02, and 7-05 and Table 7-1 of the Francis E. Walter Dam and Reservoir Water Control Manual. The example has daily model state and synthetic local inflow.
+This short Decision Knowledge Package (DKP) uses selected principles from Sections 7-01, 7-02, and 7-05 and Table 7-1 of the Francis E. Walter Dam and Reservoir Water Control Manual. The example has daily model state and the study's simulated local inflow.
 
 ## R-ZONE seasonal storage
 Use the same storage targets as the Seasonal Target case. Maintain space for flood storage. Recreation storage is available for drawdown when flood control requires it.

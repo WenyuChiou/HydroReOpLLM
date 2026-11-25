@@ -79,6 +79,13 @@ def test_walter_examples_pin_and_use_the_documented_prompts(tmp_path, case_name)
     assert verified["status"] == "PASS"
     assert verified["days"] == len(sent) == 7
     assert verified["max_system_balance_residual_m3"] < 1e-6
+    config = example / f"{case_name}.yaml"
+    full_period = yaml.safe_load(config.read_text(encoding="utf-8"))
+    full_period.update(end_date="2025-12-31", max_calls=3652)
+    config.write_text(yaml.safe_dump(full_period), encoding="utf-8")
+    full_check = load_settings(config).report
+    assert full_check["days"] == full_check["planned_llm_calls"] == 1826
+    assert full_check["network_calls"] == 0
     for messages in sent:
         assert messages[0]["role"] == "system"
         assert messages[0]["content"].strip() == system_prompt
