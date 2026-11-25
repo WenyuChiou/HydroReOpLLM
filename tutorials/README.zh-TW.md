@@ -17,8 +17,8 @@ python -m jupyterlab tutorials/offline_synthetic.ipynb
 
 1. 如果 JupyterLab 停在啟動器（Launcher），請從左側檔案瀏覽器開啟筆記本。若看見 `tutorials/` 資料夾，請進入該資料夾再開啟 `offline_synthetic.ipynb`。
 2. 選擇專案 `.venv` 的核心，再按 **Run → Run All Cells**。
-3. 檢查結果。**Expected storage** 中最後一筆 `storage_m3` 應為 `1345600.0`（**1,345,600 m³**）。最後的驗證報告應顯示 `PASS`、執行 4 天及 `observed_network_calls: 0`。
+3. 檢查結果。**Expected storage** 中最後一筆 `storage_m3` 應為 `1345600.0`（**1,345,600 m³**）。驗證報告應顯示 `PASS`、執行 4 天及 `observed_network_calls: 0`，且 **Inspect the simulated trajectory** 會列出四天的 `reservoir_trajectory.csv` 表格供對照。
 
 ## 保留輸出
 
-筆記本會使用暫存目錄，並在執行結束後清除。若要將命令列輸出保存在 `runs/daily-single/`，請依照[執行離線範例](../docs/GETTING_STARTED.zh-TW.md#執行離線範例)操作。各輸出檔案的讀法請見[結果指南](../docs/RESULTS_GUIDE.zh-TW.md)。
+筆記本會使用暫存目錄，並在執行結束後清除。若要將命令列輸出保存在 `runs/daily-single/`，請依照[執行離線範例](../docs/GETTING_STARTED.zh-TW.md#執行離線範例)操作。各輸出檔案的讀法請見[結果指南](../docs/RESULTS_GUIDE.zh-TW.md)，或繼續嘗試[單庫與串聯／MOSART-Urban 範例](../examples/daily_offline/README.zh-TW.md)。
