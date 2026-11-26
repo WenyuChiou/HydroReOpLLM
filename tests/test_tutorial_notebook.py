@@ -194,8 +194,8 @@ def test_walter_notebook_runs_and_plots_verified_results(tmp_path, monkeypatch, 
         }
         assert multi_llm_report["agent_rules"] == {"zhitan_operator": "hanasaki"}
         preview_content = namespace["multi_llm_preview"]["messages"][1]["content"]
-        assert "reservoir-action.v1" in preview_content
-        assert "feitsui_operator" in preview_content
+        assert "Today's inflow:" in preview_content
+        assert "Feitsui" in namespace["multi_llm_preview"]["messages"][0]["content"]
 
         hybrid_report = namespace["hybrid_report"]
         assert hybrid_report["agent_types"] == {

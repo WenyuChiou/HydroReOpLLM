@@ -1,0 +1,55 @@
+{
+  "feitsui": {
+    "type": "object",
+    "properties": {
+      "applicable_target_storage_m3": {
+        "type": "number",
+        "description": "Operation-target effective storage (m3) that applies to this interval, read from the operation target"
+      },
+      "pool_position": {
+        "type": "string",
+        "enum": [
+          "below_target",
+          "at_target",
+          "above_target"
+        ],
+        "description": "Beginning storage compared with applicable_target_storage_m3"
+      },
+      "intended_storage_direction": {
+        "type": "string",
+        "enum": [
+          "increase",
+          "hold",
+          "decrease"
+        ],
+        "description": "How you intend storage to change over this interval"
+      },
+      "release_relation_to_inflow": {
+        "type": "string",
+        "enum": [
+          "below_inflow",
+          "equal_to_inflow",
+          "above_inflow"
+        ],
+        "description": "How your release will compare with this interval's inflow"
+      },
+      "reasoning": {
+        "type": "string",
+        "description": "One or two sentences: the storage change your release will cause, and why it moves toward or maintains the target buffer"
+      },
+      "release_cms": {
+        "type": "number",
+        "description": "Target mean controlled release for the interval in cubic meters per second (m3/s)"
+      }
+    },
+    "required": [
+      "applicable_target_storage_m3",
+      "pool_position",
+      "intended_storage_direction",
+      "release_relation_to_inflow",
+      "reasoning",
+      "release_cms"
+    ],
+    "additionalProperties": false
+  }
+}

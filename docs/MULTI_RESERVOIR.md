@@ -27,7 +27,7 @@ Define the physical network under `network` in `case.json` or `reservoirs.yaml` 
 
 </div>
 
-Channel routing convolves releases with `unit_hydrograph` (for example, `[0.8, 0.2]` in the Feitsui → Zhitan cascade delivers 80% on the release day and 20% on day +1). Water still in transit at the end of a run is tracked in `reach_volume_trace.json` and `network_balance.csv` so total basin water balance closes.
+Channel routing convolves releases with `unit_hydrograph` (for example, the Lohmann weights `[0.857904, 0.142054, 4.2e-05]` in the Feitsui → Zhitan cascade). Water still in transit at the end of a run is tracked in `reach_volume_trace.json` and `network_balance.csv` so total basin water balance closes.
 
 ## Hybrid Hanasaki and LLM multi-reservoir wiring
 

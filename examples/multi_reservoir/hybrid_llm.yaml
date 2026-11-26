@@ -1,5 +1,6 @@
 # Hybrid Xindian River cascade: upstream LLM operator (Feitsui) paired with downstream Hanasaki rule (Zhitan).
-# Run check offline (0 network calls); live execution requires Ollama and --allow-network.
+# Uses the unified structured decision-chain prompt design matched to F.E. Walter (`xindian_study`).
+# Run check offline (0 network calls); live execution requires Ollama (`gemma4:12b`) and --allow-network.
 schema_version: llm-reservoir-experiment.v1
 case: case.json                       # Physical cascade: Feitsui Reservoir -> Zhitan Dam -> xindian_outlet.
 run_id: multi-reservoir-hybrid-llm    # Trace identity; change with output before repeating.
@@ -12,13 +13,15 @@ models:
     provider: ollama
     model: gemma4:12b
     base_url: http://127.0.0.1:11434
-    temperature: 0.2
+    temperature: 0.7
     seed: 3
-    max_tokens: 512
+    num_ctx: 16384
+    max_tokens: 2048
     max_attempts: 2
     think: false
     keep_alive: 30m
     timeout_seconds: 120
+    retry_delay_seconds: 2
 auditors:
   feasible_release:
     type: release_bounds
@@ -28,10 +31,7 @@ agents:
     reservoir: feitsui
     mode: llm
     model: local
-    history_steps: 2
-    prompt:
-      system: prompts/system.txt
-      user: prompts/operator.txt
+    strategy: xindian_study
     auditors:
     - feasible_release
   zhitan_operator:
@@ -44,3 +44,8 @@ agents:
       alpha: 0.85
     auditors:
     - feasible_release
+extensions:
+  xindian_study: study/__init__.py
+source_dependencies:
+  prompts/feitsui.system.txt: 87eacc7c3741e2d9a5cbdf2037ab133a2270bd0f6e69d0ec5e0ba9996d84b2f5
+  study/response_schemas.json: a8caa18bd77ffc855a650665fa3091763a81b26f2fee0d7fd3850cdc2f51dcac
