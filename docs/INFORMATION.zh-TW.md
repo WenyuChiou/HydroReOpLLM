@@ -1,63 +1,90 @@
-# 決策時資訊
+# 水情測站與預報
 
-資訊設定檔可在決策時為單一操作員提供具名且唯讀的額外資料檢視。其內容可以是固定目標值、附帶時間戳記的觀測或預報資料，或是模擬系統已提交的數值，但不能更動蓄水量、入流量、放流量限制、演算設定或其他水庫的狀態。
+<div class="hero-band" markdown="1">
 
-## 操作員在每個時間步所掌握的資訊
+`information` 設定檔可在決策當下提供**不洩漏未來水情、唯讀**的河川測站、入流預報、季節運轉規線或已提交之上游水庫狀態，絕不讓未來的洪峰提早進入今日決策。
 
-正在執行決策的水庫會在常規觀測中取得當期時段平均入流量與期初蓄水量。這表示在逐日案例中，系統假設決定當日放流量時已知當日的平均入流量。已完成歷史資料僅包含先前時間步長的紀錄。其他水庫的數值則必須在該水庫完成當期步長提交後才會開放讀取。
+</div>
 
-針對外部 CSV 資料，決策時鐘即為當前時間步長的時間戳記。觀測資料唯有在 `valid_time` 與 `available_at` 皆不晚於該決策時鐘時，才具備取用資格。預報資料可描述未來的 `valid_time`，但其 `issued_at` 與 `available_at` 兩者皆不得晚於決策時點。所有時間戳記均須包含 `Z` 或明確的 UTC 偏移量。
+## 水情時序規則與決策時機
 
-## 設定資訊設定檔
+<div class="panel-grid panel-grid-2" markdown="1">
+<div class="panel-card" markdown="1">
 
-以下設定結構會以適用於提示詞的安全別名，公開一項靜態數值。
+### 操作員內建掌握的資訊
+
+- 當期期初 `storage_m3` 與當日演算入流 `inflow_cms`。
+- 先前已提交的時間步紀錄（`$previous_transition` / `$completed_history`）。
+- 上游水庫的狀態**僅於**同一時間步稍早完成提交後才可讀取。
+
+</div>
+<div class="panel-card" markdown="1">
+
+### 水情時序防護（測站與預報）
+
+- 所有 CSV 時間戳記皆須包含 `Z` 或明確 UTC 偏移量。
+- **測站觀測**：僅當 `valid_time <= clock` 且 `available_at <= clock` 時才可用。
+- **水文預報**：`valid_time` 可指向未來，但須同時滿足 `issued_at <= clock` 且 `available_at <= clock`。
+
+</div>
+</div>
+
+## 資料來源類型與單位換算
+
+| `type` | 必填欄位 | 選填欄位 | 用途 |
+| --- | --- | --- | --- |
+| `static` | `quantity`、`unit`、`location`、`value` | `datum` | 固定目標放流量、警戒水位或規線表。 |
+| `csv` | `quantity`、`unit`、`location`、`kind`（`observation` \| `forecast`）、`path` | `datum` | 具水情時間戳記的測站觀測值或發布預報。 |
+| `simulation` | `quantity`（`inflow` \| `storage` \| `release` \| `flow`）、`unit`、`location` | `datum` | 讀取其他水庫、匯流點或出口的唯讀狀態（`m3`、`m3/s`）。 |
+| `extension` | `quantity`、`unit`、`location`、`provider` | `kind`、`parameters`、`datum` | 回傳帶時間戳記紀錄的自訂 Python 讀取器。 |
+
+**測站觀測 CSV**（`valid_time,available_at,value`）：
+
+```csv
+valid_time,available_at,value
+2021-01-01T00:00:00Z,2021-01-01T00:00:00Z,1240.0
+2021-01-02T00:00:00Z,2021-01-02T00:00:00Z,1580.0
+```
+
+**水文預報 CSV**（`issued_at,valid_time,available_at,value`）：
+
+```csv
+issued_at,valid_time,available_at,value
+2021-01-01T00:00:00Z,2021-01-02T00:00:00Z,2021-01-01T00:00:00Z,1450.0
+2021-01-01T00:00:00Z,2021-01-03T00:00:00Z,2021-01-01T00:00:00Z,1920.0
+```
+
+內建單位換算（`unit:`）：`m3/s` ↔ `cfs`（`35.31466672148859`）、`m3` ↔ `acre-ft`（`1 / 1233.48183754752`）與 `m` ↔ `ft`（`3.280839895013123`）。
+
+## 設定資訊設定檔與代理人綁定
 
 ```yaml
+# information.yaml
 sources:
-  operating_target:
-    type: static
-    quantity: target_release
-    unit: m3/s
-    location: lake_a
-    value: 2.5
+  downstream_gauge:
+    type: csv
+    kind: observation
+    quantity: flow
+    unit: cfs
+    location: usgs_01449000
+    path: data/lehighton_obs.csv
+  upstream_storage:
+    type: simulation
+    quantity: storage
+    unit: m3
+    location: upper_dam
 profiles:
   operator_view:
     fields:
-      operating_target_cms:
-        source: operating_target
-        required: true
+      lehighton_flow_cms: { source: downstream_gauge, unit: m3/s, history: 3, max_age_seconds: 86400, required: false }
+      upper_pool_acft: { source: upstream_storage, unit: acre-ft, required: true }
 ```
 
-先於耦合實驗設定中參照該資訊目錄，再於目標代理上指定所要選用的設定檔。
+在 `experiment.yaml` 加入 `information: { file: information.yaml }`，於操作員設定 `customization.information: operator_view`，並在提示詞放入 `$information`（Python 規則則讀取 `observation["context"]["decision_information"]`）。
 
-```yaml
-# experiment.yaml
-information:
-  file: information.yaml
+## 缺值處理與驗證
 
-# agents.llm.yaml
-operator_a:
-  reservoir_id: lake_a
-  type: llm
-  model_profile: local
-  prompt_file: prompts/operator.txt
-  customization:
-    information: operator_view
-```
-
-當通用 LLM 代理選用資訊設定檔時，請於其提示詞檔案中加入字面佔位符 `$information`，執行期會將選定的資料快照插入該處。規則式擴充模組則可透過 `observation.context.decision_information` 讀取同一份快照。選用特定設定檔並不會公開目錄中的其餘項目。
-
-## 資料來源類型
-
-| `type` | 必要來源欄位 | 可用性行為 |
-|---|---|---|
-| `static` | `quantity`、`unit`、`location`、`value` | 隨時可用。適合固定目標值或標籤。 |
-| `csv` | 通用欄位加上 `kind` 與 `path` | 針對確切的 UTF-8 CSV 位元組計算雜湊值，並依因果時間戳記選取紀錄。 |
-| `simulation` | 通用欄位 | 從當期或已提交的原生模擬狀態讀取 `inflow`、`storage`、`release` 或 `flow`。 |
-| `extension` | 通用欄位加上已註冊的 `provider` | 呼叫由應用程式宣告、具版本控管的本機讀取器。 |
-
-觀測資料 CSV 的欄位名稱固定為 `valid_time,available_at,value`。預報資料的欄位名稱則固定為 `issued_at,valid_time,available_at,value`。設定檔欄位亦可另行設定 `unit`、`history`、`max_age_seconds` 與 `required`。支援的單位換算包括 m3/s 與 cfs、m3 與 acre-ft，以及 m 與 ft。
-
-若必要欄位找不到符合因果順序且仍在有效期限內的紀錄，決策流程便會中止。非必要欄位若缺漏，系統會明確記錄為 `status: MISSING`、`value: null` 並附上原因，絕不會將缺值改寫為零。可用的欄位則會包含所選數值、單位、位置、來源 ID、時間戳記、所請求的歷史樣本，以及適用的 CSV 雜湊值或擴充模組版本。
-
-每次修改資訊目錄或代理設定後，請執行 `reservoir-experiment check path/to/experiment.yaml`。所選定的快照會儲存在每筆決策觀測紀錄中，並由 `verify` 進行查核。針對 static、CSV 與 simulation 來源，驗證工具會重新建構所選數值。針對已註冊的擴充模組，則會檢查已儲存的時間戳記、來源追蹤資訊與內部一致性，而不會再次呼叫外部讀取器。接下來可繼續閱讀[執行生命週期](RUNNING.zh-TW.md)或[結果解讀指南](RESULTS_GUIDE.zh-TW.md)。
+| 欄位設定 | 缺漏或過期時行為 | 驗證檢查 |
+| --- | --- | --- |
+| `required: true` | 立即中止模擬（絕不代換為 `0.0`）。 | 於 `verify` 階段依來源 CSV 與模擬狀態核對數值。 |
+| `required: false` | 填入 `status: "MISSING"`、`value: null` 與明確 `reason`。 | 逐筆查核 `decisions.jsonl` 每一步的水情時間戳記。 |

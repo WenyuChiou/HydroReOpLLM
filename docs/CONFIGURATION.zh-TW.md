@@ -1,42 +1,97 @@
-# 設定說明
+# 實驗設定檔
 
-公開的起始案例為使用既有入流資料的 [`examples/template`](../examples/template/README.zh-TW.md)。替換合成入流量、物理參數、日期或操作員前，請先複製整個目錄。
+<div class="hero-band" markdown="1">
 
-![HydroReOpLLM 套件結構與設定檔關聯圖](assets/diagrams/package-structure.svg)
+每項模擬都從一份頂層 `experiment.yaml` 開始，將水庫物理資料、操作員與模擬時間組合起來。自備入流建議先複製[雙水庫入門範本](../examples/template/README.zh-TW.md)，耦合集水區模擬則建議採用拆檔結構。
 
-`experiment.yaml` 為主設定入口。YAML、JSON、CSV、提示詞與知識檔案的路徑，皆相對於宣告該路徑的檔案解析。`{file: ...}` 參照會取代整個對應區段，而非進行深層合併。複製範例時，請將案例、入流量、提示詞與知識檔案一併保留。
+</div>
 
-請依下列順序設定研究案例：
+## 實驗設定三大組成
 
-1. 設定 `run_id`、尚未使用的 `output` 路徑及操作日期。
-2. 定義或參照既有入流案例，並確認資料雜湊值。
-3. 在水系案例中定義庫容、放流量上下限、演算設定與出口節點。
-4. 為每座受控水庫指定且僅指定一名操作員。
-5. 使用 LLM 操作員時，指定模型設定檔及明確的系統、使用者提示詞檔案。
-6. 僅加入該操作員應取得的決策時資訊與知識。
+<div class="panel-grid panel-grid-3" markdown="1">
+<div class="panel-card" markdown="1">
 
-`reservoir-experiment check` 會解析並驗證設定相依圖，不會執行模擬或連線至模型服務。
+### 組成一：流域物理與入流
 
-## 公開設定檔格式
+定義水庫庫容、放流上下限與河網連線（`case.json` 或 `reservoirs.yaml`），以及自備 `inflows.csv` 或 `hydrology.yaml`。
 
-| `schema_version` | 公開用途 | 操作員欄位 |
+</div>
+<div class="panel-card" markdown="1">
+
+### 組成二：操作員、水情與模型
+
+為每座受控水庫指派規則或 LLM（`agents`），並依需求掛載水情測站與預報（`information`）、模型設定（`models`）與稽核器（`auditors`）。
+
+</div>
+<div class="panel-card" markdown="1">
+
+### 組成三：時間視窗與輸出
+
+指定操作日期或時段（`start_date`/`end_date` 或 `start_time`/`end_time`）、呼叫上限（`max_calls`）與全新輸出資料夾（`output`）。
+
+</div>
+</div>
+
+<figure class="figure-card">
+  <img src="assets/diagrams/package-structure.svg" alt="HydroReOpLLM 設定檔結構圖，連接 experiment.yaml、case、hydrology、agents、models 與 information">
+  <figcaption><strong>設定檔關聯圖。</strong> 每個檔案一律從自身所在目錄解析相對路徑。</figcaption>
+</figure>
+
+## 設定版本與相對路徑規則
+
+| `schema_version` | 入流方式 | `{file: ...}` 拆檔區段 | 適用情境 |
+| --- | --- | --- | --- |
+| `llm-reservoir-experiment.v1` | 自備入流 | 內嵌 | 雙水庫入門範本與 F.E. Walter 水庫案例（`inflows.csv` + `case.json`）。 |
+| `llm-reservoir-experiment.v2` | 自備入流 | `models`、`agents`、`auditors`、`extensions`、`information` | 分檔管理的大型自備入流研究。 |
+| `hydroops-coupled-simulation.v1` | HydroCNHS 集水區模式 | 內嵌 | 單檔式集水區與水庫耦合模擬。 |
+| `hydroops-coupled-simulation.v2` | HydroCNHS 集水區模式 | `hydrology`、`models`、`agents`、`auditors`、`extensions`、`information` | 建議用於多水庫與混合流域的模組化架構。 |
+
+- 所有路徑（`case`、`output`、`prompt_file`、`knowledge`、CSV）一律相對於**宣告該路徑的 YAML 檔案**解析。
+- 每個 `{file: ...}` 參照會取代整個頂層區段，不可在同一區塊內混寫其他內嵌鍵值。
+
+## 頂層實驗設定欄位
+
+| 欄位 | 必填 | 用途 |
 | --- | --- | --- |
-| `llm-reservoir-experiment.v1` | 通用範本與 F.E. Walter 既有入流案例 | `reservoir`，搭配 `mode: offline` 或 `mode: llm` |
+| `schema_version` | 是 | 指定設定格式版本（上表四選一）。 |
+| `run_id` | 是 | 唯一的實驗識別名稱，記錄於 `summary.json` 與決策日誌。 |
+| `output` | 是 | 尚未使用的輸出資料夾路徑（不會覆寫既有模擬結果）。 |
+| `case` | 是 | 指向 `case.json` 或 `reservoirs.yaml`（自備入流案例內含 `inflow_source.sha256`）。 |
+| `start_date` / `end_date` | 逐日 | 加引號之 `YYYY-MM-DD` 雙向含括操作日期。 |
+| `start_time` / `end_time` / `time` | 次日 | UTC 時間戳記（不含終點）搭配 `{simulation_step, output_step}`。 |
+| `hydrology` | 耦合 | 連接 HydroCNHS 集水區模式、氣象驅動與 `inflow_bindings`。 |
+| `agents` | 是 | 為每座受控水庫指派一名操作員（`rule_based`、`llm` 或 `offline`）。 |
+| `models` | LLM | 具名的本機 Ollama 或雲端 LLM 設定檔（見[模型服務設定](LLM_MODULES.zh-TW.md)）。 |
+| `auditors` | 否 | 放流邊界與數值範圍診斷稽核器。 |
+| `extensions` | 否 | 註冊自訂 Python 規則套件（例如 `hanasaki`）。 |
+| `information` | 否 | 不洩漏未來水情之測站、預報與上游水庫狀態（見[水情測站與預報](INFORMATION.zh-TW.md)）。 |
+| `outcome_checks` | 否 | 河道演算後的下游控制點流量檢查（洪峰超標或低水不足）。 |
+| `max_calls` | 建議 | LLM 總呼叫次數上限（離線／規則設 `0`；即時推論須 `>= llm_agents * steps`）。 |
 
-執行期亦支援拆檔式 HydroCNHS 研究。這類案例需要個別研究所專屬的驅動資料、率定與驗證；公開儲存庫不會將通用耦合案例描述為完整研究。
+## 設定順序與 YAML 注意事項
 
-## 操作員
+<div class="pipeline-strip">
+  <div class="pipeline-step"><strong>1. 識別與日期</strong><code>run_id</code>、全新 <code>output</code>、加引號日期</div>
+  <div class="pipeline-arrow">→</div>
+  <div class="pipeline-step"><strong>2. 入流來源</strong><code>inflows.csv</code> 或 <code>hydrology.yaml</code></div>
+  <div class="pipeline-arrow">→</div>
+  <div class="pipeline-step"><strong>3. 水庫網路</strong>庫容、上下限與演算延遲</div>
+  <div class="pipeline-arrow">→</div>
+  <div class="pipeline-step"><strong>4. 操作員</strong>每座受控水庫 1 名操作員</div>
+  <div class="pipeline-arrow">→</div>
+  <div class="pipeline-step"><strong>5. 水情與模型</strong><code>models.yaml</code>、提示詞、<code>information</code></div>
+  <div class="pipeline-arrow">→</div>
+  <div class="pipeline-step"><strong>6. 離線檢查</strong><code>reservoir-experiment check</code></div>
+</div>
 
-- `mode: offline` 套用固定操作，不發出模型請求。
-- `type: rule_based` 選用本機已註冊的規則程式碼。
-- `type: llm` 選用明確的模型設定檔與具名提示詞。
+<div class="callout callout-warn" markdown="1">
 
-請先以離線模式確認識別碼、日期、資料雜湊、物理參數與演算設定，再於明確授權網路後執行 LLM。機密金鑰應存放於 `api_key_env` 指定的環境變數中。
+**常見 YAML 陷阱。** 任何區段出現重複鍵名都會被拒絕，防止設定被意外覆蓋。科學記號務必加上 `+` 或 `-`（例如 `8.0e+6` 或 `8000000.0`），否則 YAML 會將 `8.0e6` 當成純文字。
 
-每個時間步中，操作員會提出控制放流量。物理核心套用放流限制與可用水量，另行計算溢流量，將控制放流量與溢流量一併演算，並把期末庫容結轉至下一步。
+</div>
 
-## 物理量與演算
+## 操作員、稽核器與下游檢查
 
-庫容單位為 m3，流量為時段平均 m3/s，`dt_seconds` 代表操作時間步長。連線比例會分配總出流量。`unit_hydrograph` 權重為無因次數值且總和為 1；索引 0 對應當期、索引 1 對應下一期，依此類推。
-
-擴充範本前，請先閱讀[水庫網路](BUILD_SIMULATION.zh-TW.md)、[時間尺度](TIME_SCALES.zh-TW.md)、[模型服務](LLM_MODULES.zh-TW.md)與[執行生命週期](RUNNING.zh-TW.md)。
+- **操作員（`agents`）**：選用 `type: rule_based`、`type: llm` 或 `mode: offline`（見[操作規則與 LLM 設計](AGENT_DESIGN.zh-TW.md)）。
+- **決策稽核器（`auditors`）**：檢查 `release_bounds`（`tolerance_cms`）或 `field_range`（`path`、`minimum`、`maximum`、`on_violation: FAIL | WARN`），不改寫流量。
+- **下游流量檢查（`outcome_checks`）**：在河道演算後檢查匯流點或出口是否超過 `maximum_cms` 或低於 `minimum_cms`。

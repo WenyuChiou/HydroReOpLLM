@@ -2,7 +2,7 @@
 
 {% block site_name %}
 <a class="visually-hidden-focusable" href="#manual-content">{{ '跳至正文' if chinese else 'Skip to content' }}</a>
-<a class="navbar-brand masthead-brand" href="{{ ('zh-TW.html' if chinese else 'index.html')|url }}"><img src="{{ 'assets/branding/logo.svg'|url }}" width="38" height="38" alt=""> HydroReOpLLM</a>
+<a class="navbar-brand masthead-brand" href="{{ ('zh-TW.html' if chinese else 'index.html')|url }}">HydroReOpLLM</a>
 <a class="mobile-lang-switch d-md-none" href="{{ (english_url if chinese else chinese_url)|default('index.html' if chinese else 'zh-TW.html')|url }}" lang="{{ 'en' if chinese else 'zh-Hant' }}">{{ 'English' if chinese else '繁體中文' }}</a>
 {% endblock %}
 {% block site_nav %}
@@ -23,7 +23,7 @@
 {% block content %}
 {% if page %}
 <div class="manual-layout">
-  <aside>
+  <aside class="nav-rail">
     <button type="button" class="chapters-toggle d-md-none" data-bs-toggle="collapse" data-bs-target="#chapters" aria-expanded="false" aria-controls="chapters">{{ '章節目錄' if chinese else 'Chapters' }}</button>
     <nav id="chapters" class="collapse d-md-block" aria-label="{{ '章節目錄' if chinese else 'Chapters' }}">
       {% set is_home = page.file.src_uri in ('index.md', 'zh-TW.md') %}
@@ -37,7 +37,7 @@
       </div>
       {% for section in chapters %}
         {% if section.is_section %}
-          {% set group_open = section.active or (is_home and section.title in ('Start', '開始使用')) %}
+          {% set group_open = section.active or (is_home and section.title in ('Get started', '快速開始')) %}
           <details class="nav-group{% if section.active %} is-active{% endif %}"{% if group_open %} open{% endif %}>
             <summary class="nav-group-title">{{ section.title }}</summary>
             <div class="nav-group-items">
@@ -86,10 +86,77 @@
     {% if page.parent and page.parent.parent %}<p class="chapter-section">{% if page.parent.parent.parent %}{{ page.parent.parent.title }} / {% endif %}{{ page.parent.title }}</p>{% endif %}
     {{ page.content }}
     <nav class="chapter-turn" aria-label="{{ '章節導覽' if chinese else 'Chapter navigation' }}">
-
       {{ chapter_links(page) }}
     </nav>
   </main>
+  <aside class="toc-rail" aria-label="{{ '本頁目錄' if chinese else 'On this page' }}">
+    {% if toc_items %}
+      <nav class="toc-nav">
+        <p class="toc-rail-title">{{ '本頁目錄' if chinese else 'On this page' }}</p>
+        <ul class="toc-list">
+          {% for item in toc_items %}
+            <li>
+              <a href="{{ item.url }}">{{ item.title }}</a>
+              {% if item.children %}
+                <ul class="toc-sublist">
+                  {% for child in item.children %}
+                    <li><a href="{{ child.url }}">{{ child.title }}</a></li>
+                  {% endfor %}
+                </ul>
+              {% endif %}
+            </li>
+          {% endfor %}
+        </ul>
+      </nav>
+      <script>
+        (() => {
+          const rail = document.querySelector('.toc-rail');
+          const content = document.getElementById('manual-content');
+          if (!rail || !content) return;
+          const links = Array.from(rail.querySelectorAll('a[href^="#"]'));
+          if (!links.length) return;
+          const byId = new Map();
+          for (const link of links) {
+            const id = decodeURIComponent(link.getAttribute('href').slice(1));
+            const target = document.getElementById(id);
+            if (target) byId.set(target, link);
+          }
+          const targets = Array.from(byId.keys());
+          if (!targets.length) return;
+          let activeLink = null;
+          const setActive = (link) => {
+            if (activeLink === link) return;
+            if (activeLink) {
+              activeLink.classList.remove('is-active');
+              activeLink.removeAttribute('aria-current');
+            }
+            activeLink = link;
+            if (link) {
+              link.classList.add('is-active');
+              link.setAttribute('aria-current', 'location');
+            }
+          };
+          const update = () => {
+            const offset = 110;
+            let current = targets[0];
+            for (const el of targets) {
+              if (el.getBoundingClientRect().top <= offset) current = el;
+              else break;
+            }
+            setActive(byId.get(current) || null);
+          };
+          let ticking = false;
+          window.addEventListener('scroll', () => {
+            if (!ticking) {
+              ticking = true;
+              requestAnimationFrame(() => { update(); ticking = false; });
+            }
+          }, { passive: true });
+          update();
+        })();
+      </script>
+    {% endif %}
+  </aside>
 </div>
 {% endif %}
 {% endblock %}

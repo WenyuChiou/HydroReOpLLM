@@ -65,7 +65,7 @@
     "notes": [
       "The short FEWalter-to-White Haven reach and FEW-L-01/02 local runoff retain transferred upper-watershed parameters.",
       "Lehighton C&V validates combined local runoff and routing under an observed White Haven boundary; individual tributaries are not separately validated.",
-      "MOSART-Urban comparison profile: no extra protected-storage or minimum-release override; original capacity, initial storage, maximum release, forcing and routing retained. Strict source parity rejects binding physical limits."
+      "Hanasaki comparison profile: no extra protected-storage or minimum-release override; original capacity, initial storage, maximum release, forcing and routing retained. Strict source parity rejects binding physical limits."
     ]
   },
   "schema_version": "llm-reservoir-network-case.v1",

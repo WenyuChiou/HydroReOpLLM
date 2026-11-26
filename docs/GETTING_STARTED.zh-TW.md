@@ -1,55 +1,55 @@
-# 安裝並執行第一個案例
+# 安裝與首次執行
 
-HydroReOpLLM 需要 Python 3.12 或更新版本。目前的原始碼版本包含本手冊介紹的公開範本與 F.E. Walter 範例。
+<div class="hero-band" markdown="1">
+
+HydroReOpLLM 需要 **Python 3.12 以上版本**。安裝套件（`hydroreopllm`／CLI `reservoir-experiment`）後，幾分鐘內即可跑通雙水庫入門範本。
+
+</div>
 
 <a id="install-from-a-clone"></a>
 
 ## 下載並安裝原始碼
 
-建立並啟用虛擬環境，再安裝目前的原始碼版本。
+<div class="panel-grid panel-grid-2" markdown="1">
+<div class="panel-card" markdown="1">
+
+### Windows PowerShell
+
+```powershell
+git clone https://github.com/WenyuChiou/HydroReOpLLM.git
+cd HydroReOpLLM
+py -3.12 -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install -c environment/requirements-bundled.txt .
+```
+
+</div>
+<div class="panel-card" markdown="1">
+
+### macOS 或 Linux
 
 ```sh
 git clone https://github.com/WenyuChiou/HydroReOpLLM.git
 cd HydroReOpLLM
-```
-
-依照作業系統建立並啟用虛擬環境。
-
-Windows PowerShell
-
-```powershell
-py -3.12 -m venv .venv
-.\.venv\Scripts\Activate.ps1
-```
-
-macOS 或 Linux
-
-```sh
 python3.12 -m venv .venv
 source .venv/bin/activate
-```
-
-接著安裝目前的原始碼。
-
-```sh
 python -m pip install -c environment/requirements-bundled.txt .
 ```
 
-PyPI 套件名稱為 `hydroreopllm`，Python 匯入名稱為 `llm_reservoir_agent`，命令列指令為 `reservoir-experiment`。由目前原始碼建置的 wheel 包含本手冊列出的範例。較早的 PyPI 版本可能使用不同的範例路徑。
+</div>
+</div>
 
 ## 使用已安裝的 wheel
 
-安裝由目前原始碼建置的 wheel 後，切換到空白工作目錄，再匯出套件內的範例。
+若在空白工作目錄透過 wheel 安裝，請先匯出隨附範例：
 
 ```sh
 reservoir-experiment init-examples
 ```
 
-指令會建立 `examples/`。請留在包含該目錄的工作目錄，再執行下列指令。
+## 執行雙水庫入門範本
 
-## 執行通用離線範本
-
-此範本由兩個 agent 操作串聯水庫，無須 API 金鑰或模型伺服器。請在儲存庫根目錄或包含已匯出範例的工作目錄執行。
+以零次 LLM 呼叫執行 10 天雙水庫串聯系統（`upper` → `lower` → `outlet`）：
 
 ```sh
 reservoir-experiment check examples/template/experiment.yaml
@@ -57,11 +57,15 @@ reservoir-experiment run examples/template/experiment.yaml
 reservoir-experiment verify runs/prepared-template --require-offline
 ```
 
-`check` 會驗證路徑、日期、資料雜湊、操作員與物理水系。`verify` 會讀取已儲存的證據，結果應為 `PASS` 且 `observed_network_calls: 0`。接著可閱讀[範本欄位指南](../examples/template/README.zh-TW.md)與[結果指南](RESULTS_GUIDE.zh-TW.md)。
+- `check` 於離線狀態檢查檔案、日期、上下限與演算設定。
+- `run` 將模擬 CSV 與決策日誌寫入 `runs/prepared-template/`。
+- `verify --require-offline` 確認水量平衡閉合（`PASS`）且網路呼叫為 `0`。
 
-## 檢查 F.E. Walter 範例
+接著可閱讀[雙水庫入門範本](../examples/template/README.zh-TW.md)與[結果判讀與水量平衡](RESULTS_GUIDE.zh-TW.md)。
 
-三份設定皆可在不發出模型請求的情況下檢查。
+## 檢查 F.E. Walter 水庫案例
+
+離線檢查全部三種 F.E. Walter 研究條件（`0` 次模型呼叫）：
 
 ```sh
 reservoir-experiment check examples/fe_walter/rule_based.yaml
@@ -69,8 +73,9 @@ reservoir-experiment check examples/fe_walter/seasonal_target.yaml
 reservoir-experiment check examples/fe_walter/dkp.yaml
 ```
 
-Rule-based 可用 `reservoir-experiment run examples/fe_walter/rule_based.yaml` 離線執行。兩個 LLM 案例可依研究指南還原指定的 Ollama 模型，再用研究執行程式重跑。[F.E. Walter 範例指南](../examples/fe_walter/README.zh-TW.md)提供提示詞連結與完整研究期間的執行方式。
+- 立即執行 `reservoir-experiment run examples/fe_walter/rule_based.yaml` 即可跑通離線 **Rule-based（Hanasaki 規則）** 基準。
+- 依 [F.E. Walter 水庫案例](../examples/fe_walter/README.zh-TW.md)或 [F.E. Walter 互動教學](../tutorials/README.zh-TW.md)可離線重播 21 組論文模擬，或以本機 Ollama 執行 **Without operational knowledge（無操作知識）**／**With operational knowledge（具操作知識）**。
 
-## 重跑案例
+## 安全地重跑實驗
 
-每個已完成的輸出皆不可變更。請複製案例目錄或編輯自己的工作副本，再設定新的 `run_id` 與尚未使用的 `output`。所有路徑皆相對於 YAML 檔案解析。再次執行 `run` 前，請先執行 `check`，完成後再驗證新的輸出目錄。
+已完成的輸出資料夾不會被覆寫。修改水庫物理限制、入流或提示詞後，請在 `experiment.yaml` 更換新的 `run_id` 與未使用的 `output`，再依序執行 `check`、`run` 與 `verify`。

@@ -1,92 +1,90 @@
-# Decision-time information
+# Gauges and forecasts
 
-An information profile gives one operator a named, read-only view of additional
-data at decision time. It can expose a fixed target, a timestamped observation
-or forecast, or a value already committed by the simulation. It cannot change
-storage, inflow, release limits, routing, or another reservoir's state.
+<div class="hero-band" markdown="1">
 
-## What the operator knows at a step
+An `information` profile supplies **read-only, time-ordered** stream gauges, inflow forecasts, seasonal guide curves, or committed upstream reservoir states to an operator—never leaking future flood peaks into today's decision.
 
-The acting reservoir receives its current interval-mean inlet flow and beginning
-storage in the normal observation. This means a daily case assumes the current
-day's mean inlet is known when that day's release is chosen. Completed history
-contains earlier steps only. Values from other reservoirs become available only
-after their step is committed.
+</div>
 
-For external CSV data, the decision clock is the step timestamp. An observation
-is eligible only when both `valid_time` and `available_at` are no later than that
-clock. A forecast may describe a future `valid_time`, but both `issued_at` and
-`available_at` must be no later than the decision. Timestamps require `Z` or an
-explicit UTC offset.
+## Timing rules at decision time
 
-## Configure a profile
+<div class="panel-grid panel-grid-2" markdown="1">
+<div class="panel-card" markdown="1">
 
-The following structure exposes one static value under one prompt-safe alias:
+### Built-in reservoir awareness
+
+- Current beginning `storage_m3` and today's routed `inflow_cms`.
+- Previous committed steps (`$previous_transition` / `$completed_history`).
+- Upstream reservoirs' states **only after** they finish earlier in the same step.
+
+</div>
+<div class="panel-card" markdown="1">
+
+### No-future-leakage guards
+
+- All CSV timestamps require `Z` or an explicit UTC offset.
+- **Observations**: Visible only when `valid_time <= clock` and `available_at <= clock`.
+- **Forecasts**: `valid_time` may be future, provided `issued_at <= clock` and `available_at <= clock`.
+
+</div>
+</div>
+
+## Source types and unit conversions
+
+| `type` | Required fields | Optional fields | Purpose |
+| --- | --- | --- | --- |
+| `static` | `quantity`, `unit`, `location`, `value` | `datum` | Constant target release, flood stage, or guide table. |
+| `csv` | `quantity`, `unit`, `location`, `kind` (`observation` \| `forecast`), `path` | `datum` | Timestamped gauge observations or issued forecasts. |
+| `simulation` | `quantity` (`inflow` \| `storage` \| `release` \| `flow`), `unit`, `location` | `datum` | Read-only state from another reservoir, junction, or outlet (`m3`, `m3/s`). |
+| `extension` | `quantity`, `unit`, `location`, `provider` | `kind`, `parameters`, `datum` | Custom Python reader returning timestamped records. |
+
+**Observation CSV** (`valid_time,available_at,value`):
+
+```csv
+valid_time,available_at,value
+2021-01-01T00:00:00Z,2021-01-01T00:00:00Z,1240.0
+2021-01-02T00:00:00Z,2021-01-02T00:00:00Z,1580.0
+```
+
+**Forecast CSV** (`issued_at,valid_time,available_at,value`):
+
+```csv
+issued_at,valid_time,available_at,value
+2021-01-01T00:00:00Z,2021-01-02T00:00:00Z,2021-01-01T00:00:00Z,1450.0
+2021-01-01T00:00:00Z,2021-01-03T00:00:00Z,2021-01-01T00:00:00Z,1920.0
+```
+
+Built-in profile conversions (`unit:`): `m3/s` ↔ `cfs` (`35.31466672148859`), `m3` ↔ `acre-ft` (`1 / 1233.48183754752`), and `m` ↔ `ft` (`3.280839895013123`).
+
+## Configuring profiles and agent bindings
 
 ```yaml
+# information.yaml
 sources:
-  operating_target:
-    type: static
-    quantity: target_release
-    unit: m3/s
-    location: lake_a
-    value: 2.5
+  downstream_gauge:
+    type: csv
+    kind: observation
+    quantity: flow
+    unit: cfs
+    location: usgs_01449000
+    path: data/lehighton_obs.csv
+  upstream_storage:
+    type: simulation
+    quantity: storage
+    unit: m3
+    location: upper_dam
 profiles:
   operator_view:
     fields:
-      operating_target_cms:
-        source: operating_target
-        required: true
+      lehighton_flow_cms: { source: downstream_gauge, unit: m3/s, history: 3, max_age_seconds: 86400, required: false }
+      upper_pool_acft: { source: upstream_storage, unit: acre-ft, required: true }
 ```
 
-Reference the catalog from the coupled experiment, then select the profile on
-the intended agent:
+Reference `information: { file: information.yaml }` in `experiment.yaml`, then set `customization.information: operator_view` on the agent and include `$information` in its prompt (or read `observation["context"]["decision_information"]` in Python rules). See [Rules & LLM prompts](AGENT_DESIGN.md).
 
-```yaml
-# experiment.yaml
-information:
-  file: information.yaml
+## Missing-data handling and verification
 
-# agents.llm.yaml
-operator_a:
-  reservoir_id: lake_a
-  type: llm
-  model_profile: local
-  prompt_file: prompts/operator.txt
-  customization:
-    information: operator_view
-```
-
-When a generic LLM agent selects an information profile, include the literal
-placeholder `$information` in its prompt file. The runtime inserts the selected
-snapshot there. A
-rule-based extension can read the same snapshot from
-`observation.context.decision_information`. Selecting one profile does not
-expose the rest of the catalog.
-
-## Source types
-
-| `type` | Required source fields | Availability behavior |
-|---|---|---|
-| `static` | `quantity`, `unit`, `location`, `value` | Always available; useful for a fixed target or label. |
-| `csv` | common fields plus `kind` and `path` | Exact UTF-8 CSV bytes are hashed; causal timestamps select a record. |
-| `simulation` | common fields | Reads `inflow`, `storage`, `release`, or `flow` from the current/committed native state. |
-| `extension` | common fields plus registered `provider` | Calls a versioned local reader declared by the application. |
-
-Observation CSV columns are exactly `valid_time,available_at,value`. Forecast
-columns are exactly `issued_at,valid_time,available_at,value`. A profile field
-may also set `unit`, `history`, `max_age_seconds`, and `required`. Supported
-conversions include m3/s and cfs, m3 and acre-ft, and m and ft.
-
-If a required field has no causal, fresh record, the decision stops. An optional
-field is saved explicitly with `status: MISSING`, `value: null`, and a reason;
-missing data is never changed to zero. Available fields include the selected
-value, unit, location, source ID, timestamps, requested sample history, and a
-CSV hash or extension version when applicable.
-
-Run `reservoir-experiment check path/to/experiment.yaml` after every catalog or
-agent change. The selected snapshot is stored inside each decision observation
-and checked by `verify`. For static, CSV and simulation sources the verifier
-reconstructs the selected values. For registered extensions it checks the saved
-timing, provenance and internal consistency without calling the external reader again. Continue with the
-[run lifecycle](RUNNING.md) or [results guide](RESULTS_GUIDE.md).
+| Field setting | Missing or stale behavior | Verification check |
+| --- | --- | --- |
+| `required: true` | Stops the run immediately (never substitutes `0.0`). | Reconstructs static, CSV, and simulation values during `verify`. |
+| `required: false` | Sets `status: "MISSING"`, `value: null`, and an explicit `reason`. | Checks timestamp ordering across every step in `decisions.jsonl`. |

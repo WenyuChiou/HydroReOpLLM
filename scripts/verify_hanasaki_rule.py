@@ -1,4 +1,4 @@
-"""Compare this rule with the pinned, externally supplied MOSART source.
+"""Compare this rule with the pinned, externally supplied Hanasaki/MOSART-Urban formula source.
 
 The upstream file stays outside the package. Its original Python functions run
 unchanged; only the optional JIT decorator is supplied as an identity decorator.
@@ -27,10 +27,10 @@ def load_upstream(path):
     """Execute the hash-verified upstream file with its JIT decorator disabled."""
     raw = path.read_bytes()
     if hashlib.sha256(raw).hexdigest() != UPSTREAM_SHA256:
-        raise ValueError("upstream source differs from the pinned MOSART-Urban file")
-    package = types.ModuleType("_mosart_parity_external")
+        raise ValueError("upstream source differs from the pinned Hanasaki/MOSART-Urban source file")
+    package = types.ModuleType("_hanasaki_parity_external")
     package.__path__ = [str(path.parent)]
-    utils = types.ModuleType("_mosart_parity_external.utils")
+    utils = types.ModuleType("_hanasaki_parity_external.utils")
     utils.ngjit = lambda *args, **kwargs: lambda function: function
     names = {package.__name__: package, utils.__name__: utils}
     previous = {name: sys.modules.get(name) for name in names}
@@ -50,7 +50,7 @@ def load_upstream(path):
 
 def load_rule(path):
     """Load the same extension file selected by the public example settings."""
-    spec = importlib.util.spec_from_file_location("mosart_parity_candidate", path)
+    spec = importlib.util.spec_from_file_location("hanasaki_parity_candidate", path)
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module
@@ -88,7 +88,7 @@ def compare(upstream_path, rule_path, output):
                     dead_storage_m3=0.0, initial_storage_m3=50_000_000.0,
                     minimum_release_cms=0.0, maximum_release_cms=1_000_000.0,
                     dt_seconds=86400.0)
-    controller = rule.MosartUrbanBackend(physical, 10.0)
+    controller = rule.HanasakiBackend(physical, 10.0)
     config = PhysicalConfig(**physical)
     reference_storage = candidate_storage = physical["initial_storage_m3"]
     annual_storage = reference_storage
@@ -153,7 +153,7 @@ def compare(upstream_path, rule_path, output):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--upstream-source", type=Path, required=True)
-    parser.add_argument("--rule", type=Path, default=Path(__file__).resolve().parents[1] / "tests/fixtures/examples/rules/mosart_urban/__init__.py")
+    parser.add_argument("--rule", type=Path, default=Path(__file__).resolve().parents[1] / "tests/fixtures/examples/rules/hanasaki_flood_control/__init__.py")
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     print(json.dumps(compare(args.upstream_source.resolve(), args.rule.resolve(), args.output.resolve()), indent=2))

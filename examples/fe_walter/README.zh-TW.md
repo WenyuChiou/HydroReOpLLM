@@ -1,32 +1,106 @@
-# 重現 F.E. Walter 研究結果
+# F.E. Walter 水庫案例
 
-| 研究條件 | 設定 | System prompt | 1 月 1 日的 user message |
-| --- | --- | --- | --- |
-| Rule-based | [rule_based.yaml](rule_based.yaml) | | |
-| Without operational knowledge | [seasonal_target.yaml](seasonal_target.yaml) | [Seasonal Target](prompts/seasonal_target.system.txt) | [Seasonal Target 第一天](prompts/seasonal_target.user.txt) |
-| With operational knowledge | [dkp.yaml](dkp.yaml) | [DKP](prompts/dkp.system.txt) | [DKP 第一天](prompts/dkp.user.txt) |
+<div class="hero-band" markdown="1">
 
-三個案例都使用 2021 年 1 月 1 日至 2025 年 12 月 31 日的[模擬入流](inflows.csv)。[每日訊息程式](study/formatter.py)以當天的水庫狀態和前兩天的決策與實際放流組裝 prompt。With 組還會從完整的 [Decision Knowledge Package](dkp.md) 擷取符合當天條件的章節。[回覆格式](study/response_schemas.json)列出原始決策欄位和放流單位。兩組 LLM 共用[水庫設定](case.json)。MOSART-Urban 基準使用自己的[論文設定](rule_case.json)及 [1996–2015 年的參考入流統計](rule_statistics.json)。
+本基準測試於 **2021 年 1 月 1 日 – 2025 年 12 月 31 日**（`1,826` 天）在相同的 HydroCNHS 演算系統上評估 **F.E. Walter Dam**（賓夕法尼亞州 Lehigh River 流域）的三種操作條件：**Rule-based（Hanasaki 規則）**、**Without operational knowledge（無操作知識）** 與 **With operational knowledge（具操作知識）**。
 
-## 離線重算論文分數
+</div>
 
-請在專案根目錄或匯出已安裝範例的目錄執行以下指令。
+## 研究區域與基準設計
+
+<figure class="figure-card">
+  <img src="../../docs/assets/figures/fig2-study-area.png" alt="F.E. Walter Dam 研究區域、水文測站與下游河道演算網路圖">
+  <figcaption><strong>圖 2.</strong> F.E. Walter Dam 流域與下游河道演算網路，連接水庫出流至 USGS <code>01447800</code>（White Haven）與 USGS <code>01449000</code>（Lehighton）。</figcaption>
+</figure>
+
+<div class="panel-grid panel-grid-3" markdown="1">
+<div class="panel-card" markdown="1">
+
+### 情境一：Rule-based（Hanasaki 規則）
+
+- **設定檔**：[`rule_based.yaml`](rule_based.yaml)
+- **方法**：Hanasaki 滯洪規則（`strategy: hanasaki`，α = 0.85），使用 [1996–2015 年入流統計](rule_statistics.json)與[規則物理案例](rule_case.json)。
+- **網路呼叫**：`0` 次（離線）。
+
+</div>
+<div class="panel-card" markdown="1">
+
+### 情境二：Without operational knowledge（無操作知識）
+
+- **設定檔**：[`seasonal_target.yaml`](seasonal_target.yaml)
+- **方法**：`gemma4:12b`，僅提供水庫水位、季節目標水位與前兩日放流歷史。
+- **提示詞**：[System](prompts/seasonal_target.system.txt) · [第 1 天 User](prompts/seasonal_target.user.txt)。
+
+</div>
+<div class="panel-card" markdown="1">
+
+### 情境三：With operational knowledge（具操作知識）
+
+- **設定檔**：[`dkp.yaml`](dkp.yaml)
+- **方法**：`gemma4:12b`，從 [`dkp.md`](dkp.md) 檢索結構化操作規則，並於 JSON 中引用 `rules_applied`。
+- **提示詞**：[System](prompts/dkp.system.txt) · [第 1 天 User](prompts/dkp.user.txt)。
+
+</div>
+</div>
+
+## 設定檔與提示詞檢視
+
+三種條件共用 2021–2025 年模擬區域入流（[`inflows.csv`](inflows.csv)），預設先跑 7 天教學視窗（`2021-01-01`–`2021-01-07`），加上 `--full` 即可執行全期 `1,826` 天。兩組 LLM 條件共用 [`case.json`](case.json)、[`study/elevation_storage.csv`](study/elevation_storage.csv)、[`study/response_schemas.json`](study/response_schemas.json) 與 [`study/formatter.py`](study/formatter.py)（將水位格式化為 `ft NGVD29`、入流為 `cfs`/`acre-ft` 並列出兩日放流歷史）。
+
+於離線狀態（`0` 次呼叫）檢查全部三份設定檔：
+
+```sh
+reservoir-experiment check examples/fe_walter/rule_based.yaml
+reservoir-experiment check examples/fe_walter/seasonal_target.yaml
+reservoir-experiment check examples/fe_walter/dkp.yaml
+```
+
+可搭配 [F.E. Walter 互動教學](../../tutorials/README.zh-TW.md)與[操作規則與 LLM 設計](../../docs/AGENT_DESIGN.zh-TW.md)逐步學習 7 天設計流程。
+
+## 日尺度與季節尺度表現（2021–2025）
+
+<figure class="figure-card">
+  <img src="../../docs/assets/figures/fig3-daily-2021-2025.png" alt="2021-2025 年日尺度 F.E. Walter 水庫水位、放流量與下游流量模擬與實測對照圖">
+  <figcaption><strong>圖 3.</strong> 2021–2025 年逐日水位、放流量與下游流量對照，比較 USGS 觀測值與 Rule-based、Without operational knowledge 及 With operational knowledge（各 10 組 seed）。</figcaption>
+</figure>
+
+<figure class="figure-card">
+  <img src="../../docs/assets/figures/fig4-annual-cycle.png" alt="F.E. Walter 水庫水位、放流量與下游流量之多年平均季節週期圖">
+  <figcaption><strong>圖 4.</strong> 三種條件的多年平均季節週期，顯示 With operational knowledge 相較於 Without operational knowledge 與 Rule-based，能更準確重現春季回蓄（1,370 ft NGVD29）與秋季洩降（1,300 ft NGVD29）。</figcaption>
+</figure>
+
+針對全部 21 組封存模擬（`1` 組 Rule-based + `10` 組 Without operational knowledge + `10` 組 With operational knowledge）相對於 USGS `01447780`、`01447800` 與 `01449000` 之評估分數（[`study/expected_scores.csv`](study/expected_scores.csv)）：
+
+| 研究條件 | 模擬組數 | 水庫水位 KGE（中位數） | 水庫水位 NSE（中位數） | 水庫水位 RMSE（中位數） | 水庫放流量 KGE（中位數） | 下游流量 KGE（中位數） |
+| --- | --- | --- | --- | --- | --- | --- |
+| Rule-based（Hanasaki，α = 0.85） | `1` | `0.077` | — | `96.21 ft` | `0.640` | `0.815` |
+| Without operational knowledge | `10` | `0.806` | `0.514` | `20.85 ft` | `0.688` | `0.830` |
+| With operational knowledge | `10` | `0.858` | `0.711` | `16.07 ft` | `0.618` | `0.832` |
+
+## 離線重現論文分數
+
+以**零次** LLM 呼叫透過水庫水量平衡引擎與河道演算重播全部 21 組封存逐日放流序列（`study/archived_releases.csv` + Rule-based 基準）：
 
 ```sh
 python examples/fe_walter/study/replay.py --output runs/walter-paper-replay
 ```
 
-程式以封存的每日放流決策重跑水庫和河道，涵蓋兩組 LLM 各十個 seed。程式也重跑 MOSART-Urban 基準，並以原始 USGS 觀測驗證 21 組模擬的 KGE 與 RMSE。`01447780` 是水庫水位，`01447800` 是壩下放流的代理流量，`01449000` 是 Lehighton 的下游流量。各組分數可在 `scores.csv` 查看。水庫水位的中位數為 With 組的 KGE 0.858、NSE 0.711，以及 Without 組的 KGE 0.806、NSE 0.514。重播會發出零次模型請求。[教學 notebook](https://github.com/WenyuChiou/HydroReOpLLM/blob/main/tutorials/fe_walter.ipynb)可查看存檔中的前七天結果。
+檢視 `runs/walter-paper-replay/scores.csv` 即可取得全數 63 筆評估分數與終端機輸出的 `water_level_medians`。
 
-## 用論文模型重新推論
+## 使用研究模型進行新的推論執行
 
-使用 Ollama 0.40.6。安裝程式會從公開的 Ollama registry 取得固定版本的模型檔，逐一驗證檔案大小和 SHA-256。下載約需 7.6 GB。研究執行程式會在推論前後核對 Ollama 版本和 Gemma 4 12B 的 manifest。
+即時 LLM 重現採用 **Ollama 0.40.6**，並透過 [`study/model.py`](study/model.py) 下載鎖定的 `gemma4:12b` 環境（約 7.6 GB）：
 
 ```sh
 python examples/fe_walter/study/model.py .walter-ollama
 ```
 
-另開一個終端，在同一目錄啟動伺服器。PowerShell 指令如下。
+於另一個終端機啟動專用 Ollama 伺服器：
+
+<div class="panel-grid panel-grid-2" markdown="1">
+<div class="panel-card" markdown="1">
+
+### Windows PowerShell
 
 ```powershell
 $env:OLLAMA_MODELS = (Resolve-Path .walter-ollama).Path
@@ -34,16 +108,24 @@ $env:OLLAMA_HOST = "127.0.0.1:11446"
 ollama serve
 ```
 
-macOS 或 Linux 可執行以下指令。
+</div>
+<div class="panel-card" markdown="1">
+
+### macOS 或 Linux
 
 ```sh
 OLLAMA_MODELS="$PWD/.walter-ollama" OLLAMA_HOST=127.0.0.1:11446 ollama serve
 ```
 
-可以先跑七天教學，或加上 `--full` 跑完整 1,826 天。要做全組比較，將兩個 LLM 條件各跑 seed 1 至 10，每次指定新的輸出目錄。不同平台重新推論可能有差異。要精確重算論文分數，可用上面的離線重播。
+</div>
+</div>
+
+可先跑 7 天教學視窗，或加上 `--full` 執行全期 `1,826` 天（每個 `--seed 1..10` 請指定全新 `--output`）：
 
 ```sh
 python examples/fe_walter/study/run.py rule_based --full --output runs/walter-rule
 python examples/fe_walter/study/run.py seasonal_target --full --seed 3 --ollama-port 11446 --output runs/walter-without-s3 --allow-network
 python examples/fe_walter/study/run.py dkp --full --seed 3 --ollama-port 11446 --output runs/walter-with-s3 --allow-network
 ```
+
+因不同硬體平台的浮點推論可能略有差異，若要完全一致地重現已發表分數，請使用上方的 `replay.py`。輸出解讀請見[結果判讀與水量平衡](../../docs/RESULTS_GUIDE.zh-TW.md)。

@@ -1,42 +1,95 @@
-# Configuration
+# Experiment configuration
 
-The public starting point is the prepared-inflow [`examples/template`](../examples/template/README.md). Copy its directory before replacing synthetic inflows, physical values, dates, or operators.
+<div class="hero-band" markdown="1">
 
-![HydroReOpLLM package structure and configuration graph](assets/diagrams/package-structure.svg)
+Every experiment starts from a top-level `experiment.yaml` that links your physical basin, operating rules or LLMs, and simulation clock. Start by copying the [Two-reservoir template](../examples/template/README.md) or using the modular split-file layout below.
 
-`experiment.yaml` is the entry point. Referenced YAML, JSON, CSV, prompt, and knowledge paths are resolved relative to the file that declares them. A `{file: ...}` reference replaces that complete section; it is not a deep merge. Keep the case, inflows, prompts, and knowledge files together when copying an example.
+</div>
 
-Configure a study in this order:
+## Three building blocks of an experiment
 
-1. Set `run_id`, an unused `output`, and the operation dates.
-2. Define or reference the prepared-inflow case and confirm its data hash.
-3. Define storage, release limits, routing, and outlets in the network case.
-4. Select exactly one operator per controlled reservoir.
-5. For an LLM operator, name the model profile and explicit system and user prompt files.
-6. Add only the decision-time information and knowledge the operator should receive.
+<div class="panel-grid panel-grid-3" markdown="1">
+<div class="panel-card" markdown="1">
 
-`reservoir-experiment check` resolves and validates the graph without running a simulation or contacting a provider.
+### Block A: Physical basin & inflows
 
-## Public configuration schemas
+Reservoir capacities, dead storage, release limits, routing lags (`case.json` or `reservoirs.yaml`), plus either `inflows.csv` or `hydrology.yaml`.
 
-| `schema_version` | Public use | Operator keys |
+</div>
+<div class="panel-card" markdown="1">
+
+### Block B: Operators, info & models
+
+One rule or LLM agent per controlled dam (`agents`), optional gauge/forecast feeds (`information`), model profiles (`models`), and `auditors`.
+
+</div>
+<div class="panel-card" markdown="1">
+
+### Block C: Clock & output
+
+Unique `run_id`, unused `output` folder, operation dates (`start_date`–`end_date` or UTC `start_time`–`end_time`), and `max_calls`.
+
+</div>
+</div>
+
+<figure class="figure-card">
+  <img src="assets/diagrams/package-structure.svg" alt="HydroReOpLLM configuration layout connecting experiment.yaml, case, hydrology, agents, models, and information">
+  <figcaption><strong>Configuration file layout.</strong> Each YAML file resolves relative paths from its own folder.</figcaption>
+</figure>
+
+## Schema versions and relative paths
+
+| `schema_version` | Hydrology | `{file: ...}` sections | Typical use |
+| --- | --- | --- | --- |
+| `llm-reservoir-experiment.v1` | Prepared inflows | Inline | Generic template and F.E. Walter studies (`inflows.csv` + `case.json`). |
+| `llm-reservoir-experiment.v2` | Prepared inflows | `models`, `agents`, `auditors`, `extensions`, `information` | Modular prepared-inflow studies across separate YAML files. |
+| `hydroops-coupled-simulation.v1` | Coupled HydroCNHS | Inline | Single-file coupled watershed + reservoir study. |
+| `hydroops-coupled-simulation.v2` | Coupled HydroCNHS | `hydrology`, `models`, `agents`, `auditors`, `extensions`, `information` | Recommended modular layout for multi-reservoir and hybrid basins. |
+
+- All paths (`case`, `output`, `prompt_file`, `knowledge`, CSVs) resolve relative to the **declaring** YAML file.
+- Each `{file: ...}` reference replaces that entire top-level section; do not mix inline keys inside a `{file: ...}` block.
+
+## Top-level experiment keys
+
+| Key | Required | Purpose |
 | --- | --- | --- |
-| `llm-reservoir-experiment.v1` | Generic template and F.E. Walter prepared-inflow cases | `reservoir`, with `mode: offline` or `mode: llm` |
+| `schema_version` | Yes | Selects `v1`/`v2` prepared-inflow or coupled HydroCNHS format. |
+| `run_id` | Yes | Unique label saved in `summary.json` and step logs. |
+| `output` | Yes | Fresh output folder path (existing folders are never overwritten). |
+| `case` | Yes | `case.json` or `reservoirs.yaml` defining reservoirs, routing, and `inflow_source.sha256` (if prepared). |
+| `start_date` / `end_date` | Daily | Quoted `YYYY-MM-DD` inclusive operation dates. |
+| `start_time` / `end_time` / `time` | Sub-daily | UTC timestamps (exclusive `end_time`) and `{simulation_step, output_step}` for hourly runs. |
+| `hydrology` | Coupled | HydroCNHS catchment model, weather forcing, and `inflow_bindings`. |
+| `agents` | Yes | Assigns one operator (`rule_based`, `llm`, or `offline`) per controlled reservoir. |
+| `models` | LLM runs | Named Ollama or cloud LLM profiles ([Model providers](MODEL_PROVIDERS.md)). |
+| `auditors` | No | Diagnostic checks (`release_bounds`, `field_range`) applied to requested releases. |
+| `extensions` | No | Registered Python rule packages (e.g., `hanasaki: study/rule/__init__.py`). |
+| `information` | No | Gauge, forecast, guide-curve, and upstream-state feeds ([Gauges & forecasts](INFORMATION.md)). |
+| `outcome_checks` | No | Post-routing downstream flow checks (`minimum_cms`, `maximum_cms`) at junctions or outlets. |
+| `max_calls` | Recommended | Maximum total LLM calls (`0` for offline/rule runs; `>= llm_agents * steps` for live runs). |
 
-The runtime also supports split-file HydroCNHS studies. Those require study-specific forcing, calibration, and validation; the public repository does not present a generic coupled case as a complete study.
+## Setup order and YAML rules
 
-## Operators
+<div class="pipeline-strip">
+  <div class="pipeline-step"><strong>1. Run &amp; dates</strong><code>run_id</code>, unused <code>output</code>, quoted dates</div>
+  <div class="pipeline-arrow">→</div>
+  <div class="pipeline-step"><strong>2. Hydrology</strong><code>inflows.csv</code> or <code>hydrology.yaml</code></div>
+  <div class="pipeline-arrow">→</div>
+  <div class="pipeline-step"><strong>3. Reservoirs</strong>Storage, bounds &amp; routing lags</div>
+  <div class="pipeline-arrow">→</div>
+  <div class="pipeline-step"><strong>4. Operators</strong>1 agent per controlled dam</div>
+  <div class="pipeline-arrow">→</div>
+  <div class="pipeline-step"><strong>5. Info &amp; models</strong><code>models.yaml</code>, prompts, <code>information</code></div>
+  <div class="pipeline-arrow">→</div>
+  <div class="pipeline-step"><strong>6. Check</strong><code>reservoir-experiment check</code></div>
+</div>
 
-- `mode: offline` applies a fixed action and makes no model request.
-- `type: rule_based` selects registered local code.
-- `type: llm` selects an explicit model profile and named prompts.
+<div class="callout callout-warn" markdown="1">
 
-Begin offline, confirm identifiers, dates, data hashes, physics, and routing, then run an LLM only with explicit network authorization. Keep credentials in the environment variable named by `api_key_env`.
+**Common YAML pitfalls.** Duplicate keys in any YAML section are rejected so repeated entries cannot silently overwrite settings. Always include `+` or `-` in scientific notation (`8.0e+6` or `8000000.0`), because YAML parses `8.0e6` as text.
 
-At each step, the operator requests a controlled release. The physical kernel applies release bounds and available water, calculates spill separately, routes controlled release plus spill, and carries ending storage to the next step.
+</div>
 
-## Physical values and routing
-
-Storage is in m3, flow is interval-mean m3/s, and `dt_seconds` is the operation step. Connection fractions split total output. `unit_hydrograph` weights are dimensionless, sum to 1, and use index 0 for the same step, index 1 for the next step, and so on.
-
-See [reservoir networks](MULTI_RESERVOIR.md), [time scales](TIME_SCALES.md), [providers](MODEL_PROVIDERS.md), and the [run lifecycle](RUNNING.md) before extending the template.
+- **Operators (`agents`)**: Choose `type: rule_based`, `type: llm`, or `mode: offline` ([Rules & LLM prompts](AGENT_DESIGN.md)).
+- **Auditors (`auditors`)**: Check `release_bounds` (`tolerance_cms`) or `field_range` (`path`, `minimum`, `maximum`, `on_violation: FAIL | WARN`) without altering flows.
+- **Outcome checks (`outcome_checks`)**: Flag downstream flood exceedances or low-flow deficits at junctions or outlets after routing completes.

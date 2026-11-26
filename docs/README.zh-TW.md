@@ -1,26 +1,81 @@
 # HydroReOpLLM 使用手冊
 
-使用既有入流資料建立水庫實驗、檢視物理水量平衡，並選擇指定放流量或 LLM 操作員。建議先從通用離線範本開始，再比較兩份 F.E. Walter LLM 設定。
+<div class="hero-band" markdown="1">
 
-[安裝並執行範本](GETTING_STARTED.zh-TW.md) · [F.E. Walter 教學](../tutorials/README.zh-TW.md) · [English manual](README.md)
+**HydroReOpLLM** 建構於 [**HydroCNHS**](https://github.com/philip928lin/HydroCNHS) 之上，以水庫操作規則或 LLM 模擬集水區逕流、水庫運轉與下游河道演算。
 
-## 公開起點
+[安裝與首次執行](GETTING_STARTED.zh-TW.md) · [操作規則與 LLM 設計](AGENT_DESIGN.zh-TW.md) · [F.E. Walter 互動教學](../tutorials/README.zh-TW.md) · [English manual](README.md)
 
-| 起點 | 示範內容 |
-| --- | --- |
-| [通用既有入流範本](../examples/template/README.zh-TW.md) | 以指定放流量操作的合成雙庫案例，不發出模型請求。 |
-| [F.E. Walter 季節目標](../examples/fe_walter/README.zh-TW.md) | 七天的既有入流 LLM 案例，使用具名季節目標系統提示詞。 |
-| [F.E. Walter DKP](../examples/fe_walter/README.zh-TW.md) | 相同的教學用物理案例，搭配具名系統提示詞與決策知識包。 |
+</div>
 
-三個入口的 `check` 皆為離線操作。F.E. Walter 案例僅在使用者明確啟動本機 Ollama 並執行 `run --allow-network` 時才會呼叫模型。儲存庫不含論文軌跡、論文結果、歷史實驗提示詞副本、模型權重或模型生成回覆。
+## 模擬建置四步驟
 
-## 設定、執行與檢視
+<div class="panel-grid panel-grid-4" markdown="1">
+<div class="panel-card" markdown="1">
 
-| 指南 | 用途 |
-| --- | --- |
-| [設定說明](CONFIGURATION.zh-TW.md) | 解析檔案、操作員類型、單位與演算設定。 |
-| [決策時資訊](INFORMATION.zh-TW.md) | 加入符合因果時序的靜態、觀測、預報或模擬資訊。 |
-| [模型服務](LLM_MODULES.zh-TW.md) | 記錄模型服務識別與可重現性中繼資料。 |
-| [執行生命週期](RUNNING.zh-TW.md) | 控制網路權限、嘗試次數、續跑與驗證。 |
-| [結果解讀](RESULTS_GUIDE.zh-TW.md) | 讀取決策、軌跡、水量平衡與來源追蹤資訊。 |
-| [疑難排解](TROUBLESHOOTING.zh-TW.md) | 診斷設定驗證、執行期與結果驗證錯誤。 |
+### 步驟一：集水區與水文
+
+自備區域入流資料，或耦合 HydroCNHS 集水區模式。
+
+- [入流與 HydroCNHS 設定](HYDROLOGY_SETUP.zh-TW.md)
+- [時間尺度與單位](TIME_SCALES.zh-TW.md)
+- [逐時 GWLF（實驗性）](HOURLY_GWLF.zh-TW.md)
+
+</div>
+<div class="panel-card" markdown="1">
+
+### 步驟二：水庫操作決策
+
+設定 Hanasaki 規則、自訂 Python 規線或 LLM 提示詞與水情輸入。
+
+- [操作規則與 LLM 設計](AGENT_DESIGN.zh-TW.md)
+- [水情測站與預報](INFORMATION.zh-TW.md)
+- [模型服務設定](LLM_MODULES.zh-TW.md)
+
+</div>
+<div class="panel-card" markdown="1">
+
+### 步驟三：模擬建置與執行
+
+串接多水庫河網、執行模擬並檢核水量平衡。
+
+- [實驗設定檔](CONFIGURATION.zh-TW.md)
+- [多水庫河網串接](BUILD_SIMULATION.zh-TW.md)
+- [執行、驗證與續跑](RUNNING.zh-TW.md)
+- [結果判讀與水量平衡](RESULTS_GUIDE.zh-TW.md)
+
+</div>
+<div class="panel-card" markdown="1">
+
+### 步驟四：案例研究與協助
+
+重現 F.E. Walter 水庫案例並排除常見設定問題。
+
+- [F.E. Walter 水庫案例](../examples/fe_walter/README.zh-TW.md)
+- [F.E. Walter 互動教學](../tutorials/README.zh-TW.md)
+- [常見問題與排解](TROUBLESHOOTING.zh-TW.md)
+
+</div>
+</div>
+
+## 整體模擬架構
+
+<figure class="figure-card">
+  <img src="assets/figures/fig1-framework.png" alt="HydroReOpLLM 與 HydroCNHS 耦合閉迴路模擬架構圖">
+  <figcaption><strong>圖 1.</strong> HydroCNHS–HydroReOpLLM 耦合迴路：集水區入流與期初蓄水量送入操作規則或 LLM，經水庫水量平衡引擎落實物理限制與溢流計算後，演算至下游河道。</figcaption>
+</figure>
+
+## 快速開始範例
+
+| 範例 | 操作方法 | 網路呼叫（`check` / `run`） | 示範重點 |
+| --- | --- | --- | --- |
+| [雙水庫入門範本](../examples/template/README.zh-TW.md) | 固定離線放流（`4.0` 與 `5.0` m³/s） | `0` / `0` | 雙水庫串聯（`upper` → `lower` → `outlet`）與河道演算延遲。 |
+| [Rule-based（Hanasaki 規則）](../examples/fe_walter/README.zh-TW.md) | `type: rule_based`（`hanasaki`，α = 0.85） | `0` / `0` | F.E. Walter 離線 Hanasaki 滯洪運轉基準（`rule_based.yaml`）。 |
+| [Without operational knowledge（無操作知識）](../examples/fe_walter/README.zh-TW.md) | `type: llm`（`seasonal_target.yaml`） | `0` / `7`（7 天）或 `1,826`（全期） | 僅提供水位、季節目標與兩日放流歷史的 LLM 運轉。 |
+| [With operational knowledge（具操作知識）](../examples/fe_walter/README.zh-TW.md) | `type: llm`（`dkp.yaml`） | `0` / `7`（7 天）或 `1,826`（全期） | 相同水庫案例加入結構化水庫運用要點（`dkp.md`）。 |
+
+<div class="callout callout-info" markdown="1">
+
+**先執行離線檢查。** `reservoir-experiment check` 會以零模型呼叫成本檢查設定檔、日期、入流與第 1 天提示詞預覽；僅在加上 `--allow-network` 時才會連線呼叫 LLM。
+
+</div>

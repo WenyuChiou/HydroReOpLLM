@@ -1,24 +1,53 @@
 # Time scales and units
 
-The public template and F.E. Walter cases use the maintained daily workflow.
-Explicit study configurations may also use supported hourly or fixed-duration
-intervals when their forcing, routing, and reservoir clocks agree.
+<div class="hero-band" markdown="1">
 
-| Quantity | Unit or convention |
-|---|---|
-| storage, capacity | m3 |
-| release, spill, inflow | interval-mean m3/s |
-| `dt_seconds` | seconds per operation step |
-| routing weights | dimensionless, sum to 1 |
-| daily precipitation/PET | accumulated depth for the day |
-| hourly precipitation/PET | accumulated depth for that interval |
-| temperature | interval mean in degrees C |
+The template and F.E. Walter examples run in **daily mode** (`dt_seconds: 86400`). HydroReOpLLM also supports explicit sub-daily intervals when forcing, runoff, routing, and reservoir timesteps agree.
 
-Volume change for a constant interval-mean flow is `flow * dt_seconds`. Never
-label daily forcing or daily unit-hydrograph bins as hourly. Finer forcing also
-requires an interval-aware runoff kernel, continuous timestamps, correctly
-integrated depths, interval routing, and a compatible reservoir step.
+</div>
 
-The [experimental hourly GWLF path](HOURLY_GWLF.md) accepts 3600, 1800, or 900
-second intervals. It is an engineering formulation rather than evidence of
-calibrated hourly skill.
+## Physical and forcing unit conventions
+
+| Quantity | Native unit | Simulation rule |
+| --- | --- | --- |
+| Storage, capacity, dead storage | `m3` | Volume change per step is `(inflow - controlled_release - spill) * dt_seconds`. |
+| Inflow, release, spill, routed flow | Interval-mean `m3/s` | Applied uniformly across `dt_seconds`; site units (e.g., `cfs`) convert at the boundary. |
+| `dt_seconds` | Seconds (`s`) | Must match across reservoir settings, network clock, and hydrology engine. |
+| `unit_hydrograph`, `fraction` | Dimensionless | Weights `>= 0` summing to `1.0` per reach (`[1.0]` = no lag). |
+| Daily precipitation, PET | `mm/day`, `cm/day` | `precipitation_mm` converts internally to `cm/day` for GWLF/ABCD. |
+| Sub-daily precipitation, PET | Depth per interval (`cm`) | Supply depth accumulated over that exact interval, never a daily total. |
+| Temperature | Interval mean (`°C`) | Signed finite number; negative values allowed for snow. |
+
+## Daily and sub-daily time configuration
+
+<div class="panel-grid panel-grid-2" markdown="1">
+<div class="panel-card" markdown="1">
+
+### Daily mode (default)
+
+- Uses quoted inclusive `YYYY-MM-DD` `start_date` and `end_date`.
+- `inflows.csv` uses column `date` (`daily-node-local-cms.v1`).
+- Default `dt_seconds` is `86400.0`.
+
+</div>
+<div class="panel-card" markdown="1">
+
+### Sub-daily fixed interval (`v3`)
+
+- Uses UTC `start_time` and exclusive `end_time` (`...Z`).
+- `inflows.csv` uses column `timestamp` (`interval-node-local-cms.v1`).
+- Coupled hourly HydroCNHS supports `3600` s (`1800` / `900` s in `run_GWLF_hourly` & `v3` routing).
+
+</div>
+</div>
+
+## Aggregation and cadence rules
+
+```yaml
+time:
+  simulation_step: hourly   # daily | hourly (must match network dt_seconds)
+  output_step: daily        # hourly | daily | monthly (cannot be finer than simulation_step)
+```
+
+- `output_step` exports `network_flows_<output_step>.csv` and `reservoir_trajectory_<output_step>.csv` alongside the native step CSVs.
+- Never relabel daily forcing or daily unit hydrographs as hourly; finer timesteps require interval-aligned forcing, routing lags, and `supported_dt_seconds`. Continue with [Hourly GWLF (experimental)](HOURLY_GWLF.md).

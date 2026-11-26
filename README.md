@@ -4,11 +4,11 @@
 
 ![Reservoirs and rivers with LLM reservoir operators](https://wenyuchiou.github.io/HydroReOpLLM/assets/branding/cover.png)
 
-HydroReOpLLM builds on HydroCNHS to simulate reservoir operations with prepared inflows and prescribed or LLM-based release decisions.
+HydroReOpLLM builds on HydroCNHS to simulate reservoir operations with prepared inflows and rule-based or LLM-driven release decisions.
 
 ## Quick start
 
-Run the generic two-agent prepared-inflow template from this checkout without an API key. Python 3.12 or newer is required.
+Run the generic two-agent template offline without an API key (Python 3.12+ required).
 
 ```sh
 git clone https://github.com/WenyuChiou/HydroReOpLLM.git
@@ -19,23 +19,21 @@ reservoir-experiment run examples/template/experiment.yaml
 reservoir-experiment verify runs/prepared-template --require-offline
 ```
 
-Choose a fresh `run_id` and `output` before repeating the template. See the [installation and first-run guide](https://wenyuchiou.github.io/HydroReOpLLM/GETTING_STARTED.html) and [results guide](https://wenyuchiou.github.io/HydroReOpLLM/RESULTS_GUIDE.html).
+Set a new `run_id` and `output` before repeating a run. See [Installation and first run](https://wenyuchiou.github.io/HydroReOpLLM/GETTING_STARTED.html) and [Read your results](https://wenyuchiou.github.io/HydroReOpLLM/RESULTS_GUIDE.html).
 
 ## Public examples
 
-| Entry point | Purpose | Network use |
+| Entry point | Study condition / purpose | Network use |
 | --- | --- | --- |
-| [`examples/template/experiment.yaml`](examples/template/README.md) | Generic synthetic prepared-inflow workflow | None |
-| [`examples/fe_walter/rule_based.yaml`](examples/fe_walter/README.md) | F.E. Walter offline MOSART-Urban rule | None |
-| [`examples/fe_walter/seasonal_target.yaml`](examples/fe_walter/README.md) | F.E. Walter **Without operational knowledge** (Seasonal Target) | Local Ollama through the study launcher |
-| [`examples/fe_walter/dkp.yaml`](examples/fe_walter/README.md) | F.E. Walter **With operational knowledge** (DKP) | Local Ollama through the study launcher |
+| [`examples/template/experiment.yaml`](examples/template/README.md) | Generic two-reservoir prepared-inflow cascade | None |
+| [`examples/fe_walter/rule_based.yaml`](examples/fe_walter/README.md) | **Rule-based** (Hanasaki flood-control baseline) | None |
+| [`examples/fe_walter/seasonal_target.yaml`](examples/fe_walter/README.md) | **Without operational knowledge** (`seasonal_target.yaml`) | Local Ollama via study launcher |
+| [`examples/fe_walter/dkp.yaml`](examples/fe_walter/README.md) | **With operational knowledge** (`dkp.yaml`) | Local Ollama via study launcher |
 
-[Open the hosted F.E. Walter tutorial](https://wenyuchiou.github.io/HydroReOpLLM/tutorials/index.html).
-
-Run `reservoir-experiment check` first. It validates all three F.E. Walter configurations without contacting Ollama. The three F.E. Walter configurations use the study's prepared 2021–2025 inflows and start with a seven-day tutorial run. The [case guide](examples/fe_walter/README.md) shows how to reproduce the published scores offline and restore the exact model for new runs.
+Walk through the cases in the [F.E. Walter tutorial](https://wenyuchiou.github.io/HydroReOpLLM/tutorials/index.html) or read the [F.E. Walter case guide](examples/fe_walter/README.md) to replay published scores offline.
 
 ## Tests and license
 
-From a clone, install the test extra with `python -m pip install -c environment/requirements-bundled.txt ".[test]"` and run `python -m pytest -q`.
+Install test dependencies with `python -m pip install -c environment/requirements-bundled.txt ".[test]"` and run `python -m pytest -q`.
 
 [BSD 3-Clause License](https://github.com/WenyuChiou/HydroReOpLLM/blob/main/LICENSE) · [Third-party notices](https://github.com/WenyuChiou/HydroReOpLLM/blob/main/THIRD_PARTY_NOTICES.md)

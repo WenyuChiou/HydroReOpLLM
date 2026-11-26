@@ -1,13 +1,12 @@
-# Hourly GWLF-derived runoff
+# Hourly GWLF (experimental)
 
-`run_GWLF_hourly` computes runoff directly from interval climate forcing. It
-does not redistribute a saved daily flow curve. This is an experimental,
-GWLF-derived engineering formulation; successful execution or water-balance
-closure does not establish calibrated hourly runoff or observational skill.
+<div class="hero-band" markdown="1">
+
+`run_GWLF_hourly` computes sub-daily runoff directly from interval climate forcing without disaggregating daily flows. It is an experimental engineering formulation; mass-balance closure does **not** establish calibrated hourly skill.
+
+</div>
 
 ## Standalone synthetic example
-
-From an installed clone, run the kernel without a model service:
 
 ```python
 from hydrocnhs.rainfall_runoff_model.gwlf_hourly import run_GWLF_hourly
@@ -22,8 +21,8 @@ flow_cms, state = run_GWLF_hourly(
     parameters,
     initial,
     temp=[5.0] * 48,          # interval-mean degrees C
-    prec=[0.01] * 48,         # accumulated cm in each hour
-    pet=[0.003] * 48,         # accumulated cm in each hour
+    prec=[0.01] * 48,         # accumulated cm in each interval
+    pet=[0.003] * 48,         # accumulated cm in each interval
     monthly_Tavg=[5.0] * 48,  # aligned seasonal mean, degrees C
     dt_seconds=3600,
     diagnostics=diagnostics,
@@ -31,26 +30,26 @@ flow_cms, state = run_GWLF_hourly(
 assert len(flow_cms) == 48
 ```
 
-The API accepts 3600-, 1800-, and 900-second intervals. The caller supplies a
-continuous aligned clock and forcing. Convert precipitation and PET to an
-accumulated depth for each interval; do not pass a rate or reuse a daily total.
-`Area` is hectares, storage states are centimeters, and returned flow is the
-interval mean in m3/s.
+- **Accepted steps**: `dt_seconds` must be `3600`, `1800`, or `900`.
+- **Units**: `Area` in `ha`, initial storages (`S0`, `U0`, `SnowS`, `B0`) and `Ur` in `cm`, `prec`/`pet` in accumulated `cm` per interval, and returned `flow_cms` in `m³/s`.
 
-## State, restart, and validation
+## Coupled hourly workflow and schema
 
-The returned state carries soil, shallow groundwater, deep groundwater, snow,
-antecedent moisture, and event memory. Pass it only to the next consecutive
-interval block with the same parameters and step. Do not skip, overlap, reorder,
-or silently fill forcing intervals. A legacy daily baseflow depth is not an
-hourly deep-storage value.
+| Layer | Hourly requirement |
+| --- | --- |
+| `experiment.yaml` | `schema_version: hydroops-coupled-simulation.v2`, UTC `start_time` & exclusive `end_time`, `time: {simulation_step: hourly, output_step: hourly\|daily\|monthly}`. |
+| `hydrology.yaml` | `engine: gwlf_hourly`, `forcing_step: hourly`, continuous UTC forcing (`...Z`), `inflow_bindings` covering every non-dam node. |
+| `reservoirs.yaml` | `network.schema_version: llm-reservoir-network.v3`, `dt_seconds: 3600`, aligned `start_time`, hourly `unit_hydrograph` lags. |
+| `agents` extensions | Custom extensions must declare `supported_dt_seconds` containing `3600`. |
 
-Diagnostics expose interval storage and flux terms plus a water-balance
-residual. Inspect residual magnitude for the study's scale and precision; the
-kernel only rejects invalid/non-finite physical states. Validate parameters,
-initial-state spinup, event-memory assumptions, runoff, and routing against
-independent observations before interpreting an operational comparison.
+`prepare` writes `hydrology_diagnostics.json`, `hydrology_state.json`, and `hydrology_routing.json` alongside `inflows.csv`.
 
-The public examples remain daily prepared-inflow cases. Build and validate a
-study-specific forcing file before connecting this kernel to a reservoir case.
-See [time scales and units](TIME_SCALES.md) for interval rules.
+## State continuity, diagnostics, and validation
+
+<div class="callout callout-warn" markdown="1">
+
+**State transfer rules.** Pass the returned `state` only to the next consecutive interval block with identical parameters and `dt_seconds`. Never skip, overlap, or backfill timestamps, and never substitute a daily `BF0` discharge depth for an hourly deep-storage state.
+
+</div>
+
+Inspect `diagnostics` (or `hydrology_diagnostics.json`) for storage/flux terms and validate spin-up, runoff, and hourly routing against observed hydrographs before interpreting operational results. See [Time scales & units](TIME_SCALES.md) and [Inflows & HydroCNHS](HYDROLOGY_SETUP.md).

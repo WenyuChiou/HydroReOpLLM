@@ -1,9 +1,101 @@
-# 原生 HydroCNHS 與 GWLF 設定
+# 入流與 HydroCNHS 設定
 
-HydroReOpLLM 內含鎖定版本的 HydroCNHS 原始碼，可用於個別研究的耦合工作。請在 `hydrology.yaml` 中設定原生水文模式與氣象驅動資料，再將經演算或常數的模式流量繫結至水系節點。公開起始案例使用既有入流資料，因此耦合研究須自行提供並驗證水文設定檔。
+<div class="hero-band" markdown="1">
 
-若使用日尺度 GWLF 驅動資料，須為每個模擬子集水區提供連續的日期區間，並明確宣告預期欄位與單位。集水區建置、參數率定與觀測資料驗證皆屬個別研究範疇。合成範例僅用於確認軟體運作行為。
+HydroReOpLLM 建構於 [**HydroCNHS**](https://github.com/philip928lin/HydroCNHS) 之上，您可以直接匯入**自備區域入流 CSV**，或耦合一個**已率定的 HydroCNHS 集水區模式**（`GWLF`/`ABCD` 搭配 Lohmann 演算）來驅動水庫模擬。
 
-GWLF 的初始化涵蓋土壤、淺層地下水、積雪與深層／基流狀態。日尺度的舊版的基流值代表逕流深度，並非自動對應為時尺度的深層蓄水狀態。轉移或重新啟動模式狀態時，必須維持相同的設定、時間步長、時間戳記連續性與序列化狀態指紋。請檢查驅動資料，避免在銜接處自行補值、重複計入時段或更動時序。
+</div>
 
-當水量平衡證據對研究至關重要時，請啟用可用的水文診斷功能，並檢視儲存的水量平衡殘差。有限的工程數值殘差並不足以證明逕流已完成參數率定或具備良好的水庫操作表現。關於時段語意，請參閱[時間尺度與單位](TIME_SCALES.zh-TW.md)。
+## 兩種入流接入方式
+
+<div class="panel-grid panel-grid-2" markdown="1">
+<div class="panel-card" markdown="1">
+
+### 路徑 A：自備入流資料（CSV）
+
+- 最適合已經具備子集水區區域入流時使用（如 `examples/template/` 與 `examples/fe_walter/`）。
+- 提供 `case.json` 與 `inflows.csv`（`date,node,local_inflow_cms`），直接進行水庫運轉與下游演算。
+
+</div>
+<div class="panel-card" markdown="1">
+
+### 路徑 B：耦合 HydroCNHS 集水區模式
+
+- 最適合需要由氣象驅動資料模擬降雨－逕流（`GWLF`/`ABCD`）與 Lohmann 河道演算時使用。
+- 提供 `hydrology.yaml` 與 `forcing.csv`（或 `.csv.gz`）；`prepare` 會先產出 `inflows.csv`，再交由 `run` 操作水庫。
+
+</div>
+</div>
+
+### 路徑 A：`inflows.csv` 格式
+
+每個非水庫節點（`inflow_node`、`junction`、`outlet`）每日填入一筆非負的**區域增量逕流**（`m³/s`），不包含上游水庫放流量：
+
+```csv
+date,node,local_inflow_cms
+2026-03-26,upper_local,4.0
+2026-03-26,lower_local,1.5
+2026-03-26,outlet,0.0
+```
+
+## HydroCNHS 集水區模式與氣象驅動
+
+### `hydrology.yaml` 與入流綁定
+
+將不含代理人的 HydroCNHS 集水區模式（`ABM: null`）對應至 `reservoirs.yaml` 中的每個 `inflow_node`、`junction` 與 `outlet`：
+
+```yaml
+model: synthetic_catchments.yaml      # HydroCNHS GWLF/ABCD + Lohmann YAML（ABM: null）
+forcing: forcing.csv                  # date（或 timestamp）, subbasin_id, precipitation_mm, temperature_c, pet_cm
+zero_flow_nodes: []                   # 固定為 0 m³/s 的原生出口
+diagnostics: true                     # 選填：匯出 GWLF 狀態與水量平衡診斷
+inflow_bindings:
+  inlet_a: { runoff: basin_a }        # 單一子集水區的區域側向逕流
+  inlet_b: { routed: gauge_upstream } # gauge_upstream 上游所有子集水區的演算總流量
+  river_out: { constant: 0 }          # 出口節點無額外區域入流
+```
+
+| 欄位 | 必填 | 用途 |
+| --- | --- | --- |
+| `model` | 是 | 已率定的 HydroCNHS YAML（`RainfallRunoff: GWLF \| ABCD`、`Routing: Lohmann`、`ABM: null`）。 |
+| `forcing` | 是 | 逐日或逐時氣象 CSV（`.csv` 或 `.csv.gz`）。 |
+| `zero_flow_nodes` | 否 | 固定為 `0.0 m³/s` 且不需氣象輸入的原生出口。 |
+| `inflow_bindings` | 是 | 非水庫節點的 1 對 1 綁定（`runoff`、`routed` 或 `constant: 0`）。 |
+| `engine`、`forcing_step` | 否 | 預設逐日（`gwlf_daily` / `daily`）；逐時 GWLF 請設為 `gwlf_hourly` / `hourly`。 |
+| `diagnostics`、`prepared_from` | 否 | 匯出 GWLF 狀態／平衡診斷，或沿用先前的 `prepare` 資料夾。 |
+
+<div class="callout callout-warn" markdown="1">
+
+**避免重複計入上游集水區水量。** `routed:` 已加總該出口上游所有子集水區，而 `runoff:` 只取單一子集水區。綁定範圍重疊或在 `inflows.csv` 誤含上游水庫放流，都會導致 `check` 失敗或水量重複計算。
+
+</div>
+
+### 氣象驅動單位與暖機期
+
+```csv
+date,subbasin_id,precipitation_mm,temperature_c,pet_cm
+2020-02-27,basin_a,12.5,4.2,0.18
+2020-02-27,basin_b,8.0,2.5,0.15
+```
+
+- **單位**：逐日降雨用 `mm/day`（內部換算為 `cm/day`）、PET 用 `cm/day`、氣溫用 `°C`（允許負溫）。
+- **暖機與操作**：HydroCNHS 的 `StartDate`–`EndDate` 可早於 `start_date`–`end_date` 進行土壤與地下水暖機；水庫 `initial_storage_m3` 一律套用於 `start_date`。
+
+## GWLF 初始狀態與率定邊界
+
+- GWLF 從 HydroCNHS 模式檔初始化 `S0`、`U0`、`SnowS` 與 `B0`/`BF0`（日尺度 `BF0` 為逕流深度，非逐時深層蓄水體積；見[逐時 GWLF（實驗性）](HOURLY_GWLF.zh-TW.md)）。
+- HydroReOpLLM 依原樣執行已率定的 HydroCNHS 參數；集水區率定與偏差修正皆屬於耦合前的前置作業。
+
+## 水庫節點與下游河道演算
+
+每座受控水庫接收自身的區域入流加上上游延遲抵達的出流，再將總出流（`controlled_release_cms + spill_cms`）依設定的 `fraction` 分流比例與 `unit_hydrograph` 延遲權重，由上游至下游依序演算至各匯流點與出口。
+
+## 水文前處理輸出與水量平衡診斷
+
+執行 `reservoir-experiment prepare experiment.yaml`，即可在啟動操作員前先檢查產出的 `inflows.csv`：
+
+| 輸出產物 | 位置 | 檢查重點 |
+| --- | --- | --- |
+| `inflows.csv` | `<output>/` | 操作視窗內的模擬區域增量入流量（`m³/s`）。 |
+| `hydrology_diagnostics.json`、`hydrology_state.json` | `<output>/` | 各子集水區 GWLF 通量、殘差與期末狀態（`diagnostics: true` 或逐時模式）。 |
+| `network_balance.csv`、`reach_volume_trace.json` | `<output>/operation/` | 全期程水庫＋河道水量平衡（`m³`），確認 `system_residual_m3` 趨近於 `0`。 |

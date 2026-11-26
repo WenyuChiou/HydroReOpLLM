@@ -1,87 +1,54 @@
-# Prepared-inflow template
+# Two-reservoir template
 
-Use this single generic template with a local inflow series for each reservoir.
-Run the synthetic case once, then copy the directory and replace its values.
+Copy this two-reservoir cascade (`upper` → `lower` → `outlet`) and replace its synthetic inflows, physical dimensions, dates, or operators with your own.
+
+## Files and quick run
 
 | File | Purpose |
-|---|---|
-| `experiment.yaml` | Run identity, dates, output, one operator per reservoir |
-| `case.json` | Physical network, routing, pointer to the inflow CSV |
-| `inflows.csv` | Local inflows (m3/s), 2026-03-26 to 2026-04-06 |
-| `prompts/operator.txt` | Prompt for a later LLM operator |
+| --- | --- |
+| [`experiment.yaml`](experiment.yaml) | Run identity, `start_date`/`end_date`, `output`, `max_calls: 0`, and `offline` operators. |
+| [`case.json`](case.json) | Physical network (`llm-reservoir-network.v2`), routing lags, and `inflows.csv` link. |
+| [`inflows.csv`](inflows.csv) | Daily incremental local inflows (`m3/s`), `2026-03-26` to `2026-04-06`. |
+| [`prompts/operator.txt`](prompts/operator.txt) | Starter prompt template kept ready for switching to `type: llm`. |
 
-From the repository root:
-
-```shell
+```sh
 reservoir-experiment check examples/template/experiment.yaml
 reservoir-experiment run examples/template/experiment.yaml
-reservoir-experiment verify runs/prepared-template
+reservoir-experiment verify runs/prepared-template --require-offline
 ```
 
-Choose a fresh `output` relative to `experiment.yaml` and a new `run_id` for each run. The shipped case operates for 10 days, from `start_date` through `end_date`.
-Final storage is 5,808,000 m3 in `upper` and 1,000,000 m3 in `lower`, which reaches capacity and spills. For a shorter window, `initial_storage_m3` applies on the first operated day.
-Open `runs/prepared-template/summary.json`. This workflow writes operation records directly to that directory. The [results guide](../../docs/RESULTS_GUIDE.md) explains how to read them.
+Set a fresh `run_id` and unused `output` for every run. The 10-day window finishes with `5,808,000 m3` in `upper` and `1,000,000 m3` in `lower` (which reaches capacity and spills). Inspect `runs/prepared-template/summary.json` using [Reading results](../../docs/RESULTS_GUIDE.md).
 
-## Case file fields (`case.json`; JSON has no comments, so replace the values listed)
+## Case file fields
 
-| Field | Meaning, unit, allowed values | Req |
-|---|---|---|
+Fields `physical.*` sit under `network.reservoirs.<key>`.
+
+| Field (`case.json`) | Meaning, native unit, and constraints | Req |
+| --- | --- | --- |
 | `schema_version` | `llm-reservoir-network-case.v1` | yes |
-| `data_kind` | `synthetic_fixture`, `observed_local_inflow` or `simulated_local_inflow` (below) | yes |
-| `live_readiness` | Mapping; `{"ready": true}` allows LLM operators on non-synthetic data (below) | no |
-| `network.schema_version` | `llm-reservoir-network.v2` (daily steps, `outlets` list) | yes |
-| `network.start_date` | `YYYY-MM-DD`; must equal the first date in the inflow CSV | yes |
-| `network.reservoirs.<key>` | `<key>` is what `agents.*.reservoir` names | yes |
-| `...inflow_node`, `physical.reservoir_id` | Node id owning the local inflow; non-empty reservoir id. All ids distinct | yes |
-| `...physical.capacity_m3`, `dead_storage_m3`, `initial_storage_m3` | Storage, m3: capacity above 0; dead (protected minimum) at most initial; initial (first operated day) at most capacity | yes |
-| `...physical.minimum_release_cms`, `maximum_release_cms` | Controlled-release bounds, m3/s, minimum at most maximum; spill above capacity is not capped | yes |
-| `...physical.dt_seconds` | Step length, seconds; `86400` for the daily CSV format | no (86400) |
-| `network.connections[]` | One entry per reservoir output: `source`, `target`, optional `fraction`, `unit_hydrograph` | yes |
-| `...source`, `...target` | Source is a reservoir or junction; target is an inflow node, junction or outlet, not itself | yes |
-| `...fraction` | Dimensionless share of the source output in (0, 1]; a source's shares sum to 1 | no (1) |
-| `...unit_hydrograph` | Dimensionless step-lag weights, each at least 0, summing to 1 | no (`[1.0]`) |
-| `network.outlets` | Non-empty list; must be exactly the terminal nodes | yes |
-| `inflow_source` | `path` (relative to `case.json`), `sha256` (of the CSV bytes), `format` = `daily-node-local-cms.v1`; exactly these three keys | yes |
+| `data_kind` | `synthetic_fixture`, `observed_local_inflow`, or `simulated_local_inflow` | yes |
+| `live_readiness` | `{"ready": true}` required for LLM calls on non-synthetic inflows | no |
+| `network.schema_version` | `llm-reservoir-network.v2` (`outlets` list, daily) | yes |
+| `network.start_date` | Quoted `YYYY-MM-DD`; must match the first CSV date | yes |
+| `network.reservoirs.<key>` | Reservoir key referenced by `agents.*.reservoir` / `reservoir_id` | yes |
+| `reservoirs.<key>.inflow_node` | Distinct node ID receiving local inflow | yes |
+| `physical.reservoir_id` | Distinct physical reservoir ID recorded in outputs | yes |
+| `physical.capacity_m3`, `dead_storage_m3`, `initial_storage_m3` | Storage (`m3`): `0 <= dead <= initial <= capacity` (`initial` starts on `start_date`) | yes |
+| `physical.minimum_release_cms`, `maximum_release_cms` | Controlled release bounds (`m3/s`); spill above capacity is uncapped | yes |
+| `physical.dt_seconds` | Step length in seconds (`86400.0` for daily CSV) | no (`86400`) |
+| `network.connections[]` | `source`, `target`, optional `fraction` summing to `1`, optional `unit_hydrograph` | yes |
+| `network.outlets` | Non-empty terminal node list matching zero-outdegree nodes | yes |
+| `inflow_source` | Exact keys `{path, sha256, format}` (`daily-node-local-cms.v1`) | yes |
 
-Other fields (`junctions`, `operation_mode`, passive outlets, non-daily steps):
-see `src/llm_reservoir_agent/network.py:37`. Inline `inflow_records` replace
-`inflow_source` only for `synthetic_fixture` (`case.py:127`).
+See [Multi-reservoir networks](../../docs/MULTI_RESERVOIR.md) for `junctions`, `operation_mode: passive_outlet`, and sub-daily `v3` networks.
 
-**Inflow CSV.** The header is exactly `date,node,local_inflow_cms`. Every date
-supplies every inflow node, junction and outlet (outlets 0.0 here), at least 0,
-in m3/s. The value is the interval-mean local inflow, without water routed from
-upstream reservoirs. Dates are consecutive days with no gaps.
-After editing the CSV, put its new hash in `inflow_source.sha256`:
-`python -c "import hashlib,sys; print(hashlib.sha256(open(sys.argv[1],'rb').read()).hexdigest())" examples/template/inflows.csv`
-Tools that change the CSV's line endings change the hash.
+## Inflows, routing, and live readiness
 
-**Routing.** `unit_hydrograph` splits one step's output across later steps.
-Index 0 is the same step, index 1 the next step. Here `upper` to `lower` uses
-`[0.0, 0.7, 0.3]`: 70% arrives one step later, 30% two steps later. Omitting it
-means `[1.0]`, no delay. A reservoir's output is controlled release plus spill.
+- **Incremental local inflows**: `inflows.csv` columns are `date,node,local_inflow_cms` (consecutive days, `>= 0` m3/s) excluding routed upstream releases. If you edit `inflows.csv`, update `inflow_source.sha256` with `python -c "import hashlib,sys; print(hashlib.sha256(open(sys.argv[1],'rb').read()).hexdigest())" examples/template/inflows.csv`.
+- **Routing (`unit_hydrograph`)**: Index `0` is same-step, index `1` is `+1` step (`[0.0, 0.7, 0.3]` delivers 70% next day, 30% two days later). Routing carries `controlled_release_cms + spill_cms`.
+- **Decision timing & live gate**: Each step observes interval-mean inflow (including routed arrivals). `synthetic_fixture` is live-ready; `observed_local_inflow` and `simulated_local_inflow` require `"live_readiness": {"ready": true}`, `--allow-network`, and `max_calls`. See [Gauges & forecasts](../../docs/INFORMATION.md) and [Run, verify & resume](../../docs/RUNNING.md).
 
-**Decision timing.** At each step the operator receives the interval-mean inflow, including routed water. This assumes advance knowledge of the daily mean.
-In coupled cases, use the [information catalog](../../docs/INFORMATION.md) for timestamped observations, forecasts and simulation history.
+## Changing operators and YAML numbers
 
-## `data_kind` and model calls
-- `synthetic_fixture`: invented or test data. Ready for LLM operators without
-  `live_readiness`.
-- `observed_local_inflow`, `simulated_local_inflow`: real or model-made
-  series. An LLM operator needs `"live_readiness": {"ready": true}` as a
-  top-level key of `case.json`, next to `data_kind`; `ready` must be JSON `true`.
-
-An LLM run also needs `--allow-network` and `max_calls` of at least the planned
-requests; `check` reports `live_ready`. This template uses `max_calls: 0` and
-`mode: offline`: no model request. For an LLM, document the data-readiness
-decision and follow the explicit network and attempt controls in
-[`docs/RUNNING.md`](../../docs/RUNNING.md).
-
-## Changing the operator
-`mode: offline` with `release_cms` is a fixed release. For a prepared-inflow
-LLM configuration, compare the two documented
-[F.E. Walter examples](../fe_walter/README.md). Keep a named system prompt,
-model identity, and explicit network authorization with the copied case.
-
-## YAML numbers
-The YAML loader reads `4.0e0` (a dot but no exponent sign) as text, and
-`check` then fails. Write `8000000.0` or `8.0e+6`. JSON is not affected.
+- **Operators**: Replace `mode: offline` (`release_cms`) with `type: rule_based` (e.g., Hanasaki) or `type: llm` using [Rules & LLM prompts](../../docs/AGENT_DESIGN.md) and the [F.E. Walter Dam](../fe_walter/README.md) case or [F.E. Walter notebook](../../tutorials/README.md).
+- **YAML scientific notation**: Always include `+`/`-` in exponents (`8.0e+6` or `8000000.0`), because PyYAML parses `8.0e6` as text and `check` rejects it.
