@@ -2,77 +2,115 @@
 
 <div class="hero-band" markdown="1">
 
-HydroReOpLLM supports five native LLM HTTP adapters—`ollama`, `openai`, `openai_compatible`, `anthropic`, and `gemini`—without third-party SDK lock-in (`src/llm_reservoir_agent/providers.py`). Every profile declares explicit endpoints, credentials by environment variable name, sampling controls, and bounded retry rules.
+HydroReOpLLM connects directly to local **Ollama** servers and four cloud APIs (**OpenAI**, **OpenAI-compatible**, **Anthropic**, and **Gemini**) through explicit profiles in `models.yaml` (or `models:` inside `experiment.yaml`).
 
 </div>
 
-## Supported providers and native endpoints
+## Ready-to-copy provider profiles
 
-`chat_request`, `chat_headers`, and `chat_reply` in `providers.py` map canonical `PromptRequest` messages onto each provider's native REST API:
+Copy the profile block you need into `models.yaml` and reference its key (e.g., `local`, `openai`, `gemini`) from `model_profile:` on your LLM operator:
 
-| `provider` | Endpoint suffix appended to `base_url` | Credential header (via `api_key_env`) | Native JSON schema field | Native usage field retained |
-| --- | --- | --- | --- | --- |
-| `ollama` | `/api/chat` | Optional `Authorization: Bearer` | `format` | `prompt_eval_count`, `eval_count` |
-| `openai` | `/responses` | `Authorization: Bearer` | `text.format` (`json_schema`, `strict: true`) | `usage` |
-| `openai_compatible` | `/chat/completions` | `Authorization: Bearer` | `response_format.json_schema` (`strict: true`) | `usage` |
-| `anthropic` | `/v1/messages` | `x-api-key` + `anthropic-version` | `output_config.format` (`json_schema`) | `usage` |
-| `gemini` | `/models/{model}:generateContent` | `x-goog-api-key` | `generationConfig.responseJsonSchema` | `usageMetadata` |
+```yaml
+# models.yaml — choose one or more profiles and set YOUR_* values
+local:
+  provider: ollama
+  model: gemma4:12b                    # Installed tag from `ollama list`
+  base_url: http://127.0.0.1:11434
+  temperature: 0.7
+  seed: 3
+  num_ctx: 16384
+  max_tokens: 2048
+  timeout_seconds: 120
+  max_attempts: 2
+  retry_delay_seconds: 2
+  think: false
+  keep_alive: 30m
+
+openai:
+  provider: openai
+  model: YOUR_OPENAI_MODEL
+  api_key_env: OPENAI_API_KEY          # Export this env var before running
+  base_url: https://api.openai.com/v1
+  temperature: 0.2
+  max_tokens: 2048
+  max_attempts: 2
+
+gemini:
+  provider: gemini
+  model: YOUR_GEMINI_MODEL
+  api_key_env: GEMINI_API_KEY
+  base_url: https://generativelanguage.googleapis.com/v1beta
+  temperature: 0.2
+  max_tokens: 2048
+  max_attempts: 2
+
+anthropic:
+  provider: anthropic
+  model: YOUR_ANTHROPIC_MODEL
+  api_key_env: ANTHROPIC_API_KEY
+  base_url: https://api.anthropic.com
+  max_tokens: 2048                     # Required by Anthropic
+  temperature: 0.2
+  max_attempts: 2
+
+vllm_or_local_server:
+  provider: openai_compatible
+  model: YOUR_SERVED_MODEL
+  api_key_env: OPENAI_API_KEY          # Omit if your local server needs no key
+  base_url: http://127.0.0.1:8000/v1
+  temperature: 0.2
+  seed: 3
+  max_tokens: 2048
+```
 
 <div class="callout callout-warn" markdown="1">
 
-**Security & redirect guards.** HTTP redirects are disabled (`_NoRedirect`) so bearer tokens or API keys are never forwarded to another host. Raw header secrets are redacted as `[REDACTED]` before writing any error or trace to `provider_attempts.jsonl` or `raw/`. Never commit API keys in YAML or JSON files.
+**Keep API keys in environment variables.** Never paste raw keys into YAML files. Set `api_key_env` to the variable name (for example `OPENAI_API_KEY`) and export it in your terminal before running `reservoir-experiment run --allow-network`. Secrets are stripped from all saved logs.
 
 </div>
 
-## Model profile YAML keys and defaults
+## Sampling, timeout, and budget controls
 
-`validate_model_settings` (`src/llm_reservoir_agent/configured_backend.py`) accepts only the explicit keys below; unknown keys fail validation at `check` time:
-
-| Key | Default | Provider scope & constraints |
+| YAML key | Default | Provider scope & guidance |
 | --- | --- | --- |
-| `provider` | Required | One of `ollama`, `openai`, `openai_compatible`, `anthropic`, `gemini`. |
-| `model` | Required | Exact model identifier string (e.g., `gemma4:12b`). |
-| `base_url` | Required | Final HTTP(S) URL without embedded credentials, query string, or fragment. |
-| `api_key_env` | `null` | Environment variable name matching `[A-Za-z_][A-Za-z0-9_]*`. Looked up only at decision time. |
-| `temperature` | Provider default | Finite float in `[0.0, 2.0]`. |
-| `max_tokens` | Provider default | Positive integer (`num_predict` for Ollama, `max_output_tokens` for OpenAI, `maxOutputTokens` for Gemini; **required** by Anthropic). |
-| `seed` | Omitted | Integer; supported **only** by `ollama` and `openai_compatible`. |
-| `timeout_seconds` | `60.0` | Positive timeout in seconds per HTTP request attempt. |
-| `max_attempts` | `1` | Positive integer upper bound on attempts per profile per decision. |
-| `retry_delay_seconds` | `2.0` | Non-negative sleep delay in seconds between retries. |
-| `retryable_http_statuses` | `[]` | Unique list of HTTP status codes (`100`–`599`) eligible for retry (default: no HTTP status retries). |
-| `num_ctx` | Omitted | Positive integer context window (**`ollama` only**). |
-| `think` | Omitted | Boolean reasoning toggle (**`ollama` only**). |
-| `keep_alive` | Omitted | Non-empty duration string or signed 64-bit integer (**`ollama` only**). |
-| `anthropic_version` | `'2023-06-01'` | Non-empty API version header (**`anthropic` only**). |
+| `provider` | Required | `ollama`, `openai`, `openai_compatible`, `anthropic`, or `gemini`. |
+| `model` | Required | Exact model tag or API model ID. |
+| `base_url` | Required | Base HTTP(S) URL for your local server or cloud endpoint. |
+| `api_key_env` | Omitted | Environment variable name holding your API key (optional for local Ollama). |
+| `temperature` | Provider default | `0.0`–`2.0`. Lower values (`0.0`–`0.3`) reduce run-to-run variability; F.E. Walter uses `0.7` across 10 seeds to measure spread. |
+| `max_tokens` | Provider default | Maximum output tokens per decision (**required** for `anthropic`; `2048` leaves ample room for reasoning + JSON). |
+| `seed` | Omitted | Integer random seed (supported by `ollama` and `openai_compatible` only). |
+| `timeout_seconds` | `60.0` | Seconds before an HTTP attempt times out (raise to `120`+ for larger local models). |
+| `max_attempts` | `1` | Maximum tries per profile on transient errors or malformed JSON replies. |
+| `retry_delay_seconds` | `2.0` | Wait time in seconds between retries. |
+| `retryable_http_statuses` | `[]` | Optional list of HTTP codes (e.g., `[429, 503]`) to retry automatically. |
+| `num_ctx`, `think`, `keep_alive` | Omitted | **`ollama` only**: context length (`num_ctx`), thinking toggle (`think`), and model memory residency (`keep_alive`). |
+| `anthropic_version` | `'2023-06-01'` | **`anthropic` only**: API version header override. |
 
-## Retries, fallbacks, and token accounting
+## Retries and fallback models
 
 <div class="panel-grid panel-grid-2" markdown="1">
 <div class="panel-card" markdown="1">
 
-### Per-profile retries (`max_attempts`)
+### Retrying transient errors
 
-- `ConfiguredBackend.decide()` renders context and messages **once** before the first attempt so retries cannot see newer data.
-- Eligible retries: `TimeoutError`, `ConnectionError`, `URLError` wrapping timeout/connection, HTTP statuses listed in `retryable_http_statuses`, and JSON/action decode errors (`JSONDecodeError`, `TypeError`, `ValueError`).
-- Non-retryable: `401`/`403` auth errors and missing environment variables fail immediately.
+- If a request times out, drops a connection, hits a status in `retryable_http_statuses`, or returns invalid JSON, HydroReOpLLM retries up to `max_attempts` using the **exact same prompt** for that day.
+- Missing API keys or `401`/`403` authentication errors fail immediately without wasting attempts.
 
 </div>
 <div class="panel-card" markdown="1">
 
 ### Ordered `fallback_models` & `max_calls`
 
-- Declare backup profile IDs under `customization.fallback_models` (cannot repeat or equal primary `model_profile`).
-- Fallback triggers on HTTP `429` or `5xx`, timeouts, connection errors, or JSON/action parse failures—never on HTTP `401`/`403` or `ProviderEvidenceError`.
-- **Every** primary, retry, and fallback HTTP call counts toward `max_calls` and writes `STARTED` → `RETURNED`/`FAILED` to `provider_attempts.jsonl`.
+- Add `customization.fallback_models: [backup_profile]` on an agent to fall back cleanly if the primary model fails on rate limits (`429`), server errors (`5xx`), timeouts, or JSON parse failures.
+- **Budget safety**: Set `max_calls` in `experiment.yaml` to cover `llm_agents * steps` plus headroom for any retries or fallbacks. Every attempt is logged in `provider_attempts.jsonl`.
 
 </div>
 </div>
 
-## Exact model identity and local serving
+## Recording settings for reproducible studies
 
-Model tags such as `:latest` or hosted aliases can silently change weights behind the same text label. For reproducible experiments:
-
-- **Local models (Ollama / OpenAI-compatible)**: Record the exact inference server version, quantization, model manifest, template/system prompt SHA-256, and immutable GGUF/blob SHA-256 digests. In the F.E. Walter study (`examples/fe_walter/study/model.py`), `verify_serving()` checks Ollama `0.40.6` and pins the `gemma4:12b` manifest against `study/ollama-manifest.json` before and after inference.
-- **Hosted cloud models**: Provider weights remain under vendor control; treat `last_request_id` (`id` or Gemini `responseId`) and native `usage` in `decisions.jsonl` / `provider_attempts.jsonl` as runtime telemetry rather than cryptographic proof of immutable weights.
-- **Check vs. run**: `reservoir-experiment check` validates profile syntax without network discovery or credential lookup; connectivity, billing, and model availability are tested only when `run --allow-network` executes.
+For reproducible hydrological papers, record alongside your run output:
+- The exact `provider`, `model` tag (avoid floating `:latest` tags if possible), `temperature`, `seed`, and `num_ctx`.
+- Your exact `system_prompt_file`, `prompt_file`, `knowledge` files, and software/Ollama version.
+- Remember that `reservoir-experiment check` validates YAML profiles offline without contacting the server; test live connectivity on a short 3–7 day window first before launching multi-year runs.

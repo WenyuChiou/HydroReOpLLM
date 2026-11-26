@@ -2,13 +2,13 @@
 
 <div class="hero-band" markdown="1">
 
-HydroReOpLLM requires **Python 3.12+**. Follow the steps below to install the pinned package (`hydroreopllm` / import `llm_reservoir_agent` / CLI `reservoir-experiment`) and verify both the offline two-reservoir template and the F.E. Walter examples.
+HydroReOpLLM requires **Python 3.12+**. Install the package (`hydroreopllm` / CLI `reservoir-experiment`) and run your first two-reservoir offline cascade in under five minutes.
 
 </div>
 
 ## Install from a clone
 
-Clone the repository, create a Python 3.12 virtual environment, and install with the bundled constraint file (`environment/requirements-bundled.txt`):
+Clone the repository, create a Python 3.12 virtual environment, and install with the bundled pinned dependencies (`environment/requirements-bundled.txt`):
 
 <div class="panel-grid panel-grid-2" markdown="1">
 <div class="panel-card" markdown="1">
@@ -41,17 +41,17 @@ python -m pip install -c environment/requirements-bundled.txt .
 
 ## Use an installed wheel
 
-If you installed a built wheel into a clean environment, export the bundled examples into an unused directory and run commands from that working directory:
+If you installed HydroReOpLLM from a wheel into a clean directory, export the bundled `template` and `fe_walter` examples with:
 
 ```sh
 reservoir-experiment init-examples
 ```
 
-This copies `examples/template/` and `examples/fe_walter/` into `./examples/` without `__pycache__` artifacts.
+This creates `./examples/` in your current working directory.
 
 ## Run the generic offline template
 
-The template runs a two-reservoir cascade (`upper` → `lower` → `outlet`) with prescribed releases and zero model calls:
+The template simulates a 10-day two-reservoir cascade (`upper` → `lower` → `outlet`) with prescribed releases and zero LLM calls:
 
 ```sh
 reservoir-experiment check examples/template/experiment.yaml
@@ -59,15 +59,15 @@ reservoir-experiment run examples/template/experiment.yaml
 reservoir-experiment verify runs/prepared-template --require-offline
 ```
 
-- `check` validates file hashes, dates, agent coverage, and routing topology without running physics.
-- `run` executes the 10-day cascade into `runs/prepared-template/`.
-- `verify --require-offline` confirms `status: PASS`, `observed_network_calls: 0`, and closed mass balance.
+- `check` validates all paths, dates, reservoir bounds, and routing weights without running physics.
+- `run` executes the simulation and writes CSVs and decision logs to `runs/prepared-template/`.
+- `verify --require-offline` confirms closed water balance (`PASS`) and `0` network calls.
 
 Continue with the [template field guide](../examples/template/README.md) and [Read your results](RESULTS_GUIDE.md).
 
 ## Check the F.E. Walter examples
 
-Validate all three F.E. Walter study configurations offline (zero provider calls):
+Check all three F.E. Walter study configurations offline (zero model calls):
 
 ```sh
 reservoir-experiment check examples/fe_walter/rule_based.yaml
@@ -76,8 +76,8 @@ reservoir-experiment check examples/fe_walter/dkp.yaml
 ```
 
 - Run the offline **Hanasaki** baseline immediately with `reservoir-experiment run examples/fe_walter/rule_based.yaml`.
-- For **Seasonal Target** or **DKP** LLM runs (or offline 21-run paper score replay), follow the [F.E. Walter Dam guide](../examples/fe_walter/README.md) or step through the [F.E. Walter tutorial](../tutorials/README.md).
+- To replay the 21 published runs offline or run **Seasonal Target** / **DKP** with local Ollama, follow the [F.E. Walter Dam guide](../examples/fe_walter/README.md) or the [F.E. Walter tutorial](../tutorials/README.md).
 
 ## Repeat a run safely
 
-Completed output directories are immutable (`RunOutputExistsError` prevents accidental overwrite). Before rerunning any experiment, assign a fresh `run_id` and unused `output` path in `experiment.yaml` (relative to the YAML file), rerun `check`, then `run` and `verify`.
+Completed output folders are never overwritten. To re-run after editing reservoir limits, inflows, or prompts, assign a new `run_id` and an unused `output` directory in `experiment.yaml`, then run `check`, `run`, and `verify`.

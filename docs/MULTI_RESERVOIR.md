@@ -2,41 +2,41 @@
 
 <div class="hero-band" markdown="1">
 
-HydroReOpLLM models single reservoirs, series cascades, parallel branches, junctions, and multi-outlet basins as a directed acyclic graph (DAG) in `network.py` and `interval_network.py`. Each controlled reservoir owns an independent operator—making it straightforward to combine **Hanasaki rule-based** and **LLM-driven** agents in the same basin.
+HydroReOpLLM models single reservoirs, series cascades, parallel tributaries, river junctions, flow splits, and multi-outlet basins. Each controlled dam owns an independent operator—so you can pair a **Hanasaki rule-based** reservoir with an **LLM-operated** reservoir inside the same watershed.
 
 </div>
 
 ## Network topology and physical rules
 
-`validate_network` (`src/llm_reservoir_agent/network.py`) enforces structural and physical consistency across `llm-reservoir-network.v1` (`outlet`), `.v2` (`outlets` list, daily), and `.v3` (`outlets` list, explicit `start_time` / `dt_seconds`):
+Define the basin topology under `network` in `case.json` or `reservoirs.yaml` (`llm-reservoir-network.v1` with `outlet`, `.v2` with `outlets` list for daily runs, or `.v3` for sub-daily intervals):
 
-| Network component | Key rules & invariants |
+| Network component | Physical meaning & constraints |
 | --- | --- |
-| `reservoirs.<key>` | Unique non-empty key, unique `inflow_node`, unique `physical.reservoir_id`, `dt_seconds` matching network clock, `dead_storage_m3 <= initial_storage_m3 <= capacity_m3`, `minimum_release_cms <= maximum_release_cms`. |
-| `operation_mode` | `controlled` (requires exactly one unique agent in `agents:`) or `passive_outlet` (uses `passive_outlet` rating curve without an agent). |
-| `junctions` & `outlets` | All reservoir, inflow, junction, and outlet IDs must be mutually distinct. Terminal nodes with zero outgoing connections must match `outlets` exactly. |
-| `connections[]` | Routes reservoir/junction output (`controlled_release_cms + spill_cms`) to an `inflow_node`, `junction`, or `outlet` (no self-loops, no cycles). |
-| `fraction` | Dimensionless split in `(0, 1]`; outgoing fractions from each reservoir or junction must sum to `1.0` within `1e-12`. |
-| `unit_hydrograph` | Non-negative step-lag weights summing to `1.0` within `1e-12`; index `0` is same step, index `1` is `+1` step, etc. |
+| `reservoirs.<key>` | Unique reservoir ID, paired `inflow_node`, `capacity_m3`, `dead_storage_m3`, `initial_storage_m3` (`dead <= initial <= capacity`), `minimum_release_cms`, `maximum_release_cms`, and `dt_seconds`. |
+| `operation_mode` | `controlled` (operated by an agent in `agents:`) or `passive_outlet` (uncontrolled weir/spillway governed solely by its stage-discharge curve, no agent needed). |
+| `junctions` & `outlets` | Distinct IDs for tributary confluences and terminal basin outlets (every terminal node with zero outgoing links must appear in `outlets`). |
+| `connections[]` | Directed river reaches routing a reservoir or junction's total outflow (`controlled_release_cms + spill_cms`) to a downstream `inflow_node`, `junction`, or `outlet` (acyclic). |
+| `fraction` | Optional dimensionless flow-split share in `(0, 1]` (default `1.0`); outgoing shares from any reservoir or junction must sum to `1.0`. |
+| `unit_hydrograph` | Non-negative channel travel-time weights summing to `1.0`: index `0` arrives on the same step, index `1` one step later, index `2` two steps later (default `[1.0]`). |
 
 ## Incremental local inflows and unit-hydrograph routing
 
 <div class="callout callout-warn" markdown="1">
 
-**Incremental local flow rule.** Every `routing_node` (`inflow_node`, `junction`, `outlet`) receives **only local lateral runoff** from `inflows.csv` or `hydrology.yaml` `inflow_bindings`. Never supply already-routed upstream flow at a downstream node, or HydroReOpLLM will double-count upstream releases.
+**Supply incremental local inflows only.** Every `inflow_node`, `junction`, and `outlet` in `inflows.csv` (or `inflow_bindings`) must supply **only local lateral runoff** entering that reach—never already-routed flow from an upstream dam. HydroReOpLLM adds upstream dam releases automatically through `connections[]`.
 
 </div>
 
-At each node, total flow equals local incremental inflow plus convolved arrivals from all incoming `connections[]`. Unreleased water still traveling along multi-step `unit_hydrograph` lags is tracked explicitly in `reach_volume_trace.json` and `network_balance.csv` (`channel_storage_end_m3`) so system mass balance closes to machine precision (`< 1e-6` m3).
+Channel routing uses discrete linear convolution of `unit_hydrograph` weights. For example, `[0.0, 0.7, 0.3]` delivers 0% on the release day, 70% on day +1, and 30% on day +2. Water still in transit along multi-day reaches at the end of a simulation is accounted for explicitly in `reach_volume_trace.json` and `network_balance.csv` so total basin water balance always closes.
 
 ## Hybrid Hanasaki and LLM multi-reservoir wiring
 
-Because `validate_isolated_backends` guarantees each reservoir receives its own stateful backend instance, you can assign an LLM operator to one dam and a deterministic Hanasaki rule to another inside a single `agents.yaml` (pattern from `tests/fixtures/examples/multiple_reservoirs/agents.llm.yaml` and `experiment.yaml`):
+Because each reservoir's operator runs independently, you can mix an LLM operator on one reservoir with a deterministic Hanasaki rule on a parallel or upstream reservoir in the same `agents.yaml` (following `tests/fixtures/examples/multiple_reservoirs/`):
 
 <div class="panel-grid panel-grid-2" markdown="1">
 <div class="panel-card" markdown="1">
 
-### `experiment.yaml` (`v2` coupled entry)
+### `experiment.yaml` (`v2` coupled basin)
 
 ```yaml
 schema_version: hydroops-coupled-simulation.v2
@@ -58,7 +58,7 @@ extensions:
 </div>
 <div class="panel-card" markdown="1">
 
-### `agents.yaml` (Hybrid LLM + Hanasaki)
+### `agents.yaml` (LLM + Hanasaki hybrid)
 
 ```yaml
 operator_a:
@@ -68,7 +68,7 @@ operator_a:
   prompt_file: prompts/operator.txt
   customization:
     system_prompt_file: prompts/system.txt
-    information: downstream_view
+    information: upstream_view
   auditors: [bounds]
 
 operator_b:
@@ -87,6 +87,6 @@ operator_b:
 
 ## Execution order and cross-reservoir information
 
-1. **Deterministic topological order**: At each step `t`, `network.py` / `interval_network.py` executes nodes in topological sequence (`SimSeq`). Upstream reservoirs commit their `Transition` and route `total_outflow_cms` downstream before downstream reservoirs observe `inflow_cms`.
-2. **Causal cross-reservoir reads**: If a downstream or parallel reservoir needs another node's state, declare a `simulation` source in `information.yaml` ([Decision-time information](INFORMATION.md)). Upstream states committed earlier in step `t` are available; same-step states from uncommitted or parallel nodes are unavailable until step `t` finishes.
-3. **Verification**: Run `reservoir-experiment check` whenever modifying topology, split fractions, unit hydrographs, or agent assignments.
+1. **Upstream-to-downstream execution**: At each timestep `t`, HydroReOpLLM steps through the river network in topological order. Upstream dams decide and route their outflows before downstream dams observe today's total `inflow_cms`.
+2. **Sharing states across reservoirs**: Use a `simulation` source in `information.yaml` ([Decision-time information](INFORMATION.md)) when a downstream dam needs to see an upstream dam's committed storage or release—or when parallel dams coordinate using yesterday's committed state. Same-step values from parallel dams that have not yet acted remain unavailable to preserve causality.
+3. **Verify topology offline**: Run `reservoir-experiment check` after any change to connections, `fraction` splits, `unit_hydrograph` lags, or `outlets`.

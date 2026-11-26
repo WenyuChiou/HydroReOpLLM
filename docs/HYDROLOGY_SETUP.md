@@ -2,112 +2,123 @@
 
 <div class="hero-band" markdown="1">
 
-HydroReOpLLM is built on top of [**HydroCNHS**](https://github.com/philip928lin/HydroCNHS) (Hydrological Coupled Natural–Human Systems). HydroCNHS provides both the watershed rainfall–runoff / Lohmann routing engine and the native `Dam` Agent-Based Modeling (`ABM`) loop that drives reservoir operations and downstream river routing.
+HydroReOpLLM builds on [**HydroCNHS**](https://github.com/philip928lin/HydroCNHS) for watershed rainfall–runoff modeling, channel routing, and reservoir simulation. You can either supply **pre-computed local inflows** (`inflows.csv`) or couple directly to a **HydroCNHS catchment model** (`GWLF` or `ABCD` with Lohmann routing).
 
 </div>
 
 ## Two hydrology entry paths
 
-Choose between providing pre-computed incremental inflows or coupling directly to a calibrated HydroCNHS watershed model:
+Choose the workflow that matches how your basin inflows are prepared:
 
 <div class="panel-grid panel-grid-2" markdown="1">
 <div class="panel-card" markdown="1">
 
 ### Path A: Prepared inflows (`llm-reservoir-experiment.v1`)
 
-- **Used by**: `examples/template/` and `examples/fe_walter/`.
-- **Inputs**: `case.json` (`llm-reservoir-network-case.v1`) + `inflows.csv` (exact SHA-256 pinned in `inflow_source.sha256`).
-- **Behavior**: Skips rainfall–runoff execution (`hydrology_recomputed: false`), feeds `local_inflow_cms` directly into HydroCNHS `assigned_Q` (`network.py`), and executes native `Dam` agents + routing.
+- **Best when**: You already have calibrated local runoff or gauge-derived subbasin inflows (`examples/template/` and `examples/fe_walter/`).
+- **Inputs**: `case.json` + `inflows.csv` (`date,node,local_inflow_cms`).
+- **Behavior**: HydroReOpLLM reads `local_inflow_cms` directly without re-running rainfall–runoff, then routes reservoir releases downstream.
 
 </div>
 <div class="panel-card" markdown="1">
 
 ### Path B: Native HydroCNHS coupled (`hydroops-coupled-simulation.v2`)
 
-- **Used by**: Coupled watershed–reservoir studies (`coupled.py`, `weather.py`, `interval_weather.py`).
-- **Inputs**: Top-level `experiment.yaml`, `hydrology.yaml`, `forcing.csv` (or `.csv.gz`), `reservoirs.yaml`, plus `agents`, `models`, `auditors`, `information`, and `extensions`.
-- **Behavior**: Runs pinned HydroCNHS `GWLF` / `ABCD` + `Lohmann` over the full warm-up + operation window via `prepare`, writes pinned `inflows.csv`, then executes `run`.
+- **Best when**: You want HydroCNHS to simulate watershed runoff (`GWLF` / `ABCD`) and Lohmann routing from daily or hourly weather forcing before operating reservoirs.
+- **Inputs**: `experiment.yaml`, `hydrology.yaml`, HydroCNHS model YAML, `forcing.csv` (or `.csv.gz`), and `reservoirs.yaml`.
+- **Behavior**: `prepare` runs the catchment model over spin-up + operation dates, writes `inflows.csv` for inspection, and `run` operates the reservoirs.
 
 </div>
 </div>
+
+### Prepared inflow CSV example (`inflows.csv`)
+
+Every non-reservoir node (`inflow_node`, `junctions`, `outlets`) needs one non-negative **incremental local flow** (`m³/s`) per day, excluding water routed from upstream reservoirs:
+
+```csv
+date,node,local_inflow_cms
+2026-03-26,upper_local,4.0
+2026-03-26,lower_local,1.5
+2026-03-26,outlet,0.0
+2026-03-27,upper_local,6.0
+2026-03-27,lower_local,2.0
+2026-03-27,outlet,0.0
+```
 
 ## Native HydroCNHS model and forcing
 
-In a coupled `hydroops-coupled-simulation.v2` configuration, `hydrology.yaml` connects an **agent-free** HydroCNHS catchment model to the reservoir network nodes defined in `reservoirs.yaml`.
+In a coupled `hydroops-coupled-simulation.v2` study, `hydrology.yaml` connects an **agent-free** HydroCNHS catchment model (`ABM: null`) to the reservoir network in `reservoirs.yaml`.
 
 ### `hydrology.yaml` schema and inflow bindings
 
-| Key | Required | Allowed values & rules (`coupled.py` / `weather.py`) |
+```yaml
+# hydrology.yaml
+model: synthetic_catchments.yaml      # Agent-free HydroCNHS GWLF/ABCD + Lohmann YAML
+forcing: forcing.csv                  # Daily weather table (date, subbasin_id, ...)
+zero_flow_nodes: []                   # Native outlets fixed at 0 m3/s (absent from forcing.csv)
+diagnostics: true                     # Optional: save GWLF states & water-balance diagnostics
+inflow_bindings:
+  inlet_a:
+    runoff: basin_a                   # Incremental local runoff from subbasin basin_a
+  inlet_b:
+    routed: gauge_upstream            # Routed flow from gauge_upstream (all upstream subbasins)
+  river_out:
+    constant: 0                       # Outlet adds zero local lateral runoff
+```
+
+| Field in `hydrology.yaml` | Required | Role in hydrological coupling |
 | --- | --- | --- |
-| `model` | Yes (unless reusing only via `prepared_from`) | Path to HydroCNHS YAML (`WaterSystem.ABM: null`, `RainfallRunoff: GWLF \| ABCD`, `Routing: Lohmann`). Daily `gwlf_daily` requires `RainfallRunoff: GWLF` when `engine` is declared. |
-| `forcing` | Yes | CSV or `.csv.gz` containing columns `date` (or `timestamp`), `subbasin_id`, `precipitation_mm`, `temperature_c`, `pet_cm` covering every modeled day/step and every non-zero subbasin. |
-| `zero_flow_nodes` | No | List of native HydroCNHS outlets assigned constant zero flow (not present in `forcing`). |
-| `inflow_bindings` | Yes | Exact 1-to-1 map covering every `routing_node` (`inflow_node`, `junctions`, `outlets`) in `reservoirs.yaml` using exactly one of: `runoff: <unit>`, `routed: <outlet>`, or `constant: 0`. |
-| `engine` & `forcing_step` | No (default daily) | Daily: `gwlf_daily` + `daily`; Hourly: `gwlf_hourly` + `hourly` (requires `time.simulation_step: hourly` and `llm-reservoir-network.v3`). |
-| `diagnostics` | No (`false`) | `true` exports `hydrology_diagnostics.json` and `hydrology_state.json` sidecars during `prepare`. |
-| `prepared_from` | No | Path to an existing completed preparation directory; reused only if `hydrology_signature` and all file SHA-256 digests match. |
+| `model` | Yes | Calibrated HydroCNHS YAML (`WaterSystem.RainfallRunoff: GWLF \| ABCD`, `Routing: Lohmann`, `ABM: null`). |
+| `forcing` | Yes | CSV or `.csv.gz` with columns `date` (or `timestamp`), `subbasin_id`, `precipitation_mm`, `temperature_c`, `pet_cm`. |
+| `zero_flow_nodes` | No | Native outlets assigned `0.0 m³/s` without weather forcing entries. |
+| `inflow_bindings` | Yes | 1-to-1 mapping for every `inflow_node`, `junction`, and `outlet` using `runoff: <unit>`, `routed: <outlet>`, or `constant: 0`. |
+| `engine` & `forcing_step` | No | Defaults to daily (`gwlf_daily` / `daily`). Set `gwlf_hourly` / `hourly` for hourly GWLF runs. |
+| `diagnostics` | No | When `true`, exports per-subbasin GWLF water-balance records and final states during `prepare`. |
+| `prepared_from` | No | Path to a previously completed `prepare` folder to reuse matching `inflows.csv` directly. |
 
 <div class="callout callout-warn" markdown="1">
 
-**Never double-count upstream catchments.** `validate_bindings` computes the full upstream contributor set for each `routed:` binding and each single-catchment `runoff:` binding. If two bindings share any contributing catchment, `check` fails immediately so upstream water is never injected twice into reservoir routing.
+**Never double-count upstream catchments.** A `routed:` binding already sums every subbasin upstream of that native outlet, whereas a `runoff:` binding takes only one subbasin's lateral runoff. If two bindings share any contributing catchment—or if an inflow CSV includes upstream dam releases—water is counted twice and `check` rejects overlapping bindings.
 
 </div>
 
-Example `hydrology.yaml` (from `tests/fixtures/examples/multiple_reservoirs/hydrology.yaml`):
-
-```yaml
-model: synthetic_catchments.yaml
-forcing: forcing.csv
-zero_flow_nodes: []
-inflow_bindings:
-  inlet_a:
-    runoff: basin_a
-  inlet_b:
-    runoff: basin_b
-  river_a:
-    constant: 0
-  river_b:
-    constant: 0
-```
-
 ### Forcing units and warm-up window
 
-- **Daily forcing (`weather.py`)**: `precipitation_mm` is divided by `10` to convert `mm/day` to HydroCNHS's internal `cm/day`; `pet_cm` is passed directly in `cm/day`; `temperature_c` is in `°C` (negative temperatures permitted; precipitation and PET must be non-negative).
-- **Warm-up vs. operation window**: The HydroCNHS model's `StartDate`–`EndDate` (checked strictly against `DataLength`) may begin earlier than `experiment.yaml` `start_date`–`end_date` to spin up soil and groundwater states. Reservoir `initial_storage_m3` always applies at the **first operation step** (`start_date` / `start_time`), independent of hydrological spin-up.
-- **Hourly forcing (`interval_weather.py`)**: Uses UTC `timestamp` (`...Z`) and accumulated interval depths (`cm` or `mm` converted per `HOURLY_GWLF.md`). See [Time scales and units](TIME_SCALES.md).
+```csv
+date,subbasin_id,precipitation_mm,temperature_c,pet_cm
+2020-02-27,basin_a,12.5,4.2,0.18
+2020-02-27,basin_b,8.0,2.5,0.15
+```
+
+- **Daily unit convention**: Supply precipitation in `mm/day` (converted internally to `cm/day` for GWLF/ABCD), PET in `cm/day`, and temperature in `°C` (negative values allowed for snowmelt).
+- **Warm-up (spin-up) vs. operation window**: Set `WaterSystem.StartDate`–`EndDate` in the HydroCNHS model earlier than `start_date`–`end_date` in `experiment.yaml` so soil moisture and groundwater spin up realistically before reservoir operation begins. Reservoir `initial_storage_m3` always applies on the **first operation day** (`start_date`), regardless of how long the hydrologic warm-up runs.
 
 ## GWLF states and calibration boundary
 
-GWLF state initialization tracks soil moisture (`S0`), unsaturated storage (`U0`), snowpack (`SnowS`), and groundwater/baseflow (`B0` / `BF0`) via `hydrocnhs.rainfall_runoff_model.groundwater.initialize_groundwater`.
-
-- **Daily vs. hourly state semantics**: A legacy daily baseflow value (`BF0`) is a discharge depth, not an hourly deep-storage volume. When transferring or restarting GWLF states, preserve the exact parameter set, timestep (`dt_seconds`), timestamp continuity, and serialized state fingerprint—never silently fill, overlap, or reorder intervals.
-- **Calibration boundary**: HydroReOpLLM pins the installed HydroCNHS core files against `environment/hydrocnhs-core.json` and runs the supplied calibrated model with a fixed random generator (`hydrocnhs.create_rn_gen(7)`). Catchment delineation, parameter calibration, bias correction, and observational streamflow validation stay upstream of HydroReOpLLM.
+- **GWLF initial states**: Soil moisture (`S0`), unsaturated zone (`U0`), snowpack (`SnowS`), and groundwater/baseflow (`B0` / `BF0`) are initialized per subbasin in the HydroCNHS model file (`Inputs` and `Pars`). Note that a daily baseflow depth (`BF0`) is not equivalent to an hourly deep-storage state (`HOURLY_GWLF.md`).
+- **Calibration stays upstream**: HydroReOpLLM runs your calibrated HydroCNHS model deterministically as supplied; watershed delineation, parameter calibration, and bias correction remain your responsibility before coupling.
 
 ## HydroCNHS ModelBuilder, Dam nodes, and routing
 
-During daily execution, `_run_network` (`src/llm_reservoir_agent/network.py`) translates the validated `reservoir-physical-case.v1` / `llm-reservoir-network.v1/.v2` graph into a HydroCNHS `Model` via `build_network_model`:
+When running daily simulations, HydroReOpLLM registers its neutral `LLMReservoirAgent` (`examples/llm_reservoir_abm.py`) as a HydroCNHS `DamAPI` module:
 
-1. **Equal-length node aliasing & inlet relays**: Assigns zero-padded internal IDs (`node000000`, ...) to prevent substring collisions inside HydroCNHS's parser, and inserts transparent zero-local-flow relay nodes (`relays`) whenever an upstream connection feeds a `Dam` `inflow_node` so Dam inlets never share a direct parent conflict.
-2. **ABM `DamAPI` attachment**: Registers `examples/llm_reservoir_abm.py` (`LLMReservoirAgent`) with `Inputs.Links: {inflow_node: -1, reservoir_name: 1}` and injects each reservoir's isolated backend (`ConfiguredBackend`, `RuleBasedBackend`, `BenchmarkBackend`, or `PassiveOutlet` wrapped in `AuditedBackend` and `_ObservedBackend`) plus `information_runtime.bind(...)`.
-3. **Topological `SimSeq` & routing UH**: Normalizes `model.sys_parsed_data["SimSeq"]` against the independently verified DAG order, converts each edge's `unit_hydrograph * fraction` (appending the trailing `0.0` expected by the pinned Lohmann loop), and executes `model.run(..., assigned_Q=native_local, assigned_UH=uhs)`.
-4. **Independent post-run verification**: Recomputes convolution independently across every node and verifies `np.allclose(native[node], expected[node], atol=1e-10)` before writing results.
-
-For non-daily `llm-reservoir-network.v3` configurations (e.g., `3600`, `1800`, `900` s), `run_interval_network` (`interval_network.py`) drives the exact same `LLMReservoirAgent` and `apply_transition` kernel on an explicit UTC `TimeAxis`.
+1. Each controlled reservoir connects one inlet (`inflow_node`, link factor `-1`) and one outlet (`reservoir`, link factor `+1`).
+2. Network connections route `controlled_release_cms + spill_cms` through your declared `fraction` splits and `unit_hydrograph` travel-time weights (`index 0` = same step, `index 1` = `+1` step, summing to `1.0`).
+3. HydroCNHS steps through the basin in upstream-to-downstream topological order, guaranteeing upstream outflows are committed and lagged before downstream reservoirs observe their inflow.
 
 ## Preparation outputs and mass-balance diagnostics
 
-Run `reservoir-experiment prepare experiment.yaml` to materialize hydrology before reservoir operation, or let `run` execute preparation automatically:
+Run `reservoir-experiment prepare experiment.yaml` whenever you want to inspect watershed runoff before launching reservoir agents:
 
-| Output artifact | Location | Contents & role |
+| Output artifact | Location | What to inspect |
 | --- | --- | --- |
-| `inflows.csv` | `<output>/` | Pinned incremental `local_inflow_cms` (`m3/s`) per node for the operation window only. |
-| `case.json` & `experiment.yaml` | `<output>/` | Compiled `llm-reservoir-network-case.v1` and rebased `llm-reservoir-experiment.v1` ready for `run`. |
-| `hydrology.json` & `preparation.json` | `<output>/` | Complete preparation manifest, `hydrology_signature`, and SHA-256 index of all generated files. |
-| `hydrology_diagnostics.json` & `hydrology_state.json` | `<output>/` (when `diagnostics: true` or hourly) | Per-catchment GWLF internal water-balance records, fluxes, and final hydrologic states. |
-| `network_balance.csv` & `reach_volume_trace.json` | `<output>/operation/` | Integrated system mass balance (`m3`), in-transit channel storage, and `system_residual_m3` (`< 1e-6` m3). |
+| `inflows.csv` | `<output>/` | Simulated incremental local inflows (`m³/s`) for the operation window only—compare against gauge expectations before `run`. |
+| `case.json` & `experiment.yaml` | `<output>/` | Compiled operation-ready case and experiment configuration used during `run`. |
+| `hydrology_diagnostics.json` & `hydrology_state.json` | `<output>/` (when `diagnostics: true` or hourly) | Subbasin soil/groundwater/snow fluxes, water-balance residuals, and ending states. |
+| `network_balance.csv` & `reach_volume_trace.json` | `<output>/operation/` | Reservoir + channel storage water balance (`m³`) across the full run (`system_residual_m3` near zero). |
 
 <div class="callout callout-info" markdown="1">
 
-**Verification scope.** A near-zero engineering `system_residual_m3` proves numerical water conservation across HydroCNHS routing and `apply_transition`, not calibrated hydrologic skill against gauge observations. Always inspect `hydrology_diagnostics.json` and evaluate basin runoff separately.
+**Engineering closure vs. hydrologic skill.** A near-zero `system_residual_m3` confirms exact water conservation across routing and reservoir storage, not calibrated runoff accuracy against streamflow gauges. Always validate prepared inflows before interpreting reservoir policy results.
 
 </div>

@@ -2,7 +2,7 @@
 
 <div class="hero-band" markdown="1">
 
-**HydroReOpLLM** builds on top of [HydroCNHS](https://github.com/philip928lin/HydroCNHS) to simulate coupled watershed hydrology, multi-reservoir routing, and reproducible **rule-based** or **LLM-driven** reservoir release decisions under one auditable water-balance kernel.
+**HydroReOpLLM** builds on top of [**HydroCNHS**](https://github.com/philip928lin/HydroCNHS) to simulate coupled watershed hydrology, multi-reservoir routing, and reproducible **rule-based** or **LLM-driven** reservoir release decisions inside one water-conserving simulation loop.
 
 [Install and run the template](GETTING_STARTED.md) · [Design operators & LLM agents](AGENT_DESIGN.md) · [F.E. Walter tutorial](../tutorials/README.md) · [繁體中文手冊](README.zh-TW.md)
 
@@ -10,14 +10,14 @@
 
 ## Four-pillar learning path
 
-Design an entire experiment end-to-end by following the four pillars in sequence:
+Follow these four pillars in sequence to build, run, and evaluate a complete reservoir simulation experiment:
 
 <div class="panel-grid panel-grid-4" markdown="1">
 <div class="panel-card" markdown="1">
 
 ### Pillar 1: HydroCNHS foundation
 
-Prepare daily or sub-daily local inflows via `inflows.csv` or native HydroCNHS (`GWLF` / `ABCD` + Lohmann routing), bind catchments without double counting, and verify clock alignment.
+Supply prepared local inflows (`inflows.csv`) or run a calibrated HydroCNHS catchment model (`GWLF` / `ABCD` + Lohmann routing), bind subbasins without double-counting upstream releases, and align daily or hourly timesteps.
 
 - [Native HydroCNHS hydrology](HYDROLOGY_SETUP.md)
 - [Time scales and units](TIME_SCALES.md)
@@ -28,7 +28,7 @@ Prepare daily or sub-daily local inflows via `inflows.csv` or native HydroCNHS (
 
 ### Pillar 2: Rule & LLM agent design
 
-Configure deterministic rules (such as Hanasaki flood control) or LLM operators with structured prompts, causal information catalogs, JSON schemas, and release-bound auditors.
+Define deterministic operating rules (such as Hanasaki flood control or custom seasonal guide curves) or LLM operators with water-control manuals, gauge/forecast inputs, engineering-unit prompts, and safety bounds.
 
 - [Operator & LLM agent design](AGENT_DESIGN.md)
 - [Decision-time information](INFORMATION.md)
@@ -39,7 +39,7 @@ Configure deterministic rules (such as Hanasaki flood control) or LLM operators 
 
 ### Pillar 3: Coupling & execution
 
-Assemble single-file or split-file YAML configurations, wire single or hybrid multi-reservoir cascades, enforce network gates, and verify durable step-level provenance.
+Connect single dams, cascades, flow splits, and channel travel-time lags; mix rule-based and LLM operators in the same basin; preview prompts offline; and verify saved water balances.
 
 - [Configuration files](CONFIGURATION.md)
 - [Reservoir networks](MULTI_RESERVOIR.md)
@@ -51,7 +51,7 @@ Assemble single-file or split-file YAML configurations, wire single or hybrid mu
 
 ### Pillar 4: Case study & reference
 
-Reproduce the 21-run F.E. Walter Dam benchmark offline (Hanasaki, Seasonal Target, and DKP), inspect saved trajectories, or diagnose validation errors.
+Explore the 5-year F.E. Walter Dam study (Hanasaki baseline, Seasonal Target, and Decision Knowledge Package), replay published trajectories offline, or diagnose configuration issues.
 
 - [F.E. Walter Dam study](../examples/fe_walter/README.md)
 - [F.E. Walter tutorial](../tutorials/README.md)
@@ -64,21 +64,21 @@ Reproduce the 21-run F.E. Walter Dam benchmark offline (Hanasaki, Seasonal Targe
 
 <figure class="figure-card">
   <img src="assets/figures/fig1-framework.png" alt="Closed-loop HydroReOpLLM and HydroCNHS reservoir operation framework">
-  <figcaption><strong>Figure 1.</strong> Coupled HydroCNHS–HydroReOpLLM simulation loop: watershed inflows and beginning reservoir state enter observation formatting and causal information/DKP retrieval, pass to either a deterministic rule or an LLM provider, return a structured release request converted into SI units, and close the mass balance through host physics and downstream routing.</figcaption>
+  <figcaption><strong>Figure 1.</strong> Coupled HydroCNHS–HydroReOpLLM simulation loop: catchment inflows enter the reservoir node, the operator combines current storage and inflow with seasonal targets, gauges/forecasts, or operating rules (DKP) to request a release, and the host enforces physical storage and outlet bounds before routing water downstream.</figcaption>
 </figure>
 
 ## Public starting points
 
 | Starting point | Operator & method | Network calls (`check` / `run`) | What it demonstrates |
 | --- | --- | --- | --- |
-| [Generic prepared-inflow template](../examples/template/README.md) | `mode: offline` (`4.0` & `5.0` m3/s) | `0` / `0` | Two-reservoir cascade (`upper` → `lower` → `outlet`) with routing lags and water-balance checks. |
-| [F.E. Walter — Hanasaki rule](../examples/fe_walter/README.md) | `type: rule_based` (`strategy: hanasaki`, α = 0.85) | `0` / `0` | Offline Hanasaki flood-control rule pinned to 1996–2015 reference inflow statistics. |
-| [F.E. Walter — Seasonal Target](../examples/fe_walter/README.md) | `type: llm` (`study_method: seasonal_target`) | `0` / `7` (7-day) or `1,826` (full) | LLM control using elevation–storage state, seasonal pool target, and 2-step committed feedback. |
-| [F.E. Walter — DKP](../examples/fe_walter/README.md) | `type: llm` (`study_method: dkp`) | `0` / `7` (7-day) or `1,826` (full) | Same physical case augmented with a Decision Knowledge Package (`dkp.md`) and rule-citation schema. |
+| [Generic prepared-inflow template](../examples/template/README.md) | Fixed offline release (`4.0` & `5.0` m³/s) | `0` / `0` | Two-reservoir cascade (`upper` → `lower` → `outlet`) with routing lags and mass-balance checks. |
+| [F.E. Walter — Hanasaki rule](../examples/fe_walter/README.md) | `type: rule_based` (`strategy: hanasaki`, α = 0.85) | `0` / `0` | Offline Hanasaki flood-control rule driven by 1996–2015 reference inflow climatology. |
+| [F.E. Walter — Seasonal Target](../examples/fe_walter/README.md) | `type: llm` (`study_method: seasonal_target`) | `0` / `7` (7-day) or `1,826` (full) | LLM control using pool elevation, seasonal target level, and the previous two days' releases. |
+| [F.E. Walter — DKP](../examples/fe_walter/README.md) | `type: llm` (`study_method: dkp`) | `0` / `7` (7-day) or `1,826` (full) | Same physical basin augmented with a structured Decision Knowledge Package (`dkp.md`) of operating rules. |
 
 <div class="callout callout-info" markdown="1">
 
-**Zero-cost validation first.** `reservoir-experiment check` validates schemas, SHA-256 input pins, network topology, and rendered prompt previews offline for all starting points. Live LLM execution requires an explicit `--allow-network` flag and a case marked `"live_readiness": {"ready": true}` (or `synthetic_fixture`).
+**Check offline before running.** `reservoir-experiment check` validates all file paths, dates, inflow tables, routing weights, and Day-1 prompt previews at zero model cost. Live LLM calls run only when you pass `--allow-network` and mark the physical case ready.
 
 </div>
 
@@ -86,17 +86,17 @@ Reproduce the 21-run F.E. Walter Dam benchmark offline (Hanasaki, Seasonal Targe
 
 | Pillar | Chapter | Primary focus |
 | --- | --- | --- |
-| Start | [Installation and first run](GETTING_STARTED.md) | Python 3.12 setup, `init-examples`, and running the offline template. |
+| Start | [Installation and first run](GETTING_STARTED.md) | Python 3.12 setup, exporting bundled examples, and running the offline template. |
 | Start | [Generic prepared-inflow template](../examples/template/README.md) | Field-by-field walkthrough of `experiment.yaml`, `case.json`, and `inflows.csv`. |
-| Hydrology | [Native HydroCNHS hydrology](HYDROLOGY_SETUP.md) | `hydrology.yaml`, GWLF/ABCD + Lohmann setup, `ModelBuilder`, `Dam` links, and balance checks. |
-| Hydrology | [Time scales and units](TIME_SCALES.md) | SI kernel units (`m3`, `m3/s`, `dt_seconds`), depth-to-rate rules, and output aggregation. |
-| Hydrology | [Experimental hourly GWLF](HOURLY_GWLF.md) | Sub-daily `run_GWLF_hourly` API (`3600`, `1800`, `900` s), state continuity, and diagnostics. |
-| Operator & LLM | [Operator & LLM agent design](AGENT_DESIGN.md) | `LLMReservoirAgent` callbacks, Hanasaki rules, LLM YAML customization, prompts, JSON contracts, and safety gates. |
-| Operator & LLM | [Decision-time information](INFORMATION.md) | `InformationCatalog`, causal `valid_time`/`available_at`/`issued_at` guards, and unit conversions. |
-| Operator & LLM | [Model providers](MODEL_PROVIDERS.md) | `ollama`, `openai`, `openai_compatible`, `anthropic`, and `gemini` settings, retries, fallbacks, and identity. |
-| Coupling & Execution | [Configuration files](CONFIGURATION.md) | `v1`/`v2` YAML schemas, `{file: ...}` composition, `UniqueLoader` rules, and `outcome_checks`. |
-| Coupling & Execution | [Reservoir networks](MULTI_RESERVOIR.md) | Topologies, split fractions, unit hydrographs, and hybrid Hanasaki + LLM cascades. |
-| Coupling & Execution | [Run, verify and resume](RUNNING.md) | CLI subcommands (`check`, `prepare`, `run`, `verify`, `resume`), `max_calls`, and replay. |
-| Coupling & Execution | [Read the results](RESULTS_GUIDE.md) | `summary.json`, trajectory/flow/balance CSVs, and `decisions.jsonl`/`audit.jsonl` provenance. |
-| Case Study | [F.E. Walter Dam](../examples/fe_walter/README.md) | 2021–2025 daily & seasonal benchmarks (Figures 2–4), offline replay, and Ollama 0.40.6 study reproduction. |
-| Reference | [Troubleshooting](TROUBLESHOOTING.md) | Symptom-to-fix table for path, hydrology, provider, and verification errors. |
+| Hydrology | [Native HydroCNHS hydrology](HYDROLOGY_SETUP.md) | Prepared inflows vs. coupled HydroCNHS (`hydrology.yaml`), spin-up, and catchment bindings. |
+| Hydrology | [Time scales and units](TIME_SCALES.md) | Native units (`m3`, `m3/s`, `dt_seconds`), precipitation/PET depth rules, and output aggregation. |
+| Hydrology | [Experimental hourly GWLF](HOURLY_GWLF.md) | Sub-daily `run_GWLF_hourly` workflow (`3600`, `1800`, `900` s), state continuity, and diagnostics. |
+| Operator & LLM | [Operator & LLM agent design](AGENT_DESIGN.md) | Hanasaki & custom Python rules, LLM prompt design, unit conversions, and physical safety gates. |
+| Operator & LLM | [Decision-time information](INFORMATION.md) | Feeding gauges, forecasts, guide curves, and upstream reservoir states without future leakage. |
+| Operator & LLM | [Model providers](MODEL_PROVIDERS.md) | Ready-to-copy YAML profiles for Ollama, OpenAI, Gemini, Anthropic, and OpenAI-compatible APIs. |
+| Coupling & Execution | [Configuration files](CONFIGURATION.md) | Single-file vs. split-file YAML layout, top-level keys, and `outcome_checks`. |
+| Coupling & Execution | [Reservoir networks](MULTI_RESERVOIR.md) | Cascades, split fractions, unit-hydrograph lags, passive weirs, and hybrid Rule + LLM basins. |
+| Coupling & Execution | [Run, verify and resume](RUNNING.md) | CLI workflow (`check`, `prepare`, `run`, `verify`, `resume`), budgets, and offline replay. |
+| Coupling & Execution | [Read the results](RESULTS_GUIDE.md) | Interpreting `summary.json`, reservoir trajectories, routed hydrographs, and water-balance tables. |
+| Case Study | [F.E. Walter Dam](../examples/fe_walter/README.md) | 2021–2025 daily & seasonal benchmarks (Figures 2–4), offline replay, and live Ollama runs. |
+| Reference | [Troubleshooting](TROUBLESHOOTING.md) | Common hydrological, YAML, provider, and verification fixes. |

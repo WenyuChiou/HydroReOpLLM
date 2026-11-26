@@ -7,7 +7,7 @@ Copy this two-reservoir cascade (`upper` → `lower` → `outlet`) and replace i
 | File | Purpose |
 | --- | --- |
 | [`experiment.yaml`](experiment.yaml) | Run identity, `start_date`/`end_date`, `output`, `max_calls: 0`, and `offline` operators. |
-| [`case.json`](case.json) | Physical network (`llm-reservoir-network.v2`), routing lags, and `inflows.csv` SHA-256 pin. |
+| [`case.json`](case.json) | Physical network (`llm-reservoir-network.v2`), routing lags, and `inflows.csv` link. |
 | [`inflows.csv`](inflows.csv) | Daily incremental local inflows (`m3/s`), `2026-03-26` to `2026-04-06`. |
 | [`prompts/operator.txt`](prompts/operator.txt) | Starter prompt template kept ready for switching to `mode: llm` / `type: llm`. |
 
@@ -41,7 +41,7 @@ See [`network.py`](../../src/llm_reservoir_agent/network.py) for `junctions`, `o
 
 ## Inflows, routing, and live readiness
 
-- **Incremental local inflows**: `inflows.csv` columns are `date,node,local_inflow_cms` (consecutive days, `>= 0` m3/s) excluding routed upstream releases. Update `inflow_source.sha256` after editing: `python -c "import hashlib,sys; print(hashlib.sha256(open(sys.argv[1],'rb').read()).hexdigest())" examples/template/inflows.csv`.
+- **Incremental local inflows**: `inflows.csv` columns are `date,node,local_inflow_cms` (consecutive days, `>= 0` m3/s) excluding routed upstream releases. If you edit `inflows.csv`, update `inflow_source.sha256` with `python -c "import hashlib,sys; print(hashlib.sha256(open(sys.argv[1],'rb').read()).hexdigest())" examples/template/inflows.csv`.
 - **Routing (`unit_hydrograph`)**: Index `0` is same-step, index `1` is `+1` step (`[0.0, 0.7, 0.3]` delivers 70% next day, 30% two days later). Routing carries `controlled_release_cms + spill_cms`.
 - **Decision timing & live gate**: Each step observes interval-mean inflow (including routed arrivals). `synthetic_fixture` is live-ready; `observed_local_inflow` and `simulated_local_inflow` require `"live_readiness": {"ready": true}`, `--allow-network`, and `max_calls`. See [Decision-time information](../../docs/INFORMATION.md) and [Run lifecycle](../../docs/RUNNING.md).
 

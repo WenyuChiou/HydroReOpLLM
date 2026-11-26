@@ -2,76 +2,107 @@
 
 <div class="hero-band" markdown="1">
 
-An information profile (`InformationCatalog` in `src/llm_reservoir_agent/information.py`) gives an operator a **causal, read-only, unit-explicit** view of observations, forecasts, static targets, or simulation states at decision time—without mutating reservoir storage, inflows, bounds, or routing.
+An `information` profile gives an operator a **causal, read-only** view of external stream gauges, inflow/weather forecasts, seasonal guide curves, or upstream reservoir states at decision time—without ever allowing future flood peaks to leak into today's decision or mutating physical storage and routing.
 
 </div>
 
 ## Causal availability and decision timing
 
-Every decision at step `t` obeys strict causal timing:
+At every timestep `t`, HydroReOpLLM enforces strict hydrological causality:
 
 <div class="panel-grid panel-grid-2" markdown="1">
 <div class="panel-card" markdown="1">
 
-### What an operator already sees
+### What an operator already knows
 
-- Its own reservoir's beginning `storage_m3` and current interval-mean routed `inflow_cms` (daily runs assume the current day's mean inflow is known when deciding that day's release).
-- Its own committed `previous_transition` (and up to `history_steps` earlier committed steps).
-- Other reservoirs' states **only after** their step is committed (`simulation` sources respect topological commit order).
+- Its own reservoir's beginning `storage_m3` and current step's routed `inflow_cms` (daily runs assume the current day's mean inflow is known when setting that day's release).
+- Its own previous committed releases (`$previous_transition` / `$completed_history`).
+- Upstream reservoirs' outflows/storages **only after** those upstream reservoirs have completed step `t` in topological order.
 
 </div>
 <div class="panel-card" markdown="1">
 
-### Causal guards for external CSV & extension data
+### Causal guards for gauges & forecasts
 
-- **Timezone requirement**: All `valid_time`, `available_at`, and `issued_at` timestamps must end with `Z` or an explicit UTC offset.
-- **Observation (`kind: observation`)**: Eligible only when `valid_time <= clock` **and** `available_at <= clock`.
-- **Forecast (`kind: forecast`)**: `valid_time` may lie in the future, but **both** `issued_at <= clock` and `available_at <= clock` must hold.
+- **UTC timestamps**: All `valid_time`, `available_at`, and `issued_at` entries in CSVs must include `Z` or an explicit UTC offset (e.g., `2021-06-01T00:00:00Z`).
+- **Gauge observations (`kind: observation`)**: Visible only when **both** `valid_time <= decision_clock` and `available_at <= decision_clock` (no peeking at tomorrow's gauge).
+- **Forecasts (`kind: forecast`)**: `valid_time` may be in the future (e.g., 3-day lead inflow), provided **both** `issued_at <= decision_clock` and `available_at <= decision_clock`.
 
 </div>
 </div>
 
 ## Source types and unit conversions
 
-Declare reusable sources under `information.sources` (in `v2` split-file `information.yaml`) or `information_sources` (`v1`):
+Declare reusable data feeds under `information.sources` (`v2`) or `information_sources` (`v1`):
 
-| `type` | Required fields | Optional fields | Selection & provenance behavior |
+| `type` | Required fields | Optional fields | What it provides |
 | --- | --- | --- | --- |
-| `static` | `quantity`, `unit`, `location`, `value` | `datum` | Constant JSON value; always available. |
-| `csv` | `quantity`, `unit`, `location`, `kind` (`observation` \| `forecast`), `path` | `datum` | Exact UTF-8 CSV bytes pinned by SHA-256. Observations require exact columns `valid_time,available_at,value`; forecasts require `issued_at,valid_time,available_at,value`. |
-| `simulation` | `quantity` (`inflow` \| `storage` \| `release` \| `flow`), `unit`, `location` | `datum` | Reads current/committed native state; `storage` requires native unit `m3` at a reservoir node; flow quantities require `m3/s`. |
-| `extension` | `quantity`, `unit`, `location`, `provider` | `kind`, `parameters`, `datum` | Invokes a registered Python reader once per source per decision; requires explicit `.version` attribute. |
+| `static` | `quantity`, `unit`, `location`, `value` | `datum` | Constant operational parameter (e.g., target release, flood stage, seasonal rule table). |
+| `csv` | `quantity`, `unit`, `location`, `kind` (`observation` \| `forecast`), `path` | `datum` | Time-series gauge observations or issued forecasts with causal timestamp filtering. |
+| `simulation` | `quantity` (`inflow` \| `storage` \| `release` \| `flow`), `unit`, `location` | `datum` | Live read-only state from another reservoir, junction, or outlet (`storage` in `m3`; flows in `m3/s`). |
+| `extension` | `quantity`, `unit`, `location`, `provider` | `kind`, `parameters`, `datum` | Custom Python reader returning timestamped measurements or forecasts. |
+
+### Concrete CSV examples
+
+**Observation CSV (`kind: observation`)** — exact columns `valid_time,available_at,value`:
+
+```csv
+valid_time,available_at,value
+2021-01-01T00:00:00Z,2021-01-01T00:00:00Z,1240.0
+2021-01-02T00:00:00Z,2021-01-02T00:00:00Z,1580.0
+```
+
+**Forecast CSV (`kind: forecast`)** — exact columns `issued_at,valid_time,available_at,value`:
+
+```csv
+issued_at,valid_time,available_at,value
+2021-01-01T00:00:00Z,2021-01-02T00:00:00Z,2021-01-01T00:00:00Z,1450.0
+2021-01-01T00:00:00Z,2021-01-03T00:00:00Z,2021-01-01T00:00:00Z,1920.0
+```
 
 ### Supported unit conversions
 
-Profile fields can declare `unit:` to convert scalar values explicitly at snapshot construction (`_CONVERSIONS` in `information.py`) without altering the physical ledger:
+Add `unit:` on a profile field to convert scalars automatically for the operator without changing the SI physical ledger:
 
-- **Flow**: `m3/s` ↔ `cfs` (`35.31466672148859`)
-- **Volume**: `m3` ↔ `acre-ft` (`1 / 1233.48183754752`)
-- **Length / Elevation**: `m` ↔ `ft` (`3.280839895013123`)
+- **Flow**: `m3/s` ↔ `cfs` (`1 m³/s = 35.31466672148859 cfs`)
+- **Volume**: `m3` ↔ `acre-ft` (`1 acre-ft = 1233.48183754752 m³`)
+- **Length / Elevation**: `m` ↔ `ft` (`1 m = 3.280839895013123 ft`)
 
 ## Configuring profiles and agent bindings
 
-Define named views under `profiles.<profile_id>.fields.<alias>`, specifying `source`, optional `unit`, `history` (positive sample count), `max_age_seconds` (freshness window), and `required` (boolean):
+Group selected sources into named operator views under `profiles.<profile_id>.fields.<alias>`, optionally requesting trailing `history` samples, freshness limits (`max_age_seconds`), target `unit`, and `required`:
 
 ```yaml
 # information.yaml
 sources:
-  operating_target:
-    type: static
-    quantity: target_release
-    unit: m3/s
-    location: lake_a
-    value: 2.5
+  downstream_gauge:
+    type: csv
+    kind: observation
+    quantity: flow
+    unit: cfs
+    location: usgs_01449000
+    path: data/lehighton_obs.csv
+  upstream_storage:
+    type: simulation
+    quantity: storage
+    unit: m3
+    location: upper_dam
 profiles:
   operator_view:
     fields:
-      operating_target_cms:
-        source: operating_target
+      lehighton_flow_cms:
+        source: downstream_gauge
+        unit: m3/s           # Automatic cfs -> m3/s conversion
+        history: 3           # Include last 3 causal observations
+        max_age_seconds: 86400
+        required: false
+      upper_pool_acft:
+        source: upstream_storage
+        unit: acre-ft        # Automatic m3 -> acre-ft conversion
         required: true
 ```
 
-Attach `information.yaml` in `experiment.yaml`, then bind the profile on the target agent (`customization.information`):
+Attach `information.yaml` in `experiment.yaml` and bind the profile to an agent:
 
 ```yaml
 # experiment.yaml
@@ -80,7 +111,7 @@ information:
 
 # agents.yaml
 operator_a:
-  reservoir_id: lake_a
+  reservoir_id: lower_dam
   type: llm
   model_profile: local
   prompt_file: prompts/operator.txt
@@ -88,19 +119,19 @@ operator_a:
     information: operator_view
 ```
 
-- **For generic LLM agents**: Include `$information` in `prompt_file` or `system_prompt_file` (`workflow.py` rejects mismatched binding vs placeholder).
-- **For rule-based extensions**: Read `observation["context"]["decision_information"]` inside `decide(observation)`.
-- **Alternative custom bindings**: For ad-hoc retrieval plugins (such as vector/text DKP search), use `customization.context_providers` returning `ContextValue` (`validate_available_at` in `src/llm_reservoir_agent/context.py`), documented in [Operator & LLM agent design](AGENT_DESIGN.md).
+- **LLM operators**: Include `$information` in `prompt_file` or `system_prompt_file` so the rendered JSON snapshot appears in the prompt.
+- **Rule-based operators**: Read `observation["context"]["decision_information"]` inside your Python rule's `decide(observation)` method.
+- **Custom dynamic retrievers**: For rule/manual retrieval plugins (such as DKP excerpt selection), use `customization.context_providers` ([Agent Design](AGENT_DESIGN.md)).
 
 ## Missing-data handling and verification
 
-| Profile field setting | Missing or stale record behavior | Provenance & `verify` check |
+| Field setting | Missing or stale data behavior | Verification check |
 | --- | --- | --- |
-| `required: true` | Stops execution with an explicit error—never substitutes `0.0`. | Reconstructs `static`, `csv`, and `simulation` snapshots deterministically from `experiment.json`. |
-| `required: false` | Emits `status: "MISSING"`, `value: null`, and explicit `reason` in the snapshot. | Retains `source_sha256` / `provider_version` and verifies causal timing on every `decisions.jsonl` record. |
+| `required: true` | Stops the simulation immediately—never silently substitutes `0.0`. | Confirms exact selected values against source CSVs/simulation states during `verify`. |
+| `required: false` | Records `status: "MISSING"`, `value: null`, and an explicit `reason` so the operator knows data is absent. | Verifies causal timestamps (`valid_time`/`issued_at`/`available_at`) on every step in `decisions.jsonl`. |
 
 <div class="callout callout-info" markdown="1">
 
-**Recovery note.** Because `extension` information providers may perform dynamic external reads, `RecoveryTape` (`reservoir-experiment resume`) requires a durable replay contract and rejects dynamic `extension` sources unless replayed via saved context. Run `reservoir-experiment check` after every catalog edit.
+**Check after edits.** Always run `reservoir-experiment check <config>` after modifying `information.yaml` or `$information` placeholders to verify column headers, UTC timestamps, and unit compatibility offline.
 
 </div>
