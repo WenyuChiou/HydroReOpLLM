@@ -1,4 +1,4 @@
-# MOSART-Urban rule and reservoir settings used in the paper.
+# Hanasaki rule and reservoir settings used in the paper.
 schema_version: llm-reservoir-experiment.v1
 case: rule_case.json
 run_id: fe-walter-rule-based
@@ -14,7 +14,7 @@ agents:
   walter_operator:
     reservoir: FEWalter
     mode: offline
-    strategy: mosart_urban
+    strategy: hanasaki
     auditors:
     - release_bounds
     agent_type: rule_based
@@ -23,4 +23,4 @@ agents:
       alpha: 0.85
       inflow_statistics_file: rule_statistics.json
 extensions:
-  mosart_urban: study/rule/__init__.py
+  hanasaki: study/rule/__init__.py

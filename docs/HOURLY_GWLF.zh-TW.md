@@ -1,10 +1,14 @@
-# 時尺度 GWLF 衍生逕流計算
+# 實驗性逐時 GWLF 衍生逕流計算
 
-`run_GWLF_hourly` 直接依據各時間步的氣象驅動資料計算逕流，而非將既有的日流量歷線重新分配至各時段。此為實驗性質、源自 GWLF 的工程公式實作。程式順利執行或水量平衡閉合，均不代表已完成時尺度逕流率定或具備實測吻合度。
+<div class="hero-band" markdown="1">
+
+`run_GWLF_hourly` 直接依據各時段的氣象驅動資料計算次日尺度集水區逕流，而非將既有的日流量歷線拆解重分配。這是一套實驗性質的工程化公式實作；程式順利執行與水量平衡閉合，**均不代表**已完成次日尺度逕流率定或具備實測吻合度。
+
+</div>
 
 ## 獨立合成範例
 
-在已完成安裝的儲存庫複本中，無需連接模型服務即可直接執行核心函式。
+於已安裝的儲存庫工作環境中，無須模型服務或水庫網路即可直接執行核心函式：
 
 ```python
 from hydrocnhs.rainfall_runoff_model.gwlf_hourly import run_GWLF_hourly
@@ -18,22 +22,38 @@ diagnostics = []
 flow_cms, state = run_GWLF_hourly(
     parameters,
     initial,
-    temp=[5.0] * 48,          # interval-mean degrees C
-    prec=[0.01] * 48,         # accumulated cm in each hour
-    pet=[0.003] * 48,         # accumulated cm in each hour
-    monthly_Tavg=[5.0] * 48,  # aligned seasonal mean, degrees C
+    temp=[5.0] * 48,          # 時段平均氣溫（°C）
+    prec=[0.01] * 48,         # 各時段累積降雨水深（cm）
+    pet=[0.003] * 48,         # 各時段累積潛在蒸發散水深（cm）
+    monthly_Tavg=[5.0] * 48,  # 對齊之季節平均氣溫（°C）
     dt_seconds=3600,
     diagnostics=diagnostics,
 )
 assert len(flow_cms) == 48
 ```
 
-此 API 接受 3600、1800 與 900 秒的時間步長。呼叫端須提供連續且對齊的時間軸與氣象驅動資料。降雨量與潛在蒸發散量（PET）必須換算為各時間步的累積水深，切勿傳入強度速率或重複使用日總量。`Area` 的單位為公頃，各蓄水狀態單位為公分，回傳流量則為該時間步長的平均值（單位為 m3/s）。
+- **支援步長**：`dt_seconds` 必須為 `3600`、`1800` 或 `900`。
+- **物理單位**：`Area` 單位為公頃（`ha`），各蓄水狀態（`S0`、`U0`、`SnowS`、`B0`）與 `Ur` 單位為 `cm`，`prec`/`pet` 為每個時段的累積水深（`cm`），回傳的 `flow_cms` 則為時段平均流量（`m3/s`）。
 
-## 狀態、接續重啟與驗證
+## 耦合逐時工作流程與設定格式
 
-回傳的狀態包含土壤含水量、淺層地下水、深層地下水、積雪、前期土壤含水量與降雨事件記憶。僅能將該狀態傳遞至參數與時間步長皆相同的下一個連續時段區塊，不可跳過、重疊、重新排序或自行補齊驅動資料時段。既有的日尺度基流水深不可直接作為時尺度的深層蓄水數值使用。
+將逐時 GWLF 逕流耦合至水庫操作模擬時（`src/llm_reservoir_agent/coupled.py` 與 `interval_weather.py`），各層級須滿足下列要求：
 
-診斷資訊會輸出各時間步的蓄水項、通量項以及水量平衡殘差。請依據研究尺度與精度要求自行檢視殘差大小。核心函式僅會拒絕無效或非有限值的物理狀態。在解讀任何水庫操作比較結果之前，請先以獨立實測資料驗證參數、初始狀態暖機（spinup）、事件記憶假設、逕流與演算結果。
+| 設定層級 | 逐時模擬必要條件 |
+| --- | --- |
+| `experiment.yaml` | `schema_version: hydroops-coupled-simulation.v2`、標準 UTC `start_time` 與不含終點的 `end_time`、`time: {simulation_step: hourly, output_step: hourly\|daily\|monthly}`。 |
+| `hydrology.yaml` | `engine: gwlf_hourly`、`forcing_step: hourly`、具備 UTC 時間戳記（`...Z`）的連續逐時氣象資料、`inflow_bindings` 完整涵蓋每個 `routing_node`。 |
+| `reservoirs.yaml` | `network.schema_version: llm-reservoir-network.v3`、`dt_seconds: 3600`、`start_time` 與 `experiment.yaml` 對齊，並提供逐時尺度 `unit_hydrograph` 權重。 |
+| `agents` 擴充套件 | 逐時模擬中選用的任何擴充套件，其 `supported_dt_seconds` 屬性皆須包含 `3600`。 |
 
-公開範例皆為逐日既有入流案例。將此核心函式連接至水庫案例前，請先建立並驗證個別研究所需的驅動資料。時距規則請參閱[時間尺度與單位](TIME_SCALES.zh-TW.md)。
+`prepare` 指令會連同 `inflows.csv`（`timestamp,node,local_inflow_cms`）一併輸出 `hydrology_diagnostics.json`、`hydrology_state.json` 與 `hydrology_routing.json`。
+
+## 狀態連續性、診斷與驗證
+
+<div class="callout callout-warn" markdown="1">
+
+**狀態接續傳遞規範。** 回傳的 `state` 包含土壤含水量、淺層地下水、深層地下水、積雪、前期土壤含水量與降雨事件記憶。僅能將此狀態接續傳遞至參數與 `dt_seconds` 完全相同的下一個連續時段區塊。切勿跳過、重疊、重新排序或自行補齊氣象時間戳記，亦不可將舊版日尺度的 `BF0` 逕流深度直接當作逐時深層蓄水狀態使用。
+
+</div>
+
+請依據研究尺度的精度需求，檢視 `diagnostics`（或 `hydrology_diagnostics.json`）中的各時段蓄水／通量項與水量平衡殘差。在解讀任何水庫操作比較結果前，務必以獨立實測觀測資料檢定初始暖機（spin-up）、事件記憶參數、逕流與逐時單位歷線。另請參閱[時間尺度與單位](TIME_SCALES.zh-TW.md)與[原生 HydroCNHS 水文設定](HYDROLOGY_SETUP.zh-TW.md)。

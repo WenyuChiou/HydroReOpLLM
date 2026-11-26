@@ -1,7 +1,19 @@
 # Check, prepare, run, and verify
 
-From the repository root, use the same configuration for `check` and `run`.
-For both prepared and coupled cases, the shortest sequence is
+<div class="hero-band" markdown="1">
+
+Every HydroReOpLLM experiment follows one reproducible CLI lifecycle (`src/llm_reservoir_agent/workflow.py`): `check` → (`prepare` for coupled HydroCNHS) → `run` → `verify` (plus `resume` for interrupted runs).
+
+</div>
+
+<figure class="figure-card">
+  <img src="assets/simulation-stages.png" alt="Daily workflow from configuration through check, prepare, run, and verify">
+  <figcaption><strong>Workflow lifecycle.</strong> Validation, optional hydrology preparation, bounded execution, and independent verification share pinned source hashes.</figcaption>
+</figure>
+
+## CLI lifecycle and output layout
+
+Run the shortest sequence from the repository root (or exported examples directory):
 
 ```powershell
 reservoir-experiment check path/to/experiment.yaml
@@ -9,48 +21,38 @@ reservoir-experiment run path/to/experiment.yaml
 reservoir-experiment verify path/to/output
 ```
 
-![Daily workflow from configuration through check, prepare, run, and verify](assets/simulation-stages.png)
+| Subcommand | Role | Writes output? | Network calls |
+| --- | --- | --- | --- |
+| `check <config>` | Validates schemas, SHA-256 pins, bindings, and builds offline Day-0 prompt previews. | No | `0` |
+| `prepare <config>` | Coupled only (`hydroops-coupled-simulation.v1/.v2`): runs HydroCNHS hydrology + warm-up and pins `inflows.csv`. | Preparation dir | `0` |
+| `run <config> [--allow-network]` | Prepares (if coupled and needed), runs reservoir agents + routing, and writes durable journals. | Fresh `<output>` | `0` unless `--allow-network` |
+| `verify <output> [--require-offline]` | Checks hashes, causal trace sequences, water balance, routing, and selected information. | No | `0` |
+| `resume <config> --from-run ... --output ... --run-id ...` | Replays unchanged prefix from an interrupted run into a fresh directory. | Fresh `--output` | Only for uncompleted steps |
 
-`check` loads references and validates settings without hydrology execution or a
-provider request. To inspect the inflow before a **coupled** run, insert
-`reservoir-experiment prepare path/to/experiment.yaml` between `check` and `run`.
-This command runs native hydrology
-and writes pinned `inflows.csv`, `case.json`, `experiment.yaml`, `hydrology.json`,
-and `preparation.json` into the configured output directory. `run` performs that
-preparation automatically when the output does not exist, or validates and reuses
-an existing preparation. It then writes reservoir-operation records. `verify`
-reads saved evidence without rerunning hydrology or an operator; add
-`--require-offline` when zero provider calls is an acceptance condition.
+The output directory structure depends on the entry schema:
 
-The output layout depends on the input style:
+| Input style | Configured `output` | Operation records | Verify target |
+| --- | --- | --- | --- |
+| Coupled HydroCNHS (`v1`/`v2`) | Preparation directory (`inflows.csv`, `preparation.json`) | `<output>/operation/` | `reservoir-experiment verify <output>` (or `<output>/operation`) |
+| Prepared inflows (`v1`/`v2`) | Operation directory | `<output>/` | `reservoir-experiment verify <output>` |
 
-| Input style | Configured output | Operation records | Verify command |
-|---|---|---|---|
-| Coupled HydroCNHS | preparation directory | `<output>/operation/` | `reservoir-experiment verify <output>` |
-| Prepared inflows | operation directory | `<output>/` | `reservoir-experiment verify <output>` |
+<div class="callout callout-info" markdown="1">
 
-To verify the offline F.E. Walter rule, use:
+**Preparation reuse.** If you run `prepare` first and inspect `inflows.csv`, a subsequent `run` validates `preparation.json` (`hydrology_signature` and file SHA-256 checksums) and skips recomputing HydroCNHS runoff. A preparation directory is not a completed simulation until `operation/summary.json` has `status: "COMPLETED"`.
 
-```powershell
-reservoir-experiment verify runs/fe-walter-rule-based --require-offline
-```
+</div>
 
-For a coupled run, passing `<output>/operation` verifies only its operation
-records. A preparation directory is not a completed run until
-`operation/summary.json` exists with status `COMPLETED`.
+## Live model calls and safety gates
 
-## Live model calls
+Live LLM inference requires **three** explicit conditions (`_live_gate_message` in `workflow.py`):
 
-Live LLM transport requires an LLM operator and the explicit
-`reservoir-experiment run ... --allow-network` flag. `max_calls` bounds total
-provider attempts when it is an integer; retries and fallback attempts count
-toward that limit. Non-synthetic physical inputs also require an explicit ready
-declaration in the case. A successful `check` validates the declared plan, not
-remote model availability, credentials, billing, or response quality.
+1. **CLI flag**: Pass `--allow-network` to `reservoir-experiment run` (or `resume`).
+2. **Case readiness**: Non-synthetic cases (`observed_local_inflow` or `simulated_local_inflow`) must declare `"live_readiness": {"ready": true}` in `case.json` / `reservoirs.yaml`. (`synthetic_fixture` cases are ready without it.)
+3. **Budget cap (`max_calls`)**: Must be an integer covering `llm_agent_count * steps` (or explicit `null`). Every primary attempt, retry (`max_attempts`), and `fallback_models` attempt reserves a `STARTED` entry in `provider_attempts.jsonl` before sending.
 
 ## Resume an interrupted operation
 
-Preserve the interrupted output and resume into a distinct unused directory:
+Never delete or mutate a failed run directory. Point `resume` at the interrupted run (`--from-run`) with a fresh `--output` and `--run-id`:
 
 ```powershell
 reservoir-experiment resume path/to/experiment.yaml `
@@ -59,18 +61,11 @@ reservoir-experiment resume path/to/experiment.yaml `
   --run-id NEW_RUN_ID
 ```
 
-Add `--allow-network` only when new provider calls are intended. Reuse is
-accepted only when the saved prefix matches the current settings and runtime.
-The source run remains unchanged. Resume may reuse completed decisions and
-captured replies, but a request interrupted in flight can have unknown provider
-delivery or cost.
+`RecoveryTape` (`src/llm_reservoir_agent/recovery.py`) requires exact matches on package code, HydroCNHS core pins, Python version, network, and inflows. It replays saved replies and context, reconstructs physics identically, and inherits prior `STARTED` attempt reservations against `max_calls`. Add `--allow-network` only if remaining steps require new LLM calls.
 
 ## Replay saved daily responses
 
-For a daily case with an existing response file, use the installed offline
-replay command. This is an interface for user-supplied saved responses; the
-repository does not ship a response file. Supply both input paths relative to
-the case directory and choose a new output directory.
+Replay archived daily releases (`recorded_llm_response`) offline through the host physics and routing engine:
 
 ```powershell
 llm-reservoir-daily --case-root path/to/case-directory `
@@ -80,10 +75,4 @@ llm-reservoir-daily --case-root path/to/case-directory `
 reservoir-experiment verify runs/replay --require-offline
 ```
 
-For responses labelled `recorded_llm_response`, strict verification checks the
-saved source digest against the decision and audit records, matches each raw
-response to its date and requested release, and requires zero observed provider
-calls during replay. Keep the original response file if you also want to compare
-its bytes with the saved SHA-256 digest.
-
-Continue with [read your results](RESULTS_GUIDE.md).
+For the F.E. Walter 21-run benchmark reproduction, use `python examples/fe_walter/study/replay.py --output runs/walter-paper-replay` (see [F.E. Walter Dam guide](../examples/fe_walter/README.md)). Continue with [Read your results](RESULTS_GUIDE.md).

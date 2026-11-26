@@ -1,4 +1,4 @@
-"""MOSART-Urban flood-control rule for the shared reservoir operator interface.
+"""Hanasaki flood-control rule for the shared reservoir operator interface.
 
 This independent implementation follows reservoir_operation.py and the annual
 snapshot in solver.py at the pinned upstream commit. Inputs are interval-mean
@@ -30,7 +30,7 @@ FLOAT_EPSILON = 2.220446049250313e-16
 
 
 def flood_control_step(inflow, storage, year_storage, capacity, mean_inflow, alpha, dt):
-    """Calculate one MOSART-Urban flood-control release and water balance.
+    """Calculate one Hanasaki flood-control release and water balance.
 
     Parameters
     ----------
@@ -82,7 +82,7 @@ def flood_control_step(inflow, storage, year_storage, capacity, mean_inflow, alp
     return release, end_storage, change
 
 
-class MosartUrbanBackend:
+class HanasakiBackend:
     """Maintain one Daily reservoir's model-year snapshot and source parity.
 
     Parameters
@@ -102,7 +102,7 @@ class MosartUrbanBackend:
         Alpha, Daily duration, or numerical settings are invalid.
     """
 
-    policy_id = "mosart_urban_hanasaki"
+    policy_id = "hanasaki_flood_control"
     network_calls = 0
 
     def __init__(self, physical, mean_inflow_cms, alpha=0.85, source=None):
@@ -110,10 +110,10 @@ class MosartUrbanBackend:
         self.mean = finite_nonnegative(mean_inflow_cms, "mean_inflow_cms")
         self.alpha = finite_nonnegative(alpha, "alpha")
         if not 0.0 < self.alpha <= 1.0:
-            raise ValueError("MOSART-Urban alpha must be in (0, 1]")
+            raise ValueError("Hanasaki alpha must be in (0, 1]")
         if self.physical.dt_seconds != 86400.0:
-            raise ValueError("MOSART-Urban example requires Daily dt_seconds=86400")
-        self.source = json_snapshot(source or {}, label="MOSART-Urban reference")
+            raise ValueError("Hanasaki example requires Daily dt_seconds=86400")
+        self.source = json_snapshot(source or {}, label="Hanasaki reference")
         self._next_step = 0
         self._previous_time = None
         self._year_storage = None
@@ -163,18 +163,18 @@ class MosartUrbanBackend:
         ))
         when = datetime.fromisoformat(obs.timestamp)
         if obs.timestep != self._next_step:
-            raise ValueError(f"MOSART-Urban expected timestep {self._next_step}")
+            raise ValueError(f"Hanasaki expected timestep {self._next_step}")
         if self._previous_time is not None and when != self._previous_time + timedelta(days=1):
-            raise ValueError("MOSART-Urban observations must advance by one day")
+            raise ValueError("Hanasaki observations must advance by one day")
         identity = obs.context.get("reservoir_id", self.physical.reservoir_id)
         if identity != self.physical.reservoir_id:
-            raise ValueError("MOSART-Urban observation belongs to another reservoir")
+            raise ValueError("Hanasaki observation belongs to another reservoir")
         storage = finite_nonnegative(obs.state["storage_m3"], "state.storage_m3")
         if obs.state.get("dt_seconds", self.physical.dt_seconds) != self.physical.dt_seconds:
-            raise ValueError("MOSART-Urban observation duration differs from physical settings")
+            raise ValueError("Hanasaki observation duration differs from physical settings")
         capacity = self.physical.capacity_m3
         if not math.isclose(obs.state.get("capacity_m3", capacity), capacity, rel_tol=1e-12):
-            raise ValueError("MOSART-Urban observation capacity differs from physical settings")
+            raise ValueError("Hanasaki observation capacity differs from physical settings")
         refreshed = self._year_storage is None or when.year != self._previous_time.year
         snapshot = storage if refreshed else self._year_storage
         release, expected_storage, change = flood_control_step(
@@ -187,7 +187,7 @@ class MosartUrbanBackend:
                 or transition.spill_cms > 1e-12
                 or release > obs.release_upper_bound_cms + 1e-12):
             raise ValueError(
-                "MOSART-Urban parity conflict with host release/protected-storage bounds: "
+                "Hanasaki parity conflict with host release/protected-storage bounds: "
                 f"required release={release} m3/s, host release={transition.controlled_release_cms} m3/s, "
                 f"source storage={expected_storage} m3, host storage={transition.storage_end_m3} m3. "
                 "Use source-compatible physical limits or a separately identified constrained experiment."
@@ -215,12 +215,12 @@ def validate_backend(spec, *, base_path, physical, simulation_start, mode, **kwa
     parameters = spec.get("rule_parameters")
     fields = {"inflow_statistics_file", "mean_inflow_cms", "alpha", "purpose", "reference_mode"}
     if mode != "offline" or set(spec) - allowed or not isinstance(parameters, dict) or set(parameters) - fields:
-        raise ValueError("MOSART-Urban requires offline rule_parameters")
+        raise ValueError("Hanasaki requires offline rule_parameters")
     if parameters.get("purpose", "flood_control") != "flood_control":
-        raise ValueError("MOSART-Urban extension supports flood_control")
+        raise ValueError("Hanasaki extension supports flood_control")
     has_file = "inflow_statistics_file" in parameters
     if has_file == ("mean_inflow_cms" in parameters):
-        raise ValueError("MOSART-Urban requires exactly one inflow_statistics_file or mean_inflow_cms")
+        raise ValueError("Hanasaki requires exactly one inflow_statistics_file or mean_inflow_cms")
     pins = {}
     if has_file:
         benchmark = {key: value for key, value in parameters.items() if key != "inflow_statistics_file"}
@@ -233,13 +233,13 @@ def validate_backend(spec, *, base_path, physical, simulation_start, mode, **kwa
         settings = {"mean_inflow_cms": parameters["mean_inflow_cms"],
                     "alpha": parameters.get("alpha", 0.85),
                     "source": {"kind": "explicit_mean", "mean_inflow_cms": parameters["mean_inflow_cms"]}}
-    MosartUrbanBackend(physical, **settings)
+    HanasakiBackend(physical, **settings)
     return {"rule_parameters": settings}, pins
 
 
 def build_backend(settings, *, physical, **kwargs):
     """Construct an independent controller for each reservoir."""
-    return MosartUrbanBackend(physical, **settings["rule_parameters"])
+    return HanasakiBackend(physical, **settings["rule_parameters"])
 
 
 def rebase_agent(spec, *, base_path):

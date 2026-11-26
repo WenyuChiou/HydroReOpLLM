@@ -1,29 +1,61 @@
 # Decision-time information
 
-An information profile gives one operator a named, read-only view of additional
-data at decision time. It can expose a fixed target, a timestamped observation
-or forecast, or a value already committed by the simulation. It cannot change
-storage, inflow, release limits, routing, or another reservoir's state.
+<div class="hero-band" markdown="1">
 
-## What the operator knows at a step
+An information profile (`InformationCatalog` in `src/llm_reservoir_agent/information.py`) gives an operator a **causal, read-only, unit-explicit** view of observations, forecasts, static targets, or simulation states at decision time—without mutating reservoir storage, inflows, bounds, or routing.
 
-The acting reservoir receives its current interval-mean inlet flow and beginning
-storage in the normal observation. This means a daily case assumes the current
-day's mean inlet is known when that day's release is chosen. Completed history
-contains earlier steps only. Values from other reservoirs become available only
-after their step is committed.
+</div>
 
-For external CSV data, the decision clock is the step timestamp. An observation
-is eligible only when both `valid_time` and `available_at` are no later than that
-clock. A forecast may describe a future `valid_time`, but both `issued_at` and
-`available_at` must be no later than the decision. Timestamps require `Z` or an
-explicit UTC offset.
+## Causal availability and decision timing
 
-## Configure a profile
+Every decision at step `t` obeys strict causal timing:
 
-The following structure exposes one static value under one prompt-safe alias:
+<div class="panel-grid panel-grid-2" markdown="1">
+<div class="panel-card" markdown="1">
+
+### What an operator already sees
+
+- Its own reservoir's beginning `storage_m3` and current interval-mean routed `inflow_cms` (daily runs assume the current day's mean inflow is known when deciding that day's release).
+- Its own committed `previous_transition` (and up to `history_steps` earlier committed steps).
+- Other reservoirs' states **only after** their step is committed (`simulation` sources respect topological commit order).
+
+</div>
+<div class="panel-card" markdown="1">
+
+### Causal guards for external CSV & extension data
+
+- **Timezone requirement**: All `valid_time`, `available_at`, and `issued_at` timestamps must end with `Z` or an explicit UTC offset.
+- **Observation (`kind: observation`)**: Eligible only when `valid_time <= clock` **and** `available_at <= clock`.
+- **Forecast (`kind: forecast`)**: `valid_time` may lie in the future, but **both** `issued_at <= clock` and `available_at <= clock` must hold.
+
+</div>
+</div>
+
+## Source types and unit conversions
+
+Declare reusable sources under `information.sources` (in `v2` split-file `information.yaml`) or `information_sources` (`v1`):
+
+| `type` | Required fields | Optional fields | Selection & provenance behavior |
+| --- | --- | --- | --- |
+| `static` | `quantity`, `unit`, `location`, `value` | `datum` | Constant JSON value; always available. |
+| `csv` | `quantity`, `unit`, `location`, `kind` (`observation` \| `forecast`), `path` | `datum` | Exact UTF-8 CSV bytes pinned by SHA-256. Observations require exact columns `valid_time,available_at,value`; forecasts require `issued_at,valid_time,available_at,value`. |
+| `simulation` | `quantity` (`inflow` \| `storage` \| `release` \| `flow`), `unit`, `location` | `datum` | Reads current/committed native state; `storage` requires native unit `m3` at a reservoir node; flow quantities require `m3/s`. |
+| `extension` | `quantity`, `unit`, `location`, `provider` | `kind`, `parameters`, `datum` | Invokes a registered Python reader once per source per decision; requires explicit `.version` attribute. |
+
+### Supported unit conversions
+
+Profile fields can declare `unit:` to convert scalar values explicitly at snapshot construction (`_CONVERSIONS` in `information.py`) without altering the physical ledger:
+
+- **Flow**: `m3/s` ↔ `cfs` (`35.31466672148859`)
+- **Volume**: `m3` ↔ `acre-ft` (`1 / 1233.48183754752`)
+- **Length / Elevation**: `m` ↔ `ft` (`3.280839895013123`)
+
+## Configuring profiles and agent bindings
+
+Define named views under `profiles.<profile_id>.fields.<alias>`, specifying `source`, optional `unit`, `history` (positive sample count), `max_age_seconds` (freshness window), and `required` (boolean):
 
 ```yaml
+# information.yaml
 sources:
   operating_target:
     type: static
@@ -39,15 +71,14 @@ profiles:
         required: true
 ```
 
-Reference the catalog from the coupled experiment, then select the profile on
-the intended agent:
+Attach `information.yaml` in `experiment.yaml`, then bind the profile on the target agent (`customization.information`):
 
 ```yaml
 # experiment.yaml
 information:
   file: information.yaml
 
-# agents.llm.yaml
+# agents.yaml
 operator_a:
   reservoir_id: lake_a
   type: llm
@@ -57,36 +88,19 @@ operator_a:
     information: operator_view
 ```
 
-When a generic LLM agent selects an information profile, include the literal
-placeholder `$information` in its prompt file. The runtime inserts the selected
-snapshot there. A
-rule-based extension can read the same snapshot from
-`observation.context.decision_information`. Selecting one profile does not
-expose the rest of the catalog.
+- **For generic LLM agents**: Include `$information` in `prompt_file` or `system_prompt_file` (`workflow.py` rejects mismatched binding vs placeholder).
+- **For rule-based extensions**: Read `observation["context"]["decision_information"]` inside `decide(observation)`.
+- **Alternative custom bindings**: For ad-hoc retrieval plugins (such as vector/text DKP search), use `customization.context_providers` returning `ContextValue` (`validate_available_at` in `src/llm_reservoir_agent/context.py`), documented in [Operator & LLM agent design](AGENT_DESIGN.md).
 
-## Source types
+## Missing-data handling and verification
 
-| `type` | Required source fields | Availability behavior |
-|---|---|---|
-| `static` | `quantity`, `unit`, `location`, `value` | Always available; useful for a fixed target or label. |
-| `csv` | common fields plus `kind` and `path` | Exact UTF-8 CSV bytes are hashed; causal timestamps select a record. |
-| `simulation` | common fields | Reads `inflow`, `storage`, `release`, or `flow` from the current/committed native state. |
-| `extension` | common fields plus registered `provider` | Calls a versioned local reader declared by the application. |
+| Profile field setting | Missing or stale record behavior | Provenance & `verify` check |
+| --- | --- | --- |
+| `required: true` | Stops execution with an explicit error—never substitutes `0.0`. | Reconstructs `static`, `csv`, and `simulation` snapshots deterministically from `experiment.json`. |
+| `required: false` | Emits `status: "MISSING"`, `value: null`, and explicit `reason` in the snapshot. | Retains `source_sha256` / `provider_version` and verifies causal timing on every `decisions.jsonl` record. |
 
-Observation CSV columns are exactly `valid_time,available_at,value`. Forecast
-columns are exactly `issued_at,valid_time,available_at,value`. A profile field
-may also set `unit`, `history`, `max_age_seconds`, and `required`. Supported
-conversions include m3/s and cfs, m3 and acre-ft, and m and ft.
+<div class="callout callout-info" markdown="1">
 
-If a required field has no causal, fresh record, the decision stops. An optional
-field is saved explicitly with `status: MISSING`, `value: null`, and a reason;
-missing data is never changed to zero. Available fields include the selected
-value, unit, location, source ID, timestamps, requested sample history, and a
-CSV hash or extension version when applicable.
+**Recovery note.** Because `extension` information providers may perform dynamic external reads, `RecoveryTape` (`reservoir-experiment resume`) requires a durable replay contract and rejects dynamic `extension` sources unless replayed via saved context. Run `reservoir-experiment check` after every catalog edit.
 
-Run `reservoir-experiment check path/to/experiment.yaml` after every catalog or
-agent change. The selected snapshot is stored inside each decision observation
-and checked by `verify`. For static, CSV and simulation sources the verifier
-reconstructs the selected values. For registered extensions it checks the saved
-timing, provenance and internal consistency without calling the external reader again. Continue with the
-[run lifecycle](RUNNING.md) or [results guide](RESULTS_GUIDE.md).
+</div>

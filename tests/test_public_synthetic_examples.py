@@ -122,7 +122,7 @@ def test_cli_init_examples_copies_clean_bundle_and_refuses_overwrite(tmp_path, c
     assert main(["check", str(rule)]) == 0
     report = yaml.safe_load(capsys.readouterr().out)
     assert report["planned_llm_calls"] == 0
-    assert report["agent_rules"] == {"walter_operator": "mosart_urban"}
+    assert report["agent_rules"] == {"walter_operator": "hanasaki"}
     assert Path(payload["first_example"]) == dest / "template" / "experiment.yaml"
 
     assert main(["init-examples", str(dest)]) == 1

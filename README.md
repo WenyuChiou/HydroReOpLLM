@@ -26,7 +26,7 @@ Choose a fresh `run_id` and `output` before repeating the template. See the [ins
 | Entry point | Purpose | Network use |
 | --- | --- | --- |
 | [`examples/template/experiment.yaml`](examples/template/README.md) | Generic synthetic prepared-inflow workflow | None |
-| [`examples/fe_walter/rule_based.yaml`](examples/fe_walter/README.md) | F.E. Walter offline MOSART-Urban rule | None |
+| [`examples/fe_walter/rule_based.yaml`](examples/fe_walter/README.md) | F.E. Walter offline Hanasaki rule | None |
 | [`examples/fe_walter/seasonal_target.yaml`](examples/fe_walter/README.md) | F.E. Walter **Without operational knowledge** (Seasonal Target) | Local Ollama through the study launcher |
 | [`examples/fe_walter/dkp.yaml`](examples/fe_walter/README.md) | F.E. Walter **With operational knowledge** (DKP) | Local Ollama through the study launcher |
 

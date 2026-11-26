@@ -1,4 +1,4 @@
-"""Source-derived boundary cases and host integration for the MOSART rule."""
+"""Source-derived boundary cases and host integration for the Hanasaki flood-control rule."""
 
 from datetime import date, timedelta
 import importlib.util
@@ -12,8 +12,8 @@ from llm_reservoir_agent.physics import apply_transition
 
 
 ROOT = Path(__file__).resolve().parents[1]
-MODULE_PATH = ROOT / "tests/fixtures/examples/rules/mosart_urban/__init__.py"
-spec = importlib.util.spec_from_file_location("mosart_rule_tests", MODULE_PATH)
+MODULE_PATH = ROOT / "tests/fixtures/examples/rules/hanasaki_flood_control/__init__.py"
+spec = importlib.util.spec_from_file_location("hanasaki_flood_control_rule_tests", MODULE_PATH)
 rule = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(rule)
 
@@ -56,7 +56,7 @@ def test_large_reservoir_coefficient_and_exact_degree_boundary():
 
 
 def test_calendar_year_refresh_uses_beginning_storage_and_survives_leap_year():
-    backend = rule.MosartUrbanBackend(physical(), 1.0)
+    backend = rule.HanasakiBackend(physical(), 1.0)
     storage = 50_000_000.0
     start = date(2019, 12, 31)
     refresh_dates = []
@@ -82,7 +82,7 @@ def test_calendar_year_refresh_uses_beginning_storage_and_survives_leap_year():
     (physical(), observation(0, 90_000_000.0, inflow=5.0, release_upper_bound_cms=0.0)),
 ])
 def test_conflicting_physics_is_explicit_and_does_not_advance_rule(settings, obs):
-    backend = rule.MosartUrbanBackend(settings, 10.0)
+    backend = rule.HanasakiBackend(settings, 10.0)
     with pytest.raises(ValueError, match="parity conflict"):
         backend.decide(obs)
     assert backend.latest_trace is None
@@ -91,8 +91,8 @@ def test_conflicting_physics_is_explicit_and_does_not_advance_rule(settings, obs
 
 
 def test_separate_reservoir_histories_and_json_provenance():
-    first = rule.MosartUrbanBackend(physical(), 1.0)
-    second = rule.MosartUrbanBackend(physical(), 1.0)
+    first = rule.HanasakiBackend(physical(), 1.0)
+    second = rule.HanasakiBackend(physical(), 1.0)
     first.decide(observation(0, 50_000_000.0))
     second.decide(observation(0, 20_000_000.0))
     assert first.latest_trace["k_rls"] != second.latest_trace["k_rls"]
@@ -106,13 +106,13 @@ def test_separate_reservoir_histories_and_json_provenance():
 @pytest.mark.parametrize("alpha", [0, -0.1, 1.1, float("nan")])
 def test_invalid_alpha_rejected(alpha):
     with pytest.raises(ValueError):
-        rule.MosartUrbanBackend(physical(), 1.0, alpha)
+        rule.HanasakiBackend(physical(), 1.0, alpha)
 
 
 def test_non_daily_duration_and_foreign_reservoir_rejected():
     with pytest.raises(ValueError, match="Daily"):
-        rule.MosartUrbanBackend(physical(dt_seconds=3600.0), 1.0)
-    backend = rule.MosartUrbanBackend(physical(), 1.0)
+        rule.HanasakiBackend(physical(dt_seconds=3600.0), 1.0)
+    backend = rule.HanasakiBackend(physical(), 1.0)
     with pytest.raises(ValueError, match="another reservoir"):
         backend.decide(observation(0, 50_000_000.0, context={"reservoir_id": "other"}))
 
@@ -132,8 +132,8 @@ def test_explicit_mean_configuration_has_no_file_or_provider_dependency(tmp_path
 
 
 @pytest.mark.parametrize("entry,coupled", [
-    ("daily_offline/single.mosart.yaml", False),
-    ("multiple_reservoirs/experiment.mosart.yaml", True),
+    ("daily_offline/single.hanasaki_flood_control.yaml", False),
+    ("multiple_reservoirs/experiment.hanasaki_flood_control.yaml", True),
 ])
 def test_internal_fixtures_execute_through_normal_entrypoints(tmp_path, entry, coupled):
     from llm_reservoir_agent.coupled import load_coupled_settings, run_coupled
@@ -146,7 +146,7 @@ def test_internal_fixtures_execute_through_normal_entrypoints(tmp_path, entry, c
     else:
         config = ROOT / "tests/fixtures/examples" / entry
     canonical, _ = read_configuration(config)
-    canonical["run_id"] = "mosart-entrypoint-test"
+    canonical["run_id"] = "hanasaki-flood-control-entrypoint-test"
     canonical["output"] = str(tmp_path / "output")
     path = tmp_path / "experiment.yaml"
     path.write_text(yaml.safe_dump(canonical), encoding="utf-8")

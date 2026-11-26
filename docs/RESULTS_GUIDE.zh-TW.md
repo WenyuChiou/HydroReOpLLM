@@ -1,39 +1,48 @@
-# 檢視執行結果
+# 解讀執行結果
 
-請先開啟 `summary.json`。在耦合執行中，此檔案位於 `<output>/operation/` 底下。在既有入流資料的執行中，則直接位於 `<output>/` 底下。請先確認 `status` 為 `COMPLETED`，再檢視下列檔案，切勿僅憑指令成功結束就當作水庫操作績效的結果。
+<div class="hero-band" markdown="1">
 
-![執行輸出目錄結構與各類 CSV／JSONL 結果檔案關聯圖](assets/diagrams/results-outputs-map.svg)
+請先開啟 `summary.json`（耦合模式位於 `<output>/operation/summary.json`；既有入流模式直接位於 `<output>/summary.json`），確認 `"status": "COMPLETED"`。在判讀水庫操作績效前，請依序檢視實體 CSV 數據表與逐時間步 JSONL 來源追蹤紀錄。
 
-- **輸出目錄位置**：既有入流案例直接輸出於 `<output>/`；耦合模擬則將水文前處理放於 `<output>/`、水庫操作結果放於 `<output>/operation/`。
-- **摘要與物理結果**：先確認 `summary.json` 的 `status` 為 `COMPLETED`，再查看 `reservoir_trajectory.csv`、`network_flows.csv` 與 `network_balance.csv`。
-- **決策軌跡與驗證**：`decisions.jsonl`、`physics.jsonl`、`audit.jsonl` 與 `raw/` 保存逐步驟證據，供 `reservoir-experiment verify` 檢查。
+</div>
 
-## 物理模擬與演算結果
+<figure class="figure-card">
+  <img src="assets/diagrams/results-outputs-map.svg" alt="輸出目錄結構與各類 CSV／JSONL 結果檔案關聯圖">
+  <figcaption><strong>輸出產物關聯圖。</strong> 物理軌跡與水量平衡表格皆可透過 <code>decision_id</code> 與決策、稽核及原始追蹤日誌精確串聯。</figcaption>
+</figure>
 
-| 檔案 | 主要欄位 | 意義 |
-|---|---|---|
-| `reservoir_trajectory.csv` | 時間戳記／日期、水庫 ID、入流量、目標與受控放流量、溢流量、期初／期末蓄水量、調整項目 | 每個水庫於每個時間步的單筆物理狀態轉移紀錄。 |
-| `network_flows.csv` | 時間戳記／日期、節點、`local_inflow_cms`、`routed_flow_cms` | 河網各節點的區間輸入流量與總演算流量。 |
-| `network_balance.csv` | 區間輸入量、出口輸出量、蓄水／河道變化量、殘差 | 以 m3 計量的整體河網積分水量平衡。 |
-| `reach_volume_trace.json` | 延遲河段水體體積 | 時間步長之間滯留於演算延時中的河段水量。 |
+## 輸出目錄結構
 
-流量數值為時段平均 m3/s。蓄水量與水量平衡各項的單位則為 m3。請求或目標放流量代表操作員的決策動作。`controlled_release_cms` 則是套用上下限與可用水量約束後，實際執行的物理放流量。`spill_cms` 則分開計算。下游演算接收的是受控放流量加上溢流量。因此，請求放流量遭到截幅屬於已記錄的調整項目，並不會自動視為執行失敗。
+| 路徑 | 產出時機 | 內容說明 |
+| --- | --- | --- |
+| `<output>/inflows.csv`、`preparation.json`、`hydrology*.json` | 耦合模式 `prepare` / `run` | 鎖定版本的 HydroCNHS 入流量、前處理簽章，以及選用的 GWLF 診斷／狀態紀錄。 |
+| `summary.json` 與 `progress.json` | 所有模擬 | 執行 `status`、期末蓄水量、`network_calls`、`fallback_used`、`serving_profiles` 與步數計數器。 |
+| `experiment.json` | 所有模擬 | 已凍結的水系結構、入流資料、套件與 HydroCNHS SHA-256 雜湊值、資訊目錄及來源追蹤。 |
+| `reservoir_trajectory.csv`、`network_flows.csv`、`network_balance.csv` | 所有模擬 | 時間序列水庫狀態、河道流量與整體河網水量平衡（`m3` / `m3/s`）。 |
+| `decisions.jsonl`、`physics.jsonl`、`audit.jsonl`、`backend_events.jsonl` | 所有模擬 | 透過 `decision_id` 串聯的逐時間步因果追蹤日誌。 |
+| `provider_attempts.jsonl` 與 `raw/` | LLM / 追蹤模擬 | Append-fsync 模型服務呼叫帳本，以及去敏後的提示詞／回覆原始快照。 |
 
-繪製圖表時，可比較蓄水量（或套用特定研究的庫容－水位曲線換算後的水位）、受控放流量、溢流量與下游演算流量，並務必明確標註單位與時間步長。若某個檔案採用完整時間戳記而另一個檔案僅使用日期，在合併資料表前請先統一時間戳記格式。
+## 物理模擬軌跡與演算流量
 
-## 決策與稽核證據
+| 檔案 | 主要欄位 | 物理意義（`m3`、`m3/s`） |
+| --- | --- | --- |
+| `reservoir_trajectory.csv` | `date`/`timestamp`、`reservoir_id`、`inflow_cms`、`target_release_cms`、`controlled_release_cms`、`spill_cms`、`storage_start_m3`、`storage_end_m3`、`adjustments` | 每座水庫於每個時間步一筆紀錄。`target_release_cms` 為操作員請求放流量；`controlled_release_cms` 為物理限幅後的實際受控放流量；`spill_cms` 為超過 `capacity_m3` 的溢流量。 |
+| `network_flows.csv` | `date`/`timestamp`、`node`、`local_inflow_cms`、`routed_flow_cms` | 河網各節點的區域增量入流量與總摺積演算流量。 |
+| `network_balance.csv` | `local_input_m3`、`outlet_output_m3`、`reservoir_storage_change_m3`、`channel_storage_change_m3`、`system_residual_m3` | 逐時間步閉合的系統整體水量平衡（`system_residual_m3 < 1e-6`）。 |
+| `reach_volume_trace.json` | 河段鍵名與時間步陣列 | 在上游放流與下游抵達之間的演算延遲期間，暫時滯留於河道中的水體體積。 |
 
-| 檔案或資料夾 | 用途說明 |
-|---|---|
-| `decisions.jsonl` | 觀測內容、選定的決策資訊、動作、決策／請求 ID 及提供服務的設定檔。 |
-| `physics.jsonl` | 與最終物理狀態轉移相互綁定的觀測與動作紀錄。 |
-| `audit.jsonl` | 針對每筆決策的稽核結果：PASS、WARN、FAIL 或 UNKNOWN。 |
-| `backend_events.jsonl` | 決策生命週期與請求嘗試之間的關聯紀錄。 |
-| `provider_attempts.jsonl` | 使用模型傳輸層時的模型服務呼叫嘗試紀錄。 |
-| `raw/` | 供追蹤紀錄參照的已保存提示詞／策略／回覆原始酬載。 |
-| `experiment.json` | 已凍結的河網結構、輸入資料、實作身分識別、資訊目錄與來源追蹤資訊。 |
+<div class="callout callout-info" markdown="1">
 
-請透過 `decision_id` 串聯單筆決策與其對應的物理狀態轉移、稽核結果及原始酬載參照。若 `summary.json` 回報 `fallback_used: true`，在將決策歸因於主要模型之前，請先檢查 `serving_profiles` 與實際成功的呼叫嘗試。稽核結果屬於診斷性質：即使整體執行在內部邏輯上完全一致，仍可能出現 WARN 或 FAIL 結果，或未能達成操作目標。
+**放流截幅與執行失敗的區別。** 當操作員請求的放流量超出 `[minimum_release_cms, maximum_release_cms]`，或超過高於 `dead_storage_m3` 的可用水量時，`apply_transition` 會在 `adjustments` 欄位記下調整原因（`target_clipped_to_operating_bounds`、`controlled_release_limited_by_dead_storage`、`spill_above_capacity`），並不會因此中斷模擬。惟 Hanasaki 嚴格等價模式若偵測到主機物理限制與規則推算結果分歧，會在提交前主動拋出 `parity conflict`。
+
+</div>
+
+## 決策、稽核與來源追蹤日誌
+
+- **`decisions.jsonl`**：完整的 `ReservoirObservation`（含 `decision_information` 快照）、請求的 `action`、`request_id`、`serving_profile` 與 `provenance`。
+- **`physics.jsonl`**：確切的 `observation` + `action` 與其對應產生的 `Transition` 物理結果。
+- **`audit.jsonl`**：每個已設定稽核器針對每筆決策產出的 `AuditedBackend` 結果（`PASS`、`WARN`、`FAIL`、`UNKNOWN`）。稽核 `FAIL` 屬於診斷性質——不會改寫物理流量，也不會阻礙 `status: "COMPLETED"`。
+- **`backend_events.jsonl` 與 `provider_attempts.jsonl`**：記錄 `decision_started` → `decision_returned` / `decision_failed` 與 `STARTED` → `RETURNED` / `FAILED` HTTP 呼叫嘗試。若 `summary.json` 顯示 `fallback_used: true`，在將決策歸因於主要模型前，請先確認 `serving_profiles`。
 
 ## 驗證已保存的證據
 
@@ -41,6 +50,4 @@
 reservoir-experiment verify path/to/output --require-offline
 ```
 
-若該次執行本來就規劃呼叫模型服務，請省略 `--require-offline`。驗證程序會檢查已保存的雜湊值、完整的因果追蹤序列、物理狀態轉移、河道演算、水量平衡、選定的決策資訊，以及所宣告的離線證據。它不會重新執行水文模擬或操作員，並使操作策略的驗收狀態維持未知。針對耦合執行，此指令可接受準備根目錄，或其底下已完成的 `operation/` 目錄。
-
-若驗證失敗，請完整保留輸出內容並參考[疑難排解](TROUBLESHOOTING.zh-TW.md)。若驗證通過，請將驗證結果與水文率定、操作策略效能或特定研究績效分開報告。
+若為即時連線的 LLM 模擬，請省略 `--require-offline`。`verify`（`src/llm_reservoir_agent/verification.py`）會在不重跑水文模擬、不聯繫模型服務的前提下，獨立核對所有檔案 SHA-256 雜湊值、因果追蹤序列完整性、`apply_transition` 物理不變量、獨立河道摺積演算、`network_balance` 以及重建後的 `InformationCatalog` 快照。

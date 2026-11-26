@@ -21,8 +21,8 @@ and checked against a pre-extension numerical oracle. The source manifest retain
 both upstream and installed hashes. The new `groundwater.py` and experimental
 hourly kernel are local extensions, not unmodified upstream GWLF.
 
-The internal flood-control test fixture in `tests/fixtures/examples/rules/mosart_urban/` independently implements
+The internal flood-control test fixture in `tests/fixtures/examples/rules/hanasaki_flood_control/` independently implements
 the reservoir equations and annual storage snapshot from RiverAI-Project/MOSART-Urban,
 commit `7883c5cac62e8c0c585fbafbb1045118cad2dd42`. The implementation records
-the upstream source hash. The optional parity check in `scripts/verify_mosart_rule.py`
+the upstream source hash. The optional parity check in `scripts/verify_hanasaki_rule.py`
 requires a separately obtained copy of that upstream source.

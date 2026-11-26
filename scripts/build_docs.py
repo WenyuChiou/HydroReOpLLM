@@ -44,12 +44,17 @@ ENGLISH_FILES = {
     "docs/assets/copy-code.js": "assets/copy-code.js",
     "docs/assets/search-zh-TW.js": "assets/search-zh-TW.js",
     "docs/RUNNING.md": "RUNNING.md",
+    "docs/AGENT_DESIGN.md": "AGENT_DESIGN.md",
     "docs/MODEL_PROVIDERS.md": "MODEL_PROVIDERS.md",
     "docs/MULTI_RESERVOIR.md": "MULTI_RESERVOIR.md",
     "docs/TIME_SCALES.md": "TIME_SCALES.md",
     "docs/HYDROLOGY_SETUP.md": "HYDROLOGY_SETUP.md",
     "docs/HOURLY_GWLF.md": "HOURLY_GWLF.md",
     "docs/TROUBLESHOOTING.md": "TROUBLESHOOTING.md",
+    "docs/assets/figures/fig1-framework.png": "assets/figures/fig1-framework.png",
+    "docs/assets/figures/fig2-study-area.png": "assets/figures/fig2-study-area.png",
+    "docs/assets/figures/fig3-daily-2021-2025.png": "assets/figures/fig3-daily-2021-2025.png",
+    "docs/assets/figures/fig4-annual-cycle.png": "assets/figures/fig4-annual-cycle.png",
     "tutorials/README.md": "tutorials/index.md",
     "examples/template/README.md": "examples/template/index.md",
     "examples/fe_walter/README.md": "examples/fe_walter/index.md",
@@ -83,36 +88,55 @@ PUBLISHED_CHAPTERS = {
     for path in pair
 }
 MARKDOWN_LINK = re.compile(r"(\[[^\]]*\]\()([^)\s]+)([^)]*\))")
+HTML_ATTR_LINK = re.compile(
+    r"""(<(?:a|img)\b[^>]*?\b(?:href|src)=["'])([^"'\s]+)(["'])""",
+    re.IGNORECASE,
+)
 
 
 def _repo_path(source: str, target: str) -> str:
     return os.path.normpath(str(PurePosixPath(source).parent / target)).replace("\\", "/")
 
 
-def _rewrite_links(text: str, source: str, destination: str) -> str:
-    def replace(match: re.Match[str]) -> str:
-        raw_target = match.group(2)
-        parsed = urlsplit(raw_target)
-        fragment = f"#{parsed.fragment}" if parsed.fragment else ""
-        if parsed.scheme or parsed.netloc:
-            # Source READMEs also ship with the wheel, where hosted links are needed.
-            staged_target = PUBLISHED_CHAPTERS.get(raw_target.split("#", 1)[0])
-            if staged_target is None:
-                return match.group(0)
-        elif raw_target.startswith("#"):
-            return match.group(0)
-        else:
-            resolved = _repo_path(source, parsed.path)
-            staged_target = SAFE_FILES.get(resolved)
-            if staged_target is None:
-                target = REPOSITORY_BLOB + resolved + fragment if (ROOT / resolved).is_file() else raw_target
-                return match.group(1) + target + match.group(3)
-        relative = os.path.relpath(
-            staged_target, PurePosixPath(destination).parent
-        ).replace("\\", "/")
-        return match.group(1) + relative + fragment + match.group(3)
+def _resolve_target(raw_target: str, source: str, destination: str, *, html_attr: bool = False) -> str | None:
+    parsed = urlsplit(raw_target)
+    fragment = f"#{parsed.fragment}" if parsed.fragment else ""
+    if parsed.scheme or parsed.netloc:
+        # Source READMEs also ship with the wheel, where hosted links are needed.
+        staged_target = PUBLISHED_CHAPTERS.get(raw_target.split("#", 1)[0])
+        if staged_target is None:
+            return None
+    elif raw_target.startswith("#"):
+        return None
+    else:
+        resolved = _repo_path(source, parsed.path)
+        staged_target = SAFE_FILES.get(resolved)
+        if staged_target is None:
+            if (ROOT / resolved).is_file():
+                return REPOSITORY_BLOB + resolved + fragment
+            return None
+    relative = os.path.relpath(
+        staged_target, PurePosixPath(destination).parent
+    ).replace("\\", "/")
+    if html_attr and relative.endswith(".md"):
+        relative = relative[:-3] + ".html"
+    return relative + fragment
 
-    return MARKDOWN_LINK.sub(replace, text)
+
+def _rewrite_links(text: str, source: str, destination: str) -> str:
+    def replace_md(match: re.Match[str]) -> str:
+        rewritten = _resolve_target(match.group(2), source, destination, html_attr=False)
+        if rewritten is None:
+            return match.group(0)
+        return match.group(1) + rewritten + match.group(3)
+
+    def replace_html(match: re.Match[str]) -> str:
+        rewritten = _resolve_target(match.group(2), source, destination, html_attr=True)
+        if rewritten is None:
+            return match.group(0)
+        return match.group(1) + rewritten + match.group(3)
+
+    return HTML_ATTR_LINK.sub(replace_html, MARKDOWN_LINK.sub(replace_md, text))
 
 
 class _LinkCollector(HTMLParser):
@@ -187,6 +211,8 @@ class BilingualManual(BasePlugin):
         return nav
 
     def on_page_content(self, page_html, *, page, config, files):
+        page_html = re.sub(r"<table\b", '<div class="table-scroll"><table', page_html)
+        page_html = page_html.replace("</table>", "</table></div>")
         if not (page.toc and page.toc.items and page.toc.items[0].children):
             return page_html
         chinese = page.file.src_uri.endswith("zh-TW.md")
@@ -195,7 +221,7 @@ class BilingualManual(BasePlugin):
             f'<a href="{html.escape(heading.url, quote=True)}">{html.escape(heading.title)}</a>'
             for heading in page.toc.items[0].children
         )
-        toc_block = f'<details class="on-this-page"><summary>{label}</summary>{links}</details>'
+        toc_block = f'<details class="on-this-page d-xl-none"><summary>{label}</summary>{links}</details>'
         if "</h1>" in page_html:
             return page_html.replace("</h1>", f"</h1>\n{toc_block}", 1)
         return toc_block + "\n" + page_html
@@ -203,11 +229,30 @@ class BilingualManual(BasePlugin):
     def on_page_context(self, context, *, page, config, nav):
         source = page.file.src_uri
         chinese = source.endswith("zh-TW.md")
+        toc_items = []
+        if page.toc and page.toc.items:
+            root_items = (
+                page.toc.items[0].children
+                if len(page.toc.items) == 1 and page.toc.items[0].level == 1
+                else page.toc.items
+            )
+            toc_items = [
+                {
+                    "title": item.title,
+                    "url": item.url,
+                    "children": [
+                        {"title": child.title, "url": child.url}
+                        for child in item.children
+                    ],
+                }
+                for item in root_items
+            ]
         context.update(
             chinese=chinese,
             english_url=self.alternates[source].url if chinese else page.url,
             chinese_url=page.url if chinese else self.alternates[source].url,
             chapters=nav.items[1 if chinese else 0].children,
+            toc_items=toc_items,
         )
         if chinese:
             # Keep the shared build config immutable while the theme renders this page.
