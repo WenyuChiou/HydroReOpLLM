@@ -9,8 +9,8 @@
 ## 研究區域與基準設計
 
 <figure class="figure-card">
-  <img src="../../docs/assets/figures/fig5-xindian-study-area.png" alt="新店溪串聯水庫研究區域與河道演算網路圖：翡翠水庫、南勢溪側向入流與直潭壩">
-  <figcaption><strong>圖 5.</strong> 台灣新店溪串聯水庫研究流域：翡翠水庫（有效庫容 335,505,000 m³，放流上下限 0–500 m³/s）出流經 <code>[0.8, 0.2]</code> 單位歷線演算並匯入南勢溪側向入流（<code>zhitan_local</code>）後進入直潭壩（有效庫容 1,918,900 m³，放流上下限 0–800 m³/s），再經 <code>[1.0]</code> 演算至 <code>xindian_outlet</code>。</figcaption>
+  <img src="../../docs/assets/figures/fig5-xindian-study-area.png" alt="新店溪串聯水庫研究區域、年均降雨分布與河道演算網路圖：翡翠水庫、南勢溪側向入流與直潭壩">
+  <figcaption><strong>圖 5.</strong> 台灣新店溪串聯水庫研究流域與年均降雨分布（WorldClim 2.1）：翡翠水庫（有效庫容 335,505,000 m³，放流上下限 0–500 m³/s）出流經 <code>[0.8, 0.2]</code> 單位歷線演算並匯入南勢溪側向入流（<code>zhitan_local</code>）後進入直潭壩（有效庫容 1,918,900 m³，放流上下限 0–800 m³/s），再經 <code>[1.0]</code> 演算至 <code>xindian_outlet</code>。</figcaption>
 </figure>
 
 <div class="panel-grid panel-grid-2" markdown="1">
