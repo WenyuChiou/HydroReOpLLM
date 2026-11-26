@@ -54,7 +54,7 @@ HydroReOpLLM 將 **「水庫放流決策」**（操作規則或 LLM）與 **「�
 ### `type: rule_based`（水庫操作規則）
 
 - 須設定 `reservoir_id`、`type: rule_based`、`rule` 與選填 `rule_parameters`。
-- 全程離線執行（`0` 次模型呼叫），適合 Hanasaki 基準或自訂 Python 運轉規線。
+- 全程離線執行，適合 Hanasaki 基準或自訂 Python 運轉規線。
 
 </div>
 <div class="panel-card" markdown="1">
@@ -62,7 +62,7 @@ HydroReOpLLM 將 **「水庫放流決策」**（操作規則或 LLM）與 **「�
 ### `type: llm`（LLM 操作員）
 
 - 須設定 `reservoir_id`、`type: llm`、`model_profile`、`prompt_file` 與 `customization:`。
-- 即時推論（`execution: live`）需傳入 `--allow-network`；離線重播（`execution: replay`）則為 `0` 次呼叫。
+- 即時推論（`execution: live`）需傳入 `--allow-network`；離線重播（`execution: replay`）無須連線。
 
 </div>
 </div>

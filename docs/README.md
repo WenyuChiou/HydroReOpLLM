@@ -102,13 +102,13 @@ Run the single-reservoir and multi-reservoir cases or troubleshoot errors.
 
 ## Included examples
 
-| Example | Operator & config | Calls (`check` / `run`) | What it demonstrates |
+| Example | Operator & config | Execution | What it demonstrates |
 | --- | --- | --- | --- |
-| [Single-reservoir: Rule-based](../examples/fe_walter/README.md) | Hanasaki (`α = 0.85`, `rule_based.yaml`) | `0` / `0` | Offline F.E. Walter Dam baseline over 2021–2025 inflows. |
-| [Single-reservoir: Without operational knowledge](../examples/fe_walter/README.md) | LLM (`seasonal_target.yaml`) | `0` / `7` or `1,826` | Pool elevation, seasonal target, and 2-day release history only. |
-| [Single-reservoir: With operational knowledge](../examples/fe_walter/README.md) | LLM (`dkp.yaml`) | `0` / `7` or `1,826` | Same physical case with structured water-control manual (`dkp.md`). |
-| [Multi-reservoir: Rule-based](../examples/multi_reservoir/README.md) | Hanasaki on both dams (`rule_based.yaml`) | `0` / `0` | Taiwan Xindian River cascade (`feitsui` → `zhitan` → `xindian_outlet`, May 2020 Mei-Yu front). |
-| [Multi-reservoir: Hybrid LLM](../examples/multi_reservoir/README.md) | Upstream Hanasaki + downstream LLM (`hybrid_llm.yaml`) | `0` / `10` | Mixed `feitsui` Hanasaki + `zhitan` LLM cascade (`prompts/operator.txt`). |
+| [Single-reservoir: Rule-based](../examples/fe_walter/README.md) | Hanasaki (`α = 0.85`, `rule_based.yaml`) | Offline | Offline F.E. Walter Dam baseline over 2021–2025 inflows. |
+| [Single-reservoir: Without operational knowledge](../examples/fe_walter/README.md) | LLM (`seasonal_target.yaml`) | Local Ollama | Pool elevation, seasonal target, and 2-day release history only. |
+| [Single-reservoir: With operational knowledge](../examples/fe_walter/README.md) | LLM (`dkp.yaml`) | Local Ollama | Same physical case with structured water-control manual (`dkp.md`). |
+| [Multi-reservoir: Rule-based](../examples/multi_reservoir/README.md) | Hanasaki on both dams (`rule_based.yaml`) | Offline | Taiwan Xindian River cascade (`feitsui` → `zhitan` → `xindian_outlet`, May 2020 Mei-Yu front). |
+| [Multi-reservoir: Hybrid LLM](../examples/multi_reservoir/README.md) | Upstream Hanasaki + downstream LLM (`hybrid_llm.yaml`) | Local Ollama | Mixed `feitsui` Hanasaki + `zhitan` LLM cascade (`prompts/operator.txt`). |
 
 <div class="callout callout-info" markdown="1">
 

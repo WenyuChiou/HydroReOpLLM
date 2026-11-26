@@ -75,7 +75,7 @@ vllm_or_local_server:
 | `model` | Required | Exact model tag or API model ID. |
 | `base_url` | Required | Final HTTP(S) URL for your local server or cloud API. |
 | `api_key_env` | Omitted | Environment variable holding the API key (optional for local Ollama). |
-| `temperature` | Provider default | `0.0`–`2.0`. Low values (`0.0`–`0.3`) reduce variance; F.E. Walter uses `0.7` across 10 seeds. |
+| `temperature` | Provider default | `0.0`–`2.0`. Low values (`0.0`–`0.3`) yield steadier releases across steps. |
 | `max_tokens` | Provider default | Max output tokens per decision (**required** by `anthropic`; `2048` recommended). |
 | `seed` | Omitted | Integer seed (`ollama` and `openai_compatible` only). |
 | `timeout_seconds` | `60.0` | Seconds before an HTTP attempt times out. |

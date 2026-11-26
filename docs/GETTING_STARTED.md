@@ -47,14 +47,14 @@ reservoir-experiment init-examples
 
 ## CLI command reference
 
-| Command | Purpose | Network calls |
-| --- | --- | --- |
-| `reservoir-experiment check` | Validates topology, inflows, dates, bounds, and Day-1 prompt previews (`<config>`). | `0` |
-| `reservoir-experiment prepare` | Coupled HydroCNHS only: runs catchment hydrology and writes `inflows.csv`. | `0` |
-| `reservoir-experiment run` | Runs reservoir operations into a fresh folder (add `--allow-network` for live LLMs). | `0` without flag |
-| `reservoir-experiment verify` | Checks mass balance, routing convolution, timestamps, and saved logs (`<output>`). | `0` |
-| `reservoir-experiment resume` | Replays completed steps from `--from-run` into a fresh `--output` and `--run-id`. | Remaining only |
-| `reservoir-experiment init-examples` | Copies bundled `fe_walter` and `multi_reservoir` examples into `[dir]`. | `0` |
+| Command | Purpose |
+| --- | --- |
+| `reservoir-experiment check` | Validates topology, inflows, dates, bounds, and Day-1 prompt previews (`<config>`). |
+| `reservoir-experiment prepare` | Coupled HydroCNHS only: runs catchment hydrology and writes `inflows.csv`. |
+| `reservoir-experiment run` | Runs reservoir operations into a fresh folder (add `--allow-network` for live LLMs). |
+| `reservoir-experiment verify` | Checks mass balance, routing convolution, timestamps, and saved logs (`<output>`). |
+| `reservoir-experiment resume` | Replays completed steps from `--from-run` into a fresh `--output` and `--run-id`. |
+| `reservoir-experiment init-examples` | Copies bundled `fe_walter` and `multi_reservoir` examples into `[dir]`. |
 
 ## Quick-run commands
 
@@ -69,7 +69,7 @@ reservoir-experiment check examples/fe_walter/seasonal_target.yaml
 reservoir-experiment check examples/fe_walter/dkp.yaml
 ```
 
-See [Single-reservoir case (F.E. Walter)](../examples/fe_walter/README.md) or the [Interactive notebook](../tutorials/README.md) to replay all 21 archived runs or run **Without operational knowledge** and **With operational knowledge** with local Ollama.
+See [Single-reservoir case (F.E. Walter)](../examples/fe_walter/README.md) or the [Interactive notebook](../tutorials/README.md) to replay the paper benchmark or run **Without operational knowledge** and **With operational knowledge** with local Ollama.
 
 Next, run the **Multi-reservoir case** (Taiwan's Xindian River cascade: `feitsui` → `zhitan` → `xindian_outlet`, May 2020 Mei-Yu front) offline baseline and inspect the hybrid Hanasaki + LLM cascade:
 

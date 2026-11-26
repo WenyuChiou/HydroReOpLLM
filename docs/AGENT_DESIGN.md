@@ -54,7 +54,7 @@ In addition to current storage and inflow, an LLM operator can receive **operati
 ### `type: rule_based` (Operating rule)
 
 - Requires `reservoir_id`, `type: rule_based`, `rule`, and optional `rule_parameters`.
-- Runs offline (`0` calls) for Hanasaki baselines or custom Python rules.
+- Runs offline for Hanasaki baselines or custom Python rules.
 
 </div>
 <div class="panel-card" markdown="1">
@@ -62,7 +62,7 @@ In addition to current storage and inflow, an LLM operator can receive **operati
 ### `type: llm` (LLM operator)
 
 - Requires `reservoir_id`, `type: llm`, `model_profile`, `prompt_file`, and `customization:`.
-- Uses `--allow-network` for `execution: live`, or `0` calls for `execution: replay`.
+- Uses `--allow-network` for `execution: live`, or runs offline with `execution: replay`.
 
 </div>
 </div>

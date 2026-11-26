@@ -49,20 +49,20 @@ reservoir-experiment init-examples
 
 ## CLI 指令總覽
 
-| 指令 | 用途 | 網路呼叫 |
-| --- | --- | --- |
-| `reservoir-experiment init-examples` | 將內建公開範例匯出至目前目錄的 `examples/`（或指定新資料夾）。 | `0` |
-| `reservoir-experiment check` | 離線驗證 `<config>` 的路徑、日期、物理限制、河網與第 1 天提示詞預覽。 | `0` |
-| `reservoir-experiment prepare` | 僅限耦合 HydroCNHS：先跑集水區水文模式並輸出 `inflows.csv`。 | `0` |
-| `reservoir-experiment run` | 執行模擬並將結果寫入全新資料夾（即時 LLM 須加 `--allow-network`）。 | 未加旗標為 `0` |
-| `reservoir-experiment verify` | 查核 `<output>` 的水量平衡、河道演算、水情時序（可加 `--require-offline`）。 | `0` |
-| `reservoir-experiment resume` | 由 `--from-run` 重播已完成步驟，並以新 `--output` 與 `--run-id` 接續跑完。 | 僅剩餘步驟 |
+| 指令 | 用途 |
+| --- | --- |
+| `reservoir-experiment init-examples` | 將內建公開範例匯出至目前目錄的 `examples/`（或指定新資料夾）。 |
+| `reservoir-experiment check` | 離線驗證 `<config>` 的路徑、日期、物理限制、河網與第 1 天提示詞預覽。 |
+| `reservoir-experiment prepare` | 僅限耦合 HydroCNHS：先跑集水區水文模式並輸出 `inflows.csv`。 |
+| `reservoir-experiment run` | 執行模擬並將結果寫入全新資料夾（即時 LLM 須加 `--allow-network`）。 |
+| `reservoir-experiment verify` | 查核 `<output>` 的水量平衡、河道演算、水情時序（可加 `--require-offline`）。 |
+| `reservoir-experiment resume` | 由 `--from-run` 重播已完成步驟，並以新 `--output` 與 `--run-id` 接續跑完。 |
 
 ## 快速執行範例指令
 
 ### 單一水庫案例（F.E. Walter）
 
-先以零模型呼叫執行 **Rule-based（Hanasaki 規則）** 基準，並離線檢查兩組 LLM 設定檔：
+先離線執行 **Rule-based（Hanasaki 規則）** 基準，並檢查兩組 LLM 設定檔：
 
 ```sh
 reservoir-experiment check examples/fe_walter/rule_based.yaml
@@ -72,7 +72,7 @@ reservoir-experiment check examples/fe_walter/seasonal_target.yaml
 reservoir-experiment check examples/fe_walter/dkp.yaml
 ```
 
-- 欲離線重播 21 組論文模擬，或以本機 Ollama 執行 **Without operational knowledge（無操作知識）** 與 **With operational knowledge（具操作知識）**，請參閱[單一水庫案例（F.E. Walter）](../examples/fe_walter/README.zh-TW.md)與[互動式 Notebook 教學](../tutorials/README.zh-TW.md)。
+- 欲離線重播論文結果，或以本機 Ollama 執行 **Without operational knowledge（無操作知識）** 與 **With operational knowledge（具操作知識）**，請參閱[單一水庫案例（F.E. Walter）](../examples/fe_walter/README.zh-TW.md)與[互動式 Notebook 教學](../tutorials/README.zh-TW.md)。
 
 ### 多水庫串聯案例（新店溪：翡翠水庫 → 直潭壩）
 
