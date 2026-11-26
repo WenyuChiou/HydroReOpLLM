@@ -9,8 +9,8 @@ This multi-reservoir case study models Taiwan's **Xindian River cascade** — **
 ## Study area and benchmark design
 
 <figure class="figure-card">
-  <img src="../../docs/assets/figures/fig5-xindian-study-area.png" alt="Xindian River cascade study area showing Feitsui Reservoir, Nanshi Creek lateral inflow, Zhitan Dam, and xindian_outlet">
-  <figcaption><strong>Figure 5.</strong> Xindian River cascade layout: Feitsui Reservoir (<code>335,505,000 m3</code> capacity; <code>[0, 500] m3/s</code> controlled release) routes through a <code>[0.8, 0.2]</code> unit-hydrograph lag, combines with Nanshi Creek lateral runoff (<code>zhitan_local</code>), and feeds Zhitan Dam (<code>1,918,900 m3</code>; <code>[0, 800] m3/s</code>) before routing through <code>[1.0]</code> to <code>xindian_outlet</code>.</figcaption>
+  <img src="../../docs/assets/figures/fig5-xindian-study-area.png" alt="Xindian River cascade study area showing mean annual precipitation, Feitsui Reservoir, Nanshi Creek lateral inflow, Zhitan Dam, and xindian_outlet">
+  <figcaption><strong>Figure 5.</strong> Xindian River cascade study area and mean annual precipitation (WorldClim 2.1): Feitsui Reservoir (<code>335,505,000 m3</code> capacity; <code>[0, 500] m3/s</code> controlled release) routes through a <code>[0.8, 0.2]</code> unit-hydrograph lag, combines with Nanshi Creek lateral runoff (<code>zhitan_local</code>), and feeds Zhitan Dam (<code>1,918,900 m3</code>; <code>[0, 800] m3/s</code>) before routing through <code>[1.0]</code> to <code>xindian_outlet</code>.</figcaption>
 </figure>
 
 <div class="panel-grid panel-grid-2" markdown="1">
