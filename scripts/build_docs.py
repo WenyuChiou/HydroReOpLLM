@@ -56,8 +56,8 @@ ENGLISH_FILES = {
     "docs/assets/figures/fig3-daily-2021-2025.png": "assets/figures/fig3-daily-2021-2025.png",
     "docs/assets/figures/fig4-annual-cycle.png": "assets/figures/fig4-annual-cycle.png",
     "tutorials/README.md": "tutorials/index.md",
-    "examples/template/README.md": "examples/template/index.md",
     "examples/fe_walter/README.md": "examples/fe_walter/index.md",
+    "examples/multi_reservoir/README.md": "examples/multi_reservoir/index.md",
 }
 
 # Keep the original public URLs for the homepage and two renamed chapters.

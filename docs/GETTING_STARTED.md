@@ -1,8 +1,8 @@
-# Install and first run
+# Installation and CLI
 
 <div class="hero-band" markdown="1">
 
-HydroReOpLLM requires **Python 3.12+**. Install the package (`hydroreopllm` / CLI `reservoir-experiment`) and run the offline two-reservoir template in minutes.
+HydroReOpLLM requires **Python 3.12+**. Install the package (`hydroreopllm` / CLI `reservoir-experiment`) and run offline checks and baseline simulations in minutes.
 
 </div>
 
@@ -37,43 +37,52 @@ python -m pip install -c environment/requirements-bundled.txt .
 </div>
 </div>
 
-## Use an installed wheel
+## Install from a wheel
 
-If installing from a wheel in an empty working folder, export the bundled examples first:
+If installing from a built wheel in an empty working directory, export the bundled `fe_walter` and `multi_reservoir` examples first:
 
 ```sh
 reservoir-experiment init-examples
 ```
 
-## Run the generic offline template
+## CLI command reference
 
-Run the 10-day two-reservoir cascade (`upper` → `lower` → `outlet`) with zero LLM calls:
+| Command | Purpose | Network calls |
+| --- | --- | --- |
+| `reservoir-experiment check` | Validates topology, inflows, dates, bounds, and Day-1 prompt previews (`<config>`). | `0` |
+| `reservoir-experiment prepare` | Coupled HydroCNHS only: runs catchment hydrology and writes `inflows.csv`. | `0` |
+| `reservoir-experiment run` | Runs reservoir operations into a fresh folder (add `--allow-network` for live LLMs). | `0` without flag |
+| `reservoir-experiment verify` | Checks mass balance, routing convolution, timestamps, and saved logs (`<output>`). | `0` |
+| `reservoir-experiment resume` | Replays completed steps from `--from-run` into a fresh `--output` and `--run-id`. | Remaining only |
+| `reservoir-experiment init-examples` | Copies bundled `fe_walter` and `multi_reservoir` examples into `[dir]`. | `0` |
 
-```sh
-reservoir-experiment check examples/template/experiment.yaml
-reservoir-experiment run examples/template/experiment.yaml
-reservoir-experiment verify runs/prepared-template --require-offline
-```
+## Quick-run commands
 
-- `check` validates files, dates, bounds, and routing offline.
-- `run` writes simulation CSVs and logs to `runs/prepared-template/`.
-- `verify --require-offline` confirms closed mass balance (`PASS`) and `0` network calls.
-
-Continue with the [Two-reservoir template](../examples/template/README.md) and [Reading results](RESULTS_GUIDE.md).
-
-## Check the F.E. Walter examples
-
-Validate all three F.E. Walter study conditions offline (`0` model calls):
+Start with the **Single-reservoir case (F.E. Walter)** offline baseline and LLM configuration checks:
 
 ```sh
 reservoir-experiment check examples/fe_walter/rule_based.yaml
+reservoir-experiment run examples/fe_walter/rule_based.yaml
+reservoir-experiment verify runs/fe-walter-rule-based --require-offline
+
 reservoir-experiment check examples/fe_walter/seasonal_target.yaml
 reservoir-experiment check examples/fe_walter/dkp.yaml
 ```
 
-- Run **Rule-based** (Hanasaki) offline immediately with `reservoir-experiment run examples/fe_walter/rule_based.yaml`.
-- Follow the [F.E. Walter Dam](../examples/fe_walter/README.md) guide or [F.E. Walter notebook](../tutorials/README.md) to replay all 21 archived runs or run **Without operational knowledge** / **With operational knowledge** with Ollama.
+See [Single-reservoir case (F.E. Walter)](../examples/fe_walter/README.md) or the [Interactive notebook](../tutorials/README.md) to replay all 21 archived runs or run **Without operational knowledge** and **With operational knowledge** with local Ollama.
 
-## Repeat a run safely
+Next, run the **Multi-reservoir case** (`upper` → `lower` → `outlet`) offline baseline and inspect the hybrid Hanasaki + LLM cascade:
 
-Completed output folders are never overwritten. Set a new `run_id` and unused `output` folder in `experiment.yaml`, then run `check`, `run`, and `verify`.
+```sh
+reservoir-experiment check examples/multi_reservoir/rule_based.yaml
+reservoir-experiment run examples/multi_reservoir/rule_based.yaml
+reservoir-experiment verify runs/multi-reservoir-rule-based --require-offline
+
+reservoir-experiment check examples/multi_reservoir/hybrid_llm.yaml
+```
+
+Continue with [Multi-reservoir case](../examples/multi_reservoir/README.md) and [Reading results](RESULTS_GUIDE.md).
+
+## Safe rerun rule
+
+Completed output folders are never overwritten. Before rerunning after editing inflows, limits, or prompts, assign a new `run_id` and unused `output` folder in YAML, then run `check`, `run`, and `verify`.

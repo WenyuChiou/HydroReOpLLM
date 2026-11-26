@@ -2,7 +2,7 @@
 
 <div class="hero-band" markdown="1">
 
-可模擬單一水庫、串聯水庫、平行支流、匯流點、分流與多出口流域，並在同一集水區內自由搭配 **Rule-based（Hanasaki 規則）** 與 **LLM** 操作員。
+可模擬單一水庫、串聯水庫、平行支流、匯流點、分流與多出口流域，並在同一集水區內自由搭配 **Rule-based（Hanasaki 規則）** 與 **LLM** 操作員。完整可執行範例見[多水庫串聯案例](../examples/multi_reservoir/README.zh-TW.md)。
 
 </div>
 
@@ -31,7 +31,7 @@
 
 ## 混合式 Hanasaki 與 LLM 多水庫配置
 
-各水庫操作員獨立運作，因此可在同一份 `agents.yaml` 混用 LLM 操作員與 Hanasaki 規則：
+各水庫操作員獨立運作，因此可在同一份設定中混用 LLM 操作員與 Hanasaki 規則（自備入流實例見[多水庫串聯案例](../examples/multi_reservoir/README.zh-TW.md)的 `hybrid_llm.yaml` 與 `rule_based.yaml`；以下為耦合 `v2` 流域寫法）：
 
 <div class="panel-grid panel-grid-2" markdown="1">
 <div class="panel-card" markdown="1">

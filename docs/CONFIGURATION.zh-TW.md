@@ -2,7 +2,7 @@
 
 <div class="hero-band" markdown="1">
 
-每項模擬都從一份頂層 `experiment.yaml` 開始，將水庫物理資料、操作員與模擬時間組合起來。自備入流建議先複製[雙水庫入門範本](../examples/template/README.zh-TW.md)，耦合集水區模擬則建議採用拆檔結構。
+每項模擬都從一份頂層 `experiment.yaml` 開始，將水庫物理資料、操作員與模擬時間組合起來。自備入流可先參考[單一水庫案例（F.E. Walter）](../examples/fe_walter/README.zh-TW.md)或[多水庫串聯案例](../examples/multi_reservoir/README.zh-TW.md)，耦合集水區模擬則建議採用拆檔結構。
 
 </div>
 
@@ -41,7 +41,7 @@
 
 | `schema_version` | 入流方式 | `{file: ...}` 拆檔區段 | 適用情境 |
 | --- | --- | --- | --- |
-| `llm-reservoir-experiment.v1` | 自備入流 | 內嵌 | 雙水庫入門範本與 F.E. Walter 水庫案例（`inflows.csv` + `case.json`）。 |
+| `llm-reservoir-experiment.v1` | 自備入流 | 內嵌 | 單一水庫 F.E. Walter 與多水庫串聯案例（`inflows.csv` + `case.json`）。 |
 | `llm-reservoir-experiment.v2` | 自備入流 | `models`、`agents`、`auditors`、`extensions`、`information` | 分檔管理的大型自備入流研究。 |
 | `hydroops-coupled-simulation.v1` | HydroCNHS 集水區模式 | 內嵌 | 單檔式集水區與水庫耦合模擬。 |
 | `hydroops-coupled-simulation.v2` | HydroCNHS 集水區模式 | `hydrology`、`models`、`agents`、`auditors`、`extensions`、`information` | 建議用於多水庫與混合流域的模組化架構。 |

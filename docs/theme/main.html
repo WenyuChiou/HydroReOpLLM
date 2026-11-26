@@ -37,7 +37,7 @@
       </div>
       {% for section in chapters %}
         {% if section.is_section %}
-          {% set group_open = section.active or (is_home and section.title in ('Get started', '快速開始')) %}
+          {% set group_open = section.active or (is_home and section.title in ('Installation & workflow', '安裝與執行流程')) %}
           <details class="nav-group{% if section.active %} is-active{% endif %}"{% if group_open %} open{% endif %}>
             <summary class="nav-group-title">{{ section.title }}</summary>
             <div class="nav-group-items">

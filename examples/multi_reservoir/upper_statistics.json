@@ -1,0 +1,31 @@
+{
+  "schema_version": "reservoir-benchmark-statistics.v1",
+  "reservoir_id": "upper",
+  "reference_start": "2025-01-01",
+  "reference_end": "2025-12-31",
+  "source": {
+    "path": "reference_inflows.csv",
+    "sha256": "c46b9d629b2cf8f7666b47f77550a36134f024f5b28201efc0dddc15d40a0417",
+    "date_column": "date",
+    "flow_column": "inflow_cms",
+    "flow_to_cms": 1.0,
+    "reservoir_column": "reservoir",
+    "reservoir_value": "upper"
+  },
+  "mean_inflow_cms": 6.5,
+  "monthly_mean_inflow_cms": {
+    "1": 4.802548387096774,
+    "2": 5.888357142857143,
+    "3": 7.130870967741935,
+    "4": 8.244566666666666,
+    "5": 8.885870967741935,
+    "6": 8.887699999999999,
+    "7": 8.243064516129031,
+    "8": 7.110322580645161,
+    "9": 5.827566666666667,
+    "10": 4.7270645161290314,
+    "11": 4.1016,
+    "12": 4.125516129032258
+  },
+  "reference_day_count": 365
+}

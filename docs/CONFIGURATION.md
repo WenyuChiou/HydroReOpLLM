@@ -2,7 +2,7 @@
 
 <div class="hero-band" markdown="1">
 
-Every experiment starts from a top-level `experiment.yaml` that links your physical basin, operating rules or LLMs, and simulation clock. Start by copying the [Two-reservoir template](../examples/template/README.md) or using the modular split-file layout below.
+Every experiment starts from a top-level YAML file that links your physical basin, operating rules or LLMs, and simulation clock. Start from the [Single-reservoir case (F.E. Walter)](../examples/fe_walter/README.md), the [Multi-reservoir case](../examples/multi_reservoir/README.md), or the modular split-file layout below.
 
 </div>
 
@@ -41,7 +41,7 @@ Unique `run_id`, unused `output` folder, operation dates (`start_date`–`end_da
 
 | `schema_version` | Hydrology | `{file: ...}` sections | Typical use |
 | --- | --- | --- | --- |
-| `llm-reservoir-experiment.v1` | Prepared inflows | Inline | Generic template and F.E. Walter studies (`inflows.csv` + `case.json`). |
+| `llm-reservoir-experiment.v1` | Prepared inflows | Inline | Single-reservoir F.E. Walter and multi-reservoir cascade (`inflows.csv` + `case.json`). |
 | `llm-reservoir-experiment.v2` | Prepared inflows | `models`, `agents`, `auditors`, `extensions`, `information` | Modular prepared-inflow studies across separate YAML files. |
 | `hydroops-coupled-simulation.v1` | Coupled HydroCNHS | Inline | Single-file coupled watershed + reservoir study. |
 | `hydroops-coupled-simulation.v2` | Coupled HydroCNHS | `hydrology`, `models`, `agents`, `auditors`, `extensions`, `information` | Recommended modular layout for multi-reservoir and hybrid basins. |

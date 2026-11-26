@@ -1,0 +1,39 @@
+# Hybrid multi-reservoir cascade: upstream Hanasaki rule paired with downstream LLM operator.
+# Run check offline (0 network calls); live execution requires Ollama and --allow-network.
+schema_version: llm-reservoir-experiment.v1
+case: case.json                       # Physical two-reservoir cascade (upper -> lower -> outlet).
+run_id: multi-reservoir-hybrid-llm    # Trace identity; change with output before repeating.
+output: ../../runs/multi-reservoir-hybrid-llm  # Unused output path, relative to this file.
+start_date: '2026-03-27'              # Inclusive operation start date (10 daily steps).
+end_date: '2026-04-05'                # Inclusive operation end date.
+max_calls: 10                         # 1 LLM agent x 10 days = 10 planned calls.
+models:
+  local:
+    provider: ollama
+    model: gemma4:12b
+    base_url: http://127.0.0.1:11434
+    temperature: 0.2
+    seed: 3
+    max_tokens: 256
+auditors:
+  feasible_release:
+    type: release_bounds
+    version: '1'
+agents:
+  upper_operator:
+    reservoir: upper
+    mode: offline
+    strategy: benchmark
+    benchmark:
+      statistics: upper_statistics.json
+      purpose: flood_control
+      alpha: 0.85
+    auditors:
+    - feasible_release
+  lower_operator:
+    reservoir: lower
+    mode: llm
+    model: local
+    prompt: prompts/operator.txt
+    auditors:
+    - feasible_release

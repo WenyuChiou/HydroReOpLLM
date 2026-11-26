@@ -809,7 +809,7 @@ def _find_bundled_examples():
         PROJECT_ROOT / "examples",
     ]
     for candidate in candidates:
-        if (candidate / "template" / "experiment.yaml").is_file():
+        if (candidate / "fe_walter" / "rule_based.yaml").is_file():
             return candidate
     raise FileNotFoundError("bundled examples directory was not found in the active Python environment")
 
@@ -874,7 +874,7 @@ def main(argv=None):
         result = {
             "destination": str(args.destination.resolve()),
             "source": str(source),
-            "first_example": str(args.destination / "template" / "experiment.yaml"),
+            "first_example": str(args.destination / "fe_walter" / "rule_based.yaml"),
         }
     elif args.command == "verify":
         from .verification import verify_run

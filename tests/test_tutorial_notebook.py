@@ -185,14 +185,17 @@ def test_walter_notebook_runs_and_plots_verified_results(tmp_path, monkeypatch, 
         assert namespace["comparison"][without]["max_calls"] == 14
         assert namespace["comparison"][with_knowledge]["live_ready"] is True
 
-        template_llm_report = namespace["template_llm_report"]
-        assert template_llm_report["planned_llm_calls"] == 10
-        assert template_llm_report["network_calls"] == 0
-        assert template_llm_report["agent_types"] == {
-            "upper_operator": "llm",
-            "lower_operator": "rule_based",
+        multi_llm_report = namespace["multi_llm_report"]
+        assert multi_llm_report["planned_llm_calls"] == 10
+        assert multi_llm_report["network_calls"] == 0
+        assert multi_llm_report["agent_types"] == {
+            "upper_operator": "rule_based",
+            "lower_operator": "llm",
         }
-        assert "reservoir-action.v1" in namespace["template_llm_preview"]["messages"][0]["content"]
+        assert multi_llm_report["agent_rules"] == {"upper_operator": "hanasaki"}
+        preview_content = namespace["multi_llm_preview"]["messages"][0]["content"]
+        assert "reservoir-action.v1" in preview_content
+        assert "lower_operator" in preview_content
 
         hybrid_report = namespace["hybrid_report"]
         assert hybrid_report["agent_types"] == {
@@ -204,6 +207,14 @@ def test_walter_notebook_runs_and_plots_verified_results(tmp_path, monkeypatch, 
         assert hybrid_report["planned_llm_calls"] == 10
         assert hybrid_report["network_calls"] == 0
         assert "lower_operator" in hybrid_report["prompt_previews"]
+
+        multi_rule_verification = namespace["multi_rule_verification"]
+        assert multi_rule_verification["status"] == "PASS"
+        assert multi_rule_verification["days"] == 10
+        assert multi_rule_verification["observed_network_calls"] == 0
+        multi_rule_trajectory = namespace["multi_rule_trajectory"]
+        assert set(multi_rule_trajectory["reservoir_id"]) == {"upper", "lower"}
+        assert len(multi_rule_trajectory) == 20
 
         assert not (ROOT / "runs").exists()
         assert not (ROOT / "tutorials" / "runs").exists()

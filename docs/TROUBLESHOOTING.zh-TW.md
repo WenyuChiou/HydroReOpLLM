@@ -10,7 +10,7 @@
 
 | 症狀或錯誤 | 常見原因與修正方式 | 參考 |
 | --- | --- | --- |
-| 找不到檔案或 `inflow_source` 不符 | 相對路徑從**宣告該路徑**的 YAML/JSON 解析，而非終端機工作目錄。修改 `inflows.csv` 後請更新 `case.json` 中的 `inflow_source.sha256`（見[雙水庫入門範本](../examples/template/README.zh-TW.md)）。 | [實驗設定檔](CONFIGURATION.zh-TW.md) |
+| 找不到檔案或 `inflow_source` 不符 | 相對路徑從**宣告該路徑**的 YAML/JSON 解析，而非終端機工作目錄。修改 `inflows.csv` 後請更新 `case.json` 中的 `inflow_source.sha256`（見[多水庫串聯案例](../examples/multi_reservoir/README.zh-TW.md)）。 | [實驗設定檔](CONFIGURATION.zh-TW.md) |
 | `YAML keys must be unique strings` 或浮點數錯誤 | 重複的 YAML 鍵名，或科學記號未寫正負號（如 `8.0e6`）。請改寫為 `8.0e+6` 或 `8000000.0`。 | [實驗設定檔](CONFIGURATION.zh-TW.md) |
 | `cannot mix public and legacy agent fields` | 請將 `reservoir_id`/`type`/`model_profile`/`prompt_file` 與 `reservoir`/`mode`/`strategy`/`model`/`prompt` 分開使用。 | [操作規則與 LLM 設計](AGENT_DESIGN.zh-TW.md) |
 | 未知的水庫／節點或覆蓋率錯誤 | 每座 `controlled` 水庫須對應一名操作員；`reservoirs.yaml` 中每個入流口、匯流點與出口皆須對應一筆 `inflow_bindings`。 | [多水庫河網串接](BUILD_SIMULATION.zh-TW.md) |

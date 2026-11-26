@@ -113,8 +113,9 @@ def test_cli_init_examples_copies_clean_bundle_and_refuses_overwrite(tmp_path, c
     payload = yaml.safe_load(capsys.readouterr().out)
     assert Path(payload["destination"]) == dest.resolve()
     assert not list(dest.rglob("__pycache__"))
-    assert {item.name for item in dest.iterdir() if item.is_dir()} == {"fe_walter", "template"}
-    assert (dest / "template" / "experiment.yaml").is_file()
+    assert {item.name for item in dest.iterdir() if item.is_dir()} == {"fe_walter", "multi_reservoir"}
+    assert (dest / "multi_reservoir" / "rule_based.yaml").is_file()
+    assert (dest / "multi_reservoir" / "hybrid_llm.yaml").is_file()
     assert (dest / "fe_walter" / "seasonal_target.yaml").is_file()
     assert (dest / "fe_walter" / "dkp.yaml").is_file()
     rule = dest / "fe_walter" / "rule_based.yaml"
@@ -123,7 +124,7 @@ def test_cli_init_examples_copies_clean_bundle_and_refuses_overwrite(tmp_path, c
     report = yaml.safe_load(capsys.readouterr().out)
     assert report["planned_llm_calls"] == 0
     assert report["agent_rules"] == {"walter_operator": "hanasaki"}
-    assert Path(payload["first_example"]) == dest / "template" / "experiment.yaml"
+    assert Path(payload["first_example"]) == dest / "fe_walter" / "rule_based.yaml"
 
     assert main(["init-examples", str(dest)]) == 1
     captured = capsys.readouterr()
@@ -132,7 +133,7 @@ def test_cli_init_examples_copies_clean_bundle_and_refuses_overwrite(tmp_path, c
     assert "Traceback" not in captured.err
 
 
-def test_pyproject_ships_the_template_and_water_control_examples():
+def test_pyproject_ships_the_water_control_and_multi_reservoir_examples():
     pyproject = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
     data_files = pyproject["tool"]["setuptools"]["data-files"]
     packaged = set()
@@ -141,9 +142,11 @@ def test_pyproject_ships_the_template_and_water_control_examples():
             assert (ROOT / rel).is_file(), f"missing data-file: {rel}"
             packaged.add(rel)
     assert {p for p in packaged if p.startswith("examples/") and p.endswith(".yaml")} == {
-        "examples/template/experiment.yaml",
+        "examples/fe_walter/rule_based.yaml",
         "examples/fe_walter/seasonal_target.yaml",
         "examples/fe_walter/dkp.yaml",
-        "examples/fe_walter/rule_based.yaml",
+        "examples/multi_reservoir/rule_based.yaml",
+        "examples/multi_reservoir/hybrid_llm.yaml",
     }
     assert "examples/README.zh-TW.md" in packaged
+    assert "examples/multi_reservoir/README.zh-TW.md" in packaged
