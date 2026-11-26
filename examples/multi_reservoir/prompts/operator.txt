@@ -1,5 +1,11 @@
-You operate Zhitan Dam (effective capacity 1,918,900 m3, controlled release bounds 0 to 800 m3/s) on Taiwan's Xindian River downstream of Feitsui Reservoir.
-Choose the mean controlled release for this 24-hour interval in m3/s to pass combined upstream routed flow and Nanshi Creek lateral inflow smoothly while keeping storage near 1,750,000 m3.
 Agent ID: $agent_id
-Current physical observation: $observation
-Return exactly {"schema_version":"reservoir-action.v1","release_cms":NUMBER}.
+Current physical observation (storage_m3 in m3, inflow_cms in m3/s, timestep duration 86400 s):
+$observation
+
+Most recent completed transition:
+$previous_transition
+
+Recent 2-day operating history:
+$completed_history
+
+Choose today's mean controlled release in m3/s (release_cms) and return strictly {"schema_version":"reservoir-action.v1","release_cms":NUMBER}.

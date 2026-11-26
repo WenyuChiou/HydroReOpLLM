@@ -76,7 +76,7 @@ reservoir-experiment check examples/fe_walter/dkp.yaml
 
 ### 多水庫串聯案例（新店溪：翡翠水庫 → 直潭壩）
 
-離線執行 2020 年 5 月梅雨期間新店溪串聯水庫（`feitsui` → `zhitan` → `xindian_outlet`）的雙庫 Hanasaki 基準，並檢查上游翡翠 Hanasaki＋下游直潭 LLM 的混合設定：
+離線執行 2020 年 5–6 月梅雨期間新店溪串聯水庫（`feitsui` → `zhitan` → `xindian_outlet`）的雙庫 Hanasaki 基準，並檢查上游翡翠 LLM＋下游直潭 Hanasaki 的混合設定：
 
 ```sh
 reservoir-experiment check examples/multi_reservoir/rule_based.yaml

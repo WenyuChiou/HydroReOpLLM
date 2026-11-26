@@ -53,6 +53,8 @@ ENGLISH_FILES = {
     "docs/assets/figures/fig2-study-area.png": "assets/figures/fig2-study-area.png",
     "docs/assets/figures/fig3-daily-2021-2025.png": "assets/figures/fig3-daily-2021-2025.png",
     "docs/assets/figures/fig4-annual-cycle.png": "assets/figures/fig4-annual-cycle.png",
+    "docs/assets/figures/fig5-xindian-study-area.png": "assets/figures/fig5-xindian-study-area.png",
+    "docs/assets/figures/fig6-xindian-results.png": "assets/figures/fig6-xindian-results.png",
     "tutorials/README.md": "tutorials/index.md",
     "examples/fe_walter/README.md": "examples/fe_walter/index.md",
     "examples/multi_reservoir/README.md": "examples/multi_reservoir/index.md",

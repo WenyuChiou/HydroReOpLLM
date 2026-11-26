@@ -86,15 +86,15 @@ HydroReOpLLM 將 **「水庫放流決策」**（操作規則或 LLM）與 **「�
 
 ### 內建基準 `strategy: benchmark`（多水庫串聯）
 
-無須額外掛載 `extensions:`，用於 `examples/multi_reservoir/rule_based.yaml` 與 `hybrid_llm.yaml`：
+無須額外掛載 `extensions:`，用於 `examples/multi_reservoir/rule_based.yaml`（雙庫）與 `hybrid_llm.yaml`（直潭壩）：
 
 ```yaml
-feitsui_operator:
-  reservoir: feitsui
+zhitan_operator:
+  reservoir: zhitan
   mode: offline
   strategy: benchmark
   benchmark:
-    statistics: feitsui_statistics.json
+    statistics: zhitan_statistics.json
     purpose: flood_control
     alpha: 0.85
 ```

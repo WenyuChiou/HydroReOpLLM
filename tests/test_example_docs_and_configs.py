@@ -55,13 +55,13 @@ def test_example_experiment_configs_pass_check(rel_path, is_coupled, tmp_path):
 def test_multi_reservoir_hybrid_llm_config_passes_check():
     settings = load_settings(ROOT / "examples" / "multi_reservoir" / "hybrid_llm.yaml")
     report = settings.report
-    assert report["planned_llm_calls"] == 10
+    assert report["planned_llm_calls"] == 30
     assert report["network_calls"] == 0
     assert report["agent_types"] == {
-        "feitsui_operator": "rule_based",
-        "zhitan_operator": "llm",
+        "feitsui_operator": "llm",
+        "zhitan_operator": "rule_based",
     }
-    assert report["agent_rules"] == {"feitsui_operator": "hanasaki"}
+    assert report["agent_rules"] == {"zhitan_operator": "hanasaki"}
 
 
 @pytest.mark.parametrize("case_name", ["seasonal_target", "dkp"])
