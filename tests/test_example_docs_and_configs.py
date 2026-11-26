@@ -58,10 +58,10 @@ def test_multi_reservoir_hybrid_llm_config_passes_check():
     assert report["planned_llm_calls"] == 10
     assert report["network_calls"] == 0
     assert report["agent_types"] == {
-        "upper_operator": "rule_based",
-        "lower_operator": "llm",
+        "feitsui_operator": "rule_based",
+        "zhitan_operator": "llm",
     }
-    assert report["agent_rules"] == {"upper_operator": "hanasaki"}
+    assert report["agent_rules"] == {"feitsui_operator": "hanasaki"}
 
 
 @pytest.mark.parametrize("case_name", ["seasonal_target", "dkp"])

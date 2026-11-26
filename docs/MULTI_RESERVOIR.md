@@ -2,7 +2,7 @@
 
 <div class="hero-band" markdown="1">
 
-Model single dams, series cascades, parallel tributaries, river junctions, flow splits, and multi-outlet basins—and freely combine **Rule-based** (Hanasaki) and **LLM** operators in the same watershed. Try the ready-to-run [Multi-reservoir case](../examples/multi_reservoir/README.md) (`rule_based.yaml` and `hybrid_llm.yaml`) alongside the coupled pattern below.
+Model single dams, series cascades, parallel tributaries, river junctions, flow splits, and multi-outlet basins—and freely combine **Rule-based** (Hanasaki) and **LLM** operators in the same watershed. Try the real-world Taiwan Xindian River [Multi-reservoir case](../examples/multi_reservoir/README.md) (`Feitsui Reservoir → Zhitan Dam → xindian_outlet`, May 2020 Mei-Yu front) alongside the coupled pattern below.
 
 </div>
 
@@ -27,7 +27,7 @@ Define the physical network under `network` in `case.json` or `reservoirs.yaml` 
 
 </div>
 
-Channel routing convolves releases with `unit_hydrograph` (for example, `[0.0, 0.7, 0.3]` delivers 70% on day +1 and 30% on day +2). Water still in transit at the end of a run is tracked in `reach_volume_trace.json` and `network_balance.csv` so total basin water balance closes.
+Channel routing convolves releases with `unit_hydrograph` (for example, `[0.8, 0.2]` in the Feitsui → Zhitan cascade delivers 80% on the release day and 20% on day +1). Water still in transit at the end of a run is tracked in `reach_volume_trace.json` and `network_balance.csv` so total basin water balance closes.
 
 ## Hybrid Hanasaki and LLM multi-reservoir wiring
 

@@ -26,7 +26,7 @@ python -m jupyterlab tutorials/fe_walter.ipynb
 | 3 | 2021 Figure 3 離線重播 | 2021 全年（365 天、10 seed 中位數）論文 Figure 3：對照 USGS 觀測、季節目標與三種條件表現。 |
 | 4 | 離線 Rule-based 基準 | 在暫存目錄執行 2021 全年 `rule_based.yaml`（`PASS`、`0` 次網路呼叫、不留 `runs/`），並繪製放流與庫容圖。 |
 | 5 | 設計 LLM 操作員 | 整理模型設定、每日提示詞、水庫運用要點、放流 JSON 格式、安全檢查，以及零成本第 1 天提示詞預覽。 |
-| 6 | 結合 Rule-based（Hanasaki）與 LLM | 檢查 `hybrid_llm.yaml` 並離線執行[多水庫串聯案例](../examples/multi_reservoir/README.zh-TW.md)的雙水庫 `rule_based.yaml`。 |
+| 6 | 結合 Rule-based（Hanasaki）與 LLM | 檢查 `hybrid_llm.yaml` 並離線執行台灣新店溪[多水庫串聯案例](../examples/multi_reservoir/README.zh-TW.md)（翡翠水庫 → 直潭壩）的 `rule_based.yaml`。 |
 | 7 | 選用的本機 Ollama 實機執行 | 預設執行 2021 全年（`LLM_START_DATE`–`LLM_END_DATE`；可改設 `"2021-01-07"` 快速測試），備妥模型後設 `RUN_LLM = True` 即可執行。 |
 
 ## 輸出管理與延伸閱讀

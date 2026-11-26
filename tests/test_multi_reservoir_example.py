@@ -49,9 +49,9 @@ def test_multi_reservoir_rule_based_runs_and_conserves_water(folder, tmp_path):
     trajectory: dict[str, list[dict[str, str]]] = {}
     for row in _rows(output / "reservoir_trajectory.csv"):
         trajectory.setdefault(row["reservoir_id"], []).append(row)
-    assert set(trajectory) == {"upper", "lower"}
-    assert len(trajectory["upper"]) == 10
-    assert len(trajectory["lower"]) == 10
+    assert set(trajectory) == {"feitsui", "zhitan"}
+    assert len(trajectory["feitsui"]) == 10
+    assert len(trajectory["zhitan"]) == 10
 
     for reservoir, rows in trajectory.items():
         previous_end = network["reservoirs"][reservoir]["physical"]["initial_storage_m3"]
@@ -62,29 +62,29 @@ def test_multi_reservoir_rule_based_runs_and_conserves_water(folder, tmp_path):
             assert start == pytest.approx(previous_end, abs=1e-6)
             previous_end = end
 
-    # Independent routing check: lower inflow = local inflow + upper output convolved by [0.0, 0.7, 0.3].
+    # Independent routing check: zhitan inflow = local inflow + feitsui output convolved by [0.8, 0.2].
     weights = next(
         edge["unit_hydrograph"]
         for edge in network["connections"]
-        if edge["source"] == "upper" and edge["target"] == "lower_local"
+        if edge["source"] == "feitsui" and edge["target"] == "zhitan_local"
     )
-    assert weights == [0.0, 0.7, 0.3]
+    assert weights == [0.8, 0.2]
     source = case["inflow_source"]
     csv_path = folder / source["path"]
     assert hashlib.sha256(csv_path.read_bytes()).hexdigest() == source["sha256"]
-    local = {row["date"]: float(row["local_inflow_cms"]) for row in _rows(csv_path) if row["node"] == "lower_local"}
-    upper_out = [float(r["controlled_release_cms"]) + float(r["spill_cms"]) for r in trajectory["upper"]]
-    for step, row in enumerate(trajectory["lower"]):
-        routed = sum(w * upper_out[step - lag] for lag, w in enumerate(weights) if step - lag >= 0)
+    local = {row["date"]: float(row["local_inflow_cms"]) for row in _rows(csv_path) if row["node"] == "zhitan_local"}
+    feitsui_out = [float(r["controlled_release_cms"]) + float(r["spill_cms"]) for r in trajectory["feitsui"]]
+    for step, row in enumerate(trajectory["zhitan"]):
+        routed = sum(w * feitsui_out[step - lag] for lag, w in enumerate(weights) if step - lag >= 0)
         assert float(row["inflow_cms"]) == pytest.approx(local[row["date"][:10]] + routed, abs=1e-9)
 
     # Subset window: operation starts after the CSV start date with initial storage on the first operated day.
-    assert trajectory["upper"][0]["date"].startswith(settings["start_date"])
+    assert trajectory["feitsui"][0]["date"].startswith(settings["start_date"])
     assert settings["start_date"] > network["start_date"]
-    assert float(trajectory["upper"][0]["storage_start_m3"]) == network["reservoirs"]["upper"]["physical"]["initial_storage_m3"]
+    assert float(trajectory["feitsui"][0]["storage_start_m3"]) == network["reservoirs"]["feitsui"]["physical"]["initial_storage_m3"]
 
     readme = (MULTI_RESERVOIR / "README.md").read_text(encoding="utf-8")
-    for reservoir in ("upper", "lower"):
+    for reservoir in ("feitsui", "zhitan"):
         final = float(trajectory[reservoir][-1]["storage_end_m3"])
         assert f"{final:,.0f} m3" in readme
 
@@ -96,14 +96,14 @@ def test_multi_reservoir_hybrid_llm_checks_and_runs_with_mock_transport(folder, 
     assert report["planned_llm_calls"] == 10
     assert report["network_calls"] == 0
     assert report["agent_strategies"] == {
-        "upper_operator": "benchmark",
-        "lower_operator": "configured",
+        "feitsui_operator": "benchmark",
+        "zhitan_operator": "configured",
     }
     assert report["agent_types"] == {
-        "upper_operator": "rule_based",
-        "lower_operator": "llm",
+        "feitsui_operator": "rule_based",
+        "zhitan_operator": "llm",
     }
-    assert report["agent_rules"] == {"upper_operator": "hanasaki"}
+    assert report["agent_rules"] == {"feitsui_operator": "hanasaki"}
 
     requests = []
 
@@ -115,7 +115,7 @@ def test_multi_reservoir_hybrid_llm_checks_and_runs_with_mock_transport(folder, 
             "done_reason": "stop",
             "message": {
                 "role": "assistant",
-                "content": json.dumps({"schema_version": "reservoir-action.v1", "release_cms": 3.0}),
+                "content": json.dumps({"schema_version": "reservoir-action.v1", "release_cms": 35.0}),
             },
         }
 
@@ -128,7 +128,7 @@ def test_multi_reservoir_hybrid_llm_checks_and_runs_with_mock_transport(folder, 
     assert verified["observed_network_calls"] == 10
     assert verified["max_system_balance_residual_m3"] < 1e-6
     assert len(requests) == 10
-    assert set(records) == {"upper", "lower"}
+    assert set(records) == {"feitsui", "zhitan"}
 
 
 def test_readme_documents_yaml_exponent_rule():

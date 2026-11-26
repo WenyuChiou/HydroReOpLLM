@@ -26,9 +26,9 @@ python -m jupyterlab tutorials/fe_walter.ipynb
 | 3 | 2021 Figure 3 replay | Offline 2021 (365-day, 10-seed median) Paper Figure 3 comparing USGS, target pool, Rule-based, and both LLM conditions. |
 | 4 | Offline Rule-based baseline | Runs `rule_based.yaml` across 2021 in a temp folder (`PASS`, `0` network calls, no `runs/` clutter) and plots release vs. storage. |
 | 5 | Designing an LLM operator | Covers model settings, daily prompts, operating guidance, release format, safety checks, and zero-cost Day-1 previews (`hybrid_llm.yaml` + F.E. Walter). |
-| 6 | Combining Rule-Based + LLM | Checks `hybrid_llm.yaml` and runs offline `rule_based.yaml` in the [Multi-reservoir case](../examples/multi_reservoir/README.md). |
+| 6 | Combining Rule-Based + LLM | Checks `hybrid_llm.yaml` and runs offline `rule_based.yaml` on Taiwan's Xindian River cascade (`Feitsui → Zhitan`) in the [Multi-reservoir case](../examples/multi_reservoir/README.md). |
 | 7 | Optional live Ollama runs | Defaults to 365 days (`LLM_START_DATE`–`LLM_END_DATE`; use `"2021-01-07"` for a 7-day test). Set `RUN_LLM = True` after setup. |
 
 ## Outputs and full study
 
-The notebook writes only to temporary folders. See the [Single-reservoir case (F.E. Walter)](../examples/fe_walter/README.md) for Ollama setup and 2021–2025 replay, [Multi-reservoir case](../examples/multi_reservoir/README.md) for two-dam cascades, [Experiment setup](../docs/CONFIGURATION.md) for custom cases, and [Reading results](../docs/RESULTS_GUIDE.md) to read output files.
+The notebook writes only to temporary folders. See the [Single-reservoir case (F.E. Walter)](../examples/fe_walter/README.md) for Ollama setup and 2021–2025 replay, [Multi-reservoir case](../examples/multi_reservoir/README.md) for Taiwan's Xindian River (`Feitsui → Zhitan`) cascade, [Experiment setup](../docs/CONFIGURATION.md) for custom cases, and [Reading results](../docs/RESULTS_GUIDE.md) to read output files.

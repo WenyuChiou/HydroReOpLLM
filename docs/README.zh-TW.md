@@ -107,8 +107,8 @@
 | [單一水庫：Rule-based（Hanasaki 規則）](../examples/fe_walter/README.zh-TW.md) | `examples/fe_walter/rule_based.yaml`（`hanasaki`，α = 0.85） | `0` / `0` | F.E. Walter 離線 Hanasaki 滯洪基準。 |
 | [單一水庫：Without operational knowledge（無操作知識）](../examples/fe_walter/README.zh-TW.md) | `examples/fe_walter/seasonal_target.yaml`（LLM） | `0` / `7`（7 天）或 `1,826`（全期） | 僅提供水位、季節目標與兩日放流歷史的 LLM 運轉。 |
 | [單一水庫：With operational knowledge（具操作知識）](../examples/fe_walter/README.zh-TW.md) | `examples/fe_walter/dkp.yaml`（LLM + `dkp.md`） | `0` / `7`（7 天）或 `1,826`（全期） | 相同水庫案例加上結構化水庫運用要點檢索。 |
-| [多水庫串聯：雙水庫規則基準](../examples/multi_reservoir/README.zh-TW.md) | `examples/multi_reservoir/rule_based.yaml`（雙庫 Hanasaki） | `0` / `0` | `upper` → `lower` → `outlet` 串聯河道延遲與水量平衡。 |
-| [多水庫串聯：混合式規則＋LLM](../examples/multi_reservoir/README.zh-TW.md) | `examples/multi_reservoir/hybrid_llm.yaml`（上游 Hanasaki＋下游 LLM） | `0` / `10`（10 天） | 示範同一流域結合規則式與 LLM 操作員的混合控制。 |
+| [多水庫串聯：新店溪規則基準](../examples/multi_reservoir/README.zh-TW.md) | `examples/multi_reservoir/rule_based.yaml`（雙庫 Hanasaki） | `0` / `0` | 台灣新店溪 2020 年 5 月梅雨實測（`feitsui` → `zhitan` → `xindian_outlet`）水量平衡。 |
+| [多水庫串聯：新店溪混合規則＋LLM](../examples/multi_reservoir/README.zh-TW.md) | `examples/multi_reservoir/hybrid_llm.yaml`（翡翠 Hanasaki＋直潭 LLM） | `0` / `10`（10 天） | 示範同一流域結合規則式與 LLM 操作員的混合串聯控制。 |
 
 <div class="callout callout-info" markdown="1">
 

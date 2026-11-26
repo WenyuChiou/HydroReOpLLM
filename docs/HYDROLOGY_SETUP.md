@@ -33,9 +33,9 @@ Provide one non-negative **incremental local flow** (`m³/s`) per day for every 
 
 ```csv
 date,node,local_inflow_cms
-2026-03-26,upper_local,4.0
-2026-03-26,lower_local,1.5
-2026-03-26,outlet,0.0
+2020-05-18,feitsui_local,16.708333
+2020-05-18,zhitan_local,11.619676
+2020-05-18,xindian_outlet,0.000000
 ```
 
 ## Coupled HydroCNHS model and forcing

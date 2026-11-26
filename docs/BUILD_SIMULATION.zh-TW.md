@@ -2,7 +2,7 @@
 
 <div class="hero-band" markdown="1">
 
-可模擬單一水庫、串聯水庫、平行支流、匯流點、分流與多出口流域，並在同一集水區內自由搭配 **Rule-based（Hanasaki 規則）** 與 **LLM** 操作員。完整可執行範例見[多水庫串聯案例](../examples/multi_reservoir/README.zh-TW.md)。
+可模擬單一水庫、串聯水庫、平行支流、匯流點、分流與多出口流域，並在同一集水區內自由搭配 **Rule-based（Hanasaki 規則）** 與 **LLM** 操作員。完整實測範例見台灣新店溪[多水庫串聯案例](../examples/multi_reservoir/README.zh-TW.md)（翡翠水庫 → 直潭壩 → `xindian_outlet`）。
 
 </div>
 
@@ -27,11 +27,11 @@
 
 </div>
 
-河道演算將放流量與 `unit_hydrograph` 進行摺積（例如 `[0.0, 0.7, 0.3]` 代表隔日抵達 70%、兩日後抵達 30%）。模擬結束時仍滯留於河道中的水量記錄於 `reach_volume_trace.json` 與 `network_balance.csv`，確保全流域水量閉合。
+河道演算將放流量與 `unit_hydrograph` 進行摺積（例如新店溪翡翠至直潭採用 `[0.8, 0.2]`，代表當日抵達 80%、隔日抵達 20%）。模擬結束時仍滯留於河道中的水量記錄於 `reach_volume_trace.json` 與 `network_balance.csv`，確保全流域水量閉合。
 
 ## 混合式 Hanasaki 與 LLM 多水庫配置
 
-各水庫操作員獨立運作，因此可在同一份設定中混用 LLM 操作員與 Hanasaki 規則（自備入流實例見[多水庫串聯案例](../examples/multi_reservoir/README.zh-TW.md)的 `hybrid_llm.yaml` 與 `rule_based.yaml`；以下為耦合 `v2` 流域寫法）：
+各水庫操作員獨立運作，因此可在同一份設定中混用 LLM 操作員與 Hanasaki 規則（自備入流實例見台灣新店溪[多水庫串聯案例](../examples/multi_reservoir/README.zh-TW.md)的 `hybrid_llm.yaml` 與 `rule_based.yaml`；以下為耦合 `v2` 流域寫法）：
 
 <div class="panel-grid panel-grid-2" markdown="1">
 <div class="panel-card" markdown="1">

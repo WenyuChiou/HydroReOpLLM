@@ -189,31 +189,31 @@ def test_walter_notebook_runs_and_plots_verified_results(tmp_path, monkeypatch, 
         assert multi_llm_report["planned_llm_calls"] == 10
         assert multi_llm_report["network_calls"] == 0
         assert multi_llm_report["agent_types"] == {
-            "upper_operator": "rule_based",
-            "lower_operator": "llm",
+            "feitsui_operator": "rule_based",
+            "zhitan_operator": "llm",
         }
-        assert multi_llm_report["agent_rules"] == {"upper_operator": "hanasaki"}
+        assert multi_llm_report["agent_rules"] == {"feitsui_operator": "hanasaki"}
         preview_content = namespace["multi_llm_preview"]["messages"][0]["content"]
         assert "reservoir-action.v1" in preview_content
-        assert "lower_operator" in preview_content
+        assert "zhitan_operator" in preview_content
 
         hybrid_report = namespace["hybrid_report"]
         assert hybrid_report["agent_types"] == {
-            "upper_operator": "rule_based",
-            "lower_operator": "llm",
+            "feitsui_operator": "rule_based",
+            "zhitan_operator": "llm",
         }
-        assert hybrid_report["agent_rules"] == {"upper_operator": "hanasaki"}
+        assert hybrid_report["agent_rules"] == {"feitsui_operator": "hanasaki"}
         assert hybrid_report["days"] == 10
         assert hybrid_report["planned_llm_calls"] == 10
         assert hybrid_report["network_calls"] == 0
-        assert "lower_operator" in hybrid_report["prompt_previews"]
+        assert "zhitan_operator" in hybrid_report["prompt_previews"]
 
         multi_rule_verification = namespace["multi_rule_verification"]
         assert multi_rule_verification["status"] == "PASS"
         assert multi_rule_verification["days"] == 10
         assert multi_rule_verification["observed_network_calls"] == 0
         multi_rule_trajectory = namespace["multi_rule_trajectory"]
-        assert set(multi_rule_trajectory["reservoir_id"]) == {"upper", "lower"}
+        assert set(multi_rule_trajectory["reservoir_id"]) == {"feitsui", "zhitan"}
         assert len(multi_rule_trajectory) == 20
 
         assert not (ROOT / "runs").exists()

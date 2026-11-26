@@ -94,8 +94,8 @@ hydrocnhs = ["Config_logging.yaml"]
     "examples/multi_reservoir/hybrid_llm.yaml",
     "examples/multi_reservoir/inflows.csv",
     "examples/multi_reservoir/reference_inflows.csv",
-    "examples/multi_reservoir/upper_statistics.json",
-    "examples/multi_reservoir/lower_statistics.json",
+    "examples/multi_reservoir/feitsui_statistics.json",
+    "examples/multi_reservoir/zhitan_statistics.json",
 ]
 "share/llm-reservoir-agent/examples/multi_reservoir/prompts" = [
     "examples/multi_reservoir/prompts/operator.txt",
