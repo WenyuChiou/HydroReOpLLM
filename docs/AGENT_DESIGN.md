@@ -54,7 +54,7 @@ In addition to current storage and inflow, an LLM operator can receive **operati
 ### `type: rule_based` (Operating rule)
 
 - Requires `reservoir_id`, `type: rule_based`, `rule`, and optional `rule_parameters`.
-- Runs offline (`0` calls) for Hanasaki baselines or custom Python rules.
+- Runs offline for Hanasaki baselines or custom Python rules.
 
 </div>
 <div class="panel-card" markdown="1">
@@ -62,14 +62,14 @@ In addition to current storage and inflow, an LLM operator can receive **operati
 ### `type: llm` (LLM operator)
 
 - Requires `reservoir_id`, `type: llm`, `model_profile`, `prompt_file`, and `customization:`.
-- Uses `--allow-network` for `execution: live`, or `0` calls for `execution: replay`.
+- Uses `--allow-network` for `execution: live`, or runs offline with `execution: replay`.
 
 </div>
 </div>
 
 ### Hanasaki flood-control rule
 
-The **Rule-based** baseline (`examples/fe_walter/rule_based.yaml`) sets daily release from five physical quantities:
+The **Rule-based** Hanasaki baseline ([Hanasaki et al., 2006](https://doi.org/10.1016/j.jhydrol.2005.11.011) / Abeshu et al., 2023) sets daily release from five physical quantities:
 
 | Parameter / Rule | Formula / Value | Hydrological meaning |
 | --- | --- | --- |
@@ -79,6 +79,33 @@ The **Rule-based** baseline (`examples/fe_walter/rule_based.yaml`) sets daily re
 | Minimum storage | 0.1 · <i>C</i> | Protected minimum pool fraction. |
 | Flood-control ceiling | α · <i>C</i> | Operating storage cap; excess inflow above α · <i>C</i> is released. |
 
+HydroReOpLLM provides two ways to configure Hanasaki depending on your workflow:
+
+<div class="panel-grid panel-grid-2" markdown="1">
+<div class="panel-card" markdown="1">
+
+### Built-in `strategy: benchmark` (multi-reservoir)
+
+Used in `examples/multi_reservoir/rule_based.yaml` and `hybrid_llm.yaml` with no `extensions:` needed:
+
+```yaml
+feitsui_operator:
+  reservoir: feitsui
+  mode: offline
+  strategy: benchmark
+  benchmark:
+    statistics: feitsui_statistics.json
+    purpose: flood_control
+    alpha: 0.85
+```
+
+</div>
+<div class="panel-card" markdown="1">
+
+### Paper rule extension `rule: hanasaki` (F.E. Walter)
+
+Used in `examples/fe_walter/rule_based.yaml` when strictly matching physical non-clipping bounds:
+
 ```yaml
 agents:
   walter_operator:
@@ -86,15 +113,11 @@ agents:
     type: rule_based
     rule: hanasaki
     rule_parameters: { purpose: flood_control, alpha: 0.85, inflow_statistics_file: rule_statistics.json }
-    auditors: [release_bounds]
 extensions:
   hanasaki: study/rule/__init__.py
 ```
 
-<div class="callout callout-info" markdown="1">
-
-**Attribution.** `flood_control_step` follows Hanasaki et al. (2006) / Abeshu et al. (2023) and matches `RiverAI-Project/MOSART-Urban` (`scripts/verify_hanasaki_rule.py`, `THIRD_PARTY_NOTICES.md`).
-
+</div>
 </div>
 
 ### Write a custom Python operating rule

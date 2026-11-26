@@ -6,8 +6,8 @@ This real-world series cascade models **Feitsui Reservoir** (`feitsui`) → **Zh
 
 | File | Purpose |
 | --- | --- |
-| [`rule_based.yaml`](rule_based.yaml) | Offline 10-day baseline (`2020-05-20`–`2020-05-29`): Hanasaki flood control (α = 0.85) on `feitsui_operator` and `zhitan_operator` (`max_calls: 0`). |
-| [`hybrid_llm.yaml`](hybrid_llm.yaml) | Hybrid 10-day setup: upstream Hanasaki (`feitsui_operator`) + downstream LLM (`zhitan_operator`, `prompts/operator.txt`, `max_calls: 10`). |
+| [`rule_based.yaml`](rule_based.yaml) | Offline 10-day baseline (`2020-05-20`–`2020-05-29`): Hanasaki flood control (α = 0.85) on `feitsui_operator` and `zhitan_operator`. |
+| [`hybrid_llm.yaml`](hybrid_llm.yaml) | Hybrid 10-day setup: upstream Hanasaki (`feitsui_operator`) + downstream LLM (`zhitan_operator`, `prompts/operator.txt`). |
 | [`case.json`](case.json) | WRA effective capacities (`feitsui`: `335,505,000 m3`, `[0, 500] m3/s`; `zhitan`: `1,918,900 m3`, `[0, 800] m3/s`), `[0.8, 0.2]` lag, `observed_local_inflow`. |
 | [`inflows.csv`](inflows.csv) | Daily WRA incremental local inflows (`m3/s`), `2020-05-18` to `2020-06-02` (`16` days; excludes routed Feitsui outflow). |
 | [`reference_inflows.csv`](reference_inflows.csv) | 2019 WRA daily inflows (`2019-01-01`–`2019-12-31`) used to derive `feitsui_statistics.json` and `zhitan_statistics.json`. |
@@ -20,7 +20,7 @@ reservoir-experiment verify runs/multi-reservoir-rule-based --require-offline
 reservoir-experiment check examples/multi_reservoir/hybrid_llm.yaml
 ```
 
-Set a fresh `run_id` and unused `output` before repeating a run. The 10-day `rule_based.yaml` run finishes with `275,297,173 m3` in `feitsui` (starting from `243,980,200 m3`) and `1,761,528 m3` in `zhitan` (starting from `1,761,300 m3`, `PASS`, `0` network calls). To run `hybrid_llm.yaml` live, start local Ollama (`gemma4:12b`) and pass `--allow-network`. Inspect outputs in [Reading results](../../docs/RESULTS_GUIDE.md).
+Set a fresh `run_id` and unused `output` before repeating a run. The 10-day `rule_based.yaml` run finishes with `275,297,173 m3` in `feitsui` (starting from `243,980,200 m3`) and `1,761,528 m3` in `zhitan` (starting from `1,761,300 m3`, `PASS`). To run `hybrid_llm.yaml` live, start local Ollama (`gemma4:12b`) and pass `--allow-network`. Inspect outputs in [Reading results](../../docs/RESULTS_GUIDE.md).
 
 ## Physical network fields (`case.json`)
 

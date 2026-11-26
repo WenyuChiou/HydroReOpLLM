@@ -1,6 +1,6 @@
 """Validate experiment YAML and execute explicitly bounded reservoir workflows.
 
-The CLI and ``run_experiment.py`` call ``main``. ``load_settings`` resolves the
+The ``reservoir-experiment`` CLI calls ``main``. ``load_settings`` resolves the
 case/date interval, validates agent/model/prompt/auditor/information declarations,
 pins exact input bytes and builds offline previews without model inference.
 ``run_settings`` rereads that plan, constructs isolated backends and delegates

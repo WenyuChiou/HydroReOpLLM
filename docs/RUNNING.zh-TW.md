@@ -19,13 +19,13 @@ reservoir-experiment run path/to/experiment.yaml
 reservoir-experiment verify path/to/output
 ```
 
-| 子指令 | 用途 | 網路呼叫 |
-| --- | --- | --- |
-| `check <config>` | 驗證水文綁定、拓樸、日期、提示詞與第 1 天提示詞預覽。 | `0` |
-| `prepare <config>` | 僅限耦合 HydroCNHS：執行集水區模式與暖機期並輸出 `inflows.csv`。 | `0` |
-| `run <config> [--allow-network]` | 準備入流（若為耦合）、執行水庫操作與演算並寫入結果。 | `0`（除非加上 `--allow-network`） |
-| `verify <output> [--require-offline]` | 查核質量守恆、河道演算、水情時間戳記與完整決策日誌。 | `0` |
-| `resume <config> --from-run ... --output ... --run-id ...` | 重播中斷執行的已完成步驟並接續跑完剩餘步驟。 | 僅針對剩餘步驟 |
+| 子指令 | 用途 |
+| --- | --- |
+| `check <config>` | 驗證水文綁定、拓樸、日期、提示詞與第 1 天提示詞預覽。 |
+| `prepare <config>` | 僅限耦合 HydroCNHS：執行集水區模式與暖機期並輸出 `inflows.csv`。 |
+| `run <config> [--allow-network]` | 準備入流（若為耦合）、執行水庫操作與演算並寫入結果。 |
+| `verify <output> [--require-offline]` | 查核質量守恆、河道演算、水情時間戳記與完整決策日誌。 |
+| `resume <config> --from-run ... --output ... --run-id ...` | 重播中斷執行的已完成步驟並接續跑完剩餘步驟。 |
 
 | 輸入方式 | 設定檔 `output` | 操作結果位置（`summary.json`、CSV） | 驗證指令 |
 | --- | --- | --- | --- |
@@ -69,4 +69,4 @@ llm-reservoir-daily --case-root path/to/case-directory `
 reservoir-experiment verify runs/replay --require-offline
 ```
 
-若要重現 F.E. Walter 的 21 組基準模擬，請執行 `python examples/fe_walter/study/replay.py --output runs/walter-paper-replay`（見 [F.E. Walter 水庫案例](../examples/fe_walter/README.zh-TW.md)）。接著請參閱[結果判讀與水量平衡](RESULTS_GUIDE.zh-TW.md)。
+若要離線重現 F.E. Walter 論文基準，請執行 `python examples/fe_walter/study/replay.py --output runs/walter-paper-replay`（見 [F.E. Walter 水庫案例](../examples/fe_walter/README.zh-TW.md)）。接著請參閱[結果判讀與水量平衡](RESULTS_GUIDE.zh-TW.md)。

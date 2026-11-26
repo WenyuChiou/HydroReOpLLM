@@ -6,8 +6,8 @@
 
 | 檔案 | 用途 |
 | --- | --- |
-| [`rule_based.yaml`](rule_based.yaml) | 10 天離線基準（`2020-05-20`–`2020-05-29`）：翡翠與直潭皆採 Hanasaki 滯洪規則（α = 0.85，`max_calls: 0`）。 |
-| [`hybrid_llm.yaml`](hybrid_llm.yaml) | 10 天混合設定：上游翡翠水庫採 Hanasaki（`feitsui_operator`）＋下游直潭壩採 LLM（`zhitan_operator`，`max_calls: 10`）。 |
+| [`rule_based.yaml`](rule_based.yaml) | 10 天離線基準（`2020-05-20`–`2020-05-29`）：翡翠與直潭皆採 Hanasaki 滯洪規則（α = 0.85）。 |
+| [`hybrid_llm.yaml`](hybrid_llm.yaml) | 10 天混合設定：上游翡翠水庫採 Hanasaki（`feitsui_operator`）＋下游直潭壩採 LLM（`zhitan_operator`）。 |
 | [`case.json`](case.json) | 水庫有效庫容（翡翠 `335,505,000 m3`、直潭 `1,918,900 m3`）、放流上下限（`[0, 500]` 與 `[0, 800] m3/s`）與 `[0.8, 0.2]` 演算權重。 |
 | [`inflows.csv`](inflows.csv) | 2020-05-18 至 2020-06-02（16 天）WRA 實測區域入流（`m3/s`；`zhitan_local` 為南勢溪與區間側向逕流）。 |
 | [`reference_inflows.csv`](reference_inflows.csv) | 2019 年全年 WRA 日入流，用以建立 `feitsui_statistics.json` 與 `zhitan_statistics.json` 參考統計。 |
@@ -20,7 +20,7 @@ reservoir-experiment verify runs/multi-reservoir-rule-based --require-offline
 reservoir-experiment check examples/multi_reservoir/hybrid_llm.yaml
 ```
 
-重複執行前請更換新的 `run_id` 與未使用的 `output`。10 天 `rule_based.yaml` 離線模擬結束時，翡翠水庫（`feitsui`）蓄水量為 `275,297,173 m3`、直潭壩（`zhitan`）為 `1,761,528 m3`（`PASS`，`0` 次網路呼叫）。若要即時執行 `hybrid_llm.yaml`，請啟動本機 Ollama（`gemma4:12b`）並加上 `--allow-network`。輸出判讀請見[結果判讀與水量平衡](../../docs/RESULTS_GUIDE.zh-TW.md)。
+重複執行前請更換新的 `run_id` 與未使用的 `output`。10 天 `rule_based.yaml` 離線模擬結束時，翡翠水庫（`feitsui`）蓄水量為 `275,297,173 m3`、直潭壩（`zhitan`）為 `1,761,528 m3`（`PASS`）。若要即時執行 `hybrid_llm.yaml`，請啟動本機 Ollama（`gemma4:12b`）並加上 `--allow-network`。輸出判讀請見[結果判讀與水量平衡](../../docs/RESULTS_GUIDE.zh-TW.md)。
 
 ## 物理水系欄位（`case.json`）
 
@@ -41,7 +41,7 @@ reservoir-experiment check examples/multi_reservoir/hybrid_llm.yaml
 | `network.outlets` | 非空終端出口清單（本案例為 `["xindian_outlet"]`） | 是 |
 | `inflow_source` | `{path, sha256, format}`（`daily-node-local-cms.v1`） | 是 |
 
-匯流點、無閘門溢流堰（`passive_outlet`）與次日（`v3`）串聯請參閱[多水庫河網串接](../../docs/BUILD_SIMULATION.zh-TW.md)。
+匯流點、無閘門溢流堰（`passive_outlet`）與次日（`v3`）串聯請參閱[多水庫河網串接](../../docs/MULTI_RESERVOIR.zh-TW.md)。
 
 ## 入流、河道演算與 YAML 注意事項
 

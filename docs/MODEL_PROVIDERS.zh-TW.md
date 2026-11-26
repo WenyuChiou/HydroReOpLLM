@@ -75,7 +75,7 @@ vllm_or_local_server:
 | `model` | 必填 | 確切的模型標籤或 API 模型 ID。 |
 | `base_url` | 必填 | 本機伺服器或雲端 API 的 HTTP(S) 位址。 |
 | `api_key_env` | 省略 | 存放 API 金鑰的環境變數名稱（本機 Ollama 可省略）。 |
-| `temperature` | 供應商預設值 | `0.0`–`2.0`；較低值（`0.0`–`0.3`）可降低變異，F.E. Walter 設為 `0.7` 跑 10 組 seed。 |
+| `temperature` | 供應商預設值 | `0.0`–`2.0`；較低值（`0.0`–`0.3`）可讓不同日期的放流決策更穩定。 |
 | `max_tokens` | 供應商預設值 | 每次決策最大輸出 token 數（`anthropic` **必填**；建議 `2048`）。 |
 | `seed` | 省略 | 整數隨機種子（僅 `ollama` 與 `openai_compatible` 支援）。 |
 | `timeout_seconds` | `60.0` | 單次請求逾時秒數（較大的本機模型建議設 `120` 以上）。 |

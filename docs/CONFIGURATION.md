@@ -56,7 +56,7 @@ Unique `run_id`, unused `output` folder, operation dates (`start_date`–`end_da
 | `schema_version` | Yes | Selects `v1`/`v2` prepared-inflow or coupled HydroCNHS format. |
 | `run_id` | Yes | Unique label saved in `summary.json` and step logs. |
 | `output` | Yes | Fresh output folder path (existing folders are never overwritten). |
-| `case` | Yes | `case.json` or `reservoirs.yaml` defining reservoirs, routing, and `inflow_source.sha256` (if prepared). |
+| `case` | Yes | `case.json` or `reservoirs.yaml` defining reservoirs, routing, and prepared inflow file links. |
 | `start_date` / `end_date` | Daily | Quoted `YYYY-MM-DD` inclusive operation dates. |
 | `start_time` / `end_time` / `time` | Sub-daily | UTC timestamps (exclusive `end_time`) and `{simulation_step, output_step}` for hourly runs. |
 | `hydrology` | Coupled | HydroCNHS catchment model, weather forcing, and `inflow_bindings`. |

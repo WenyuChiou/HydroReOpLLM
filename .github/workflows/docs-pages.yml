@@ -12,7 +12,7 @@ on:
       - "README.md"
       - "README.zh-TW.md"
       - "mkdocs.yml"
-      - "requirements-docs.txt"
+      - "pyproject.toml"
       - "scripts/build_docs.py"
       - ".github/workflows/docs-pages.yml"
   workflow_dispatch:
@@ -35,8 +35,8 @@ jobs:
         with:
           python-version: "3.12"
           cache: pip
-          cache-dependency-path: requirements-docs.txt
-      - run: python -m pip install -r requirements-docs.txt
+          cache-dependency-path: pyproject.toml
+      - run: python -m pip install "mkdocs[i18n]==1.6.1"
       - run: python scripts/build_docs.py
       - uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b # v4
         with:

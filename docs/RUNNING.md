@@ -19,13 +19,13 @@ reservoir-experiment run path/to/experiment.yaml
 reservoir-experiment verify path/to/output
 ```
 
-| Subcommand | Purpose | Network calls |
-| --- | --- | --- |
-| `check <config>` | Validates hydrology, topology, dates, prompts, and Day-1 prompt previews. | `0` |
-| `prepare <config>` | Coupled HydroCNHS only: runs catchment model + warm-up and saves `inflows.csv`. | `0` |
-| `run <config> [--allow-network]` | Prepares inflows (if coupled), runs reservoir operators + routing, and writes results. | `0` unless `--allow-network` |
-| `verify <output> [--require-offline]` | Checks mass conservation, routing, timestamp ordering, and complete decision logs. | `0` |
-| `resume <config> --from-run ... --output ... --run-id ...` | Replays completed steps from an interrupted run and finishes remaining steps. | Only for remaining steps |
+| Subcommand | Purpose |
+| --- | --- |
+| `check <config>` | Validates hydrology, topology, dates, prompts, and Day-1 prompt previews. |
+| `prepare <config>` | Coupled HydroCNHS only: runs catchment model + warm-up and saves `inflows.csv`. |
+| `run <config> [--allow-network]` | Prepares inflows (if coupled), runs reservoir operators + routing, and writes results. |
+| `verify <output> [--require-offline]` | Checks mass conservation, routing, timestamp ordering, and complete decision logs. |
+| `resume <config> --from-run ... --output ... --run-id ...` | Replays completed steps from an interrupted run and finishes remaining steps. |
 
 | Entry style | Configured `output` | Operation results | Verify command |
 | --- | --- | --- | --- |
@@ -69,4 +69,4 @@ llm-reservoir-daily --case-root path/to/case-directory `
 reservoir-experiment verify runs/replay --require-offline
 ```
 
-For the 21-run F.E. Walter benchmark, run `python examples/fe_walter/study/replay.py --output runs/walter-paper-replay` ([F.E. Walter Dam](../examples/fe_walter/README.md)). Continue with [Reading results](RESULTS_GUIDE.md).
+To reproduce the F.E. Walter paper benchmark offline, run `python examples/fe_walter/study/replay.py --output runs/walter-paper-replay` ([F.E. Walter Dam](../examples/fe_walter/README.md)). Continue with [Reading results](RESULTS_GUIDE.md).

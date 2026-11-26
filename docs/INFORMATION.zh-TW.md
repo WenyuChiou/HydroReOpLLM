@@ -13,9 +13,9 @@
 
 ### 操作員內建掌握的資訊
 
-- 當期期初 `storage_m3` 與當日演算入流 `inflow_cms`。
+- 當期期初 `storage_m3` 與當日演算入流 `inflow_cms`（已含上游依 `unit_hydrograph[0]` 同日抵達之放流）。
 - 先前已提交的時間步紀錄（`$previous_transition` / `$completed_history`）。
-- 上游水庫的狀態**僅於**同一時間步稍早完成提交後才可讀取。
+- 他座水庫於**前一已完成時間步**提交的 `simulation` 蓄水或放流（第 2 天起可用，第 1 天須設為 `required: false`）。
 
 </div>
 <div class="panel-card" markdown="1">
@@ -77,7 +77,7 @@ profiles:
   operator_view:
     fields:
       lehighton_flow_cms: { source: downstream_gauge, unit: m3/s, history: 3, max_age_seconds: 86400, required: false }
-      upper_pool_acft: { source: upstream_storage, unit: acre-ft, required: true }
+      upper_pool_acft: { source: upstream_storage, unit: acre-ft, required: false }  # 第 1 天尚無前期紀錄，須設 false
 ```
 
 在 `experiment.yaml` 加入 `information: { file: information.yaml }`，於操作員設定 `customization.information: operator_view`，並在提示詞放入 `$information`（Python 規則則讀取 `observation["context"]["decision_information"]`）。

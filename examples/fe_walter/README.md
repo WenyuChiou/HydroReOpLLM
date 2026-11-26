@@ -2,7 +2,7 @@
 
 <div class="hero-band" markdown="1">
 
-This case study evaluates **F.E. Walter Dam** (Lehigh River basin, Pennsylvania) over **January 1, 2021 – December 31, 2025** (`1,826` days) across three operating conditions on the same HydroCNHS routing system: **Rule-based** (Hanasaki), **Without operational knowledge** (`seasonal_target.yaml`), and **With operational knowledge** (`dkp.yaml`).
+This case study evaluates **F.E. Walter Dam** (Lehigh River basin, Pennsylvania) over **January 1, 2021 – December 31, 2025** across three operating conditions on the same HydroCNHS routing system: **Rule-based** (Hanasaki), **Without operational knowledge** (`seasonal_target.yaml`), and **With operational knowledge** (`dkp.yaml`).
 
 </div>
 
@@ -19,8 +19,7 @@ This case study evaluates **F.E. Walter Dam** (Lehigh River basin, Pennsylvania)
 ### Condition 1: Rule-based
 
 - **Config**: [`rule_based.yaml`](rule_based.yaml)
-- **Method**: Hanasaki flood-control rule (`strategy: hanasaki`, α = 0.85) using [1996–2015 inflow stats](rule_statistics.json) and [rule case](rule_case.json).
-- **Network calls**: `0` (offline).
+- **Method**: Hanasaki flood-control rule (`strategy: hanasaki`, α = 0.85) using [1996–2015 inflow stats](rule_statistics.json) and [rule case](rule_case.json) (offline).
 
 </div>
 <div class="panel-card" markdown="1">
@@ -29,7 +28,7 @@ This case study evaluates **F.E. Walter Dam** (Lehigh River basin, Pennsylvania)
 
 - **Config**: [`seasonal_target.yaml`](seasonal_target.yaml)
 - **Method**: `gemma4:12b` given only pool elevation, seasonal target level, and 2-day release history.
-- **Prompts**: [System](prompts/seasonal_target.system.txt) · [Day 1 User](prompts/seasonal_target.user.txt).
+- **Prompts**: [System](prompts/seasonal_target.system.txt) · [Day 1 User sample](prompts/seasonal_target.user.txt).
 
 </div>
 <div class="panel-card" markdown="1">
@@ -38,16 +37,16 @@ This case study evaluates **F.E. Walter Dam** (Lehigh River basin, Pennsylvania)
 
 - **Config**: [`dkp.yaml`](dkp.yaml)
 - **Method**: `gemma4:12b` retrieving structured rules from [`dkp.md`](dkp.md) and citing `rules_applied` in JSON.
-- **Prompts**: [System](prompts/dkp.system.txt) · [Day 1 User](prompts/dkp.user.txt).
+- **Prompts**: [System](prompts/dkp.system.txt) · [Day 1 User sample](prompts/dkp.user.txt).
 
 </div>
 </div>
 
 ## Configuration files and prompt inspection
 
-All three conditions share the 2021–2025 simulated local inflows ([`inflows.csv`](inflows.csv)) and start on a 7-day tutorial window (`2021-01-01`–`2021-01-07`) before running `--full` (`1,826` days). Both LLM conditions share [`case.json`](case.json), [`study/elevation_storage.csv`](study/elevation_storage.csv), [`study/response_schemas.json`](study/response_schemas.json), and [`study/formatter.py`](study/formatter.py) (which formats pool elevation in `ft NGVD29`, inflow in `cfs`/`acre-ft`, and 2-day release history).
+All three conditions share the 2021–2025 simulated local inflows ([`inflows.csv`](inflows.csv)) and start on a 7-day tutorial window (`2021-01-01`–`2021-01-07`) before running `--full` (`2021–2025`). Both LLM conditions use [`case.json`](case.json) (physical dead storage and minimum release) together with [`study/elevation_storage.csv`](study/elevation_storage.csv), [`study/response_schemas.json`](study/response_schemas.json), and [`study/formatter.py`](study/formatter.py) (which dynamically renders each daily user message in `ft NGVD29` and `cfs`/`acre-ft`; the `.user.txt` files are read-only Day-1 samples). The **Rule-based** baseline uses [`rule_case.json`](rule_case.json) with `0.0` effective-storage bounds to match the unclipped Hanasaki formula.
 
-Check all three configurations offline (`0` calls):
+Check all three configurations offline:
 
 ```sh
 reservoir-experiment check examples/fe_walter/rule_based.yaml
@@ -61,7 +60,7 @@ Walk through the 2021 full-year workflow step-by-step in the [Interactive notebo
 
 <figure class="figure-card">
   <img src="../../docs/assets/figures/fig3-daily-2021-2025.png" alt="Daily 2021-2025 simulated vs observed F.E. Walter reservoir elevation, release, and downstream flow">
-  <figcaption><strong>Figure 3.</strong> Daily 2021–2025 water levels, releases, and downstream flows comparing USGS observations against Rule-based, Without operational knowledge, and With operational knowledge (10 seeds each).</figcaption>
+  <figcaption><strong>Figure 3.</strong> Daily 2021–2025 water levels, releases, and downstream flows comparing USGS observations against Rule-based, Without operational knowledge, and With operational knowledge.</figcaption>
 </figure>
 
 <figure class="figure-card">
@@ -69,23 +68,23 @@ Walk through the 2021 full-year workflow step-by-step in the [Interactive notebo
   <figcaption><strong>Figure 4.</strong> Mean annual cycle across all three conditions, showing how With operational knowledge reproduces spring refill (1,370 ft NGVD29) and autumn drawdown (1,300 ft NGVD29) compared with Without operational knowledge and Rule-based.</figcaption>
 </figure>
 
-Across all 21 archived runs (`1` Rule-based + `10` Without operational knowledge + `10` With operational knowledge) evaluated against USGS `01447780`, `01447800`, and `01449000` ([`study/expected_scores.csv`](study/expected_scores.csv)):
+Performance over 2021–2025 against USGS `01447780` (reservoir level), `01447800` (release), and `01449000` (downstream flow; LLM rows show the ensemble median in [`study/expected_scores.csv`](study/expected_scores.csv)):
 
-| Condition | Runs | Reservoir level KGE (median) | Reservoir level NSE (median) | Reservoir level RMSE (median) | Water release KGE (median) | Downstream flow KGE (median) |
-| --- | --- | --- | --- | --- | --- | --- |
-| Rule-based (Hanasaki, α = 0.85) | `1` | `0.077` | — | `96.21 ft` | `0.640` | `0.815` |
-| Without operational knowledge | `10` | `0.806` | `0.514` | `20.85 ft` | `0.688` | `0.830` |
-| With operational knowledge | `10` | `0.858` | `0.711` | `16.07 ft` | `0.618` | `0.832` |
+| Condition | Reservoir level KGE (median) | Reservoir level NSE (median) | Reservoir level RMSE (median) | Water release KGE (median) | Downstream flow KGE (median) |
+| --- | --- | --- | --- | --- | --- |
+| Rule-based (Hanasaki, α = 0.85) | `0.077` | — | `96.21 ft` | `0.640` | `0.815` |
+| Without operational knowledge | `0.806` | `0.514` | `20.85 ft` | `0.688` | `0.830` |
+| With operational knowledge | `0.858` | `0.711` | `16.07 ft` | `0.618` | `0.832` |
 
 ## Reproduce the reported scores offline
 
-Replay all 21 archived daily release series (`study/archived_releases.csv` + Rule-based baseline) through the water-balance and routing engine at **zero** LLM calls:
+Replay the archived daily release series (`study/archived_releases.csv` + Rule-based baseline) through the water-balance and routing engine offline:
 
 ```sh
 python examples/fe_walter/study/replay.py --output runs/walter-paper-replay
 ```
 
-Inspect `runs/walter-paper-replay/scores.csv` for all 63 evaluations and `water_level_medians` printed to stdout.
+Results (KGE, NSE, and RMSE at each USGS station) are written to `runs/walter-paper-replay/scores.csv`.
 
 ## Make new runs with the study model
 
@@ -120,7 +119,7 @@ OLLAMA_MODELS="$PWD/.walter-ollama" OLLAMA_HOST=127.0.0.1:11446 ollama serve
 </div>
 </div>
 
-Run the 7-day tutorial window or pass `--full` for all `1,826` days (use a fresh `--output` for each `--seed 1..10`):
+Run the 7-day tutorial window or pass `--full` for the full 2021–2025 period (use a fresh `--output` folder for each run):
 
 ```sh
 python examples/fe_walter/study/run.py rule_based --full --output runs/walter-rule

@@ -54,7 +54,7 @@ HydroReOpLLM 將 **「水庫放流決策」**（操作規則或 LLM）與 **「�
 ### `type: rule_based`（水庫操作規則）
 
 - 須設定 `reservoir_id`、`type: rule_based`、`rule` 與選填 `rule_parameters`。
-- 全程離線執行（`0` 次模型呼叫），適合 Hanasaki 基準或自訂 Python 運轉規線。
+- 全程離線執行，適合 Hanasaki 基準或自訂 Python 運轉規線。
 
 </div>
 <div class="panel-card" markdown="1">
@@ -62,14 +62,14 @@ HydroReOpLLM 將 **「水庫放流決策」**（操作規則或 LLM）與 **「�
 ### `type: llm`（LLM 操作員）
 
 - 須設定 `reservoir_id`、`type: llm`、`model_profile`、`prompt_file` 與 `customization:`。
-- 即時推論（`execution: live`）需傳入 `--allow-network`；離線重播（`execution: replay`）則為 `0` 次呼叫。
+- 即時推論（`execution: live`）需傳入 `--allow-network`；離線重播（`execution: replay`）無須連線。
 
 </div>
 </div>
 
 ### Hanasaki 滯洪運轉規則
 
-**Rule-based（Hanasaki 規則）**（`examples/fe_walter/rule_based.yaml`）透過以下五項水文參數決定每日放流量：
+**Rule-based（Hanasaki 規則）** 依 Hanasaki et al. (2006) 與 Abeshu et al. (2023) 公式，透過以下五項水文參數決定每日放流量：
 
 | 項目 | 公式或門檻 | 水文意義 |
 | --- | --- | --- |
@@ -79,6 +79,33 @@ HydroReOpLLM 將 **「水庫放流決策」**（操作規則或 LLM）與 **「�
 | 最低蓄水保護 | 0.1 · <i>C</i> | 避免水庫過度放空。 |
 | 滯洪蓄水上限 | α · <i>C</i> | 超過上限時增加放流，預留防洪滯蓄空間。 |
 
+依實驗需求，HydroReOpLLM 支援兩種 Hanasaki 設定寫法：
+
+<div class="panel-grid panel-grid-2" markdown="1">
+<div class="panel-card" markdown="1">
+
+### 內建基準 `strategy: benchmark`（多水庫串聯）
+
+無須額外掛載 `extensions:`，用於 `examples/multi_reservoir/rule_based.yaml` 與 `hybrid_llm.yaml`：
+
+```yaml
+feitsui_operator:
+  reservoir: feitsui
+  mode: offline
+  strategy: benchmark
+  benchmark:
+    statistics: feitsui_statistics.json
+    purpose: flood_control
+    alpha: 0.85
+```
+
+</div>
+<div class="panel-card" markdown="1">
+
+### 論文規則擴充 `rule: hanasaki`（F.E. Walter）
+
+用於 `examples/fe_walter/rule_based.yaml`，並嚴格檢查放流上限是否與規則衝突：
+
 ```yaml
 agents:
   walter_operator:
@@ -86,15 +113,11 @@ agents:
     type: rule_based
     rule: hanasaki
     rule_parameters: { purpose: flood_control, alpha: 0.85, inflow_statistics_file: rule_statistics.json }
-    auditors: [release_bounds]
 extensions:
   hanasaki: study/rule/__init__.py
 ```
 
-<div class="callout callout-info" markdown="1">
-
-**來源說明。** `flood_control_step` 依循 Hanasaki et al. (2006) / Abeshu et al. (2023) 實作，並與 `RiverAI-Project/MOSART-Urban` 參考公式維持一致（見 `scripts/verify_hanasaki_rule.py` 與 `THIRD_PARTY_NOTICES.md`）。
-
+</div>
 </div>
 
 ### 撰寫自訂 Python 操作規則
@@ -128,7 +151,7 @@ def build_backend(settings, **kwargs):
 | --- | --- |
 | `reservoir_id` | 指定受控水庫鍵名（須對應水系中的水庫）。 |
 | `type` | 設為 `llm` 或 `rule_based`。 |
-| `model_profile` | 參照 `models.yaml` 中的模型設定檔（見[模型服務設定](LLM_MODULES.zh-TW.md)）。 |
+| `model_profile` | 參照 `models.yaml` 中的模型設定檔（見[模型服務設定](MODEL_PROVIDERS.zh-TW.md)）。 |
 | `prompt_file` | 每日／每步使用者提示詞範本路徑。 |
 | `customization.system_prompt_file` | 常駐系統提示詞（水庫目標、限制與 JSON 格式說明）。 |
 | `customization.prompt_variables` / `context` | 靜態參數（`$var`）或附帶於 `$observation` 的固定場址資訊。 |

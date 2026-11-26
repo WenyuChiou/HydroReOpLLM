@@ -42,14 +42,14 @@ Set a new `run_id` and unused `output` folder before repeating a run. See [Insta
 
 ## Public examples
 
-| Scope | Entry point | Operating condition / design | Network calls |
+| Scope | Entry point | Operating condition / design | Execution |
 | --- | --- | --- | --- |
-| Single-reservoir (F.E. Walter) | [`examples/fe_walter/rule_based.yaml`](examples/fe_walter/README.md) | **Rule-based** (Hanasaki flood-control baseline, α = 0.85) | `0` (offline) |
+| Single-reservoir (F.E. Walter) | [`examples/fe_walter/rule_based.yaml`](examples/fe_walter/README.md) | **Rule-based** (Hanasaki flood-control baseline, α = 0.85) | Offline |
 | Single-reservoir (F.E. Walter) | [`examples/fe_walter/seasonal_target.yaml`](examples/fe_walter/README.md) | **Without operational knowledge** (pool level, seasonal target, 2-day history) | Local Ollama |
 | Single-reservoir (F.E. Walter) | [`examples/fe_walter/dkp.yaml`](examples/fe_walter/README.md) | **With operational knowledge** (adds structured `dkp.md` manual rules) | Local Ollama |
 | Single-reservoir (F.E. Walter) | [`tutorials/fe_walter.ipynb`](https://wenyuchiou.github.io/HydroReOpLLM/tutorials/index.html) | Interactive notebook comparing all three conditions and multi-reservoir hybrid setup | Offline default |
-| Multi-reservoir cascade (Xindian River, Taiwan) | [`examples/multi_reservoir/hybrid_llm.yaml`](examples/multi_reservoir/README.md) | May 2020 Mei-Yu cascade (`feitsui` Hanasaki + `zhitan` LLM, `[0.8, 0.2]` lag) | Local Ollama (`10` calls) |
-| Multi-reservoir cascade (Xindian River, Taiwan) | [`examples/multi_reservoir/rule_based.yaml`](examples/multi_reservoir/README.md) | May 2020 Mei-Yu offline cascade (Hanasaki on `feitsui` and `zhitan`) | `0` (offline) |
+| Multi-reservoir cascade (Xindian River, Taiwan) | [`examples/multi_reservoir/hybrid_llm.yaml`](examples/multi_reservoir/README.md) | May 2020 Mei-Yu cascade (`feitsui` Hanasaki + `zhitan` LLM, `[0.8, 0.2]` lag) | Local Ollama |
+| Multi-reservoir cascade (Xindian River, Taiwan) | [`examples/multi_reservoir/rule_based.yaml`](examples/multi_reservoir/README.md) | May 2020 Mei-Yu offline cascade (Hanasaki on `feitsui` and `zhitan`) | Offline |
 
 Browse the [examples index](examples/README.md) or the [full user manual](https://wenyuchiou.github.io/HydroReOpLLM/).
 

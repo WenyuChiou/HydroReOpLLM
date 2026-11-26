@@ -58,18 +58,11 @@ ENGLISH_FILES = {
     "examples/multi_reservoir/README.md": "examples/multi_reservoir/index.md",
 }
 
-# Keep the original public URLs for the homepage and two renamed chapters.
-ZH_NAMES = {
-    "MULTI_RESERVOIR.md": "BUILD_SIMULATION.zh-TW.md",
-    "MODEL_PROVIDERS.md": "LLM_MODULES.zh-TW.md",
-}
-
-
 def _translated(path: str) -> str:
     file = PurePosixPath(path)
     if path == "index.md":
         return "zh-TW.md"
-    return str(file.with_name(ZH_NAMES.get(file.name, f"{file.stem}.zh-TW.md")))
+    return str(file.with_name(f"{file.stem}.zh-TW.md"))
 
 
 SAFE_FILES = dict(ENGLISH_FILES)

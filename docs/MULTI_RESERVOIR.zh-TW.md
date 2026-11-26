@@ -88,5 +88,5 @@ operator_b:
 ## 執行順序與跨水庫資訊讀取
 
 1. **由上游至下游順序**：系統依拓樸順序執行河網，確保上游放流先抵達下游後，下游水庫才開始決策。
-2. **跨水庫共享狀態**：在 `information.yaml` 加入 `simulation` 來源（見[水情測站與預報](INFORMATION.zh-TW.md)），即可讓下游讀取上游已提交的蓄水或放流；尚未決策的平行水庫無法互看當步數值。
+2. **跨水庫共享狀態**：依 `unit_hydrograph[0]` 當步抵達的上游物理放流會自動計入下游 `inflow_cms`；若還需在提示詞讀取他庫前一已完成時間步的蓄水或放流，請在 `information.yaml` 加入 `simulation` 來源並於欄位設定 `required: false`（第 1 天尚無前期紀錄，見[水情測站與預報](INFORMATION.zh-TW.md)）。
 3. **離線驗證拓樸**：每次修改連線、`fraction`、`unit_hydrograph` 或 `outlets` 後請執行 `reservoir-experiment check`。

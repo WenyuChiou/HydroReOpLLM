@@ -56,12 +56,12 @@
 | `schema_version` | 是 | 指定設定格式版本（上表四選一）。 |
 | `run_id` | 是 | 唯一的實驗識別名稱，記錄於 `summary.json` 與決策日誌。 |
 | `output` | 是 | 尚未使用的輸出資料夾路徑（不會覆寫既有模擬結果）。 |
-| `case` | 是 | 指向 `case.json` 或 `reservoirs.yaml`（自備入流案例內含 `inflow_source.sha256`）。 |
+| `case` | 是 | 指向 `case.json` 或 `reservoirs.yaml`（自備入流案例內含 `inflows.csv` 連結）。 |
 | `start_date` / `end_date` | 逐日 | 加引號之 `YYYY-MM-DD` 雙向含括操作日期。 |
 | `start_time` / `end_time` / `time` | 次日 | UTC 時間戳記（不含終點）搭配 `{simulation_step, output_step}`。 |
 | `hydrology` | 耦合 | 連接 HydroCNHS 集水區模式、氣象驅動與 `inflow_bindings`。 |
 | `agents` | 是 | 為每座受控水庫指派一名操作員（`rule_based`、`llm` 或 `offline`）。 |
-| `models` | LLM | 具名的本機 Ollama 或雲端 LLM 設定檔（見[模型服務設定](LLM_MODULES.zh-TW.md)）。 |
+| `models` | LLM | 具名的本機 Ollama 或雲端 LLM 設定檔（見[模型服務設定](MODEL_PROVIDERS.zh-TW.md)）。 |
 | `auditors` | 否 | 放流邊界與數值範圍診斷稽核器。 |
 | `extensions` | 否 | 註冊自訂 Python 規則套件（例如 `hanasaki`）。 |
 | `information` | 否 | 不洩漏未來水情之測站、預報與上游水庫狀態（見[水情測站與預報](INFORMATION.zh-TW.md)）。 |

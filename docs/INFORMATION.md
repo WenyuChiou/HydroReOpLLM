@@ -13,9 +13,9 @@ An `information` profile supplies **read-only, time-ordered** stream gauges, inf
 
 ### Built-in reservoir awareness
 
-- Current beginning `storage_m3` and today's routed `inflow_cms`.
+- Current beginning `storage_m3` and today's routed `inflow_cms` (already including same-step upstream releases along `unit_hydrograph[0]`).
 - Previous committed steps (`$previous_transition` / `$completed_history`).
-- Upstream reservoirs' states **only after** they finish earlier in the same step.
+- Another reservoir's committed `simulation` storage or release **from the prior completed step** (`available` starting Day 2; set `required: false` on Day 1).
 
 </div>
 <div class="panel-card" markdown="1">
@@ -77,7 +77,7 @@ profiles:
   operator_view:
     fields:
       lehighton_flow_cms: { source: downstream_gauge, unit: m3/s, history: 3, max_age_seconds: 86400, required: false }
-      upper_pool_acft: { source: upstream_storage, unit: acre-ft, required: true }
+      upper_pool_acft: { source: upstream_storage, unit: acre-ft, required: false }  # Unavailable on Day 1 before step 0 completes
 ```
 
 Reference `information: { file: information.yaml }` in `experiment.yaml`, then set `customization.information: operator_view` on the agent and include `$information` in its prompt (or read `observation["context"]["decision_information"]` in Python rules). See [Rules & LLM prompts](AGENT_DESIGN.md).
