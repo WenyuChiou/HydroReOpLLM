@@ -147,6 +147,8 @@ def test_pyproject_ships_the_water_control_and_multi_reservoir_examples():
         "examples/fe_walter/dkp.yaml",
         "examples/multi_reservoir/rule_based.yaml",
         "examples/multi_reservoir/hybrid_llm.yaml",
+        "examples/multi_reservoir/hydrology/hydrology.yaml",
+        "examples/multi_reservoir/hydrology/xindian_catchments.yaml",
     }
     assert "examples/README.zh-TW.md" in packaged
     assert "examples/multi_reservoir/README.zh-TW.md" in packaged

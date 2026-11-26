@@ -1,0 +1,148 @@
+# Calibrated 4-subbasin HydroCNHS (GWLF rainfall-runoff + Lohmann routing) model for the Xindian River cascade (Taiwan).
+# Upstream: U2 (Pinglin) -> U1 (Shiding) feeds feitsui_local (30,300 ha).
+# Intervening: D2 (Wulai/Nanshi) -> D1 (Xindian) feeds zhitan_local (37,680 ha).
+Path:
+  WD: .
+  Modules: ''
+WaterSystem:
+  StartDate: 2018/01/01
+  EndDate: 2020/06/05
+  DataLength: 887
+  NumSubbasins: 4
+  Outlets:
+  - U1
+  - U2
+  - D1
+  - D2
+  NodeGroups: []
+  RainfallRunoff: GWLF
+  Routing: Lohmann
+  ABM: null
+RainfallRunoff:
+  U1:
+    Inputs:
+      Area: 13858.0
+      Latitude: 24.98
+      S0: 15.0
+      U0: 10.0
+      SnowS: 0.0
+    Pars:
+      CN2: 83.71159
+      IS: 0.02493
+      Res: 0.20047
+      Sep: 0.09736
+      Alpha: 0.07349
+      Beta: 0.34878
+      Ur: 12.28014
+      Kc: 0.60545
+      Df: 0.0
+  U2:
+    Inputs:
+      Area: 16442.0
+      Latitude: 24.902
+      S0: 15.0
+      U0: 10.0
+      SnowS: 0.0
+    Pars:
+      CN2: 83.71159
+      IS: 0.02493
+      Res: 0.20047
+      Sep: 0.09736
+      Alpha: 0.07349
+      Beta: 0.34878
+      Ur: 12.28014
+      Kc: 0.60545
+      Df: 0.0
+  D1:
+    Inputs:
+      Area: 4480.0
+      Latitude: 24.922
+      S0: 15.0
+      U0: 10.0
+      SnowS: 0.0
+    Pars:
+      CN2: 85.24923
+      IS: 0.28606
+      Res: 0.03481
+      Sep: 0.11699
+      Alpha: 0.13188
+      Beta: 0.93845
+      Ur: 29.14508
+      Kc: 1.28323
+      Df: 0.0
+  D2:
+    Inputs:
+      Area: 33200.0
+      Latitude: 24.785
+      S0: 15.0
+      U0: 10.0
+      SnowS: 0.0
+    Pars:
+      CN2: 85.24923
+      IS: 0.28606
+      Res: 0.03481
+      Sep: 0.11699
+      Alpha: 0.13188
+      Beta: 0.93845
+      Ur: 29.14508
+      Kc: 1.28323
+      Df: 0.0
+Routing:
+  U2:
+    U2:
+      Inputs:
+        FlowLength: 0.0
+        InstreamControl: false
+      Pars:
+        GShape: 4.47036
+        GScale: 5.93874
+        Velo: null
+        Diff: null
+  U1:
+    U1:
+      Inputs:
+        FlowLength: 0.0
+        InstreamControl: false
+      Pars:
+        GShape: 4.47036
+        GScale: 5.93874
+        Velo: null
+        Diff: null
+    U2:
+      Inputs:
+        FlowLength: 18000.0
+        InstreamControl: false
+      Pars:
+        GShape: null
+        GScale: null
+        Velo: 0.66847
+        Diff: 1593.48552
+  D2:
+    D2:
+      Inputs:
+        FlowLength: 0.0
+        InstreamControl: false
+      Pars:
+        GShape: 4.47036
+        GScale: 5.93874
+        Velo: null
+        Diff: null
+  D1:
+    D1:
+      Inputs:
+        FlowLength: 0.0
+        InstreamControl: false
+      Pars:
+        GShape: 4.47036
+        GScale: 5.93874
+        Velo: null
+        Diff: null
+    D2:
+      Inputs:
+        FlowLength: 22000.0
+        InstreamControl: false
+      Pars:
+        GShape: null
+        GScale: null
+        Velo: 0.66847
+        Diff: 1593.48552

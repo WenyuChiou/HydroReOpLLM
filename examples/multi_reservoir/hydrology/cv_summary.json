@@ -1,0 +1,48 @@
+{
+  "warmup": "2018-01-01 to 2018-12-31",
+  "feitsui_U1_U2_C_2019_01_08": {
+    "days": 243,
+    "kge": 0.6994,
+    "nse": 0.4755,
+    "rmse_cms": 20.393,
+    "r": 0.715,
+    "bias_ratio": 1.0024
+  },
+  "feitsui_U1_U2_V1_2019_09_12": {
+    "days": 122,
+    "kge": 0.5723,
+    "nse": 0.6557,
+    "rmse_cms": 37.9,
+    "r": 0.8287,
+    "bias_ratio": 0.7306
+  },
+  "feitsui_U1_U2_V2_2020_05_06": {
+    "days": 32,
+    "kge": 0.769,
+    "nse": 0.6375,
+    "rmse_cms": 27.8655,
+    "r": 0.8285,
+    "bias_ratio": 0.8458
+  },
+  "zhitan_D1_D2_V2_local_2020_05_06": {
+    "days": 32,
+    "kge": 0.3964,
+    "nse": -0.4411,
+    "rmse_cms": 41.0965,
+    "r": 0.5178,
+    "bias_ratio": 1.056
+  },
+  "zhitan_D1_D2_V2_combined_2020_05_07_06_05": {
+    "days": 30,
+    "kge": 0.6622,
+    "nse": 0.33,
+    "rmse_cms": 42.5772,
+    "r": 0.7465,
+    "bias_ratio": 1.026
+  },
+  "feitsui_to_zhitan_lohmann_uh": [
+    0.857904,
+    0.142054,
+    4.2e-05
+  ]
+}

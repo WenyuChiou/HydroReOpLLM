@@ -28,4 +28,8 @@ the upstream source hash.
 
 Daily historical reservoir records for Feitsui Reservoir and Zhitan Dam used
 in `examples/multi_reservoir/` are derived from Taiwan Water Resources Agency
-(WRA) Open Government Data (`2019-01-01` to `2020-06-02`).
+(WRA) Open Government Data (`2019-01-01` to `2020-06-05`).
+Historical daily ERA5 meteorological forcing (`precipitation_sum`, `temperature_2m_mean`,
+and `et0_fao_evapotranspiration`, `2018-01-01` to `2020-06-05`) used to force the
+HydroCNHS (`GWLF` + `Lohmann`) model in `examples/multi_reservoir/hydrology/forcing.csv`
+is derived from Copernicus ERA5 via the Open-Meteo Historical Weather API (CC BY 4.0).

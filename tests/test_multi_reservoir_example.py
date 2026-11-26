@@ -62,14 +62,15 @@ def test_multi_reservoir_rule_based_runs_and_conserves_water(folder, tmp_path):
             assert start == pytest.approx(previous_end, abs=1e-6)
             previous_end = end
 
-    # Independent routing check: zhitan inflow = local inflow + feitsui output convolved by [0.8, 0.2].
+    # Independent routing check: zhitan inflow = local inflow + feitsui output convolved by Lohmann UH.
     weights = next(
         edge["unit_hydrograph"]
         for edge in network["connections"]
         if edge["source"] == "feitsui" and edge["target"] == "zhitan_local"
     )
-    assert weights == [0.8, 0.2]
+    assert len(weights) == 3 and sum(weights) == pytest.approx(1.0, abs=1e-9)
     source = case["inflow_source"]
+    assert case["data_kind"] == "simulated_local_inflow"
     csv_path = folder / source["path"]
     assert hashlib.sha256(csv_path.read_bytes()).hexdigest() == source["sha256"]
     local = {row["date"]: float(row["local_inflow_cms"]) for row in _rows(csv_path) if row["node"] == "zhitan_local"}
@@ -89,6 +90,21 @@ def test_multi_reservoir_rule_based_runs_and_conserves_water(folder, tmp_path):
         assert f"{final:,.0f} m3" in readme
 
 
+def test_multi_reservoir_hydrology_cv_model_validates():
+    from llm_reservoir_agent.weather import load_weather, validate_bindings
+
+    hydro_dir = MULTI_RESERVOIR / "hydrology"
+    hydro_spec = yaml.safe_load((hydro_dir / "hydrology.yaml").read_text(encoding="utf-8"))
+    weather = load_weather(hydro_spec, hydro_dir)
+    assert weather["units"] == ["U1", "U2", "D1", "D2"]
+    assert len(weather["dates"]) == 887
+    assert validate_bindings(weather, ("feitsui_local", "zhitan_local", "xindian_outlet")) == []
+    cv_summary = json.loads((hydro_dir / "cv_summary.json").read_text(encoding="utf-8"))
+    assert cv_summary["feitsui_U1_U2_C_2019_01_08"]["kge"] > 0.6
+    assert cv_summary["feitsui_U1_U2_V2_2020_05_06"]["kge"] > 0.6
+    assert cv_summary["zhitan_D1_D2_V2_combined_2020_05_07_06_05"]["kge"] > 0.6
+
+
 def test_multi_reservoir_hybrid_llm_checks_and_runs_with_mock_transport(folder, tmp_path):
     experiment = folder / "hybrid_llm.yaml"
     loaded = load_settings(experiment)
@@ -96,7 +112,7 @@ def test_multi_reservoir_hybrid_llm_checks_and_runs_with_mock_transport(folder, 
     assert report["planned_llm_calls"] == 30
     assert report["network_calls"] == 0
     assert report["agent_strategies"] == {
-        "feitsui_operator": "configured",
+        "feitsui_operator": "xindian_study",
         "zhitan_operator": "benchmark",
     }
     assert report["agent_types"] == {
@@ -109,13 +125,21 @@ def test_multi_reservoir_hybrid_llm_checks_and_runs_with_mock_transport(folder, 
 
     def transport(_url, payload, _headers, _timeout):
         requests.append(payload["messages"])
+        reply = {
+            "applicable_target_storage_m3": 250_000_000.0,
+            "pool_position": "above_target",
+            "intended_storage_direction": "decrease",
+            "release_relation_to_inflow": "above_inflow",
+            "reasoning": "Release moderately above inflow to return toward the 250M m3 Mei-Yu buffer.",
+            "release_cms": 35.0,
+        }
         return {
             "model": "gemma4:12b",
             "done": True,
             "done_reason": "stop",
             "message": {
                 "role": "assistant",
-                "content": json.dumps({"schema_version": "reservoir-action.v1", "release_cms": 35.0}),
+                "content": json.dumps(reply),
             },
         }
 
@@ -129,6 +153,10 @@ def test_multi_reservoir_hybrid_llm_checks_and_runs_with_mock_transport(folder, 
     assert verified["max_system_balance_residual_m3"] < 1e-6
     assert len(requests) == 30
     assert set(records) == {"feitsui", "zhitan"}
+    first_prompt = (folder / "prompts" / "feitsui.user.txt").read_text(encoding="utf-8")
+    assert requests[0][1]["content"] == first_prompt.rstrip("\n")
+    for msgs in requests:
+        assert "Previous simulated release decisions" in msgs[1]["content"]
 
 
 def test_multi_reservoir_replay_reproduces_study_scores(tmp_path):
