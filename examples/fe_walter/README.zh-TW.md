@@ -29,7 +29,7 @@
 
 - **設定檔**：[`seasonal_target.yaml`](seasonal_target.yaml)
 - **方法**：`gemma4:12b`，僅提供水庫水位、季節目標水位與前兩日放流歷史。
-- **提示詞**：[System](prompts/seasonal_target.system.txt) · [第 1 天 User](prompts/seasonal_target.user.txt)。
+- **提示詞**：[System](prompts/seasonal_target.system.txt) · [第 1 天 User 範例](prompts/seasonal_target.user.txt)。
 
 </div>
 <div class="panel-card" markdown="1">
@@ -38,14 +38,14 @@
 
 - **設定檔**：[`dkp.yaml`](dkp.yaml)
 - **方法**：`gemma4:12b`，從 [`dkp.md`](dkp.md) 檢索結構化操作規則，並於 JSON 中引用 `rules_applied`。
-- **提示詞**：[System](prompts/dkp.system.txt) · [第 1 天 User](prompts/dkp.user.txt)。
+- **提示詞**：[System](prompts/dkp.system.txt) · [第 1 天 User 範例](prompts/dkp.user.txt)。
 
 </div>
 </div>
 
 ## 設定檔與提示詞檢視
 
-三種條件共用 2021–2025 年模擬區域入流（[`inflows.csv`](inflows.csv)），預設先跑 7 天教學視窗（`2021-01-01`–`2021-01-07`），加上 `--full` 即可執行全期 `1,826` 天。兩組 LLM 條件共用 [`case.json`](case.json)、[`study/elevation_storage.csv`](study/elevation_storage.csv)、[`study/response_schemas.json`](study/response_schemas.json) 與 [`study/formatter.py`](study/formatter.py)（將水位格式化為 `ft NGVD29`、入流為 `cfs`/`acre-ft` 並列出兩日放流歷史）。
+三種條件共用 2021–2025 年模擬區域入流（[`inflows.csv`](inflows.csv)），預設先跑 7 天教學視窗（`2021-01-01`–`2021-01-07`），加上 `--full` 即可執行全期 `1,826` 天。兩組 LLM 條件使用 [`case.json`](case.json)（含呆庫容與最小放流限制）搭配 [`study/elevation_storage.csv`](study/elevation_storage.csv)、[`study/response_schemas.json`](study/response_schemas.json) 與 [`study/formatter.py`](study/formatter.py)（由程式動態將水位、流量與兩日放流歷史格式化為 `ft NGVD29` 與 `cfs`/`acre-ft`；`.user.txt` 為唯讀的第 1 天輸出範例）。**Rule-based** 基準則使用有效蓄水座標（下限 `0.0`）的 [`rule_case.json`](rule_case.json)，以嚴格對齊未截幅的 Hanasaki 公式。
 
 於離線狀態（`0` 次呼叫）檢查全部三份設定檔：
 

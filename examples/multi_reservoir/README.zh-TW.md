@@ -41,7 +41,7 @@ reservoir-experiment check examples/multi_reservoir/hybrid_llm.yaml
 | `network.outlets` | 非空終端出口清單（本案例為 `["xindian_outlet"]`） | 是 |
 | `inflow_source` | `{path, sha256, format}`（`daily-node-local-cms.v1`） | 是 |
 
-匯流點、無閘門溢流堰（`passive_outlet`）與次日（`v3`）串聯請參閱[多水庫河網串接](../../docs/BUILD_SIMULATION.zh-TW.md)。
+匯流點、無閘門溢流堰（`passive_outlet`）與次日（`v3`）串聯請參閱[多水庫河網串接](../../docs/MULTI_RESERVOIR.zh-TW.md)。
 
 ## 入流、河道演算與 YAML 注意事項
 

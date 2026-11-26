@@ -24,8 +24,7 @@ hourly kernel are local extensions, not unmodified upstream GWLF.
 The internal flood-control test fixture in `tests/fixtures/examples/rules/hanasaki_flood_control/` independently implements
 the reservoir equations and annual storage snapshot from RiverAI-Project/MOSART-Urban,
 commit `7883c5cac62e8c0c585fbafbb1045118cad2dd42`. The implementation records
-the upstream source hash. The optional parity check in `scripts/verify_hanasaki_rule.py`
-requires a separately obtained copy of that upstream source.
+the upstream source hash.
 
 Daily historical reservoir records for Feitsui Reservoir and Zhitan Dam used
 in `examples/multi_reservoir/` are derived from Taiwan Water Resources Agency

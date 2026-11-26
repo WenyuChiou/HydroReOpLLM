@@ -51,13 +51,13 @@ nav:
         - 結果判讀與水量平衡: RESULTS_GUIDE.zh-TW.md
     - 集水區與水文河網:
         - 入流與 HydroCNHS 設定: HYDROLOGY_SETUP.zh-TW.md
-        - 多水庫河網串接: BUILD_SIMULATION.zh-TW.md
+        - 多水庫河網串接: MULTI_RESERVOIR.zh-TW.md
         - 時間尺度與單位: TIME_SCALES.zh-TW.md
         - 逐時 GWLF（實驗性）: HOURLY_GWLF.zh-TW.md
     - 水庫操作決策:
         - 操作規則與 LLM 設計: AGENT_DESIGN.zh-TW.md
         - 水情測站與預報: INFORMATION.zh-TW.md
-        - 模型服務設定: LLM_MODULES.zh-TW.md
+        - 模型服務設定: MODEL_PROVIDERS.zh-TW.md
     - 範例與實作教學:
         - 單一水庫案例（F.E. Walter）: examples/fe_walter/index.zh-TW.md
         - 互動式 Notebook 教學: tutorials/index.zh-TW.md

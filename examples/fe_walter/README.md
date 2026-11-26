@@ -29,7 +29,7 @@ This case study evaluates **F.E. Walter Dam** (Lehigh River basin, Pennsylvania)
 
 - **Config**: [`seasonal_target.yaml`](seasonal_target.yaml)
 - **Method**: `gemma4:12b` given only pool elevation, seasonal target level, and 2-day release history.
-- **Prompts**: [System](prompts/seasonal_target.system.txt) · [Day 1 User](prompts/seasonal_target.user.txt).
+- **Prompts**: [System](prompts/seasonal_target.system.txt) · [Day 1 User sample](prompts/seasonal_target.user.txt).
 
 </div>
 <div class="panel-card" markdown="1">
@@ -38,14 +38,14 @@ This case study evaluates **F.E. Walter Dam** (Lehigh River basin, Pennsylvania)
 
 - **Config**: [`dkp.yaml`](dkp.yaml)
 - **Method**: `gemma4:12b` retrieving structured rules from [`dkp.md`](dkp.md) and citing `rules_applied` in JSON.
-- **Prompts**: [System](prompts/dkp.system.txt) · [Day 1 User](prompts/dkp.user.txt).
+- **Prompts**: [System](prompts/dkp.system.txt) · [Day 1 User sample](prompts/dkp.user.txt).
 
 </div>
 </div>
 
 ## Configuration files and prompt inspection
 
-All three conditions share the 2021–2025 simulated local inflows ([`inflows.csv`](inflows.csv)) and start on a 7-day tutorial window (`2021-01-01`–`2021-01-07`) before running `--full` (`1,826` days). Both LLM conditions share [`case.json`](case.json), [`study/elevation_storage.csv`](study/elevation_storage.csv), [`study/response_schemas.json`](study/response_schemas.json), and [`study/formatter.py`](study/formatter.py) (which formats pool elevation in `ft NGVD29`, inflow in `cfs`/`acre-ft`, and 2-day release history).
+All three conditions share the 2021–2025 simulated local inflows ([`inflows.csv`](inflows.csv)) and start on a 7-day tutorial window (`2021-01-01`–`2021-01-07`) before running `--full` (`1,826` days). Both LLM conditions use [`case.json`](case.json) (physical dead storage and minimum release) together with [`study/elevation_storage.csv`](study/elevation_storage.csv), [`study/response_schemas.json`](study/response_schemas.json), and [`study/formatter.py`](study/formatter.py) (which dynamically renders each daily user message in `ft NGVD29` and `cfs`/`acre-ft`; the `.user.txt` files are read-only Day-1 samples). The **Rule-based** baseline uses [`rule_case.json`](rule_case.json) with `0.0` effective-storage bounds to match the unclipped Hanasaki formula.
 
 Check all three configurations offline (`0` calls):
 

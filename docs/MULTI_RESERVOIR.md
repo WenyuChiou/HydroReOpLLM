@@ -88,5 +88,5 @@ operator_b:
 ## Execution order and cross-reservoir information
 
 1. **Upstream-to-downstream order**: HydroReOpLLM steps through the river network in topological sequence so upstream releases arrive before downstream dams decide.
-2. **Cross-reservoir states**: Add a `simulation` source in `information.yaml` ([Gauges & forecasts](INFORMATION.md)) to expose an upstream dam's committed storage or release downstream; parallel dams cannot peek at each other's uncommitted same-step decision.
+2. **Cross-reservoir states**: Upstream physical releases routed along `unit_hydrograph[0]` enter downstream `inflow_cms` automatically on the same step; to also read another dam's committed prior-step storage or release as text context, add a `simulation` source in `information.yaml` with `required: false` for Day 1 ([Gauges & forecasts](INFORMATION.md)).
 3. **Check topology**: Run `reservoir-experiment check` whenever modifying connections, `fraction`, `unit_hydrograph`, or `outlets`.
