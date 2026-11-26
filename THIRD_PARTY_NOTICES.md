@@ -26,3 +26,7 @@ the reservoir equations and annual storage snapshot from RiverAI-Project/MOSART-
 commit `7883c5cac62e8c0c585fbafbb1045118cad2dd42`. The implementation records
 the upstream source hash. The optional parity check in `scripts/verify_hanasaki_rule.py`
 requires a separately obtained copy of that upstream source.
+
+Daily historical reservoir records for Feitsui Reservoir and Zhitan Dam used
+in `examples/multi_reservoir/` are derived from Taiwan Water Resources Agency
+(WRA) Open Government Data (`2019-01-01` to `2020-06-02`).

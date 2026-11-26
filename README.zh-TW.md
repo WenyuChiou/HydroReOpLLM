@@ -48,8 +48,8 @@ reservoir-experiment verify runs/fe-walter-rule-based --require-offline
 | 單一水庫（F.E. Walter） | [`examples/fe_walter/seasonal_target.yaml`](examples/fe_walter/README.zh-TW.md) | **Without operational knowledge（無操作知識）**（僅依水位、季節目標與兩日歷史） | 本機 Ollama |
 | 單一水庫（F.E. Walter） | [`examples/fe_walter/dkp.yaml`](examples/fe_walter/README.zh-TW.md) | **With operational knowledge（具操作知識）**（加入 `dkp.md` 結構化手冊條文） | 本機 Ollama |
 | 單一水庫（F.E. Walter） | [`tutorials/fe_walter.ipynb`](https://wenyuchiou.github.io/HydroReOpLLM/tutorials/index.zh-TW.html) | 互動式 Notebook，對照三種條件並預覽多水庫混合設定 | 預設離線 |
-| 多水庫串聯 | [`examples/multi_reservoir/hybrid_llm.yaml`](examples/multi_reservoir/README.zh-TW.md) | 雙水庫串聯（上游 Hanasaki + 下游 LLM，含河道演算延遲） | 本機 Ollama（`10` 次） |
-| 多水庫串聯 | [`examples/multi_reservoir/rule_based.yaml`](examples/multi_reservoir/README.zh-TW.md) | 雙水庫離線串聯（兩座水庫皆採 Hanasaki 滯洪規則） | `0`（離線） |
+| 多水庫串聯（新店溪） | [`examples/multi_reservoir/hybrid_llm.yaml`](examples/multi_reservoir/README.zh-TW.md) | 2020 年 5 月梅雨實測：上游翡翠水庫 Hanasaki + 下游直潭壩 LLM（`[0.8, 0.2]` 演算） | 本機 Ollama（`10` 次） |
+| 多水庫串聯（新店溪） | [`examples/multi_reservoir/rule_based.yaml`](examples/multi_reservoir/README.zh-TW.md) | 2020 年 5 月梅雨實測離線串聯：翡翠水庫 → 直潭壩皆採 Hanasaki 滯洪規則 | `0`（離線） |
 
 瀏覽[範例總覽](examples/README.zh-TW.md)或前往[完整使用手冊](https://wenyuchiou.github.io/HydroReOpLLM/zh-TW.html)。
 

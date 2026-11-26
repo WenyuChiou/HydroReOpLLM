@@ -1,60 +1,66 @@
 {
   "schema_version": "llm-reservoir-network-case.v1",
-  "data_kind": "synthetic_fixture",
+  "data_kind": "observed_local_inflow",
+  "live_readiness": {
+    "ready": true,
+    "notes": [
+      "Daily inflows and effective storage capacities are derived from Taiwan Water Resources Agency (WRA) historical daily operation records for Feitsui Reservoir and Zhitan Dam during the May-June 2020 Mei-Yu front.",
+      "Storage values represent effective storage above dead pool (dead_storage_m3 = 0.0), and zhitan_local represents Nanshi Creek plus intervening Xindian River lateral runoff after subtracting [0.8, 0.2]-routed historical Feitsui outflow."
+    ]
+  },
   "network": {
     "schema_version": "llm-reservoir-network.v2",
-    "start_date": "2026-03-26",
+    "start_date": "2020-05-18",
     "reservoirs": {
-      "upper": {
-        "inflow_node": "upper_local",
+      "feitsui": {
+        "inflow_node": "feitsui_local",
         "physical": {
-          "reservoir_id": "upper",
-          "capacity_m3": 8000000.0,
-          "dead_storage_m3": 200000.0,
-          "initial_storage_m3": 3000000.0,
+          "reservoir_id": "feitsui",
+          "capacity_m3": 335505000.0,
+          "dead_storage_m3": 0.0,
+          "initial_storage_m3": 243980200.0,
           "minimum_release_cms": 0.0,
-          "maximum_release_cms": 20.0,
+          "maximum_release_cms": 500.0,
           "dt_seconds": 86400.0
         }
       },
-      "lower": {
-        "inflow_node": "lower_local",
+      "zhitan": {
+        "inflow_node": "zhitan_local",
         "physical": {
-          "reservoir_id": "lower",
-          "capacity_m3": 1000000.0,
-          "dead_storage_m3": 100000.0,
-          "initial_storage_m3": 800000.0,
+          "reservoir_id": "zhitan",
+          "capacity_m3": 1918900.0,
+          "dead_storage_m3": 0.0,
+          "initial_storage_m3": 1761300.0,
           "minimum_release_cms": 0.0,
-          "maximum_release_cms": 20.0,
+          "maximum_release_cms": 800.0,
           "dt_seconds": 86400.0
         }
       }
     },
     "connections": [
       {
-        "source": "upper",
-        "target": "lower_local",
+        "source": "feitsui",
+        "target": "zhitan_local",
         "unit_hydrograph": [
-          0.0,
-          0.7,
-          0.3
+          0.8,
+          0.2
         ]
       },
       {
-        "source": "lower",
-        "target": "outlet",
+        "source": "zhitan",
+        "target": "xindian_outlet",
         "unit_hydrograph": [
           1.0
         ]
       }
     ],
     "outlets": [
-      "outlet"
+      "xindian_outlet"
     ]
   },
   "inflow_source": {
     "path": "inflows.csv",
-    "sha256": "ae4b83eb8ccd4918667f564e573a9cfdde64058ee28489516ddc7493200d7cac",
+    "sha256": "ac919b3c552586494c904a47c049be6386464bbbb5f609b166d9a8b0c9df90f6",
     "format": "daily-node-local-cms.v1"
   }
 }

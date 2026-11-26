@@ -74,9 +74,9 @@ reservoir-experiment check examples/fe_walter/dkp.yaml
 
 - 欲離線重播 21 組論文模擬，或以本機 Ollama 執行 **Without operational knowledge（無操作知識）** 與 **With operational knowledge（具操作知識）**，請參閱[單一水庫案例（F.E. Walter）](../examples/fe_walter/README.zh-TW.md)與[互動式 Notebook 教學](../tutorials/README.zh-TW.md)。
 
-### 多水庫串聯案例
+### 多水庫串聯案例（新店溪：翡翠水庫 → 直潭壩）
 
-離線執行雙水庫 Hanasaki 串聯基準，並檢查上游規則＋下游 LLM 的混合設定：
+離線執行 2020 年 5 月梅雨期間新店溪串聯水庫（`feitsui` → `zhitan` → `xindian_outlet`）的雙庫 Hanasaki 基準，並檢查上游翡翠 Hanasaki＋下游直潭 LLM 的混合設定：
 
 ```sh
 reservoir-experiment check examples/multi_reservoir/rule_based.yaml

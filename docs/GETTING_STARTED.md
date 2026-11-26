@@ -71,7 +71,7 @@ reservoir-experiment check examples/fe_walter/dkp.yaml
 
 See [Single-reservoir case (F.E. Walter)](../examples/fe_walter/README.md) or the [Interactive notebook](../tutorials/README.md) to replay all 21 archived runs or run **Without operational knowledge** and **With operational knowledge** with local Ollama.
 
-Next, run the **Multi-reservoir case** (`upper` → `lower` → `outlet`) offline baseline and inspect the hybrid Hanasaki + LLM cascade:
+Next, run the **Multi-reservoir case** (Taiwan's Xindian River cascade: `feitsui` → `zhitan` → `xindian_outlet`, May 2020 Mei-Yu front) offline baseline and inspect the hybrid Hanasaki + LLM cascade:
 
 ```sh
 reservoir-experiment check examples/multi_reservoir/rule_based.yaml

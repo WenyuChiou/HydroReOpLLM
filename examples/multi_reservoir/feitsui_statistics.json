@@ -1,0 +1,31 @@
+{
+  "schema_version": "reservoir-benchmark-statistics.v1",
+  "reservoir_id": "feitsui",
+  "reference_start": "2019-01-01",
+  "reference_end": "2019-12-31",
+  "source": {
+    "path": "reference_inflows.csv",
+    "sha256": "d1380e84d1ba3bfd180e8acc4fdf6f3e19c4c09c34f4973a38f19dbed4282b4e",
+    "date_column": "date",
+    "flow_column": "inflow_cms",
+    "flow_to_cms": 1.0,
+    "reservoir_column": "reservoir",
+    "reservoir_value": "feitsui"
+  },
+  "mean_inflow_cms": 27.052216550684932,
+  "monthly_mean_inflow_cms": {
+    "1": 31.05353935483871,
+    "2": 10.130828392857142,
+    "3": 16.835648193548387,
+    "4": 12.730632766666668,
+    "5": 31.14217451612903,
+    "6": 33.78395066666666,
+    "7": 20.960648129032258,
+    "8": 37.37175180645161,
+    "9": 54.9604168,
+    "10": 32.054248903225805,
+    "11": 17.6667824,
+    "12": 24.65109770967742
+  },
+  "reference_day_count": 365
+}
