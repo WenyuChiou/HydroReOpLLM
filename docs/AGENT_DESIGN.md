@@ -86,15 +86,15 @@ HydroReOpLLM provides two ways to configure Hanasaki depending on your workflow:
 
 ### Built-in `strategy: benchmark` (multi-reservoir)
 
-Used in `examples/multi_reservoir/rule_based.yaml` and `hybrid_llm.yaml` with no `extensions:` needed:
+Used in `examples/multi_reservoir/rule_based.yaml` (`feitsui` & `zhitan`) and `hybrid_llm.yaml` (`zhitan`) with no `extensions:` needed:
 
 ```yaml
-feitsui_operator:
-  reservoir: feitsui
+zhitan_operator:
+  reservoir: zhitan
   mode: offline
   strategy: benchmark
   benchmark:
-    statistics: feitsui_statistics.json
+    statistics: zhitan_statistics.json
     purpose: flood_control
     alpha: 0.85
 ```

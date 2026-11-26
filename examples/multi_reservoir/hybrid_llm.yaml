@@ -1,12 +1,12 @@
-# Hybrid Xindian River cascade: upstream Hanasaki rule (Feitsui) paired with downstream LLM operator (Zhitan).
+# Hybrid Xindian River cascade: upstream LLM operator (Feitsui) paired with downstream Hanasaki rule (Zhitan).
 # Run check offline (0 network calls); live execution requires Ollama and --allow-network.
 schema_version: llm-reservoir-experiment.v1
 case: case.json                       # Physical cascade: Feitsui Reservoir -> Zhitan Dam -> xindian_outlet.
 run_id: multi-reservoir-hybrid-llm    # Trace identity; change with output before repeating.
 output: ../../runs/multi-reservoir-hybrid-llm  # Unused output path, relative to this file.
-start_date: '2020-05-20'              # Inclusive Mei-Yu storm operation start date (10 daily steps).
-end_date: '2020-05-29'                # Inclusive operation end date.
-max_calls: 10                         # 1 LLM agent x 10 days = 10 planned calls.
+start_date: '2020-05-07'              # Inclusive 30-day Mei-Yu study start date (30 daily steps).
+end_date: '2020-06-05'                # Inclusive operation end date.
+max_calls: 60                         # 1 LLM agent x 30 days = 30 planned calls (up to 2 attempts/day).
 models:
   local:
     provider: ollama
@@ -14,7 +14,11 @@ models:
     base_url: http://127.0.0.1:11434
     temperature: 0.2
     seed: 3
-    max_tokens: 256
+    max_tokens: 512
+    max_attempts: 2
+    think: false
+    keep_alive: 30m
+    timeout_seconds: 120
 auditors:
   feasible_release:
     type: release_bounds
@@ -22,18 +26,21 @@ auditors:
 agents:
   feitsui_operator:
     reservoir: feitsui
-    mode: offline
-    strategy: benchmark
-    benchmark:
-      statistics: feitsui_statistics.json
-      purpose: flood_control
-      alpha: 0.85
+    mode: llm
+    model: local
+    history_steps: 2
+    prompt:
+      system: prompts/system.txt
+      user: prompts/operator.txt
     auditors:
     - feasible_release
   zhitan_operator:
     reservoir: zhitan
-    mode: llm
-    model: local
-    prompt: prompts/operator.txt
+    mode: offline
+    strategy: benchmark
+    benchmark:
+      statistics: zhitan_statistics.json
+      purpose: flood_control
+      alpha: 0.85
     auditors:
     - feasible_release

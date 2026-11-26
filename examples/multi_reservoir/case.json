@@ -10,7 +10,7 @@
   },
   "network": {
     "schema_version": "llm-reservoir-network.v2",
-    "start_date": "2020-05-18",
+    "start_date": "2020-05-05",
     "reservoirs": {
       "feitsui": {
         "inflow_node": "feitsui_local",
@@ -18,7 +18,7 @@
           "reservoir_id": "feitsui",
           "capacity_m3": 335505000.0,
           "dead_storage_m3": 0.0,
-          "initial_storage_m3": 243980200.0,
+          "initial_storage_m3": 253810100.0,
           "minimum_release_cms": 0.0,
           "maximum_release_cms": 500.0,
           "dt_seconds": 86400.0
@@ -30,7 +30,7 @@
           "reservoir_id": "zhitan",
           "capacity_m3": 1918900.0,
           "dead_storage_m3": 0.0,
-          "initial_storage_m3": 1761300.0,
+          "initial_storage_m3": 1639500.0,
           "minimum_release_cms": 0.0,
           "maximum_release_cms": 800.0,
           "dt_seconds": 86400.0
@@ -60,7 +60,7 @@
   },
   "inflow_source": {
     "path": "inflows.csv",
-    "sha256": "ac919b3c552586494c904a47c049be6386464bbbb5f609b166d9a8b0c9df90f6",
+    "sha256": "d50142bf0652a1b730a8ab2f8ee229f74b3a960cfea53a6975c132a745da2c38",
     "format": "daily-node-local-cms.v1"
   }
 }

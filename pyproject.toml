@@ -98,6 +98,13 @@ hydrocnhs = ["Config_logging.yaml"]
     "examples/multi_reservoir/zhitan_statistics.json",
 ]
 "share/llm-reservoir-agent/examples/multi_reservoir/prompts" = [
+    "examples/multi_reservoir/prompts/system.txt",
     "examples/multi_reservoir/prompts/operator.txt",
+]
+"share/llm-reservoir-agent/examples/multi_reservoir/study" = [
+    "examples/multi_reservoir/study/replay.py",
+    "examples/multi_reservoir/study/archived_releases.csv",
+    "examples/multi_reservoir/study/observations.csv",
+    "examples/multi_reservoir/study/expected_scores.csv",
 ]
 "share/llm-reservoir-agent" = ["THIRD_PARTY_NOTICES.md"]

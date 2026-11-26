@@ -1,17 +1,43 @@
-# Multi-reservoir cascade example (Xindian River, Taiwan)
+# Xindian River cascade (Taiwan)
 
-This real-world series cascade models **Feitsui Reservoir** (`feitsui`) → **Zhitan Dam** (`zhitan`) → `xindian_outlet` on Taiwan's Xindian River during the **May 2020 Mei-Yu front** (`2020-05-20`–`2020-05-29`), using historical daily inflow and effective storage records from Taiwan's Water Resources Agency (WRA). Upstream releases route through a `[0.8, 0.2]` unit-hydrograph lag (`80%` same day, `20%` next day) before combining with Nanshi Creek lateral runoff at `zhitan_local`.
+<div class="hero-band" markdown="1">
 
-## Files and quick run
+This multi-reservoir case study models Taiwan's **Xindian River cascade** — **Feitsui Reservoir** (`feitsui`) → **Zhitan Dam** (`zhitan`) → `xindian_outlet` — across the **May 7 – June 5, 2020** Mei-Yu front (`2020-05-07`–`2020-06-05`, 30 daily steps) using historical inflow, storage, and release records from Taiwan's Water Resources Agency (WRA). It compares a dual **Rule-based** Hanasaki cascade (`rule_based.yaml`) against a **Hybrid LLM cascade** (`hybrid_llm.yaml`) on the same HydroCNHS routing network.
 
-| File | Purpose |
-| --- | --- |
-| [`rule_based.yaml`](rule_based.yaml) | Offline 10-day baseline (`2020-05-20`–`2020-05-29`): Hanasaki flood control (α = 0.85) on `feitsui_operator` and `zhitan_operator`. |
-| [`hybrid_llm.yaml`](hybrid_llm.yaml) | Hybrid 10-day setup: upstream Hanasaki (`feitsui_operator`) + downstream LLM (`zhitan_operator`, `prompts/operator.txt`). |
-| [`case.json`](case.json) | WRA effective capacities (`feitsui`: `335,505,000 m3`, `[0, 500] m3/s`; `zhitan`: `1,918,900 m3`, `[0, 800] m3/s`), `[0.8, 0.2]` lag, `observed_local_inflow`. |
-| [`inflows.csv`](inflows.csv) | Daily WRA incremental local inflows (`m3/s`), `2020-05-18` to `2020-06-02` (`16` days; excludes routed Feitsui outflow). |
-| [`reference_inflows.csv`](reference_inflows.csv) | 2019 WRA daily inflows (`2019-01-01`–`2019-12-31`) used to derive `feitsui_statistics.json` and `zhitan_statistics.json`. |
-| [`prompts/operator.txt`](prompts/operator.txt) | Prompt for `zhitan_operator` in `hybrid_llm.yaml` returning `reservoir-action.v1` JSON. |
+</div>
+
+## Study area and benchmark design
+
+<figure class="figure-card">
+  <img src="../../docs/assets/figures/fig5-xindian-study-area.png" alt="Xindian River cascade study area showing Feitsui Reservoir, Nanshi Creek lateral inflow, Zhitan Dam, and xindian_outlet">
+  <figcaption><strong>Figure 5.</strong> Xindian River cascade layout: Feitsui Reservoir (<code>335,505,000 m3</code> capacity; <code>[0, 500] m3/s</code> controlled release) routes through a <code>[0.8, 0.2]</code> unit-hydrograph lag, combines with Nanshi Creek lateral runoff (<code>zhitan_local</code>), and feeds Zhitan Dam (<code>1,918,900 m3</code>; <code>[0, 800] m3/s</code>) before routing through <code>[1.0]</code> to <code>xindian_outlet</code>.</figcaption>
+</figure>
+
+<div class="panel-grid panel-grid-2" markdown="1">
+<div class="panel-card" markdown="1">
+
+### Condition 1: Rule-based cascade
+
+- **Config**: [`rule_based.yaml`](rule_based.yaml)
+- **Method**: Dual **Rule-based** Hanasaki flood-control rule (`strategy: benchmark`, α = 0.85) on `feitsui_operator` ([`feitsui_statistics.json`](feitsui_statistics.json)) and `zhitan_operator` ([`zhitan_statistics.json`](zhitan_statistics.json)), offline.
+- **Result**: Ends at `294,038,029 m3` in `feitsui` (from `253,810,100 m3`) and `1,639,737 m3` in `zhitan` (from `1,639,500 m3`, `PASS`).
+
+</div>
+<div class="panel-card" markdown="1">
+
+### Condition 2: Hybrid LLM cascade
+
+- **Config**: [`hybrid_llm.yaml`](hybrid_llm.yaml)
+- **Method**: Upstream `feitsui_operator` runs `gemma4:12b` (`history_steps: 2`, `reservoir-action.v1`) paired with downstream Hanasaki on `zhitan_operator` ([`zhitan_statistics.json`](zhitan_statistics.json)).
+- **Prompts**: [System prompt](prompts/system.txt) · [User template](prompts/operator.txt).
+- **Result**: Ends at `261,903,700 m3` in `feitsui` and `1,639,936 m3` in `zhitan` (`PASS`).
+
+</div>
+</div>
+
+## Configuration files and quick run
+
+Both conditions share [`case.json`](case.json) (WRA capacities, `[0.8, 0.2]` unit-hydrograph routing, and `2020-05-07` initial storages) and [`inflows.csv`](inflows.csv) (32 daily local inflows from `2020-05-05` to `2020-06-05`, containing the 30-day study window). Validate both files and execute the offline baseline:
 
 ```sh
 reservoir-experiment check examples/multi_reservoir/rule_based.yaml
@@ -20,32 +46,51 @@ reservoir-experiment verify runs/multi-reservoir-rule-based --require-offline
 reservoir-experiment check examples/multi_reservoir/hybrid_llm.yaml
 ```
 
-Set a fresh `run_id` and unused `output` before repeating a run. The 10-day `rule_based.yaml` run finishes with `275,297,173 m3` in `feitsui` (starting from `243,980,200 m3`) and `1,761,528 m3` in `zhitan` (starting from `1,761,300 m3`, `PASS`). To run `hybrid_llm.yaml` live, start local Ollama (`gemma4:12b`) and pass `--allow-network`. Inspect outputs in [Reading results](../../docs/RESULTS_GUIDE.md).
+The offline `rule_based.yaml` workflow verifies with `PASS` at `294,038,029 m3` in `feitsui` and `1,639,737 m3` in `zhitan` (change `run_id` and `output` before repeating). Keep two configuration rules in mind when customizing this cascade:
 
-## Physical network fields (`case.json`)
-
-Each reservoir entry under `network.reservoirs.<key>` defines its `inflow_node` and `physical.*` bounds:
-
-| Field | Meaning, native unit, and constraints | Req |
-| --- | --- | --- |
-| `schema_version` | `llm-reservoir-network-case.v1` | yes |
-| `data_kind` | `observed_local_inflow`, `simulated_local_inflow`, or `synthetic_fixture` | yes |
-| `live_readiness` | `{"ready": true}` required for LLM calls on non-synthetic inflows | no |
-| `network.schema_version` | `llm-reservoir-network.v2` (`outlets` list, daily) | yes |
-| `network.start_date` | Quoted `YYYY-MM-DD`; must match the first `inflows.csv` date (`2020-05-18`) | yes |
-| `reservoirs.<key>.inflow_node` | Unique local inflow node ID (`feitsui_local`, `zhitan_local`) | yes |
-| `physical.capacity_m3`, `dead_storage_m3`, `initial_storage_m3` | Effective storage bounds (`m3`): `0 <= dead <= initial <= capacity` (`initial` applies on `start_date`) | yes |
-| `physical.minimum_release_cms`, `maximum_release_cms` | Controlled release bounds (`m3/s`); spill above capacity is uncapped | yes |
-| `physical.dt_seconds` | Timestep length in seconds (`86400.0` for daily CSV) | no |
-| `network.connections[]` | `source`, `target`, optional `fraction` (summing to `1`), optional `unit_hydrograph` | yes |
-| `network.outlets` | Non-empty terminal node list (`["xindian_outlet"]`) | yes |
-| `inflow_source` | `{path, sha256, format}` (`daily-node-local-cms.v1`) | yes |
-
-For junctions, passive outlets, and sub-daily (`v3`) cascades, see [Multi-reservoir networks](../../docs/MULTI_RESERVOIR.md).
-
-## Inflows, routing, and YAML notes
-
-- **Incremental local inflows**: `inflows.csv` columns are `date,node,local_inflow_cms` (consecutive days, `>= 0` m3/s) excluding routed upstream releases. If you edit `inflows.csv`, update `inflow_source.sha256` with `python -c "import hashlib,sys; print(hashlib.sha256(open(sys.argv[1],'rb').read()).hexdigest())" examples/multi_reservoir/inflows.csv`.
-- **Unit-hydrograph routing**: `feitsui` routes `controlled_release_cms + spill_cms` through `[0.8, 0.2]` into `zhitan_local`; `zhitan` routes through `[1.0]` to `xindian_outlet`.
+- **Inflow checksum**: If you edit `inflows.csv`, update `inflow_source.sha256` in `case.json` using `python -c "import hashlib,sys; print(hashlib.sha256(open(sys.argv[1],'rb').read()).hexdigest())" examples/multi_reservoir/inflows.csv`.
 - **YAML scientific notation**: Always include `+` or `-` in exponents (`8.0e+6` or `8000000.0`), because YAML parses `8.0e6` as text and `check` rejects it.
-- **Next steps**: Compare with the single-reservoir [F.E. Walter Dam](../fe_walter/README.md) study or customize prompts in [Rules & LLM prompts](../../docs/AGENT_DESIGN.md).
+
+For full network schemas, junctions, and custom prompt design, see [Multi-reservoir networks](../../docs/MULTI_RESERVOIR.md) and [Rules & LLM prompts](../../docs/AGENT_DESIGN.md).
+
+## Mei-Yu storm performance (May–June 2020)
+
+<figure class="figure-card">
+  <img src="../../docs/assets/figures/fig6-xindian-results.png" alt="Simulated vs observed Feitsui storage, Feitsui release, and downstream Xindian River flow during May-June 2020">
+  <figcaption><strong>Figure 6.</strong> Daily May 7 – June 5, 2020 Feitsui Reservoir storage, Feitsui release, and downstream Xindian River flow comparing Taiwan WRA historical observations against the Rule-based cascade and Hybrid LLM cascade.</figcaption>
+</figure>
+
+During the May 2020 Mei-Yu front, the dual Hanasaki baseline over-retains storm inflow in Feitsui Reservoir (ending near `294.0 × 10⁶ m³`), whereas the Hybrid LLM operator adapts upstream releases to match WRA flood-control drawdowns and sharpens downstream hydrograph timing at `xindian_outlet`.
+
+Performance over `2020-05-07`–`2020-06-05` against Taiwan WRA observations (stored in [`study/expected_scores.csv`](study/expected_scores.csv)):
+
+| Condition | Feitsui storage KGE | Feitsui storage NSE | Feitsui storage RMSE (10⁶ m³) | Feitsui release KGE / RMSE (m³/s) | Downstream flow KGE / RMSE (m³/s) |
+| --- | --- | --- | --- | --- | --- |
+| Rule-based cascade (Hanasaki + Hanasaki) | `0.304` | `-0.186` | `10.99` | `0.459` / `23.19` | `0.824` / `21.94` |
+| Hybrid LLM cascade (`feitsui` LLM + `zhitan` Hanasaki) | `0.969` | `0.970` | `1.74` | `0.908` / `10.80` | `0.960` / `9.27` |
+
+## Reproduce the reported scores offline
+
+Replay the archived daily release series ([`study/archived_releases.csv`](study/archived_releases.csv)) and the Rule-based cascade against Taiwan WRA observations ([`study/observations.csv`](study/observations.csv)) offline:
+
+```sh
+python examples/multi_reservoir/study/replay.py --output runs/xindian-replay
+```
+
+Verification scores (KGE, NSE, and RMSE) are written to `runs/xindian-replay/scores.csv`.
+
+## Make new runs with local Ollama
+
+Start local Ollama with `gemma4:12b` available on `http://127.0.0.1:11434`, then execute the hybrid cascade with network access enabled:
+
+```sh
+ollama serve
+```
+
+In a second terminal (use a fresh `run_id` and `output` path in `hybrid_llm.yaml` before repeating):
+
+```sh
+reservoir-experiment run examples/multi_reservoir/hybrid_llm.yaml --allow-network
+```
+
+Because floating-point LLM inference varies across hardware, use `study/replay.py` above to reproduce the reported scores identically. Inspect outputs in [Reading results](../../docs/RESULTS_GUIDE.md) or compare with the single-reservoir [F.E. Walter Dam](../fe_walter/README.md) study.

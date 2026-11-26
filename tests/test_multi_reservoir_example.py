@@ -50,8 +50,8 @@ def test_multi_reservoir_rule_based_runs_and_conserves_water(folder, tmp_path):
     for row in _rows(output / "reservoir_trajectory.csv"):
         trajectory.setdefault(row["reservoir_id"], []).append(row)
     assert set(trajectory) == {"feitsui", "zhitan"}
-    assert len(trajectory["feitsui"]) == 10
-    assert len(trajectory["zhitan"]) == 10
+    assert len(trajectory["feitsui"]) == 30
+    assert len(trajectory["zhitan"]) == 30
 
     for reservoir, rows in trajectory.items():
         previous_end = network["reservoirs"][reservoir]["physical"]["initial_storage_m3"]
@@ -93,17 +93,17 @@ def test_multi_reservoir_hybrid_llm_checks_and_runs_with_mock_transport(folder, 
     experiment = folder / "hybrid_llm.yaml"
     loaded = load_settings(experiment)
     report = loaded.report
-    assert report["planned_llm_calls"] == 10
+    assert report["planned_llm_calls"] == 30
     assert report["network_calls"] == 0
     assert report["agent_strategies"] == {
-        "feitsui_operator": "benchmark",
-        "zhitan_operator": "configured",
+        "feitsui_operator": "configured",
+        "zhitan_operator": "benchmark",
     }
     assert report["agent_types"] == {
-        "feitsui_operator": "rule_based",
-        "zhitan_operator": "llm",
+        "feitsui_operator": "llm",
+        "zhitan_operator": "rule_based",
     }
-    assert report["agent_rules"] == {"feitsui_operator": "hanasaki"}
+    assert report["agent_rules"] == {"zhitan_operator": "hanasaki"}
 
     requests = []
 
@@ -124,11 +124,26 @@ def test_multi_reservoir_hybrid_llm_checks_and_runs_with_mock_transport(folder, 
     assert output.is_relative_to(tmp_path.resolve())
     verified = verify_run(output)
     assert verified["status"] == "PASS"
-    assert verified["days"] == 10
-    assert verified["observed_network_calls"] == 10
+    assert verified["days"] == 30
+    assert verified["observed_network_calls"] == 30
     assert verified["max_system_balance_residual_m3"] < 1e-6
-    assert len(requests) == 10
+    assert len(requests) == 30
     assert set(records) == {"feitsui", "zhitan"}
+
+
+def test_multi_reservoir_replay_reproduces_study_scores(tmp_path):
+    import importlib.util
+
+    spec = importlib.util.spec_from_file_location("xindian_replay", MULTI_RESERVOIR / "study" / "replay.py")
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    result = module.replay(tmp_path / "xindian-replay")
+    assert result["status"] == "PASS"
+    assert result["network_calls"] == 0
+    assert result["runs"] == 2
+    assert result["scores_verified"] == 6
+    assert (tmp_path / "xindian-replay" / "scores.csv").is_file()
 
 
 def test_readme_documents_yaml_exponent_rule():
@@ -140,4 +155,4 @@ def test_readme_documents_yaml_exponent_rule():
 
 
 def test_readme_stays_short():
-    assert len((MULTI_RESERVOIR / "README.md").read_text(encoding="utf-8").splitlines()) < 90
+    assert len((MULTI_RESERVOIR / "README.md").read_text(encoding="utf-8").splitlines()) < 140
