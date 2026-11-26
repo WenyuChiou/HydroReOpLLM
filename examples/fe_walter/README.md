@@ -55,7 +55,7 @@ reservoir-experiment check examples/fe_walter/seasonal_target.yaml
 reservoir-experiment check examples/fe_walter/dkp.yaml
 ```
 
-Walk through the 7-day design step-by-step in the [F.E. Walter notebook](../../tutorials/README.md) and [Rules & LLM prompts](../../docs/AGENT_DESIGN.md).
+Walk through the 2021 full-year workflow step-by-step in the [Interactive notebook](../../tutorials/README.md) and [Rules & LLM prompts](../../docs/AGENT_DESIGN.md).
 
 ## Daily and seasonal performance (2021–2025)
 

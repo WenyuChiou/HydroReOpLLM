@@ -19,14 +19,15 @@ python -m jupyterlab tutorials/fe_walter.ipynb
 
 ## Notebook overview
 
-| Step | Topic | Highlight |
+| Section | Topic | Highlight |
 | --- | --- | --- |
 | 1 | Architecture & HydroCNHS | Separates watershed hydrology ([HydroCNHS](https://github.com/philip928lin/HydroCNHS), [Inflows & HydroCNHS](../docs/HYDROLOGY_SETUP.md)) from reservoir decisions. |
-| 2 | Study area & 2021 Figure 3 | Watershed map + full-year 2021 (365-day) Paper Figure 3 comparing USGS, target pool, **Rule-based**, **Without operational knowledge**, and **With operational knowledge** medians. |
-| 3 | Offline Rule-based baseline | Runs `rule_based.yaml` across 2021 in a temp folder (`PASS`, `0` network calls, no `runs/` clutter) and plots release vs. storage. |
-| 4 | Designing an LLM operator | Covers model settings, daily prompts, operating guidance, release format, safety checks, and zero-cost Day-1 previews (`hybrid_llm.yaml` + F.E. Walter). |
-| 5 | Multi-reservoir cascade | Runs offline `rule_based.yaml` and checks `hybrid_llm.yaml` (upstream Hanasaki + downstream LLM) from the [Multi-reservoir case](../examples/multi_reservoir/README.md). |
-| 6 | Optional live Ollama runs | Defaults to 365 days (`LLM_START_DATE`–`LLM_END_DATE`; use `"2021-01-07"` for a 7-day test). Set `RUN_LLM = True` after setup. |
+| 2 | Study area & conditions | Watershed specs (`1,300 ↔ 1,370 ft`), USGS gauges, and **Rule-based** / **Without** / **With operational knowledge** setups. |
+| 3 | 2021 Figure 3 replay | Offline 2021 (365-day, 10-seed median) Paper Figure 3 comparing USGS, target pool, Rule-based, and both LLM conditions. |
+| 4 | Offline Rule-based baseline | Runs `rule_based.yaml` across 2021 in a temp folder (`PASS`, `0` network calls, no `runs/` clutter) and plots release vs. storage. |
+| 5 | Designing an LLM operator | Covers model settings, daily prompts, operating guidance, release format, safety checks, and zero-cost Day-1 previews (`hybrid_llm.yaml` + F.E. Walter). |
+| 6 | Combining Rule-Based + LLM | Checks `hybrid_llm.yaml` and runs offline `rule_based.yaml` in the [Multi-reservoir case](../examples/multi_reservoir/README.md). |
+| 7 | Optional live Ollama runs | Defaults to 365 days (`LLM_START_DATE`–`LLM_END_DATE`; use `"2021-01-07"` for a 7-day test). Set `RUN_LLM = True` after setup. |
 
 ## Outputs and full study
 
