@@ -1,4 +1,4 @@
-# 檢查、準備、執行與驗證
+# 執行、驗證與續跑
 
 <div class="hero-band" markdown="1">
 
@@ -7,7 +7,7 @@
 </div>
 
 <figure class="figure-card">
-  <img src="assets/simulation-stages.png" alt="從設定檔檢查、前處理準備、水庫操作到驗證的每日工作流程圖">
+  <img src="assets/simulation-stages.png" alt="從設定檔檢查、水文前處理、水庫操作到驗證的工作流程圖">
   <figcaption><strong>模擬生命週期。</strong> 離線驗證輸入、視需要檢視 HydroCNHS 入流、執行操作並驗證水量平衡。</figcaption>
 </figure>
 
@@ -24,13 +24,13 @@ reservoir-experiment verify path/to/output
 | `check <config>` | 驗證水文綁定、拓樸、日期、提示詞與第 1 天提示詞預覽。 | `0` |
 | `prepare <config>` | 僅限耦合 HydroCNHS：執行集水區模式與暖機期並輸出 `inflows.csv`。 | `0` |
 | `run <config> [--allow-network]` | 準備入流（若為耦合）、執行水庫操作與演算並寫入結果。 | `0`（除非加上 `--allow-network`） |
-| `verify <output> [--require-offline]` | 查核質量守恆、河道演算、因果時序與完整決策日誌。 | `0` |
+| `verify <output> [--require-offline]` | 查核質量守恆、河道演算、水情時間戳記與完整決策日誌。 | `0` |
 | `resume <config> --from-run ... --output ... --run-id ...` | 重播中斷執行的已完成步驟並接續跑完剩餘步驟。 | 僅針對剩餘步驟 |
 
 | 輸入方式 | 設定檔 `output` | 操作結果位置（`summary.json`、CSV） | 驗證指令 |
 | --- | --- | --- | --- |
 | 耦合 HydroCNHS（`v1`/`v2`） | 準備資料夾（`inflows.csv`、`hydrology*.json`） | `<output>/operation/` | `reservoir-experiment verify <output>` |
-| 既有入流資料（`v1`/`v2`） | 操作資料夾 | `<output>/` | `reservoir-experiment verify <output>` |
+| 自備入流資料（`v1`/`v2`） | 操作資料夾 | `<output>/` | `reservoir-experiment verify <output>` |
 
 <div class="callout callout-info" markdown="1">
 
@@ -48,7 +48,7 @@ reservoir-experiment verify path/to/output
 
 ## 續跑中斷的水庫操作
 
-保持部分輸出資料夾完整不動，並以新的 `--run-id` 指向全新的 `--output` 資料夾：
+保留中斷目錄不動，並以新的 `--run-id` 指向全新的 `--output` 資料夾：
 
 ```powershell
 reservoir-experiment resume path/to/experiment.yaml `
@@ -59,7 +59,7 @@ reservoir-experiment resume path/to/experiment.yaml `
 
 已完成的步驟會直接重播，不重複詢問 LLM；僅當剩餘步驟需要新模型呼叫時才加上 `--allow-network`。
 
-## 重播已保存的逐日回覆
+## 離線重播逐日回覆
 
 ```powershell
 llm-reservoir-daily --case-root path/to/case-directory `
@@ -69,4 +69,4 @@ llm-reservoir-daily --case-root path/to/case-directory `
 reservoir-experiment verify runs/replay --require-offline
 ```
 
-若要重現 F.E. Walter 的 21 組基準模擬，請執行 `python examples/fe_walter/study/replay.py --output runs/walter-paper-replay`（[F.E. Walter Dam 案例研究](../examples/fe_walter/README.zh-TW.md)）。接著請參閱[解讀執行結果](RESULTS_GUIDE.zh-TW.md)。
+若要重現 F.E. Walter 的 21 組基準模擬，請執行 `python examples/fe_walter/study/replay.py --output runs/walter-paper-replay`（見 [F.E. Walter 水庫案例](../examples/fe_walter/README.zh-TW.md)）。接著請參閱[結果判讀與水量平衡](RESULTS_GUIDE.zh-TW.md)。

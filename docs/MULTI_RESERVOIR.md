@@ -1,8 +1,8 @@
-# Reservoir networks and hybrid control
+# Multi-reservoir networks
 
 <div class="hero-band" markdown="1">
 
-Model single dams, series cascades, parallel tributaries, junctions, flow splits, and multi-outlet basins—and freely combine **Rule-based** (Hanasaki) and **LLM** operators in the same watershed.
+Model single dams, series cascades, parallel tributaries, river junctions, flow splits, and multi-outlet basins—and freely combine **Rule-based** (Hanasaki) and **LLM** operators in the same watershed.
 
 </div>
 
@@ -88,5 +88,5 @@ operator_b:
 ## Execution order and cross-reservoir information
 
 1. **Upstream-to-downstream order**: HydroReOpLLM steps through the river network in topological sequence so upstream releases arrive before downstream dams decide.
-2. **Cross-reservoir states**: Add a `simulation` source in `information.yaml` ([Decision-time information](INFORMATION.md)) to expose an upstream dam's committed storage or release downstream; parallel dams cannot peek at each other's uncommitted same-step decision.
+2. **Cross-reservoir states**: Add a `simulation` source in `information.yaml` ([Gauges & forecasts](INFORMATION.md)) to expose an upstream dam's committed storage or release downstream; parallel dams cannot peek at each other's uncommitted same-step decision.
 3. **Check topology**: Run `reservoir-experiment check` whenever modifying connections, `fraction`, `unit_hydrograph`, or `outlets`.

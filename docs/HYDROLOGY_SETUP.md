@@ -1,4 +1,4 @@
-# Native HydroCNHS hydrology setup
+# Inflows and HydroCNHS setup
 
 <div class="hero-band" markdown="1">
 
@@ -6,40 +6,43 @@ HydroReOpLLM builds on [**HydroCNHS**](https://github.com/philip928lin/HydroCNHS
 
 </div>
 
-## Two hydrology entry paths
+## Two inflow paths
 
 <div class="panel-grid panel-grid-2" markdown="1">
 <div class="panel-card" markdown="1">
 
-### Path A: Prepared inflows (`llm-reservoir-experiment.v1`)
+### Path A: Prepared inflow CSV
 
 - Best when you already have subbasin local inflows (`examples/template/`, `examples/fe_walter/`).
-- Uses `case.json` + `inflows.csv` (`date,node,local_inflow_cms`) and routes dam releases downstream.
+- Reads `inflows.csv` directly and routes reservoir releases downstream.
 
 </div>
 <div class="panel-card" markdown="1">
 
-### Path B: Native HydroCNHS coupled (`hydroops-coupled-simulation.v2`)
+### Path B: Coupled HydroCNHS watershed model
 
-- Best when running rainfall–runoff (`GWLF`/`ABCD`) and Lohmann routing from weather forcing.
-- Uses `hydrology.yaml` + `forcing.csv` (or `.csv.gz`); `prepare` creates `inflows.csv` before `run` operates dams.
+- Best when simulating rainfall–runoff (`GWLF`/`ABCD`) and Lohmann routing from weather forcing.
+- `prepare` runs the catchment model and writes `inflows.csv` before `run` operates reservoirs.
 
 </div>
 </div>
+
+### Path A format: `inflows.csv`
+
+Provide one non-negative **incremental local flow** (`m³/s`) per day for every reservoir inlet, junction, and outlet—excluding water routed from upstream dams:
 
 ```csv
-# inflows.csv (incremental local runoff in m³/s, excluding upstream dam releases)
 date,node,local_inflow_cms
 2026-03-26,upper_local,4.0
 2026-03-26,lower_local,1.5
 2026-03-26,outlet,0.0
 ```
 
-## Native HydroCNHS model and forcing
+## Coupled HydroCNHS model and forcing
 
-### `hydrology.yaml` schema and inflow bindings
+### `hydrology.yaml` and inflow bindings
 
-Connect an agent-free HydroCNHS model (`ABM: null`) to every `inflow_node`, `junction`, and `outlet` in `reservoirs.yaml`:
+Connect an agent-free HydroCNHS model (`ABM: null`) to every non-reservoir node in `reservoirs.yaml`:
 
 ```yaml
 model: synthetic_catchments.yaml      # HydroCNHS GWLF/ABCD + Lohmann YAML (ABM: null)
@@ -56,14 +59,15 @@ inflow_bindings:
 | --- | --- | --- |
 | `model` | Yes | Calibrated HydroCNHS YAML (`RainfallRunoff: GWLF \| ABCD`, `Routing: Lohmann`, `ABM: null`). |
 | `forcing` | Yes | Daily or hourly weather CSV (`.csv` or `.csv.gz`). |
-| `zero_flow_nodes` | No | Native outlets assigned `0.0 m³/s` without weather entries. |
-| `inflow_bindings` | Yes | 1-to-1 map for all non-dam nodes (`runoff`, `routed`, or `constant: 0`). |
-| `engine`, `forcing_step` | No | Default daily (`gwlf_daily` / `daily`); set `gwlf_hourly` / `hourly` for hourly GWLF. |
-| `diagnostics`, `prepared_from` | No | Export GWLF state/balance diagnostics or reuse an earlier `prepare` folder. |
+| `zero_flow_nodes` | No | Native outlets fixed at `0.0 m³/s` without weather entries. |
+| `inflow_bindings` | Yes | 1-to-1 map for every inlet, junction, and outlet (`runoff`, `routed`, or `constant: 0`). |
+| `engine` | No | Default `gwlf_daily`; set `gwlf_hourly` with `forcing_step: hourly` for hourly GWLF. |
+| `diagnostics` | No | When `true`, exports per-subbasin GWLF state and balance diagnostics during `prepare`. |
+| `prepared_from` | No | Path to an earlier completed `prepare` folder to reuse matching inflows. |
 
 <div class="callout callout-warn" markdown="1">
 
-**Never double-count upstream catchments.** `routed:` includes every subbasin upstream of that outlet, whereas `runoff:` takes one subbasin. Overlapping bindings or including upstream dam releases in `inflows.csv` causes `check` to fail or double-counts water.
+**Never double-count upstream catchments.** `routed:` already sums every subbasin upstream of that outlet, whereas `runoff:` takes one subbasin. Overlapping bindings or including upstream dam releases in `inflows.csv` causes `check` to fail or counts water twice.
 
 </div>
 
@@ -76,20 +80,20 @@ date,subbasin_id,precipitation_mm,temperature_c,pet_cm
 ```
 
 - **Units**: Daily precipitation in `mm/day` (converted internally to `cm/day`), PET in `cm/day`, and temperature in `°C`.
-- **Warm-up vs. operation**: HydroCNHS `StartDate`–`EndDate` can start earlier than `start_date`–`end_date` to spin up soil and groundwater; reservoir `initial_storage_m3` always starts on `start_date`.
+- **Warm-up vs. operation**: HydroCNHS `StartDate`–`EndDate` may begin earlier than `start_date`–`end_date` to spin up soil and groundwater; reservoir `initial_storage_m3` always starts on `start_date`.
 
-## GWLF states and calibration boundary
+## GWLF initial states and calibration boundary
 
-- GWLF initializes `S0`, `U0`, `SnowS`, and `B0`/`BF0` from your HydroCNHS model file (daily `BF0` is a discharge depth, not an hourly deep-storage volume; see [Hourly GWLF](HOURLY_GWLF.md)).
-- HydroReOpLLM runs your calibrated HydroCNHS parameters as supplied; watershed calibration and bias correction stay upstream of coupling.
+- GWLF initializes `S0`, `U0`, `SnowS`, and `B0`/`BF0` from your HydroCNHS model file (daily `BF0` is a discharge depth, not an hourly deep-storage volume; see [Hourly GWLF (experimental)](HOURLY_GWLF.md)).
+- HydroReOpLLM runs your calibrated HydroCNHS parameters as supplied; catchment calibration and bias correction stay upstream of coupling.
 
-## HydroCNHS ModelBuilder, Dam nodes, and routing
+## How reservoirs connect to river routing
 
-During daily runs, HydroReOpLLM registers `LLMReservoirAgent` (`examples/llm_reservoir_abm.py`) as a HydroCNHS `DamAPI` node linking `inflow_node` (`-1`) and `reservoir` (`+1`). Outflow (`controlled_release_cms + spill_cms`) routes through `fraction` splits and `unit_hydrograph` lags in upstream-to-downstream order.
+At each timestep, every controlled dam receives its local incremental inflow plus lagged outflows arriving from upstream reaches. After enforcing storage and release limits, the water-balance engine routes `controlled_release_cms + spill_cms` downstream through each reach's `fraction` split and `unit_hydrograph` travel-time weights in upstream-to-downstream order.
 
-## Preparation outputs and mass-balance diagnostics
+## Preparation outputs and water-balance checks
 
-Run `reservoir-experiment prepare experiment.yaml` to inspect `inflows.csv` before running operators:
+Run `reservoir-experiment prepare experiment.yaml` to inspect watershed inflows before running operators:
 
 | Output artifact | Location | What to check |
 | --- | --- | --- |

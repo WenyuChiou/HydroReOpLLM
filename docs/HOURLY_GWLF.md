@@ -1,4 +1,4 @@
-# Experimental hourly GWLF-derived runoff
+# Hourly GWLF (experimental)
 
 <div class="hero-band" markdown="1">
 
@@ -38,7 +38,7 @@ assert len(flow_cms) == 48
 | Layer | Hourly requirement |
 | --- | --- |
 | `experiment.yaml` | `schema_version: hydroops-coupled-simulation.v2`, UTC `start_time` & exclusive `end_time`, `time: {simulation_step: hourly, output_step: hourly\|daily\|monthly}`. |
-| `hydrology.yaml` | `engine: gwlf_hourly`, `forcing_step: hourly`, continuous UTC forcing (`...Z`), `inflow_bindings` covering every `routing_node`. |
+| `hydrology.yaml` | `engine: gwlf_hourly`, `forcing_step: hourly`, continuous UTC forcing (`...Z`), `inflow_bindings` covering every non-dam node. |
 | `reservoirs.yaml` | `network.schema_version: llm-reservoir-network.v3`, `dt_seconds: 3600`, aligned `start_time`, hourly `unit_hydrograph` lags. |
 | `agents` extensions | Custom extensions must declare `supported_dt_seconds` containing `3600`. |
 
@@ -52,4 +52,4 @@ assert len(flow_cms) == 48
 
 </div>
 
-Inspect `diagnostics` (or `hydrology_diagnostics.json`) for storage/flux terms and validate initial spin-up, runoff, and hourly routing against observed hydrographs before interpreting operational results. See [Time scales and units](TIME_SCALES.md).
+Inspect `diagnostics` (or `hydrology_diagnostics.json`) for storage/flux terms and validate spin-up, runoff, and hourly routing against observed hydrographs before interpreting operational results. See [Time scales & units](TIME_SCALES.md) and [Inflows & HydroCNHS](HYDROLOGY_SETUP.md).

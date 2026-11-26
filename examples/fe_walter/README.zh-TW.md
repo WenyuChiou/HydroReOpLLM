@@ -1,8 +1,8 @@
-# F.E. Walter Dam 案例研究
+# F.E. Walter 水庫案例
 
 <div class="hero-band" markdown="1">
 
-本基準測試於 **2021 年 1 月 1 日 – 2025 年 12 月 31 日**（`1,826` 天）在相同的 HydroCNHS 演算系統上評估 **F.E. Walter Dam**（賓夕法尼亞州 Lehigh River 流域）的三種操作條件：**Rule-based**（Hanasaki）、**Without operational knowledge**（`seasonal_target.yaml`）與 **With operational knowledge**（`dkp.yaml`）。
+本基準測試於 **2021 年 1 月 1 日 – 2025 年 12 月 31 日**（`1,826` 天）在相同的 HydroCNHS 演算系統上評估 **F.E. Walter Dam**（賓夕法尼亞州 Lehigh River 流域）的三種操作條件：**Rule-based（Hanasaki 規則）**、**Without operational knowledge（無操作知識）** 與 **With operational knowledge（具操作知識）**。
 
 </div>
 
@@ -55,7 +55,7 @@ reservoir-experiment check examples/fe_walter/seasonal_target.yaml
 reservoir-experiment check examples/fe_walter/dkp.yaml
 ```
 
-可搭配 [F.E. Walter 教學](../../tutorials/README.zh-TW.md)與[操作員與 LLM 代理人設計](../../docs/AGENT_DESIGN.zh-TW.md)逐步學習 7 天設計流程。
+可搭配 [F.E. Walter 互動教學](../../tutorials/README.zh-TW.md)與[操作規則與 LLM 設計](../../docs/AGENT_DESIGN.zh-TW.md)逐步學習 7 天設計流程。
 
 ## 日尺度與季節尺度表現（2021–2025）
 
@@ -79,7 +79,7 @@ reservoir-experiment check examples/fe_walter/dkp.yaml
 
 ## 離線重現論文分數
 
-以**零次** LLM 呼叫透過主機物理與河道演算重播全部 21 組封存逐日放流序列（`study/archived_releases.csv` + Rule-based 基準）：
+以**零次** LLM 呼叫透過水庫水量平衡引擎與河道演算重播全部 21 組封存逐日放流序列（`study/archived_releases.csv` + Rule-based 基準）：
 
 ```sh
 python examples/fe_walter/study/replay.py --output runs/walter-paper-replay
@@ -128,4 +128,4 @@ python examples/fe_walter/study/run.py seasonal_target --full --seed 3 --ollama-
 python examples/fe_walter/study/run.py dkp --full --seed 3 --ollama-port 11446 --output runs/walter-with-s3 --allow-network
 ```
 
-因不同硬體平台的浮點推論可能略有差異，若要完全一致地重現已發表分數，請使用上方的 `replay.py`。輸出解讀請見[解讀執行結果](../../docs/RESULTS_GUIDE.zh-TW.md)。
+因不同硬體平台的浮點推論可能略有差異，若要完全一致地重現已發表分數，請使用上方的 `replay.py`。輸出解讀請見[結果判讀與水量平衡](../../docs/RESULTS_GUIDE.zh-TW.md)。

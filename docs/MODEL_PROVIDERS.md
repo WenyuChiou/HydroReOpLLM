@@ -1,4 +1,4 @@
-# Model providers and reproducibility
+# Model providers
 
 <div class="hero-band" markdown="1">
 
@@ -63,7 +63,7 @@ vllm_or_local_server:
 
 <div class="callout callout-warn" markdown="1">
 
-**Never commit API keys.** Store secrets in environment variables (such as `OPENAI_API_KEY`) and pass only the variable name in `api_key_env`.
+**Never commit API keys.** Store secrets in environment variables (such as `OPENAI_API_KEY`) and put only the variable name in `api_key_env`.
 
 </div>
 
@@ -71,14 +71,20 @@ vllm_or_local_server:
 
 | YAML key | Default | Notes |
 | --- | --- | --- |
-| `provider`, `model`, `base_url` | Required | Adapter (`ollama`, `openai`, `openai_compatible`, `anthropic`, `gemini`), model ID, and HTTP(S) URL. |
+| `provider` | Required | `ollama`, `openai`, `openai_compatible`, `anthropic`, or `gemini`. |
+| `model` | Required | Exact model tag or API model ID. |
+| `base_url` | Required | Final HTTP(S) URL for your local server or cloud API. |
 | `api_key_env` | Omitted | Environment variable holding the API key (optional for local Ollama). |
 | `temperature` | Provider default | `0.0`–`2.0`. Low values (`0.0`–`0.3`) reduce variance; F.E. Walter uses `0.7` across 10 seeds. |
 | `max_tokens` | Provider default | Max output tokens per decision (**required** by `anthropic`; `2048` recommended). |
 | `seed` | Omitted | Integer seed (`ollama` and `openai_compatible` only). |
-| `timeout_seconds`, `max_attempts`, `retry_delay_seconds` | `60.0`, `1`, `2.0` | Per-call timeout, retry count, and wait seconds between retries. |
+| `timeout_seconds` | `60.0` | Seconds before an HTTP attempt times out. |
+| `max_attempts` | `1` | Maximum tries per profile on timeouts, drops, or malformed JSON. |
+| `retry_delay_seconds` | `2.0` | Wait time in seconds between retries. |
 | `retryable_http_statuses` | `[]` | Optional HTTP codes (e.g., `[429, 503]`) to retry automatically. |
-| `num_ctx`, `think`, `keep_alive` | Omitted | **`ollama` only**: context size, thinking toggle, and residency duration. |
+| `num_ctx` | Omitted | **`ollama` only**: context window length. |
+| `think` | Omitted | **`ollama` only**: boolean reasoning toggle. |
+| `keep_alive` | Omitted | **`ollama` only**: duration to keep the model loaded in memory. |
 | `anthropic_version` | `'2023-06-01'` | **`anthropic` only**: API version header. |
 
 ## Retries and fallback models

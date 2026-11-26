@@ -1,12 +1,12 @@
-# Decision-time information
+# Gauges and forecasts
 
 <div class="hero-band" markdown="1">
 
-An `information` profile supplies **causal, read-only** stream gauges, forecasts, seasonal guide curves, or committed upstream reservoir states to an operator—never leaking future flood peaks into today's decision.
+An `information` profile supplies **read-only, time-ordered** stream gauges, inflow forecasts, seasonal guide curves, or committed upstream reservoir states to an operator—never leaking future flood peaks into today's decision.
 
 </div>
 
-## Causal availability and decision timing
+## Timing rules at decision time
 
 <div class="panel-grid panel-grid-2" markdown="1">
 <div class="panel-card" markdown="1">
@@ -15,15 +15,15 @@ An `information` profile supplies **causal, read-only** stream gauges, forecasts
 
 - Current beginning `storage_m3` and today's routed `inflow_cms`.
 - Previous committed steps (`$previous_transition` / `$completed_history`).
-- Upstream reservoirs' states **only after** they commit earlier in the same step.
+- Upstream reservoirs' states **only after** they finish earlier in the same step.
 
 </div>
 <div class="panel-card" markdown="1">
 
-### Causal guards for gauges & forecasts
+### No-future-leakage guards
 
 - All CSV timestamps require `Z` or an explicit UTC offset.
-- **Observations**: Available only when `valid_time <= clock` and `available_at <= clock`.
+- **Observations**: Visible only when `valid_time <= clock` and `available_at <= clock`.
 - **Forecasts**: `valid_time` may be future, provided `issued_at <= clock` and `available_at <= clock`.
 
 </div>
@@ -80,11 +80,11 @@ profiles:
       upper_pool_acft: { source: upstream_storage, unit: acre-ft, required: true }
 ```
 
-Reference `information: { file: information.yaml }` in `experiment.yaml`, then set `customization.information: operator_view` on the agent and include `$information` in its prompt (or read `observation["context"]["decision_information"]` in Python rules).
+Reference `information: { file: information.yaml }` in `experiment.yaml`, then set `customization.information: operator_view` on the agent and include `$information` in its prompt (or read `observation["context"]["decision_information"]` in Python rules). See [Rules & LLM prompts](AGENT_DESIGN.md).
 
 ## Missing-data handling and verification
 
 | Field setting | Missing or stale behavior | Verification check |
 | --- | --- | --- |
 | `required: true` | Stops the run immediately (never substitutes `0.0`). | Reconstructs static, CSV, and simulation values during `verify`. |
-| `required: false` | Sets `status: "MISSING"`, `value: null`, and an explicit `reason`. | Checks causal timestamps across every step in `decisions.jsonl`. |
+| `required: false` | Sets `status: "MISSING"`, `value: null`, and an explicit `reason`. | Checks timestamp ordering across every step in `decisions.jsonl`. |

@@ -1,8 +1,8 @@
-# 解讀執行結果
+# 結果判讀與水量平衡
 
 <div class="hero-band" markdown="1">
 
-先確認 `summary.json` 中的 `"status": "COMPLETED"`（耦合模式在 `<output>/operation/summary.json`；既有入流在 `<output>/summary.json`），再檢視蓄水軌跡、演算流量歷線、水量平衡與 LLM 決策日誌。
+先確認 `summary.json` 中的 `"status": "COMPLETED"`（耦合模式在 `<output>/operation/summary.json`；自備入流在 `<output>/summary.json`），再檢視蓄水軌跡、演算流量歷線、水量平衡與 LLM 決策日誌。
 
 </div>
 
@@ -34,20 +34,20 @@
 
 <div class="callout callout-info" markdown="1">
 
-**放流截幅與執行失敗的區別。** 若 LLM 請求超出 `[minimum_release_cms, maximum_release_cms]` 或低於 `dead_storage_m3` 的放流量，主機會將 `controlled_release_cms` 截幅、在 `adjustments` 記下旗標並繼續執行；Hanasaki 嚴格等價模式則會在主機限制與規則衝突時報錯 `parity conflict`。
+**放流截幅與執行失敗的區別。** 若 LLM 請求超出 `[minimum_release_cms, maximum_release_cms]` 或低於 `dead_storage_m3` 的放流量，水庫水量平衡引擎會將 `controlled_release_cms` 截幅、在 `adjustments` 記下旗標並繼續執行；Hanasaki 嚴格等價模式則會在水庫物理限制與規則衝突時報錯 `parity conflict`。
 
 </div>
 
-## 決策、稽核與來源追蹤日誌
+## 決策、稽核與模型紀錄
 
 - **`decisions.jsonl`**：記錄確切的觀測狀態、讀取到的 `decision_information`、LLM／規則請求的 `action` 與 `serving_profile`，可用來診斷洪水或枯水期的放流決策原因。
 - **`audit.jsonl`**：記錄診斷性質的 `PASS`、`WARN`、`FAIL` 或 `UNKNOWN`，不改寫流量。
 - **`provider_attempts.jsonl` 與 `summary.json`**：查看 `fallback_used` 與 `serving_profiles`，確認每一步實際由哪一個模型服務產出。
 
-## 驗證已保存的證據
+## 驗證模擬輸出
 
 ```powershell
 reservoir-experiment verify path/to/output --require-offline
 ```
 
-驗證即時 LLM 模擬時請省略 `--require-offline`。`verify` 會在不重跑水文、不連線模型伺服器的情況下，檢查質量平衡、河道摺積演算、因果時間戳記與完整日誌。
+驗證即時 LLM 模擬時請省略 `--require-offline`。`verify` 會在不重跑水文、不連線模型伺服器的情況下，檢查質量平衡、河道摺積演算、水情時間戳記與完整日誌。

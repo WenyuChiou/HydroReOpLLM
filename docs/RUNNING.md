@@ -1,8 +1,8 @@
-# Check, prepare, run, and verify
+# Run, verify, and resume
 
 <div class="hero-band" markdown="1">
 
-Every HydroReOpLLM experiment follows one CLI workflow: `check` → (`prepare` for coupled HydroCNHS) → `run` → `verify` (plus `resume` for interrupted live runs).
+Every HydroReOpLLM experiment uses one CLI workflow: `check` → (`prepare` for coupled HydroCNHS) → `run` → `verify` (plus `resume` for interrupted live runs).
 
 </div>
 
@@ -24,7 +24,7 @@ reservoir-experiment verify path/to/output
 | `check <config>` | Validates hydrology, topology, dates, prompts, and Day-1 prompt previews. | `0` |
 | `prepare <config>` | Coupled HydroCNHS only: runs catchment model + warm-up and saves `inflows.csv`. | `0` |
 | `run <config> [--allow-network]` | Prepares inflows (if coupled), runs reservoir operators + routing, and writes results. | `0` unless `--allow-network` |
-| `verify <output> [--require-offline]` | Checks mass conservation, routing, causal timing, and complete decision logs. | `0` |
+| `verify <output> [--require-offline]` | Checks mass conservation, routing, timestamp ordering, and complete decision logs. | `0` |
 | `resume <config> --from-run ... --output ... --run-id ...` | Replays completed steps from an interrupted run and finishes remaining steps. | Only for remaining steps |
 
 | Entry style | Configured `output` | Operation results | Verify command |
@@ -48,7 +48,7 @@ Live LLM inference requires three explicit safeguards:
 
 ## Resume an interrupted operation
 
-Keep the partial output untouched and resume into a fresh `--output` folder with a new `--run-id`:
+Keep the partial output folder untouched and resume into a fresh `--output` folder with a new `--run-id`:
 
 ```powershell
 reservoir-experiment resume path/to/experiment.yaml `
@@ -69,4 +69,4 @@ llm-reservoir-daily --case-root path/to/case-directory `
 reservoir-experiment verify runs/replay --require-offline
 ```
 
-For the 21-run F.E. Walter benchmark, run `python examples/fe_walter/study/replay.py --output runs/walter-paper-replay` ([F.E. Walter Dam guide](../examples/fe_walter/README.md)). Continue with [Read your results](RESULTS_GUIDE.md).
+For the 21-run F.E. Walter benchmark, run `python examples/fe_walter/study/replay.py --output runs/walter-paper-replay` ([F.E. Walter Dam](../examples/fe_walter/README.md)). Continue with [Reading results](RESULTS_GUIDE.md).

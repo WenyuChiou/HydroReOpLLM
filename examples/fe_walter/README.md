@@ -1,8 +1,8 @@
-# F.E. Walter Dam case study
+# F.E. Walter Dam
 
 <div class="hero-band" markdown="1">
 
-This benchmark evaluates **F.E. Walter Dam** (Lehigh River basin, Pennsylvania) over **January 1, 2021 – December 31, 2025** (`1,826` days) across three operating conditions on the same HydroCNHS routing system: **Rule-based** (Hanasaki), **Without operational knowledge** (`seasonal_target.yaml`), and **With operational knowledge** (`dkp.yaml`).
+This case study evaluates **F.E. Walter Dam** (Lehigh River basin, Pennsylvania) over **January 1, 2021 – December 31, 2025** (`1,826` days) across three operating conditions on the same HydroCNHS routing system: **Rule-based** (Hanasaki), **Without operational knowledge** (`seasonal_target.yaml`), and **With operational knowledge** (`dkp.yaml`).
 
 </div>
 
@@ -55,7 +55,7 @@ reservoir-experiment check examples/fe_walter/seasonal_target.yaml
 reservoir-experiment check examples/fe_walter/dkp.yaml
 ```
 
-Walk through the 7-day design step-by-step in the [F.E. Walter tutorial](../../tutorials/README.md) and [Operator & LLM agent design](../../docs/AGENT_DESIGN.md).
+Walk through the 7-day design step-by-step in the [F.E. Walter notebook](../../tutorials/README.md) and [Rules & LLM prompts](../../docs/AGENT_DESIGN.md).
 
 ## Daily and seasonal performance (2021–2025)
 
@@ -79,7 +79,7 @@ Across all 21 archived runs (`1` Rule-based + `10` Without operational knowledge
 
 ## Reproduce the reported scores offline
 
-Replay all 21 archived daily release series (`study/archived_releases.csv` + Rule-based baseline) through host physics and routing at **zero** LLM calls:
+Replay all 21 archived daily release series (`study/archived_releases.csv` + Rule-based baseline) through the water-balance and routing engine at **zero** LLM calls:
 
 ```sh
 python examples/fe_walter/study/replay.py --output runs/walter-paper-replay
@@ -128,4 +128,4 @@ python examples/fe_walter/study/run.py seasonal_target --full --seed 3 --ollama-
 python examples/fe_walter/study/run.py dkp --full --seed 3 --ollama-port 11446 --output runs/walter-with-s3 --allow-network
 ```
 
-Because hardware floating-point inference varies across platforms, use `replay.py` above to reproduce published scores identically. Inspect outputs with [Read your results](../../docs/RESULTS_GUIDE.md).
+Because hardware floating-point inference varies across platforms, use `replay.py` above to reproduce published scores identically. Inspect outputs with [Reading results](../../docs/RESULTS_GUIDE.md).

@@ -1,4 +1,4 @@
-# 實驗性逐時 GWLF 衍生逕流計算
+# 逐時 GWLF（實驗性）
 
 <div class="hero-band" markdown="1">
 
@@ -40,7 +40,7 @@ assert len(flow_cms) == 48
 | `experiment.yaml` | `schema_version: hydroops-coupled-simulation.v2`、UTC `start_time` 與不含終點的 `end_time`、`time: {simulation_step: hourly, output_step: hourly\|daily\|monthly}`。 |
 | `hydrology.yaml` | `engine: gwlf_hourly`、`forcing_step: hourly`、連續 UTC 氣象資料（`...Z`）、`inflow_bindings` 涵蓋每個 `routing_node`。 |
 | `reservoirs.yaml` | `network.schema_version: llm-reservoir-network.v3`、`dt_seconds: 3600`、對齊 `start_time`、逐時 `unit_hydrograph` 延遲。 |
-| `agents` 擴充套件 | 逐時模擬使用的自訂 Python 擴充套件須宣告包含 `3600` 的 `supported_dt_seconds`。 |
+| `agents` 擴充套件 | 逐時模擬使用的自訂 Python 操作規則須宣告包含 `3600` 的 `supported_dt_seconds`。 |
 
 `prepare` 會連同 `inflows.csv` 一併輸出 `hydrology_diagnostics.json`、`hydrology_state.json` 與 `hydrology_routing.json`。
 
@@ -52,4 +52,4 @@ assert len(flow_cms) == 48
 
 </div>
 
-判讀操作結果前，請先檢視 `diagnostics`（或 `hydrology_diagnostics.json`）中的蓄水／通量項，並以實測流量歷線驗證初始暖機、逕流與逐時演算。另見[時間尺度與單位](TIME_SCALES.zh-TW.md)。
+判讀操作結果前，請先檢視 `diagnostics`（或 `hydrology_diagnostics.json`）中的蓄水／通量項，並以實測流量歷線驗證初始暖機、逕流與逐時演算。另見[時間尺度與單位](TIME_SCALES.zh-TW.md)與[入流與 HydroCNHS 設定](HYDROLOGY_SETUP.zh-TW.md)。

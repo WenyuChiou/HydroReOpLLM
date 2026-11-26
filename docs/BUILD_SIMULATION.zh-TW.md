@@ -1,8 +1,8 @@
-# 水庫網路與混合控制
+# 多水庫河網串接
 
 <div class="hero-band" markdown="1">
 
-可模擬單一水庫、串聯水庫、平行支流、匯流點、分流與多出口流域——並在同一集水區內自由搭配 **Rule-based**（Hanasaki）與 **LLM** 操作員。
+可模擬單一水庫、串聯水庫、平行支流、匯流點、分流與多出口流域，並在同一集水區內自由搭配 **Rule-based（Hanasaki 規則）** 與 **LLM** 操作員。
 
 </div>
 
@@ -87,6 +87,6 @@ operator_b:
 
 ## 執行順序與跨水庫資訊讀取
 
-1. **由上游至下游順序**：HydroReOpLLM 依拓樸順序執行河網，確保上游放流先抵達下游後，下游水庫才開始決策。
-2. **跨水庫共享狀態**：在 `information.yaml` 加入 `simulation` 來源（[決策時資訊](INFORMATION.zh-TW.md)），即可讓下游讀取上游已提交的蓄水或放流；尚未決策的平行水庫無法互看當步數值。
-3. **驗證拓樸**：每次修改連線、`fraction`、`unit_hydrograph` 或 `outlets` 後請執行 `reservoir-experiment check`。
+1. **由上游至下游順序**：系統依拓樸順序執行河網，確保上游放流先抵達下游後，下游水庫才開始決策。
+2. **跨水庫共享狀態**：在 `information.yaml` 加入 `simulation` 來源（見[水情測站與預報](INFORMATION.zh-TW.md)），即可讓下游讀取上游已提交的蓄水或放流；尚未決策的平行水庫無法互看當步數值。
+3. **離線驗證拓樸**：每次修改連線、`fraction`、`unit_hydrograph` 或 `outlets` 後請執行 `reservoir-experiment check`。

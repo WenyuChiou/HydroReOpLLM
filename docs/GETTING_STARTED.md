@@ -1,4 +1,4 @@
-# Installation and first run
+# Install and first run
 
 <div class="hero-band" markdown="1">
 
@@ -59,7 +59,7 @@ reservoir-experiment verify runs/prepared-template --require-offline
 - `run` writes simulation CSVs and logs to `runs/prepared-template/`.
 - `verify --require-offline` confirms closed mass balance (`PASS`) and `0` network calls.
 
-Continue with the [template field guide](../examples/template/README.md) and [Read your results](RESULTS_GUIDE.md).
+Continue with the [Two-reservoir template](../examples/template/README.md) and [Reading results](RESULTS_GUIDE.md).
 
 ## Check the F.E. Walter examples
 
@@ -72,7 +72,7 @@ reservoir-experiment check examples/fe_walter/dkp.yaml
 ```
 
 - Run **Rule-based** (Hanasaki) offline immediately with `reservoir-experiment run examples/fe_walter/rule_based.yaml`.
-- Follow the [F.E. Walter Dam guide](../examples/fe_walter/README.md) or [tutorial](../tutorials/README.md) to replay all 21 archived runs or run **Without operational knowledge** / **With operational knowledge** with Ollama.
+- Follow the [F.E. Walter Dam](../examples/fe_walter/README.md) guide or [F.E. Walter notebook](../tutorials/README.md) to replay all 21 archived runs or run **Without operational knowledge** / **With operational knowledge** with Ollama.
 
 ## Repeat a run safely
 

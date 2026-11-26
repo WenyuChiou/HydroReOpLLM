@@ -2,7 +2,7 @@
 
 <div class="hero-band" markdown="1">
 
-HydroReOpLLM 需要 **Python 3.12 以上版本**。安裝套件（`hydroreopllm`／CLI `reservoir-experiment`）後，幾分鐘內即可跑通離線雙水庫範本。
+HydroReOpLLM 需要 **Python 3.12 以上版本**。安裝套件（`hydroreopllm`／CLI `reservoir-experiment`）後，幾分鐘內即可跑通雙水庫入門範本。
 
 </div>
 
@@ -45,7 +45,7 @@ python -m pip install -c environment/requirements-bundled.txt .
 reservoir-experiment init-examples
 ```
 
-## 執行通用離線範本
+## 執行雙水庫入門範本
 
 以零次 LLM 呼叫執行 10 天雙水庫串聯系統（`upper` → `lower` → `outlet`）：
 
@@ -59,9 +59,9 @@ reservoir-experiment verify runs/prepared-template --require-offline
 - `run` 將模擬 CSV 與決策日誌寫入 `runs/prepared-template/`。
 - `verify --require-offline` 確認水量平衡閉合（`PASS`）且網路呼叫為 `0`。
 
-接著可閱讀[範本欄位指南](../examples/template/README.zh-TW.md)與[解讀執行結果](RESULTS_GUIDE.zh-TW.md)。
+接著可閱讀[雙水庫入門範本](../examples/template/README.zh-TW.md)與[結果判讀與水量平衡](RESULTS_GUIDE.zh-TW.md)。
 
-## 檢查 F.E. Walter 範例
+## 檢查 F.E. Walter 水庫案例
 
 離線檢查全部三種 F.E. Walter 研究條件（`0` 次模型呼叫）：
 
@@ -71,9 +71,9 @@ reservoir-experiment check examples/fe_walter/seasonal_target.yaml
 reservoir-experiment check examples/fe_walter/dkp.yaml
 ```
 
-- 立即執行 `reservoir-experiment run examples/fe_walter/rule_based.yaml` 即可跑通離線 **Rule-based**（Hanasaki）基準。
-- 依 [F.E. Walter Dam 案例研究](../examples/fe_walter/README.zh-TW.md)或[互動教學](../tutorials/README.zh-TW.md)可離線重播 21 組論文模擬，或以本機 Ollama 執行 **Without operational knowledge**／**With operational knowledge**。
+- 立即執行 `reservoir-experiment run examples/fe_walter/rule_based.yaml` 即可跑通離線 **Rule-based（Hanasaki 規則）** 基準。
+- 依 [F.E. Walter 水庫案例](../examples/fe_walter/README.zh-TW.md)或 [F.E. Walter 互動教學](../tutorials/README.zh-TW.md)可離線重播 21 組論文模擬，或以本機 Ollama 執行 **Without operational knowledge（無操作知識）**／**With operational knowledge（具操作知識）**。
 
 ## 安全地重跑實驗
 
-已完成的輸出資料夾不會被覆寫。修改水庫邊界、入流或提示詞後，請在 `experiment.yaml` 更換新的 `run_id` 與未使用的 `output`，再依序執行 `check`、`run` 與 `verify`。
+已完成的輸出資料夾不會被覆寫。修改水庫物理限制、入流或提示詞後，請在 `experiment.yaml` 更換新的 `run_id` 與未使用的 `output`，再依序執行 `check`、`run` 與 `verify`。
