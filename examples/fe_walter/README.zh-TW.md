@@ -55,7 +55,7 @@ reservoir-experiment check examples/fe_walter/seasonal_target.yaml
 reservoir-experiment check examples/fe_walter/dkp.yaml
 ```
 
-可搭配 [F.E. Walter 互動教學](../../tutorials/README.zh-TW.md)與[操作規則與 LLM 設計](../../docs/AGENT_DESIGN.zh-TW.md)逐步學習 7 天設計流程。
+可搭配[互動式 Notebook 教學](../../tutorials/README.zh-TW.md)與[操作規則與 LLM 設計](../../docs/AGENT_DESIGN.zh-TW.md)逐步操作 2021 全年重播與設計流程。
 
 ## 日尺度與季節尺度表現（2021–2025）
 
