@@ -6,6 +6,8 @@ HydroReOpLLM 需要 **Python 3.12 以上版本**。安裝套件（`hydroreopllm`
 
 </div>
 
+<a id="install-from-a-clone"></a>
+
 ## 下載並安裝原始碼
 
 <div class="panel-grid panel-grid-2" markdown="1">
