@@ -21,46 +21,46 @@ markdown_extensions:
       slugify: !!python/name:markdown.extensions.toc.slugify_unicode
 nav:
   - English:
-    - User manual: index.md
-    - Get started:
-        - Install & first run: GETTING_STARTED.md
-        - Two-reservoir template: examples/template/index.md
-        - F.E. Walter notebook: tutorials/index.md
+    - Overview: index.md
+    - Installation & workflow:
+        - Installation & CLI: GETTING_STARTED.md
+        - Experiment setup: CONFIGURATION.md
+        - Run, verify & resume: RUNNING.md
+        - Reading results: RESULTS_GUIDE.md
     - Watershed & hydrology:
         - Inflows & HydroCNHS: HYDROLOGY_SETUP.md
+        - Multi-reservoir networks: MULTI_RESERVOIR.md
         - Time scales & units: TIME_SCALES.md
         - Hourly GWLF (experimental): HOURLY_GWLF.md
     - Reservoir operators:
         - Rules & LLM prompts: AGENT_DESIGN.md
         - Gauges & forecasts: INFORMATION.md
         - Model providers: MODEL_PROVIDERS.md
-    - Build & run:
-        - Experiment setup: CONFIGURATION.md
-        - Multi-reservoir networks: MULTI_RESERVOIR.md
-        - Run, verify & resume: RUNNING.md
-        - Reading results: RESULTS_GUIDE.md
-    - Case study & help:
-        - F.E. Walter Dam: examples/fe_walter/index.md
+    - Examples & tutorials:
+        - Single-reservoir case (F.E. Walter): examples/fe_walter/index.md
+        - Interactive notebook: tutorials/index.md
+        - Multi-reservoir case: examples/multi_reservoir/index.md
+    - Help:
         - Troubleshooting: TROUBLESHOOTING.md
   - 繁體中文:
-    - 使用手冊: zh-TW.md
-    - 快速開始:
-        - 安裝與首次執行: GETTING_STARTED.zh-TW.md
-        - 雙水庫入門範本: examples/template/index.zh-TW.md
-        - F.E. Walter 互動教學: tutorials/index.zh-TW.md
-    - 集水區與水文:
+    - 套件總覽: zh-TW.md
+    - 安裝與執行流程:
+        - 安裝與 CLI 指令: GETTING_STARTED.zh-TW.md
+        - 實驗設定檔: CONFIGURATION.zh-TW.md
+        - 執行、驗證與續跑: RUNNING.zh-TW.md
+        - 結果判讀與水量平衡: RESULTS_GUIDE.zh-TW.md
+    - 集水區與水文河網:
         - 入流與 HydroCNHS 設定: HYDROLOGY_SETUP.zh-TW.md
+        - 多水庫河網串接: BUILD_SIMULATION.zh-TW.md
         - 時間尺度與單位: TIME_SCALES.zh-TW.md
         - 逐時 GWLF（實驗性）: HOURLY_GWLF.zh-TW.md
     - 水庫操作決策:
         - 操作規則與 LLM 設計: AGENT_DESIGN.zh-TW.md
         - 水情測站與預報: INFORMATION.zh-TW.md
         - 模型服務設定: LLM_MODULES.zh-TW.md
-    - 模擬建置與執行:
-        - 實驗設定檔: CONFIGURATION.zh-TW.md
-        - 多水庫河網串接: BUILD_SIMULATION.zh-TW.md
-        - 執行、驗證與續跑: RUNNING.zh-TW.md
-        - 結果判讀與水量平衡: RESULTS_GUIDE.zh-TW.md
-    - 案例研究與協助:
-        - F.E. Walter 水庫案例: examples/fe_walter/index.zh-TW.md
+    - 範例與實作教學:
+        - 單一水庫案例（F.E. Walter）: examples/fe_walter/index.zh-TW.md
+        - 互動式 Notebook 教學: tutorials/index.zh-TW.md
+        - 多水庫串聯案例: examples/multi_reservoir/index.zh-TW.md
+    - 常見問題:
         - 常見問題與排解: TROUBLESHOOTING.zh-TW.md

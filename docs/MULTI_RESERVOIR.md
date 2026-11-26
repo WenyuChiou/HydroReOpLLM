@@ -2,7 +2,7 @@
 
 <div class="hero-band" markdown="1">
 
-Model single dams, series cascades, parallel tributaries, river junctions, flow splits, and multi-outlet basins—and freely combine **Rule-based** (Hanasaki) and **LLM** operators in the same watershed.
+Model single dams, series cascades, parallel tributaries, river junctions, flow splits, and multi-outlet basins—and freely combine **Rule-based** (Hanasaki) and **LLM** operators in the same watershed. Try the ready-to-run [Multi-reservoir case](../examples/multi_reservoir/README.md) (`rule_based.yaml` and `hybrid_llm.yaml`) alongside the coupled pattern below.
 
 </div>
 
@@ -31,7 +31,7 @@ Channel routing convolves releases with `unit_hydrograph` (for example, `[0.0, 0
 
 ## Hybrid Hanasaki and LLM multi-reservoir wiring
 
-Each reservoir runs an independent operator, so you can mix an LLM operator and a Hanasaki rule in one `agents.yaml`:
+Each reservoir runs an independent operator, so you can mix an LLM operator and a Hanasaki rule in one `agents.yaml` (or start with [`examples/multi_reservoir/hybrid_llm.yaml`](../examples/multi_reservoir/README.md) for prepared inflows):
 
 <div class="panel-grid panel-grid-2" markdown="1">
 <div class="panel-card" markdown="1">

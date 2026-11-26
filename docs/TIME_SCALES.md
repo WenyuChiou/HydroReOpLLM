@@ -2,7 +2,7 @@
 
 <div class="hero-band" markdown="1">
 
-The template and F.E. Walter examples run in **daily mode** (`dt_seconds: 86400`). HydroReOpLLM also supports explicit sub-daily intervals when forcing, runoff, routing, and reservoir timesteps agree.
+The F.E. Walter and multi-reservoir examples run in **daily mode** (`dt_seconds: 86400`). HydroReOpLLM also supports explicit sub-daily intervals when forcing, runoff, routing, and reservoir timesteps agree.
 
 </div>
 

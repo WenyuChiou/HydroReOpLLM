@@ -2,7 +2,7 @@
 
 <div class="hero-band" markdown="1">
 
-雙水庫入門範本與 F.E. Walter 水庫案例皆採用**逐日**（`dt_seconds: 86400`）時間軸。只要氣象驅動、逕流、演算與水庫步長一致，亦可切換為固定時距的次日尺度模擬（`llm-reservoir-network.v3`）。
+F.E. Walter 水庫案例與多水庫串聯案例皆採用**逐日**（`dt_seconds: 86400`）時間軸。只要氣象驅動、逕流、演算與水庫步長一致，亦可切換為固定時距的次日尺度模擬（`llm-reservoir-network.v3`）。
 
 </div>
 

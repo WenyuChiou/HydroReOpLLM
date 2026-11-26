@@ -17,7 +17,7 @@ ROOT = Path(__file__).resolve().parents[1]
 EXAMPLE_YAMLS = sorted((ROOT / "examples").rglob("*.yaml"))
 
 DIRECT_CHECK_EXPERIMENTS = (
-    ("examples/template/experiment.yaml", False),
+    ("examples/multi_reservoir/rule_based.yaml", False),
     ("examples/fe_walter/rule_based.yaml", False),
     ("tests/fixtures/examples/daily_offline/single.yaml", False),
     ("tests/fixtures/examples/daily_offline/cascade.yaml", False),
@@ -50,6 +50,18 @@ def test_example_experiment_configs_pass_check(rel_path, is_coupled, tmp_path):
         config = tmp_path / "time_scales" / config.name
     settings = load_coupled_settings(config) if is_coupled else load_settings(config)
     assert settings.report["planned_llm_calls"] == 0
+
+
+def test_multi_reservoir_hybrid_llm_config_passes_check():
+    settings = load_settings(ROOT / "examples" / "multi_reservoir" / "hybrid_llm.yaml")
+    report = settings.report
+    assert report["planned_llm_calls"] == 10
+    assert report["network_calls"] == 0
+    assert report["agent_types"] == {
+        "upper_operator": "rule_based",
+        "lower_operator": "llm",
+    }
+    assert report["agent_rules"] == {"upper_operator": "hanasaki"}
 
 
 @pytest.mark.parametrize("case_name", ["seasonal_target", "dkp"])

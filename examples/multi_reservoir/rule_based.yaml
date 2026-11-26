@@ -1,0 +1,34 @@
+# Offline multi-reservoir cascade baseline: both dams use deterministic Hanasaki flood-control rules.
+# Run check, run, and verify --require-offline with zero LLM/network requests.
+schema_version: llm-reservoir-experiment.v1
+case: case.json                       # Physical two-reservoir cascade (upper -> lower -> outlet).
+run_id: multi-reservoir-rule-based    # Trace identity; change with output before repeating.
+output: ../../runs/multi-reservoir-rule-based  # Unused output path, relative to this file.
+start_date: '2026-03-27'              # Inclusive operation start date (subset inside inflows.csv).
+end_date: '2026-04-05'                # Inclusive operation end date (10 daily steps).
+max_calls: 0                          # Zero model calls allowed.
+auditors:
+  feasible_release:
+    type: release_bounds
+    version: '1'
+agents:
+  upper_operator:
+    reservoir: upper
+    mode: offline
+    strategy: benchmark
+    benchmark:
+      statistics: upper_statistics.json
+      purpose: flood_control
+      alpha: 0.85
+    auditors:
+    - feasible_release
+  lower_operator:
+    reservoir: lower
+    mode: offline
+    strategy: benchmark
+    benchmark:
+      statistics: lower_statistics.json
+      purpose: flood_control
+      alpha: 0.85
+    auditors:
+    - feasible_release

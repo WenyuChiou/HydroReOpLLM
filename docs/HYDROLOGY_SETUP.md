@@ -13,7 +13,7 @@ HydroReOpLLM builds on [**HydroCNHS**](https://github.com/philip928lin/HydroCNHS
 
 ### Path A: Prepared inflow CSV
 
-- Best when you already have subbasin local inflows (`examples/template/`, `examples/fe_walter/`).
+- Best when you already have subbasin local inflows (`examples/fe_walter/`, `examples/multi_reservoir/`).
 - Reads `inflows.csv` directly and routes reservoir releases downstream.
 
 </div>

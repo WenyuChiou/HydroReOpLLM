@@ -1,8 +1,8 @@
-# 安裝與首次執行
+# 安裝與 CLI 指令
 
 <div class="hero-band" markdown="1">
 
-HydroReOpLLM 需要 **Python 3.12 以上版本**。安裝套件（`hydroreopllm`／CLI `reservoir-experiment`）後，幾分鐘內即可跑通雙水庫入門範本。
+HydroReOpLLM 需要 **Python 3.12 以上版本**。安裝套件（`hydroreopllm`／CLI 指令 `reservoir-experiment`）後，即可直接離線檢查並執行內建的單一水庫與多水庫案例。
 
 </div>
 
@@ -41,41 +41,52 @@ python -m pip install -c environment/requirements-bundled.txt .
 
 ## 使用已安裝的 wheel
 
-若在空白工作目錄透過 wheel 安裝，請先匯出隨附範例：
+若在空白工作目錄透過 wheel 安裝，請先匯出隨附範例資料夾（`examples/fe_walter/` 與 `examples/multi_reservoir/`）：
 
 ```sh
 reservoir-experiment init-examples
 ```
 
-## 執行雙水庫入門範本
+## CLI 指令總覽
 
-以零次 LLM 呼叫執行 10 天雙水庫串聯系統（`upper` → `lower` → `outlet`）：
+| 指令 | 用途 | 網路呼叫 |
+| --- | --- | --- |
+| `reservoir-experiment init-examples` | 將內建公開範例匯出至目前目錄的 `examples/`（或指定新資料夾）。 | `0` |
+| `reservoir-experiment check` | 離線驗證 `<config>` 的路徑、日期、物理限制、河網與第 1 天提示詞預覽。 | `0` |
+| `reservoir-experiment prepare` | 僅限耦合 HydroCNHS：先跑集水區水文模式並輸出 `inflows.csv`。 | `0` |
+| `reservoir-experiment run` | 執行模擬並將結果寫入全新資料夾（即時 LLM 須加 `--allow-network`）。 | 未加旗標為 `0` |
+| `reservoir-experiment verify` | 查核 `<output>` 的水量平衡、河道演算、水情時序（可加 `--require-offline`）。 | `0` |
+| `reservoir-experiment resume` | 由 `--from-run` 重播已完成步驟，並以新 `--output` 與 `--run-id` 接續跑完。 | 僅剩餘步驟 |
 
-```sh
-reservoir-experiment check examples/template/experiment.yaml
-reservoir-experiment run examples/template/experiment.yaml
-reservoir-experiment verify runs/prepared-template --require-offline
-```
+## 快速執行範例指令
 
-- `check` 於離線狀態檢查檔案、日期、上下限與演算設定。
-- `run` 將模擬 CSV 與決策日誌寫入 `runs/prepared-template/`。
-- `verify --require-offline` 確認水量平衡閉合（`PASS`）且網路呼叫為 `0`。
+### 單一水庫案例（F.E. Walter）
 
-接著可閱讀[雙水庫入門範本](../examples/template/README.zh-TW.md)與[結果判讀與水量平衡](RESULTS_GUIDE.zh-TW.md)。
-
-## 檢查 F.E. Walter 水庫案例
-
-離線檢查全部三種 F.E. Walter 研究條件（`0` 次模型呼叫）：
+先以零模型呼叫執行 **Rule-based（Hanasaki 規則）** 基準，並離線檢查兩組 LLM 設定檔：
 
 ```sh
 reservoir-experiment check examples/fe_walter/rule_based.yaml
+reservoir-experiment run examples/fe_walter/rule_based.yaml
+reservoir-experiment verify runs/fe-walter-rule-based --require-offline
 reservoir-experiment check examples/fe_walter/seasonal_target.yaml
 reservoir-experiment check examples/fe_walter/dkp.yaml
 ```
 
-- 立即執行 `reservoir-experiment run examples/fe_walter/rule_based.yaml` 即可跑通離線 **Rule-based（Hanasaki 規則）** 基準。
-- 依 [F.E. Walter 水庫案例](../examples/fe_walter/README.zh-TW.md)或 [F.E. Walter 互動教學](../tutorials/README.zh-TW.md)可離線重播 21 組論文模擬，或以本機 Ollama 執行 **Without operational knowledge（無操作知識）**／**With operational knowledge（具操作知識）**。
+- 欲離線重播 21 組論文模擬，或以本機 Ollama 執行 **Without operational knowledge（無操作知識）** 與 **With operational knowledge（具操作知識）**，請參閱[單一水庫案例（F.E. Walter）](../examples/fe_walter/README.zh-TW.md)與[互動式 Notebook 教學](../tutorials/README.zh-TW.md)。
+
+### 多水庫串聯案例
+
+離線執行雙水庫 Hanasaki 串聯基準，並檢查上游規則＋下游 LLM 的混合設定：
+
+```sh
+reservoir-experiment check examples/multi_reservoir/rule_based.yaml
+reservoir-experiment run examples/multi_reservoir/rule_based.yaml
+reservoir-experiment verify runs/multi-reservoir-rule-based --require-offline
+reservoir-experiment check examples/multi_reservoir/hybrid_llm.yaml
+```
+
+- 詳細欄位與河道延遲說明見[多水庫串聯案例](../examples/multi_reservoir/README.zh-TW.md)，輸出表格判讀見[結果判讀與水量平衡](RESULTS_GUIDE.zh-TW.md)。
 
 ## 安全地重跑實驗
 
-已完成的輸出資料夾不會被覆寫。修改水庫物理限制、入流或提示詞後，請在 `experiment.yaml` 更換新的 `run_id` 與未使用的 `output`，再依序執行 `check`、`run` 與 `verify`。
+已完成的輸出資料夾受到保護，不會被覆寫。修改水庫物理限制、入流或提示詞後，請在設定檔更換新的 `run_id` 與尚未使用的 `output` 路徑，再依序執行 `check`、`run` 與 `verify`。

@@ -1,59 +1,42 @@
-# HydroReOpLLM user manual
+# HydroReOpLLM overview
 
 <div class="hero-band" markdown="1">
 
-**HydroReOpLLM** builds on [**HydroCNHS**](https://github.com/philip928lin/HydroCNHS) to simulate watershed runoff, reservoir operations, and downstream routing using deterministic rules or LLMs.
+**HydroReOpLLM** extends [**HydroCNHS**](https://github.com/philip928lin/HydroCNHS) with a unified, water-conserving simulation framework for coupling subbasin rainfall–runoff, river routing, and reservoir operations—making it straightforward to compare deterministic **Rule-based** policies against **LLM** operators on the exact same watershed.
 
-[Install & first run](GETTING_STARTED.md) · [Rules & LLM prompts](AGENT_DESIGN.md) · [F.E. Walter notebook](../tutorials/README.md) · [繁體中文手冊](README.zh-TW.md)
-
-</div>
-
-## Four-step learning map
-
-<div class="panel-grid panel-grid-4" markdown="1">
-<div class="panel-card" markdown="1">
-
-### Step 1: Watershed & hydrology
-
-Prepare local inflows or run HydroCNHS catchments.
-
-- [Inflows & HydroCNHS](HYDROLOGY_SETUP.md)
-- [Time scales & units](TIME_SCALES.md)
-- [Hourly GWLF (experimental)](HOURLY_GWLF.md)
+[Installation & CLI](GETTING_STARTED.md) · [Rules & LLM prompts](AGENT_DESIGN.md) · [Interactive notebook](../tutorials/README.md) · [繁體中文總覽](README.zh-TW.md)
 
 </div>
+
+## When to use HydroReOpLLM
+
+- Compare **Rule-based** baselines (such as Hanasaki flood control or custom Python rules) against **LLM** operators on identical hydrology and routing.
+- Encode seasonal pool targets, operating rules, or water control manuals into structured prompts and test how operational knowledge changes reservoir performance.
+- Simulate single reservoirs or multi-reservoir cascades mixing rule-based and LLM agents in the same basin.
+- Verify water balance, routing lags, and time-ordered gauge/forecast inputs offline before running live model inference.
+
+## Three core building blocks
+
+<div class="panel-grid panel-grid-3" markdown="1">
 <div class="panel-card" markdown="1">
 
-### Step 2: Reservoir operators
+### Hydrology & routing
 
-Configure Hanasaki rules, custom Python rules, or LLM prompts.
-
-- [Rules & LLM prompts](AGENT_DESIGN.md)
-- [Gauges & forecasts](INFORMATION.md)
-- [Model providers](MODEL_PROVIDERS.md)
+Supply prepared incremental local inflows (`inflows.csv`) or couple directly to a calibrated HydroCNHS catchment model (`GWLF`/`ABCD` + Lohmann routing) with multi-step channel lags.
 
 </div>
 <div class="panel-card" markdown="1">
 
-### Step 3: Build & run
+### Operators: Rule-based & LLM
 
-Connect multi-reservoir networks, run simulations, and inspect results.
-
-- [Experiment setup](CONFIGURATION.md)
-- [Multi-reservoir networks](MULTI_RESERVOIR.md)
-- [Run, verify & resume](RUNNING.md)
-- [Reading results](RESULTS_GUIDE.md)
+Attach one isolated operator per controlled reservoir—Hanasaki flood control, custom Python guide curves, or local Ollama / cloud LLMs using structured prompts and JSON replies.
 
 </div>
 <div class="panel-card" markdown="1">
 
-### Step 4: Case study & help
+### Physical limits & verification
 
-Reproduce the F.E. Walter study and fix common errors.
-
-- [F.E. Walter Dam](../examples/fe_walter/README.md)
-- [F.E. Walter notebook](../tutorials/README.md)
-- [Troubleshooting](TROUBLESHOOTING.md)
+Enforce outlet bounds (`[min, max]`), dead storage, and uncontrolled spill inside one shared water-balance engine, with offline `check` previews and post-run `verify` audits.
 
 </div>
 </div>
@@ -62,17 +45,70 @@ Reproduce the F.E. Walter study and fix common errors.
 
 <figure class="figure-card">
   <img src="assets/figures/fig1-framework.png" alt="Closed-loop HydroReOpLLM and HydroCNHS reservoir operation framework">
-  <figcaption><strong>Figure 1.</strong> Coupled HydroCNHS–HydroReOpLLM loop: watershed inflows and reservoir storage feed a rule or LLM operator, and the water-balance engine enforces outlet bounds and spill before routing downstream.</figcaption>
+  <figcaption><strong>Figure 1.</strong> Coupled HydroCNHS–HydroReOpLLM simulation loop: watershed inflows and beginning reservoir storage feed a rule or LLM operator, and the water-balance engine enforces outlet bounds and spill before routing water downstream.</figcaption>
 </figure>
 
-## Starter examples
+## Manual map
 
-| Example | Operator & method | Network calls (`check` / `run`) | What it demonstrates |
+<div class="panel-grid panel-grid-4" markdown="1">
+<div class="panel-card" markdown="1">
+
+### Installation & workflow
+
+Install Python 3.12+, configure experiments, and verify outputs.
+
+- [Installation & CLI](GETTING_STARTED.md)
+- [Experiment setup](CONFIGURATION.md)
+- [Run, verify & resume](RUNNING.md)
+- [Reading results](RESULTS_GUIDE.md)
+
+</div>
+<div class="panel-card" markdown="1">
+
+### Watershed & hydrology
+
+Connect inflows, HydroCNHS catchments, river networks, and timesteps.
+
+- [Inflows & HydroCNHS](HYDROLOGY_SETUP.md)
+- [Multi-reservoir networks](MULTI_RESERVOIR.md)
+- [Time scales & units](TIME_SCALES.md)
+- [Hourly GWLF (experimental)](HOURLY_GWLF.md)
+
+</div>
+<div class="panel-card" markdown="1">
+
+### Reservoir operators
+
+Design Hanasaki rules, custom Python rules, prompts, gauges, and models.
+
+- [Rules & LLM prompts](AGENT_DESIGN.md)
+- [Gauges & forecasts](INFORMATION.md)
+- [Model providers](MODEL_PROVIDERS.md)
+
+</div>
+<div class="panel-card" markdown="1">
+
+### Examples & tutorials
+
+Run the single-reservoir and multi-reservoir cases or troubleshoot errors.
+
+- [Single-reservoir case (F.E. Walter)](../examples/fe_walter/README.md)
+- [Interactive notebook](../tutorials/README.md)
+- [Multi-reservoir case](../examples/multi_reservoir/README.md)
+- [Troubleshooting](TROUBLESHOOTING.md)
+
+</div>
+</div>
+
+## Included examples
+
+| Example | Operator & config | Calls (`check` / `run`) | What it demonstrates |
 | --- | --- | --- | --- |
-| [Two-reservoir template](../examples/template/README.md) | Fixed release (`4.0` & `5.0` m³/s) | `0` / `0` | Two-reservoir cascade (`upper` → `lower` → `outlet`) with routing lags. |
-| [Rule-based](../examples/fe_walter/README.md) | `type: rule_based` (`hanasaki`, α = 0.85) | `0` / `0` | Offline Hanasaki flood-control baseline on F.E. Walter (`rule_based.yaml`). |
-| [Without operational knowledge](../examples/fe_walter/README.md) | `type: llm` (`seasonal_target.yaml`) | `0` / `7` (7-day) or `1,826` (full) | LLM release using pool elevation, seasonal target, and 2-day history. |
-| [With operational knowledge](../examples/fe_walter/README.md) | `type: llm` (`dkp.yaml`) | `0` / `7` (7-day) or `1,826` (full) | Same case with structured operating manual retrieval (`dkp.md`). |
+| [Single-reservoir: Rule-based](../examples/fe_walter/README.md) | Hanasaki (`α = 0.85`, `rule_based.yaml`) | `0` / `0` | Offline F.E. Walter Dam baseline over 2021–2025 inflows. |
+| [Single-reservoir: Without operational knowledge](../examples/fe_walter/README.md) | LLM (`seasonal_target.yaml`) | `0` / `7` or `1,826` | Pool elevation, seasonal target, and 2-day release history only. |
+| [Single-reservoir: With operational knowledge](../examples/fe_walter/README.md) | LLM (`dkp.yaml`) | `0` / `7` or `1,826` | Same physical case with structured water-control manual (`dkp.md`). |
+| [Multi-reservoir: Rule-based](../examples/multi_reservoir/README.md) | Hanasaki on both dams (`rule_based.yaml`) | `0` / `0` | Two-dam cascade (`upper` → `lower` → `outlet`) with routing lag. |
+| [Multi-reservoir: Hybrid LLM](../examples/multi_reservoir/README.md) | Upstream Hanasaki + downstream LLM (`hybrid_llm.yaml`) | `0` / `10` | Mixed rule-based and LLM cascade (`prompts/operator.txt`). |
 
 <div class="callout callout-info" markdown="1">
 

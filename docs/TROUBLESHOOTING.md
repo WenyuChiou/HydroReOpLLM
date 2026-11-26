@@ -10,7 +10,7 @@ Most path, hydrology, provider, and mass-balance errors fail fast during `reserv
 
 | Symptom or error | Likely cause & fix | Reference |
 | --- | --- | --- |
-| `file not found` or `inflow_source` mismatch | Paths resolve from the **declaring** YAML/JSON file, not your terminal CWD. After editing `inflows.csv`, update `inflow_source.sha256` in `case.json` ([Two-reservoir template](../examples/template/README.md)). | [Experiment setup](CONFIGURATION.md) |
+| `file not found` or `inflow_source` mismatch | Paths resolve from the **declaring** YAML/JSON file, not your terminal CWD. After editing `inflows.csv`, update `inflow_source.sha256` in `case.json` ([Multi-reservoir case](../examples/multi_reservoir/README.md)). | [Experiment setup](CONFIGURATION.md) |
 | `YAML keys must be unique strings` or float error | Duplicate YAML key, or un-signed exponent like `8.0e6`. Write `8.0e+6` or `8000000.0`. | [Experiment setup](CONFIGURATION.md) |
 | `cannot mix public and legacy agent fields` | Keep `reservoir_id`/`type`/`model_profile`/`prompt_file` separate from `reservoir`/`mode`/`strategy`/`model`/`prompt`. | [Rules & LLM prompts](AGENT_DESIGN.md) |
 | `unknown reservoir/node` or coverage error | Assign one agent per `controlled` reservoir and one `inflow_bindings` entry per inlet, junction, and outlet. | [Multi-reservoir networks](MULTI_RESERVOIR.md) |

@@ -13,7 +13,7 @@ HydroReOpLLM 建構於 [**HydroCNHS**](https://github.com/philip928lin/HydroCNHS
 
 ### 路徑 A：自備入流資料（CSV）
 
-- 最適合已經具備子集水區區域入流時使用（如 `examples/template/` 與 `examples/fe_walter/`）。
+- 最適合已經具備子集水區區域入流時使用（如 `examples/fe_walter/` 與 `examples/multi_reservoir/`）。
 - 提供 `case.json` 與 `inflows.csv`（`date,node,local_inflow_cms`），直接進行水庫運轉與下游演算。
 
 </div>
