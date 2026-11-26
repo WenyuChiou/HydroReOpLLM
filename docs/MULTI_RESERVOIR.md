@@ -2,36 +2,36 @@
 
 <div class="hero-band" markdown="1">
 
-HydroReOpLLM models single reservoirs, series cascades, parallel tributaries, river junctions, flow splits, and multi-outlet basins. Each controlled dam owns an independent operator—so you can pair a **Hanasaki rule-based** reservoir with an **LLM-operated** reservoir inside the same watershed.
+Model single dams, series cascades, parallel tributaries, junctions, flow splits, and multi-outlet basins—and freely combine **Rule-based** (Hanasaki) and **LLM** operators in the same watershed.
 
 </div>
 
 ## Network topology and physical rules
 
-Define the basin topology under `network` in `case.json` or `reservoirs.yaml` (`llm-reservoir-network.v1` with `outlet`, `.v2` with `outlets` list for daily runs, or `.v3` for sub-daily intervals):
+Define the physical network under `network` in `case.json` or `reservoirs.yaml` (`llm-reservoir-network.v1` with `outlet`, `.v2` with `outlets` list for daily runs, or `.v3` for sub-daily intervals):
 
-| Network component | Physical meaning & constraints |
+| Component | Physical meaning & constraints |
 | --- | --- |
-| `reservoirs.<key>` | Unique reservoir ID, paired `inflow_node`, `capacity_m3`, `dead_storage_m3`, `initial_storage_m3` (`dead <= initial <= capacity`), `minimum_release_cms`, `maximum_release_cms`, and `dt_seconds`. |
-| `operation_mode` | `controlled` (operated by an agent in `agents:`) or `passive_outlet` (uncontrolled weir/spillway governed solely by its stage-discharge curve, no agent needed). |
-| `junctions` & `outlets` | Distinct IDs for tributary confluences and terminal basin outlets (every terminal node with zero outgoing links must appear in `outlets`). |
-| `connections[]` | Directed river reaches routing a reservoir or junction's total outflow (`controlled_release_cms + spill_cms`) to a downstream `inflow_node`, `junction`, or `outlet` (acyclic). |
-| `fraction` | Optional dimensionless flow-split share in `(0, 1]` (default `1.0`); outgoing shares from any reservoir or junction must sum to `1.0`. |
-| `unit_hydrograph` | Non-negative channel travel-time weights summing to `1.0`: index `0` arrives on the same step, index `1` one step later, index `2` two steps later (default `[1.0]`). |
+| `reservoirs.<key>` | Unique ID, `inflow_node`, `capacity_m3`, `dead_storage_m3`, `initial_storage_m3` (`dead <= initial <= capacity`), `minimum_release_cms`, `maximum_release_cms`, `dt_seconds`. |
+| `operation_mode` | `controlled` (requires one agent in `agents:`) or `passive_outlet` (uncontrolled weir/spillway governed by its rating curve). |
+| `junctions`, `outlets` | Distinct IDs for river confluences and terminal basin outlets (all zero-outdegree terminals must match `outlets`). |
+| `connections[]` | Directed reaches routing `controlled_release_cms + spill_cms` downstream to an `inflow_node`, `junction`, or `outlet`. |
+| `fraction` | Flow-split share in `(0, 1]` (default `1.0`); outgoing shares from any dam or junction must sum to `1.0`. |
+| `unit_hydrograph` | Non-negative lag weights summing to `1.0`: index `0` arrives same step, index `1` one step later, etc. (default `[1.0]`). |
 
 ## Incremental local inflows and unit-hydrograph routing
 
 <div class="callout callout-warn" markdown="1">
 
-**Supply incremental local inflows only.** Every `inflow_node`, `junction`, and `outlet` in `inflows.csv` (or `inflow_bindings`) must supply **only local lateral runoff** entering that reach—never already-routed flow from an upstream dam. HydroReOpLLM adds upstream dam releases automatically through `connections[]`.
+**Supply incremental local inflows only.** Each `inflow_node`, `junction`, and `outlet` must receive **only local lateral runoff**—never already-routed upstream dam releases, or upstream water is counted twice.
 
 </div>
 
-Channel routing uses discrete linear convolution of `unit_hydrograph` weights. For example, `[0.0, 0.7, 0.3]` delivers 0% on the release day, 70% on day +1, and 30% on day +2. Water still in transit along multi-day reaches at the end of a simulation is accounted for explicitly in `reach_volume_trace.json` and `network_balance.csv` so total basin water balance always closes.
+Channel routing convolves releases with `unit_hydrograph` (for example, `[0.0, 0.7, 0.3]` delivers 70% on day +1 and 30% on day +2). Water still in transit at the end of a run is tracked in `reach_volume_trace.json` and `network_balance.csv` so total basin water balance closes.
 
 ## Hybrid Hanasaki and LLM multi-reservoir wiring
 
-Because each reservoir's operator runs independently, you can mix an LLM operator on one reservoir with a deterministic Hanasaki rule on a parallel or upstream reservoir in the same `agents.yaml` (following `tests/fixtures/examples/multiple_reservoirs/`):
+Each reservoir runs an independent operator, so you can mix an LLM operator and a Hanasaki rule in one `agents.yaml`:
 
 <div class="panel-grid panel-grid-2" markdown="1">
 <div class="panel-card" markdown="1">
@@ -87,6 +87,6 @@ operator_b:
 
 ## Execution order and cross-reservoir information
 
-1. **Upstream-to-downstream execution**: At each timestep `t`, HydroReOpLLM steps through the river network in topological order. Upstream dams decide and route their outflows before downstream dams observe today's total `inflow_cms`.
-2. **Sharing states across reservoirs**: Use a `simulation` source in `information.yaml` ([Decision-time information](INFORMATION.md)) when a downstream dam needs to see an upstream dam's committed storage or release—or when parallel dams coordinate using yesterday's committed state. Same-step values from parallel dams that have not yet acted remain unavailable to preserve causality.
-3. **Verify topology offline**: Run `reservoir-experiment check` after any change to connections, `fraction` splits, `unit_hydrograph` lags, or `outlets`.
+1. **Upstream-to-downstream order**: HydroReOpLLM steps through the river network in topological sequence so upstream releases arrive before downstream dams decide.
+2. **Cross-reservoir states**: Add a `simulation` source in `information.yaml` ([Decision-time information](INFORMATION.md)) to expose an upstream dam's committed storage or release downstream; parallel dams cannot peek at each other's uncommitted same-step decision.
+3. **Check topology**: Run `reservoir-experiment check` whenever modifying connections, `fraction`, `unit_hydrograph`, or `outlets`.

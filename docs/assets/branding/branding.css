@@ -426,6 +426,26 @@ main p, main ul, main ol {
   max-width: 96ch;
 }
 
+main ul, main ol {
+  padding-left: 1.35rem;
+  margin: .55rem 0 1.05rem;
+}
+
+main li {
+  margin: .32rem 0;
+  line-height: 1.62;
+  padding-left: .12rem;
+}
+
+main ul > li::marker {
+  color: var(--teal);
+}
+
+main ol > li::marker {
+  color: var(--teal);
+  font-weight: 650;
+}
+
 main p, main li, main td {
   overflow-wrap: anywhere;
 }
@@ -725,7 +745,8 @@ main td code, main th code {
 .panel-card ul,
 .panel-card ol { max-width: none; font-size: .96rem; margin-bottom: .45rem; }
 .panel-card ul,
-.panel-card ol { padding-left: 1.25rem; }
+.panel-card ol { margin: .35rem 0 0; padding-left: 1.2rem; }
+.panel-card li { margin: .24rem 0; line-height: 1.5; }
 
 .pipeline-strip {
   display: flex;
@@ -819,6 +840,7 @@ main td code, main th code {
 .callout > :first-child { margin-top: 0; }
 .callout > :last-child { margin-bottom: 0; }
 .callout p, .callout ul, .callout ol { max-width: none; }
+.callout ul, .callout ol { margin: .35rem 0 0; padding-left: 1.25rem; }
 
 .callout-info {
   background: radial-gradient(100% 90% at 0% 0%, rgba(9, 108, 112, 0.08) 0%, rgba(242, 249, 249, 0.92) 72%), var(--bg-elevated);

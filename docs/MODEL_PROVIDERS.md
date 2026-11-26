@@ -2,16 +2,14 @@
 
 <div class="hero-band" markdown="1">
 
-HydroReOpLLM connects directly to local **Ollama** servers and four cloud APIs (**OpenAI**, **OpenAI-compatible**, **Anthropic**, and **Gemini**) through explicit profiles in `models.yaml` (or `models:` inside `experiment.yaml`).
+Configure local **Ollama** servers or cloud APIs (**OpenAI**, **Gemini**, **Anthropic**, **OpenAI-compatible**) in `models.yaml` and reference them via `model_profile:` on each LLM operator.
 
 </div>
 
 ## Ready-to-copy provider profiles
 
-Copy the profile block you need into `models.yaml` and reference its key (e.g., `local`, `openai`, `gemini`) from `model_profile:` on your LLM operator:
-
 ```yaml
-# models.yaml — choose one or more profiles and set YOUR_* values
+# models.yaml — pick the profiles you need and fill in YOUR_* values
 local:
   provider: ollama
   model: gemma4:12b                    # Installed tag from `ollama list`
@@ -29,7 +27,7 @@ local:
 openai:
   provider: openai
   model: YOUR_OPENAI_MODEL
-  api_key_env: OPENAI_API_KEY          # Export this env var before running
+  api_key_env: OPENAI_API_KEY
   base_url: https://api.openai.com/v1
   temperature: 0.2
   max_tokens: 2048
@@ -56,7 +54,7 @@ anthropic:
 vllm_or_local_server:
   provider: openai_compatible
   model: YOUR_SERVED_MODEL
-  api_key_env: OPENAI_API_KEY          # Omit if your local server needs no key
+  api_key_env: OPENAI_API_KEY          # Omit if no auth key is required
   base_url: http://127.0.0.1:8000/v1
   temperature: 0.2
   seed: 3
@@ -65,27 +63,23 @@ vllm_or_local_server:
 
 <div class="callout callout-warn" markdown="1">
 
-**Keep API keys in environment variables.** Never paste raw keys into YAML files. Set `api_key_env` to the variable name (for example `OPENAI_API_KEY`) and export it in your terminal before running `reservoir-experiment run --allow-network`. Secrets are stripped from all saved logs.
+**Never commit API keys.** Store secrets in environment variables (such as `OPENAI_API_KEY`) and pass only the variable name in `api_key_env`.
 
 </div>
 
 ## Sampling, timeout, and budget controls
 
-| YAML key | Default | Provider scope & guidance |
+| YAML key | Default | Notes |
 | --- | --- | --- |
-| `provider` | Required | `ollama`, `openai`, `openai_compatible`, `anthropic`, or `gemini`. |
-| `model` | Required | Exact model tag or API model ID. |
-| `base_url` | Required | Base HTTP(S) URL for your local server or cloud endpoint. |
-| `api_key_env` | Omitted | Environment variable name holding your API key (optional for local Ollama). |
-| `temperature` | Provider default | `0.0`–`2.0`. Lower values (`0.0`–`0.3`) reduce run-to-run variability; F.E. Walter uses `0.7` across 10 seeds to measure spread. |
-| `max_tokens` | Provider default | Maximum output tokens per decision (**required** for `anthropic`; `2048` leaves ample room for reasoning + JSON). |
-| `seed` | Omitted | Integer random seed (supported by `ollama` and `openai_compatible` only). |
-| `timeout_seconds` | `60.0` | Seconds before an HTTP attempt times out (raise to `120`+ for larger local models). |
-| `max_attempts` | `1` | Maximum tries per profile on transient errors or malformed JSON replies. |
-| `retry_delay_seconds` | `2.0` | Wait time in seconds between retries. |
-| `retryable_http_statuses` | `[]` | Optional list of HTTP codes (e.g., `[429, 503]`) to retry automatically. |
-| `num_ctx`, `think`, `keep_alive` | Omitted | **`ollama` only**: context length (`num_ctx`), thinking toggle (`think`), and model memory residency (`keep_alive`). |
-| `anthropic_version` | `'2023-06-01'` | **`anthropic` only**: API version header override. |
+| `provider`, `model`, `base_url` | Required | Adapter (`ollama`, `openai`, `openai_compatible`, `anthropic`, `gemini`), model ID, and HTTP(S) URL. |
+| `api_key_env` | Omitted | Environment variable holding the API key (optional for local Ollama). |
+| `temperature` | Provider default | `0.0`–`2.0`. Low values (`0.0`–`0.3`) reduce variance; F.E. Walter uses `0.7` across 10 seeds. |
+| `max_tokens` | Provider default | Max output tokens per decision (**required** by `anthropic`; `2048` recommended). |
+| `seed` | Omitted | Integer seed (`ollama` and `openai_compatible` only). |
+| `timeout_seconds`, `max_attempts`, `retry_delay_seconds` | `60.0`, `1`, `2.0` | Per-call timeout, retry count, and wait seconds between retries. |
+| `retryable_http_statuses` | `[]` | Optional HTTP codes (e.g., `[429, 503]`) to retry automatically. |
+| `num_ctx`, `think`, `keep_alive` | Omitted | **`ollama` only**: context size, thinking toggle, and residency duration. |
+| `anthropic_version` | `'2023-06-01'` | **`anthropic` only**: API version header. |
 
 ## Retries and fallback models
 
@@ -94,23 +88,24 @@ vllm_or_local_server:
 
 ### Retrying transient errors
 
-- If a request times out, drops a connection, hits a status in `retryable_http_statuses`, or returns invalid JSON, HydroReOpLLM retries up to `max_attempts` using the **exact same prompt** for that day.
-- Missing API keys or `401`/`403` authentication errors fail immediately without wasting attempts.
+- Timeouts, connection drops, listed `retryable_http_statuses`, and malformed JSON retry up to `max_attempts` with the exact same prompt.
+- Missing API keys and `401`/`403` auth errors fail immediately.
 
 </div>
 <div class="panel-card" markdown="1">
 
-### Ordered `fallback_models` & `max_calls`
+### `fallback_models` & `max_calls`
 
-- Add `customization.fallback_models: [backup_profile]` on an agent to fall back cleanly if the primary model fails on rate limits (`429`), server errors (`5xx`), timeouts, or JSON parse failures.
-- **Budget safety**: Set `max_calls` in `experiment.yaml` to cover `llm_agents * steps` plus headroom for any retries or fallbacks. Every attempt is logged in `provider_attempts.jsonl`.
+- Set `customization.fallback_models: [backup_profile]` to fail over on rate limits (`429`), server errors (`5xx`), timeouts, or parse failures.
+- Set `max_calls` in `experiment.yaml` to cover `llm_agents * steps` plus retry/fallback headroom.
 
 </div>
 </div>
 
 ## Recording settings for reproducible studies
 
-For reproducible hydrological papers, record alongside your run output:
-- The exact `provider`, `model` tag (avoid floating `:latest` tags if possible), `temperature`, `seed`, and `num_ctx`.
-- Your exact `system_prompt_file`, `prompt_file`, `knowledge` files, and software/Ollama version.
-- Remember that `reservoir-experiment check` validates YAML profiles offline without contacting the server; test live connectivity on a short 3–7 day window first before launching multi-year runs.
+For reproducible hydrological experiments, record these items alongside your run directory:
+
+- Exact `provider`, `model` tag (avoid floating `:latest` tags), `temperature`, `seed`, and `num_ctx`.
+- Exact `system_prompt_file`, `prompt_file`, `knowledge` files, and local Ollama / software versions.
+- Test live connectivity on a short 3–7 day window before launching multi-year runs.

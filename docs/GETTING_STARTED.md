@@ -2,13 +2,11 @@
 
 <div class="hero-band" markdown="1">
 
-HydroReOpLLM requires **Python 3.12+**. Install the package (`hydroreopllm` / CLI `reservoir-experiment`) and run your first two-reservoir offline cascade in under five minutes.
+HydroReOpLLM requires **Python 3.12+**. Install the package (`hydroreopllm` / CLI `reservoir-experiment`) and run the offline two-reservoir template in minutes.
 
 </div>
 
 ## Install from a clone
-
-Clone the repository, create a Python 3.12 virtual environment, and install with the bundled pinned dependencies (`environment/requirements-bundled.txt`):
 
 <div class="panel-grid panel-grid-2" markdown="1">
 <div class="panel-card" markdown="1">
@@ -41,17 +39,15 @@ python -m pip install -c environment/requirements-bundled.txt .
 
 ## Use an installed wheel
 
-If you installed HydroReOpLLM from a wheel into a clean directory, export the bundled `template` and `fe_walter` examples with:
+If installing from a wheel in an empty working folder, export the bundled examples first:
 
 ```sh
 reservoir-experiment init-examples
 ```
 
-This creates `./examples/` in your current working directory.
-
 ## Run the generic offline template
 
-The template simulates a 10-day two-reservoir cascade (`upper` → `lower` → `outlet`) with prescribed releases and zero LLM calls:
+Run the 10-day two-reservoir cascade (`upper` → `lower` → `outlet`) with zero LLM calls:
 
 ```sh
 reservoir-experiment check examples/template/experiment.yaml
@@ -59,15 +55,15 @@ reservoir-experiment run examples/template/experiment.yaml
 reservoir-experiment verify runs/prepared-template --require-offline
 ```
 
-- `check` validates all paths, dates, reservoir bounds, and routing weights without running physics.
-- `run` executes the simulation and writes CSVs and decision logs to `runs/prepared-template/`.
-- `verify --require-offline` confirms closed water balance (`PASS`) and `0` network calls.
+- `check` validates files, dates, bounds, and routing offline.
+- `run` writes simulation CSVs and logs to `runs/prepared-template/`.
+- `verify --require-offline` confirms closed mass balance (`PASS`) and `0` network calls.
 
 Continue with the [template field guide](../examples/template/README.md) and [Read your results](RESULTS_GUIDE.md).
 
 ## Check the F.E. Walter examples
 
-Check all three F.E. Walter study configurations offline (zero model calls):
+Validate all three F.E. Walter study conditions offline (`0` model calls):
 
 ```sh
 reservoir-experiment check examples/fe_walter/rule_based.yaml
@@ -75,9 +71,9 @@ reservoir-experiment check examples/fe_walter/seasonal_target.yaml
 reservoir-experiment check examples/fe_walter/dkp.yaml
 ```
 
-- Run the offline **Hanasaki** baseline immediately with `reservoir-experiment run examples/fe_walter/rule_based.yaml`.
-- To replay the 21 published runs offline or run **Seasonal Target** / **DKP** with local Ollama, follow the [F.E. Walter Dam guide](../examples/fe_walter/README.md) or the [F.E. Walter tutorial](../tutorials/README.md).
+- Run **Rule-based** (Hanasaki) offline immediately with `reservoir-experiment run examples/fe_walter/rule_based.yaml`.
+- Follow the [F.E. Walter Dam guide](../examples/fe_walter/README.md) or [tutorial](../tutorials/README.md) to replay all 21 archived runs or run **Without operational knowledge** / **With operational knowledge** with Ollama.
 
 ## Repeat a run safely
 
-Completed output folders are never overwritten. To re-run after editing reservoir limits, inflows, or prompts, assign a new `run_id` and an unused `output` directory in `experiment.yaml`, then run `check`, `run`, and `verify`.
+Completed output folders are never overwritten. Set a new `run_id` and unused `output` folder in `experiment.yaml`, then run `check`, `run`, and `verify`.
