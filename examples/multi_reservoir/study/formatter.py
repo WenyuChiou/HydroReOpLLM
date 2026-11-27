@@ -1,4 +1,4 @@
-"""Render Xindian River Feitsui Reservoir daily user messages with water level matching F.E. Walter style."""
+"""Render Xindian River Feitsui Reservoir daily user messages for joint water-supply dispatch."""
 
 from __future__ import annotations
 
@@ -21,7 +21,7 @@ def _daily_volume(cms: float) -> str:
 
 
 class XindianStudyPrompt:
-    """Format daily Feitsui Reservoir water level, inflow, storage, and recent history cleanly."""
+    """Format daily Feitsui Reservoir state, history, and downstream Nanshi Creek lateral inflow."""
 
     def __init__(self, curve_path: Path, capacity_m3: float, min_release_cms: float, max_release_cms: float):
         with curve_path.open(encoding="utf-8-sig", newline="") as stream:
@@ -51,7 +51,13 @@ class XindianStudyPrompt:
             / (self.storages[upper] - self.storages[lower])
         )
 
-    def render(self, observation: dict, history: tuple[dict, ...]) -> str:
+    def render(
+        self,
+        observation: dict,
+        history: tuple[dict, ...],
+        *,
+        downstream_lateral_cms: float | None = None,
+    ) -> str:
         day = date.fromisoformat(observation["timestamp"][:10])
         storage_m3 = float(observation["state"]["storage_m3"])
         storage_mcm = storage_m3 / 1e6
@@ -84,6 +90,13 @@ class XindianStudyPrompt:
             f"5. Storage at beginning of interval: {storage_m3:,.0f} m3 (= {storage_mcm:.3f} million m3, {pct:.1f}% of capacity)",
             f"6. Controlled release limits for this interval: {self.min_release_cms:.1f}-{self.max_release_cms:.1f} m3/s "
             f"(= {self.min_release_cms * SECONDS_PER_DAY:,.0f}-{self.max_release_cms * SECONDS_PER_DAY:,.0f} m3 over 1 days)",
+        ))
+        if downstream_lateral_cms is not None:
+            lines.append(
+                f"7. Downstream Nanshi Creek (Zhitan) lateral inflow today: {downstream_lateral_cms:,.2f} m3/s "
+                f"(= {_daily_volume(downstream_lateral_cms)})"
+            )
+        lines.extend((
             "",
             "Decide the target mean controlled release for this interval (m3/s).",
         ))

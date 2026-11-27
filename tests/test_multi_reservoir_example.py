@@ -68,7 +68,7 @@ def test_multi_reservoir_rule_based_runs_and_conserves_water(folder, tmp_path):
         for edge in network["connections"]
         if edge["source"] == "feitsui" and edge["target"] == "zhitan_local"
     )
-    assert len(weights) == 2 and sum(weights) == pytest.approx(1.0, abs=1e-9)
+    assert len(weights) >= 2 and sum(weights) == pytest.approx(1.0, abs=1e-9)
     source = case["inflow_source"]
     assert case["data_kind"] == "simulated_local_inflow"
     csv_path = folder / source["path"]
@@ -100,9 +100,9 @@ def test_multi_reservoir_hydrology_cv_model_validates():
     assert len(weather["dates"]) == 4018
     assert validate_bindings(weather, ("feitsui_local", "zhitan_local", "xindian_outlet")) == []
     cv_summary = json.loads((hydro_dir / "cv_summary.json").read_text(encoding="utf-8"))
-    assert cv_summary["feitsui_U1_U2_C_2016_2022"]["kge"] > 0.5
-    assert cv_summary["feitsui_U1_U2_V_2023_2025"]["kge"] > 0.7
-    assert cv_summary["zhitan_combined_V_2023_2025"]["kge"] > 0.7
+    assert cv_summary["feitsui_U1_U2_C_2016_2022"]["kge"] > 0.85
+    assert cv_summary["feitsui_U1_U2_V_2023_2025"]["kge"] > 0.85
+    assert cv_summary["zhitan_combined_V_2023_2025"]["kge"] > 0.85
 
 
 def test_multi_reservoir_hybrid_llm_checks_and_runs_with_mock_transport(folder, tmp_path):
@@ -157,6 +157,7 @@ def test_multi_reservoir_hybrid_llm_checks_and_runs_with_mock_transport(folder, 
     assert requests[0][1]["content"] == first_prompt.rstrip("\n")
     for msgs in requests:
         assert "Previous simulated release decisions" in msgs[1]["content"]
+        assert "Downstream Nanshi Creek (Zhitan) lateral inflow today:" in msgs[1]["content"]
 
 
 def test_multi_reservoir_replay_reproduces_study_scores(tmp_path):

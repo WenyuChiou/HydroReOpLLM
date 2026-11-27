@@ -1,13 +1,13 @@
-# Hybrid Xindian River cascade (Full-year 2025 validation window): upstream LLM (Feitsui) + downstream Hanasaki (Zhitan).
-# Uses the unified F.E. Walter seasonal-target decision-chain prompt architecture (xindian_study).
+# Hybrid Xindian River cascade (Full-year 2025 validation window): joint-dispatch LLM (Feitsui) + Hanasaki (Zhitan).
+# Uses the unified F.E. Walter seasonal-target decision-chain prompt architecture with downstream Nanshi lateral inflow.
 # Run check offline (0 network calls); live execution requires Ollama (gemma4:12b) and --allow-network.
 schema_version: llm-reservoir-experiment.v1
-case: case.json                       # Physical cascade: Feitsui Reservoir -> Zhitan Dam -> xindian_outlet.
-run_id: multi-reservoir-hybrid-llm    # Trace identity; change with output before repeating.
-output: ../../runs/multi-reservoir-hybrid-llm  # Unused output path, relative to this file.
-start_date: '2025-01-01'              # Inclusive 1-year validation operation start date (365 daily steps).
-end_date: '2025-12-31'                # Inclusive operation end date.
-max_calls: 730                        # 1 LLM agent x 365 days = 365 planned calls (up to 2 attempts/day).
+case: case.json
+run_id: multi-reservoir-hybrid-llm
+output: ../../runs/multi-reservoir-hybrid-llm
+start_date: '2025-01-01'
+end_date: '2025-12-31'
+max_calls: 730
 models:
   local:
     provider: ollama
@@ -47,6 +47,6 @@ agents:
 extensions:
   xindian_study: study/__init__.py
 source_dependencies:
-  prompts/feitsui.system.txt: 3ce9ac87508ec1533e52c41f7aa07a54fbf042f70b3627ee15204007233b1ebb
+  prompts/feitsui.system.txt: 1666918c1dbc5429ce06b7b73cd0c93ff361840b62343b1397915c7c70303cf6
   study/elevation_storage.csv: a1d01190f6c8ba4c1e249a673ae0617bbdb6b8d88ecaf9cd517e9cf7975c4bb9
   study/response_schemas.json: d9c6a783b41f1313b528abc6d6178701acdab0c08fcfe07e74a0fbe52841ef42

@@ -1,5 +1,6 @@
 # Calibrated 10-year HydroCNHS (GWLF rainfall-runoff + Lohmann routing) model for the Xindian River cascade (2015-2025).
-# Warm-up: 2015 | Calibration (C): 2016-2022 (7 yr) | Validation (V): 2023-2025 (3 yr) vs TFRA Open Data 145840.
+# Forcing: TFRA 145840 official catchment rainfall (with 2015H1 spin-up bridge) + ERA5 temperature & PET.
+# Warm-up: 2015 | Calibration (C): 2016-2022 (7 yr) | Validation (V): 2023-2025 (3 yr) via native GA_DEAP.
 Path:
   WD: .
   Modules: ''
@@ -26,14 +27,14 @@ RainfallRunoff:
       U0: 10.0
       SnowS: 0.0
     Pars: &id001
-      CN2: 91.24154
-      IS: 0.03363
-      Res: 0.34671
-      Sep: 0.01286
-      Alpha: 0.41492
-      Beta: 0.13355
-      Ur: 17.22207
-      Kc: 0.50449
+      CN2: 87.72739
+      IS: 0.34991
+      Res: 0.21246
+      Sep: 0.3879
+      Alpha: 0.08927
+      Beta: 0.0257
+      Ur: 17.96676
+      Kc: 0.44294
       Df: 0.0
   U2:
     Inputs:
@@ -51,14 +52,14 @@ RainfallRunoff:
       U0: 10.0
       SnowS: 0.0
     Pars: &id002
-      CN2: 79.23608
-      IS: 0.29101
-      Res: 0.18423
-      Sep: 0.03268
-      Alpha: 0.33067
-      Beta: 0.10053
-      Ur: 4.10403
-      Kc: 0.65378
+      CN2: 77.39871
+      IS: 0.35
+      Res: 0.14496
+      Sep: 0.39991
+      Alpha: 0.11274
+      Beta: 0.07107
+      Ur: 38.02362
+      Kc: 0.35252
       Df: 0.0
   D2:
     Inputs:
@@ -74,9 +75,9 @@ Routing:
       Inputs:
         FlowLength: 0.0
         InstreamControl: false
-      Pars:
-        GShape: 4.49344
-        GScale: 4.30565
+      Pars: &id003
+        GShape: 5.29167
+        GScale: 4.4494
         Velo: null
         Diff: null
   U1:
@@ -84,11 +85,7 @@ Routing:
       Inputs:
         FlowLength: 0.0
         InstreamControl: false
-      Pars:
-        GShape: 4.49344
-        GScale: 4.30565
-        Velo: null
-        Diff: null
+      Pars: *id003
     U2:
       Inputs:
         FlowLength: 18000.0
@@ -96,16 +93,16 @@ Routing:
       Pars:
         GShape: null
         GScale: null
-        Velo: 1.22553
-        Diff: 2576.7399
+        Velo: 2.4999
+        Diff: 3499.99713
   D2:
     D2:
       Inputs:
         FlowLength: 0.0
         InstreamControl: false
-      Pars:
-        GShape: 4.49344
-        GScale: 4.30565
+      Pars: &id004
+        GShape: 3.5386
+        GScale: 2.93179
         Velo: null
         Diff: null
   D1:
@@ -113,11 +110,7 @@ Routing:
       Inputs:
         FlowLength: 0.0
         InstreamControl: false
-      Pars:
-        GShape: 4.49344
-        GScale: 4.30565
-        Velo: null
-        Diff: null
+      Pars: *id004
     D2:
       Inputs:
         FlowLength: 22000.0
@@ -125,5 +118,5 @@ Routing:
       Pars:
         GShape: null
         GScale: null
-        Velo: 1.22553
-        Diff: 2576.7399
+        Velo: 0.48662
+        Diff: 462.87747

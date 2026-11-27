@@ -1,4 +1,4 @@
-"""Xindian River Feitsui Reservoir unified study policy integrated with HydroReOpLLM."""
+"""Xindian River Feitsui Reservoir joint-dispatch study policy integrated with HydroReOpLLM."""
 
 from __future__ import annotations
 
@@ -48,15 +48,16 @@ def _system_text(study):
     return Path(study["system"]).read_text(encoding="utf-8")
 
 
-def _sample_day1_inflow(study) -> float:
+def _load_node_inflows(study, node_id: str) -> dict[str, float]:
     path = Path(study["inflows"])
     if not path.is_file():
-        return 0.0
+        return {}
+    out: dict[str, float] = {}
     with path.open(encoding="utf-8", newline="") as stream:
         for row in csv.DictReader(stream):
-            if row["date"] == "2025-01-01" and row["node"] == "feitsui_local":
-                return float(row["local_inflow_cms"])
-    return 0.0
+            if row["node"] == node_id:
+                out[row["date"]] = float(row["local_inflow_cms"])
+    return out
 
 
 def preview_backend(settings, physical, runtime_root):
@@ -67,9 +68,11 @@ def preview_backend(settings, physical, runtime_root):
         physical["minimum_release_cms"],
         physical["maximum_release_cms"],
     )
+    feitsui_flows = _load_node_inflows(study, "feitsui_local")
+    zhitan_flows = _load_node_inflows(study, "zhitan_local")
     sample_obs = {
         "timestamp": "2025-01-01T00:00:00",
-        "inflow_cms": _sample_day1_inflow(study),
+        "inflow_cms": feitsui_flows.get("2025-01-01", 0.0),
         "state": {"storage_m3": physical["initial_storage_m3"]},
     }
     return {
@@ -77,7 +80,14 @@ def preview_backend(settings, physical, runtime_root):
         "model_used": False,
         "messages": [
             {"role": "system", "content": _system_text(study)},
-            {"role": "user", "content": prompt.render(sample_obs, ())},
+            {
+                "role": "user",
+                "content": prompt.render(
+                    sample_obs,
+                    (),
+                    downstream_lateral_cms=zhitan_flows.get("2025-01-01"),
+                ),
+            },
         ],
         "response_json_schema": study["schema"],
     }
@@ -104,10 +114,11 @@ def _parse_release(value, schema, physical):
 
 
 class XindianStudyBackend(ConfiguredBackend):
-    """Track two prior committed transitions for unified Feitsui daily prompts."""
+    """Track two prior committed transitions and downstream lateral inflow for unified Feitsui prompts."""
 
     def __init__(self, study, physical, model, transport, agent_id):
         self._history = deque(maxlen=2)
+        self._zhitan_lateral = _load_node_inflows(study, "zhitan_local")
         self._study_prompt = XindianStudyPrompt(
             Path(study["curve"]),
             physical["capacity_m3"],
@@ -130,7 +141,11 @@ class XindianStudyBackend(ConfiguredBackend):
             transport=transport,
             prompt_variables={
                 "study_message": lambda context: self._study_prompt.render(
-                    context.observation, tuple(self._history)
+                    context.observation,
+                    tuple(self._history),
+                    downstream_lateral_cms=self._zhitan_lateral.get(
+                        context.observation["timestamp"][:10]
+                    ),
                 )
             },
             response_json_schema=schema,
