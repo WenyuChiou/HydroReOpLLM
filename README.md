@@ -6,12 +6,13 @@
 
 [![User Manual (EN)](https://wenyuchiou.github.io/HydroReOpLLM/assets/branding/docs-badge-en.svg)](https://wenyuchiou.github.io/HydroReOpLLM/)
 [![使用手冊 (繁中)](https://wenyuchiou.github.io/HydroReOpLLM/assets/branding/docs-badge-zh-TW.svg)](https://wenyuchiou.github.io/HydroReOpLLM/zh-TW.html)
+[![使用手册 (简中)](https://wenyuchiou.github.io/HydroReOpLLM/assets/branding/docs-badge-zh-CN.svg)](https://wenyuchiou.github.io/HydroReOpLLM/zh-CN.html)
 [![PyPI](https://img.shields.io/pypi/v/hydroreopllm?label=PyPI&color=0f766e)](https://pypi.org/project/hydroreopllm/)
 [![Python 3.12+](https://img.shields.io/badge/Python-3.12%2B-2563eb)](https://www.python.org/downloads/)
 [![BSD-3-Clause](https://img.shields.io/badge/License-BSD--3--Clause-475569)](LICENSE)
 [![ODD+LLM Reproducible](https://img.shields.io/badge/ODD%2BLLM-Reproducible-0d9488)](#oddllm-reproducibility-built-in)
 
-**English** · [繁體中文](README.zh-TW.md)
+**English** · [繁體中文](README.zh-TW.md) · [简体中文](README.zh-CN.md)
 
 </div>
 
@@ -92,7 +93,7 @@ Every completed run writes `odd_llm_manifest.json` together with SHA-256-pinned 
 | --- | --- |
 | **Block A — Cognitive Architecture** | Agent type/strategy, working memory (`history_steps`), long-term operational knowledge (`dkp.md`, rule curves), non-leaking information profile, and physical action-space bounds. |
 | **Block B — Identity** | Agent persona/role framing, prompt template IDs/versions, SHA-256 prompt hashes (`prompt_sha256`), and pinned source files. |
-| **Block C — Inference Configuration** | Exact model ID, provider/endpoint, decoding hyperparameters (`temperature`, `seed`, `max_tokens`, `num_ctx`, `think`), retries/fallbacks, and Python/HydroCNHS runtime pins. |
+| **Block C — Inference Configuration** | Exact model ID, provider/endpoint, Ollama server version, model snapshot SHA-256 digest & quantization, observed cloud model versions / `system_fingerprint`, decoding hyperparameters (`temperature`, random `seed`, `max_tokens`, `num_ctx`, `think`), retries/fallbacks, and key Python / HydroCNHS dependency versions. |
 | **Block D — Behavioral Submodel (Signature, Binding & Resolution)** | Observation/JSON output schema & parser (`Signature`), prompt variables/context/knowledge hooks (`Binding`), and empirical retry, fallback, physical-clipping, spill, and audit telemetry (`Resolution`). |
 | **Block E — Validation** | Mass-balance residuals, offline `verify` verdict, SHA-256 artifact/stream digests, and offline replay capability. |
 
@@ -108,7 +109,7 @@ HydroReOpLLM/
 │   ├── fe_walter/             # Single-dam benchmark (Rule-based, seasonal_target, dkp, ODD_LLM.md)
 │   └── multi_reservoir/       # Xindian River cascade (10-yr HydroCNHS C&V, hybrid LLM, ODD_LLM.md)
 ├── tutorials/                 # 5-module offline curriculum (01..05) + interactive fe_walter.ipynb
-├── docs/                      # Bilingual (EN / 繁體中文) user manual sources
+├── docs/                      # Trilingual (EN / 繁體中文 / 简体中文) user manual sources
 └── tests/                     # Mass-balance, routing, provider, ODD+LLM, and packaging tests
 ```
 

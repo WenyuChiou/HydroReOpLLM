@@ -36,6 +36,7 @@
   - Decoding & retry: `temperature: 0.7`, `seed: 3`, `num_ctx: 16384`, `max_tokens: 2048`, `think: false`, `keep_alive: 30m`, `timeout_seconds: 120`, `max_attempts: 2`, `retry_delay_seconds: 2`, `max_calls: 730`, `automatic_retry: true`.
 - **Downstream `zhitan_operator` (and both agents in `rule_based.yaml`)**:
   - Offline deterministic Hanasaki flood-control rule (`offline_only: true`, `0` network calls).
+- **Automatic Live Runtime Capture**: Live runs automatically persist runtime provenance into `odd_llm_manifest.json` Block C (`server_runtime_snapshot`: Ollama server version, model SHA-256 digest, quantization, parameter size; plus per-decision `observed_model_versions`, `observed_system_fingerprints`, `seed`, and `key_dependencies`).
 
 ## Block D — Behavioral Submodel
 

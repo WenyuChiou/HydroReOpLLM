@@ -52,10 +52,11 @@ hydrocnhs = ["Config_logging.yaml"]
 "share/llm-reservoir-agent/hydrocnhs" = ["third_party/hydrocnhs/LICENSE", "third_party/hydrocnhs/SOURCE.json", "third_party/hydrocnhs/upstream-pyproject.toml"]
 "share/llm-reservoir-agent/hydrocnhs/patches" = ["third_party/hydrocnhs/patches/visual-indicator-api.patch", "third_party/hydrocnhs/patches/gwlf-groundwater-diagnostics.patch"]
 "share/llm-reservoir-agent/environment" = ["environment/hydrocnhs-core.json"]
-"share/llm-reservoir-agent/examples" = ["examples/README.md", "examples/README.zh-TW.md", "examples/llm_reservoir_abm.py"]
+"share/llm-reservoir-agent/examples" = ["examples/README.md", "examples/README.zh-TW.md", "examples/README.zh-CN.md", "examples/llm_reservoir_abm.py"]
 "share/llm-reservoir-agent/examples/fe_walter" = [
     "examples/fe_walter/README.md",
     "examples/fe_walter/README.zh-TW.md",
+    "examples/fe_walter/README.zh-CN.md",
     "examples/fe_walter/case.json",
     "examples/fe_walter/rule_case.json",
     "examples/fe_walter/inflows.csv",
@@ -90,6 +91,7 @@ hydrocnhs = ["Config_logging.yaml"]
 "share/llm-reservoir-agent/examples/multi_reservoir" = [
     "examples/multi_reservoir/README.md",
     "examples/multi_reservoir/README.zh-TW.md",
+    "examples/multi_reservoir/README.zh-CN.md",
     "examples/multi_reservoir/case.json",
     "examples/multi_reservoir/rule_based.yaml",
     "examples/multi_reservoir/hybrid_llm.yaml",

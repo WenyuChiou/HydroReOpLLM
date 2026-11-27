@@ -65,6 +65,6 @@ reservoir-experiment export-odd path/to/output --markdown-out ODD_LLM_REPORT.md
 
 - **區塊 A — 認知架構（Cognitive Architecture）**：代理人型態與策略、工作記憶（`history_steps`）、長期操作知識（`dkp.md`、運用規線）、不洩漏未來水情的資訊設定與物理行動邊界。
 - **區塊 B — 代理人身分與提示詞（Identity）**：角色設定與人設框架、提示詞範本 ID／版本、`prompt_sha256` 雜湊與鎖定之原始檔清單。
-- **區塊 C — 推論組態（Inference Configuration）**：確切模型識別碼、服務端點、解碼超參數（`temperature`、`seed`、`max_tokens`、`num_ctx`、`think`）、重試／備援鏈與 Python／HydroCNHS 執行環境版本。
+- **區塊 C — 推論組態（Inference Configuration）**：確切模型識別碼、服務端點、Ollama 伺服器版本、模型快照 SHA-256 摘要與量化格式、雲端實測模型版本／`system_fingerprint`、解碼超參數（`temperature`、隨機種子 `seed`、`max_tokens`、`num_ctx`、`think`）、重試／備援鏈與關鍵 Python／HydroCNHS 相依套件版本。
 - **區塊 D — 行為子模式（Signature、Binding 與 Resolution）**：觀測欄位與 JSON 輸出 Schema／解析器（`Signature`）、提示詞變數與上下文／知識掛鉤（`Binding`），以及重試、備援、物理截幅、溢洪與稽核實測遙測（`Resolution`）。
 - **區塊 E — 驗證與稽核（Validation）**：水量平衡殘差、離線 `verify` 查核狀態、輸出與追蹤檔之 SHA-256 雜湊與離線重播能力。

@@ -65,6 +65,6 @@ The manifest and Markdown report document five standardized reproducibility bloc
 
 - **Block A — Cognitive Architecture**: Agent type/strategy, working memory (`history_steps`), long-term operational knowledge (`dkp.md`, rule curves), non-leaking information profile, and physical action-space bounds.
 - **Block B — Identity**: Agent persona/role framing, prompt template IDs/versions, SHA-256 prompt hashes (`prompt_sha256`), and pinned source files.
-- **Block C — Inference Configuration**: Exact model identifier, provider/endpoint, decoding hyperparameters (`temperature`, `seed`, `max_tokens`, `num_ctx`, `think`), retry/fallback chains, and Python/HydroCNHS runtime pins.
+- **Block C — Inference Configuration**: Exact model identifier, provider/endpoint, Ollama server version, model snapshot SHA-256 digest and quantization, observed cloud model versions / `system_fingerprint`, decoding hyperparameters (`temperature`, random `seed`, `max_tokens`, `num_ctx`, `think`), retry/fallback chains, and key Python / HydroCNHS dependency versions.
 - **Block D — Behavioral Submodel (Signature, Binding & Resolution)**: Observation/JSON output schema & parser (`Signature`), prompt variables/context/knowledge hooks (`Binding`), and empirical retry, fallback, physical-clipping, spill, and audit telemetry (`Resolution`).
 - **Block E — Validation**: Mass-balance residuals, offline `verify` status, SHA-256 artifact/stream hashes, and offline replay capability.

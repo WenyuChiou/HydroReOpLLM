@@ -8,16 +8,20 @@ or modifying physical outputs.
 from __future__ import annotations
 
 from collections import Counter
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
 import csv
+from datetime import datetime, timezone
+import hashlib
 import importlib.metadata
 import json
 import math
+import os
 from pathlib import Path, PurePosixPath, PureWindowsPath
 import platform
 import re
 from typing import Any
 from urllib.parse import urlsplit, urlunsplit
+from urllib.request import HTTPRedirectHandler, Request, build_opener
 
 from .audit import json_snapshot
 from .time_axis import TimeAxis
@@ -26,6 +30,28 @@ from .time_axis import TimeAxis
 ODD_LLM_SCHEMA_VERSION = "odd-llm-reproducibility.v1"
 ODD_LLM_PROTOCOL = "ODD+LLM (CoALA-grounded ABM extension)"
 _ENV_NAME = re.compile(r"[A-Za-z_][A-Za-z0-9_]*\Z")
+_SHA256_HEX = re.compile(r"[0-9a-fA-F]{64}\Z")
+_MAX_PROBE_RESPONSE_BYTES = 1_048_576
+_KEY_DEPENDENCIES = ("numpy", "pandas", "scipy", "PyYAML", "deap", "matplotlib")
+_SAFE_SNAPSHOT_FIELDS = (
+    "provider",
+    "base_url",
+    "requested_model",
+    "probe_status",
+    "probed_at_utc",
+    "server_version",
+    "model_digest_sha256",
+    "model_size_bytes",
+    "modified_at",
+    "model_family",
+    "model_families",
+    "parameter_size",
+    "quantization_level",
+    "model_format",
+    "modelfile_sha256",
+    "template_sha256",
+    "model_parameters_raw",
+)
 _SAFE_FALLBACK_MODEL_FIELDS = (
     "provider",
     "model",
@@ -117,6 +143,412 @@ def _sanitize_model_entry(model: Any) -> dict[str, Any] | None:
         else:
             out[field] = val
     return out
+
+
+class _NoRedirect(HTTPRedirectHandler):
+    """Disable HTTP redirects so credentials are never forwarded during runtime probing."""
+
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        raise ValueError("runtime probe redirects are disabled")
+
+
+def _http_json_probe(
+    method: str,
+    url: str,
+    payload: Mapping[str, Any] | None,
+    headers: Mapping[str, str],
+    timeout: float = 3.0,
+) -> dict[str, Any]:
+    """Perform one bounded, no-redirect HTTP JSON probe and return a strict JSON object."""
+    req_headers = dict(headers)
+    data: bytes | None = None
+    if payload is not None:
+        data = json.dumps(dict(payload), allow_nan=False, ensure_ascii=False).encode("utf-8")
+        if "content-type" not in {k.lower() for k in req_headers}:
+            req_headers["Content-Type"] = "application/json"
+    request = Request(url, data=data, headers=req_headers, method=str(method).upper())
+    with build_opener(_NoRedirect()).open(request, timeout=timeout) as response:
+        body = response.read(_MAX_PROBE_RESPONSE_BYTES + 1)
+    if len(body) > _MAX_PROBE_RESPONSE_BYTES:
+        raise ValueError("probe response exceeds the 1 MiB size limit")
+    try:
+        decoded = body.decode("utf-8")
+    except UnicodeDecodeError as exc:
+        raise ValueError("probe response must be strict UTF-8") from exc
+
+    def _reject_constant(value: str) -> None:
+        raise ValueError(f"non-standard JSON constant in probe response: {value}")
+
+    parsed = json.loads(decoded, parse_constant=_reject_constant)
+    if not isinstance(parsed, dict):
+        raise TypeError("probe response must be a JSON object")
+    return parsed
+
+
+def _normalize_digest(value: Any) -> str | None:
+    """Normalize a model SHA-256 digest string, prefixing bare 64-hex digests with 'sha256:'."""
+    if not isinstance(value, str):
+        return None
+    text = value.strip()
+    if not text:
+        return None
+    if text.lower().startswith("sha256:"):
+        return "sha256:" + text[7:]
+    if _SHA256_HEX.fullmatch(text):
+        return f"sha256:{text.lower()}"
+    return text
+
+
+def _nonempty_str(value: Any) -> str | None:
+    if isinstance(value, str) and value.strip():
+        return value.strip()
+    return None
+
+
+def probe_ollama_runtime_snapshot(
+    base_url: str,
+    model: str,
+    *,
+    headers: Mapping[str, str] | None = None,
+    timeout: float = 3.0,
+    fetcher: Callable[..., Any] | None = None,
+) -> dict[str, Any]:
+    """Best-effort live probe of an Ollama server for version, digest, and quantization provenance.
+
+    Never raises and never includes credentials or headers in the returned snapshot.
+    """
+    fetch = fetcher or _http_json_probe
+    clean_base = _sanitize_base_url(base_url)
+    root_url = clean_base.rstrip("/") if clean_base else ""
+    req_headers: dict[str, str] = {"Accept": "application/json"}
+    if isinstance(headers, Mapping):
+        for k, v in headers.items():
+            if isinstance(k, str) and isinstance(v, str):
+                req_headers[k] = v
+
+    probed_at_utc = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    succeeded = 0
+
+    server_version: str | None = None
+    model_digest_sha256: str | None = None
+    model_size_bytes: int | None = None
+    modified_at: str | None = None
+    model_family: str | None = None
+    model_families: list[str] | None = None
+    parameter_size: str | None = None
+    quantization_level: str | None = None
+    model_format: str | None = None
+    modelfile_sha256: str | None = None
+    template_sha256: str | None = None
+    model_parameters_raw: str | None = None
+    tags_details: Mapping[str, Any] | None = None
+
+    if root_url:
+        # 1. GET /api/version
+        try:
+            ver_resp = fetch("GET", f"{root_url}/api/version", None, req_headers, timeout)
+            if isinstance(ver_resp, Mapping):
+                succeeded += 1
+                server_version = _nonempty_str(ver_resp.get("version"))
+        except Exception:
+            pass
+
+        # 2. GET /api/tags
+        try:
+            tags_resp = fetch("GET", f"{root_url}/api/tags", None, req_headers, timeout)
+            if isinstance(tags_resp, Mapping):
+                succeeded += 1
+                models_list = tags_resp.get("models")
+                if isinstance(models_list, list):
+                    candidates = [model]
+                    if ":" not in model:
+                        candidates.append(f"{model}:latest")
+                    matched: Mapping[str, Any] | None = None
+                    for target_name in candidates:
+                        for item in models_list:
+                            if isinstance(item, Mapping) and (
+                                item.get("name") == target_name or item.get("model") == target_name
+                            ):
+                                matched = item
+                                break
+                        if matched is not None:
+                            break
+                    if matched is not None:
+                        model_digest_sha256 = _normalize_digest(matched.get("digest"))
+                        size_val = matched.get("size")
+                        if isinstance(size_val, int) and not isinstance(size_val, bool) and size_val >= 0:
+                            model_size_bytes = size_val
+                        modified_at = _nonempty_str(matched.get("modified_at"))
+                        if isinstance(matched.get("details"), Mapping):
+                            tags_details = matched["details"]
+        except Exception:
+            pass
+
+        # 3. POST /api/show
+        try:
+            show_resp = fetch("POST", f"{root_url}/api/show", {"name": model}, req_headers, timeout)
+            if isinstance(show_resp, Mapping):
+                succeeded += 1
+                details = show_resp.get("details")
+                if isinstance(details, Mapping):
+                    model_family = _nonempty_str(details.get("family"))
+                    raw_families = details.get("families")
+                    if isinstance(raw_families, list):
+                        clean_fams = [f.strip() for f in raw_families if isinstance(f, str) and f.strip()]
+                        model_families = clean_fams if clean_fams else None
+                    parameter_size = _nonempty_str(details.get("parameter_size"))
+                    quantization_level = _nonempty_str(details.get("quantization_level"))
+                    model_format = _nonempty_str(details.get("format"))
+                modelfile = show_resp.get("modelfile")
+                if isinstance(modelfile, str) and modelfile:
+                    modelfile_sha256 = hashlib.sha256(modelfile.encode("utf-8")).hexdigest()
+                template = show_resp.get("template")
+                if isinstance(template, str) and template:
+                    template_sha256 = hashlib.sha256(template.encode("utf-8")).hexdigest()
+                params = show_resp.get("parameters")
+                if isinstance(params, str) and params.strip():
+                    stripped_params = params.strip()
+                    model_parameters_raw = (
+                        stripped_params if len(stripped_params) <= 500 else stripped_params[:497].rstrip() + "..."
+                    )
+                if model_digest_sha256 is None:
+                    model_digest_sha256 = _normalize_digest(show_resp.get("digest"))
+                if modified_at is None:
+                    modified_at = _nonempty_str(show_resp.get("modified_at"))
+        except Exception:
+            pass
+
+        if isinstance(tags_details, Mapping):
+            if model_family is None:
+                model_family = _nonempty_str(tags_details.get("family"))
+            if model_families is None and isinstance(tags_details.get("families"), list):
+                clean_fams = [f.strip() for f in tags_details["families"] if isinstance(f, str) and f.strip()]
+                model_families = clean_fams if clean_fams else None
+            if parameter_size is None:
+                parameter_size = _nonempty_str(tags_details.get("parameter_size"))
+            if quantization_level is None:
+                quantization_level = _nonempty_str(tags_details.get("quantization_level"))
+            if model_format is None:
+                model_format = _nonempty_str(tags_details.get("format"))
+
+    if server_version is not None and (
+        model_digest_sha256 is not None or quantization_level is not None or parameter_size is not None
+    ):
+        probe_status = "ok"
+    elif succeeded > 0:
+        probe_status = "partial"
+    else:
+        probe_status = "unavailable"
+
+    snapshot = {
+        "provider": "ollama",
+        "base_url": clean_base,
+        "requested_model": str(model),
+        "probe_status": probe_status,
+        "probed_at_utc": probed_at_utc,
+        "server_version": server_version,
+        "model_digest_sha256": model_digest_sha256,
+        "model_size_bytes": model_size_bytes,
+        "modified_at": modified_at,
+        "model_family": model_family,
+        "model_families": model_families,
+        "parameter_size": parameter_size,
+        "quantization_level": quantization_level,
+        "model_format": model_format,
+        "modelfile_sha256": modelfile_sha256,
+        "template_sha256": template_sha256,
+        "model_parameters_raw": model_parameters_raw,
+    }
+    return json_snapshot(snapshot, label="ollama_runtime_snapshot")
+
+
+def _probe_headers_for_model(model_cfg: Mapping[str, Any]) -> dict[str, str]:
+    """Build transient non-persisted headers for an Ollama probe if an API key env var is set."""
+    headers: dict[str, str] = {"Accept": "application/json"}
+    env_name = _sanitize_env_name(model_cfg.get("api_key_env"))
+    if env_name is not None:
+        secret = os.environ.get(env_name)
+        if secret:
+            headers["Authorization"] = f"Bearer {secret}"
+    return headers
+
+
+def probe_live_model_snapshots(
+    agents: Mapping[str, Mapping[str, Any]],
+    *,
+    timeout: float = 3.0,
+    fetcher: Callable[..., Any] | None = None,
+) -> dict[str, Any]:
+    """Probe unique live Ollama models across configured LLM agents, keyed by reservoir name.
+
+    Never raises; caches probes per unique ``(base_url, model)``.
+    """
+    result: dict[str, Any] = {}
+    if not isinstance(agents, Mapping):
+        return result
+    cache: dict[tuple[str, str], dict[str, Any]] = {}
+
+    def _probe_one(model_cfg: Any) -> dict[str, Any] | None:
+        if not isinstance(model_cfg, Mapping) or model_cfg.get("provider") != "ollama":
+            return None
+        base_url = _sanitize_base_url(model_cfg.get("base_url"))
+        model_name = _nonempty_str(model_cfg.get("model"))
+        if not base_url or not model_name:
+            return None
+        cache_key = (base_url.rstrip("/"), model_name)
+        if cache_key not in cache:
+            cache[cache_key] = probe_ollama_runtime_snapshot(
+                base_url,
+                model_name,
+                headers=_probe_headers_for_model(model_cfg),
+                timeout=timeout,
+                fetcher=fetcher,
+            )
+        return json_snapshot(cache[cache_key], label="ollama_runtime_snapshot")
+
+    try:
+        for agent in agents.values():
+            if not isinstance(agent, Mapping) or agent.get("mode") != "llm":
+                continue
+            reservoir = _nonempty_str(agent.get("reservoir"))
+            if not reservoir:
+                continue
+            primary_snap = _probe_one(agent.get("model"))
+            fallback_snaps: list[dict[str, Any]] = []
+            raw_fallbacks = agent.get("fallback_models")
+            if isinstance(raw_fallbacks, list):
+                for fb in raw_fallbacks:
+                    fb_snap = _probe_one(fb)
+                    if fb_snap is not None:
+                        fallback_snaps.append(fb_snap)
+            if primary_snap is not None or fallback_snaps:
+                result[reservoir] = {
+                    "primary": primary_snap,
+                    "fallbacks": fallback_snaps,
+                }
+    except Exception:
+        return result
+    return result
+
+
+def _sanitize_single_snapshot(snap: Any) -> dict[str, Any] | None:
+    """Keep only allow-listed, credential-free runtime snapshot fields."""
+    if not isinstance(snap, Mapping):
+        return None
+    out: dict[str, Any] = {}
+    for field in _SAFE_SNAPSHOT_FIELDS:
+        if field not in snap:
+            continue
+        val = snap[field]
+        if field == "base_url":
+            out[field] = _sanitize_base_url(val)
+        elif field == "model_digest_sha256":
+            out[field] = _normalize_digest(val)
+        else:
+            out[field] = val
+    return out if out else None
+
+
+def _sanitize_server_runtime_snapshot(entry: Any) -> dict[str, Any] | None:
+    """Return a sanitized copy of a per-reservoir ``server_runtime_snapshot`` mapping, or None."""
+    if not isinstance(entry, Mapping):
+        return None
+    primary = _sanitize_single_snapshot(entry.get("primary"))
+    fallbacks_raw = entry.get("fallbacks")
+    fallbacks: list[dict[str, Any]] = []
+    if isinstance(fallbacks_raw, list):
+        for item in fallbacks_raw:
+            cleaned = _sanitize_single_snapshot(item)
+            if cleaned is not None:
+                fallbacks.append(cleaned)
+    if primary is None and not fallbacks:
+        return None
+    return {"primary": primary, "fallbacks": fallbacks}
+
+
+def _key_dependency_versions() -> dict[str, str | None]:
+    """Return installed versions of key scientific dependencies (or None when absent)."""
+    versions: dict[str, str | None] = {}
+    for pkg in _KEY_DEPENDENCIES:
+        try:
+            versions[pkg] = importlib.metadata.version(pkg)
+        except Exception:
+            versions[pkg] = None
+    return versions
+
+
+def _collect_reply_provenance(reply: Any, versions: set[str], fingerprints: set[str]) -> None:
+    """Extract observed model snapshot version IDs and system fingerprints from one provider reply."""
+    if not isinstance(reply, Mapping):
+        return
+    for key in ("model", "modelVersion"):
+        val = reply.get(key)
+        if isinstance(val, str) and val.strip():
+            versions.add(val.strip())
+    fp = reply.get("system_fingerprint")
+    if isinstance(fp, str) and fp.strip():
+        fingerprints.add(fp.strip())
+
+
+def _harvest_observed_reply_provenance(
+    decisions: list[dict[str, Any]],
+    provider_attempts: list[dict[str, Any]],
+    output_path: Path,
+    streams_root: Path,
+) -> tuple[dict[str, list[str]], dict[str, list[str]]]:
+    """Scan saved raw traces and RETURNED provider attempts for model snapshot IDs and fingerprints."""
+    versions_by_rid: dict[str, set[str]] = {}
+    fingerprints_by_rid: dict[str, set[str]] = {}
+    raw_cache: dict[str, Any] = {}
+
+    for event in decisions:
+        rid = event.get("reservoir_id")
+        ref = event.get("raw_policy_ref")
+        if not isinstance(rid, str) or not isinstance(ref, Mapping):
+            continue
+        rel_path = ref.get("path")
+        if not isinstance(rel_path, str) or not rel_path.strip():
+            continue
+        if rel_path not in raw_cache:
+            loaded = _safe_child_json(output_path, rel_path)
+            if loaded is None and streams_root != output_path:
+                loaded = _safe_child_json(streams_root, rel_path)
+            raw_cache[rel_path] = loaded
+        raw_trace = raw_cache[rel_path]
+        unwrapped = (
+            raw_trace.get("backend_trace", raw_trace)
+            if isinstance(raw_trace, Mapping)
+            else None
+        )
+        if not isinstance(unwrapped, Mapping):
+            continue
+        v_set = versions_by_rid.setdefault(rid, set())
+        fp_set = fingerprints_by_rid.setdefault(rid, set())
+        _collect_reply_provenance(unwrapped.get("provider_reply"), v_set, fp_set)
+        _collect_reply_provenance(unwrapped.get("raw_reply"), v_set, fp_set)
+        latest = unwrapped.get("latest_attempt")
+        if isinstance(latest, Mapping):
+            _collect_reply_provenance(latest.get("provider_reply"), v_set, fp_set)
+        attempts = unwrapped.get("attempts")
+        if isinstance(attempts, list):
+            for att in attempts:
+                if isinstance(att, Mapping):
+                    _collect_reply_provenance(att.get("provider_reply"), v_set, fp_set)
+
+    for attempt_event in provider_attempts:
+        if attempt_event.get("status") != "RETURNED":
+            continue
+        rid = attempt_event.get("reservoir_id")
+        if not isinstance(rid, str):
+            continue
+        v_set = versions_by_rid.setdefault(rid, set())
+        fp_set = fingerprints_by_rid.setdefault(rid, set())
+        _collect_reply_provenance(attempt_event.get("provider_reply"), v_set, fp_set)
+
+    return (
+        {rid: sorted(vals) for rid, vals in versions_by_rid.items()},
+        {rid: sorted(vals) for rid, vals in fingerprints_by_rid.items()},
+    )
 
 
 def _truncate_preview(text: Any, max_chars: int = _SYSTEM_PREVIEW_MAX_CHARS) -> str | None:
@@ -498,6 +930,18 @@ def build_odd_llm_manifest(
         if isinstance(rid, str) and rid not in first_decision_by_rid:
             first_decision_by_rid[rid] = event
 
+    observed_versions_by_rid, observed_fingerprints_by_rid = _harvest_observed_reply_provenance(
+        decisions,
+        provider_attempts,
+        output_path,
+        streams_root,
+    )
+    server_runtime_snapshots = (
+        provenance.get("server_runtime_snapshots")
+        if isinstance(provenance.get("server_runtime_snapshots"), Mapping)
+        else {}
+    )
+
     reservoirs = network.get("reservoirs") if isinstance(network.get("reservoirs"), Mapping) else {}
 
     # Pre-classify agent types so prompt file inference knows how many LLM agents exist
@@ -663,6 +1107,17 @@ def build_odd_llm_manifest(
             or (not offline_only and bool(exp_data.get("automatic_retry", False)))
         )
 
+        seed_val = safe_model.get("seed")
+        random_seed_configured = bool(seed_val is not None and not isinstance(seed_val, bool))
+        temp_val = safe_model.get("temperature")
+        temp_is_zero = (
+            isinstance(temp_val, (int, float))
+            and not isinstance(temp_val, bool)
+            and float(temp_val) == 0.0
+        )
+        deterministic_decoding_requested = bool(offline_only or (random_seed_configured and temp_is_zero))
+        sanitized_runtime_snap = _sanitize_server_runtime_snapshot(server_runtime_snapshots.get(res_name))
+
         block_c_agents[res_name] = {
             "provider": safe_model.get("provider"),
             "model": safe_model.get("model"),
@@ -679,6 +1134,11 @@ def build_odd_llm_manifest(
             "fallback_models": safe_fallbacks,
             "automatic_retry": agent_auto_retry,
             "offline_only": offline_only,
+            "random_seed_configured": random_seed_configured,
+            "deterministic_decoding_requested": deterministic_decoding_requested,
+            "server_runtime_snapshot": sanitized_runtime_snap,
+            "observed_model_versions": list(observed_versions_by_rid.get(reservoir_id, [])),
+            "observed_system_fingerprints": list(observed_fingerprints_by_rid.get(reservoir_id, [])),
         }
 
         # Block D signature & binding
@@ -746,10 +1206,14 @@ def build_odd_llm_manifest(
     block_c = {
         "runtime": {
             "python_version": exp_data.get("python") or platform.python_version(),
+            "python_implementation": platform.python_implementation(),
+            "machine": platform.machine(),
             "platform": platform.platform(),
             "hydroreopllm_version": _package_version(),
             "hydrocnhs_core_commit": hydrocnhs_commit,
             "abm_module_sha256": exp_data.get("abm_module_sha256"),
+            "deterministic_physics": True,
+            "key_dependencies": _key_dependency_versions(),
         },
         "agents": block_c_agents,
     }
@@ -1026,14 +1490,29 @@ def render_odd_llm_markdown(manifest: Mapping[str, Any]) -> str:
             lines.append(f"- **System Prompt Preview**: \"{b_entry['system_prompt_preview']}\"")
         lines.append("")
 
+    py_impl = runtime.get("python_implementation")
+    machine = runtime.get("machine")
+    py_suffix = (
+        f" (`{py_impl}`, `{machine}`)"
+        if py_impl and machine
+        else f" (`{py_impl}`)" if py_impl else f" (`{machine}`)" if machine else ""
+    )
+    key_deps = runtime.get("key_dependencies")
+    if isinstance(key_deps, Mapping) and key_deps:
+        deps_str = ", ".join(f"`{pkg}={_fmt(ver)}`" for pkg, ver in key_deps.items())
+    else:
+        deps_str = "—"
+
     lines.extend([
         "## Block C — Inference Configuration",
         "",
-        f"- **Python**: `{_fmt(runtime.get('python_version'))}`",
+        f"- **Python**: `{_fmt(runtime.get('python_version'))}`{py_suffix}",
         f"- **Platform**: `{_fmt(runtime.get('platform'))}`",
         f"- **HydroReOpLLM Version**: `{_fmt(runtime.get('hydroreopllm_version'))}`",
         f"- **HydroCNHS Core Commit**: `{_fmt(runtime.get('hydrocnhs_core_commit'))}`",
         f"- **ABM Module SHA-256**: `{_fmt(runtime.get('abm_module_sha256'))}`",
+        f"- **Deterministic Physics**: `{_fmt(runtime.get('deterministic_physics'))}`",
+        f"- **Key Dependencies**: {deps_str}",
         "",
         "| Reservoir | Provider | Model | Temp | Seed | Max Tokens | `num_ctx` | `think` | Max Attempts | Auto Retry | Offline Only | Fallbacks |",
         "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |",
@@ -1047,6 +1526,80 @@ def render_odd_llm_markdown(manifest: Mapping[str, Any]) -> str:
             f"`{_fmt(c_entry.get('automatic_retry'))}` | `{_fmt(c_entry.get('offline_only'))}` | "
             f"`{len(c_entry.get('fallback_models') or [])}` |"
         )
+
+    lines.extend([
+        "",
+        "### Runtime Snapshot & Decoding Provenance",
+        "",
+        "| Reservoir | Server Version | Model Snapshot SHA-256 Digest | Quantization / Parameter Size | Observed Model Version(s) | System Fingerprint(s) | Random Seed | Deterministic Decoding Requested |",
+        "| --- | --- | --- | --- | --- | --- | --- | --- |",
+    ])
+    fallback_notes: list[str] = []
+    for res_name, c_entry in c_agents.items():
+        srs = c_entry.get("server_runtime_snapshot")
+        snaps: list[Mapping[str, Any]] = []
+        if isinstance(srs, Mapping):
+            if isinstance(srs.get("primary"), Mapping):
+                snaps.append(srs["primary"])
+            if isinstance(srs.get("fallbacks"), list):
+                for fb_snap in srs["fallbacks"]:
+                    if isinstance(fb_snap, Mapping):
+                        snaps.append(fb_snap)
+
+        server_versions: list[str] = []
+        digests: list[str] = []
+        quant_params: list[str] = []
+        for snap in snaps:
+            sv = snap.get("server_version")
+            if isinstance(sv, str) and sv and sv not in server_versions:
+                server_versions.append(sv)
+            dg = snap.get("model_digest_sha256")
+            if isinstance(dg, str) and dg and dg not in digests:
+                digests.append(dg)
+            q_val = snap.get("quantization_level")
+            p_val = snap.get("parameter_size")
+            if q_val and p_val:
+                qp = f"{q_val} / {p_val}"
+            elif q_val:
+                qp = str(q_val)
+            elif p_val:
+                qp = str(p_val)
+            else:
+                qp = ""
+            if qp and qp not in quant_params:
+                quant_params.append(qp)
+
+        obs_versions = [str(v) for v in (c_entry.get("observed_model_versions") or []) if v]
+        obs_fps = [str(fp) for fp in (c_entry.get("observed_system_fingerprints") or []) if fp]
+        seed_val = c_entry.get("seed")
+        seed_label = _fmt(seed_val)
+        if c_entry.get("random_seed_configured") is False and seed_val is None:
+            seed_label = "none"
+
+        lines.append(
+            f"| `{res_name}` | `{', '.join(server_versions) if server_versions else '—'}` | "
+            f"`{', '.join(digests) if digests else '—'}` | "
+            f"`{', '.join(quant_params) if quant_params else '—'}` | "
+            f"`{', '.join(obs_versions) if obs_versions else '—'}` | "
+            f"`{', '.join(obs_fps) if obs_fps else '—'}` | "
+            f"`{seed_label}` | `{_fmt(c_entry.get('deterministic_decoding_requested'))}` |"
+        )
+
+        fb_models = c_entry.get("fallback_models") or []
+        if isinstance(fb_models, list) and fb_models:
+            parts: list[str] = []
+            for idx, fb_model in enumerate(fb_models):
+                if not isinstance(fb_model, Mapping):
+                    continue
+                fb_desc = f"`{fb_model.get('provider')}:{fb_model.get('model')}`"
+                if fb_model.get("seed") is not None:
+                    fb_desc += f" (`seed={fb_model['seed']}`)"
+                parts.append(fb_desc)
+            if parts:
+                fallback_notes.append(f"- **`{res_name}` Fallback Profiles**: {', '.join(parts)}")
+    if fallback_notes:
+        lines.append("")
+        lines.extend(fallback_notes)
 
     lines.extend(["", "## Block D — Behavioral Submodel", "", "### Signature & Binding", ""])
     for res_name in block_a:

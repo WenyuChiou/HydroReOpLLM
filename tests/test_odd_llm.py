@@ -15,6 +15,8 @@ from llm_reservoir_agent.odd_llm import (
     ODD_LLM_SCHEMA_VERSION,
     build_odd_llm_manifest,
     export_odd_report,
+    probe_live_model_snapshots,
+    probe_ollama_runtime_snapshot,
     render_odd_llm_markdown,
 )
 from llm_reservoir_agent.verification import _OUTPUTS, verify_run
@@ -466,3 +468,442 @@ def test_shipped_example_odd_llm_protocol_cards():
         "export-odd",
     ):
         assert token in mr_card
+
+
+def test_probe_ollama_runtime_snapshot_full_partial_and_unavailable():
+    secret = "ollama-probe-secret-token-xyz"
+    long_params = "temperature 0.7\n" + ("num_ctx 16384 " * 60)
+    modelfile_text = "FROM gemma4:12b\nPARAMETER num_ctx 16384\n"
+    template_text = "{{ .System }}\n{{ .Prompt }}"
+    bare_digest = "a" * 64
+
+    def full_fetcher(method, url, payload, headers, timeout):
+        if method == "GET" and url.endswith("/api/version"):
+            return {"version": "0.17.4"}
+        if method == "GET" and url.endswith("/api/tags"):
+            return {
+                "models": [
+                    {
+                        "name": "gemma4:latest",
+                        "digest": bare_digest,
+                        "size": 7_381_382_048,
+                        "modified_at": "2026-04-01T12:00:00Z",
+                    }
+                ]
+            }
+        if method == "POST" and url.endswith("/api/show"):
+            assert payload == {"name": "gemma4"}
+            return {
+                "details": {
+                    "family": "gemma4",
+                    "families": ["gemma4", "clip"],
+                    "parameter_size": "12.2B",
+                    "quantization_level": "Q4_K_M",
+                    "format": "gguf",
+                },
+                "modelfile": modelfile_text,
+                "template": template_text,
+                "parameters": long_params,
+            }
+        raise AssertionError(f"unexpected probe call: {method} {url}")
+
+    snap = probe_ollama_runtime_snapshot(
+        "http://user:pass@127.0.0.1:11434",
+        "gemma4",
+        headers={"Authorization": f"Bearer {secret}"},
+        fetcher=full_fetcher,
+    )
+    assert snap["provider"] == "ollama"
+    assert snap["base_url"] == "http://127.0.0.1:11434"
+    assert snap["requested_model"] == "gemma4"
+    assert snap["probe_status"] == "ok"
+    assert snap["probed_at_utc"].endswith("Z")
+    assert snap["server_version"] == "0.17.4"
+    assert snap["model_digest_sha256"] == f"sha256:{bare_digest}"
+    assert snap["model_size_bytes"] == 7_381_382_048
+    assert snap["modified_at"] == "2026-04-01T12:00:00Z"
+    assert snap["model_family"] == "gemma4"
+    assert snap["model_families"] == ["gemma4", "clip"]
+    assert snap["parameter_size"] == "12.2B"
+    assert snap["quantization_level"] == "Q4_K_M"
+    assert snap["model_format"] == "gguf"
+    assert snap["modelfile_sha256"] == hashlib.sha256(modelfile_text.encode("utf-8")).hexdigest()
+    assert snap["template_sha256"] == hashlib.sha256(template_text.encode("utf-8")).hexdigest()
+    assert snap["model_parameters_raw"] is not None
+    assert len(snap["model_parameters_raw"]) <= 500
+    assert secret not in json.dumps(snap)
+    assert "user:pass" not in json.dumps(snap)
+
+    # Partial failure: only /api/version succeeds -> "partial"
+    def version_only_fetcher(method, url, payload, headers, timeout):
+        if url.endswith("/api/version"):
+            return {"version": "0.17.4"}
+        raise ConnectionError("endpoint unreachable")
+
+    partial = probe_ollama_runtime_snapshot("http://127.0.0.1:11434", "gemma4:12b", fetcher=version_only_fetcher)
+    assert partial["probe_status"] == "partial"
+    assert partial["server_version"] == "0.17.4"
+    assert partial["model_digest_sha256"] is None
+
+    # /api/tags fails, /api/show provides fallback digest & modified_at -> "ok"
+    def show_fallback_fetcher(method, url, payload, headers, timeout):
+        if url.endswith("/api/version"):
+            return {"version": "0.18.0"}
+        if url.endswith("/api/tags"):
+            raise TimeoutError("tags timeout")
+        if url.endswith("/api/show"):
+            return {
+                "digest": "sha256:" + ("b" * 64),
+                "modified_at": "2026-05-01T00:00:00Z",
+                "details": {"quantization_level": "Q8_0", "parameter_size": "27B"},
+            }
+        raise AssertionError("unexpected")
+
+    fallback_ok = probe_ollama_runtime_snapshot("http://127.0.0.1:11434", "gemma4:27b", fetcher=show_fallback_fetcher)
+    assert fallback_ok["probe_status"] == "ok"
+    assert fallback_ok["model_digest_sha256"] == "sha256:" + ("b" * 64)
+    assert fallback_ok["modified_at"] == "2026-05-01T00:00:00Z"
+    assert fallback_ok["quantization_level"] == "Q8_0"
+
+    # Full failure: all 3 fail -> "unavailable", never raises
+    def always_fail(method, url, payload, headers, timeout):
+        raise OSError("connection refused")
+
+    unavail = probe_ollama_runtime_snapshot("http://127.0.0.1:11434", "gemma4:12b", fetcher=always_fail)
+    assert unavail["probe_status"] == "unavailable"
+    assert unavail["server_version"] is None
+    assert unavail["model_digest_sha256"] is None
+
+    # probe_live_model_snapshots caches per unique (base_url, model) and skips offline/non-ollama
+    probe_calls: list[tuple[str, str]] = []
+
+    def counting_fetcher(method, url, payload, headers, timeout):
+        probe_calls.append((method, url))
+        if url.endswith("/api/version"):
+            return {"version": "0.17.4"}
+        if url.endswith("/api/tags"):
+            return {"models": [{"name": "gemma4:12b", "digest": "sha256:" + ("c" * 64)}]}
+        return {"details": {"quantization_level": "Q4_K_M", "parameter_size": "12.2B"}}
+
+    agents = {
+        "a1": {
+            "reservoir": "Res1",
+            "mode": "llm",
+            "model": {"provider": "ollama", "model": "gemma4:12b", "base_url": "http://127.0.0.1:11434"},
+            "fallback_models": [],
+        },
+        "a2": {
+            "reservoir": "Res2",
+            "mode": "llm",
+            "model": {"provider": "ollama", "model": "gemma4:12b", "base_url": "http://127.0.0.1:11434/"},
+            "fallback_models": [],
+        },
+        "a3": {
+            "reservoir": "Res3",
+            "mode": "offline",
+            "model": {"provider": "ollama", "model": "gemma4:12b", "base_url": "http://127.0.0.1:11434"},
+        },
+        "a4": {
+            "reservoir": "Res4",
+            "mode": "llm",
+            "model": {"provider": "openai", "model": "gpt-4o", "base_url": "https://api.openai.com/v1"},
+            "fallback_models": [],
+        },
+    }
+    snaps = probe_live_model_snapshots(agents, fetcher=counting_fetcher)
+    assert set(snaps) == {"Res1", "Res2"}
+    assert len(probe_calls) == 3  # probed once, cached for Res2
+    assert snaps["Res1"]["primary"]["server_version"] == "0.17.4"
+    assert snaps["Res2"]["primary"]["model_digest_sha256"] == "sha256:" + ("c" * 64)
+
+
+def test_live_run_persists_server_runtime_snapshots_and_exports_markdown(tmp_path, monkeypatch, capsys):
+    monkeypatch.setenv("TEST_ODD_API_KEY", "sk-test-live-provenance-key")
+    cfg_path = _write_llm_yaml_case(tmp_path, with_fallback=True)
+    # Make Ollama the primary with seed=7, temperature=0.0, and OpenAI a fallback (or test both!)
+    cfg = yaml.safe_load(cfg_path.read_text(encoding="utf-8"))
+    cfg["agents"]["res_a_agent"]["model"] = "backup"
+    cfg["agents"]["res_a_agent"]["fallback_models"] = ["primary"]
+    cfg_path.write_text(yaml.safe_dump(cfg, sort_keys=False), encoding="utf-8")
+    settings = load_settings(cfg_path)
+
+    ollama_digest = "sha256:1278394b693672ac2799eadc9a83fd98259a6a88a40acfb1dcaa6c6fc895a606"
+    probe_urls: list[str] = []
+
+    def mock_probe(method, url, payload, headers, timeout):
+        probe_urls.append(f"{method} {url}")
+        if url.endswith("/api/version"):
+            return {"version": "0.17.4"}
+        if url.endswith("/api/tags"):
+            return {
+                "models": [
+                    {
+                        "name": "gemma4:12b",
+                        "digest": ollama_digest,
+                        "size": 7_381_382_048,
+                        "modified_at": "2026-04-10T08:30:00Z",
+                    }
+                ]
+            }
+        if url.endswith("/api/show"):
+            return {
+                "details": {
+                    "family": "gemma4",
+                    "families": ["gemma4"],
+                    "parameter_size": "12.2B",
+                    "quantization_level": "Q4_K_M",
+                    "format": "gguf",
+                },
+                "modelfile": "FROM gemma4:12b\n",
+                "template": "{{ .Prompt }}",
+                "parameters": "temperature 0\nseed 7",
+            }
+        raise AssertionError(f"unexpected probe: {method} {url}")
+
+    call_idx = 0
+
+    def mock_transport(url, payload, headers, timeout):
+        nonlocal call_idx
+        call_idx += 1
+        if call_idx == 1:
+            # Primary Ollama fails once -> triggers fallback to OpenAI!
+            raise ConnectionError("ollama busy")
+        if call_idx == 2:
+            # Fallback OpenAI succeeds with immutable model snapshot + system_fingerprint
+            return {
+                "id": "resp-openai-1",
+                "status": "completed",
+                "model": "gpt-4o-2024-11-20",
+                "system_fingerprint": "fp_abc123def4",
+                "output": [
+                    {
+                        "type": "message",
+                        "content": [
+                            {
+                                "type": "output_text",
+                                "text": json.dumps({"schema_version": "reservoir-action.v1", "release_cms": 5.0}),
+                            }
+                        ],
+                    }
+                ],
+            }
+        # Remaining days: primary Ollama succeeds
+        return {
+            "model": "gemma4:12b",
+            "done": True,
+            "done_reason": "stop",
+            "message": {
+                "role": "assistant",
+                "content": json.dumps({"schema_version": "reservoir-action.v1", "release_cms": 5.0}),
+            },
+        }
+
+    _, result = run_settings(
+        settings,
+        allow_network=True,
+        transport=mock_transport,
+        provenance_probe=mock_probe,
+    )
+    output = tmp_path / "run_out"
+    assert len(probe_urls) == 3
+
+    # Probing must NOT alter observed_network_calls or provider_attempts.jsonl
+    assert result["summary"]["observed_network_calls"] == 4
+    verified = verify_run(output)
+    assert verified["status"] == "PASS"
+
+    # experiment.json provenance holds server_runtime_snapshots
+    exp_doc = json.loads((output / "experiment.json").read_text(encoding="utf-8"))
+    assert "server_runtime_snapshots" in exp_doc["provenance"]
+    assert exp_doc["provenance"]["server_runtime_snapshots"]["ResA"]["primary"]["server_version"] == "0.17.4"
+
+    # odd_llm_manifest.json Block C holds runtime metadata, snapshot, observed versions & fingerprints
+    manifest = json.loads((output / "odd_llm_manifest.json").read_text(encoding="utf-8"))
+    c_runtime = manifest["blocks"]["C_inference_configuration"]["runtime"]
+    assert c_runtime["deterministic_physics"] is True
+    assert c_runtime["python_implementation"]
+    assert c_runtime["machine"]
+    assert set(c_runtime["key_dependencies"]) == {"numpy", "pandas", "scipy", "PyYAML", "deap", "matplotlib"}
+    assert c_runtime["key_dependencies"]["numpy"] is not None
+    assert c_runtime["key_dependencies"]["PyYAML"] is not None
+
+    c_agent = manifest["blocks"]["C_inference_configuration"]["agents"]["ResA"]
+    assert c_agent["random_seed_configured"] is True
+    assert c_agent["deterministic_decoding_requested"] is True
+    assert c_agent["server_runtime_snapshot"]["primary"]["server_version"] == "0.17.4"
+    assert c_agent["server_runtime_snapshot"]["primary"]["model_digest_sha256"] == ollama_digest
+    assert c_agent["server_runtime_snapshot"]["primary"]["quantization_level"] == "Q4_K_M"
+    assert c_agent["server_runtime_snapshot"]["primary"]["parameter_size"] == "12.2B"
+    assert c_agent["observed_model_versions"] == ["gemma4:12b", "gpt-4o-2024-11-20"]
+    assert c_agent["observed_system_fingerprints"] == ["fp_abc123def4"]
+
+    # export-odd CLI Markdown contains Ollama version, sha256: digest, quantization, and seed
+    md_out = tmp_path / "exported_odd.md"
+    rc = main(["export-odd", str(output), "--markdown-out", str(md_out)])
+    assert rc == 0
+    _ = capsys.readouterr()
+    md_text = md_out.read_text(encoding="utf-8")
+    for token in (
+        "0.17.4",
+        ollama_digest,
+        "Q4_K_M",
+        "12.2B",
+        "7",
+        "gpt-4o-2024-11-20",
+        "fp_abc123def4",
+        "Deterministic Physics",
+        "Key Dependencies",
+        "Deterministic Decoding Requested",
+    ):
+        assert token in md_text
+
+
+def test_observed_model_versions_and_fingerprints_openai_and_gemini(tmp_path, monkeypatch):
+    monkeypatch.setenv("TEST_ODD_API_KEY", "sk-test-gemini-openai")
+    cfg_path = _write_llm_yaml_case(tmp_path, with_fallback=False)
+    cfg = yaml.safe_load(cfg_path.read_text(encoding="utf-8"))
+    # Primary: Gemini (no seed), Fallback: OpenAI-compatible (seed=42, temp=0.7 -> non-deterministic decoding)
+    cfg["models"]["gemini_primary"] = {
+        "provider": "gemini",
+        "model": "gemini-2.5-flash",
+        "base_url": "https://generativelanguage.googleapis.com/v1beta",
+        "api_key_env": "TEST_ODD_API_KEY",
+        "temperature": 0.0,
+        "max_tokens": 256,
+        "max_attempts": 1,
+        "retry_delay_seconds": 0.0,
+    }
+    cfg["models"]["openai_fb"] = {
+        "provider": "openai_compatible",
+        "model": "gpt-4o",
+        "base_url": "https://api.example.test/v1",
+        "api_key_env": "TEST_ODD_API_KEY",
+        "temperature": 0.7,
+        "seed": 42,
+        "max_tokens": 256,
+        "max_attempts": 1,
+        "retry_delay_seconds": 0.0,
+    }
+    cfg["agents"]["res_a_agent"]["model"] = "gemini_primary"
+    cfg["agents"]["res_a_agent"]["fallback_models"] = ["openai_fb"]
+    cfg_path.write_text(yaml.safe_dump(cfg, sort_keys=False), encoding="utf-8")
+    settings = load_settings(cfg_path)
+
+    call_idx = 0
+
+    def mock_transport(url, payload, headers, timeout):
+        nonlocal call_idx
+        call_idx += 1
+        if call_idx == 1:
+            return {
+                "responseId": "gem-resp-1",
+                "modelVersion": "gemini-2.5-flash-001",
+                "candidates": [
+                    {
+                        "finishReason": "STOP",
+                        "content": {
+                            "parts": [
+                                {"text": json.dumps({"schema_version": "reservoir-action.v1", "release_cms": 5.0})}
+                            ]
+                        },
+                    }
+                ],
+            }
+        if call_idx == 2:
+            # Force fallback to openai_compatible on Day 2
+            raise ConnectionError("gemini transient failure")
+        if call_idx == 3:
+            return {
+                "id": "chatcmpl-2",
+                "model": "gpt-4o-2024-11-20",
+                "system_fingerprint": "fp_9876543210",
+                "choices": [
+                    {
+                        "finish_reason": "stop",
+                        "message": {
+                            "role": "assistant",
+                            "content": json.dumps({"schema_version": "reservoir-action.v1", "release_cms": 5.0}),
+                        },
+                    }
+                ],
+            }
+        return {
+            "responseId": "gem-resp-3",
+            "modelVersion": "gemini-2.5-flash-002",
+            "candidates": [
+                {
+                    "finishReason": "STOP",
+                    "content": {
+                        "parts": [
+                            {"text": json.dumps({"schema_version": "reservoir-action.v1", "release_cms": 5.0})}
+                        ]
+                    },
+                }
+            ],
+        }
+
+    run_settings(settings, allow_network=True, transport=mock_transport)
+    output = tmp_path / "run_out"
+    manifest = json.loads((output / "odd_llm_manifest.json").read_text(encoding="utf-8"))
+    c_agent = manifest["blocks"]["C_inference_configuration"]["agents"]["ResA"]
+    assert c_agent["observed_model_versions"] == [
+        "gemini-2.5-flash-001",
+        "gemini-2.5-flash-002",
+        "gpt-4o-2024-11-20",
+    ]
+    assert c_agent["observed_system_fingerprints"] == ["fp_9876543210"]
+    # Primary Gemini has temperature=0.0 but no seed configured -> random_seed_configured=False, deterministic=False
+    assert c_agent["random_seed_configured"] is False
+    assert c_agent["deterministic_decoding_requested"] is False
+    assert c_agent["server_runtime_snapshot"] is None
+
+    # Also verify harvesting still works from raw/*.json alone if provider_attempts.jsonl is absent
+    (output / "provider_attempts.jsonl").unlink()
+    rebuilt = build_odd_llm_manifest(output)
+    rebuilt_agent = rebuilt["blocks"]["C_inference_configuration"]["agents"]["ResA"]
+    assert rebuilt_agent["observed_model_versions"] == [
+        "gemini-2.5-flash-001",
+        "gemini-2.5-flash-002",
+        "gpt-4o-2024-11-20",
+    ]
+    assert rebuilt_agent["observed_system_fingerprints"] == ["fp_9876543210"]
+
+
+def test_offline_run_skips_probing_and_sets_null_server_runtime_snapshot(tmp_path):
+    cfg_path = _write_llm_yaml_case(tmp_path, with_fallback=False)
+    cfg = yaml.safe_load(cfg_path.read_text(encoding="utf-8"))
+    cfg["agents"]["res_a_agent"]["mode"] = "offline"
+    cfg["agents"]["res_a_agent"]["release_cms"] = 5.0
+    cfg["agents"]["res_a_agent"].pop("model", None)
+    cfg["max_calls"] = 0
+    cfg_path.write_text(yaml.safe_dump(cfg, sort_keys=False), encoding="utf-8")
+    settings = load_settings(cfg_path)
+
+    probe_calls = 0
+
+    def spy_probe(method, url, payload, headers, timeout):
+        nonlocal probe_calls
+        probe_calls += 1
+        return {"version": "should-never-be-called"}
+
+    run_settings(settings, allow_network=False, provenance_probe=spy_probe)
+    assert probe_calls == 0
+
+    output = tmp_path / "run_out"
+    assert verify_run(output, require_offline=True)["status"] == "PASS"
+    exp_doc = json.loads((output / "experiment.json").read_text(encoding="utf-8"))
+    assert "server_runtime_snapshots" not in exp_doc["provenance"]
+
+    manifest = json.loads((output / "odd_llm_manifest.json").read_text(encoding="utf-8"))
+    c_runtime = manifest["blocks"]["C_inference_configuration"]["runtime"]
+    assert c_runtime["deterministic_physics"] is True
+    assert set(c_runtime["key_dependencies"]) == {"numpy", "pandas", "scipy", "PyYAML", "deap", "matplotlib"}
+
+    c_agent = manifest["blocks"]["C_inference_configuration"]["agents"]["ResA"]
+    assert c_agent["offline_only"] is True
+    assert c_agent["server_runtime_snapshot"] is None
+    assert c_agent["observed_model_versions"] == []
+    assert c_agent["observed_system_fingerprints"] == []
+    assert c_agent["random_seed_configured"] is False
+    assert c_agent["deterministic_decoding_requested"] is True
+

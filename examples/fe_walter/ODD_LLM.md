@@ -39,6 +39,7 @@
   - Image config digest: `sha256:c805f5b265d8e695c44f4065dfc368206cd8026447604925fef8db57ee32ee23`
   - Model weights layer (`application/vnd.ollama.image.model`, 7,381,382,048 B): `sha256:1278394b693672ac2799eadc9a83fd98259a6a88a40acfb1dcaa6c6fc895a606`
 - **Decoding & Retry Parameters**: `temperature: 0.7`, `seed: 3` (10-seed ensemble `1..10` in archived study), `num_ctx: 16384`, `max_tokens: 2048`, `think: false`, `keep_alive: 30m`, `timeout_seconds: 120`, `max_attempts: 2`, `retry_delay_seconds: 2`, `automatic_retry: true` (bounded response/transport retry, zero silent fallbacks).
+- **Automatic Live Runtime Capture**: Live runs automatically persist runtime provenance into `odd_llm_manifest.json` Block C (`server_runtime_snapshot`: Ollama server version, model SHA-256 digest, quantization, parameter size; plus per-decision `observed_model_versions`, `observed_system_fingerprints`, `seed`, and `key_dependencies`).
 
 ## Block D — Behavioral Submodel
 

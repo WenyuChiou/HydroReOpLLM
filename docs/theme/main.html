@@ -3,29 +3,38 @@
 {% block styles %}
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Noto+Sans+TC:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Noto+Sans+SC:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap">
 {{ super() }}
 {% endblock %}
 
 {% block site_name %}
 <div class="reading-progress" aria-hidden="true"></div>
-<a class="visually-hidden-focusable" href="#manual-content">{{ '跳至正文' if chinese else 'Skip to content' }}</a>
-<a class="navbar-brand masthead-brand" href="{{ ('zh-TW.html' if chinese else 'index.html')|url }}">
+<a class="visually-hidden-focusable" href="#manual-content">{{ '跳至正文' if lang_code in ('zh-TW', 'zh-CN') else 'Skip to content' }}</a>
+<a class="navbar-brand masthead-brand" href="{{ ('zh-TW.html' if lang_code == 'zh-TW' else ('zh-CN.html' if lang_code == 'zh-CN' else 'index.html'))|url }}">
   <img class="brand-logo" src="{{ 'assets/branding/logo.svg'|url }}" alt="" width="30" height="30" aria-hidden="true">
   <span class="brand-wordmark">HydroReOpLLM</span>
 </a>
-<a class="mobile-lang-switch d-md-none" href="{{ (english_url if chinese else chinese_url)|default('index.html' if chinese else 'zh-TW.html')|url }}" lang="{{ 'en' if chinese else 'zh-Hant' }}">{{ 'English' if chinese else '繁體中文' }}</a>
+<div class="mobile-lang-group d-md-none" role="navigation" aria-label="{{ '語言切換' if lang_code == 'zh-TW' else ('语言切换' if lang_code == 'zh-CN' else 'Language') }}">
+  <a class="mobile-lang-switch" href="{{ english_url|default('index.html')|url }}" lang="en"{% if lang_code == 'en' %} aria-current="true"{% endif %}>EN</a>
+  <span class="mobile-lang-sep" aria-hidden="true">·</span>
+  <a class="mobile-lang-switch" href="{{ zh_tw_url|default('zh-TW.html')|url }}" lang="zh-Hant"{% if lang_code == 'zh-TW' %} aria-current="true"{% endif %}>繁</a>
+  <span class="mobile-lang-sep" aria-hidden="true">·</span>
+  <a class="mobile-lang-switch" href="{{ zh_cn_url|default('zh-CN.html')|url }}" lang="zh-Hans"{% if lang_code == 'zh-CN' %} aria-current="true"{% endif %}>简</a>
+</div>
 {% endblock %}
 {% block site_nav %}
 <ul class="nav navbar-nav nav-lang-group">
-    <li><a class="nav-link" href="{{ english_url|default('index.html')|url }}" lang="en"{% if not chinese %} aria-current="true"{% endif %}>English manual</a></li>
-    <li><a class="nav-link" href="{{ chinese_url|default('zh-TW.html')|url }}" lang="zh-Hant"{% if chinese %} aria-current="true"{% endif %}>繁體中文手冊</a></li>
+    <li><a class="nav-link" href="{{ english_url|default('index.html')|url }}" lang="en"{% if lang_code == 'en' %} aria-current="true"{% endif %}>English</a></li>
+    <li><a class="nav-link" href="{{ zh_tw_url|default('zh-TW.html')|url }}" lang="zh-Hant"{% if lang_code == 'zh-TW' %} aria-current="true"{% endif %}>繁體中文</a></li>
+    <li><a class="nav-link" href="{{ zh_cn_url|default('zh-CN.html')|url }}" lang="zh-Hans"{% if lang_code == 'zh-CN' %} aria-current="true"{% endif %}>简体中文</a></li>
     <li><a class="nav-link nav-github-link" href="https://github.com/WenyuChiou/HydroReOpLLM">GitHub</a></li>
 </ul>
 {% endblock %}
 {% macro chapter_links(page) %}
-      {% if page.previous_page and page.previous_page.file.src_uri.endswith('zh-TW.md') == page.file.src_uri.endswith('zh-TW.md') %}<a rel="prev" href="{{ page.previous_page.url|url }}">← {{ page.previous_page.title }}</a>{% endif %}
-      {% if page.next_page and page.next_page.file.src_uri.endswith('zh-TW.md') == page.file.src_uri.endswith('zh-TW.md') %}<a rel="next" href="{{ page.next_page.url|url }}">{{ page.next_page.title }} →</a>{% endif %}
+      {% set p_tw = page.file.src_uri.endswith('zh-TW.md') %}
+      {% set p_cn = page.file.src_uri.endswith('zh-CN.md') %}
+      {% if page.previous_page and page.previous_page.file.src_uri.endswith('zh-TW.md') == p_tw and page.previous_page.file.src_uri.endswith('zh-CN.md') == p_cn %}<a rel="prev" href="{{ page.previous_page.url|url }}">← {{ page.previous_page.title }}</a>{% endif %}
+      {% if page.next_page and page.next_page.file.src_uri.endswith('zh-TW.md') == p_tw and page.next_page.file.src_uri.endswith('zh-CN.md') == p_cn %}<a rel="next" href="{{ page.next_page.url|url }}">{{ page.next_page.title }} →</a>{% endif %}
 {% endmacro %}
 {% block next_prev %}
     {# The bundled MkDocs keyboard handler looks up relative links inside .navbar. #}
@@ -35,20 +44,20 @@
 {% if page %}
 <div class="manual-layout">
   <aside class="nav-rail">
-    <button type="button" class="chapters-toggle d-md-none" data-bs-toggle="collapse" data-bs-target="#chapters" aria-expanded="false" aria-controls="chapters">{{ '章節目錄' if chinese else 'Chapters' }}</button>
-    <nav id="chapters" class="collapse d-md-block" aria-label="{{ '章節目錄' if chinese else 'Chapters' }}">
-      {% set is_home = page.file.src_uri in ('index.md', 'zh-TW.md') %}
+    <button type="button" class="chapters-toggle d-md-none" data-bs-toggle="collapse" data-bs-target="#chapters" aria-expanded="false" aria-controls="chapters">{{ '章節目錄' if lang_code == 'zh-TW' else ('章节目录' if lang_code == 'zh-CN' else 'Chapters') }}</button>
+    <nav id="chapters" class="collapse d-md-block" aria-label="{{ '章節目錄' if lang_code == 'zh-TW' else ('章节目录' if lang_code == 'zh-CN' else 'Chapters') }}">
+      {% set is_home = page.file.src_uri in ('index.md', 'zh-TW.md', 'zh-CN.md') %}
       <div class="nav-toolbar">
         {% for section in chapters %}
           {% if not section.is_section %}
             <a class="nav-home" href="{{ section.url|url }}"{% if section.active %} aria-current="page"{% endif %}>{{ section.title }}</a>
           {% endif %}
         {% endfor %}
-        <button type="button" class="nav-expand-all" aria-expanded="false" data-expand-label="{{ '全部展開' if chinese else 'Expand all' }}" data-collapse-label="{{ '全部收合' if chinese else 'Collapse all' }}">{{ '全部展開' if chinese else 'Expand all' }}</button>
+        <button type="button" class="nav-expand-all" aria-expanded="false" data-expand-label="{{ '全部展開' if lang_code == 'zh-TW' else ('全部展开' if lang_code == 'zh-CN' else 'Expand all') }}" data-collapse-label="{{ '全部收合' if lang_code == 'zh-TW' else ('全部收起' if lang_code == 'zh-CN' else 'Collapse all') }}">{{ '全部展開' if lang_code == 'zh-TW' else ('全部展开' if lang_code == 'zh-CN' else 'Expand all') }}</button>
       </div>
       {% for section in chapters %}
         {% if section.is_section %}
-          {% set group_open = section.active or (is_home and section.title in ('Installation & workflow', '安裝與執行流程')) %}
+          {% set group_open = section.active or (is_home and section.title in ('Installation & workflow', '安裝與執行流程', '安装与运行流程')) %}
           <details class="nav-group{% if section.active %} is-active{% endif %}"{% if group_open %} open{% endif %}>
             <summary class="nav-group-title">{{ section.title }}</summary>
             <div class="nav-group-items">
@@ -146,17 +155,17 @@
       })();
     </script>
   </aside>
-  <main id="manual-content" lang="{{ 'zh-Hant' if chinese else 'en' }}">
+  <main id="manual-content" lang="{{ 'zh-Hant' if lang_code == 'zh-TW' else ('zh-Hans' if lang_code == 'zh-CN' else 'en') }}">
     {% if page.parent and page.parent.parent %}<p class="chapter-section">{% if page.parent.parent.parent %}{{ page.parent.parent.title }} / {% endif %}{{ page.parent.title }}</p>{% endif %}
     {{ page.content }}
-    <nav class="chapter-turn" aria-label="{{ '章節導覽' if chinese else 'Chapter navigation' }}">
+    <nav class="chapter-turn" aria-label="{{ '章節導覽' if lang_code == 'zh-TW' else ('章节导航' if lang_code == 'zh-CN' else 'Chapter navigation') }}">
       {{ chapter_links(page) }}
     </nav>
   </main>
-  <aside class="toc-rail" aria-label="{{ '本頁目錄' if chinese else 'On this page' }}">
+  <aside class="toc-rail" aria-label="{{ '本頁目錄' if lang_code == 'zh-TW' else ('本页目录' if lang_code == 'zh-CN' else 'On this page') }}">
     {% if toc_items %}
       <nav class="toc-nav">
-        <p class="toc-rail-title">{{ '本頁目錄' if chinese else 'On this page' }}</p>
+        <p class="toc-rail-title">{{ '本頁目錄' if lang_code == 'zh-TW' else ('本页目录' if lang_code == 'zh-CN' else 'On this page') }}</p>
         <div class="toc-track">
           <span class="toc-indicator" aria-hidden="true"></span>
           <ul class="toc-list">

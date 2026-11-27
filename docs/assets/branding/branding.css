@@ -34,8 +34,8 @@
   --shadow-card-hover: 0 3px 8px rgba(15, 36, 48, 0.05), 0 16px 32px -12px rgba(21, 62, 80, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.85);
   --shadow-nav: 0 4px 20px -8px rgba(15, 36, 48, 0.12);
 
-  --font-display: "Plus Jakarta Sans", "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-sans: "Inter", "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-display: "Plus Jakarta Sans", "Noto Sans TC", "Noto Sans SC", "PingFang TC", "PingFang SC", "Microsoft JhengHei", "Microsoft YaHei", -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-sans: "Inter", "Noto Sans TC", "Noto Sans SC", "PingFang TC", "PingFang SC", "Microsoft JhengHei", "Microsoft YaHei", -apple-system, BlinkMacSystemFont, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
@@ -178,28 +178,78 @@ summary:focus-visible {
   color: var(--muted);
 }
 
-.mobile-lang-switch {
-  font-size: .82rem;
-  font-weight: 600;
-  color: var(--accent-dark);
-  background: var(--bg-elevated);
-  text-decoration: none;
+.mobile-lang-group {
+  display: inline-flex;
+  align-items: center;
+  gap: .15rem;
   margin-inline-start: auto;
-  margin-inline-end: .5rem;
-  padding: .24rem .78rem;
+  margin-inline-end: .4rem;
+  padding: .16rem .24rem;
+  background: var(--bg-elevated);
   border: 1px solid var(--border-default);
   border-radius: 999px;
   box-shadow: var(--shadow-xs);
-  transition: background-color 160ms var(--ease-out), border-color 160ms var(--ease-out), transform 120ms var(--ease-out);
+  flex-shrink: 0;
+}
+
+.mobile-lang-sep {
+  color: var(--muted);
+  font-size: .72rem;
+  line-height: 1;
+  user-select: none;
+}
+
+.mobile-lang-switch {
+  font-size: .78rem;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--ink-body);
+  background: transparent;
+  text-decoration: none;
+  padding: .2rem .48rem;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  white-space: nowrap;
+  transition: background-color 160ms var(--ease-out), border-color 160ms var(--ease-out), color 160ms var(--ease-out), transform 120ms var(--ease-out);
 }
 
 .mobile-lang-switch:hover {
+  color: var(--accent-dark);
+  background: var(--accent-soft);
+  border-color: rgba(29, 95, 122, 0.16);
+}
+
+.mobile-lang-switch[aria-current="true"] {
+  color: var(--accent-dark);
+  font-weight: 700;
   background: var(--accent-soft);
   border-color: var(--border-accent);
 }
 
 .mobile-lang-switch:active {
   transform: scale(0.97);
+}
+
+@media (max-width: 420px) {
+  .masthead-brand {
+    font-size: 1rem;
+    gap: .4rem;
+  }
+
+  .masthead-brand .brand-logo {
+    width: 26px;
+    height: 26px;
+  }
+
+  .mobile-lang-group {
+    margin-inline-end: .25rem;
+    padding: .12rem .18rem;
+  }
+
+  .mobile-lang-switch {
+    font-size: .74rem;
+    padding: .18rem .38rem;
+  }
 }
 
 /* Prose link styling */
@@ -607,7 +657,8 @@ main a:hover {
   }
 }
 
-#manual-content[lang="zh-Hant"] {
+#manual-content[lang="zh-Hant"],
+#manual-content[lang="zh-Hans"] {
   line-height: 1.80;
   letter-spacing: .01em;
 }

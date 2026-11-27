@@ -6,12 +6,13 @@
 
 [![繁體中文使用手冊](https://wenyuchiou.github.io/HydroReOpLLM/assets/branding/docs-badge-zh-TW.svg)](https://wenyuchiou.github.io/HydroReOpLLM/zh-TW.html)
 [![User Manual (EN)](https://wenyuchiou.github.io/HydroReOpLLM/assets/branding/docs-badge-en.svg)](https://wenyuchiou.github.io/HydroReOpLLM/)
+[![简体中文使用手册](https://wenyuchiou.github.io/HydroReOpLLM/assets/branding/docs-badge-zh-CN.svg)](https://wenyuchiou.github.io/HydroReOpLLM/zh-CN.html)
 [![PyPI](https://img.shields.io/pypi/v/hydroreopllm?label=PyPI&color=0f766e)](https://pypi.org/project/hydroreopllm/)
 [![Python 3.12+](https://img.shields.io/badge/Python-3.12%2B-2563eb)](https://www.python.org/downloads/)
 [![BSD-3-Clause](https://img.shields.io/badge/License-BSD--3--Clause-475569)](LICENSE)
 [![ODD+LLM Reproducible](https://img.shields.io/badge/ODD%2BLLM-Reproducible-0d9488)](#內建-oddllm-可重現性框架)
 
-[English](README.md) · **繁體中文**
+[English](README.md) · **繁體中文** · [简体中文](README.zh-CN.md)
 
 </div>
 
@@ -92,7 +93,7 @@ reservoir-experiment export-odd runs/fe-walter-rule-based --markdown-out ODD_LLM
 | --- | --- |
 | **區塊 A — 認知架構（Cognitive Architecture）** | 代理人型態與策略、工作記憶（`history_steps`）、長期操作知識（`dkp.md`、運用規線）、不洩漏未來水情之資訊設定與物理行動邊界。 |
 | **區塊 B — 代理人身分與提示詞（Identity）** | 角色設定與人設框架、提示詞範本 ID／版本、`prompt_sha256` 雜湊與鎖定之原始檔清單。 |
-| **區塊 C — 推論組態（Inference Configuration）** | 確切模型 ID、服務端點、解碼超參數（`temperature`、`seed`、`max_tokens`、`num_ctx`、`think`）、重試／備援鏈與 Python／HydroCNHS 執行環境版本。 |
+| **區塊 C — 推論組態（Inference Configuration）** | 確切模型 ID、服務端點、Ollama 伺服器版本、模型快照 SHA-256 摘要與量化格式、雲端實測模型版本／`system_fingerprint`、解碼超參數（`temperature`、隨機種子 `seed`、`max_tokens`、`num_ctx`、`think`）、重試／備援鏈與關鍵 Python／HydroCNHS 相依套件版本。 |
 | **區塊 D — 行為子模式（Signature、Binding 與 Resolution）** | 觀測欄位與 JSON 輸出 Schema／解析器（`Signature`）、提示詞變數與上下文／知識掛鉤（`Binding`），以及重試、備援、物理截幅、溢洪與稽核實測遙測（`Resolution`）。 |
 | **區塊 E — 驗證與稽核（Validation）** | 水量平衡殘差、離線 `verify` 指令與結果、輸出與追蹤檔 SHA-256 雜湊及離線重播能力。 |
 
@@ -108,7 +109,7 @@ HydroReOpLLM/
 │   ├── fe_walter/             # 單一水庫基準（Rule-based、seasonal_target、dkp、ODD_LLM.md）
 │   └── multi_reservoir/       # 新店溪串聯水庫（10 年 HydroCNHS C&V、混合 LLM、ODD_LLM.md）
 ├── tutorials/                 # 五單元離線實作課程（01..05）與互動式 fe_walter.ipynb
-├── docs/                      # 雙語（EN / 繁體中文）使用手冊原始檔
+├── docs/                      # 三語（EN / 繁體中文 / 简体中文）使用手冊原始檔
 └── tests/                     # 水量平衡、河道演算、模型服務、ODD+LLM 與打包測試
 ```
 
