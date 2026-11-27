@@ -1,5 +1,9 @@
 # HydroReOpLLM 套件總覽
 
+<div class="cover-banner">
+  <img src="assets/branding/cover.png" alt="HydroReOpLLM — 結合大型語言模型水庫決策代理與 HydroCNHS 的耦合人水系統模擬框架">
+</div>
+
 <div class="hero-band" markdown="1">
 
 **HydroReOpLLM** 延伸自 [**HydroCNHS**](https://github.com/philip928lin/HydroCNHS) 的半分散式集水區水文與水庫代理人架構，讓水文學家在同一套水量守恆的模擬系統中，建置並比較**規則式（Rule-based）**與 **LLM 驅動**的水庫放流操作。

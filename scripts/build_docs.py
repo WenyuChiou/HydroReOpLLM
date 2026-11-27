@@ -28,6 +28,7 @@ PUBLIC_SITE = "https://wenyuchiou.github.io/HydroReOpLLM/"
 ENGLISH_FILES = {
     "docs/README.md": "index.md",
     "docs/assets/branding/cover.png": "assets/branding/cover.png",
+    "docs/assets/branding/logo.svg": "assets/branding/logo.svg",
     "docs/assets/branding/favicon.ico": "img/favicon.ico",
     "docs/assets/branding/docs-badge-en.svg": "assets/branding/docs-badge-en.svg",
     "docs/assets/branding/docs-badge-zh-TW.svg": "assets/branding/docs-badge-zh-TW.svg",

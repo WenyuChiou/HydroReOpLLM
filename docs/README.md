@@ -1,5 +1,9 @@
 # HydroReOpLLM overview
 
+<div class="cover-banner">
+  <img src="assets/branding/cover.png" alt="HydroReOpLLM — Coupled human–water modeling with LLM reservoir decision agents, built on HydroCNHS">
+</div>
+
 <div class="hero-band" markdown="1">
 
 **HydroReOpLLM** extends [**HydroCNHS**](https://github.com/philip928lin/HydroCNHS) with a unified, water-conserving simulation framework for coupling subbasin rainfall–runoff, river routing, and reservoir operations—making it straightforward to compare deterministic **Rule-based** policies against **LLM** operators on the exact same watershed.
