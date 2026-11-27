@@ -17,6 +17,7 @@ Check `"status": "COMPLETED"` in `summary.json` (`<output>/operation/summary.jso
 | --- | --- | --- |
 | `<output>/inflows.csv`, `hydrology*.json` | Coupled `prepare` / `run` | Local watershed inflows (`m³/s`) and optional GWLF states/diagnostics. |
 | `summary.json`, `progress.json` | All runs | Run `status`, final storages, `network_calls`, `fallback_used`, and `serving_profiles`. |
+| `odd_llm_manifest.json` | All runs | Structured ODD+LLM reproducibility manifest covering Blocks A–E and SHA-256 artifact hashes. |
 | `reservoir_trajectory.csv` | All runs | Step-by-step inflow, requested vs. implemented release, spill, and storage. |
 | `network_flows.csv` | All runs | Local inflow and total routed flow at every inlet, junction, and outlet. |
 | `network_balance.csv`, `reach_volume_trace.json` | All runs | Basin-wide mass balance (`m³`) and water held in channel routing lags. |
@@ -51,3 +52,19 @@ reservoir-experiment verify path/to/output --require-offline
 ```
 
 Omit `--require-offline` for live LLM runs. `verify` checks mass balance, routing convolution, timestamp ordering, and complete logs without re-running hydrology or contacting any model server.
+
+## ODD+LLM reproducibility export
+
+Every completed run writes `odd_llm_manifest.json` alongside its physical trajectories and decision logs. Export a publication-ready ODD+LLM summary report from any run folder:
+
+```powershell
+reservoir-experiment export-odd path/to/output --markdown-out ODD_LLM_REPORT.md
+```
+
+The manifest and Markdown report document five standardized reproducibility blocks:
+
+- **Block A — Cognitive Architecture**: Agent type/strategy, working memory (`history_steps`), long-term operational knowledge (`dkp.md`, rule curves), non-leaking information profile, and physical action-space bounds.
+- **Block B — Identity**: Agent persona/role framing, prompt template IDs/versions, SHA-256 prompt hashes (`prompt_sha256`), and pinned source files.
+- **Block C — Inference Configuration**: Exact model identifier, provider/endpoint, decoding hyperparameters (`temperature`, `seed`, `max_tokens`, `num_ctx`, `think`), retry/fallback chains, and Python/HydroCNHS runtime pins.
+- **Block D — Behavioral Submodel (Signature, Binding & Resolution)**: Observation/JSON output schema & parser (`Signature`), prompt variables/context/knowledge hooks (`Binding`), and empirical retry, fallback, physical-clipping, spill, and audit telemetry (`Resolution`).
+- **Block E — Validation**: Mass-balance residuals, offline `verify` status, SHA-256 artifact/stream hashes, and offline replay capability.

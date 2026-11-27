@@ -753,8 +753,32 @@ def verify_run(output, *, require_offline=False, expected_audit_suites=None):
     time_settings = validate_time_settings(experiment.get("time"), config, allow_absent="time" not in experiment)
     _check(summary.get("time") == time_settings, "summary time configuration mismatch")
     tables = temporal_tables(output, clock, time_settings)
-    _check(set(extra) == ({"outcome_audit.jsonl"} if checks else set()) | set(tables),
-           "additional output coverage mismatch")
+    expected_extra = ({"outcome_audit.jsonl"} if checks else set()) | set(tables)
+    if "odd_llm_manifest.json" in extra:
+        expected_extra.add("odd_llm_manifest.json")
+    _check(set(extra) == expected_extra, "additional output coverage mismatch")
+    if "odd_llm_manifest.json" in extra:
+        odd_raw = inside(output, "odd_llm_manifest.json").read_bytes()
+        _check(hashlib.sha256(odd_raw).hexdigest() == extra["odd_llm_manifest.json"],
+               "ODD+LLM manifest hash mismatch")
+        odd_manifest = json.loads(odd_raw.decode("utf-8"))
+        _check(isinstance(odd_manifest, Mapping), "invalid ODD+LLM manifest")
+        _check(odd_manifest.get("schema_version") == "odd-llm-reproducibility.v1",
+               "ODD+LLM manifest schema mismatch")
+        _check(odd_manifest.get("run_id") == result["run_id"],
+               "ODD+LLM manifest run mismatch")
+        blocks = odd_manifest.get("blocks")
+        _check(
+            isinstance(blocks, Mapping)
+            and set(blocks) == {
+                "A_cognitive_architecture",
+                "B_identity",
+                "C_inference_configuration",
+                "D_behavioral_submodel",
+                "E_validation",
+            },
+            "ODD+LLM manifest blocks mismatch",
+        )
     for name, table in tables.items():
         raw = inside(output, name).read_bytes()
         _check(hashlib.sha256(raw).hexdigest() == extra[name], "temporal output hash mismatch")
