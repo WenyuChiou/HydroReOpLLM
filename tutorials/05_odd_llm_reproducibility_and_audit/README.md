@@ -1,50 +1,28 @@
-# Module 05: ODD+LLM Protocol, Reproducibility & Audit Trails
+# Module 05: ODD+LLM Reproducibility & Tamper Audit
 
-Package verified **HydroReOpLLM** experiments into publication-ready **ODD+LLM** (`odd-llm-reproducibility.v1`) protocol reports, SHA-256 provenance manifests, numerical audit diagnostics, and bit-exact zero-network offline replays.
+Audit an **F.E. Walter LLM (`dkp`)** run with `odd_llm_manifest.json` (CoALA Blocks A–E), verify Ollama version/model digest SHA/seed provenance, inspect host physics clamping, and prove 1-byte tamper detection.
 
-## Learning Objectives
+```mermaid
+flowchart LR
+    R["Completed LLM Run Dir<br/>(dkp + Mock Ollama Snapshot)"] --> M["odd_llm_manifest.json<br/>(Blocks A-E: Arch / Prompt / Model SHA+Seed / Clipping / Hashes)"]
+    M --> V["verify_run<br/>(PASS on clean; FAIL on 1-byte tamper)"]
+    M --> E["reservoir-experiment export-odd<br/>(ODD_LLM Markdown Report)"]
+```
 
-- Run an offline **F.E. Walter Dam** baseline (`rule_based.yaml`) inside `tempfile.TemporaryDirectory()` and independently verify every trace stream, mass-balance residual, and cryptographic hash with `verify_run(..., require_offline=True)`.
-- Load `odd_llm_manifest.json` directly from the run directory and inspect all five CoALA-grounded **ODD+LLM** protocol blocks (`A_cognitive_architecture`, `B_identity`, `C_inference_configuration`, `D_behavioral_submodel`, and `E_validation`).
-- Export a standardized publication-ready Markdown report via `export_odd_report(..., markdown_out=...)` (the programmatic counterpart to `reservoir-experiment export-odd`).
-- Visualize per-step mass-balance residuals alongside physical clipping, spillway, and audit counts (`reservoir_trajectory.csv` + `audit.jsonl`), and confirm exact hash and score reproduction (`network_calls = 0`) using `examples/multi_reservoir/study/replay.py`.
+<p align="center">
+  <img src="../../docs/assets/diagrams/results-outputs-map.svg" alt="HydroReOpLLM run outputs and ODD+LLM audit stream map" width="82%">
+</p>
 
-## What You Configure, Run, and See
-
-| Stage | Action | Artifact / Output |
+| Step | Action | Output |
 | --- | --- | --- |
-| **Execute & Verify** | Run full-year 2021 F.E. Walter `rule_based.yaml` inside `TemporaryDirectory()` and audit with `verify_run(..., require_offline=True)` | `status = PASS`, `observed_network_calls = 0`, verified SHA-256 pin for `odd_llm_manifest.json` |
-| **Inspect & Export** | Load `odd_llm_manifest.json`, walk through Blocks `A`–`E`, and call `export_odd_report(..., markdown_out=...)` | Structured 5-block ODD+LLM summary and publication-ready Markdown report excerpt |
-| **Audit & Plot** | Analyze per-step residuals in `reservoir_trajectory.csv` and status counts in `audit.jsonl` | 2-panel figure: daily mass-balance residuals (`10⁻⁹ m³`) + audit/clipping/spill summary |
-| **Offline Replay** | Invoke `examples/multi_reservoir/study/replay.py` inside a fresh temporary directory | `status = PASS`, `network_calls = 0`, exact `archived_releases.csv` SHA-256 and 6/6 verified 2025 KGE/NSE/RMSE scores |
-
-## Inputs & Files Used
-
-- [`05_odd_llm_reproducibility.ipynb`](05_odd_llm_reproducibility.ipynb) — pre-executed hands-on notebook
-- [`examples/fe_walter/rule_based.yaml`](../../examples/fe_walter/rule_based.yaml) — offline F.E. Walter Hanasaki rule configuration
-- [`examples/fe_walter/ODD_LLM.md`](../../examples/fe_walter/ODD_LLM.md) — shipped F.E. Walter ODD+LLM protocol card
-- [`examples/multi_reservoir/ODD_LLM.md`](../../examples/multi_reservoir/ODD_LLM.md) — shipped Xindian River ODD+LLM protocol card
-- [`examples/multi_reservoir/study/replay.py`](../../examples/multi_reservoir/study/replay.py) — offline zero-network replay verifier for the 2025 Xindian River cascade
-- [`examples/multi_reservoir/study/archived_releases.csv`](../../examples/multi_reservoir/study/archived_releases.csv) — SHA-256 pinned archived daily LLM releases (`hybrid_llm`, seed 3)
-
-## How to Run
-
-From the repository root (with `.venv` activated):
+| **1. Blocks A–E Provenance** | Run mocked-Ollama `dkp` audit demo & export `odd_llm_manifest.json` | 5-block provenance table (Ollama `0.40.6`, weights SHA, `seed=3`) |
+| **2. Closure & Clamping** | Plot network + `reach_volume_trace` closure & Day-5 clamp | Full-network closure chart & requested vs clamped release plot |
+| **3. Tamper -> FAIL** | Flip 1 byte in saved trajectory CSV & re-run `verify_run` | Immediate hash-mismatch failure (`tamper_caught = True`) |
 
 ```sh
 python -m jupyterlab tutorials/05_odd_llm_reproducibility_and_audit/05_odd_llm_reproducibility.ipynb
-```
-
-Select the `.venv` Python kernel and choose **Run → Run All Cells**. Every run writes strictly inside `tempfile.TemporaryDirectory()` with `0` network calls.
-
-To export an ODD+LLM bundle for any completed run from the command line:
-
-```sh
 reservoir-experiment verify <run_dir> --require-offline
-reservoir-experiment export-odd <run_dir> --json-out <run_dir>/odd_export.json --markdown-out <run_dir>/odd_report.md
+reservoir-experiment export-odd <run_dir> --markdown-out ODD_LLM.md
 ```
 
-## Next Steps
-
-- Return to the **[Tutorial Curriculum Overview](../README.md)** or try the consolidated **[F.E. Walter End-to-End Walkthrough (`fe_walter.ipynb`)](../fe_walter.ipynb)** (including optional live Ollama execution).
-- Consult **[Reading Results & Verification](../../docs/RESULTS_GUIDE.md)** for the full trace stream and SHA-256 schema specification.
+Back to: **[Tutorial Curriculum Hub](../README.md)** · **[Reading Results & ODD+LLM](../../docs/RESULTS_GUIDE.md)**
