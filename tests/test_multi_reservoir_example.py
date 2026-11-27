@@ -105,6 +105,23 @@ def test_multi_reservoir_hydrology_cv_model_validates():
     assert cv_summary["zhitan_combined_V_2023_2025"]["kge"] > 0.85
 
 
+def test_multi_reservoir_rule_curve_csv_is_valid():
+    rows = _rows(MULTI_RESERVOIR / "study" / "rule_curve.csv")
+    assert len(rows) == 36
+    seen = set()
+    for row in rows:
+        month, dekad = int(row["month"]), int(row["dekad"])
+        assert 1 <= month <= 12 and 1 <= dekad <= 3
+        seen.add((month, dekad))
+        upper = float(row["upper_limit_m"])
+        medium = float(row["medium_limit_m"])
+        lower = float(row["lower_limit_m"])
+        severe = float(row["severe_lower_limit_m"])
+        assert 164.0 <= upper <= 168.0
+        assert upper >= medium >= lower >= severe
+    assert len(seen) == 36
+
+
 def test_multi_reservoir_hybrid_llm_checks_and_runs_with_mock_transport(folder, tmp_path):
     experiment = folder / "hybrid_llm.yaml"
     loaded = load_settings(experiment)

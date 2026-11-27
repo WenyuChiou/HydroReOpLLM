@@ -22,6 +22,11 @@ Local incremental inflows ([`inflows.csv`](inflows.csv), `data_kind: simulated_l
 | Calibration (`D1–D2` Nanshi local flow) | `2016-01-01`–`2022-12-31` (7 yr) | 2,557 | `0.839` | `0.711` | `30.53` |
 | Validation (`D1–D2` local / combined Zhitan) | `2023-01-01`–`2025-12-31` (3 yr) | 1,096 | `0.844` / `0.916` | `0.684` / `0.831` | `32.86` / `32.30` |
 
+<figure class="figure-card">
+  <img src="../../docs/assets/figures/fig6-xindian-cv.png" alt="10-year 2016-2025 HydroCNHS daily streamflow calibration and validation comparing TFRA observations against simulated Feitsui inflow and Zhitan combined flow">
+  <figcaption><strong>Figure 6.</strong> Ten-year daily HydroCNHS calibration (<code>2016–2022</code>) and out-of-sample validation (<code>2023–2025</code>, shaded) against TFRA observations for <strong>(a)</strong> Feitsui Reservoir inflow (<code>U1–U2</code>) and <strong>(b)</strong> downstream Zhitan combined flow (routed Feitsui release plus Nanshi <code>D1–D2</code> lateral flow).</figcaption>
+</figure>
+
 <div class="panel-grid panel-grid-2" markdown="1">
 <div class="panel-card" markdown="1">
 
@@ -63,8 +68,8 @@ For network schemas and custom prompts, see [Multi-reservoir networks](../../doc
 ## Full-year 2025 performance (validation window)
 
 <figure class="figure-card">
-  <img src="../../docs/assets/figures/fig6-xindian-results.png" alt="Full-year 2025 Feitsui water level, Feitsui release, and downstream Xindian River flow comparing TFRA observations, Rule-based cascade, and Hybrid LLM cascade">
-  <figcaption><strong>Figure 6.</strong> Daily 2025 Feitsui Reservoir water level (m), release (m³/s), and downstream Xindian River flow comparing TFRA observations against the Rule-based cascade and Joint-dispatch Hybrid LLM cascade (MOEA/WRA upper limit <code>168 m</code> Sep 21–Feb 10 and <code>164 m</code> Feb 11–Sep 20).</figcaption>
+  <img src="../../docs/assets/figures/fig7-xindian-results.png" alt="Full-year 2025 Feitsui water level, Feitsui release, and downstream Xindian River flow comparing TFRA observations, Rule-based cascade, and Hybrid LLM cascade">
+  <figcaption><strong>Figure 7.</strong> Daily 2025 Feitsui Reservoir water level (m), release (m³/s), and downstream Xindian River flow comparing TFRA observations against the Rule-based cascade and Joint-dispatch Hybrid LLM cascade, with the official MOEA/WRA 36-dekad rule-curve upper limit (<a href="study/rule_curve.csv"><code>study/rule_curve.csv</code></a>, shipping all four limits: upper, medium, lower, and severe lower) plotted on panel (a).</figcaption>
 </figure>
 
 Across the 365-day validation year, `Hybrid LLM` joint dispatch lowers Feitsui water-level error (`RMSE = 3.21 m`, `NSE = 0.498`) below `Rule-based` (`RMSE = 3.63 m`, `NSE = 0.358`) while matching downstream flow `RMSE` (`57.92` vs `57.48 m³/s`), whereas `Rule-based` Hanasaki attains the highest `Feitsui level KGE` (`0.915`) and `Downstream flow KGE` (`0.760`, [`study/expected_scores.csv`](study/expected_scores.csv)):
