@@ -45,6 +45,8 @@ _recovery/
 *.bundle
 *.jsonl
 *.csv.gz
+!examples/multi_reservoir/hydrology/forcing.csv.gz
+!examples/multi_reservoir/hydrology/cv_observations.csv.gz
 *_physical.csv
 *_trajectory.csv
 *.doc
