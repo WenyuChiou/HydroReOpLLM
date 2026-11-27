@@ -1,7 +1,6 @@
-# Native HydroCNHS catchment model and ERA5 forcing bindings for the Xindian River cascade (2018-01-01 to 2020-06-05).
-# Used to produce calibrated and validated daily local inflows (inflows.csv) for Feitsui Reservoir and Zhitan Dam.
+# Native HydroCNHS catchment model and 11-year ERA5 forcing bindings for the Xindian River cascade (2015-2025).
 model: xindian_catchments.yaml
-forcing: forcing.csv
+forcing: forcing.csv.gz
 zero_flow_nodes: []
 inflow_bindings:
   feitsui_local:

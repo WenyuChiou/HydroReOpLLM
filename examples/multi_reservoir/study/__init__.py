@@ -29,13 +29,15 @@ def validate_backend(spec, *, base_path, runtime_root, physical, mode, days, mod
         raise ValueError("xindian_study requires the daily Feitsui Reservoir physical case")
     root = Path(__file__).resolve().parents[1]
     system = root / "prompts/feitsui.system.txt"
+    curve = root / "study/elevation_storage.csv"
     schemas = root / "study/response_schemas.json"
     inflows = root / "inflows.csv"
-    pins = {str(path): sha256(path.read_bytes()).hexdigest() for path in (system, schemas)}
+    pins = {str(path): sha256(path.read_bytes()).hexdigest() for path in (system, curve, schemas)}
     schema = json.loads(schemas.read_text(encoding="utf-8"))["feitsui"]
     return {
         "study": {
             "system": str(system),
+            "curve": str(curve),
             "inflows": str(inflows),
             "schema": schema,
         }
@@ -52,7 +54,7 @@ def _sample_day1_inflow(study) -> float:
         return 0.0
     with path.open(encoding="utf-8", newline="") as stream:
         for row in csv.DictReader(stream):
-            if row["date"] == "2020-05-07" and row["node"] == "feitsui_local":
+            if row["date"] == "2025-01-01" and row["node"] == "feitsui_local":
                 return float(row["local_inflow_cms"])
     return 0.0
 
@@ -60,12 +62,13 @@ def _sample_day1_inflow(study) -> float:
 def preview_backend(settings, physical, runtime_root):
     study = settings["study"]
     prompt = XindianStudyPrompt(
+        Path(study["curve"]),
         physical["capacity_m3"],
         physical["minimum_release_cms"],
         physical["maximum_release_cms"],
     )
     sample_obs = {
-        "timestamp": "2020-05-07T00:00:00",
+        "timestamp": "2025-01-01T00:00:00",
         "inflow_cms": _sample_day1_inflow(study),
         "state": {"storage_m3": physical["initial_storage_m3"]},
     }
@@ -106,6 +109,7 @@ class XindianStudyBackend(ConfiguredBackend):
     def __init__(self, study, physical, model, transport, agent_id):
         self._history = deque(maxlen=2)
         self._study_prompt = XindianStudyPrompt(
+            Path(study["curve"]),
             physical["capacity_m3"],
             physical["minimum_release_cms"],
             physical["maximum_release_cms"],
@@ -117,7 +121,7 @@ class XindianStudyBackend(ConfiguredBackend):
             mode="llm",
             prompt_spec=PromptSpec(
                 strategy_id="xindian_study_feitsui",
-                version="1.0",
+                version="2.0",
                 template="$study_message",
                 system_template=system,
             ),

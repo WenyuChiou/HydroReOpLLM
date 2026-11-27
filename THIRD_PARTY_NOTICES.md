@@ -26,10 +26,11 @@ the reservoir equations and annual storage snapshot from RiverAI-Project/MOSART-
 commit `7883c5cac62e8c0c585fbafbb1045118cad2dd42`. The implementation records
 the upstream source hash.
 
-Daily historical reservoir records for Feitsui Reservoir and Zhitan Dam used
-in `examples/multi_reservoir/` are derived from Taiwan Water Resources Agency
-(WRA) Open Government Data (`2019-01-01` to `2020-06-05`).
+Daily historical reservoir records for Feitsui Reservoir and Nanshi Creek used
+in `examples/multi_reservoir/` are derived from Taipei Feitsui Reservoir
+Administration (TFRA) / Taiwan Government Open Data dataset `145840`
+(`2016-01-01` to `2025-12-31`).
 Historical daily ERA5 meteorological forcing (`precipitation_sum`, `temperature_2m_mean`,
-and `et0_fao_evapotranspiration`, `2018-01-01` to `2020-06-05`) used to force the
-HydroCNHS (`GWLF` + `Lohmann`) model in `examples/multi_reservoir/hydrology/forcing.csv`
+and `et0_fao_evapotranspiration`, `2015-01-01` to `2025-12-31`) used to force the
+HydroCNHS (`GWLF` + `Lohmann`) model in `examples/multi_reservoir/hydrology/forcing.csv.gz`
 is derived from Copernicus ERA5 via the Open-Meteo Historical Weather API (CC BY 4.0).

@@ -1,13 +1,12 @@
-# Calibrated 4-subbasin HydroCNHS (GWLF rainfall-runoff + Lohmann routing) model for the Xindian River cascade (Taiwan).
-# Upstream: U2 (Pinglin) -> U1 (Shiding) feeds feitsui_local (30,300 ha).
-# Intervening: D2 (Wulai/Nanshi) -> D1 (Xindian) feeds zhitan_local (37,680 ha).
+# Calibrated 10-year HydroCNHS (GWLF rainfall-runoff + Lohmann routing) model for the Xindian River cascade (2015-2025).
+# Warm-up: 2015 | Calibration (C): 2016-2022 (7 yr) | Validation (V): 2023-2025 (3 yr) vs TFRA Open Data 145840.
 Path:
   WD: .
   Modules: ''
 WaterSystem:
-  StartDate: 2018/01/01
-  EndDate: 2020/06/05
-  DataLength: 887
+  StartDate: 2015/01/01
+  EndDate: 2025/12/31
+  DataLength: 4018
   NumSubbasins: 4
   Outlets:
   - U1
@@ -26,15 +25,15 @@ RainfallRunoff:
       S0: 15.0
       U0: 10.0
       SnowS: 0.0
-    Pars:
-      CN2: 83.71159
-      IS: 0.02493
-      Res: 0.20047
-      Sep: 0.09736
-      Alpha: 0.07349
-      Beta: 0.34878
-      Ur: 12.28014
-      Kc: 0.60545
+    Pars: &id001
+      CN2: 91.24154
+      IS: 0.03363
+      Res: 0.34671
+      Sep: 0.01286
+      Alpha: 0.41492
+      Beta: 0.13355
+      Ur: 17.22207
+      Kc: 0.50449
       Df: 0.0
   U2:
     Inputs:
@@ -43,16 +42,7 @@ RainfallRunoff:
       S0: 15.0
       U0: 10.0
       SnowS: 0.0
-    Pars:
-      CN2: 83.71159
-      IS: 0.02493
-      Res: 0.20047
-      Sep: 0.09736
-      Alpha: 0.07349
-      Beta: 0.34878
-      Ur: 12.28014
-      Kc: 0.60545
-      Df: 0.0
+    Pars: *id001
   D1:
     Inputs:
       Area: 4480.0
@@ -60,15 +50,15 @@ RainfallRunoff:
       S0: 15.0
       U0: 10.0
       SnowS: 0.0
-    Pars:
-      CN2: 85.24923
-      IS: 0.28606
-      Res: 0.03481
-      Sep: 0.11699
-      Alpha: 0.13188
-      Beta: 0.93845
-      Ur: 29.14508
-      Kc: 1.28323
+    Pars: &id002
+      CN2: 79.23608
+      IS: 0.29101
+      Res: 0.18423
+      Sep: 0.03268
+      Alpha: 0.33067
+      Beta: 0.10053
+      Ur: 4.10403
+      Kc: 0.65378
       Df: 0.0
   D2:
     Inputs:
@@ -77,16 +67,7 @@ RainfallRunoff:
       S0: 15.0
       U0: 10.0
       SnowS: 0.0
-    Pars:
-      CN2: 85.24923
-      IS: 0.28606
-      Res: 0.03481
-      Sep: 0.11699
-      Alpha: 0.13188
-      Beta: 0.93845
-      Ur: 29.14508
-      Kc: 1.28323
-      Df: 0.0
+    Pars: *id002
 Routing:
   U2:
     U2:
@@ -94,8 +75,8 @@ Routing:
         FlowLength: 0.0
         InstreamControl: false
       Pars:
-        GShape: 4.47036
-        GScale: 5.93874
+        GShape: 4.49344
+        GScale: 4.30565
         Velo: null
         Diff: null
   U1:
@@ -104,8 +85,8 @@ Routing:
         FlowLength: 0.0
         InstreamControl: false
       Pars:
-        GShape: 4.47036
-        GScale: 5.93874
+        GShape: 4.49344
+        GScale: 4.30565
         Velo: null
         Diff: null
     U2:
@@ -115,16 +96,16 @@ Routing:
       Pars:
         GShape: null
         GScale: null
-        Velo: 0.66847
-        Diff: 1593.48552
+        Velo: 1.22553
+        Diff: 2576.7399
   D2:
     D2:
       Inputs:
         FlowLength: 0.0
         InstreamControl: false
       Pars:
-        GShape: 4.47036
-        GScale: 5.93874
+        GShape: 4.49344
+        GScale: 4.30565
         Velo: null
         Diff: null
   D1:
@@ -133,8 +114,8 @@ Routing:
         FlowLength: 0.0
         InstreamControl: false
       Pars:
-        GShape: 4.47036
-        GScale: 5.93874
+        GShape: 4.49344
+        GScale: 4.30565
         Velo: null
         Diff: null
     D2:
@@ -144,5 +125,5 @@ Routing:
       Pars:
         GShape: null
         GScale: null
-        Velo: 0.66847
-        Diff: 1593.48552
+        Velo: 1.22553
+        Diff: 2576.7399

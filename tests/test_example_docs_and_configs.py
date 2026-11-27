@@ -55,7 +55,7 @@ def test_example_experiment_configs_pass_check(rel_path, is_coupled, tmp_path):
 def test_multi_reservoir_hybrid_llm_config_passes_check():
     settings = load_settings(ROOT / "examples" / "multi_reservoir" / "hybrid_llm.yaml")
     report = settings.report
-    assert report["planned_llm_calls"] == 30
+    assert report["planned_llm_calls"] == 365
     assert report["network_calls"] == 0
     assert report["agent_types"] == {
         "feitsui_operator": "llm",

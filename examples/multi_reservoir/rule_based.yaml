@@ -1,11 +1,11 @@
-# Offline Xindian River cascade baseline (Taiwan WRA May-June 2020 Mei-Yu event): Feitsui -> Zhitan.
-# Both reservoirs use deterministic Hanasaki flood-control rules; run check, run, and verify --require-offline.
+# Offline Xindian River cascade baseline (Full-year 2025 validation window): Feitsui -> Zhitan -> xindian_outlet.
+# Both reservoirs use deterministic Hanasaki flood-control rules calibrated from 2016-2022 TFRA statistics.
 schema_version: llm-reservoir-experiment.v1
 case: case.json                       # Physical cascade: Feitsui Reservoir -> Zhitan Dam -> xindian_outlet.
 run_id: multi-reservoir-rule-based    # Trace identity; change with output before repeating.
 output: ../../runs/multi-reservoir-rule-based  # Unused output path, relative to this file.
-start_date: '2020-05-07'              # Inclusive 30-day Mei-Yu study start date (subset inside inflows.csv).
-end_date: '2020-06-05'                # Inclusive operation end date (30 daily steps).
+start_date: '2025-01-01'              # Inclusive 1-year validation operation start date (365 daily steps).
+end_date: '2025-12-31'                # Inclusive operation end date.
 max_calls: 0                          # Zero model calls allowed.
 auditors:
   feasible_release:

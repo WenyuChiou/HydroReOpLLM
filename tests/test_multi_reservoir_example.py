@@ -50,8 +50,8 @@ def test_multi_reservoir_rule_based_runs_and_conserves_water(folder, tmp_path):
     for row in _rows(output / "reservoir_trajectory.csv"):
         trajectory.setdefault(row["reservoir_id"], []).append(row)
     assert set(trajectory) == {"feitsui", "zhitan"}
-    assert len(trajectory["feitsui"]) == 30
-    assert len(trajectory["zhitan"]) == 30
+    assert len(trajectory["feitsui"]) == 365
+    assert len(trajectory["zhitan"]) == 365
 
     for reservoir, rows in trajectory.items():
         previous_end = network["reservoirs"][reservoir]["physical"]["initial_storage_m3"]
@@ -68,7 +68,7 @@ def test_multi_reservoir_rule_based_runs_and_conserves_water(folder, tmp_path):
         for edge in network["connections"]
         if edge["source"] == "feitsui" and edge["target"] == "zhitan_local"
     )
-    assert len(weights) == 3 and sum(weights) == pytest.approx(1.0, abs=1e-9)
+    assert len(weights) == 2 and sum(weights) == pytest.approx(1.0, abs=1e-9)
     source = case["inflow_source"]
     assert case["data_kind"] == "simulated_local_inflow"
     csv_path = folder / source["path"]
@@ -97,19 +97,19 @@ def test_multi_reservoir_hydrology_cv_model_validates():
     hydro_spec = yaml.safe_load((hydro_dir / "hydrology.yaml").read_text(encoding="utf-8"))
     weather = load_weather(hydro_spec, hydro_dir)
     assert weather["units"] == ["U1", "U2", "D1", "D2"]
-    assert len(weather["dates"]) == 887
+    assert len(weather["dates"]) == 4018
     assert validate_bindings(weather, ("feitsui_local", "zhitan_local", "xindian_outlet")) == []
     cv_summary = json.loads((hydro_dir / "cv_summary.json").read_text(encoding="utf-8"))
-    assert cv_summary["feitsui_U1_U2_C_2019_01_08"]["kge"] > 0.6
-    assert cv_summary["feitsui_U1_U2_V2_2020_05_06"]["kge"] > 0.6
-    assert cv_summary["zhitan_D1_D2_V2_combined_2020_05_07_06_05"]["kge"] > 0.6
+    assert cv_summary["feitsui_U1_U2_C_2016_2022"]["kge"] > 0.5
+    assert cv_summary["feitsui_U1_U2_V_2023_2025"]["kge"] > 0.7
+    assert cv_summary["zhitan_combined_V_2023_2025"]["kge"] > 0.7
 
 
 def test_multi_reservoir_hybrid_llm_checks_and_runs_with_mock_transport(folder, tmp_path):
     experiment = folder / "hybrid_llm.yaml"
     loaded = load_settings(experiment)
     report = loaded.report
-    assert report["planned_llm_calls"] == 30
+    assert report["planned_llm_calls"] == 365
     assert report["network_calls"] == 0
     assert report["agent_strategies"] == {
         "feitsui_operator": "xindian_study",
@@ -126,11 +126,11 @@ def test_multi_reservoir_hybrid_llm_checks_and_runs_with_mock_transport(folder, 
     def transport(_url, payload, _headers, _timeout):
         requests.append(payload["messages"])
         reply = {
-            "applicable_target_storage_m3": 250_000_000.0,
+            "applicable_target_elevation_m": 168.0,
             "pool_position": "above_target",
             "intended_storage_direction": "decrease",
             "release_relation_to_inflow": "above_inflow",
-            "reasoning": "Release moderately above inflow to return toward the 250M m3 Mei-Yu buffer.",
+            "reasoning": "Release moderately above inflow to maintain the seasonal rule-curve level.",
             "release_cms": 35.0,
         }
         return {
@@ -148,10 +148,10 @@ def test_multi_reservoir_hybrid_llm_checks_and_runs_with_mock_transport(folder, 
     assert output.is_relative_to(tmp_path.resolve())
     verified = verify_run(output)
     assert verified["status"] == "PASS"
-    assert verified["days"] == 30
-    assert verified["observed_network_calls"] == 30
+    assert verified["days"] == 365
+    assert verified["observed_network_calls"] == 365
     assert verified["max_system_balance_residual_m3"] < 1e-6
-    assert len(requests) == 30
+    assert len(requests) == 365
     assert set(records) == {"feitsui", "zhitan"}
     first_prompt = (folder / "prompts" / "feitsui.user.txt").read_text(encoding="utf-8")
     assert requests[0][1]["content"] == first_prompt.rstrip("\n")
