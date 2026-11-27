@@ -1,4 +1,4 @@
-# Native HydroCNHS catchment model and 11-year ERA5 forcing bindings for the Xindian River cascade (2015-2025).
+# Native HydroCNHS catchment model and 11-year TFRA-observed rain + ERA5 temp/PET forcing bindings (2015-2025).
 model: xindian_catchments.yaml
 forcing: forcing.csv.gz
 zero_flow_nodes: []

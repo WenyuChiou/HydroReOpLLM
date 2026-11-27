@@ -107,8 +107,8 @@
 | [單一水庫：Rule-based（Hanasaki 規則）](../examples/fe_walter/README.zh-TW.md) | `examples/fe_walter/rule_based.yaml`（`hanasaki`，α = 0.85） | 離線 | F.E. Walter 離線 Hanasaki 滯洪基準。 |
 | [單一水庫：Without operational knowledge（無操作知識）](../examples/fe_walter/README.zh-TW.md) | `examples/fe_walter/seasonal_target.yaml`（LLM） | 本機 Ollama | 僅提供水位、季節目標與兩日放流歷史的 LLM 運轉。 |
 | [單一水庫：With operational knowledge（具操作知識）](../examples/fe_walter/README.zh-TW.md) | `examples/fe_walter/dkp.yaml`（LLM + `dkp.md`） | 本機 Ollama | 相同水庫案例加上結構化水庫運用要點檢索。 |
-| [多水庫串聯：新店溪規則基準](../examples/multi_reservoir/README.zh-TW.md) | `examples/multi_reservoir/rule_based.yaml`（雙庫 Hanasaki） | 離線 | 台灣新店溪 2020 年 5–6 月梅雨實測（`feitsui` → `zhitan` → `xindian_outlet`）水量平衡。 |
-| [多水庫串聯：新店溪混合規則＋LLM](../examples/multi_reservoir/README.zh-TW.md) | `examples/multi_reservoir/hybrid_llm.yaml`（翡翠 LLM＋直潭 Hanasaki） | 本機 Ollama | 示範同一流域結合 LLM 與規則式操作員的混合串聯控制。 |
+| [多水庫串聯：新店溪規則基準](../examples/multi_reservoir/README.zh-TW.md) | `examples/multi_reservoir/rule_based.yaml`（雙庫 Hanasaki） | 離線 | Repo 專屬案例（未收錄於論文）：10 年 HydroCNHS C&V 驅動 2025 全年雙庫（`feitsui` → `zhitan` → `xindian_outlet`）水量平衡基準。 |
+| [多水庫串聯：新店溪混合規則＋LLM](../examples/multi_reservoir/README.zh-TW.md) | `examples/multi_reservoir/hybrid_llm.yaml`（聯合調度 LLM＋直潭 Hanasaki） | 本機 Ollama | Repo 專屬案例：翡翠聯合供水調度 LLM（`xindian_study` + 南勢溪入流）結合直潭 Hanasaki 混聯。 |
 
 <div class="callout callout-info" markdown="1">
 

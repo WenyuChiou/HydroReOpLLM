@@ -107,8 +107,8 @@ Run the single-reservoir and multi-reservoir cases or troubleshoot errors.
 | [Single-reservoir: Rule-based](../examples/fe_walter/README.md) | Hanasaki (`α = 0.85`, `rule_based.yaml`) | Offline | Offline F.E. Walter Dam baseline over 2021–2025 inflows. |
 | [Single-reservoir: Without operational knowledge](../examples/fe_walter/README.md) | LLM (`seasonal_target.yaml`) | Local Ollama | Pool elevation, seasonal target, and 2-day release history only. |
 | [Single-reservoir: With operational knowledge](../examples/fe_walter/README.md) | LLM (`dkp.yaml`) | Local Ollama | Same physical case with structured water-control manual (`dkp.md`). |
-| [Multi-reservoir: Rule-based](../examples/multi_reservoir/README.md) | Hanasaki on both dams (`rule_based.yaml`) | Offline | Taiwan Xindian River cascade (`feitsui` → `zhitan` → `xindian_outlet`, May–June 2020 Mei-Yu front). |
-| [Multi-reservoir: Hybrid LLM](../examples/multi_reservoir/README.md) | Upstream LLM + downstream Hanasaki (`hybrid_llm.yaml`) | Local Ollama | Mixed `feitsui` LLM + `zhitan` Hanasaki cascade (`prompts/system.txt` & `operator.txt`). |
+| [Multi-reservoir: Rule-based](../examples/multi_reservoir/README.md) | Hanasaki on both dams (`rule_based.yaml`) | Offline | Repository-only Xindian River cascade (`feitsui` → `zhitan` → `xindian_outlet`, 2025 full-year baseline on 10-yr HydroCNHS C&V). |
+| [Multi-reservoir: Hybrid LLM](../examples/multi_reservoir/README.md) | Joint-dispatch LLM + downstream Hanasaki (`hybrid_llm.yaml`) | Local Ollama | Repository-only `feitsui` joint water-supply LLM (`strategy: xindian_study`) + `zhitan` Hanasaki cascade. |
 
 <div class="callout callout-info" markdown="1">
 

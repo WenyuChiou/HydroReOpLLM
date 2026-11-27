@@ -27,7 +27,7 @@
 
 </div>
 
-河道演算將放流量與 `unit_hydrograph` 進行摺積（例如新店溪翡翠至直潭採用 Lohmann 演算權重 `[0.919013, 0.080987]`）。模擬結束時仍滯留於河道中的水量記錄於 `reach_volume_trace.json` 與 `network_balance.csv`，確保全流域水量閉合。
+河道演算將放流量與 `unit_hydrograph` 進行摺積（例如新店溪翡翠至直潭採用 Lohmann 演算權重 `[0.801305, 0.198693, 2e-06]`）。模擬結束時仍滯留於河道中的水量記錄於 `reach_volume_trace.json` 與 `network_balance.csv`，確保全流域水量閉合。
 
 ## 混合式 Hanasaki 與 LLM 多水庫配置
 
