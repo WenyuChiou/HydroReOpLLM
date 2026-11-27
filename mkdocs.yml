@@ -64,3 +64,25 @@ nav:
         - 多水庫串聯案例: examples/multi_reservoir/index.zh-TW.md
     - 常見問題:
         - 常見問題與排解: TROUBLESHOOTING.zh-TW.md
+  - 简体中文:
+    - 工具包总览: zh-CN.md
+    - 安装与运行流程:
+        - 安装与 CLI 命令: GETTING_STARTED.zh-CN.md
+        - 实验配置文件: CONFIGURATION.zh-CN.md
+        - 运行、验证与续跑: RUNNING.zh-CN.md
+        - 结果判读与水量平衡: RESULTS_GUIDE.zh-CN.md
+    - 集水区与水文河网:
+        - 入流与 HydroCNHS 配置: HYDROLOGY_SETUP.zh-CN.md
+        - 多水库河网串联: MULTI_RESERVOIR.zh-CN.md
+        - 时间尺度与单位: TIME_SCALES.zh-CN.md
+        - 逐时 GWLF（实验性）: HOURLY_GWLF.zh-CN.md
+    - 水库操作决策:
+        - 操作规则与 LLM 设计: AGENT_DESIGN.zh-CN.md
+        - 水情测站与预报: INFORMATION.zh-CN.md
+        - 模型服务配置: MODEL_PROVIDERS.zh-CN.md
+    - 示例与实战教程:
+        - 单水库案例（F.E. Walter）: examples/fe_walter/index.zh-CN.md
+        - 实战教程与 Notebook: tutorials/index.zh-CN.md
+        - 多水库串联案例: examples/multi_reservoir/index.zh-CN.md
+    - 常见问题:
+        - 常见问题与排查: TROUBLESHOOTING.zh-CN.md

@@ -570,7 +570,7 @@ def _live_gate_message(prefix, allow_network, report):
 
 
 def run_settings(settings, *, allow_network=False, runtime_root=PROJECT_ROOT, transport=None, information_providers=None,
-                 recovery=None, output=None, run_id=None):
+                 recovery=None, output=None, run_id=None, provenance_probe=None):
     """Reload a checked plan, construct isolated backends and run native physics.
 
     Every new transport attempt reserves the cumulative count and durably appends STARTED before sending. Saved replies/context replay first. Unknown native limits are not replaced with invented caps; explicit max_calls=None preserves no total cap. Callback/provider exceptions propagate with experiment failure evidence.
@@ -593,6 +593,9 @@ def run_settings(settings, *, allow_network=False, runtime_root=PROJECT_ROOT, tr
         New destination override used only when recovery is supplied.
     run_id : str or None, optional
         Distinct run identity override used only for recovery.
+    provenance_probe : callable or None, optional
+        Optional live runtime probe fetcher ``(method, url, payload, headers, timeout) -> dict``
+        used for best-effort server snapshot capture before live LLM runs.
 
     Returns
     -------
@@ -715,9 +718,18 @@ def run_settings(settings, *, allow_network=False, runtime_root=PROJECT_ROOT, tr
             audit_context_builders={p.identifier: p.prepare_context for p in agent["audit_plugins"]
                                     if callable(getattr(p, "prepare_context", None))})
         backends[agent["reservoir"]] = AuditedBackend(backend, agent["audit_plugins"])
+    server_runtime_snapshots = {}
+    if allow_network and plan["planned_llm_calls"] > 0 and (transport is None or provenance_probe is not None):
+        try:
+            from .odd_llm import probe_live_model_snapshots
+            server_runtime_snapshots = probe_live_model_snapshots(current.agents, fetcher=provenance_probe)
+        except Exception:
+            server_runtime_snapshots = {}
     provenance = {"schema_version": "yaml-experiment-provenance.v1", "plan": plan,
                   "settings": current.data, "source_files": current.files,
                   "automatic_retry": any(a.get("model") and a["model"].get("max_attempts", 1) > 1 for a in current.agents.values())}
+    if server_runtime_snapshots:
+        provenance["server_runtime_snapshots"] = server_runtime_snapshots
     information_runtime = None
     if current.information_catalog is not None:
         from .information_runtime import InformationRuntime

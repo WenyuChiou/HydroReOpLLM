@@ -8,7 +8,7 @@
 
 **HydroReOpLLM** extends [**HydroCNHS**](https://github.com/philip928lin/HydroCNHS) with a unified, water-conserving simulation framework for coupling subbasin rainfall–runoff, river routing, and reservoir operations—making it straightforward to compare deterministic **Rule-based** policies against **LLM** operators on the exact same watershed.
 
-[Installation & CLI](GETTING_STARTED.md) · [Rules & LLM prompts](AGENT_DESIGN.md) · [Interactive notebook](../tutorials/README.md) · [繁體中文總覽](README.zh-TW.md)
+[Installation & CLI](GETTING_STARTED.md) · [Rules & LLM prompts](AGENT_DESIGN.md) · [Interactive notebook](../tutorials/README.md) · [繁體中文總覽](README.zh-TW.md) · [简体中文](README.zh-CN.md)
 
 </div>
 
