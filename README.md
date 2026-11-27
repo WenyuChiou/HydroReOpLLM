@@ -48,7 +48,7 @@ Set a new `run_id` and unused `output` folder before repeating a run. See [Insta
 | Single-reservoir (F.E. Walter) | [`examples/fe_walter/seasonal_target.yaml`](examples/fe_walter/README.md) | **Without operational knowledge** (pool level, seasonal target, 2-day history) | Local Ollama |
 | Single-reservoir (F.E. Walter) | [`examples/fe_walter/dkp.yaml`](examples/fe_walter/README.md) | **With operational knowledge** (adds structured `dkp.md` manual rules) | Local Ollama |
 | Single-reservoir (F.E. Walter) | [`tutorials/fe_walter.ipynb`](https://wenyuchiou.github.io/HydroReOpLLM/tutorials/index.html) | Interactive notebook comparing all three conditions and multi-reservoir hybrid setup | Offline default |
-| Multi-reservoir cascade (Xindian River, Taiwan; repo example) | [`examples/multi_reservoir/hybrid_llm.yaml`](examples/multi_reservoir/README.md) | Repository-only 1-year 2025 validation (`feitsui` seasonal LLM + `zhitan` Hanasaki, 10-year HydroCNHS C&V inflows) | Local Ollama |
+| Multi-reservoir cascade (Xindian River, Taiwan; repo example) | [`examples/multi_reservoir/hybrid_llm.yaml`](examples/multi_reservoir/README.md) | Repository-only 1-year 2025 validation (`feitsui` joint-dispatch LLM + `zhitan` Hanasaki, 10-year HydroCNHS C&V inflows) | Local Ollama |
 | Multi-reservoir cascade (Xindian River, Taiwan; repo example) | [`examples/multi_reservoir/rule_based.yaml`](examples/multi_reservoir/README.md) | Repository-only 1-year 2025 offline cascade (Hanasaki on `feitsui` and `zhitan`) | Offline |
 
 Browse the [examples index](examples/README.md) or the [full user manual](https://wenyuchiou.github.io/HydroReOpLLM/).

@@ -4,7 +4,7 @@
 
 **HydroReOpLLM** 延伸自 [**HydroCNHS**](https://github.com/philip928lin/HydroCNHS) 的半分散式集水區水文與水庫代理人架構，讓水文學家在同一套水量守恆的模擬系統中，建置並比較**規則式（Rule-based）**與 **LLM 驅動**的水庫放流操作。
 
-[安裝與 CLI 指令](GETTING_STARTED.zh-TW.md) · [操作規則與 LLM 設計](AGENT_DESIGN.zh-TW.md) · [單一水庫案例（F.E. Walter）](../examples/fe_walter/README.zh-TW.md) · [English overview](README.md)
+[安裝與 CLI 指令](GETTING_STARTED.zh-TW.md) · [操作規則與 LLM 設計](AGENT_DESIGN.zh-TW.md) · [互動式 Notebook 教學](../tutorials/README.zh-TW.md) · [English overview](README.md)
 
 </div>
 
