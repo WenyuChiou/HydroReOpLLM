@@ -1,41 +1,27 @@
-# Module 01: Setup & First Offline Rule-Based Baseline
+# Module 01: Offline Rule-Based Baseline (F.E. Walter Dam)
 
-Build confidence in the **HydroReOpLLM** execution and verification pipeline by running a full-year (**2021**, 365 daily steps) offline **Hanasaki flood-control rule** baseline for **Francis E. Walter Dam** (Lehigh River basin, Pennsylvania) inside an isolated temporary directory.
+Verify **HydroReOpLLM**'s water-balance, physics clipping, and Lohmann routing kernel on **F.E. Walter Dam** (`2021`, 365 daily steps) with zero API calls before touching an LLM.
 
-## Learning Objectives
+```mermaid
+flowchart LR
+    I["Causal State & Inflow<br/>(info &lt;= t)"] --> R["Hanasaki Rule<br/>(alpha = 0.85)"]
+    R --> P["Host Physics Kernel<br/>(Bounds, Dead Storage, Spill)"]
+    P --> L["Lohmann UH Routing<br/>(01447800 -&gt; 01449000)"]
+    L --> V["verify_run PASS<br/>(Mass Balance &lt; tol)"]
+```
 
-- Inspect how HydroReOpLLM separates physical reservoir/routing definitions (`rule_case.json`, `inflows.csv`) from operator policy (`rule_based.yaml`).
-- Validate an experiment plan offline (`load_settings`) with zero network calls and strict SHA-256 input pinning.
-- Execute a full-year deterministic rule simulation (`run_settings`) and independently verify mass-balance residuals, routing continuity, and audit traces (`verify_run(..., require_offline=True)`).
-- Convert simulated storage trajectories (`m³`) into pool elevations (`ft NGVD29`) and visualize 2021 elevation and release-versus-inflow behavior.
+<p align="center">
+  <img src="../../docs/assets/figures/fig2-study-area.png" alt="F.E. Walter Dam basin and downstream gauges" width="82%">
+</p>
 
-## What You Configure, Run, and See
-
-| Stage | Action | Artifact / Output |
+| Step | Action | Output |
 | --- | --- | --- |
-| **Configure** | Inspect `rule_case.json` geometry, 2-reach Lohmann unit hydrographs, 2021 `inflows.csv` statistics, and Hanasaki `alpha = 0.85` settings | Formatted physical specification and 2021 inflow summary |
-| **Operate** | Write a 365-day (`2021-01-01`–`2021-12-31`) YAML config inside `tempfile.TemporaryDirectory()` and call `load_settings` | Validated offline plan (`planned_llm_calls = 0`) |
-| **Execute** | Run `run_settings(..., allow_network=False)` and audit with `verify_run(..., require_offline=True)` | `status = PASS`, `observed_network_calls = 0`, mass-balance residual `< 1e-8 m³`, final storage |
-| **Inspect & Plot** | Read `reservoir_trajectory.csv` and convert storage via `study/elevation_storage.csv` | Quarterly balance table + 2-panel 2021 pool elevation (`ft`) and release vs. inflow (`cfs`) plot |
-
-## Inputs & Files Used
-
-- [`01_setup_and_rule_baseline.ipynb`](01_setup_and_rule_baseline.ipynb) — pre-executed hands-on notebook
-- [`examples/fe_walter/rule_case.json`](../../examples/fe_walter/rule_case.json) — physical reservoir & downstream Lohmann routing network
-- [`examples/fe_walter/inflows.csv`](../../examples/fe_walter/inflows.csv) — daily local incremental inflows (`2021–2025`)
-- [`examples/fe_walter/rule_based.yaml`](../../examples/fe_walter/rule_based.yaml) — Hanasaki rule configuration (`alpha = 0.85`, `max_calls = 0`)
-- [`examples/fe_walter/study/elevation_storage.csv`](../../examples/fe_walter/study/elevation_storage.csv) — F.E. Walter elevation–storage rating curve (`ft NGVD29`)
-
-## How to Run
-
-From the repository root (with `.venv` activated):
+| **1. Pool Zones** | Plot `elevation_storage.csv` operating bands & 2021 `inflows.csv` | Annotated rating curve (`1,300` / `1,370` / `1,450 ft`) |
+| **2. Run & Verify** | Execute 365-day `rule_based.yaml` inside `TemporaryDirectory()` | `verify_run = PASS`, `0` network calls, mass-balance residual |
+| **3. Inspect Drift** | Compare simulated pool level & release vs USGS `01447780` | 2-panel 2021 trajectory exposing seasonal refill drift |
 
 ```sh
 python -m jupyterlab tutorials/01_setup_and_first_run/01_setup_and_rule_baseline.ipynb
 ```
 
-Select the `.venv` Python kernel and choose **Run → Run All Cells**. All outputs are written inside `tempfile.TemporaryDirectory()` and cleaned up automatically.
-
-## Next Module
-
-Continue to **[Module 02: LLM Prompt Engineering & Operational Knowledge (DKP)](../02_prompt_and_knowledge_design/README.md)** to compare **Without operational knowledge** (`seasonal_target.yaml`) against **With operational knowledge** (`dkp.yaml`).
+Next: **[Module 02 — LLM Prompts & Operational Knowledge (DKP)](../02_prompt_and_knowledge_design/README.md)**

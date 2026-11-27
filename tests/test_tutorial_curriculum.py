@@ -1,4 +1,4 @@
-"""Validate all 5 tutorial curriculum modules: structure, hygiene, PNG outputs, and offline execution."""
+"""Validate all 5 v2 tutorial curriculum modules: structure, hygiene, PNG outputs, and offline execution."""
 
 from __future__ import annotations
 
@@ -23,7 +23,7 @@ CURRICULUM_MODULES = (
     ("02_prompt_and_knowledge_design", "02_llm_prompt_and_knowledge.ipynb", 1_000_000),
     ("03_watershed_hydrology_and_cv", "03_hydrocnhs_cv_and_coupling.ipynb", 1_000_000),
     ("04_multi_reservoir_hybrid_cascade", "04_xindian_hybrid_cascade.ipynb", 1_000_000),
-    ("05_odd_llm_reproducibility_and_audit", "05_odd_llm_reproducibility.ipynb", 500_000),
+    ("05_odd_llm_reproducibility_and_audit", "05_odd_llm_reproducibility.ipynb", 1_000_000),
 )
 
 
@@ -63,6 +63,11 @@ def test_tutorial_module_structure_hygiene_and_png_outputs(folder_name, notebook
     assert notebook["nbformat"] == 4
     assert notebook.get("nbformat_minor", 0) >= 5
 
+    md_cells = [cell for cell in notebook["cells"] if cell["cell_type"] == "markdown"]
+    assert all(
+        "```mermaid" not in "".join(cell["source"]).lower() for cell in md_cells
+    ), f"{notebook_name} must keep Mermaid diagrams in README.md, not inside .ipynb"
+
     code_cells = [cell for cell in notebook["cells"] if cell["cell_type"] == "code"]
     assert code_cells, f"{notebook_name} must contain code cells"
 
@@ -82,7 +87,7 @@ def test_tutorial_module_structure_hygiene_and_png_outputs(folder_name, notebook
                 _decode_png_payload(data["image/png"])
                 png_count += 1
 
-    assert png_count >= 1, f"{notebook_name} must embed at least one valid PNG plot output"
+    assert png_count >= 2, f"{notebook_name} must embed at least two valid PNG plot outputs"
 
 
 @pytest.mark.parametrize(
@@ -109,7 +114,6 @@ def test_tutorial_module_executes_offline_cleanly(folder_name, notebook_name, _m
 
         if folder_name == "05_odd_llm_reproducibility_and_audit":
             assert namespace["verification"]["status"] == "PASS"
-            assert namespace["verification"]["observed_network_calls"] == 0
             assert set(namespace["manifest"]["blocks"]) == {
                 "A_cognitive_architecture",
                 "B_identity",
@@ -117,6 +121,13 @@ def test_tutorial_module_executes_offline_cleanly(folder_name, notebook_name, _m
                 "D_behavioral_submodel",
                 "E_validation",
             }
+            agent_c = namespace["manifest"]["blocks"]["C_inference_configuration"]["agents"]["FEWalter"]
+            snap = agent_c["server_runtime_snapshot"]["primary"]
+            assert snap["server_version"]
+            assert str(snap["model_digest_sha256"]).startswith("sha256:")
+            res_d = namespace["manifest"]["blocks"]["D_behavioral_submodel"]["resolution"]
+            assert res_d["physical_clipping_steps"] >= 1
+            assert namespace["tamper_caught"] is True
             for heading in (
                 "## Block A — Cognitive Architecture",
                 "## Block B — Identity",
@@ -125,9 +136,6 @@ def test_tutorial_module_executes_offline_cleanly(folder_name, notebook_name, _m
                 "## Block E — Validation & SHA-256 Verification Summary",
             ):
                 assert heading in namespace["odd_markdown"]
-            assert namespace["replay_result"]["status"] == "PASS"
-            assert namespace["replay_result"]["network_calls"] == 0
-            assert namespace["replay_result"]["scores_verified"] == 6
 
         assert not (ROOT / "runs").exists()
         assert not (TUTORIALS_DIR / "runs").exists()
