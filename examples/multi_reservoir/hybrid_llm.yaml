@@ -1,13 +1,13 @@
-# Hybrid Xindian River cascade: upstream LLM operator (Feitsui) paired with downstream Hanasaki rule (Zhitan).
-# Uses the unified structured decision-chain prompt design matched to F.E. Walter (`xindian_study`).
-# Run check offline (0 network calls); live execution requires Ollama (`gemma4:12b`) and --allow-network.
+# Hybrid Xindian River cascade (Full-year 2025 validation window): upstream LLM (Feitsui) + downstream Hanasaki (Zhitan).
+# Uses the unified F.E. Walter seasonal-target decision-chain prompt architecture (xindian_study).
+# Run check offline (0 network calls); live execution requires Ollama (gemma4:12b) and --allow-network.
 schema_version: llm-reservoir-experiment.v1
 case: case.json                       # Physical cascade: Feitsui Reservoir -> Zhitan Dam -> xindian_outlet.
 run_id: multi-reservoir-hybrid-llm    # Trace identity; change with output before repeating.
 output: ../../runs/multi-reservoir-hybrid-llm  # Unused output path, relative to this file.
-start_date: '2020-05-07'              # Inclusive 30-day Mei-Yu study start date (30 daily steps).
-end_date: '2020-06-05'                # Inclusive operation end date.
-max_calls: 60                         # 1 LLM agent x 30 days = 30 planned calls (up to 2 attempts/day).
+start_date: '2025-01-01'              # Inclusive 1-year validation operation start date (365 daily steps).
+end_date: '2025-12-31'                # Inclusive operation end date.
+max_calls: 730                        # 1 LLM agent x 365 days = 365 planned calls (up to 2 attempts/day).
 models:
   local:
     provider: ollama
@@ -47,5 +47,6 @@ agents:
 extensions:
   xindian_study: study/__init__.py
 source_dependencies:
-  prompts/feitsui.system.txt: 87eacc7c3741e2d9a5cbdf2037ab133a2270bd0f6e69d0ec5e0ba9996d84b2f5
-  study/response_schemas.json: a8caa18bd77ffc855a650665fa3091763a81b26f2fee0d7fd3850cdc2f51dcac
+  prompts/feitsui.system.txt: 3ce9ac87508ec1533e52c41f7aa07a54fbf042f70b3627ee15204007233b1ebb
+  study/elevation_storage.csv: a1d01190f6c8ba4c1e249a673ae0617bbdb6b8d88ecaf9cd517e9cf7975c4bb9
+  study/response_schemas.json: d9c6a783b41f1313b528abc6d6178701acdab0c08fcfe07e74a0fbe52841ef42

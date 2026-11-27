@@ -2,9 +2,9 @@
   "feitsui": {
     "type": "object",
     "properties": {
-      "applicable_target_storage_m3": {
+      "applicable_target_elevation_m": {
         "type": "number",
-        "description": "Operation-target effective storage (m3) that applies to this interval, read from the operation target"
+        "description": "Operation-target water level (meters) that applies to this interval, read from the seasonal rule curve"
       },
       "pool_position": {
         "type": "string",
@@ -13,7 +13,7 @@
           "at_target",
           "above_target"
         ],
-        "description": "Beginning storage compared with applicable_target_storage_m3"
+        "description": "Beginning water level compared with applicable_target_elevation_m"
       },
       "intended_storage_direction": {
         "type": "string",
@@ -35,7 +35,7 @@
       },
       "reasoning": {
         "type": "string",
-        "description": "One or two sentences: the storage change your release will cause, and why it moves toward or maintains the target buffer"
+        "description": "One or two sentences: the storage change your release will cause, and why it moves toward or holds the target level"
       },
       "release_cms": {
         "type": "number",
@@ -43,7 +43,7 @@
       }
     },
     "required": [
-      "applicable_target_storage_m3",
+      "applicable_target_elevation_m",
       "pool_position",
       "intended_storage_direction",
       "release_relation_to_inflow",

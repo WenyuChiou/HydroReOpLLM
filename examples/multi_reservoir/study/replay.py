@@ -1,8 +1,9 @@
-"""Reproduce the Xindian River Mei-Yu study scores offline from recorded daily decisions."""
+"""Reproduce the Xindian River 1-year (2025) study scores offline from recorded daily decisions."""
 
 from __future__ import annotations
 
 import argparse
+from bisect import bisect_left
 import csv
 from hashlib import sha256
 import json
@@ -16,7 +17,7 @@ from llm_reservoir_agent.runtime import default_runtime_root
 from llm_reservoir_agent.workflow import load_settings
 
 HERE = Path(__file__).resolve().parent
-QUANTITIES = ("Feitsui storage", "Feitsui release", "Downstream flow")
+QUANTITIES = ("Feitsui level", "Feitsui release", "Downstream flow")
 
 
 def read_rows(path: Path) -> list[dict[str, str]]:
@@ -26,6 +27,22 @@ def read_rows(path: Path) -> list[dict[str, str]]:
 
 def columns(rows: list[dict[str, str]], names: tuple[str, ...]) -> tuple[list[float], ...]:
     return tuple([float(row[name]) for row in rows] for name in names)
+
+
+def _load_curve(path: Path) -> tuple[tuple[float, ...], tuple[float, ...]]:
+    rows = read_rows(path)
+    return tuple(float(r["elevation_m"]) for r in rows), tuple(float(r["storage_mcm"]) for r in rows)
+
+
+def _to_level_m(storage_m3: float, els: tuple[float, ...], sts: tuple[float, ...]) -> float:
+    s = min(max(storage_m3 / 1e6, sts[0]), sts[-1])
+    if s == sts[0]:
+        return els[0]
+    u = bisect_left(sts, s)
+    if s == sts[u]:
+        return els[u]
+    lo = u - 1
+    return els[lo] + (s - sts[lo]) * (els[u] - els[lo]) / (sts[u] - sts[lo])
 
 
 def score(simulated: list[float], observed: list[float]) -> dict[str, float]:
@@ -49,7 +66,8 @@ def replay(output: Path) -> dict[str, object]:
         for row in read_rows(HERE / "expected_scores.csv")
     }
     obs_rows = read_rows(HERE / "observations.csv")
-    observations = columns(obs_rows, ("feitsui_storage_mcm", "feitsui_outflow_cms", "downstream_flow_cms"))
+    observations = columns(obs_rows, ("feitsui_elevation_m", "feitsui_outflow_cms", "downstream_flow_cms"))
+    els, sts = _load_curve(HERE / "elevation_storage.csv")
 
     releases = HERE / "archived_releases.csv"
     digest = sha256(releases.read_bytes()).hexdigest()
@@ -104,7 +122,7 @@ def replay(output: Path) -> dict[str, object]:
             raise RuntimeError("offline replay made a model request")
         feitsui_daily = [row["transition"] for row in records["feitsui"]]
         simulated = (
-            [row["storage_end_m3"] / 1e6 for row in feitsui_daily],
+            [_to_level_m(row["storage_end_m3"], els, sts) for row in feitsui_daily],
             [row["total_outflow_cms"] for row in feitsui_daily],
             list(routing["routed_flows_cms"]["xindian_outlet"]),
         )

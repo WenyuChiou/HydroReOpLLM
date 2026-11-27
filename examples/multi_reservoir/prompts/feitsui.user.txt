@@ -1,9 +1,10 @@
-Date: 2020-05-07 (May, day 128 of the year)
-1. Today's inflow: 2.54 m3/s (= 219,833 m3 (= 0.220 million m3) over 1 days)
-2. Storage at beginning of interval: 253,810,100 m3 (= 253.810 million m3, 75.7% of capacity)
+Date: 2025-01-01 (January, day 1 of the year)
+1. Today's inflow: 5.20 m3/s (= 449,295 m3 (= 0.449 million m3) over 1 days)
+2. Water level at beginning of interval: 168.08 m
 3. Previous simulated release decisions (and what was actually released):
    None (first simulated step).
 4. Number of days in this decision interval: 1
-5. Controlled release limits for this interval: 0.0-500.0 m3/s (= 0-43,200,000 m3 over 1 days)
+5. Storage at beginning of interval: 316,895,260 m3 (= 316.895 million m3, 94.5% of capacity)
+6. Controlled release limits for this interval: 0.0-500.0 m3/s (= 0-43,200,000 m3 over 1 days)
 
 Decide the target mean controlled release for this interval (m3/s).
