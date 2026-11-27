@@ -34,3 +34,9 @@ Historical daily ERA5 temperature, reference evapotranspiration (`temperature_2m
 and `et0_fao_evapotranspiration`, `2015-01-01` to `2025-12-31`), and `2015-01`–`2015-06`
 warm-up rainfall scaling in `examples/multi_reservoir/hydrology/forcing.csv.gz`
 are derived from Copernicus ERA5 via the Open-Meteo Historical Weather API (CC BY 4.0).
+
+The official 36-dekad Feitsui Reservoir operating rule-curve limits (`upper_limit_m`,
+`medium_limit_m`, `lower_limit_m`, `severe_lower_limit_m`) in
+`examples/multi_reservoir/study/rule_curve.csv` are transcribed from the Ministry of
+Economic Affairs (MOEA) / Water Resources Agency (WRA) and Taipei City Government
+*Feitsui Reservoir Operating Rules* (`《翡翠水庫運用要點》附表`).

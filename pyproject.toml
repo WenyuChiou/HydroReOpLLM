@@ -111,6 +111,7 @@ hydrocnhs = ["Config_logging.yaml"]
 "share/llm-reservoir-agent/examples/multi_reservoir/study" = [
     "examples/multi_reservoir/study/__init__.py",
     "examples/multi_reservoir/study/elevation_storage.csv",
+    "examples/multi_reservoir/study/rule_curve.csv",
     "examples/multi_reservoir/study/formatter.py",
     "examples/multi_reservoir/study/response_schemas.json",
     "examples/multi_reservoir/study/replay.py",

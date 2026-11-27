@@ -22,6 +22,11 @@
 | 率定期 Calibration（`D1–D2` 南勢溪區間流） | `2016-01-01`–`2022-12-31`（7 年） | 2,557 | `0.839` | `0.711` | `30.53` |
 | 驗證期 Validation（`D1–D2` 區間 / 直潭組合流量） | `2023-01-01`–`2025-12-31`（3 年） | 1,096 | `0.844` / `0.916` | `0.684` / `0.831` | `32.86` / `32.30` |
 
+<figure class="figure-card">
+  <img src="../../docs/assets/figures/fig6-xindian-cv.png" alt="2016–2025 共 10 年 HydroCNHS 日流量率定與驗證圖，對照 TFRA 官測與翡翠進流量及直潭組合流量模擬結果">
+  <figcaption><strong>圖 6.</strong> HydroCNHS 十年日流量率定（<code>2016–2022</code>）與樣本外驗證（<code>2023–2025</code>，灰底）對照 TFRA 官測紀錄：<strong>(a)</strong> 翡翠水庫進流量（<code>U1–U2</code>）；<strong>(b)</strong> 下游直潭壩組合流量（翡翠演算放流匯入南勢溪 <code>D1–D2</code> 側向入流）。</figcaption>
+</figure>
+
 <div class="panel-grid panel-grid-2" markdown="1">
 <div class="panel-card" markdown="1">
 
@@ -61,8 +66,8 @@ reservoir-experiment check examples/multi_reservoir/hybrid_llm.yaml
 ## 2025 全年模擬表現（樣本外驗證年）
 
 <figure class="figure-card">
-  <img src="../../docs/assets/figures/fig6-xindian-results.png" alt="2025 全年新店溪翡翠水庫水位、放流量與直潭下游流量對照圖">
-  <figcaption><strong>圖 6.</strong> 2025 全年（365 天）翡翠水庫水位（m）、放流量（m³/s）與新店溪下游流量模擬結果，對照翡翠水庫管理局官測資料、全規則串聯（Hanasaki + Hanasaki）與聯合調度混合式 LLM 串聯（官方規線上限 <code>168 m</code> 9/21–2/10 與 <code>164 m</code> 2/11–9/20）。</figcaption>
+  <img src="../../docs/assets/figures/fig7-xindian-results.png" alt="2025 全年新店溪翡翠水庫水位、放流量與直潭下游流量對照圖">
+  <figcaption><strong>圖 7.</strong> 2025 全年（365 天）翡翠水庫水位（m）、放流量（m³/s）與新店溪下游流量模擬結果，僅繪製 TFRA 官測紀錄、全規則串聯（Hanasaki + Hanasaki）與聯合調度混合式 LLM 串聯三條序列；(a) 面板同步疊繪經濟部／水利署官方 36 旬運用規線上限（完整上限／中限／下限／嚴重下限收錄於 <a href="study/rule_curve.csv"><code>study/rule_curve.csv</code></a>）。</figcaption>
 </figure>
 
 在完整 365 天驗證模擬中，**聯合調度混合式 LLM 串聯**取得比全規則基準更低的水位誤差（水位 `RMSE = 3.21 m`、`NSE = 0.498`，全規則為 `3.63 m` / `0.358`），同時下游總流量 `RMSE` 與全規則幾近相當（`57.92` vs `57.48 m³/s`）；而**全規則 Hanasaki** 則呈現最高的翡翠水位與下游流量相關結構（`KGE = 0.915` / `0.760`，逐項指標見 [`study/expected_scores.csv`](study/expected_scores.csv)）：
