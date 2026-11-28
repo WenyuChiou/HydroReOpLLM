@@ -94,7 +94,8 @@ Every completed simulation automatically records reproducibility and audit metad
 
 ```text
 HydroReOpLLM/
-├── src/llm_reservoir_agent/   # Core water-balance engine, CLI, providers, provenance & verifier
+├── src/llm_reservoir_agent/   # 5 domain subpackages: config/, hydrology/, operators/, information/, simulation/ (+ cli.py)
+│   └── README.md              # One-page source module & data-flow map
 ├── src/hydrocnhs/             # SHA-256-pinned bundled HydroCNHS hydrology (GWLF/ABCD + Lohmann)
 ├── examples/
 │   ├── fe_walter/             # Single-dam benchmark (Rule-based, seasonal_target, dkp)
