@@ -25,7 +25,6 @@ DIRECT_CHECK_EXPERIMENTS = (
     ("tests/fixtures/examples/multiple_reservoirs/experiment.yaml", True),
     ("tests/fixtures/examples/multiple_reservoirs/experiment.hanasaki_flood_control.yaml", True),
     ("tests/fixtures/examples/time_scales/daily.yaml", True),
-    ("tests/fixtures/examples/time_scales/hourly.yaml", True),
     ("tests/fixtures/examples/time_scales/fixed_interval.yaml", False),
 )
 

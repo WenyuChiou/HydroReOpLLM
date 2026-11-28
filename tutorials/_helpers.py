@@ -467,14 +467,13 @@ def replay_xindian_2025(repo_root: Path, work_dir: Path) -> dict[str, Any]:
 
 def run_offline_llm_audit_demo(repo_root: Path, work_dir: Path) -> dict[str, Any]:
     """Run a 21-day offline mocked-Ollama F.E. Walter DKP run with Day-5 clamp + 1-byte tamper check."""
-    from llm_reservoir_agent.odd_llm import export_odd_report
     from llm_reservoir_agent.verification import verify_run
     from llm_reservoir_agent.workflow import load_settings, run_settings
 
     case_dir = _stage_fe_walter_workspace(repo_root, work_dir, include_archived=False)
     cfg = yaml.safe_load((case_dir / "dkp.yaml").read_text(encoding="utf-8"))
     run_dir = (work_dir / "out-fe-walter-dkp-audit-demo").resolve()
-    cfg["run_id"] = "tutorial-m05-dkp-audit-demo"
+    cfg["run_id"] = "tutorial-m03-dkp-audit-demo"
     cfg["output"] = str(run_dir)
     cfg["start_date"] = "2021-01-01"
     cfg["end_date"] = "2021-01-21"
@@ -563,10 +562,8 @@ def run_offline_llm_audit_demo(repo_root: Path, work_dir: Path) -> dict[str, Any
         provenance_probe=mock_probe,
     )
     verification = verify_run(run_dir)
-    manifest = json.loads((run_dir / "odd_llm_manifest.json").read_text(encoding="utf-8"))
-    odd_md_path = work_dir / "ODD_LLM_EXPORT.md"
-    export_odd_report(run_dir, markdown_out=odd_md_path)
-    odd_markdown = odd_md_path.read_text(encoding="utf-8")
+    summary_doc = json.loads((run_dir / "summary.json").read_text(encoding="utf-8"))
+    runtime_environment = summary_doc["summary"]["runtime_environment"]
 
     # 1-byte Tamper Detection Demo: flip 1 character in saved trajectory CSV
     tampered_dir = work_dir / "tampered-run-copy"
@@ -607,8 +604,8 @@ def run_offline_llm_audit_demo(repo_root: Path, work_dir: Path) -> dict[str, Any
     return {
         "run_dir": run_dir,
         "verification": verification,
-        "manifest": manifest,
-        "odd_markdown": odd_markdown,
+        "summary": summary_doc["summary"],
+        "runtime_environment": runtime_environment,
         "trajectory": traj,
         "network_balance": net_bal,
         "reach_trace": reach_trace,

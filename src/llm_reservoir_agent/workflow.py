@@ -721,7 +721,7 @@ def run_settings(settings, *, allow_network=False, runtime_root=PROJECT_ROOT, tr
     server_runtime_snapshots = {}
     if allow_network and plan["planned_llm_calls"] > 0 and (transport is None or provenance_probe is not None):
         try:
-            from .odd_llm import probe_live_model_snapshots
+            from .runtime_provenance import probe_live_model_snapshots
             server_runtime_snapshots = probe_live_model_snapshots(current.agents, fetcher=provenance_probe)
         except Exception:
             server_runtime_snapshots = {}
@@ -860,10 +860,6 @@ def main(argv=None):
     verify = sub.add_parser("verify")
     verify.add_argument("output", type=Path)
     verify.add_argument("--require-offline", action="store_true")
-    export_odd = sub.add_parser("export-odd")
-    export_odd.add_argument("output", type=Path)
-    export_odd.add_argument("--json-out", type=Path, default=None)
-    export_odd.add_argument("--markdown-out", type=Path, default=None)
     init_examples = sub.add_parser("init-examples")
     init_examples.add_argument("destination", nargs="?", type=Path, default=Path("examples"))
     resume = sub.add_parser("resume")
@@ -895,9 +891,6 @@ def main(argv=None):
     elif args.command == "verify":
         from .verification import verify_run
         result = verify_run(args.output, require_offline=args.require_offline)
-    elif args.command == "export-odd":
-        from .odd_llm import export_odd_report
-        result = export_odd_report(args.output, json_out=args.json_out, markdown_out=args.markdown_out)
     elif args.command == "resume":
         from .recovery import resume_settings
         document = yaml.load(args.config.read_text(encoding="utf-8-sig"), Loader=UniqueLoader)

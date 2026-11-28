@@ -16,8 +16,7 @@
 | 文件或目录 | 生成时机 | 内容 |
 | --- | --- | --- |
 | `<output>/inflows.csv`、`hydrology*.json` | 耦合 `prepare` / `run` | 集水区区域入流（`m³/s`）与可选的 GWLF 状态／诊断。 |
-| `summary.json`、`progress.json` | 所有模拟 | 运行 `status`、期末蓄水量、`network_calls`、`fallback_used` 与 `serving_profiles`。 |
-| `odd_llm_manifest.json` | 所有模拟 | 结构化 ODD+LLM 可复现性清单（涵盖区块 A–E 与输出文件 SHA-256 哈希）。 |
+| `summary.json`、`progress.json` | 所有模拟 | 运行 `status`、期末蓄水量、`network_calls`、`fallback_used`、`serving_profiles`、`output_files` SHA-256 哈希与 `runtime_environment`。 |
 | `reservoir_trajectory.csv` | 所有模拟 | 逐时间步入流、请求放流 vs. 实际放流、溢洪与蓄水量。 |
 | `network_flows.csv` | 所有模拟 | 每个入流口、汇流点与出口的区域入流及总演进流量。 |
 | `network_balance.csv`、`reach_volume_trace.json` | 所有模拟 | 全流域水量平衡（`m³`）与滞留于河道演进延迟中的水量。 |
@@ -53,18 +52,10 @@ reservoir-experiment verify path/to/output --require-offline
 
 验证实时 LLM 模拟时请省略 `--require-offline`。`verify` 会在不重跑水文、不联网模型服务器的情况下，检查水量平衡、河道卷积演进、水情时间戳与完整日志。
 
-## ODD+LLM 可复现性报告导出
+## 自动运行环境与模型记录（`summary.json`）
 
-每次模拟完成后均会自动生成 `odd_llm_manifest.json`，与物理轨迹及决策日志并存。可运行以下命令，从任意输出目录导出可附于论文的 ODD+LLM Markdown 报告：
+每次模拟完成后，系统会直接在 `summary.json` 中写入输出文件 SHA-256 哈希（`output_files`）以及无特定框架绑定的 `runtime_environment` 记录，无需额外执行导出命令：
 
-```powershell
-reservoir-experiment export-odd path/to/output --markdown-out ODD_LLM_REPORT.md
-```
-
-清单与报告完整收录五项标准化可复现性区块：
-
-- **区块 A — 认知架构（Cognitive Architecture）**：智能体类型与策略、工作记忆（`history_steps`）、长期操作知识（`dkp.md`、运用规线）、不泄露未来水情的信息配置与物理行动边界。
-- **区块 B — 智能体身份与提示词（Identity）**：角色设定与人设框架、提示词模板 ID／版本、`prompt_sha256` 哈希与锁定的源文件清单。
-- **区块 C — 推理配置（Inference Configuration）**：确切模型标识符、服务提供商与端点、解码超参数（`temperature`、随机种子（`seed`）、`max_tokens`、`num_ctx`、`think`）、重试／回退链；实时运行时自动捕获 Ollama 服务版本、模型快照 SHA-256 摘要与量化规格、实际观测到的云端模型解析版本／`system_fingerprint`，以及锁定的科学计算 Python 依赖版本与 HydroCNHS 运行环境版本。
-- **区块 D — 行为子模型（Signature、Binding 与 Resolution）**：观测字段与 JSON 输出 Schema／解析器（`Signature`）、提示词变量与上下文／知识挂钩（`Binding`），以及重试、回退、物理限幅、溢洪与审计实测遥测（`Resolution`）。
-- **区块 E — 验证与审计（Validation）**：水量平衡残差、离线 `verify` 核查状态、输出与追踪文件的 SHA-256 哈希与离线回放能力。
+- **软件与源文件哈希**：`python_version`、`hydroreopllm_version`、`hydrocnhs_core_commit`、锁定的 `key_dependencies` 与 `source_file_sha256`（入流来源、提示词模板、知识库与 HydroCNHS 模型文件）。
+- **各水库智能体与解码配置**：`mode`、`provider`、`model`、`temperature`、随机种子 `seed`、`max_tokens` 与 `num_ctx`。
+- **实时服务器与模型快照**：Ollama `server_runtime_snapshot`（`server_version`、`model_digest_sha256`、`quantization_level`）以及云端实测的 `observed_model_versions` / `observed_system_fingerprints`。

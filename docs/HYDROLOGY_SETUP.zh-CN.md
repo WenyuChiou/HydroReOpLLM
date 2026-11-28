@@ -58,10 +58,10 @@ inflow_bindings:
 | 字段 | 必填 | 用途 |
 | --- | --- | --- |
 | `model` | 是 | 已率定的 HydroCNHS YAML（`RainfallRunoff: GWLF \| ABCD`、`Routing: Lohmann`、`ABM: null`）。 |
-| `forcing` | 是 | 逐日或逐时气象 CSV（`.csv` 或 `.csv.gz`）。 |
+| `forcing` | 是 | 逐日气象 CSV（`.csv` 或 `.csv.gz`）。 |
 | `zero_flow_nodes` | 否 | 固定为 `0.0 m³/s` 且不需气象输入的原生出口。 |
 | `inflow_bindings` | 是 | 非水库节点的 1 对 1 绑定（`runoff`、`routed` 或 `constant: 0`）。 |
-| `engine`、`forcing_step` | 否 | 默认逐日（`gwlf_daily` / `daily`）；逐时 GWLF 请设为 `gwlf_hourly` / `hourly`。 |
+| `engine`、`forcing_step` | 否 | 默认逐日（`gwlf_daily` / `daily`）；如需亚日尺度模拟，请直接提供预先计算的 `inflows.csv`。 |
 | `diagnostics`、`prepared_from` | 否 | 导出 GWLF 状态／平衡诊断，或复用先前的 `prepare` 目录。 |
 
 <div class="callout callout-warn" markdown="1">
@@ -83,7 +83,7 @@ date,subbasin_id,precipitation_mm,temperature_c,pet_cm
 
 ## GWLF 初始状态与率定边界
 
-- GWLF 从 HydroCNHS 模型文件初始化 `S0`、`U0`、`SnowS` 与 `B0`/`BF0`（日尺度 `BF0` 为径流深度，非逐时深层蓄水体积；见[逐时 GWLF（实验性）](HOURLY_GWLF.zh-CN.md)）。
+- GWLF 从 HydroCNHS 模型文件初始化 `S0`、`U0`、`SnowS` 与 `B0`/`BF0`（日尺度 `BF0` 为径流深度）。
 - HydroReOpLLM 原样执行已率定的 HydroCNHS 参数；集水区率定与偏差校正均属于耦合前的前置工作。
 
 ## 水库节点与下游河道演进
@@ -97,5 +97,5 @@ date,subbasin_id,precipitation_mm,temperature_c,pet_cm
 | 输出产物 | 位置 | 检查重点 |
 | --- | --- | --- |
 | `inflows.csv` | `<output>/` | 操作窗口内的模拟区域增量入流量（`m³/s`）。 |
-| `hydrology_diagnostics.json`、`hydrology_state.json` | `<output>/` | 各子集水区 GWLF 通量、残差与期末状态（`diagnostics: true` 或逐时模式）。 |
+| `hydrology_diagnostics.json`、`hydrology_state.json` | `<output>/` | 各子集水区 GWLF 通量、残差与期末状态（`diagnostics: true`）。 |
 | `network_balance.csv`、`reach_volume_trace.json` | `<output>/operation/` | 全周期水库＋河道水量平衡（`m³`），确认 `system_residual_m3` 趋近于 `0`。 |

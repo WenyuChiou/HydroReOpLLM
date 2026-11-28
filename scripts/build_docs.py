@@ -50,7 +50,6 @@ ENGLISH_FILES = {
     "docs/MULTI_RESERVOIR.md": "MULTI_RESERVOIR.md",
     "docs/TIME_SCALES.md": "TIME_SCALES.md",
     "docs/HYDROLOGY_SETUP.md": "HYDROLOGY_SETUP.md",
-    "docs/HOURLY_GWLF.md": "HOURLY_GWLF.md",
     "docs/TROUBLESHOOTING.md": "TROUBLESHOOTING.md",
     "docs/assets/figures/fig1-framework.png": "assets/figures/fig1-framework.png",
     "docs/assets/figures/fig2-study-area.png": "assets/figures/fig2-study-area.png",

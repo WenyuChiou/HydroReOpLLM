@@ -1,4 +1,4 @@
-"""Validate all 5 v2 tutorial curriculum modules: structure, hygiene, PNG outputs, and offline execution."""
+"""Validate all 4 streamlined tutorial curriculum modules: structure, trilingual guides, PNG outputs, and offline execution."""
 
 from __future__ import annotations
 
@@ -19,11 +19,10 @@ PNG_SIGNATURE = b"\x89PNG\r\n\x1a\n"
 PERSONAL_PATH_RE = re.compile(r"(?i)(?:[a-z]:[/\\]{1,2}users[/\\]|/users/|appdata|local[/\\]{1,2}temp)")
 
 CURRICULUM_MODULES = (
-    ("01_setup_and_first_run", "01_setup_and_rule_baseline.ipynb", 1_000_000),
-    ("02_prompt_and_knowledge_design", "02_llm_prompt_and_knowledge.ipynb", 1_000_000),
-    ("03_watershed_hydrology_and_cv", "03_hydrocnhs_cv_and_coupling.ipynb", 1_000_000),
-    ("04_multi_reservoir_hybrid_cascade", "04_xindian_hybrid_cascade.ipynb", 1_000_000),
-    ("05_odd_llm_reproducibility_and_audit", "05_odd_llm_reproducibility.ipynb", 1_000_000),
+    ("01_hydrocnhs_watershed_inflows", "01_hydrocnhs_watershed_inflows.ipynb", 1_000_000),
+    ("02_reservoir_and_agent_setup", "02_reservoir_and_agent_setup.ipynb", 1_000_000),
+    ("03_run_single_reservoir_simulation", "03_run_single_reservoir_simulation.ipynb", 1_000_000),
+    ("04_run_multi_reservoir_cascade", "04_run_multi_reservoir_cascade.ipynb", 1_000_000),
 )
 
 
@@ -44,12 +43,13 @@ def _decode_png_payload(encoded: str | list[str]) -> None:
 )
 def test_tutorial_module_structure_hygiene_and_png_outputs(folder_name, notebook_name, max_bytes):
     module_dir = TUTORIALS_DIR / folder_name
-    readme_path = module_dir / "README.md"
-    nb_path = module_dir / notebook_name
-
     assert module_dir.is_dir(), f"missing module folder: {folder_name}"
-    assert readme_path.is_file(), f"missing README.md in {folder_name}"
-    assert readme_path.read_text(encoding="utf-8").strip(), f"empty README.md in {folder_name}"
+    for guide_name in ("README.md", "README.zh-TW.md", "README.zh-CN.md"):
+        guide_path = module_dir / guide_name
+        assert guide_path.is_file(), f"missing {guide_name} in {folder_name}"
+        assert guide_path.read_text(encoding="utf-8").strip(), f"empty {guide_name} in {folder_name}"
+
+    nb_path = module_dir / notebook_name
     assert nb_path.is_file(), f"missing notebook {notebook_name} in {folder_name}"
 
     raw_bytes = nb_path.read_bytes()
@@ -112,30 +112,15 @@ def test_tutorial_module_executes_offline_cleanly(folder_name, notebook_name, _m
             source = "".join(cell["source"])
             exec(compile(source, f"{nb_path}:{cell.get('id')}", "exec"), namespace)
 
-        if folder_name == "05_odd_llm_reproducibility_and_audit":
+        if folder_name == "03_run_single_reservoir_simulation":
             assert namespace["verification"]["status"] == "PASS"
-            assert set(namespace["manifest"]["blocks"]) == {
-                "A_cognitive_architecture",
-                "B_identity",
-                "C_inference_configuration",
-                "D_behavioral_submodel",
-                "E_validation",
-            }
-            agent_c = namespace["manifest"]["blocks"]["C_inference_configuration"]["agents"]["FEWalter"]
-            snap = agent_c["server_runtime_snapshot"]["primary"]
+            agent_env = namespace["runtime_environment"]["agents"]["FEWalter"]
+            snap = agent_env["server_runtime_snapshot"]["primary"]
             assert snap["server_version"]
             assert str(snap["model_digest_sha256"]).startswith("sha256:")
-            res_d = namespace["manifest"]["blocks"]["D_behavioral_submodel"]["resolution"]
-            assert res_d["physical_clipping_steps"] >= 1
+            assert agent_env["seed"] == 3
             assert namespace["tamper_caught"] is True
-            for heading in (
-                "## Block A — Cognitive Architecture",
-                "## Block B — Identity",
-                "## Block C — Inference Configuration",
-                "## Block D — Behavioral Submodel",
-                "## Block E — Validation & SHA-256 Verification Summary",
-            ):
-                assert heading in namespace["odd_markdown"]
+            assert namespace["balance_residual"] < 1e-6
 
         assert not (ROOT / "runs").exists()
         assert not (TUTORIALS_DIR / "runs").exists()

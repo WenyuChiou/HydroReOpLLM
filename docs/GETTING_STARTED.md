@@ -53,7 +53,6 @@ reservoir-experiment init-examples
 | `reservoir-experiment prepare` | Coupled HydroCNHS only: runs catchment hydrology and writes `inflows.csv`. |
 | `reservoir-experiment run` | Runs reservoir operations into a fresh folder (add `--allow-network` for live LLMs). |
 | `reservoir-experiment verify` | Checks mass balance, routing convolution, timestamps, and saved logs (`<output>`). |
-| `reservoir-experiment export-odd` | Reads or builds `odd_llm_manifest.json` for `<output>` and exports an ODD+LLM Markdown report (`--markdown-out`). |
 | `reservoir-experiment resume` | Replays completed steps from `--from-run` into a fresh `--output` and `--run-id`. |
 | `reservoir-experiment init-examples` | Copies bundled `fe_walter` and `multi_reservoir` examples into `[dir]`. |
 

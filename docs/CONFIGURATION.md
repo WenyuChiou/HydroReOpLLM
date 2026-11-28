@@ -1,95 +1,62 @@
-# Experiment configuration
+# Key Configs & File Map
 
 <div class="hero-band" markdown="1">
 
-Every experiment starts from a top-level YAML file that links your physical basin, operating rules or LLMs, and simulation clock. Start from the [Single-reservoir case (F.E. Walter)](../examples/fe_walter/README.md), the [Multi-reservoir case](../examples/multi_reservoir/README.md), or the modular split-file layout below.
+Every HydroReOpLLM experiment connects **4 key user-facing file layers** from one top-level YAML file. Start with the [Single-reservoir case (F.E. Walter)](../examples/fe_walter/README.md) or [Multi-reservoir case](../examples/multi_reservoir/README.md), and use the 1-to-1 file map below when adapting your own basin.
 
 </div>
 
-## Three building blocks of an experiment
+## Minimal starter bundle for your own basin
 
-<div class="panel-grid panel-grid-3" markdown="1">
-<div class="panel-card" markdown="1">
-
-### Block A: Physical basin & inflows
-
-Reservoir capacities, dead storage, release limits, routing lags (`case.json` or `reservoirs.yaml`), plus either `inflows.csv` or `hydrology.yaml`.
-
-</div>
-<div class="panel-card" markdown="1">
-
-### Block B: Operators, info & models
-
-One rule or LLM agent per controlled dam (`agents`), optional gauge/forecast feeds (`information`), model profiles (`models`), and `auditors`.
-
-</div>
-<div class="panel-card" markdown="1">
-
-### Block C: Clock & output
-
-Unique `run_id`, unused `output` folder, operation dates (`start_date`–`end_date` or UTC `start_time`–`end_time`), and `max_calls`.
-
-</div>
-</div>
+- **Rule-based baseline (3 files):** `<experiment>.yaml` (e.g., `rule_based.yaml`) + `case.json` + `inflows.csv` *(plus `*_statistics.json` for Hanasaki)*.
+- **Standard SI LLM run (5 files):** Add `prompts/system.txt` + `prompts/user.txt` *(returns `release_cms` directly — **no custom Python or `study/` folder required**)*.
 
 <figure class="figure-card">
-  <img src="assets/diagrams/package-structure.svg" alt="HydroReOpLLM configuration layout connecting experiment.yaml, case, hydrology, agents, models, and information">
-  <figcaption><strong>Configuration file layout.</strong> Each YAML file resolves relative paths from its own folder.</figcaption>
+  <img src="assets/diagrams/package-structure.svg" alt="HydroReOpLLM 4 key configuration layers: experiment YAML, hydrology, reservoir case, and agent definitions">
+  <figcaption><strong>Four key config layers.</strong> All relative paths resolve from the YAML file that declares them.</figcaption>
 </figure>
 
-## Schema versions and relative paths
+## 1-to-1 real file map (`examples/` and modular `v2`)
 
-| `schema_version` | Hydrology | `{file: ...}` sections | Typical use |
+| Config layer | Real filenames in `examples/` (and `v2` split names) | Required? | What this file controls | Where to inspect fields |
+| --- | --- | --- | --- | --- |
+| **1. Experiment entry** | `rule_based.yaml`, `seasonal_target.yaml`, `dkp.yaml`, `hybrid_llm.yaml` *(or `experiment.yaml`)* | **Yes** | Run ID, simulation dates, links to Layers 2–4, `models`, `agents`, `max_calls`, `output`. | Top-level keys below |
+| **2. Hydrology & inflows** | `inflows.csv` | Direct inflow | Daily local lateral runoff per non-dam node (`date,node,local_inflow_cms`). | [Inflows & HydroCNHS](HYDROLOGY_SETUP.md) |
+| | `hydrology/hydrology.yaml` + `xindian_catchments.yaml` + `forcing.csv(.gz)` | Coupled only | HydroCNHS watershed model (`GWLF`/`ABCD` + `Lohmann`), climate forcing & `inflow_bindings`. | [Inflows & HydroCNHS](HYDROLOGY_SETUP.md) |
+| **3. Reservoir network** | `case.json` *(or `rule_case.json`, `reservoirs.yaml`)* | **Yes** | Dam capacities, dead storage, release bounds `[min, max]`, and `unit_hydrograph` lags. | [Reservoir network & routing](MULTI_RESERVOIR.md) |
+| **4. Decision agents** | `rule_statistics.json`, `feitsui_statistics.json`, `zhitan_statistics.json` | Hanasaki | Long-term mean inflows for Hanasaki flood-control parameterization. | [Rules, prompts & knowledge](AGENT_DESIGN.md) |
+| | `prompts/*.system.txt`, `prompts/*.user.txt`, optional `dkp.md` | LLM | Standing rules, daily template placeholders, and optional operating manual rules. | [Rules, prompts & knowledge](AGENT_DESIGN.md) |
+| | `information.yaml` *(optional)* & `models:` / `models.yaml` | Optional / LLM | Non-leaking gauge/forecast feeds and Ollama / cloud LLM settings (`seed`, `temperature`). | [Gauges & forecasts](INFORMATION.md) · [Model providers](MODEL_PROVIDERS.md) |
+
+<div class="callout callout-info" markdown="1">
+
+**Note on `study/` folders in `examples/`.** Files under `study/` (such as `formatter.py`, `response_schemas.json`, `archived_releases.csv`, `replay.py`) only handle paper score replay or imperial site-unit formatting (`ft` / `cfs`). Custom SI-unit (`m3` / `m3/s`) basins do **not** need `study/`.
+
+</div>
+
+## Schema versions & modular `{file: ...}` splits
+
+| `schema_version` | Hydrology | `{file: ...}` split sections | Typical use |
 | --- | --- | --- | --- |
-| `llm-reservoir-experiment.v1` | Prepared inflows | Inline | Single-reservoir F.E. Walter and multi-reservoir cascade (`inflows.csv` + `case.json`). |
-| `llm-reservoir-experiment.v2` | Prepared inflows | `models`, `agents`, `auditors`, `extensions`, `information` | Modular prepared-inflow studies across separate YAML files. |
+| `llm-reservoir-experiment.v1` | Prepared `inflows.csv` | Inline | Single-dam F.E. Walter and Xindian cascade examples. |
+| `llm-reservoir-experiment.v2` | Prepared `inflows.csv` | `models`, `agents`, `auditors`, `extensions`, `information` | Large prepared-inflow studies split across clean files. |
 | `hydroops-coupled-simulation.v1` | Coupled HydroCNHS | Inline | Single-file coupled watershed + reservoir study. |
-| `hydroops-coupled-simulation.v2` | Coupled HydroCNHS | `hydrology`, `models`, `agents`, `auditors`, `extensions`, `information` | Recommended modular layout for multi-reservoir and hybrid basins. |
+| `hydroops-coupled-simulation.v2` | Coupled HydroCNHS | `hydrology`, `models`, `agents`, `auditors`, `extensions`, `information` | Recommended modular layout for coupled multi-dam studies. |
 
-- All paths (`case`, `output`, `prompt_file`, `knowledge`, CSVs) resolve relative to the **declaring** YAML file.
-- Each `{file: ...}` reference replaces that entire top-level section; do not mix inline keys inside a `{file: ...}` block.
-
-## Top-level experiment keys
+## Top-level YAML keys & common pitfalls
 
 | Key | Required | Purpose |
 | --- | --- | --- |
-| `schema_version` | Yes | Selects `v1`/`v2` prepared-inflow or coupled HydroCNHS format. |
-| `run_id` | Yes | Unique label saved in `summary.json` and step logs. |
-| `output` | Yes | Fresh output folder path (existing folders are never overwritten). |
-| `case` | Yes | `case.json` or `reservoirs.yaml` defining reservoirs, routing, and prepared inflow file links. |
-| `start_date` / `end_date` | Daily | Quoted `YYYY-MM-DD` inclusive operation dates. |
-| `start_time` / `end_time` / `time` | Sub-daily | UTC timestamps (exclusive `end_time`) and `{simulation_step, output_step}` for hourly runs. |
-| `hydrology` | Coupled | HydroCNHS catchment model, weather forcing, and `inflow_bindings`. |
-| `agents` | Yes | Assigns one operator (`rule_based`, `llm`, or `offline`) per controlled reservoir. |
-| `models` | LLM runs | Named Ollama or cloud LLM profiles ([Model providers](MODEL_PROVIDERS.md)). |
-| `auditors` | No | Diagnostic checks (`release_bounds`, `field_range`) applied to requested releases. |
-| `extensions` | No | Registered Python rule packages (e.g., `hanasaki: study/rule/__init__.py`). |
-| `information` | No | Gauge, forecast, guide-curve, and upstream-state feeds ([Gauges & forecasts](INFORMATION.md)). |
-| `outcome_checks` | No | Post-routing downstream flow checks (`minimum_cms`, `maximum_cms`) at junctions or outlets. |
-| `max_calls` | Recommended | Maximum total LLM calls (`0` for offline/rule runs; `>= llm_agents * steps` for live runs). |
-
-## Setup order and YAML rules
-
-<div class="pipeline-strip">
-  <div class="pipeline-step"><strong>1. Run &amp; dates</strong><code>run_id</code>, unused <code>output</code>, quoted dates</div>
-  <div class="pipeline-arrow">→</div>
-  <div class="pipeline-step"><strong>2. Hydrology</strong><code>inflows.csv</code> or <code>hydrology.yaml</code></div>
-  <div class="pipeline-arrow">→</div>
-  <div class="pipeline-step"><strong>3. Reservoirs</strong>Storage, bounds &amp; routing lags</div>
-  <div class="pipeline-arrow">→</div>
-  <div class="pipeline-step"><strong>4. Operators</strong>1 agent per controlled dam</div>
-  <div class="pipeline-arrow">→</div>
-  <div class="pipeline-step"><strong>5. Info &amp; models</strong><code>models.yaml</code>, prompts, <code>information</code></div>
-  <div class="pipeline-arrow">→</div>
-  <div class="pipeline-step"><strong>6. Check</strong><code>reservoir-experiment check</code></div>
-</div>
+| `schema_version`, `run_id`, `output`, `case` | **Yes** | Config format version, unique run label, unused output folder, and `case.json`/`reservoirs.yaml`. |
+| `start_date`, `end_date` *(or `start_time`/`end_time`/`time`)* | **Yes** | Quoted inclusive `YYYY-MM-DD` dates (or UTC `...Z` timestamps for fixed sub-daily intervals). |
+| `hydrology` | Coupled | Links `hydrology.yaml` when running HydroCNHS before reservoir operations. |
+| `agents` | **Yes** | One `rule_based`, `llm`, or `offline` operator per controlled reservoir. |
+| `models` | LLM | Named Ollama or cloud profiles (`seed`, `temperature`, `max_tokens`, timeouts). |
+| `information`, `auditors`, `outcome_checks`, `extensions` | No | Non-leaking gauges/forecasts, diagnostic bound checks, and custom Python rules. |
+| `max_calls` | Recommended | LLM call budget cap (`0` for rule/offline runs; `>= llm_agents * steps` for live runs). |
 
 <div class="callout callout-warn" markdown="1">
 
-**Common YAML pitfalls.** Duplicate keys in any YAML section are rejected so repeated entries cannot silently overwrite settings. Always include `+` or `-` in scientific notation (`8.0e+6` or `8000000.0`), because YAML parses `8.0e6` as text.
+**Two YAML rules that save debugging time.** Duplicate keys in any block are rejected, and scientific notation **must include `+` or `-`** (`8.0e+6` or `8000000.0`, never `8.0e6`). Validate anytime with `reservoir-experiment check <config.yaml>`.
 
 </div>
-
-- **Operators (`agents`)**: Choose `type: rule_based`, `type: llm`, or `mode: offline` ([Rules & LLM prompts](AGENT_DESIGN.md)).
-- **Auditors (`auditors`)**: Check `release_bounds` (`tolerance_cms`) or `field_range` (`path`, `minimum`, `maximum`, `on_violation: FAIL | WARN`) without altering flows.
-- **Outcome checks (`outcome_checks`)**: Flag downstream flood exceedances or low-flow deficits at junctions or outlets after routing completes.

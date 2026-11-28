@@ -1,49 +1,34 @@
-# HydroReOpLLM 实战教程课程
+# HydroReOpLLM 实战教程（4 步流程）
 
-全系列 5 个模块均可 **100% 离线运行（`0` API 费用）**，所有输出仅写入系统临时目录，并已预生成清晰诊断图表，打开即可直接查看。
-
-<p align="center">
-  <img src="../docs/assets/figures/fig1-framework.png" alt="HydroCNHS 与 HydroReOpLLM 闭环耦合模拟架构" width="88%">
-  <br>
-  <em>固定 HydroCNHS 集水区入流、物理约束与河道演进，安全替换 Rule-based、自定义 Python 或 LLM 水库调度员。</em>
-</p>
+全系列 4 堂实战课均可 **100% 离线运行（`0` API 费用）**，所有模拟仅在临时目录中执行，并已预存高分辨率结果图表。学习顺序直接对应真实建模流程：**HydroCNHS 集水区水文 → 水库与 Agent 配置 → 单库模拟跑完验证 → 多库串联耦合实战**。
 
 ## 学习路线图
 
 ```mermaid
 flowchart LR
-    M1["01 离线规则基准<br/>(F.E. Walter Hanasaki)"] --> M2["02 提示词与 DKP<br/>(10-Seed LLM 表现)"]
-    M2 --> M3["03 集水区 C&V<br/>(HydroCNHS 耦合)"]
-    M3 --> M4["04 梯级联合调度<br/>(翡翠 LLM + 直潭规则)"]
-    M4 --> M5["05 ODD+LLM 审计<br/>(快照 SHA、Seed 与篡改检测)"]
+    T1["01 HydroCNHS 集水区水文<br/>率定验证与 inflows.csv"] --> T2["02 水库河网与 Agent 配置<br/>case.json + 规则 / LLM / DKP"]
+    T2 --> T3["03 运行单库模拟与验证<br/>F.E. Walter 跑完与结果检查"]
+    T3 --> T4["04 运行多库串联模拟<br/>新店溪翡翠 LLM + 直潭规则"]
 ```
 
-## 按核心问题选择实战模块
-
-| 模块 | 本章回答的核心问题 | 示例流域 | 入口 |
+| 步骤 | 课程主题与关键文件 | 示范流域 | 入口 |
 | --- | --- | --- | --- |
-| **01** | 水库水量平衡与河道演进引擎是否严格闭合？ | F.E. Walter（`2021`，论文基准） | [导读](01_setup_and_first_run/README.md) · [Notebook](01_setup_and_first_run/01_setup_and_rule_baseline.ipynb) |
-| **02** | 引入水库运行规程（`dkp.md`）能否提升 10-seed LLM 调度表现？ | F.E. Walter（`2021`，离线回放） | [导读](02_prompt_and_knowledge_design/README.md) · [Notebook](02_prompt_and_knowledge_design/02_llm_prompt_and_knowledge.ipynb) |
-| **03** | 如何率定验证多子集水区 HydroCNHS 并确保无重叠耦合入流？ | 台湾新店溪（`2016–2025`，**仓库专属示例，未收录于论文**） | [导读](03_watershed_hydrology_and_cv/README.md) · [Notebook](03_watershed_hydrology_and_cv/03_hydrocnhs_cv_and_coupling.ipynb) |
-| **04** | 如何串联上游 LLM（翡翠水库）与下游规则坝（直潭坝）并验证联合防洪？ | 台湾新店溪（`2025`，**仓库专属示例，未收录于论文**） | [导读](04_multi_reservoir_hybrid_cascade/README.md) · [Notebook](04_multi_reservoir_hybrid_cascade/04_xindian_hybrid_cascade.ipynb) |
-| **05** | 如何证明实验可复现性（ODD+LLM、Ollama/模型 SHA、Seed 与篡改检测）？ | F.E. Walter（`dkp` 离线 LLM 审计） | [导读](05_odd_llm_reproducibility_and_audit/README.md) · [Notebook](05_odd_llm_reproducibility_and_audit/05_odd_llm_reproducibility.ipynb) |
-| **沙盒** | 可选：论文 Figure 3 复现与本地 Ollama 实机调用体验 | F.E. Walter（`2021`） | [Notebook (`fe_walter.ipynb`)](fe_walter.ipynb) |
+| **01** | **HydroCNHS 集水区水文**：检查 `hydrology.yaml` 与 `xindian_catchments.yaml`、确认子集水区零重叠、检验 10 年率定验证与 `inflows.csv` 一致性。 | 台湾新店溪（`2016–2025`，**仓库专属示例，未收录于论文**；TFRA／经济部水利署） | [简中导读](01_hydrocnhs_watershed_inflows/README.zh-CN.md) · [Notebook](01_hydrocnhs_watershed_inflows/01_hydrocnhs_watershed_inflows.ipynb) |
+| **02** | **水库物理与 Agent 配置**：检查 `case.json` 库容／上下限／单位线，对比 `rule_based.yaml`、`seasonal_target.yaml`、`dkp.yaml`（`prompts/`、`dkp.md`）并离线执行 `check`。 | F.E. Walter（`2021`，论文基准） | [简中导读](02_reservoir_and_agent_setup/README.zh-CN.md) · [Notebook](02_reservoir_and_agent_setup/02_reservoir_and_agent_setup.ipynb) |
+| **03** | **运行单库模拟与结果验证**：实际运行 `run` → `verify`、对比规则与 10-seed LLM 表现，并查看物理限幅、`summary.json` 内的模型 SHA／`seed` 记录与篡改检测。 | F.E. Walter（`2021`） | [简中导读](03_run_single_reservoir_simulation/README.zh-CN.md) · [Notebook](03_run_single_reservoir_simulation/03_run_single_reservoir_simulation.ipynb) |
+| **04** | **运行多库串联耦合模拟**：将上游翡翠水库 LLM、3 日 Lohmann 河道演进与下游直潭坝 Hanasaki 串接跑完 2025 全年，验证水量平衡闭合与台风联合防洪。 | 台湾新店溪（`2025`，**仓库专属示例，未收录于论文**） | [简中导读](04_run_multi_reservoir_cascade/README.zh-CN.md) · [Notebook](04_run_multi_reservoir_cascade/04_run_multi_reservoir_cascade.ipynb) |
+| **选修** | 论文 Figure 3 完整复现与本地 Ollama 实机联网测试沙盒。 | F.E. Walter（`2021`） | [Notebook (`fe_walter.ipynb`)](fe_walter.ipynb) |
 
-## 替换为您的专属流域（零 Python 公共配置架构）
+## 套用到自己流域的 4 个关键配置文件
 
-| 替换层级 | 编辑这些文件 | 公共 Schema ／ CLI 要点 |
-| --- | --- | --- |
-| **集水区与入流** | `inflows.csv` 或 `hydrology.yaml` | `reservoir-experiment prepare`（`routed:`／`runoff:` 零重叠） |
-| **水库物理与演进** | `case.json`／`reservoirs.yaml` | 统一采用 SI 单位（`m3`、`m3/s`）、科学计数法写 `8.0e+6`、UH 总和 `= 1.0` |
-| **调度策略与知识** | `rule_based.yaml` 或 `type: llm` + `prompts/` + `dkp.md` | 公共 `reservoir-action.v1`（`study/formatter.py` 仅用于论文英制单位扩展） |
-| **切换本地 Ollama** | `models.yaml` + `information.yaml` | `ollama pull gemma4:12b`，调高 `max_calls` 并添加 `--allow-network` |
-| **审稿人回放与审计** | `odd_llm_manifest.json` + `archived_releases.csv` | `verify --require-offline` 与 `export-odd --markdown-out ODD_LLM.md` |
-
-## 本地启动方式
+1. **主实验 YAML**（`<实验名>.yaml` 或 `experiment.yaml`）：模拟起止日、`case`、`models`、`agents`、`max_calls`、`output`。
+2. **水文与入流**（`hydrology/hydrology.yaml` + HydroCNHS YAML + `forcing.csv(.gz)`，或直接提供 `inflows.csv`）。
+3. **水库河网物理**（`case.json` 或 `reservoirs.yaml`）：库容、下泄约束、`unit_hydrograph`（科学计数法写 `8.0e+6`、UH 总和 `= 1.0`）。
+4. **决策 Agent**（Hanasaki 用 `*_statistics.json`，或 LLM 用 `prompts/*.txt` ＋ 可选 `dkp.md` ＋ 可选 `information.yaml`）。
 
 ```sh
 python -m pip install -c environment/requirements-bundled.txt . jupyterlab ipykernel
-python -m jupyterlab tutorials/01_setup_and_first_run/01_setup_and_rule_baseline.ipynb
+python -m jupyterlab tutorials/01_hydrocnhs_watershed_inflows/01_hydrocnhs_watershed_inflows.ipynb
 ```
 
-在右上角选择 `.venv` 内核后点击 **Run → Run All Cells**。延伸阅读：[安装与 CLI 命令](../docs/GETTING_STARTED.zh-CN.md) · [结果解读与 ODD+LLM](../docs/RESULTS_GUIDE.zh-CN.md) · [F.E. Walter 案例](../examples/fe_walter/README.zh-CN.md) · [新店溪案例（TFRA / 经济部水利署）](../examples/multi_reservoir/README.zh-CN.md)。
+延伸阅读：[安装与 CLI 命令](../docs/GETTING_STARTED.zh-CN.md) · [关键配置文件总览](../docs/CONFIGURATION.zh-CN.md) · [结果解读与运行信息](../docs/RESULTS_GUIDE.zh-CN.md)。
