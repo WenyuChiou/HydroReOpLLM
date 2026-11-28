@@ -58,10 +58,10 @@ inflow_bindings:
 | Field | Required | Role |
 | --- | --- | --- |
 | `model` | Yes | Calibrated HydroCNHS YAML (`RainfallRunoff: GWLF \| ABCD`, `Routing: Lohmann`, `ABM: null`). |
-| `forcing` | Yes | Daily or hourly weather CSV (`.csv` or `.csv.gz`). |
+| `forcing` | Yes | Daily weather CSV (`.csv` or `.csv.gz`). |
 | `zero_flow_nodes` | No | Native outlets fixed at `0.0 m³/s` without weather entries. |
 | `inflow_bindings` | Yes | 1-to-1 map for every inlet, junction, and outlet (`runoff`, `routed`, or `constant: 0`). |
-| `engine` | No | Default `gwlf_daily`; set `gwlf_hourly` with `forcing_step: hourly` for hourly GWLF. |
+| `engine` | No | Default `gwlf_daily` (`forcing_step: daily`); for sub-daily runs, supply precomputed `inflows.csv` directly. |
 | `diagnostics` | No | When `true`, exports per-subbasin GWLF state and balance diagnostics during `prepare`. |
 | `prepared_from` | No | Path to an earlier completed `prepare` folder to reuse matching inflows. |
 
@@ -84,7 +84,7 @@ date,subbasin_id,precipitation_mm,temperature_c,pet_cm
 
 ## GWLF initial states and calibration boundary
 
-- GWLF initializes `S0`, `U0`, `SnowS`, and `B0`/`BF0` from your HydroCNHS model file (daily `BF0` is a discharge depth, not an hourly deep-storage volume; see [Hourly GWLF (experimental)](HOURLY_GWLF.md)).
+- GWLF initializes `S0`, `U0`, `SnowS`, and `B0`/`BF0` from your HydroCNHS model file (`BF0` is a daily discharge depth).
 - HydroReOpLLM runs your calibrated HydroCNHS parameters as supplied; catchment calibration and bias correction stay upstream of coupling.
 
 ## How reservoirs connect to river routing
@@ -98,5 +98,5 @@ Run `reservoir-experiment prepare experiment.yaml` to inspect watershed inflows 
 | Output artifact | Location | What to check |
 | --- | --- | --- |
 | `inflows.csv` | `<output>/` | Simulated incremental local inflows (`m³/s`) over the operation window. |
-| `hydrology_diagnostics.json`, `hydrology_state.json` | `<output>/` | Subbasin GWLF fluxes, residuals, and final states (when `diagnostics: true` or hourly). |
+| `hydrology_diagnostics.json`, `hydrology_state.json` | `<output>/` | Subbasin GWLF fluxes, residuals, and final states (when `diagnostics: true`). |
 | `network_balance.csv`, `reach_volume_trace.json` | `<output>/operation/` | Reservoir + channel mass balance (`m³`) across the full run (`system_residual_m3` near `0`). |

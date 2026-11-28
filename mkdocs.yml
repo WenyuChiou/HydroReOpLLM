@@ -22,67 +22,64 @@ markdown_extensions:
 nav:
   - English:
     - Overview: index.md
-    - Installation & workflow:
+    - Quickstart & key configs:
         - Installation & CLI: GETTING_STARTED.md
-        - Experiment setup: CONFIGURATION.md
-        - Run, verify & resume: RUNNING.md
-        - Reading results: RESULTS_GUIDE.md
-    - Watershed & hydrology:
+        - Key configs & file map: CONFIGURATION.md
+    - Hydrology & reservoir network:
         - Inflows & HydroCNHS: HYDROLOGY_SETUP.md
-        - Multi-reservoir networks: MULTI_RESERVOIR.md
+        - Reservoir network & routing: MULTI_RESERVOIR.md
         - Time scales & units: TIME_SCALES.md
-        - Hourly GWLF (experimental): HOURLY_GWLF.md
-    - Reservoir operators:
-        - Rules & LLM prompts: AGENT_DESIGN.md
+    - Reservoir agents:
+        - Rules, prompts & knowledge: AGENT_DESIGN.md
         - Gauges & forecasts: INFORMATION.md
         - Model providers: MODEL_PROVIDERS.md
-    - Examples & tutorials:
+    - Run, verify & results:
+        - Run, verify & resume: RUNNING.md
+        - Results & runtime metadata: RESULTS_GUIDE.md
+    - Tutorials & cases:
+        - 4-step tutorials (01–04): tutorials/index.md
         - Single-reservoir case (F.E. Walter): examples/fe_walter/index.md
-        - Interactive notebook: tutorials/index.md
-        - Multi-reservoir case: examples/multi_reservoir/index.md
-    - Help:
+        - Multi-reservoir case (Xindian River): examples/multi_reservoir/index.md
         - Troubleshooting: TROUBLESHOOTING.md
   - 繁體中文:
     - 套件總覽: zh-TW.md
-    - 安裝與執行流程:
+    - 快速上手與關鍵設定:
         - 安裝與 CLI 指令: GETTING_STARTED.zh-TW.md
-        - 實驗設定檔: CONFIGURATION.zh-TW.md
-        - 執行、驗證與續跑: RUNNING.zh-TW.md
-        - 結果判讀與水量平衡: RESULTS_GUIDE.zh-TW.md
-    - 集水區與水文河網:
+        - 關鍵設定檔總表: CONFIGURATION.zh-TW.md
+    - 水文入流與水庫河網:
         - 入流與 HydroCNHS 設定: HYDROLOGY_SETUP.zh-TW.md
-        - 多水庫河網串接: MULTI_RESERVOIR.zh-TW.md
+        - 水庫物理與河網串接: MULTI_RESERVOIR.zh-TW.md
         - 時間尺度與單位: TIME_SCALES.zh-TW.md
-        - 逐時 GWLF（實驗性）: HOURLY_GWLF.zh-TW.md
-    - 水庫操作決策:
-        - 操作規則與 LLM 設計: AGENT_DESIGN.zh-TW.md
+    - 水庫決策 Agent 設定:
+        - 操作規則與 LLM 提示詞: AGENT_DESIGN.zh-TW.md
         - 水情測站與預報: INFORMATION.zh-TW.md
-        - 模型服務設定: MODEL_PROVIDERS.zh-TW.md
-    - 範例與實作教學:
+        - 模型服務連線: MODEL_PROVIDERS.zh-TW.md
+    - 執行驗證與結果判讀:
+        - 執行、驗證與續跑: RUNNING.zh-TW.md
+        - 結果判讀與運行資訊: RESULTS_GUIDE.zh-TW.md
+    - 實作課程與案例:
+        - 四步實作課程（01–04）: tutorials/index.zh-TW.md
         - 單一水庫案例（F.E. Walter）: examples/fe_walter/index.zh-TW.md
-        - 互動式 Notebook 教學: tutorials/index.zh-TW.md
-        - 多水庫串聯案例: examples/multi_reservoir/index.zh-TW.md
-    - 常見問題:
+        - 多水庫串聯案例（新店溪）: examples/multi_reservoir/index.zh-TW.md
         - 常見問題與排解: TROUBLESHOOTING.zh-TW.md
   - 简体中文:
     - 工具包总览: zh-CN.md
-    - 安装与运行流程:
+    - 快速上手与关键配置:
         - 安装与 CLI 命令: GETTING_STARTED.zh-CN.md
-        - 实验配置文件: CONFIGURATION.zh-CN.md
-        - 运行、验证与续跑: RUNNING.zh-CN.md
-        - 结果判读与水量平衡: RESULTS_GUIDE.zh-CN.md
-    - 集水区与水文河网:
+        - 关键配置文件总表: CONFIGURATION.zh-CN.md
+    - 水文入流与水库河网:
         - 入流与 HydroCNHS 配置: HYDROLOGY_SETUP.zh-CN.md
-        - 多水库河网串联: MULTI_RESERVOIR.zh-CN.md
+        - 水库物理与河网串联: MULTI_RESERVOIR.zh-CN.md
         - 时间尺度与单位: TIME_SCALES.zh-CN.md
-        - 逐时 GWLF（实验性）: HOURLY_GWLF.zh-CN.md
-    - 水库操作决策:
-        - 操作规则与 LLM 设计: AGENT_DESIGN.zh-CN.md
+    - 水库决策 Agent 配置:
+        - 操作规则与 LLM 提示词: AGENT_DESIGN.zh-CN.md
         - 水情测站与预报: INFORMATION.zh-CN.md
         - 模型服务配置: MODEL_PROVIDERS.zh-CN.md
-    - 示例与实战教程:
-        - 单水库案例（F.E. Walter）: examples/fe_walter/index.zh-CN.md
-        - 实战教程与 Notebook: tutorials/index.zh-CN.md
-        - 多水库串联案例: examples/multi_reservoir/index.zh-CN.md
-    - 常见问题:
+    - 运行验证与结果判读:
+        - 运行、验证与续跑: RUNNING.zh-CN.md
+        - 结果解读与运行信息: RESULTS_GUIDE.zh-CN.md
+    - 实战课程与案例:
+        - 四步实战课程（01–04）: tutorials/index.zh-CN.md
+        - 单一水库案例（F.E. Walter）: examples/fe_walter/index.zh-CN.md
+        - 多水库串联案例（新店溪）: examples/multi_reservoir/index.zh-CN.md
         - 常见问题与排查: TROUBLESHOOTING.zh-CN.md

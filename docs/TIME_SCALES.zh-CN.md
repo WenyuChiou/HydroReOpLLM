@@ -35,8 +35,7 @@ F.E. Walter 水库案例与多水库串联案例均采用**逐日**（`dt_second
 ### 亚日固定步长模式（`v3`）
 
 - 使用 UTC `start_time` 与不含终点的 `end_time`（`...Z`）。
-- `inflows.csv` 使用 `timestamp` 字段（`interval-node-local-cms.v1`）。
-- 耦合逐时 HydroCNHS 支持 `3600` 秒（`run_GWLF_hourly` 与 `v3` 演进亦支持 `1800` / `900` 秒）。
+- `inflows.csv` 使用 `timestamp` 字段（`interval-node-local-cms.v1`），直接提供固定步长入流供 `v3` 演进使用。
 
 </div>
 </div>
@@ -50,4 +49,4 @@ time:
 ```
 
 - `output_step` 会在保留原生步长 CSV 的同时，额外输出 `network_flows_<output_step>.csv` 与 `reservoir_trajectory_<output_step>.csv`。
-- 切勿将逐日驱动或逐日单位线标记为逐时数据；更细步长须搭配时段对齐的气象驱动、演进权重与 `supported_dt_seconds`。接下来可参阅[逐时 GWLF（实验性）](HOURLY_GWLF.zh-CN.md)。
+- 切勿将逐日驱动或逐日单位线标记为逐时数据；更细步长须搭配时段对齐的预先计算的 `inflows.csv`、演进权重与 `supported_dt_seconds`。

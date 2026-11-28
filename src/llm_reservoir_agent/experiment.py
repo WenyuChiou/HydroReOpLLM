@@ -477,12 +477,8 @@ def run_experiment(config, rows, backends, *, output, run_id, project_root=PROJE
                 _csv(journal.output / name, list(table[0]), table)
                 summary.setdefault("additional_output_files", {})[name] = hashlib.sha256(
                     (journal.output / name).read_bytes()).hexdigest()
-        from .odd_llm import build_odd_llm_manifest
-        odd_manifest = build_odd_llm_manifest(journal.output, experiment=run_metadata, summary=summary)
-        odd_path = journal.output / "odd_llm_manifest.json"
-        write_json(odd_path, odd_manifest)
-        summary.setdefault("additional_output_files", {})["odd_llm_manifest.json"] = hashlib.sha256(
-            odd_path.read_bytes()).hexdigest()
+        from .runtime_provenance import build_runtime_environment
+        summary["runtime_environment"] = build_runtime_environment(journal.output, experiment=run_metadata)
         return records, journal.finalize(summary)
     except Exception as exc:
         failure = {"completed_reservoir_days": committed,

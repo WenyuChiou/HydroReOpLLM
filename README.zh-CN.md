@@ -10,7 +10,6 @@
 [![PyPI](https://img.shields.io/pypi/v/hydroreopllm?label=PyPI&color=0f766e)](https://pypi.org/project/hydroreopllm/)
 [![Python 3.12+](https://img.shields.io/badge/Python-3.12%2B-2563eb)](https://www.python.org/downloads/)
 [![BSD-3-Clause](https://img.shields.io/badge/License-BSD--3--Clause-475569)](LICENSE)
-[![ODD+LLM Reproducible](https://img.shields.io/badge/ODD%2BLLM-Reproducible-0d9488)](#内置-oddllm-可复现性框架)
 
 [English](README.md) · [繁體中文](README.zh-TW.md) · **简体中文**
 
@@ -26,7 +25,7 @@
 
 ## 60 秒快速上手
 
-需要 **Python 3.12 及以上版本**。可通过 PyPI 或源码安装，零 API 密钥即可跑通 F.E. Walter 离线基准（`check` → `run` → `verify` → `export-odd`）：
+需要 **Python 3.12 及以上版本**。可通过 PyPI 或源码安装，零 API 密钥即可跑通 F.E. Walter 离线基准（`check` → `run` → `verify`）：
 
 ```sh
 # 方式 A：通过 PyPI 安装并导出内置示例
@@ -44,7 +43,6 @@ python -m pip install -c environment/requirements-bundled.txt .
 reservoir-experiment check examples/fe_walter/rule_based.yaml
 reservoir-experiment run examples/fe_walter/rule_based.yaml
 reservoir-experiment verify runs/fe-walter-rule-based --require-offline
-reservoir-experiment export-odd runs/fe-walter-rule-based --markdown-out ODD_LLM_REPORT.md
 ```
 
 重复运行前请设置新的 `run_id` 与未使用的 `output` 目录。完整命令与输出详见[安装与 CLI 命令](https://wenyuchiou.github.io/HydroReOpLLM/GETTING_STARTED.zh-CN.html)及[结果解读与水量平衡](https://wenyuchiou.github.io/HydroReOpLLM/RESULTS_GUIDE.zh-CN.html)。
@@ -68,49 +66,42 @@ reservoir-experiment export-odd runs/fe-walter-rule-based --markdown-out ODD_LLM
 | 您想替换的模块 | 对应文件与配置键 | 手册章节 |
 | --- | --- | --- |
 | **1. 集水区水文与入流** | 自备 `inflows.csv` 或耦合 HydroCNHS `hydrology.yaml`（`GWLF`/`ABCD`） | [入流与 HydroCNHS 配置](https://wenyuchiou.github.io/HydroReOpLLM/HYDROLOGY_SETUP.zh-CN.html) |
-| **2. 水库物理规格与河道演进** | `case.json`／`reservoirs.yaml`、`capacity_m3`、`dead_storage_m3`、`unit_hydrograph` | [多水库河网串联](https://wenyuchiou.github.io/HydroReOpLLM/MULTI_RESERVOIR.zh-CN.html) · [实验配置文件](https://wenyuchiou.github.io/HydroReOpLLM/CONFIGURATION.zh-CN.html) |
+| **2. 水库物理规格与河道演进** | `case.json`／`reservoirs.yaml`、`capacity_m3`、`dead_storage_m3`、`unit_hydrograph` | [多水库河网串联](https://wenyuchiou.github.io/HydroReOpLLM/MULTI_RESERVOIR.zh-CN.html) · [关键配置文件总表](https://wenyuchiou.github.io/HydroReOpLLM/CONFIGURATION.zh-CN.html) |
 | **3. 操作策略与领域知识** | Hanasaki 规则、自定义 Python 扩展，或 LLM `prompts/`、`dkp.md`、`rule_curve.csv` | [操作规则与 LLM 设计](https://wenyuchiou.github.io/HydroReOpLLM/AGENT_DESIGN.zh-CN.html) |
 | **4. 模型服务与水情／预报** | `models.yaml`（Ollama、OpenAI、Gemini、Anthropic）与 `information.yaml`（不泄露未来水情） | [模型服务配置](https://wenyuchiou.github.io/HydroReOpLLM/MODEL_PROVIDERS.zh-CN.html) · [水情测站与预报](https://wenyuchiou.github.io/HydroReOpLLM/INFORMATION.zh-CN.html) |
 
-## 循序渐进实战课程（Packt 风格教程）
+## 循序渐进实战课程（4 步骤端到端流程）
 
-全系列模块均可 **100% 离线运行（`0` API 费用）**，统一遵循 **Setup → Operate → Execute → Inspect Results** 实战节奏：
+全系列模块均可 **100% 离线运行（`0` API 费用）**，从 HydroCNHS 集水区入流一路实战至水库与智能体配置及完整模拟验收：
 
-| 模块 | 主题 | 实战与验证重点 | 教程链接 |
+| 步骤 | 主题 | 实战与验证重点 | 教程链接 |
 | --- | --- | --- | --- |
-| **01** | 环境搭建与首次运行 | 安装、`check` 验证、离线跑通 F.E. Walter Hanasaki 基准并绘制蓄水与下泄图 | [`01_setup_and_first_run`](tutorials/01_setup_and_first_run/README.md) |
-| **02** | LLM 提示词与操作知识（DKP） | 对比 `seasonal_target.yaml` 与 `dkp.yaml`、查看第 1 天提示词与 JSON Schema 并评分 2021 回放 | [`02_prompt_and_knowledge_design`](tutorials/02_prompt_and_knowledge_design/README.md) |
-| **03** | 集水区水文与 10 年率定与验证 | 加载新店溪 4 子集水区 `hydrology.yaml`（`GWLF`）、验证 10 年 C&V（`2016–2025`）并绘制过程线 | [`03_watershed_hydrology_and_cv`](tutorials/03_watershed_hydrology_and_cv/README.md) |
-| **04** | 多水库串联与混合调度 | 配置 `feitsui → zhitan → xindian_outlet`、Lohmann 演进、经济部水利署（MOEA/WRA）运用规线与混合 LLM 回放 | [`04_multi_reservoir_hybrid_cascade`](tutorials/04_multi_reservoir_hybrid_cascade/README.md) |
-| **05** | ODD+LLM 可复现性与审计 | 查看 `odd_llm_manifest.json`（区块 A–E）、验证 SHA-256 轨迹并导出 ODD+LLM Markdown 报告 | [`05_odd_llm_reproducibility_and_audit`](tutorials/05_odd_llm_reproducibility_and_audit/README.md) |
+| **01** | HydroCNHS 集水区与入流 | 加载新店溪 4 子集水区 `hydrology.yaml`（`GWLF`）、验证 10 年 C&V（`2016–2025`）并检查 `inflows.csv` | [`01_hydrocnhs_watershed_inflows`](tutorials/01_hydrocnhs_watershed_inflows/README.zh-CN.md) |
+| **02** | 水库物理与智能体配置 | 对照关键配置文件（`experiment.yaml`、`reservoirs.yaml`、`models.yaml`、`prompts/`）、查看第 1 天提示词与 `dkp.md` | [`02_reservoir_and_agent_setup`](tutorials/02_reservoir_and_agent_setup/README.zh-CN.md) |
+| **03** | 单一水库模拟运行与验收 | 验证（`check`）、离线运行 F.E. Walter Hanasaki＋LLM 回放、查看 `summary.json` 并运行 `verify` | [`03_run_single_reservoir_simulation`](tutorials/03_run_single_reservoir_simulation/README.zh-CN.md) |
+| **04** | 多水库串联混合模拟 | 配置 `feitsui → zhitan → xindian_outlet`、Lohmann 演进、经济部水利署运用规线与混合式 LLM 串联回放 | [`04_run_multi_reservoir_cascade`](tutorials/04_run_multi_reservoir_cascade/README.zh-CN.md) |
 | **Notebook** | F.E. Walter 交互式实战 | 单一整合 Notebook：离线回放 2021 年 Figure 3 对比，并可选用本地 Ollama 实机运行 | [`tutorials/fe_walter.ipynb`](tutorials/fe_walter.ipynb) |
 
-## 内置 ODD+LLM 可复现性框架
+## 内置运行环境与模型追踪
 
-每次模拟完成后均自动生成 `odd_llm_manifest.json` 与 SHA-256 锁定的 `decisions.jsonl`／`raw/` 追踪记录，支持离线运行 `reservoir-experiment verify` 审计与 `reservoir-experiment export-odd` 导出报告：
+每次模拟完成后，系统会自动在 `summary.json` 与逐日／逐时段日志中保存完整可复现与审计信息，无需额外导出命令：
 
-| 区块 | 可复现性收录内容 |
-| --- | --- |
-| **区块 A — 认知架构（Cognitive Architecture）** | 智能体类型与策略、工作记忆（`history_steps`）、长期操作知识（`dkp.md`、运用规线）、不泄露未来水情的信息配置与物理行动边界。 |
-| **区块 B — 智能体身份与提示词（Identity）** | 角色设定与人设框架、提示词模板 ID／版本、`prompt_sha256` 哈希与锁定的源文件清单。 |
-| **区块 C — 推理配置（Inference Configuration）** | 确切模型 ID、服务提供商与端点、模型快照 SHA-256 摘要、Ollama 服务版本、量化规格、云端模型解析版本／`system_fingerprint`、解码超参数（`temperature`、随机种子（`seed`）、`max_tokens`、`num_ctx`、`think`）、重试／回退链与关键 Python 依赖版本及 HydroCNHS 运行环境版本。 |
-| **区块 D — 行为子模型（Signature、Binding 与 Resolution）** | 观测字段与 JSON 输出 Schema／解析器（`Signature`）、提示词变量与上下文／知识挂钩（`Binding`），以及重试、回退、物理限幅、溢洪与审计实测遥测（`Resolution`）。 |
-| **区块 E — 验证与审计（Validation）** | 水量平衡残差、离线 `verify` 命令与结果、输出与追踪文件 SHA-256 哈希及离线回放能力。 |
-
-查看示例完整报告：[`examples/fe_walter/ODD_LLM.md`](examples/fe_walter/ODD_LLM.md) · [`examples/multi_reservoir/ODD_LLM.md`](examples/multi_reservoir/ODD_LLM.md)。
+- **运行环境记录（`summary.json["runtime_environment"]`）**：Python 版本、HydroReOpLLM 与 HydroCNHS 核心提交／依赖版本、`source_file_sha256`，以及各水库智能体配置（`mode`、`provider`、`model`、`temperature`、`seed`、`max_tokens`、`num_ctx`）。
+- **实时模型快照**：自动记录 Ollama `server_runtime_snapshot`（`server_version`、`model_digest_sha256`、`quantization_level`）与云端实测的 `observed_model_versions` / `observed_system_fingerprints`。
+- **完整性与离线审计**：输出文件 `output_files` 的 SHA-256 哈希配合 `decisions.jsonl`、`physics.jsonl`、`audit.jsonl` 与 `raw/` 记录，支持离线运行 `reservoir-experiment verify`。
 
 ## 仓库结构、测试与许可证
 
 ```text
 HydroReOpLLM/
-├── src/llm_reservoir_agent/   # 水量平衡引擎、CLI、模型服务、ODD+LLM 清单与验证器
+├── src/llm_reservoir_agent/   # 水量平衡引擎、CLI、模型服务、运行环境记录与验证器
 ├── src/hydrocnhs/             # SHA-256 锁定的内置 HydroCNHS 水文模型（GWLF/ABCD + Lohmann）
 ├── examples/
-│   ├── fe_walter/             # 单一水库基准（Rule-based、seasonal_target、dkp、ODD_LLM.md）
-│   └── multi_reservoir/       # 台湾新店溪串联水库（10 年 HydroCNHS C&V、混合 LLM、ODD_LLM.md）
-├── tutorials/                 # 五单元离线实战课程（01..05）与交互式 fe_walter.ipynb
+│   ├── fe_walter/             # 单一水库基准（Rule-based、seasonal_target、dkp）
+│   └── multi_reservoir/       # 台湾新店溪串联水库（10 年 HydroCNHS C&V、混合 LLM）
+├── tutorials/                 # 4 步骤离线实战课程（01..04）与交互式 fe_walter.ipynb
 ├── docs/                      # 多语（EN / 繁體中文 / 简体中文）使用手册源文件
-└── tests/                     # 水量平衡、河道演进、模型服务、ODD+LLM 与打包测试
+└── tests/                     # 水量平衡、河道演进、模型服务、运行环境记录与打包测试
 ```
 
 运行测试套件：

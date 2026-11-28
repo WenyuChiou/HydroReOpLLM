@@ -1,49 +1,34 @@
 # HydroReOpLLM Step-by-Step Tutorials
 
-All 5 modules run **100% offline (`0` API cost)** inside temporary folders and ship with pre-rendered diagnostic plots.
+All 4 modules run **100% offline (`0` API cost)** inside temporary directories and follow the natural modeling sequence: **HydroCNHS Hydrology → Agent Setup → Single-Dam Run → Multi-Dam Cascade**.
 
-<p align="center">
-  <img src="../docs/assets/figures/fig1-framework.png" alt="Closed-loop HydroCNHS and HydroReOpLLM framework" width="88%">
-  <br>
-  <em>HydroCNHS watershed inflows and physical limits stay fixed while you swap Rule-based, Python, or LLM reservoir operators.</em>
-</p>
-
-## Learning Roadmap
+## Learning Path
 
 ```mermaid
 flowchart LR
-    M1["01 Offline Baseline<br/>(F.E. Walter Rule)"] --> M2["02 Prompt & DKP<br/>(10-Seed LLM Skill)"]
-    M2 --> M3["03 Watershed C&V<br/>(HydroCNHS Coupling)"]
-    M3 --> M4["04 Cascade Dispatch<br/>(Hybrid LLM + Rule)"]
-    M4 --> M5["05 ODD+LLM Audit<br/>(SHA, Seed & Tamper Check)"]
+    T1["01 HydroCNHS Hydrology<br/>C&V & inflows.csv"] --> T2["02 Reservoir & Agent Setup<br/>case.json + Rule / LLM / DKP"]
+    T2 --> T3["03 Run Single-Dam Study<br/>F.E. Walter run, verify & audit"]
+    T3 --> T4["04 Run Multi-Dam Cascade<br/>Xindian Feitsui LLM + Zhitan Rule"]
 ```
 
-## Choose a Module by Question
-
-| Module | Question It Answers | Basin | Start |
+| Step | Topic & Focus | Basin & Case | Entry |
 | --- | --- | --- | --- |
-| **01** | Does the water-balance & routing engine close mass balance? | F.E. Walter (`2021`, paper benchmark) | [Guide](01_setup_and_first_run/README.md) · [Notebook](01_setup_and_first_run/01_setup_and_rule_baseline.ipynb) |
-| **02** | Does operational knowledge (`dkp.md`) improve 10-seed LLM skill? | F.E. Walter (`2021`, offline replay) | [Guide](02_prompt_and_knowledge_design/README.md) · [Notebook](02_prompt_and_knowledge_design/02_llm_prompt_and_knowledge.ipynb) |
-| **03** | How do I couple and verify a multi-subbasin HydroCNHS watershed? | Taiwan Xindian River (`2016–2025`, **repo-only — not in paper**) | [Guide](03_watershed_hydrology_and_cv/README.md) · [Notebook](03_watershed_hydrology_and_cv/03_hydrocnhs_cv_and_coupling.ipynb) |
-| **04** | How do I coordinate an upstream LLM dam with a downstream rule dam? | Taiwan Xindian River (`2025`, **repo-only — not in paper**) | [Guide](04_multi_reservoir_hybrid_cascade/README.md) · [Notebook](04_multi_reservoir_hybrid_cascade/04_xindian_hybrid_cascade.ipynb) |
-| **05** | How do I prove reproducibility (`ODD+LLM`, Ollama/model SHA, tamper check)? | F.E. Walter (`dkp` offline LLM audit) | [Guide](05_odd_llm_reproducibility_and_audit/README.md) · [Notebook](05_odd_llm_reproducibility_and_audit/05_odd_llm_reproducibility.ipynb) |
-| **Sandbox** | Optional: Paper Figure 3 reproduction & live local Ollama playground | F.E. Walter (`2021`) | [Notebook (`fe_walter.ipynb`)](fe_walter.ipynb) |
+| **01** | **HydroCNHS Watershed Hydrology**: inspect `hydrology.yaml` & `xindian_catchments.yaml`, verify zero overlapping units, score 10-yr C&V (`KGE`), and check `inflows.csv` parity. | Taiwan Xindian River (`2016–2025`, **repo-only — not in paper**; TFRA & MOEA/WRA) | [Guide](01_hydrocnhs_watershed_inflows/README.md) · [Notebook](01_hydrocnhs_watershed_inflows/01_hydrocnhs_watershed_inflows.ipynb) |
+| **02** | **Reservoir Physics & Agent Setup**: inspect `case.json` storage/release/UH limits, compare `rule_based.yaml`, `seasonal_target.yaml`, and `dkp.yaml` (`prompts/`, `dkp.md`), and run offline `check`. | F.E. Walter Dam (`2021`, paper benchmark) | [Guide](02_reservoir_and_agent_setup/README.md) · [Notebook](02_reservoir_and_agent_setup/02_reservoir_and_agent_setup.ipynb) |
+| **03** | **Execute Single-Reservoir Simulation & Verify**: run full 2021 `run` → `verify`, compare Rule-based vs. 10-seed LLM results, and inspect clamping, `runtime_environment` (Ollama SHA & `seed`), and tamper checks. | F.E. Walter Dam (`2021`) | [Guide](03_run_single_reservoir_simulation/README.md) · [Notebook](03_run_single_reservoir_simulation/03_run_single_reservoir_simulation.ipynb) |
+| **04** | **Execute Multi-Reservoir Cascade**: couple upstream Feitsui LLM + Lohmann UH routing + downstream Zhitan Hanasaki across 2025, verify closed water balance, and inspect Typhoon Podul joint dispatch. | Taiwan Xindian River (`2025`, **repo-only — not in paper**) | [Guide](04_run_multi_reservoir_cascade/README.md) · [Notebook](04_run_multi_reservoir_cascade/04_run_multi_reservoir_cascade.ipynb) |
+| **Optional** | Full 2021 Figure 3 walkthrough + optional local Ollama live inference test. | F.E. Walter Dam (`2021`) | [Notebook (`fe_walter.ipynb`)](fe_walter.ipynb) |
 
-## Adapt to Your Own Basin (Zero-Python Public Schema)
+## Four Key Config Layers for Your Own Basin
 
-| Layer | Swap These Files | Schema / CLI Note |
-| --- | --- | --- |
-| **Watershed inflows** | `inflows.csv` or `hydrology.yaml` | `reservoir-experiment prepare` (`routed:` vs `runoff:`, 0 overlap) |
-| **Dam physics & routing** | `case.json` / `reservoirs.yaml` | SI units (`m3`, `m3/s`), `8.0e+6` YAML syntax, UH sum = `1.0` |
-| **Operator policy** | `rule_based.yaml` or `type: llm` + `prompts/` + `dkp.md` | Public `reservoir-action.v1` JSON (`study/formatter.py` optional) |
-| **Live LLM switch** | `models.yaml` + `information.yaml` | `ollama pull gemma4:12b`, set `max_calls`, run `--allow-network` |
-| **Peer-review bundle** | `odd_llm_manifest.json` + `archived_releases.csv` | `verify --require-offline` & `export-odd --markdown-out ODD_LLM.md` |
-
-## Launch Locally
+1. **Experiment entry YAML** (`<name>.yaml` or `experiment.yaml`): simulation dates, `case`, `models`, `agents`, `max_calls`, `output`.
+2. **Hydrology & inflows** (`hydrology/hydrology.yaml` + catchment YAML + `forcing.csv(.gz)`, or direct `inflows.csv`).
+3. **Reservoir network physics** (`case.json` or `reservoirs.yaml`): storage bounds, release limits, `unit_hydrograph` (`8.0e+6`, UH sum `= 1.0`).
+4. **Decision agents** (`*_statistics.json` for Hanasaki, or `prompts/*.txt`, optional `dkp.md`, optional `information.yaml`).
 
 ```sh
 python -m pip install -c environment/requirements-bundled.txt . jupyterlab ipykernel
-python -m jupyterlab tutorials/01_setup_and_first_run/01_setup_and_rule_baseline.ipynb
+python -m jupyterlab tutorials/01_hydrocnhs_watershed_inflows/01_hydrocnhs_watershed_inflows.ipynb
 ```
 
-Select the `.venv` kernel and run **Run → Run All Cells**. Reference manuals: [Installation & CLI](../docs/GETTING_STARTED.md) · [Reading Results & ODD+LLM](../docs/RESULTS_GUIDE.md) · [F.E. Walter](../examples/fe_walter/README.md) · [Xindian River](../examples/multi_reservoir/README.md).
+See also: [Installation & CLI](../docs/GETTING_STARTED.md) · [Key Configs & File Map](../docs/CONFIGURATION.md) · [Reading Results](../docs/RESULTS_GUIDE.md).

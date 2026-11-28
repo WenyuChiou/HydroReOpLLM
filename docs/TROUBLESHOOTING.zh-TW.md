@@ -23,7 +23,7 @@
 | `information field is unavailable` | 檢查 UTC `Z`/偏移水情時間戳記、`valid_time <= clock`、`available_at <= clock`、`issued_at <= clock`、`max_age_seconds` 與 `required`。 | [水情測站與預報](INFORMATION.zh-TW.md) |
 | `Hanasaki parity conflict` | 水庫物理限制（`minimum_release_cms`、`maximum_release_cms`、`dead_storage_m3`）截幅了 Hanasaki 目標；請使用 `rule_case.json` 相容限制。 | [操作規則與 LLM 設計](AGENT_DESIGN.zh-TW.md) |
 | 耦合輸出缺少 `summary.json` | 僅完成前處理的資料夾只含 `inflows.csv`，須待 `run` 寫入 `<output>/operation/summary.json`。 | [結果判讀與水量平衡](RESULTS_GUIDE.zh-TW.md) |
-| 逐時模擬結果異常 | 重新核對累積水深單位（`prec`/`pet`）、UTC 時間戳記、`dt_seconds` 與 GWLF 初始狀態。 | [逐時 GWLF（實驗性）](HOURLY_GWLF.zh-TW.md) |
+| 次日尺模擬結果異常 | 重新核對 `inflows.csv` 中的 UTC 時間戳記、`dt_seconds` 與單位歷線演算法（lags）。 | [時間尺度與單位](TIME_SCALES.zh-TW.md) |
 
 ## 重試前先保留中斷目錄
 

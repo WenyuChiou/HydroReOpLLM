@@ -10,7 +10,6 @@
 [![PyPI](https://img.shields.io/pypi/v/hydroreopllm?label=PyPI&color=0f766e)](https://pypi.org/project/hydroreopllm/)
 [![Python 3.12+](https://img.shields.io/badge/Python-3.12%2B-2563eb)](https://www.python.org/downloads/)
 [![BSD-3-Clause](https://img.shields.io/badge/License-BSD--3--Clause-475569)](LICENSE)
-[![ODD+LLM Reproducible](https://img.shields.io/badge/ODD%2BLLM-Reproducible-0d9488)](#oddllm-reproducibility-built-in)
 
 **English** · [繁體中文](README.zh-TW.md) · [简体中文](README.zh-CN.md)
 
@@ -26,7 +25,7 @@
 
 ## 60-Second Quickstart
 
-Requires **Python 3.12+**. Choose PyPI or a source clone, then run the zero-API-key offline baseline (`check` → `run` → `verify` → `export-odd`):
+Requires **Python 3.12+**. Choose PyPI or a source clone, then run the zero-API-key offline baseline (`check` → `run` → `verify`):
 
 ```sh
 # Option A: Install from PyPI and unpack bundled examples
@@ -44,7 +43,6 @@ python -m pip install -c environment/requirements-bundled.txt .
 reservoir-experiment check examples/fe_walter/rule_based.yaml
 reservoir-experiment run examples/fe_walter/rule_based.yaml
 reservoir-experiment verify runs/fe-walter-rule-based --require-offline
-reservoir-experiment export-odd runs/fe-walter-rule-based --markdown-out ODD_LLM_REPORT.md
 ```
 
 Use a new `run_id` and unused `output` directory before rerunning. Full CLI guide: [Installation & CLI](https://wenyuchiou.github.io/HydroReOpLLM/GETTING_STARTED.html) · [Reading Results](https://wenyuchiou.github.io/HydroReOpLLM/RESULTS_GUIDE.html).
@@ -68,49 +66,42 @@ Swap any single layer while keeping the rest of the coupled loop intact:
 | What You Want to Swap | Files & Config Keys | Manual Guide |
 | --- | --- | --- |
 | **1. Watershed hydrology & inflows** | Prepared `inflows.csv` or coupled HydroCNHS `hydrology.yaml` (`GWLF`/`ABCD`) | [Inflows & HydroCNHS](https://wenyuchiou.github.io/HydroReOpLLM/HYDROLOGY_SETUP.html) |
-| **2. Dam physics & river routing** | `case.json` / `reservoirs.yaml`, `capacity_m3`, `dead_storage_m3`, `unit_hydrograph` | [Multi-Reservoir Networks](https://wenyuchiou.github.io/HydroReOpLLM/MULTI_RESERVOIR.html) · [Experiment Setup](https://wenyuchiou.github.io/HydroReOpLLM/CONFIGURATION.html) |
+| **2. Dam physics & river routing** | `case.json` / `reservoirs.yaml`, `capacity_m3`, `dead_storage_m3`, `unit_hydrograph` | [Multi-Reservoir Networks](https://wenyuchiou.github.io/HydroReOpLLM/MULTI_RESERVOIR.html) · [Key Configs & File Map](https://wenyuchiou.github.io/HydroReOpLLM/CONFIGURATION.html) |
 | **3. Operator policy & knowledge** | Hanasaki rule, custom Python extension, or LLM `prompts/`, `dkp.md`, `rule_curve.csv` | [Rules & LLM Prompts](https://wenyuchiou.github.io/HydroReOpLLM/AGENT_DESIGN.html) |
 | **4. LLM provider & gauges/forecasts** | `models.yaml` (Ollama, OpenAI, Gemini, Anthropic) & `information.yaml` (non-leaking feeds) | [Model Providers](https://wenyuchiou.github.io/HydroReOpLLM/MODEL_PROVIDERS.html) · [Gauges & Forecasts](https://wenyuchiou.github.io/HydroReOpLLM/INFORMATION.html) |
 
 ## Hands-On Progressive Tutorials
 
-Every module runs **100% offline (`0` API cost)** and follows a consistent **Setup → Operate → Execute → Inspect Results** workflow:
+Every module runs **100% offline (`0` API cost)** and follows a natural end-to-end workflow from watershed hydrology to agent setup and simulation replay:
 
-| Module | Topic | What You Build & Verify | Guide |
+| Step | Topic | What You Build & Verify | Guide |
 | --- | --- | --- | --- |
-| **01** | Setup & First Run | Install, validate (`check`), run F.E. Walter offline Hanasaki baseline, and plot storage/release | [`01_setup_and_first_run`](tutorials/01_setup_and_first_run/README.md) |
-| **02** | LLM Prompts & Operational Knowledge (DKP) | Compare `seasonal_target.yaml` vs. `dkp.yaml`, inspect Day-1 prompts & JSON schemas, and score 2021 replay | [`02_prompt_and_knowledge_design`](tutorials/02_prompt_and_knowledge_design/README.md) |
-| **03** | Watershed Hydrology & 10-Year C&V | Load 4-subbasin Xindian `hydrology.yaml` (`GWLF`), verify 10-yr C&V (`2016–2025`), and inspect hydrographs | [`03_watershed_hydrology_and_cv`](tutorials/03_watershed_hydrology_and_cv/README.md) |
-| **04** | Multi-Reservoir Hybrid Cascade | Configure `feitsui → zhitan → xindian_outlet`, Lohmann routing, MOEA/WRA rule curve, and hybrid LLM replay | [`04_multi_reservoir_hybrid_cascade`](tutorials/04_multi_reservoir_hybrid_cascade/README.md) |
-| **05** | ODD+LLM Reproducibility & Audit | Inspect `odd_llm_manifest.json` (Blocks A–E), verify SHA-256 traces, and export ODD+LLM Markdown reports | [`05_odd_llm_reproducibility_and_audit`](tutorials/05_odd_llm_reproducibility_and_audit/README.md) |
+| **01** | HydroCNHS Watershed & Inflows | Load 4-subbasin Xindian `hydrology.yaml` (`GWLF`), verify 10-yr C&V (`2016–2025`), and inspect `inflows.csv` | [`01_hydrocnhs_watershed_inflows`](tutorials/01_hydrocnhs_watershed_inflows/README.md) |
+| **02** | Reservoir Physics & Agent Setup | Map the core config files (`experiment.yaml`, `reservoirs.yaml`, `models.yaml`, `prompts/`), inspect Day-1 prompts & `dkp.md` | [`02_reservoir_and_agent_setup`](tutorials/02_reservoir_and_agent_setup/README.md) |
+| **03** | Run Single-Reservoir Simulation | Validate (`check`), run F.E. Walter offline Hanasaki + LLM replay, inspect `summary.json`, and run `verify` | [`03_run_single_reservoir_simulation`](tutorials/03_run_single_reservoir_simulation/README.md) |
+| **04** | Run Multi-Reservoir Cascade | Configure `feitsui → zhitan → xindian_outlet`, Lohmann routing, MOEA/WRA rule curve, and hybrid LLM cascade replay | [`04_run_multi_reservoir_cascade`](tutorials/04_run_multi_reservoir_cascade/README.md) |
 | **Notebook** | F.E. Walter Interactive Walkthrough | All-in-one offline 2021 replay, Figure 3 comparison, and optional live Ollama execution | [`tutorials/fe_walter.ipynb`](tutorials/fe_walter.ipynb) |
 
-## ODD+LLM Reproducibility Built-In
+## Built-In Runtime & Model Tracking
 
-Every completed run writes `odd_llm_manifest.json` together with SHA-256-pinned `decisions.jsonl` and `raw/` traces, auditable offline via `reservoir-experiment verify` and exportable to Markdown via `reservoir-experiment export-odd`:
+Every completed simulation automatically records reproducibility and audit metadata in `summary.json` and step logs without extra export commands:
 
-| Block | Reproducibility Scope |
-| --- | --- |
-| **Block A — Cognitive Architecture** | Agent type/strategy, working memory (`history_steps`), long-term operational knowledge (`dkp.md`, rule curves), non-leaking information profile, and physical action-space bounds. |
-| **Block B — Identity** | Agent persona/role framing, prompt template IDs/versions, SHA-256 prompt hashes (`prompt_sha256`), and pinned source files. |
-| **Block C — Inference Configuration** | Exact model ID, provider/endpoint, Ollama server version, model snapshot SHA-256 digest & quantization, observed cloud model versions / `system_fingerprint`, decoding hyperparameters (`temperature`, random `seed`, `max_tokens`, `num_ctx`, `think`), retries/fallbacks, and key Python / HydroCNHS dependency versions. |
-| **Block D — Behavioral Submodel (Signature, Binding & Resolution)** | Observation/JSON output schema & parser (`Signature`), prompt variables/context/knowledge hooks (`Binding`), and empirical retry, fallback, physical-clipping, spill, and audit telemetry (`Resolution`). |
-| **Block E — Validation** | Mass-balance residuals, offline `verify` verdict, SHA-256 artifact/stream digests, and offline replay capability. |
-
-Inspect complete example reports: [`examples/fe_walter/ODD_LLM.md`](examples/fe_walter/ODD_LLM.md) · [`examples/multi_reservoir/ODD_LLM.md`](examples/multi_reservoir/ODD_LLM.md).
+- **Runtime environment (`summary.json["runtime_environment"]`)**: Python version, HydroReOpLLM and HydroCNHS core commit/dependency versions, `source_file_sha256`, and per-reservoir agent settings (`mode`, `provider`, `model`, `temperature`, `seed`, `max_tokens`, `num_ctx`).
+- **Live model snapshots**: Ollama `server_runtime_snapshot` (`server_version`, `model_digest_sha256`, `quantization_level`) and observed cloud `observed_model_versions` / `observed_system_fingerprints`.
+- **Integrity & offline audit**: SHA-256 `output_files` digests plus `decisions.jsonl`, `physics.jsonl`, `audit.jsonl`, and `raw/` traces verified offline via `reservoir-experiment verify`.
 
 ## Repository Layout, Tests & License
 
 ```text
 HydroReOpLLM/
-├── src/llm_reservoir_agent/   # Core water-balance engine, CLI, providers, ODD+LLM manifest & verifier
+├── src/llm_reservoir_agent/   # Core water-balance engine, CLI, providers, provenance & verifier
 ├── src/hydrocnhs/             # SHA-256-pinned bundled HydroCNHS hydrology (GWLF/ABCD + Lohmann)
 ├── examples/
-│   ├── fe_walter/             # Single-dam benchmark (Rule-based, seasonal_target, dkp, ODD_LLM.md)
-│   └── multi_reservoir/       # Xindian River cascade (10-yr HydroCNHS C&V, hybrid LLM, ODD_LLM.md)
-├── tutorials/                 # 5-module offline curriculum (01..05) + interactive fe_walter.ipynb
+│   ├── fe_walter/             # Single-dam benchmark (Rule-based, seasonal_target, dkp)
+│   └── multi_reservoir/       # Xindian River cascade (10-yr HydroCNHS C&V, hybrid LLM)
+├── tutorials/                 # 4-step offline curriculum (01..04) + interactive fe_walter.ipynb
 ├── docs/                      # Trilingual (EN / 繁體中文 / 简体中文) user manual sources
-└── tests/                     # Mass-balance, routing, provider, ODD+LLM, and packaging tests
+└── tests/                     # Mass-balance, routing, provider, provenance, and packaging tests
 ```
 
 Run the test suite:

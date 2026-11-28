@@ -23,7 +23,7 @@ Most path, hydrology, provider, and mass-balance errors fail fast during `reserv
 | `information field is unavailable` | Check UTC `Z`/offset timestamps, `valid_time <= clock`, `available_at <= clock`, `issued_at <= clock`, `max_age_seconds`, and `required`. | [Gauges & forecasts](INFORMATION.md) |
 | `Hanasaki parity conflict` | Reservoir bounds (`minimum_release_cms`, `maximum_release_cms`, `dead_storage_m3`) clipped the Hanasaki target; use `rule_case.json` limits. | [Rules & LLM prompts](AGENT_DESIGN.md) |
 | `coupled output has no summary.json` | A preparation-only folder holds `inflows.csv` until `run` writes `<output>/operation/summary.json`. | [Reading results](RESULTS_GUIDE.md) |
-| Hourly result looks unexpected | Recheck accumulated-depth units (`prec`/`pet`), UTC timestamps, `dt_seconds`, and GWLF initial states. | [Hourly GWLF (experimental)](HOURLY_GWLF.md) |
+| Sub-daily result looks unexpected | Recheck UTC timestamps in `inflows.csv`, `dt_seconds`, and unit-hydrograph routing lags. | [Time scales & units](TIME_SCALES.md) |
 
 ## Keep interrupted outputs before retrying
 

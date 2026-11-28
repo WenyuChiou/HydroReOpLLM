@@ -74,9 +74,8 @@ Install Python 3.12+, configure experiments, and verify outputs.
 Connect inflows, HydroCNHS catchments, river networks, and timesteps.
 
 - [Inflows & HydroCNHS](HYDROLOGY_SETUP.md)
-- [Multi-reservoir networks](MULTI_RESERVOIR.md)
+- [Reservoir network & routing](MULTI_RESERVOIR.md)
 - [Time scales & units](TIME_SCALES.md)
-- [Hourly GWLF (experimental)](HOURLY_GWLF.md)
 
 </div>
 <div class="panel-card" markdown="1">

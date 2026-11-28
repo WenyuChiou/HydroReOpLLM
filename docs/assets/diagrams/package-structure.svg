@@ -1,64 +1,50 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 320" width="960" height="320" role="img" aria-label="HydroReOpLLM package structure and configuration graph">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 320" width="960" height="320" role="img" aria-label="HydroReOpLLM 4 key user configuration layers">
   <defs>
     <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
       <path d="M 0 1 L 10 5 L 0 9 z" fill="#173334"/>
     </marker>
     <style>
-      .title { font: 700 18px system-ui, -apple-system, "Segoe UI", Arial, sans-serif; fill: #173334; }
-      .lbl { font: 700 15px system-ui, -apple-system, "Segoe UI", Arial, sans-serif; fill: #173334; }
-      .mono { font: 600 14.5px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #096c70; }
+      .title { font: 700 17px system-ui, -apple-system, "Segoe UI", Arial, sans-serif; fill: #173334; }
+      .lbl { font: 700 14px system-ui, -apple-system, "Segoe UI", Arial, sans-serif; fill: #173334; }
+      .mono { font: 600 13.5px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #096c70; }
+      .sub { font: 500 12px system-ui, -apple-system, "Segoe UI", Arial, sans-serif; fill: #34474b; }
     </style>
   </defs>
 
   <rect x="2" y="2" width="956" height="316" rx="14" fill="#f4f1ea" stroke="#34474b" stroke-width="1.5"/>
 
-  <!-- Left: Package -->
-  <rect x="20" y="20" width="420" height="280" rx="10" fill="#ffffff" stroke="#b9cbca" stroke-width="1.4"/>
-  <text x="38" y="48" class="title">Package</text>
+  <!-- Left: Layer 1 Entry YAML -->
+  <rect x="20" y="20" width="330" height="280" rx="10" fill="#ffffff" stroke="#b9cbca" stroke-width="1.4"/>
+  <text x="38" y="48" class="title">1. Experiment Entry YAML</text>
 
-  <rect x="40" y="64" width="380" height="44" rx="8" fill="#eef4f4" stroke="#096c70" stroke-width="1.5"/>
-  <text x="230" y="92" text-anchor="middle" class="mono">hydroreopllm</text>
-  <line x1="230" y1="108" x2="230" y2="128" stroke="#173334" stroke-width="1.6" marker-end="url(#arrow)"/>
+  <rect x="38" y="68" width="294" height="72" rx="8" fill="#eef4f4" stroke="#096c70" stroke-width="1.5"/>
+  <text x="185" y="96" text-anchor="middle" class="mono">rule_based.yaml / dkp.yaml</text>
+  <text x="185" y="118" text-anchor="middle" class="mono">hybrid_llm.yaml / experiment.yaml</text>
 
-  <rect x="40" y="132" width="380" height="44" rx="8" fill="#eef4f4" stroke="#096c70" stroke-width="1.5"/>
-  <text x="230" y="160" text-anchor="middle" class="mono">reservoir-experiment</text>
-  <line x1="130" y1="176" x2="130" y2="196" stroke="#173334" stroke-width="1.6" marker-end="url(#arrow)"/>
-  <line x1="330" y1="176" x2="330" y2="196" stroke="#173334" stroke-width="1.6" marker-end="url(#arrow)"/>
+  <text x="38" y="168" class="lbl">Minimal Starter Bundle:</text>
+  <text x="38" y="192" class="sub">• Rule baseline: Entry YAML + case.json + inflows.csv</text>
+  <text x="38" y="216" class="sub">• SI-unit LLM: + prompts/*.txt + models:</text>
+  <text x="38" y="240" class="sub">• Coupled HydroCNHS: + hydrology/hydrology.yaml</text>
+  <text x="38" y="264" class="sub">• Large studies: modular {file: ...} splits</text>
 
-  <rect x="40" y="200" width="182" height="44" rx="8" fill="#f6dfc6" stroke="#8a5a2b" stroke-width="1.4"/>
-  <text x="131" y="228" text-anchor="middle" class="mono">llm_reservoir_agent</text>
+  <line x1="350" y1="104" x2="392" y2="86" stroke="#173334" stroke-width="1.6" marker-end="url(#arrow)"/>
+  <line x1="350" y1="124" x2="392" y2="156" stroke="#173334" stroke-width="1.6" marker-end="url(#arrow)"/>
+  <line x1="350" y1="144" x2="392" y2="232" stroke="#173334" stroke-width="1.6" marker-end="url(#arrow)"/>
 
-  <rect x="238" y="200" width="182" height="44" rx="8" fill="#dbeaf5" stroke="#2c5f7c" stroke-width="1.4"/>
-  <text x="329" y="228" text-anchor="middle" class="mono">hydrocnhs</text>
+  <!-- Right: Layers 2-4 -->
+  <rect x="396" y="20" width="544" height="280" rx="10" fill="#ffffff" stroke="#b9cbca" stroke-width="1.4"/>
+  <text x="414" y="48" class="title">2–4. Plugged-In Basin, Inflow &amp; Agent Files</text>
 
-  <rect x="40" y="254" width="380" height="34" rx="7" fill="#c8dfd5" stroke="#2d6352" stroke-width="1.3"/>
-  <text x="230" y="276" text-anchor="middle" class="mono">examples/</text>
+  <rect x="414" y="62" width="508" height="62" rx="8" fill="#dbeaf5" stroke="#2c5f7c" stroke-width="1.4"/>
+  <text x="430" y="85" class="lbl">2. Hydrology &amp; Inflows</text>
+  <text x="430" y="109" class="mono">inflows.csv   OR   hydrology/hydrology.yaml + catchment.yaml + forcing.csv(.gz)</text>
 
-  <!-- Right: Config Graph -->
-  <rect x="460" y="20" width="480" height="280" rx="10" fill="#ffffff" stroke="#b9cbca" stroke-width="1.4"/>
-  <text x="478" y="48" class="title">Config Graph</text>
+  <rect x="414" y="136" width="508" height="62" rx="8" fill="#c8dfd5" stroke="#2d6352" stroke-width="1.4"/>
+  <text x="430" y="159" class="lbl">3. Reservoir Network Physics</text>
+  <text x="430" y="183" class="mono">case.json (or reservoirs.yaml): capacity, release bounds, unit_hydrograph</text>
 
-  <rect x="480" y="132" width="148" height="52" rx="8" fill="#eef4f4" stroke="#096c70" stroke-width="1.5"/>
-  <text x="554" y="164" text-anchor="middle" class="mono">experiment.yaml</text>
-
-  <line x1="628" y1="142" x2="658" y2="82" stroke="#173334" stroke-width="1.5" marker-end="url(#arrow)"/>
-  <line x1="628" y1="150" x2="658" y2="124" stroke="#173334" stroke-width="1.5" marker-end="url(#arrow)"/>
-  <line x1="628" y1="158" x2="658" y2="166" stroke="#173334" stroke-width="1.5" marker-end="url(#arrow)"/>
-  <line x1="628" y1="166" x2="658" y2="210" stroke="#173334" stroke-width="1.5" marker-end="url(#arrow)"/>
-  <line x1="628" y1="174" x2="658" y2="256" stroke="#173334" stroke-width="1.5" marker-end="url(#arrow)"/>
-
-  <rect x="662" y="64" width="260" height="36" rx="7" fill="#dbeaf5" stroke="#2c5f7c" stroke-width="1.3"/>
-  <text x="792" y="87" text-anchor="middle" class="mono">reservoirs.yaml</text>
-
-  <rect x="662" y="108" width="260" height="36" rx="7" fill="#dbeaf5" stroke="#2c5f7c" stroke-width="1.3"/>
-  <text x="792" y="131" text-anchor="middle" class="mono">hydrology.yaml</text>
-
-  <rect x="662" y="152" width="260" height="36" rx="7" fill="#f6dfc6" stroke="#8a5a2b" stroke-width="1.3"/>
-  <text x="792" y="175" text-anchor="middle" class="mono">agents.*.yaml</text>
-
-  <rect x="662" y="196" width="260" height="36" rx="7" fill="#eef4f4" stroke="#096c70" stroke-width="1.3"/>
-  <text x="792" y="219" text-anchor="middle" class="mono">models.yaml / information.yaml</text>
-
-  <rect x="662" y="240" width="260" height="36" rx="7" fill="#c8dfd5" stroke="#2d6352" stroke-width="1.3"/>
-  <text x="792" y="263" text-anchor="middle" class="mono">auditors.yaml / extensions/</text>
+  <rect x="414" y="210" width="508" height="72" rx="8" fill="#f6dfc6" stroke="#8a5a2b" stroke-width="1.4"/>
+  <text x="430" y="233" class="lbl">4. Reservoir Decision Agents &amp; Providers</text>
+  <text x="430" y="255" class="mono">*_statistics.json (Hanasaki)  |  prompts/*.txt + dkp.md + models: (LLM)</text>
+  <text x="430" y="273" class="sub">Optional: information.yaml (gauges/forecasts) · study/* (only for site units / paper replay)</text>
 </svg>

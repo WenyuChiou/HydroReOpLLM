@@ -56,7 +56,6 @@ reservoir-experiment init-examples
 | `reservoir-experiment prepare` | 僅限耦合 HydroCNHS：先跑集水區水文模式並輸出 `inflows.csv`。 |
 | `reservoir-experiment run` | 執行模擬並將結果寫入全新資料夾（即時 LLM 須加 `--allow-network`）。 |
 | `reservoir-experiment verify` | 查核 `<output>` 的水量平衡、河道演算、水情時序（可加 `--require-offline`）。 |
-| `reservoir-experiment export-odd` | 由 `<output>` 讀取或建立 `odd_llm_manifest.json`，並可透過 `--markdown-out` 匯出 ODD+LLM 可重現性報告。 |
 | `reservoir-experiment resume` | 由 `--from-run` 重播已完成步驟，並以新 `--output` 與 `--run-id` 接續跑完。 |
 
 ## 快速執行範例指令

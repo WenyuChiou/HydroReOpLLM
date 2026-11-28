@@ -66,7 +66,6 @@ hydrocnhs = ["Config_logging.yaml"]
     "examples/fe_walter/seasonal_target.yaml",
     "examples/fe_walter/dkp.yaml",
     "examples/fe_walter/dkp.md",
-    "examples/fe_walter/ODD_LLM.md",
 ]
 "share/llm-reservoir-agent/examples/fe_walter/prompts" = [
     "examples/fe_walter/prompts/seasonal_target.system.txt",
@@ -99,7 +98,6 @@ hydrocnhs = ["Config_logging.yaml"]
     "examples/multi_reservoir/reference_inflows.csv",
     "examples/multi_reservoir/feitsui_statistics.json",
     "examples/multi_reservoir/zhitan_statistics.json",
-    "examples/multi_reservoir/ODD_LLM.md",
 ]
 "share/llm-reservoir-agent/examples/multi_reservoir/prompts" = [
     "examples/multi_reservoir/prompts/feitsui.system.txt",

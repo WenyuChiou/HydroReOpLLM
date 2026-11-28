@@ -74,9 +74,8 @@
 準備區域入流、設定 HydroCNHS 與多水庫串接。
 
 - [入流與 HydroCNHS 設定](HYDROLOGY_SETUP.zh-TW.md)
-- [多水庫河網串接](MULTI_RESERVOIR.zh-TW.md)
+- [水庫物理與河網串接](MULTI_RESERVOIR.zh-TW.md)
 - [時間尺度與單位](TIME_SCALES.zh-TW.md)
-- [逐時 GWLF（實驗性）](HOURLY_GWLF.zh-TW.md)
 
 </div>
 <div class="panel-card" markdown="1">

@@ -35,8 +35,7 @@ The F.E. Walter and multi-reservoir examples run in **daily mode** (`dt_seconds:
 ### Sub-daily fixed interval (`v3`)
 
 - Uses UTC `start_time` and exclusive `end_time` (`...Z`).
-- `inflows.csv` uses column `timestamp` (`interval-node-local-cms.v1`).
-- Coupled hourly HydroCNHS supports `3600` s (`1800` / `900` s in `run_GWLF_hourly` & `v3` routing).
+- `inflows.csv` uses column `timestamp` (`interval-node-local-cms.v1`) to supply precomputed fixed-interval inflows for `v3` routing.
 
 </div>
 </div>
@@ -50,4 +49,4 @@ time:
 ```
 
 - `output_step` exports `network_flows_<output_step>.csv` and `reservoir_trajectory_<output_step>.csv` alongside the native step CSVs.
-- Never relabel daily forcing or daily unit hydrographs as hourly; finer timesteps require interval-aligned forcing, routing lags, and `supported_dt_seconds`. Continue with [Hourly GWLF (experimental)](HOURLY_GWLF.md).
+- Never relabel daily forcing or daily unit hydrographs as hourly; finer timesteps require interval-aligned precomputed `inflows.csv`, routing lags, and `supported_dt_seconds`.
