@@ -24,8 +24,8 @@ docs = ["mkdocs[i18n]==1.6.1"]
 gis = ["shapely>=2,<3", "pyproj>=3,<4"]
 
 [project.scripts]
-llm-reservoir-daily = "llm_reservoir_agent.experiment:main"
-reservoir-experiment = "llm_reservoir_agent.workflow:main"
+llm-reservoir-daily = "llm_reservoir_agent.simulation.runner:main"
+reservoir-experiment = "llm_reservoir_agent.cli:main"
 
 [tool.pytest.ini_options]
 # Test this checkout even if another worktree is installed in editable mode.
@@ -52,7 +52,7 @@ hydrocnhs = ["Config_logging.yaml"]
 "share/llm-reservoir-agent/hydrocnhs" = ["third_party/hydrocnhs/LICENSE", "third_party/hydrocnhs/SOURCE.json", "third_party/hydrocnhs/upstream-pyproject.toml"]
 "share/llm-reservoir-agent/hydrocnhs/patches" = ["third_party/hydrocnhs/patches/visual-indicator-api.patch", "third_party/hydrocnhs/patches/gwlf-groundwater-diagnostics.patch"]
 "share/llm-reservoir-agent/environment" = ["environment/hydrocnhs-core.json"]
-"share/llm-reservoir-agent/examples" = ["examples/README.md", "examples/README.zh-TW.md", "examples/README.zh-CN.md", "examples/llm_reservoir_abm.py"]
+"share/llm-reservoir-agent/examples" = ["examples/README.md", "examples/README.zh-TW.md", "examples/README.zh-CN.md"]
 "share/llm-reservoir-agent/examples/fe_walter" = [
     "examples/fe_walter/README.md",
     "examples/fe_walter/README.zh-TW.md",

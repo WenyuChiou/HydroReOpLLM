@@ -94,7 +94,8 @@ reservoir-experiment verify runs/fe-walter-rule-based --require-offline
 
 ```text
 HydroReOpLLM/
-├── src/llm_reservoir_agent/   # 水量平衡引擎、CLI、模型服務、執行環境紀錄與驗證器
+├── src/llm_reservoir_agent/   # 5 大領域子套件：config/、hydrology/、operators/、information/、simulation/（含 cli.py）
+│   └── README.md              # 單頁式原始碼模組與資料流地圖
 ├── src/hydrocnhs/             # SHA-256 鎖定之內附 HydroCNHS 水文模式（GWLF/ABCD + Lohmann）
 ├── examples/
 │   ├── fe_walter/             # 單一水庫基準（Rule-based、seasonal_target、dkp）
